@@ -178,6 +178,22 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '2 new evaluation(s)', $body, 'precondition: the nudge was sent' );
         $this->assertStringNotContainsString( 'goal', $body );
         $this->assertStringNotContainsString( "\n\n\n", $body );
+        $this->assertStringContainsString( "happening with Card Childx:", $body, 'one count left keeps its heading' );
+    }
+
+    public function test_the_inactive_parent_nudge_drops_its_heading_with_both_counts_hidden(): void {
+        $this->hideEvaluations();
+        ( new PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'goals', false );
+        AuthorizationService::flushCache();
+
+        $en = $this->nudgeBody();
+        $this->assertStringContainsString( "We haven't seen you log in for a while.\n\nTake a look: ", $en );
+        $this->assertStringNotContainsString( 'happening', $en );
+        $this->assertStringNotContainsString( 'Card Childx', $en );
+
+        $nl = $this->nudgeBody( 'nl_NL' );
+        $this->assertStringContainsString( "We hebben je een tijdje niet zien inloggen.\n\nKijk eens: ", $nl );
+        $this->assertStringNotContainsString( 'gebeurd', $nl );
     }
 
     public function test_the_teams_coach_still_sees_the_scores(): void {
@@ -270,7 +286,7 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
     }
 
     /** The body of the inactive-parent nudge, as the parent would read it. */
-    private function nudgeBody(): string {
+    private function nudgeBody( string $locale = 'en_US' ): string {
         update_user_meta( $this->parent, 'last_login', gmdate( 'Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS ) );
         delete_user_meta( $this->parent, 'tt_comms_onboarding_nudge_at' );
         $sent    = null;
@@ -285,7 +301,7 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         $this->assertIsArray( $sent, 'precondition: the nudge was dispatched' );
 
         $request = new CommsRequest( 'onboarding_nudge_inactive', 'onboarding_nudge_inactive', 1, 0, [], $sent );
-        return ( new OnboardingNudgeInactiveTemplate() )->render( 'email', $request, Recipient::parent( $this->parent, $this->player ), 'en_US' )[1];
+        return ( new OnboardingNudgeInactiveTemplate() )->render( 'email', $request, Recipient::parent( $this->parent, $this->player ), $locale )[1];
     }
 
     private function row(): object {

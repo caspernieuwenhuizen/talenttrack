@@ -40,10 +40,19 @@ final class OnboardingNudgeInactiveTemplate extends AbstractTemplate {
     }
 
     protected function shapeCopy( array $copy, array $payload ): array {
-        $body = $copy[1];
+        $body  = str_replace( "\r\n", "\n", $copy[1] );
+        $shown = 0;
         foreach ( self::COUNT_TOKENS as $token ) {
-            if ( isset( $payload[ $token ] ) ) continue;
+            if ( isset( $payload[ $token ] ) ) {
+                $shown++;
+                continue;
+            }
             $body = (string) preg_replace( '/^[^\n]*\{' . $token . '\}[^\n]*(\n|$)/m', '', $body );
+        }
+        // With no count left, the sentence that introduced them, the one
+        // ending a line in a colon, goes too.
+        if ( $shown === 0 ) {
+            $body = (string) preg_replace( '/(^|(?<=[.!?]) )[^.!?\n]*:[ \t]*$/m', '', $body );
         }
         $body = (string) preg_replace( '/\n{3,}/', "\n\n", $body );
         return [ $copy[0], $body ];
