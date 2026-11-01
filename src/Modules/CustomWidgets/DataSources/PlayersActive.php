@@ -126,7 +126,10 @@ final class PlayersActive implements CustomDataSource {
 
         [ $where, $params ] = $this->whereFor( $filters );
 
-        $sql = "SELECT p.id, p.first_name, p.last_name, p.position, p.status, p.team_id, p.date_of_birth,
+        // #4566 — `tt_players` has no `position` column (it is
+        // `preferred_positions`), so this query failed on every call and the
+        // source returned no rows at all.
+        $sql = "SELECT p.id, p.first_name, p.last_name, p.preferred_positions AS position, p.status, p.team_id, p.date_of_birth,
                        t.name AS team_name
                   FROM {$p}tt_players p
              LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
