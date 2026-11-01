@@ -261,6 +261,37 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( 15, (int) $corrected['minutes'][ $this->player ], 'a correction still wins' );
     }
 
+    /**
+     * The tournament day is a roll-up of its fixture rows, so it takes the
+     * same fallback they do: the day equals the sum of the fixtures, the
+     * legacy one at the plan's twenty included.
+     */
+    public function test_the_audit_day_rolls_up_the_fixtures_with_the_fallback(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'             => 1,
+            'team_id'             => self::TEAM,
+            'tournament_id'       => $this->tournament,
+            'title'               => 'Toernooidag',
+            'session_date'        => self::DATE,
+            'activity_type_key'   => 'tournament',
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
+        ] );
+        $day = (int) $wpdb->insert_id;
+
+        $day_row = $this->auditRow( $day );
+        $sum     = 0;
+        foreach ( [ 'corrected', 'confirmed_zero', 'legacy_empty', 'uncompleted' ] as $key ) {
+            $fixture = $this->auditRow( $this->fixtures[ $key ]['activity_id'] );
+            $sum    += (int) ( $fixture['minutes'][ $this->player ] ?? 0 );
+        }
+
+        $this->assertTrue( (bool) $day_row['is_rollup'] );
+        $this->assertSame( 15 + 0 + 2 * self::PERIOD, (int) $day_row['minutes'][ $this->player ], 'corrected 15 + confirmed 0 + the legacy fixture\'s plan' );
+        $this->assertSame( $sum, (int) $day_row['minutes'][ $this->player ], 'the day is the sum of its fixture rows' );
+    }
+
     public function test_the_audit_leaves_a_league_match_as_it_was(): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
