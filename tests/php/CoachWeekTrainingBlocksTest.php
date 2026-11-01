@@ -82,9 +82,9 @@ final class CoachWeekTrainingBlocksTest extends WP_UnitTestCase {
 
         $this->assertSame( [ 'present' => 2, 'recorded' => 3 ], $rows[ $tuesday ]['attendance_rate'], 'Late counts as attended; the base is the recorded rows' );
         $expected = (string) LookupTranslator::byTypeAndName( 'vct_tactical_theme', 'pressing' );
-        $this->assertSame( $expected !== '' ? $expected : 'pressing', $rows[ $tuesday ]['theme'] );
+        $this->assertSame( $expected !== '' ? $expected : 'pressing', $rows[ $tuesday ]['training_theme'] );
 
-        $this->assertNull( $rows[ $thursday ]['theme'], 'no plan, no theme' );
+        $this->assertNull( $rows[ $thursday ]['training_theme'], 'no plan, no theme' );
         $this->assertNull( $rows[ $thursday ]['attendance_rate'], 'an upcoming training has no attendance yet' );
     }
 
@@ -109,9 +109,12 @@ final class CoachWeekTrainingBlocksTest extends WP_UnitTestCase {
 
     public function test_the_query_count_does_not_grow_with_the_number_of_trainings(): void {
         // Week of 9 November: eight past trainings, each with a plan and a register. Week of 16 November: one.
-        foreach ( [ '2026-11-09', '2026-11-09', '2026-11-10', '2026-11-10', '2026-11-11', '2026-11-11', '2026-11-12', '2026-11-12' ] as $date ) {
+        // Three different themes among the eight, so a label read per theme
+        // rather than per vocabulary would show up as extra queries.
+        $themes = [ 'pressing', 'build_up', 'finishing' ];
+        foreach ( [ '2026-11-09', '2026-11-09', '2026-11-10', '2026-11-10', '2026-11-11', '2026-11-11', '2026-11-12', '2026-11-12' ] as $i => $date ) {
             $aid = $this->training( $date );
-            $this->runPlan( $aid, 'pressing' );
+            $this->runPlan( $aid, $themes[ $i % 3 ] );
             $this->record( $aid, [ 'Present', 'Late' ] );
         }
         $one = $this->training( '2026-11-16' );
@@ -128,29 +131,67 @@ final class CoachWeekTrainingBlocksTest extends WP_UnitTestCase {
         $this->assertSame( count( $single['sql'] ), count( $eight['sql'] ), "one query per source, whatever the number of trainings. With eight:\n" . implode( "\n", $eight['sql'] ) );
     }
 
+    public function test_another_teams_training_never_reaches_the_coach(): void {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'JO12-1' ] );
+        $other_team = (int) $wpdb->insert_id;
+        $wpdb->insert( $wpdb->prefix . 'tt_activities', [
+            'club_id' => 1, 'team_id' => $other_team, 'title' => 'Other training', 'session_date' => '2026-11-03',
+            'start_time' => '18:30:00', 'activity_type_key' => 'training',
+        ] );
+        $other = (int) $wpdb->insert_id;
+        $this->runPlan( $other, 'set_pieces' );
+        foreach ( [ 'Present', 'Present', 'Late' ] as $i => $status ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_attendance', [
+                'club_id' => 1, 'activity_id' => $other, 'player_id' => 900000 + $i, 'status' => $status, 'record_type' => 'actual',
+            ] );
+        }
+        ActivityRegisterProgress::forget();
+
+        $this->assertArrayNotHasKey( $other, $this->rowsFor( '2026-11-04' ), 'a team the coach has no scope on is not in their week' );
+
+        global $wp_rest_server;
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+        $res = rest_do_request( new \WP_REST_Request( 'GET', '/talenttrack/v1/me/week' ) );
+        $wp_rest_server = null;
+        $this->assertSame( 200, $res->get_status() );
+        $ids = array_column( (array) ( $res->get_data()['data']['rows'] ?? [] ), 'activity_id' );
+        $this->assertNotContains( $other, array_map( 'intval', $ids ) );
+
+        $method = new \ReflectionMethod( \TT\Shared\Frontend\FrontendTileGrid::class, 'renderWeekPanel' );
+        $method->setAccessible( true );
+        ob_start();
+        $method->invoke( null, CoachWeek::forUser( $this->coach, '2026-11-04' ) );
+        $html = (string) ob_get_clean();
+        $label = (string) LookupTranslator::byTypeAndName( 'vct_tactical_theme', 'set_pieces' );
+        $this->assertStringNotContainsString( $label !== '' ? $label : 'set_pieces', $html );
+        $this->assertStringNotContainsString( '3 of 3 present', $html );
+    }
+
     public function test_both_blocks_are_switches_under_trainings_with_the_issue_defaults(): void {
         $method = new \ReflectionMethod( FrontendConfigurationView::class, 'renderCoachWeekConfig' );
         $method->setAccessible( true );
         ob_start();
         $method->invoke( null, [ 'head_coach' => 'Head coach' ] );
         $html = (string) ob_get_clean();
-        foreach ( [ 'theme', 'att_rate' ] as $key ) {
+        foreach ( [ 'training_theme', 'att_rate' ] as $key ) {
             $this->assertStringContainsString( 'data-tt-coach-week-block="' . $key . '" data-tt-coach-week-device="desktop"', $html );
             $this->assertStringContainsString( 'data-tt-coach-week-block="' . $key . '" data-tt-coach-week-device="phone"', $html );
             $this->assertSame( 'training', WeekBlockRegistry::get( $key )->group() );
         }
 
         $defaults = CoachWeek::defaultSettings();
-        $this->assertContains( 'theme', $defaults['head_coach']['desktop'] );
+        $this->assertContains( 'training_theme', $defaults['head_coach']['desktop'] );
         $this->assertContains( 'att_rate', $defaults['head_coach']['desktop'] );
-        $this->assertContains( 'theme', $defaults['assistant_coach']['desktop'] );
+        $this->assertContains( 'training_theme', $defaults['assistant_coach']['desktop'] );
         $this->assertNotContains( 'att_rate', $defaults['assistant_coach']['desktop'] );
         foreach ( CoachWeek::PERSONAS as $persona ) {
-            $this->assertNotContains( 'theme', $defaults[ $persona ]['phone'], $persona );
+            $this->assertNotContains( 'training_theme', $defaults[ $persona ]['phone'], $persona );
             $this->assertNotContains( 'att_rate', $defaults[ $persona ]['phone'], $persona );
         }
         foreach ( [ 'team_manager', 'head_of_development', 'academy_admin', 'scout', 'readonly_observer' ] as $persona ) {
-            $this->assertNotContains( 'theme', $defaults[ $persona ]['desktop'], $persona );
+            $this->assertNotContains( 'training_theme', $defaults[ $persona ]['desktop'], $persona );
             $this->assertNotContains( 'att_rate', $defaults[ $persona ]['desktop'], $persona );
         }
     }
@@ -175,7 +216,7 @@ final class CoachWeekTrainingBlocksTest extends WP_UnitTestCase {
         add_filter( 'query', $capture );
         $week = CoachWeek::forUser( $this->coach, $today );
         remove_filter( 'query', $capture );
-        $rated = count( array_filter( $week['rows'], static fn( $r ) => $r['attendance_rate'] !== null && $r['theme'] !== null ) );
+        $rated = count( array_filter( $week['rows'], static fn( $r ) => $r['attendance_rate'] !== null && $r['training_theme'] !== null ) );
         return [ 'sql' => $sql, 'rated' => $rated ];
     }
 

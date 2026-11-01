@@ -20,7 +20,7 @@ use TT\Modules\Training\TrainingModule;
  */
 final class TrainingThemeBlock extends AbstractWeekBlock {
 
-    public function key(): string { return 'theme'; }
+    public function key(): string { return 'training_theme'; }
 
     public function group(): string { return WeekBlockGroup::TRAINING; }
 
@@ -35,7 +35,7 @@ final class TrainingThemeBlock extends AbstractWeekBlock {
         return $persona === 'head_coach' || $persona === 'assistant_coach';
     }
 
-    public function rowDefaults(): array { return [ 'theme' => null ]; }
+    public function rowDefaults(): array { return [ 'training_theme' => null ]; }
 
     public function rowFields( WeekRow $row, WeekContext $week ): array {
         if ( $row->type !== ActivityTypeKey::TRAINING || ! $week->canSeeTeam( $row->teamId ) ) return [];
@@ -43,6 +43,6 @@ final class TrainingThemeBlock extends AbstractWeekBlock {
         $key    = (string) ( $themes[ $row->activityId ] ?? '' );
         if ( $key === '' ) return [];
         $label = $week->once( 'training_theme_label:' . $key, static fn(): string => (string) LookupTranslator::byTypeAndName( 'vct_tactical_theme', $key ) );
-        return [ 'theme' => $label !== '' ? $label : $key ];
+        return [ 'training_theme' => $label !== '' ? $label : $key ];
     }
 }

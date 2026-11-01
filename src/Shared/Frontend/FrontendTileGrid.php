@@ -1018,8 +1018,8 @@ class FrontendTileGrid {
                 (int) ( $row['attendance_rate']['recorded'] ?? 0 )
             ), 'att_rate' ];
         }
-        if ( is_string( $row['theme'] ?? null ) && $row['theme'] !== '' ) {
-            $chips[] = [ 'neutral', (string) $row['theme'], 'theme' ];
+        if ( is_string( $row['training_theme'] ?? null ) && $row['training_theme'] !== '' ) {
+            $chips[] = [ 'neutral', (string) $row['training_theme'], 'training_theme' ];
         }
         if ( is_array( $row['availability'] ?? null ) ) {
             $available   = (int) ( $row['availability']['available'] ?? 0 );
