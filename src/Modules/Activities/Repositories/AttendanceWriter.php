@@ -553,12 +553,6 @@ final class AttendanceWriter {
     }
 
     /**
-     * #2731 — say that an activity's attendance rows changed.
-     *
-     * Static so the two paths that still write outside an instance method
-     * (and any future one) can announce without holding a writer.
-     */
-    /**
      * The players who took part in an activity: a recorded register row
      * (`actual`) marked present or late. A linked guest counts through
      * `guest_player_id`, the column a guest row names its player in; an
@@ -626,6 +620,12 @@ final class AttendanceWriter {
         return $ids;
     }
 
+    /**
+     * #2731 — say that an activity's attendance rows changed.
+     *
+     * Static so the two paths that still write outside an instance method
+     * (and any future one) can announce without holding a writer.
+     */
     public static function announce( int $activity_id ): void {
         if ( $activity_id <= 0 ) return;
 
