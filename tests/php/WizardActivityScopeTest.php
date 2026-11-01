@@ -113,6 +113,19 @@ final class WizardActivityScopeTest extends WP_UnitTestCase {
         $this->assertSame( [ $this->own_player ], $this->actualPlayers( $this->own_activity ) );
     }
 
+    public function test_an_activity_without_a_team_lists_and_writes_no_players(): void {
+        $loose    = $this->player( 0, 'Loosewiz' );
+        $teamless = $this->activity( 0 );
+        $this->assertTrue( ActivityAccess::canWriteActivity( $this->coach, $teamless ), 'precondition: the activity itself is open to the coach' );
+
+        $this->assertStringNotContainsString( 'Loosewiz', $this->roster( $teamless ) );
+        ( new AttendanceStep() )->validate(
+            [ 'attendance' => [ (string) $loose => 'present' ] ],
+            [ '_path' => 'activity-first', 'activity_id' => $teamless ]
+        );
+        $this->assertSame( [], $this->actualPlayers( $teamless ) );
+    }
+
     public function test_another_teams_activity_is_not_completed_or_marked_skipped(): void {
         ( new RateConfirmStep() )->submit( [
             '_path' => 'activity-first', 'activity_id' => $this->other_activity, '_skip_closes_rating' => 1,

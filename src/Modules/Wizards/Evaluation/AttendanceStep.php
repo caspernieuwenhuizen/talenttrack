@@ -476,6 +476,9 @@ final class AttendanceStep implements WizardStepInterface {
             "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
             $activity_id, CurrentClub::id()
         ) );
+        // An activity without a team has no roster. Read as `team_id = 0`
+        // it would be every player not on a team.
+        if ( $team_id <= 0 ) return [];
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, first_name, last_name, jersey_number FROM {$p}tt_players
