@@ -423,11 +423,9 @@ class MatchExecutionRepository {
     public function contributionsProblem( int $activity_id, array $counts ): ?array {
         if ( $activity_id <= 0 || $counts === [] ) return null;
 
-        // The activity through the activities repository (demo-scoped,
-        // archived included). That read does not filter on the club, so the
-        // club is checked here.
-        $match = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
-        if ( $match !== null && (int) ( $match->club_id ?? 0 ) !== (int) CurrentClub::id() ) $match = null;
+        // The activity through the activities repository: club- and
+        // demo-scoped, archived included.
+        $match  = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
         $stored = $match !== null ? ( $match->home_score ?? null ) : null;
         $score  = $stored !== null ? (int) $stored : null;
         $scored = $score !== null;
