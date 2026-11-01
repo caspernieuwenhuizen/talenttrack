@@ -26,7 +26,8 @@
     gap: var(--tt-sp-2, 0.5rem);
 }
 
-.tt-week-title {
+/* Scoped to .tt-week (0,2,0) so a theme's .tt-dashboard h2 (0,1,1) does not win. */
+.tt-week .tt-week-title {
     margin: 0;
     font-size: calc(0.625rem * var(--tt-tile-scale, 1));
     font-weight: 700;
@@ -297,7 +298,8 @@ a.tt-week-row:active {
     gap: var(--tt-sp-2, 0.5rem);
 }
 
-.tt-week-next-title {
+/* Scoped to .tt-week (0,2,0) so a theme's .tt-dashboard h3 (0,1,1) does not win. */
+.tt-week .tt-week-next-title {
     margin: 0;
     font-size: 0.65rem;
     font-weight: 700;
