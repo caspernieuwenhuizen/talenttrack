@@ -373,17 +373,17 @@
     }
 
     function loadPlanner( tournamentId, matchId, body ) {
-        body.innerHTML = '<p class="tt-muted">Loading planner…</p>';
+        body.innerHTML = '<p class="tt-muted">' + escapeHtml( i18n( 'plannerLoading', 'Loading planner…' ) ) + '</p>';
         api( 'GET', 'tournaments/' + tournamentId + '/matches/' + matchId + '/planner' )
             .then( function ( res ) {
                 if ( ! res.ok || ! res.json || ! res.json.data ) {
-                    body.innerHTML = '<p class="tt-notice tt-notice-error">Could not load the planner.</p>';
+                    body.innerHTML = '<p class="tt-notice tt-notice-error">' + escapeHtml( i18n( 'plannerFailed', 'Could not load the planner.' ) ) + '</p>';
                     return;
                 }
                 renderPlanner( res.json.data, body, tournamentId, matchId );
             } )
             .catch( function () {
-                body.innerHTML = '<p class="tt-notice tt-notice-error">Could not load the planner.</p>';
+                body.innerHTML = '<p class="tt-notice tt-notice-error">' + escapeHtml( i18n( 'plannerFailed', 'Could not load the planner.' ) ) + '</p>';
             } );
     }
 
@@ -537,7 +537,7 @@
         } );
 
         // Bench row.
-        html += '<tr class="tt-planner-bench-row"><th class="tt-planner-slot-label">' + escapeHtml( 'BENCH' ) + '</th>';
+        html += '<tr class="tt-planner-bench-row"><th class="tt-planner-slot-label">' + escapeHtml( i18n( 'bench', 'Bench' ) ) + '</th>';
         for ( var p = 0; p < periods; p++ ) {
             html += '<td class="tt-planner-cell tt-planner-bench" data-period="' + p + '" data-position="BENCH">';
             var benchIds = idx.bench[ p ] || [];
@@ -566,7 +566,7 @@
         html += '</tr>';
 
         html += '</tbody></table></div>';
-        html += '<p class="tt-muted" style="font-size:12px;margin-top:6px;">Click a player chip, then click another cell to swap. Click the same chip again to deselect. Arrows mark substitutions.</p>';
+        html += '<p class="tt-muted" style="font-size:12px;margin-top:6px;">' + escapeHtml( i18n( 'plannerHelp', 'Click a player chip, then click another cell to swap. Click the same chip again to deselect. Arrows mark substitutions.' ) ) + '</p>';
         body.innerHTML = html;
 
         wireInteractions( body );
@@ -615,11 +615,15 @@
         }
 
         var html = '<div class="tt-planner-subs-summary">';
-        html += '<h4 class="tt-planner-subs-title">Planned substitutions</h4>';
+        html += '<h4 class="tt-planner-subs-title">' + escapeHtml( i18n( 'plannedSubs', 'Planned substitutions' ) ) + '</h4>';
         blocks.forEach( function ( b ) {
+            var n = b.swaps.length;
+            var count = n === 0
+                ? i18n( 'noChanges', 'no changes' )
+                : i18n( n === 1 ? 'changesOne' : 'changesMany', n === 1 ? '%d change' : '%d changes' ).replace( '%d', String( n ) );
             html += '<div class="tt-planner-subs-window">';
             html += '<header><strong>@' + b.window_min + "'</strong> ";
-            html += '<span class="tt-muted">(' + ( b.swaps.length === 0 ? 'no changes' : b.swaps.length + ' change' + ( b.swaps.length === 1 ? '' : 's' ) ) + ')</span>';
+            html += '<span class="tt-muted">(' + escapeHtml( count ) + ')</span>';
             html += '</header>';
             if ( b.swaps.length ) {
                 html += '<ul class="tt-planner-subs-list">';
