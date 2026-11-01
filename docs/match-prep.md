@@ -220,7 +220,7 @@ same layout.
 ## Player names — short form
 
 Every player label on the match-prep surface — roster column, pitch
-slot labels, Tasks per player column, Rollen pane, availability drawer
+slot labels, Player focus panel, Roles & set pieces pane, availability drawer
 — renders as the player's **first name only** (`Daan`, `Senna`,
 `Javi`). The full name is reserved for the player's own profile and
 the team roster pages.
