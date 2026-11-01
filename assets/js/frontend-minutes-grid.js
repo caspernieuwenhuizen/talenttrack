@@ -580,7 +580,18 @@
 		function otherWrites() {
 			var writes = [];
 			if ( dirty.size > 0 && CFG.restBulk ) {
-				writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ) );
+				// A skipped change was not written (a team the save may not
+				// change, a player with no squad row). The response counts
+				// them without naming them, so it fails the whole save and
+				// every edit stays dirty.
+				writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ).then( function ( payload ) {
+					var skipped = parseInt( ( payload.data && payload.data.skipped ) || 0, 10 ) || 0;
+					if ( skipped > 0 ) {
+						refusal = ( I18N.skipped || '' ).replace( '%d', String( skipped ) );
+						throw new Error( 'save_skipped' );
+					}
+					return payload;
+				} ) );
 			}
 			if ( dirtyStats.size > 0 && CFG.restStats ) {
 				collectStatPayloads().forEach( function ( payload ) {

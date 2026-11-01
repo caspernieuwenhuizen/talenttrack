@@ -41,6 +41,7 @@ Open de activiteit en klik op **Beoordelingsraster**. De knop verschijnt als je 
 - **Gewijzigde cellen worden gemarkeerd** tot je op Opslaan drukt, zodat je ziet wat nog openstaat.
 - **Toetsenbord**: pijltjes gaan van cel naar cel, Enter gaat een rij omlaag (zoals je één categorie door de selectie heen beoordeelt), Tab bereikt eerst Annuleren en dan Opslaan.
 - **Opslaan is expliciet.** Er wordt niets weggeschreven tot je erop drukt, en Annuleren brengt je terug naar de activiteit zonder op te slaan.
+- **Een team dat je niet mag bewerken opent alleen-lezen.** De vastgelegde cijfers staan er als tekst, zonder velden en zonder **Beoordelingen opslaan**, en een notitie onder het raster zegt dat. Wordt een opslag toch geweigerd, dan meldt de regel onder het raster hoeveel wijzigingen niet zijn opgeslagen en blijven de cellen als niet-opgeslagen gemarkeerd; het raster meldt nooit *Alle wijzigingen opgeslagen* voor cijfers die het niet heeft vastgelegd.
 
 Twee keer opslaan is veilig: het raster werkt de bestaande beoordeling van de speler voor die activiteit bij in plaats van een tweede aan te maken, dus cijfers stapelen zich nooit op.
 

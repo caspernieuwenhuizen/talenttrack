@@ -3,8 +3,8 @@ namespace TT\Modules\Activities\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
 use TT\Modules\Activities\Services\ActivityCompletionResolver;
 use TT\Modules\Activities\Services\ActivityGridLink;
@@ -82,6 +82,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 'noChanges' => __( 'No unsaved changes', 'talenttrack' ),
                 /* translators: %d is the number of unsaved cell changes. */
                 'unsaved'   => __( '%d unsaved change(s)', 'talenttrack' ),
+                /* translators: %d is the number of cell changes the server skipped. */
+                'skipped'   => __( "%d change(s) were not saved: you can't change this team", 'talenttrack' ),
                 'confirm'   => __( 'You have unsaved changes. Leave without saving?', 'talenttrack' ),
                 // #3337 — the same question for an in-place filter change.
                 'confirm_filter' => __( 'You have unsaved changes. Change the filter and lose them?', 'talenttrack' ),
@@ -135,11 +137,13 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
         self::renderModeNav();
 
+        // Academy-wide readers see every team. Everyone else is offered the
+        // teams `POST /minutes/bulk` will write for them, so an ended or
+        // future assignment does not list a team whose save would be skipped.
+        $writable_team_ids = ActivityAccess::writableTeamIds( $user_id );
         $is_scope_admin = $is_admin
             || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
-        $allowed_team_ids = $is_scope_admin
-            ? null
-            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+        $allowed_team_ids = $is_scope_admin ? null : $writable_team_ids;
 
         if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
             echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there are no minutes to record. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
@@ -195,7 +199,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             return;
         }
 
-        self::renderGrid( $matrix );
+        $team_writable = $writable_team_ids === null || in_array( $team_id, $writable_team_ids, true );
+        self::renderGrid( $matrix, $team_writable );
         echo '</div>'; // #3337 — /.tt-filter-region
     }
 
@@ -237,8 +242,10 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
     /**
      * @param array<string,mixed> $matrix
+     * @param bool $team_writable Whether the save would write this team; when
+     *                            not, every box renders as read-only text.
      */
-    private static function renderGrid( array $matrix ): void {
+    private static function renderGrid( array $matrix, bool $team_writable = true ): void {
         /** @var list<array<string,mixed>> $players */
         $players = $matrix['players'];
         /** @var list<array<string,mixed>> $activities */
@@ -284,7 +291,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '<th class="tt-agrid__rate" scope="colgroup" colspan="3">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
         echo '</tr>';
 
-        self::renderScoreRows( $activities );
+        self::renderScoreRows( $activities, $team_writable );
 
         echo '<tr class="tt-agrid__subhead">';
         // #3845 — the corner cell under the Player header. Every other row
@@ -354,6 +361,14 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 $goals   += (int) $cell['goals'];
                 $assists += (int) $cell['assists'];
 
+                if ( ! $team_writable ) {
+                    // Read-only: the recorded values as text, no box.
+                    echo '<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep tt-agrid-cell--locked">' . esc_html( (string) $mins ) . '</td>';
+                    printf( '<td class="tt-agrid-cell tt-agrid-stat tt-agrid-cell--locked" data-stat="goals">%s</td>', esc_html( (int) $cell['goals'] > 0 ? (string) (int) $cell['goals'] : '' ) );
+                    printf( '<td class="tt-agrid-cell tt-agrid-stat tt-agrid-cell--locked" data-stat="assists">%s</td>', esc_html( (int) $cell['assists'] > 0 ? (string) (int) $cell['assists'] : '' ) );
+                    continue;
+                }
+
                 echo '<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
                 // #4483 — `data-in-squad`: on the audit's squad whatever the
                 // minutes. Without it a player registered absent joins the
@@ -391,6 +406,14 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $roster_ids = array_map( static fn( array $pl ): int => (int) $pl['player_id'], $players );
         self::renderReconciliationFoot( $activities, $cells, $roster_ids );
         echo '</table></div>';
+
+        // A team the save would skip has nothing to save: say so in words
+        // instead of offering a Save that could only be refused.
+        if ( ! $team_writable ) {
+            echo '<p class="tt-notice tt-agrid-readonly-note">' . esc_html__( "You can see this team's grid, but you can't change it.", 'talenttrack' ) . '</p>';
+            echo '</div>'; // .tt-agrid-card
+            return;
+        }
 
         $cancel_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
         $back = \TT\Shared\Frontend\Components\BackLink::resolve();
@@ -480,7 +503,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
      *
      * @param list<array<string,mixed>> $activities
      */
-    private static function renderScoreRows( array $activities ): void {
+    private static function renderScoreRows( array $activities, bool $team_writable = true ): void {
         $ours = \TT\Shared\Club\ClubIdentity::shortCode();
         if ( $ours === '' ) $ours = _x( 'Us', 'row label: the academy team', 'talenttrack' );
 
@@ -494,7 +517,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             echo '<th class="tt-agrid__player tt-agrid__scorelabel" scope="row">' . esc_html( $row['label'] ) . '</th>';
 
             foreach ( $activities as $a ) {
-                self::renderScoreCell( $a, $field );
+                self::renderScoreCell( $a, $field, $team_writable );
             }
 
             echo '<td class="tt-agrid__rate tt-agrid-cell--sep" colspan="3"></td>';
@@ -505,7 +528,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
     /**
      * @param array<string,mixed> $a
      */
-    private static function renderScoreCell( array $a, string $field ): void {
+    private static function renderScoreCell( array $a, string $field, bool $team_writable = true ): void {
         $aid   = (int) $a['activity_id'];
         $when  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
         $live  = ! empty( $a['owned_by_execution'] );
@@ -540,6 +563,12 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--live" colspan="3" title="'
                 . esc_attr__( 'This score follows the match sheet. Correct a goal in the post-match review and it follows.', 'talenttrack' )
                 . '">' . ( $value === null ? '&mdash;' : esc_html( (string) (int) $value ) ) . '</td>';
+            return;
+        }
+
+        if ( ! $team_writable ) {
+            echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-cell--locked" colspan="3">'
+                . ( $value === null ? '&mdash;' : esc_html( (string) (int) $value ) ) . '</td>';
             return;
         }
 

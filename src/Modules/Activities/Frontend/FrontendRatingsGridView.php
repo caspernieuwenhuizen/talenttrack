@@ -64,6 +64,8 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                 'blocked'   => __( '%d score(s) out of range — fix the highlighted cells to save', 'talenttrack' ),
                 /* translators: %d is the number of scores the server refused. */
                 'rejected'  => __( '%d score(s) were refused and NOT saved — the highlighted cells are still unsaved', 'talenttrack' ),
+                /* translators: %d is the number of cell changes the server skipped. */
+                'skipped'   => __( "%d change(s) were not saved: you can't change this team", 'talenttrack' ),
                 /* translators: %s is a main evaluation category, e.g. Technical. */
                 'showSubs'  => __( 'Show sub-categories of %s', 'talenttrack' ),
                 /* translators: %s is a main evaluation category, e.g. Technical. */
@@ -139,7 +141,13 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             return;
         }
 
-        self::renderGrid( $activity_id, $data['groups'], $categories, $players, $data['values'], $data['scale'] );
+        // Opening the grid is a read; writing it is `POST .../ratings/bulk`,
+        // which asks the change grant. A club-wide reader sees the scores
+        // without a box that the save would refuse.
+        $writable      = \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id );
+        $team_writable = $writable === null || in_array( (int) $activity->team_id, $writable, true );
+
+        self::renderGrid( $activity_id, $data['groups'], $categories, $players, $data['values'], $data['scale'], $team_writable );
     }
 
     /**
@@ -148,8 +156,10 @@ final class FrontendRatingsGridView extends FrontendViewBase {
      * @param list<object>                     $players
      * @param array<int, array<int, float>>    $values
      * @param array{min:float,max:float,step:float} $scale
+     * @param bool $team_writable Whether the save would write this team; when
+     *                            not, every score renders as read-only text.
      */
-    private static function renderGrid( int $activity_id, array $groups, array $categories, array $players, array $values, array $scale ): void {
+    private static function renderGrid( int $activity_id, array $groups, array $categories, array $players, array $values, array $scale, bool $team_writable = true ): void {
         // §6 — Cancel returns to the activity, unless the entry URL captured
         // a tt_back hint, which overrides it.
         $back       = BackLink::resolve();
@@ -315,9 +325,14 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                     $td_class  = $sub_of > 0 ? 'tt-rgrid-sub' : '';
                                     $td_class .= $sub_of > 0 && empty( $ctx['expanded'] ) ? ' is-hidden' : '';
                                     $td_class .= ! empty( $ctx['first'] ) ? ' tt-rgrid-group-start' : '';
+                                    $td_class .= $team_writable ? '' : ' tt-rgrid-locked';
                                     ?>
                                     <td class="<?php echo esc_attr( trim( $td_class ) ); ?>"
                                         <?php if ( $sub_of > 0 ) : ?>data-tt-rgrid-sub-of="<?php echo (int) $sub_of; ?>"<?php endif; ?>>
+                                        <?php if ( ! $team_writable ) : ?>
+                                            <?php // Read-only: the stored score as text, no box the save would refuse. ?>
+                                            <?php echo $val === null ? '' : esc_html( (string) $val ); ?>
+                                        <?php else : ?>
                                         <input type="number" inputmode="decimal"
                                             class="tt-rgrid-input"
                                             data-player-id="<?php echo (int) $pid; ?>"
@@ -332,6 +347,7 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                                 $name,
                                                 $label
                                             ) ); ?>" />
+                                        <?php endif; ?>
                                     </td>
                                 <?php endforeach; ?>
                             </tr>
@@ -343,6 +359,13 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             <p class="tt-rgrid-status" data-tt-rgrid-status role="status"></p>
 
             <?php
+            // A team the save would refuse has nothing to save: say so in
+            // words instead of offering a Save that could only be refused.
+            if ( ! $team_writable ) {
+                echo '<p class="tt-notice tt-rgrid-readonly-note">' . esc_html__( "You can see this team's grid, but you can't change it.", 'talenttrack' ) . '</p>';
+                echo '</div>';
+                return;
+            }
             // §6 — Cancel + Save side by side, Save right, via the shared
             // helper (which owns the flex order + Tab order). The JS binds
             // to the rendered `.tt-save-btn` inside this container.

@@ -361,6 +361,19 @@
                 // a refused value to the saved baseline is what made the
                 // loss invisible and unrecoverable by a second Save (#2431).
                 var data = r.body.data || {};
+
+                // `skipped` also counts the blank cells, which write nothing
+                // by design. Any skip beyond those is a change the server
+                // did not write, and the response does not name it, so
+                // every edit stays dirty rather than reading as saved.
+                var blanks = changes.filter(function (c) { return c.rating === '' || c.rating === null; }).length;
+                var notWritten = (parseInt(data.skipped, 10) || 0) - blanks;
+                if (notWritten > 0) {
+                    saveBtn.disabled = false;
+                    setStatus(fmt(t('skipped', '%d change(s) were not saved'), [notWritten]));
+                    return;
+                }
+
                 var refused = {};
                 (data.rejected || []).forEach(function (x) {
                     refused[x.player_id + ':' + x.category_id] = true;

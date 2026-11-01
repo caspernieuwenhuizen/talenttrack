@@ -69,6 +69,21 @@ to be on the team today.
 The grid records the same attendance the reports and the wizard use, so the
 Attendance and Minutes reports stay in step with what you enter here.
 
+## Teams you can see but not change
+
+The team list holds the teams you can record attendance for. An assignment
+that has ended, or hasn't started yet, doesn't put a team on it.
+
+If your role lets you see every team's activities, the list holds every team.
+A team you can't record for opens read-only: you see every status that was
+recorded, but there is no dropdown, no **all present** and no **Save**, and a
+note under the grid says so.
+
+If a save is refused anyway, for instance because your assignment ended while
+the grid was open, the save bar says how many changes were not saved and your
+edits stay outlined. The grid never says *All changes saved* for changes it
+didn't store.
+
 ## Activities that haven't happened yet
 
 **Present** and **Late** can only be recorded on or after the day of the

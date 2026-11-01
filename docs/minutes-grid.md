@@ -55,6 +55,18 @@ it's built for a desktop or laptop.
 The minutes you enter here are the same figures the Minutes-audit tool and the
 Minutes-played report use, so everything stays in step.
 
+### Teams you can see but not change
+
+The team list holds the teams whose activities you can edit. An assignment
+that has ended, or hasn't started yet, doesn't put a team on it. If your role
+lets you see every team's activities, the list holds every team, and a team
+you can't edit opens read-only: the recorded minutes, goals, assists and
+score as text, no boxes and no **Save**, with a note under the grid.
+
+If a save is refused anyway, the save bar says how many changes were not
+saved and your edits stay outlined. The grid never says *All changes saved*
+for changes it didn't store.
+
 ### Goals and assists without the live match sheet
 
 Until now, goals and assists could only be recorded by running a match on the
