@@ -423,7 +423,7 @@ class AuthorizationService {
                 CurrentClub::id(),
                 ...array_values( $ids )
             ) );
-            foreach ( (array) $found as $r ) $rows[ (int) $r->id ] = $r;
+            foreach ( (array) $found as $r ) $rows[ (int) ( $r->id ?? 0 ) ] = $r;
         }
 
         $out = [];
