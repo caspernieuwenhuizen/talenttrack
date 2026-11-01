@@ -39,6 +39,18 @@ final class MarkAttendanceWizard implements WizardInterface {
     public function requiredCap(): string { return 'tt_edit_evaluations'; }
 
     /**
+     * Open to whoever may take the register on some team, which includes a
+     * team manager who does not evaluate. `WizardRegistry::isAvailable()`
+     * asks this instead of `requiredCap()`. The steps still check the
+     * register right per activity, and rating stays behind the evaluation
+     * checks (`RateConfirmStep` offers it only to who may write the activity).
+     */
+    public function isAvailableFor( int $user_id ): bool {
+        $teams = \TT\Modules\Activities\ActivityAccess::registerTeamIds( $user_id );
+        return $teams === null || $teams !== [];
+    }
+
+    /**
      * Land on the attendance step: the mode step + activity picker
      * auto-skip because `initialState()` seeds `mode=activity` and an
      * `activity_id`. When no `activity_id` is seeded (the "Pick a

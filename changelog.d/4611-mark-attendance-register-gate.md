@@ -1,0 +1,3 @@
+# Mark attendance wizard opens for users who can take the register (#4611)
+
+The Mark attendance wizard now opens for anyone who may take the register for a team, a team manager included, instead of only for users who may write evaluations. They can only pick their own teams' activities. Someone who takes the register but doesn't plan the activity isn't offered the rating steps: after the register the wizard shows "Attendance saved" with a single Finish button, which completes the activity and leaves it open for the coach to rate. Coaches and the head of development keep the flow they have today.

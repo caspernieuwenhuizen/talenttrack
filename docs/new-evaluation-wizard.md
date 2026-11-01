@@ -28,6 +28,14 @@ buttons, and this wizard's *Evaluate an activity* button all reach the
 identical `mode=activity` path. (The old `mark-attendance` link still
 works — it resolves to this wizard seeded with the activity branch.)
 
+**Who can open Mark attendance:** anyone who may take the register for a
+team, so a team manager as well as the coaches and the head of
+development. You can only pick your own teams' activities. Someone who
+takes the register but doesn't plan the activity, like a team manager,
+isn't offered the rating steps: after the register the wizard says
+*Attendance saved* and offers **Finish**, which completes the activity
+and leaves it open for the coach to rate.
+
 ## Path 1 — Evaluate an activity (the daily flow)
 
 `Activity picker → Attendance → Rate now? → Rate players → Review`
