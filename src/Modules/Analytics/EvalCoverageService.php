@@ -33,6 +33,18 @@ final class EvalCoverageService {
     }
 
     /**
+     * #3832 — who may open the coverage report: it covers the whole academy,
+     * so the analytics read is not enough on its own; a team-scoped grant
+     * passes `tt_view_analytics` everywhere. The view and the This week
+     * panel's link (#4497) both ask this.
+     */
+    public static function readerMayOpen( int $user_id ): bool {
+        if ( $user_id <= 0 || ! user_can( $user_id, 'tt_view_analytics' ) ) return false;
+        return user_can( $user_id, 'tt_edit_settings' )
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
+    }
+
+    /**
      * The configured evaluation windows for the current season.
      *
      * @return list<EvalWindow>

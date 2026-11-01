@@ -472,28 +472,6 @@ final class FrontendPdpPlanningView {
     }
 
     private static function resolveCurrentSeason(): int {
-        // #4258 - the season the admin flagged current wins, as it does
-        // everywhere else in the PDP module. The date lookups below only
-        // apply when no season is flagged.
-        $current    = ( new SeasonsRepository() )->current();
-        $current_id = $current ? (int) ( ( (array) $current )['id'] ?? 0 ) : 0;
-        if ( $current_id > 0 ) return $current_id;
-
-        global $wpdb;
-        $today = gmdate( 'Y-m-d' );
-        $id    = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_seasons
-              WHERE club_id = %d
-                AND start_date <= %s AND end_date >= %s
-              ORDER BY start_date DESC
-              LIMIT 1",
-            CurrentClub::id(), $today, $today
-        ) );
-        if ( $id > 0 ) return $id;
-        // Fall back to most recent season.
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_seasons WHERE club_id = %d ORDER BY start_date DESC LIMIT 1",
-            CurrentClub::id()
-        ) );
+        return PdpPlanningService::currentSeasonId();
     }
 }

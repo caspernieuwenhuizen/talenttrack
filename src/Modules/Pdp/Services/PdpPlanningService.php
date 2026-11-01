@@ -44,6 +44,35 @@ final class PdpPlanningService {
     }
 
     /**
+     * The season the planning matrix opens on (moved here from the view for
+     * #4497, so the This week panel reads the same one). #4258 — the season
+     * the admin flagged current wins, as it does everywhere else in the PDP
+     * module; the date lookups below only apply when no season is flagged.
+     */
+    public static function currentSeasonId(): int {
+        $current    = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
+        $current_id = $current ? (int) ( ( (array) $current )['id'] ?? 0 ) : 0;
+        if ( $current_id > 0 ) return $current_id;
+
+        global $wpdb;
+        $today = gmdate( 'Y-m-d' );
+        $id    = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_seasons
+              WHERE club_id = %d
+                AND start_date <= %s AND end_date >= %s
+              ORDER BY start_date DESC
+              LIMIT 1",
+            CurrentClub::id(), $today, $today
+        ) );
+        if ( $id > 0 ) return $id;
+        // Fall back to most recent season.
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_seasons WHERE club_id = %d ORDER BY start_date DESC LIMIT 1",
+            CurrentClub::id()
+        ) );
+    }
+
+    /**
      * @param list<int>|null $team_ids #1865 — null = no team restriction
      *        (HoD/admin); a list scopes the matrix to those teams; an empty
      *        list yields an empty matrix (coach with no teams).

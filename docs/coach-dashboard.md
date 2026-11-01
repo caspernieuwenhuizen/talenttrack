@@ -43,6 +43,11 @@ Your academy chooses what the panel shows, per role and per device, under **Conf
   - **Peek at next week** lists the first two activities of the next seven days below the list.
 - **Week overview**:
   - **Week summary** puts three figures above the list for the window and teams the panel covers: the number of trainings, the number of matches, and the attendance percentage over the activities whose attendance is recorded. Present and late both count as attended, exactly as in the team attendance report, so the two show the same figure for the same dates and teams. With nothing recorded yet it shows *—*. It is on for the head coach on a desktop, and for the head of development and the academy admin on both; switch it on for any other role here.
+- **Follow-ups due this week** is a section below the list, one line per follow-up, each a link to where you deal with it. A line shows only when there is something due and the user may open that page, and the section hides when every line is empty:
+  - **PDP conversations due**: the PDP talks still to hold in a PDP block that closes this week, on the panel's teams, with the day it closes (*4 players · closes Sun*). It is the same count PDP planning shows for those teams. It opens PDP planning.
+  - **Evaluations due**: the players on the panel's teams not yet evaluated in the evaluation round that is open now, as Evaluation coverage marks them. It opens Evaluation coverage, so it only shows to someone who may open that report (it covers the whole academy) and when the Evaluation coverage feature is on.
+  - **My tasks due this week**: the user's own open tasks with a due date in the window (*2 due*). It opens My tasks.
+  - By default the head coach sees all three on a desktop and the PDP line on a phone; the team manager and the academy admin see their tasks on both; the head of development sees the PDP and evaluation lines on a desktop.
 - The other sections list every part of a row (**On every row**, **Trainings**, **Matches**) and every button (**Buttons on a row**). Each one has a **Desktop** and a **Phone** box, so a phone can show a shorter panel than a desktop. At most two buttons show on a row, and the first one that applies is the main button.
 - **Reset to defaults** puts the role you are looking at back to its starting settings. Press **Save** to keep that.
 
