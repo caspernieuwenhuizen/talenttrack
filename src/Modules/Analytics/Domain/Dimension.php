@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *      The fact declaration must inline the allowed values.
  *   - `date_range` — the value is a derived date bucket (`'2026-04'`,
  *      `'2025/26'`). `sqlExpression` is mandatory and emits the
- *      bucketing expression (e.g. `DATE_FORMAT(start_at, '%Y-%m')`).
+ *      bucketing expression (e.g. `DATE_FORMAT(session_date, '%Y-%m')`).
  */
 final class Dimension {
 

@@ -112,6 +112,7 @@ class AnalyticsModule implements ModuleInterface {
         // the seeded `attendance_status` lookup). The 30-day attendance
         // KPI on the player Analytics tab returned no data because the
         // CASE expression matched zero rows.
+        $countable = AttendanceFlagService::countableRowClause( 'f', 'a', 'p' );
         FactRegistry::register( new Fact(
             key:        'attendance',
             tableName:  'tt_attendance',
@@ -135,9 +136,16 @@ class AnalyticsModule implements ModuleInterface {
             // data browser exists to slice arbitrary rows, and a base filter
             // would hide the plan from a tool whose whole purpose is showing
             // what is there. The numbers are what had to be right.
+            //
+            // #4584 — the measures also count only the rows the attendance
+            // reports count: a live, completed, past activity and a player on
+            // that team's roster, through the clause AttendanceRankingQuery
+            // reads. The condition is written positively so the LEFT JOINed
+            // activity being absent leaves the row out instead of letting a
+            // NULL fall through to the next WHEN.
             measures: [
-                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND f.record_type='actual' THEN 1 END" ),
-                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND f.record_type='actual' THEN 1 END" ),
+                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
+                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
                 // The percentage needs the planned rows out of the
                 // DENOMINATOR as well, so they resolve to NULL rather than
                 // to 0 — `AVG` skips NULLs, and a selection scoring 0%
@@ -147,7 +155,7 @@ class AnalyticsModule implements ModuleInterface {
                 // is present or late, and guest rows are left out of the
                 // denominator too. Changed in place rather than versioned, so
                 // attendance figures in saved explorations move.
-                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type <> 'actual' OR f.is_guest <> 0 THEN NULL WHEN " . AttendanceFlagService::attendedStatusClause( 'f.status' ) . " THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type = 'actual' AND f.is_guest = 0 AND " . $countable . ' THEN CASE WHEN ' . AttendanceFlagService::attendedStatusClause( 'f.status' ) . ' THEN 100 ELSE 0 END END', Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',
@@ -278,12 +286,12 @@ class AnalyticsModule implements ModuleInterface {
             dimensions: [
                 new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users' ),
                 new Dimension( 'activity_id',  __( 'Activity', 'talenttrack' ),  Dimension::TYPE_FOREIGN_KEY, 'tt_activities' ),
-                new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.start_at, '%Y-%m')" ),
+                new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%Y-%m')" ),
             ],
             measures: [
                 new Measure( 'count_evaluations', __( 'Evaluations', 'talenttrack' ), Measure::AGG_COUNT ),
             ],
-            timeColumn:  new DateTimeColumn( 'a.start_at', 'tt_activities a', 'activity_id' ),
+            timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'activity',
         ) );
     }

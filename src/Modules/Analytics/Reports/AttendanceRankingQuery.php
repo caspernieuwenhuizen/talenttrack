@@ -85,11 +85,6 @@ final class AttendanceRankingQuery {
             ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
             : '';
 
-        // #2521 — "has this happened?" is the status the coach set, not the
-        // planner's `plan_state` (which defaults to 'completed' on every row
-        // the planner did not create). See ActivityLifecycle.
-        $completed = ActivityLifecycle::completedClause( 'a' );
-
         $where_scope = '';
         if ( $allowed_team_ids !== null ) {
             $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
@@ -98,11 +93,11 @@ final class AttendanceRankingQuery {
 
         $counts = AttendanceFlagService::statusCountsSql( 'att.status' );
 
-        // #4172 — only the activities of the team the player is in now, and
-        // only while they are on its roster. A player who moved counts for
-        // their new team and drops out of the old one's figures; the team
-        // name beside them is the team every counted row belongs to.
-        $on_roster = TeamRoster::memberOfClause( 'p', 'a.team_id' );
+        // Live, completed (#2521: the status the coach set, not `plan_state`),
+        // not in the future, and the player on that team's current roster
+        // (#4172: a player who moved counts for the new team only). One
+        // clause, shared with the semantic-layer measures (#4584).
+        $countable = AttendanceFlagService::countableRowClause( 'att', 'a', 'p' );
 
         /** @var object[] $raw */
         $raw = $wpdb->get_results( $wpdb->prepare(
@@ -115,15 +110,14 @@ final class AttendanceRankingQuery {
                 COUNT(att.id) AS total,
                 {$counts}
               FROM {$wpdb->prefix}tt_attendance att
-              JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL AND a.trashed_at IS NULL
-              JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND {$on_roster}
+              JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
+              JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id
               LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id
              WHERE p.club_id = %d
                AND att.is_guest = 0
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
-               AND {$completed}
-               AND a.session_date <= CURDATE()
+               AND {$countable}
                {$where_team}
                {$where_type}
                {$where_scope}
@@ -194,11 +188,10 @@ final class AttendanceRankingQuery {
         $where_type = $activity_type_key !== ''
             ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
             : '';
-        $completed = ActivityLifecycle::completedClause( 'a' );
         $counts    = AttendanceFlagService::statusCountsSql( 'att.status' );
         // #4172 — the team's totals are its current squad's, the same rows
-        // rows() returns for the team.
-        $on_roster = TeamRoster::memberOfClause( 'p', 't.id' );
+        // rows() returns for the team, through the same clause.
+        $countable = AttendanceFlagService::countableRowClause( 'att', 'a', 'p' );
 
         $raw = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -208,14 +201,13 @@ final class AttendanceRankingQuery {
                 COUNT(att.id) AS total,
                 {$counts}
               FROM {$wpdb->prefix}tt_teams t
-              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL AND a.trashed_at IS NULL
+              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id
               JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
-              JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.club_id = t.club_id AND {$on_roster}
+              JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.club_id = t.club_id
              WHERE t.club_id = %d
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
-               AND {$completed}
-               AND a.session_date <= CURDATE()
+               AND {$countable}
                {$where_type}
                {$where_scope}
              GROUP BY t.id, t.name
