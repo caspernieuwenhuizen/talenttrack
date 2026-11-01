@@ -479,13 +479,11 @@ class CoachForms {
     }
 
     /**
-     * Whether this reader may write an evaluation for this player: the
-     * academy admin, or the coach of the player's team. The check
-     * `EvaluationsRestController::create_eval()` makes before it saves.
+     * Whether this reader may write an evaluation for this player, the
+     * question the evaluation wizard's writes ask.
      */
     private static function mayPresetPlayer( int $user_id, int $player_id ): bool {
-        return user_can( $user_id, 'tt_edit_settings' )
-            || QueryHelpers::coach_owns_player( $user_id, $player_id );
+        return \TT\Modules\Wizards\Evaluation\EvaluationInserter::mayWriteFor( $user_id, $player_id );
     }
 
     /**

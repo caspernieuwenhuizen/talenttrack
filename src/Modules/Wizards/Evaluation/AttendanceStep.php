@@ -60,7 +60,7 @@ final class AttendanceStep implements WizardStepInterface {
         // Asked again here, not only where the id entered the wizard: the
         // roster names minors, so it is shown for an activity the reader
         // may write attendance for and no other.
-        if ( ! ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
+        if ( ! ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'That team is not in your scope.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -405,14 +405,14 @@ final class AttendanceStep implements WizardStepInterface {
 
         // Persist attendance rows now — this is a real attendance update.
         $aid = (int) ( $state['activity_id'] ?? 0 );
-        if ( $aid > 0 && ! ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
+        if ( $aid > 0 && ! ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
             return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
         }
         if ( $aid > 0 && ! empty( $att ) ) {
             $writer = new AttendanceWriter();
             // A row is written only for a player on the roster the step
             // showed; any other posted id is dropped.
-            $on_roster = array_map( static fn( object $pl ): int => (int) $pl->id, self::roster( $aid ) );
+            $on_roster = array_map( static fn( \stdClass $pl ): int => (int) $pl->id, self::roster( $aid ) );
             foreach ( $att as $player_id => $status ) {
                 $player_id = (int) $player_id;
                 if ( $player_id <= 0 || ! in_array( $player_id, $on_roster, true ) ) continue;
@@ -466,7 +466,7 @@ final class AttendanceStep implements WizardStepInterface {
      * The activity's team roster: the players the step lists and the only
      * ones it writes a row for.
      *
-     * @return list<object>
+     * @return list<\stdClass>
      */
     private static function roster( int $activity_id ): array {
         global $wpdb;
@@ -486,7 +486,7 @@ final class AttendanceStep implements WizardStepInterface {
               ORDER BY last_name, first_name",
             $team_id, CurrentClub::id()
         ) );
-        return array_values( (array) $rows );
+        return array_values( array_map( static fn( $row ): \stdClass => (object) (array) $row, (array) $rows ) );
     }
 
     /**
@@ -507,7 +507,7 @@ final class AttendanceStep implements WizardStepInterface {
         if ( $activity_id <= 0 ) return;
         // The same question the activities write routes ask: the flip is a
         // write to the activity, for the reader finishing the wizard.
-        if ( ! ActivityAccess::canWriteActivity( get_current_user_id(), $activity_id ) ) return;
+        if ( ! ActivityAccess::canTakeRegister( get_current_user_id(), $activity_id ) ) return;
         global $wpdb;
         $p = $wpdb->prefix;
         $current = (string) $wpdb->get_var( $wpdb->prepare(

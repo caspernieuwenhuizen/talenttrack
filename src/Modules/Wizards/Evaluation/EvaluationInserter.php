@@ -19,15 +19,38 @@ use TT\Modules\Evaluations\EvaluationDateRule;
 final class EvaluationInserter {
 
     /**
-     * May this user write an evaluation for this player? The academy admin,
-     * or the coach of the player's team: the check `POST /evaluations`
-     * makes before it saves. The wizard's row route, its player pick and
-     * both of its submit paths ask it.
+     * May this user write an evaluation for this player? `evaluations`
+     * change at global scope (head of development, academy admin), or at
+     * team scope on the player's team (the team's head coach), and the
+     * settings admin. The wizard's row route, its player pick, both of its
+     * submit paths and the new-evaluation form's preset ask it.
      */
     public static function mayWriteFor( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        return user_can( $user_id, 'tt_edit_settings' )
-            || \TT\Infrastructure\Query\QueryHelpers::coach_owns_player( $user_id, $player_id );
+        if ( user_can( $user_id, 'tt_edit_settings' ) ) return true;
+        $gate = \TT\Modules\Authorization\MatrixGate::class;
+        if ( $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL ) ) return true;
+        $player  = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
+        $team_id = $player ? (int) ( ( (array) $player )['team_id'] ?? 0 ) : 0;
+        return $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * The same question for a player rated on an activity: also a player on
+     * that activity's attendance, a linked guest from another team among
+     * them, when the user may write the activity and evaluate at all.
+     */
+    public static function mayWriteForActivity( int $user_id, int $player_id, int $activity_id ): bool {
+        if ( self::mayWriteFor( $user_id, $player_id ) ) return true;
+        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+        if ( ! \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, 'evaluations', \TT\Modules\Authorization\MatrixGate::CHANGE ) ) return false;
+        if ( ! \TT\Modules\Activities\ActivityAccess::canWriteActivity( $user_id, $activity_id ) ) return false;
+
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_attendance WHERE activity_id = %d AND player_id = %d AND club_id = %d",
+            $activity_id, $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) > 0;
     }
 
     /**

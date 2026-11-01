@@ -125,13 +125,14 @@ class FrontendOverviewView extends FrontendViewBase {
         $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
         // The rating badge is an evaluation score: a parent the child keeps
         // evaluations from gets the header without it.
+        $player_id = (int) $player->id;
         if ( ! \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection(
-            get_current_user_id(), (int) $player->id, 'evaluations'
+            get_current_user_id(), $player_id, 'evaluations'
         ) ) {
             self::renderHeroStrip( $player, null, null, $max, false );
             return;
         }
-        $heads   = ( new PlayerStatsService() )->getHeadlineNumbers( (int) $player->id, [], 5 );
+        $heads   = ( new PlayerStatsService() )->getHeadlineNumbers( $player_id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
         $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
         self::renderHeroStrip( $player, $rolling, $alltime, $max );

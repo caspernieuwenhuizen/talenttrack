@@ -62,7 +62,8 @@ class FrontendMyTeamView extends FrontendViewBase {
         $team_name  = $team ? (string) $team->name : '';
         $team_svc   = new TeamStatsService();
         $top        = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
-        $rank_info  = $team_svc->getRankInTeam( (int) $player->id, 5 );
+        $player_id  = (int) $player->id;
+        $rank_info  = $team_svc->getRankInTeam( $player_id, 5 );
 
         // #1384 — the player-visible team rank ("#N of M") is opt-in per
         // academy. Default OFF: the player sees a growth-framed personal
@@ -75,11 +76,11 @@ class FrontendMyTeamView extends FrontendViewBase {
         // child keeps evaluations from gets the card without them, as on
         // the profile.
         $scores    = \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection(
-            get_current_user_id(), (int) $player->id, 'evaluations'
+            get_current_user_id(), $player_id, 'evaluations'
         );
         $show_rank = $scores && QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1';
         $trend     = $scores
-            ? ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )->personalTrendForPlayer( (int) $player->id )
+            ? ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )->personalTrendForPlayer( $player_id )
             : null;
 
         $own_in_top = false;

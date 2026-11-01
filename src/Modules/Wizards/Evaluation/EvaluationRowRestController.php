@@ -94,7 +94,7 @@ final class EvaluationRowRestController {
 
         // The route's capability is club-wide; this asks about the player,
         // as `POST /evaluations` does.
-        if ( $row['player_id'] > 0 && ! EvaluationInserter::mayWriteFor( get_current_user_id(), $row['player_id'] ) ) {
+        if ( $row['player_id'] > 0 && ! EvaluationInserter::mayWriteForActivity( get_current_user_id(), $row['player_id'], $row['activity_id'] ) ) {
             return new WP_REST_Response( [
                 'error'   => 'forbidden_player',
                 'message' => __( 'You can only evaluate players in your team.', 'talenttrack' ),

@@ -227,9 +227,9 @@ final class ReviewStep implements WizardStepInterface {
         foreach ( $ratings as $player_id => $cats ) {
             $player_id = (int) $player_id;
             if ( $player_id <= 0 ) continue;
-            // Each posted key is asked about, as `POST /evaluations` asks:
-            // a player the reader may not evaluate gets no row.
-            if ( ! EvaluationInserter::mayWriteFor( $uid, $player_id ) ) continue;
+            // Each posted key is asked about: a player the reader may not
+            // evaluate gets no row. A linked guest on this activity counts.
+            if ( ! EvaluationInserter::mayWriteForActivity( $uid, $player_id, $aid ) ) continue;
             if ( ! empty( $skip[ $player_id ] ) ) continue;
             if ( ! is_array( $cats ) || empty( $cats ) ) continue;
 

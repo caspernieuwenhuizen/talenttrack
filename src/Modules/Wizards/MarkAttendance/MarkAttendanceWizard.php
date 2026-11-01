@@ -80,7 +80,7 @@ final class MarkAttendanceWizard implements WizardInterface {
         $aid = isset( $url_params['activity_id'] ) ? absint( $url_params['activity_id'] ) : 0;
         // The id comes from the URL: seeded only for an activity the reader
         // may write attendance for, otherwise the picker asks.
-        if ( $aid > 0 && \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
+        if ( $aid > 0 && \TT\Modules\Activities\ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
             $seed['activity_id'] = $aid;
         }
         return $seed;

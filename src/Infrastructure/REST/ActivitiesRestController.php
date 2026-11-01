@@ -562,6 +562,17 @@ class ActivitiesRestController {
     }
 
     /**
+     * The attendance grid's team scope for a write: the teams whose
+     * register the caller may take, a team manager's included. Null =
+     * every team.
+     *
+     * @return list<int>|null
+     */
+    private static function gridRegisterTeamIds(): ?array {
+        return ActivityAccess::registerTeamIds( get_current_user_id() );
+    }
+
+    /**
      * #3616 — may the caller write to activities of this team?
      *
      * The write routes checked the capability and stopped. `can_edit()` and
@@ -682,7 +693,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed  = self::gridWritableTeamIds();
+        $allowed  = self::gridRegisterTeamIds();
         $repo     = self::repo();
         $saved    = 0;
         $skipped  = 0;

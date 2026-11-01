@@ -75,8 +75,14 @@ return [
         // The write scope on an activity's team: `activities` change at
         // global scope, or at team scope on that team. `writableTeamIds()` is
         // the same answer for a list of teams, which the grid writes narrow to.
-        'ActivityAccess::canWrite*',
+        'ActivityAccess::canWriteTeam',
+        'ActivityAccess::canWriteActivity',
         'ActivityAccess::writableTeamIds',
+        // The register on an activity's team: the write scope above, or
+        // `attendance` change at global scope or on that team.
+        'ActivityAccess::canTakeRegisterForTeam',
+        'ActivityAccess::canTakeRegister',
+        'ActivityAccess::registerTeamIds',
         'TeamChemistryAccess::can',
         'TeamReportAccess::canRead',
 
