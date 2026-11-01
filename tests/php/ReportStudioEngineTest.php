@@ -5,9 +5,13 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\DateTimeColumn;
 use TT\Modules\Analytics\Domain\DimensionValueResolver;
+use TT\Modules\Analytics\Domain\Fact;
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\Domain\Measure;
 use TT\Modules\Analytics\FactQuery;
+use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Authorization\FunctionalRoleGrants;
@@ -18,6 +22,7 @@ use TT\Modules\ReportStudio\Domain\BlockEngine;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
+use TT\Modules\ReportStudio\Domain\ReportSubjectAccess;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 use TT\Modules\ReportStudio\Domain\StudioError;
 
@@ -267,6 +272,179 @@ final class ReportStudioEngineTest extends WP_UnitTestCase {
 
         $this->assertSame( 85, $block['data']['total_minutes'] );
         $this->assertSame( $report_total, $block['data']['total_minutes'] );
+
+        // Row for row, for every player who played. The report also lists
+        // squad players at 0 minutes; the block takes those over with the
+        // shared composer (#4590).
+        $report_rows = [];
+        foreach ( $report['data']['minutes']['rows'] as $r ) $report_rows[ (int) $r['player_id'] ] = $r;
+        $this->assertCount( 2, $block['data']['rows'] );
+        foreach ( $block['data']['rows'] as $row ) {
+            $theirs = $report_rows[ $row['player_id'] ] ?? null;
+            $this->assertNotNull( $theirs, 'a block row the report does not have' );
+            foreach ( [ 'total_minutes', 'matches', 'starts', 'available_minutes' ] as $field ) {
+                $this->assertSame( (int) $theirs[ $field ], $row[ $field ], "{$field} for player {$row['player_id']}" );
+            }
+        }
+    }
+
+    public function test_a_club_wide_reader_keeps_the_evaluation_of_a_player_who_moved(): void {
+        $moved    = $this->insertPlayer( $this->team_b, 'Moved' );
+        $activity = $this->insertActivity( $this->team_a, '2020-03-05' );
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", [
+            'club_id' => $this->club, 'activity_id' => $activity, 'player_id' => $moved, 'coach_id' => 1, 'eval_date' => '2020-03-05',
+            'created_at' => '2020-03-05 12:00:00',
+        ] );
+
+        $out = BlockEngine::preview(
+            'own_question',
+            [ 'scope' => 'team', 'team_id' => $this->team_a, 'from' => '2020-03-01', 'to' => '2020-03-31' ],
+            [ 'fact' => 'evaluations', 'measure' => 'count' ],
+            $this->hod
+        );
+        $this->assertIsArray( $out );
+        $this->assertSame( 1.0, $out['data']['value'], 'the evaluation written for team A counts for team A' );
+    }
+
+    public function test_the_scope_follows_each_facts_own_read_entity(): void {
+        $repo = new MatrixRepository();
+        // Club-wide analytics, but attendance and trial cases only on the team.
+        $repo->setRow( 'team_manager', 'analytics', 'read', 'global', \TT\Modules\Analytics\AnalyticsModule::class );
+        $repo->removeRow( 'team_manager', 'attendance', 'read', 'global' );
+        $repo->removeRow( 'team_manager', 'trial_cases', 'read', 'global' );
+        $repo->setRow( 'team_manager', 'trial_cases', 'read', 'team', \TT\Modules\Analytics\AnalyticsModule::class );
+        $this->flush();
+
+        $window = [ 'date_after' => '2020-03-01', 'date_before' => '2020-03-31' ];
+        $scope  = FactScope::forUser( $this->manager );
+        $this->assertFalse( FactQuery::canRead( 'trial_decisions', $scope ), 'global analytics widened a team-scoped trial grant' );
+        foreach ( FactQuery::rows( 'attendance', $window, $scope, 100 ) as $row ) {
+            $this->assertSame( $this->team_a, (int) $row->team_id, 'global analytics widened a team-scoped attendance grant' );
+        }
+
+        // And the other way: a global grant on the fact's own entity reads every team.
+        $repo->setRow( 'team_manager', 'attendance', 'read', 'global', \TT\Modules\Analytics\AnalyticsModule::class );
+        $this->flush();
+        $this->assertCount( 5, FactQuery::rows( 'attendance', $window, FactScope::forUser( $this->manager ), 100 ) );
+    }
+
+    public function test_a_self_scope_reads_only_the_readers_own_rows(): void {
+        global $wpdb;
+        if ( get_role( 'tt_player' ) === null ) add_role( 'tt_player', 'player', [ 'read' => true ] );
+        $user = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'wp_user_id' => $user ], [ 'id' => $this->pa1 ] );
+        ( new MatrixRepository() )->setRow( 'player', 'attendance', 'read', 'self', \TT\Modules\Activities\ActivitiesModule::class );
+        $this->flush();
+
+        $rows = FactQuery::rows( 'attendance', [ 'date_after' => '2020-03-01', 'date_before' => '2020-03-31' ], FactScope::forUser( $user ), 100 );
+        $this->assertCount( 2, $rows );
+        foreach ( $rows as $row ) $this->assertSame( $this->pa1, (int) $row->player_id, 'a self grant read a teammate' );
+    }
+
+    public function test_a_fact_that_names_no_read_entity_is_refused(): void {
+        FactRegistry::register( new Fact(
+            key: 'test_no_entity', tableName: 'tt_teams', label: 'No entity', dimensions: [],
+            measures: [ new Measure( 'count', 'Count', Measure::AGG_COUNT ) ], timeColumn: new DateTimeColumn( 'f.created_at' )
+        ) );
+        $this->assertFalse( FactQuery::canRead( 'test_no_entity', FactScope::unrestricted() ) );
+        $this->assertSame( [], FactQuery::run( 'test_no_entity', [], [ 'count' ], [], FactScope::unrestricted() ) );
+    }
+
+    public function test_an_external_audience_is_offered_only_its_report_sections(): void {
+        $context = [ 'scope' => 'player', 'player_id' => $this->pa1, 'from' => '2020-03-01', 'to' => '2020-03-31' ];
+        foreach ( [ PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ] as $audience ) {
+            $built = ReportContext::fromInput( $context + [ 'audience' => $audience ], $this->hod );
+            $this->assertInstanceOf( ReportContext::class, $built );
+            $this->assertSame( [ 'public' ], ReportSubjectAccess::factScope( $built )->visibilities() );
+
+            $choices = [];
+            foreach ( ( new OwnQuestionBlock() )->options( $built ) as $option ) $choices[ $option->key ] = $option->toArray()['choices'];
+            $facts = array_column( $choices['fact'], 'value' );
+            $this->assertNotContains( 'journey_events', $facts, $audience );
+            $this->assertNotContains( 'trial_decisions', $facts, $audience );
+            $this->assertNotContains( 'prospects', $facts, $audience );
+            $this->assertContains( 'attendance', $facts, $audience );
+            foreach ( $choices['breakdown'] as $fact => $dims ) {
+                $keys = array_column( $dims, 'value' );
+                $this->assertNotContains( 'evaluator_id', $keys, "{$audience}: {$fact}" );
+                $this->assertNotContains( 'player_id', $keys, "{$audience}: {$fact}" );
+            }
+
+            $refused = BlockEngine::preview( 'own_question', $context + [ 'audience' => $audience ], [ 'fact' => 'journey_events', 'measure' => 'count', 'breakdown' => 'event_type' ], $this->hod );
+            $this->assertInstanceOf( StudioError::class, $refused, "{$audience} reached journey events" );
+            $this->assertSame( 'fact', $refused->details['field'] ?? null );
+        }
+    }
+
+    public function test_a_parent_gets_nothing(): void {
+        if ( get_role( 'tt_parent' ) === null ) add_role( 'tt_parent', 'parent', [ 'read' => true ] );
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $this->flush();
+
+        $this->assertSame( [], BlockRegistry::availableFor( ReportContext::forListing( 'player', 'internal', $parent ) ) );
+        foreach ( [ 'playing_time' => [ 'scope' => 'team', 'team_id' => $this->team_a ], 'attendance_per_week' => [ 'scope' => 'player', 'player_id' => $this->pa1 ], 'own_question' => [ 'scope' => 'me' ] ] as $key => $ctx ) {
+            $out = BlockEngine::preview( $key, $ctx + [ 'from' => '2020-03-01', 'to' => '2020-03-31' ], [], $parent );
+            $this->assertInstanceOf( StudioError::class, $out, "a parent previewed {$key}" );
+        }
+        $this->assertSame( [], FactQuery::rows( 'attendance', [], FactScope::forUser( $parent ), 100 ) );
+    }
+
+    public function test_a_scout_reads_one_player_at_most_and_never_a_squad(): void {
+        if ( get_role( 'tt_scout' ) === null ) add_role( 'tt_scout', 'scout', [ 'read' => true ] );
+        $scout = (int) self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        $this->flush();
+
+        $team = BlockEngine::preview( 'attendance_per_week', [ 'scope' => 'team', 'team_id' => $this->team_a ], [], $scout );
+        $this->assertInstanceOf( StudioError::class, $team, 'a scout read a squad' );
+
+        $player = BlockEngine::preview( 'attendance_per_week', [ 'scope' => 'player', 'player_id' => $this->pa1 ], [], $scout );
+        $this->assertInstanceOf( StudioError::class, $player, 'a scout read a player they are not linked to' );
+        $this->assertSame( 403, $player->status );
+
+        $time = BlockEngine::preview( 'playing_time', [ 'scope' => 'team', 'team_id' => $this->team_a ], [], $scout );
+        $this->assertInstanceOf( StudioError::class, $time );
+    }
+
+    public function test_playing_time_refuses_another_team_and_any_external_audience(): void {
+        $other = BlockEngine::preview( 'playing_time', [ 'scope' => 'team', 'team_id' => $this->team_b ], [], $this->manager );
+        $this->assertInstanceOf( StudioError::class, $other );
+        $this->assertSame( 403, $other->status );
+        $this->assertSame( 'forbidden_team', $other->code );
+
+        $family = BlockEngine::preview( 'playing_time', [ 'scope' => 'player', 'player_id' => $this->pa1, 'audience' => PlayerReportAudience::FAMILY ], [], $this->hod );
+        $this->assertInstanceOf( StudioError::class, $family );
+        $this->assertSame( 400, $family->status );
+    }
+
+    public function test_the_group_subject_check_is_one_statement_whatever_the_group_size(): void {
+        $small = [ $this->pa1, $this->pa2 ];
+        $large = $small;
+        for ( $i = 0; $i < 6; $i++ ) $large[] = $this->insertPlayer( $this->team_a, 'Group' . $i );
+
+        $count = function ( array $ids ): int {
+            global $wpdb;
+            $this->flush();
+            DimensionValueResolver::flush();
+            $context = ReportContext::fromInput( [ 'scope' => 'group', 'player_ids' => $ids, 'from' => '2020-03-01', 'to' => '2020-03-31' ], $this->manager );
+            $this->assertInstanceOf( ReportContext::class, $context );
+            $start = (int) $wpdb->num_queries;
+            $this->assertInstanceOf( ReportContext::class, ReportSubjectAccess::check( $context ) );
+            return (int) $wpdb->num_queries - $start;
+        };
+
+        $this->assertSame( $count( $small ), $count( $large ), 'the group check ran a statement per player' );
+
+        $block = function ( array $ids ): int {
+            global $wpdb;
+            $this->flush();
+            DimensionValueResolver::flush();
+            $start = (int) $wpdb->num_queries;
+            $out   = BlockEngine::preview( 'attendance_per_week', [ 'scope' => 'group', 'player_ids' => $ids, 'from' => '2020-03-01', 'to' => '2020-03-31' ], [], $this->manager );
+            $this->assertIsArray( $out );
+            return (int) $wpdb->num_queries - $start;
+        };
+        $this->assertSame( $block( $small ), $block( $large ), 'a cold group block ran a statement per player' );
     }
 
     public function test_a_block_without_data_is_not_listed(): void {

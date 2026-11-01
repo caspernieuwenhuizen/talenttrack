@@ -41,9 +41,11 @@ final class ReportSubjectAccess {
             case ReportContext::SCOPE_TEAM:
                 return TeamReportAccess::canRead( $uid, $context->teamId ) ? $context : self::forbidden( 'forbidden_team' );
             case ReportContext::SCOPE_GROUP:
+                // One statement for the whole group, the canViewPlayer rules.
+                $allowed = AuthorizationService::canViewPlayers( $uid, $context->playerIds );
                 $visible = array_values( array_filter(
                     $context->playerIds,
-                    static fn( int $pid ): bool => AuthorizationService::canViewPlayer( $uid, $pid )
+                    static fn( int $pid ): bool => ! empty( $allowed[ $pid ] )
                 ) );
                 return $visible === [] ? self::forbidden( 'forbidden_player' ) : $context->withPlayerIds( $visible );
             case ReportContext::SCOPE_ACADEMY:
@@ -58,12 +60,19 @@ final class ReportSubjectAccess {
 
     /**
      * The fact-query scope for a block in this context: the reader's own
-     * scope, narrowed to the team when the subject is a team. Filters on the
-     * subject's players narrow further inside it.
+     * scope, with a team-scoped reader narrowed to the subject team. A
+     * club-wide reader is not narrowed: the subject filter already picks the
+     * team's rows, and narrowing by the players' current team would drop the
+     * records of players who have since moved. An external audience reads
+     * journey events at the public level only.
      */
     public static function factScope( ReportContext $context ): FactScope {
         $scope = FactScope::forUser( $context->userId );
-        return $context->scope === ReportContext::SCOPE_TEAM ? $scope->narrowedToTeams( [ $context->teamId ] ) : $scope;
+        // narrowedToTeams() leaves a global read alone (FactScope::access()).
+        if ( $context->scope === ReportContext::SCOPE_TEAM ) {
+            $scope = $scope->narrowedToTeams( [ $context->teamId ] );
+        }
+        return $context->isExternal() ? $scope->publicOnly() : $scope;
     }
 
     private static function forbidden( string $code ): StudioError {

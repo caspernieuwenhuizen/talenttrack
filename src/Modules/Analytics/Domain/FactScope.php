@@ -5,53 +5,55 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Visibility\RecordVisibility;
-use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Authorization\MatrixGate;
 
 /**
  * FactScope — whose rows a fact query may read (#4568).
  *
- * `FactQuery` filters by `club_id`; this is the row scope inside the club.
- * A reader with club-wide analytics read sees every team; everyone else sees
- * the teams `get_teams_for_coach()` names, and the engine applies that as a
- * `WHERE` on the fact's declared team or player column. Journey events are
- * further narrowed to the visibility levels the reader holds.
+ * `FactQuery` filters by `club_id`; this is the row scope inside the club,
+ * and it follows each fact's own read entity:
+ *
+ * - global read on the entity: every row in the club;
+ * - otherwise, team-scoped read: the reader's assigned teams on which the
+ *   entity is granted;
+ * - otherwise, self-scoped read: the reader's own player record;
+ * - otherwise nothing.
+ *
+ * The engine applies the answer as a `WHERE` on the fact's team or player
+ * column. Journey events are further narrowed to the visibility levels the
+ * reader holds.
  *
  * `unrestricted()` is for code that answers no reader at all (a figure test,
  * a migration). A request on behalf of a person always uses `forUser()`.
  */
 final class FactScope {
 
+    public const ALL     = 'all';
+    public const TEAMS   = 'teams';
+    public const PLAYERS = 'players';
+    public const NONE    = 'none';
+
     /** @var array<int,self> */
     private static array $memo = [];
 
+    /** @var array<string,array{0:string,1:list<int>}> */
+    private array $access = [];
+
     /**
-     * @param list<int>|null    $teamIds      null = every team in the club
+     * @param list<int>|null    $narrowTeams  null = no extra narrowing
      * @param list<string>|null $visibilities null = every journey visibility
      */
     private function __construct(
         private int $userId,
-        private ?array $teamIds,
+        private ?array $narrowTeams,
         private ?array $visibilities,
         private bool $system
     ) {}
 
     public static function forUser( int $user_id ): self {
-        if ( $user_id <= 0 ) return new self( 0, [], [ RecordVisibility::LEVEL_PUBLIC ], false );
+        if ( $user_id <= 0 ) return new self( 0, null, [ RecordVisibility::LEVEL_PUBLIC ], false );
         if ( isset( self::$memo[ $user_id ] ) ) return self::$memo[ $user_id ];
-
-        $club_wide = user_can( $user_id, 'manage_options' )
-            || AllTeamsScope::canSeeClubWideAnalytics( $user_id );
-        $teams = null;
-        if ( ! $club_wide ) {
-            $teams = [];
-            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
-                $id = (int) ( $team->id ?? 0 );
-                if ( $id > 0 ) $teams[] = $id;
-            }
-            $teams = array_values( array_unique( $teams ) );
-        }
-        return self::$memo[ $user_id ] = new self( $user_id, $teams, RecordVisibility::forJourney( $user_id ), false );
+        return self::$memo[ $user_id ] = new self( $user_id, null, RecordVisibility::forJourney( $user_id ), false );
     }
 
     public static function unrestricted(): self {
@@ -64,29 +66,43 @@ final class FactScope {
     }
 
     /**
-     * The same reader, narrowed to these teams. The result never widens the
-     * reader: a team outside their scope is dropped, not added.
+     * The same reader, with a team-scoped read narrowed to these teams. It
+     * never widens the reader, and a global read is left alone: the
+     * caller's own filters pick the rows there.
      *
      * @param list<int> $team_ids
      */
     public function narrowedToTeams( array $team_ids ): self {
         $wanted = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn( int $id ): bool => $id > 0 ) ) );
-        $teams  = $this->teamIds === null ? $wanted : array_values( array_intersect( $this->teamIds, $wanted ) );
+        $teams  = $this->narrowTeams === null ? $wanted : array_values( array_intersect( $this->narrowTeams, $wanted ) );
         return new self( $this->userId, $teams, $this->visibilities, $this->system );
+    }
+
+    /** The same reader, with journey events at the public level only. */
+    public function publicOnly(): self {
+        return new self( $this->userId, $this->narrowTeams, [ RecordVisibility::LEVEL_PUBLIC ], $this->system );
     }
 
     public function userId(): int {
         return $this->userId;
     }
 
-    /** Is every team in the club readable? */
-    public function isClubWide(): bool {
-        return $this->teamIds === null;
+    /**
+     * How this reader may read rows under `$entity`: `[ ALL, [] ]`,
+     * `[ TEAMS, team ids ]`, `[ PLAYERS, player ids ]` or `[ NONE, [] ]`.
+     * A fact that names no entity is refused: the rule fails closed.
+     *
+     * @return array{0:string,1:list<int>}
+     */
+    public function access( string $entity ): array {
+        if ( $entity === '' ) return [ self::NONE, [] ];
+        if ( isset( $this->access[ $entity ] ) ) return $this->access[ $entity ];
+        return $this->access[ $entity ] = $this->resolve( $entity );
     }
 
-    /** @return list<int>|null null = every team */
-    public function teamIds(): ?array {
-        return $this->teamIds;
+    /** May this reader read any row under the entity? */
+    public function mayRead( string $entity ): bool {
+        return $this->access( $entity )[0] !== self::NONE;
     }
 
     /** @return list<string>|null null = every level */
@@ -94,23 +110,45 @@ final class FactScope {
         return $this->visibilities;
     }
 
-    /**
-     * May this reader read the fact's entity at all? The rows are narrowed
-     * afterwards, so a team-scoped grant is enough here.
-     */
-    public function mayRead( string $entity ): bool {
-        if ( $this->system ) return true;
-        if ( $this->userId <= 0 ) return false;
-        if ( $entity === '' || user_can( $this->userId, 'manage_options' ) ) return true;
-        return MatrixGate::canAnyScope( $this->userId, $entity, MatrixGate::READ );
-    }
-
     /** Part of the result cache key, so two readers never share an answer. */
     public function cacheKey(): string {
         return md5( (string) wp_json_encode( [
             'u' => $this->system ? 'system' : $this->userId,
-            't' => $this->teamIds,
+            'n' => $this->narrowTeams,
             'v' => $this->visibilities,
         ] ) );
+    }
+
+    /**
+     * @return array{0:string,1:list<int>}
+     */
+    private function resolve( string $entity ): array {
+        if ( $this->system ) return [ self::ALL, [] ];
+        $uid = $this->userId;
+        if ( $uid <= 0 ) return [ self::NONE, [] ];
+
+        if ( user_can( $uid, 'manage_options' )
+            || MatrixGate::can( $uid, $entity, MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) ) {
+            return [ self::ALL, [] ];
+        }
+
+        $teams = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $uid ) as $team ) {
+            $id = (int) ( $team->id ?? 0 );
+            if ( $id > 0 && MatrixGate::can( $uid, $entity, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $id ) ) $teams[ $id ] = $id;
+        }
+        $teams = array_values( $teams );
+        if ( $teams !== [] ) {
+            if ( $this->narrowTeams !== null ) $teams = array_values( array_intersect( $teams, $this->narrowTeams ) );
+            return $teams === [] ? [ self::NONE, [] ] : [ self::TEAMS, $teams ];
+        }
+
+        if ( MatrixGate::can( $uid, $entity, MatrixGate::READ, MatrixGate::SCOPE_SELF, $uid ) ) {
+            $own = QueryHelpers::get_player_for_user( $uid );
+            $pid = $own ? (int) ( $own->id ?? 0 ) : 0;
+            if ( $pid > 0 ) return [ self::PLAYERS, [ $pid ] ];
+        }
+
+        return [ self::NONE, [] ];
     }
 }

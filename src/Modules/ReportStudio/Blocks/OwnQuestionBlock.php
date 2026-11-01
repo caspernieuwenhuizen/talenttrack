@@ -8,6 +8,7 @@ use TT\Modules\Analytics\Domain\Fact;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\ReportStudio\Domain\BlockOption;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
@@ -23,6 +24,20 @@ use TT\Modules\ReportStudio\Domain\SubjectFilters;
  * the measure and the breakdown are each picked from what the fact declares.
  */
 final class OwnQuestionBlock implements ReportBlock {
+
+    /**
+     * The player-report section each fact belongs to. An external audience
+     * is offered a fact only when its section is on that audience's list in
+     * `PlayerReportAudience`; a fact with no section here never is.
+     */
+    private const FACT_SECTIONS = [
+        'attendance'              => PlayerReportBlock::ATTENDANCE,
+        'evaluations'             => PlayerReportBlock::RATINGS,
+        'evaluations_per_session' => PlayerReportBlock::RATINGS,
+        'goals'                   => PlayerReportBlock::GOALS,
+    ];
+
+    private const EXTERNAL_HIDDEN_BREAKDOWNS = [ 'player_id', 'evaluator_id' ];
 
     public function key(): string {
         return 'own_question';
@@ -55,9 +70,10 @@ final class OwnQuestionBlock implements ReportBlock {
             }
             $breakdowns[ $fact->key ] = [];
             foreach ( $fact->dimensions as $d ) {
-                // A breakdown by player is another child's figure to an
-                // external audience, so it is never offered there.
-                if ( $context->isExternal() && $d->key === 'player_id' ) continue;
+                // A breakdown by player is another child's figure, and one
+                // by evaluator names staff, so neither reaches an external
+                // audience.
+                if ( $context->isExternal() && in_array( $d->key, self::EXTERNAL_HIDDEN_BREAKDOWNS, true ) ) continue;
                 $breakdowns[ $fact->key ][ $d->key ] = $d->label;
             }
         }
@@ -80,6 +96,9 @@ final class OwnQuestionBlock implements ReportBlock {
         $fact    = FactRegistry::find( (string) ( $options['fact'] ?? '' ) );
         $measure = $fact?->measure( (string) ( $options['measure'] ?? '' ) );
         if ( $fact === null || $measure === null ) return [];
+        // The options were validated against facts(); asked again so a
+        // caller that skips the engine still cannot reach another fact.
+        if ( ! in_array( $fact, $this->facts( $context ), true ) ) return [];
 
         $breakdown = is_string( $options['breakdown'] ?? null ) ? (string) $options['breakdown'] : '';
         $dim       = $breakdown !== '' ? $fact->dimension( $breakdown ) : null;
@@ -136,9 +155,14 @@ final class OwnQuestionBlock implements ReportBlock {
      * @return list<Fact>
      */
     private function facts( ReportContext $context ): array {
-        $scope = ReportSubjectAccess::factScope( $context );
-        $out   = [];
+        $scope   = ReportSubjectAccess::factScope( $context );
+        $allowed = PlayerReportAudience::allowlist( $context->audience );
+        $out     = [];
         foreach ( FactRegistry::all() as $fact ) {
+            if ( $allowed !== null ) {
+                $section = self::FACT_SECTIONS[ $fact->key ] ?? null;
+                if ( $section === null || ! in_array( $section, $allowed, true ) ) continue;
+            }
             if ( ! FactQuery::canRead( $fact->key, $scope ) ) continue;
             if ( SubjectFilters::for( $context, $fact ) === null ) continue;
             $out[] = $fact;

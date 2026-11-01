@@ -166,6 +166,7 @@ class AnalyticsModule implements ModuleInterface {
             entityScope: 'player',
             readEntity:  'attendance',
             teamColumn:  'a.team_id',
+            playerColumn: 'f.player_id',
         ) );
 
         // ── activities ─────────────────────────────────────────────

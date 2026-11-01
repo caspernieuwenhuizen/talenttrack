@@ -105,8 +105,11 @@ final class FactQuery {
     public static function canRead( string $factKey, FactScope $scope ): bool {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return false;
-        if ( ! $scope->mayRead( $fact->readEntity ) ) return false;
-        return $scope->isClubWide() || $fact->isScopable();
+        [ $mode ] = $scope->access( $fact->readEntity );
+        if ( $mode === FactScope::ALL ) return true;
+        if ( $mode === FactScope::TEAMS ) return $fact->isScopable();
+        if ( $mode === FactScope::PLAYERS ) return $fact->playerColumn !== null;
+        return false;
     }
 
     /**
@@ -302,20 +305,25 @@ final class FactQuery {
         global $wpdb;
         $params = [];
 
-        if ( ! $scope->mayRead( $fact->readEntity ) ) return null;
+        // The scope follows the fact's own read entity (FactScope::access()).
+        [ $mode, $ids ] = $scope->access( $fact->readEntity );
+        if ( $mode === FactScope::NONE ) return null;
 
         $clauses = [];
-        $teams   = $scope->teamIds();
-        if ( $teams !== null ) {
-            if ( $teams === [] || ! $fact->isScopable() ) return null;
-            $in = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
+        if ( $mode === FactScope::TEAMS ) {
+            if ( $ids === [] || ! $fact->isScopable() ) return null;
+            $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
             if ( $fact->teamColumn !== null ) {
                 $clauses[] = $fact->teamColumn . " IN ({$in})";
             } else {
                 $clauses[] = "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_players sp WHERE sp.id = "
                     . $fact->playerColumn . " AND sp.team_id IN ({$in}) )";
             }
-            foreach ( $teams as $t ) $params[] = $t;
+            foreach ( $ids as $t ) $params[] = $t;
+        } elseif ( $mode === FactScope::PLAYERS ) {
+            if ( $ids === [] || $fact->playerColumn === null ) return null;
+            $clauses[] = $fact->playerColumn . ' IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+            foreach ( $ids as $p ) $params[] = $p;
         }
 
         $levels = $scope->visibilities();

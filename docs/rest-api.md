@@ -1259,8 +1259,13 @@ for a group), `from` and `to` (`Y-m-d`; the season so far when omitted) and
   coach's query never fetches another team's row.
 - **The audience.** A family or scout audience is only ever about one player
   (`400 invalid_field` otherwise), and its payload keeps only the keys the
-  block declares safe. A breakdown by player and a group average are never
-  sent to it.
+  block declares safe. A breakdown by player or by evaluator and a group
+  average are never sent to it, `own_question` offers it only the facts of
+  the player-report sections on that audience's list, and journey events are
+  read at the public level only.
+- **Row scope per fact.** Each fact's rows follow the caller's grant on that
+  fact's own read entity: global, the caller's teams, or the caller's own
+  record. A fact with no read entity is refused.
 - **Options.** Only declared options and values: `400 unknown_field` /
   `invalid_field` with the field in `details`.
 
