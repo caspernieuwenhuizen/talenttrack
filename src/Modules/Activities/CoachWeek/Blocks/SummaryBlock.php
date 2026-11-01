@@ -16,7 +16,7 @@ use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
  * recorded register. The percentage is the team attendance report's own:
  * `AttendanceRankingQuery::teamRows()` pooled by
  * `AttendanceFlagService::pooledPresentPct()`, so present and late count as
- * attended and the two can never disagree.
+ * attended and the two agree for the same dates and teams.
  */
 final class SummaryBlock extends AbstractWeekBlock {
 
