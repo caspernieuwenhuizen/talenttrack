@@ -3,12 +3,10 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 
 /**
@@ -58,7 +56,8 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
  * ## What is not computed here
  *
  * Goals and assists come from {@see GoalContributionQuery}, appearances and
- * minutes from {@see MinutesQuery}. Only the record is new SQL. That is what
+ * minutes from {@see MinutesQuery}, and the record from {@see TeamMatchRecord},
+ * the read the monthly report's match section shares (#4590). That is what
  * makes the statistics tab's goals reconcile exactly with the minutes report's
  * goals rather than approximately, which is the whole reason #2859 put the
  * counting in one place.
@@ -68,16 +67,6 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
  * as a fact.
  */
 final class TeamMatchStatsQuery {
-
-    /**
-     * Types that carry a single scoreline. Deliberately **not**
-     * `ActivityTypeKey::MATCH_LIKE`, which includes `tournament`.
-     *
-     * As an SQL value list, following `ActivityTypeKey::MATCH_LIKE_SQL`: a
-     * constant expression over class constants, so it stays a literal-string
-     * for the prepared-statement analyser and can never carry request input.
-     */
-    private const FIXTURE_TYPES_SQL = "'" . ActivityTypeKey::GAME . "','" . ActivityTypeKey::LEGACY_GAME . "'";
 
     /** How many results the form line carries unless the caller says otherwise. */
     private const FORM_LIMIT = 5;
@@ -182,42 +171,22 @@ final class TeamMatchStatsQuery {
     }
 
     // ──────────────────────────────────────────────────────────────
-    // Record and form — the only new SQL in the class
+    // Record and form
     // ──────────────────────────────────────────────────────────────
 
     /**
      * The team's fixtures in the window: past, live, not called off, and
-     * carrying a single scoreline (so: no tournaments).
+     * carrying a single scoreline (so: no tournaments). The same read the
+     * monthly report's match section counts ({@see TeamMatchRecord}, #4590).
      *
-     * `completedClause()` is deliberately not used. A match nobody marked
-     * completed is exactly the match nobody typed a result into, and those are
-     * the rows `without_a_score` exists to surface.
+     * A match nobody marked completed is still read: it is exactly the match
+     * nobody typed a result into, and those are the rows `without_a_score`
+     * exists to surface.
      *
-     * @return list<object>
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}>
      */
     private function fixtures( int $team_id, string $from, string $to ): array {
-        global $wpdb;
-        $p     = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
-
-        /** @var list<object>|null $rows */
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
-               FROM {$p}tt_activities a
-              WHERE a.team_id = %d
-                AND a.club_id = %d
-                AND LOWER(a.activity_type_key) IN (" . self::FIXTURE_TYPES_SQL . ")
-                AND a.session_date <= CURDATE()
-                AND a.session_date BETWEEN %s AND %s
-                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
-                {$scope}
-           ORDER BY a.session_date ASC, a.id ASC",
-            $team_id, CurrentClub::id(), $from, $to
-        ) );
-
-        return $rows ?? [];
+        return TeamMatchRecord::fixtures( $team_id, $from, $to, true );
     }
 
     /**
@@ -247,46 +216,29 @@ final class TeamMatchStatsQuery {
     }
 
     /**
-     * @param list<object> $fixtures
+     * The tab's record: `played` counts scored fixtures only, and the rest
+     * are `without_a_score`.
+     *
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $fixtures
      * @return array{played:int, won:int, drawn:int, lost:int, goals_for:int,
      *               goals_against:int, goal_difference:int, clean_sheets:int,
      *               without_a_score:int, tournaments_excluded:int}
      */
     private function record( array $fixtures, int $tournaments ): array {
-        $out = [
-            'played'               => 0,
-            'won'                  => 0,
-            'drawn'                => 0,
-            'lost'                 => 0,
-            'goals_for'            => 0,
-            'goals_against'        => 0,
-            'goal_difference'      => 0,
-            'clean_sheets'         => 0,
-            'without_a_score'      => 0,
+        $tally = TeamMatchRecord::tally( $fixtures );
+
+        return [
+            'played'               => $tally['scored'],
+            'won'                  => $tally['won'],
+            'drawn'                => $tally['drawn'],
+            'lost'                 => $tally['lost'],
+            'goals_for'            => $tally['goals_for'],
+            'goals_against'        => $tally['goals_against'],
+            'goal_difference'      => $tally['goal_difference'],
+            'clean_sheets'         => $tally['clean_sheets'],
+            'without_a_score'      => $tally['without_score'],
             'tournaments_excluded' => $tournaments,
         ];
-
-        foreach ( $fixtures as $fixture ) {
-            $result = $this->frame( $fixture );
-            if ( $result === null ) {
-                $out['without_a_score']++;
-                continue;
-            }
-
-            $out['played']++;
-            $out['goals_for']     += $result['team_score'];
-            $out['goals_against'] += $result['opp_score'];
-
-            if ( $result['outcome'] === 'W' )      $out['won']++;
-            elseif ( $result['outcome'] === 'L' )  $out['lost']++;
-            else                                   $out['drawn']++;
-
-            if ( $result['opp_score'] === 0 ) $out['clean_sheets']++;
-        }
-
-        $out['goal_difference'] = $out['goals_for'] - $out['goals_against'];
-
-        return $out;
     }
 
     /**
@@ -294,47 +246,31 @@ final class TeamMatchStatsQuery {
      * fetched for the record rather than from a second query, so the form line
      * can never describe a different set of matches than the record above it.
      *
-     * @param list<object> $fixtures
+     * The scoreline was framed by `MatchResultQuery::frame()` on the way in:
+     * `home_score` is the academy's goals whatever the venue (#3530, #4066).
+     * `home_away` is only the label; the academy team is home unless the row
+     * says `away`.
+     *
+     * @param list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}> $fixtures
      * @return list<array{activity_id:int, session_date:string, opponent:string,
      *                    home_away:string, team_score:int, opp_score:int, outcome:string}>
      */
     private function form( array $fixtures, int $limit ): array {
         $out = [];
         foreach ( array_reverse( $fixtures ) as $fixture ) {
-            $result = $this->frame( $fixture );
-            if ( $result === null ) continue;
-            $out[] = $result;
+            if ( $fixture['team_score'] === null || $fixture['opp_score'] === null ) continue;
+            $out[] = [
+                'activity_id'  => $fixture['activity_id'],
+                'session_date' => $fixture['date'],
+                'opponent'     => $fixture['opponent'],
+                'home_away'    => $fixture['home_away'] === 'away' ? 'away' : 'home',
+                'team_score'   => $fixture['team_score'],
+                'opp_score'    => $fixture['opp_score'],
+                'outcome'      => $fixture['outcome'],
+            ];
             if ( count( $out ) >= $limit ) break;
         }
         return $out;
-    }
-
-    /**
-     * One fixture from the academy's side, or null when it carries no result.
-     *
-     * The scoreline is framed by {@see MatchResultQuery::frame()}, the one
-     * place the column convention lives: `home_score` is the academy's goals
-     * whatever the venue (#3530, #4066). `home_away` is only the label; the
-     * academy team is home unless the row says `away`.
-     *
-     * @return array{activity_id:int, session_date:string, opponent:string,
-     *               home_away:string, team_score:int, opp_score:int, outcome:string}|null
-     */
-    private function frame( object $fixture ): ?array {
-        $result = MatchResultQuery::frame( $fixture->home_score ?? null, $fixture->away_score ?? null );
-        if ( $result['our_score'] === null || $result['their_score'] === null ) {
-            return null;
-        }
-
-        return [
-            'activity_id'  => (int) ( $fixture->id ?? 0 ),
-            'session_date' => (string) ( $fixture->session_date ?? '' ),
-            'opponent'     => (string) ( $fixture->opponent ?? '' ),
-            'home_away'    => ( (string) ( $fixture->home_away ?? '' ) ) === 'away' ? 'away' : 'home',
-            'team_score'   => $result['our_score'],
-            'opp_score'    => $result['their_score'],
-            'outcome'      => $result['outcome'],
-        ];
     }
 
     // ──────────────────────────────────────────────────────────────
