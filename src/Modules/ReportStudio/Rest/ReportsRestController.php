@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
-use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportData;
 use TT\Modules\ReportStudio\Domain\ReportDefinition;
@@ -215,19 +215,25 @@ final class ReportsRestController extends BaseController {
         if ( ! in_array( $per_page, self::PER_PAGE, true ) ) return self::badFilter( 'per_page' );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) return self::badFilter( 'order' );
 
-        $user_id = get_current_user_id();
-        $result  = ( new ReportsRepository() )->listFor(
-            $user_id,
-            array_values( PersonaResolver::personasFor( $user_id ) ),
+        $reader = ReportReader::for( get_current_user_id() );
+        $rows   = ( new ReportsRepository() )->listFor(
+            $reader->userId,
+            $reader->personas(),
             [ 'kind' => $values['kind'], 'scope' => $values['scope'], 'owner' => $values['owner'], 'archived' => $values['archived'] ],
-            $page,
-            $per_page,
             $order === 'asc'
         );
 
+        // Every player subject on the list in one read, then a report
+        // published to me stays only while I can reach what it is about.
+        $reader->primePlayers( array_values( array_filter( array_map( static fn( array $row ): int => (int) $row['player_id'], $rows ) ) ) );
+        $rows = array_values( array_filter(
+            $rows,
+            static fn( array $row ): bool => $row['owner_user_id'] === $reader->userId || ReportAccess::canReadSubject( $reader, $row )
+        ) );
+
         return RestResponse::success( [
-            'rows'     => array_map( static fn( array $report ): array => self::payload( $report, $user_id ), $result['rows'] ),
-            'total'    => $result['total'],
+            'rows'     => array_map( static fn( array $report ): array => self::payload( $report, $reader ), array_slice( $rows, ( $page - 1 ) * $per_page, $per_page ) ),
+            'total'    => count( $rows ),
             'page'     => $page,
             'per_page' => $per_page,
         ] );
@@ -249,7 +255,7 @@ final class ReportsRestController extends BaseController {
         if ( $report === null ) {
             return RestResponse::error( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
         }
-        return RestResponse::success( self::full( $report, $user_id ), 201 );
+        return RestResponse::success( self::full( $report, ReportReader::for( $user_id ) ), 201 );
     }
 
     public static function get_report( WP_REST_Request $r ): WP_REST_Response {
@@ -258,10 +264,10 @@ final class ReportsRestController extends BaseController {
 
         $report = ( new ReportsRepository() )->find( (int) $r['id'] );
         if ( $report === null ) return RestResponse::notFound();
-        $user_id = get_current_user_id();
-        if ( ! ReportAccess::canRead( $user_id, $report ) ) return self::notShared();
+        $reader = ReportReader::for( get_current_user_id() );
+        if ( ! ReportAccess::canRead( $reader, $report ) ) return self::notShared();
 
-        return RestResponse::success( self::full( $report, $user_id ) );
+        return RestResponse::success( self::full( $report, $reader ) );
     }
 
     /**
@@ -276,7 +282,8 @@ final class ReportsRestController extends BaseController {
 
         $loaded = self::editable( (int) $r['id'] );
         if ( $loaded instanceof WP_REST_Response ) return $loaded;
-        [ $report, $user_id ] = $loaded;
+        [ $report, $reader ] = $loaded;
+        $user_id = $reader->userId;
 
         $body = self::body( $r );
         if ( ! array_key_exists( 'name', $body ) && ! array_key_exists( 'definition', $body ) ) {
@@ -316,7 +323,7 @@ final class ReportsRestController extends BaseController {
         if ( $name !== null ) $repo->rename( $report['id'], $name );
 
         $fresh = $repo->find( $report['id'] );
-        return RestResponse::success( self::full( $fresh ?? $report, $user_id ) );
+        return RestResponse::success( self::full( $fresh ?? $report, $reader ) );
     }
 
     public static function archive_report( WP_REST_Request $r ): WP_REST_Response {
@@ -325,7 +332,8 @@ final class ReportsRestController extends BaseController {
 
         $loaded = self::editable( (int) $r['id'] );
         if ( $loaded instanceof WP_REST_Response ) return $loaded;
-        [ $report, $user_id ] = $loaded;
+        [ $report, $reader ] = $loaded;
+        $user_id = $reader->userId;
 
         if ( $report['archived_at'] === null ) {
             ( new ArchiveRepository() )->archive( 'report', [ $report['id'] ], $user_id );
@@ -358,7 +366,8 @@ final class ReportsRestController extends BaseController {
 
         $loaded = self::editable( (int) $r['id'] );
         if ( $loaded instanceof WP_REST_Response ) return $loaded;
-        [ $report, $user_id ] = $loaded;
+        [ $report, $reader ] = $loaded;
+        $user_id = $reader->userId;
 
         $body = self::body( $r );
         $no   = $body['from_version'] ?? null;
@@ -402,7 +411,8 @@ final class ReportsRestController extends BaseController {
 
         $loaded = self::editable( (int) $r['id'] );
         if ( $loaded instanceof WP_REST_Response ) return $loaded;
-        [ $report, $user_id ] = $loaded;
+        [ $report, $reader ] = $loaded;
+        $user_id = $reader->userId;
 
         $body = self::body( $r );
         $note = is_string( $body['note'] ?? null ) ? sanitize_textarea_field( (string) $body['note'] ) : '';
@@ -420,7 +430,7 @@ final class ReportsRestController extends BaseController {
         }
         $keys = array_values( $keys );
 
-        if ( ! ReportAccess::canPublish( $user_id, $report, $keys ) ) {
+        if ( ! ReportAccess::canPublish( $reader, $report, $keys ) ) {
             return RestResponse::error( 'forbidden_publish', __( 'You may publish this report for yourself, not for others.', 'talenttrack' ), 403 );
         }
         if ( $keys !== [] && $report['sharing'] !== ReportStartRules::SHARING_ROLE ) {
@@ -429,7 +439,11 @@ final class ReportsRestController extends BaseController {
 
         $repo    = new ReportsRepository();
         $draft   = $repo->ensureDraft( $report, $user_id );
-        $version = $repo->publish( $report['id'], $draft['definition'], $note, $keys, $user_id );
+        try {
+            $version = $repo->publish( $report['id'], $draft['definition'], $note, $keys, $user_id );
+        } catch ( \RuntimeException $e ) {
+            return RestResponse::error( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
+        }
         if ( $version === null ) {
             return RestResponse::error( 'version_conflict', __( 'Someone published this report at the same moment. Try again.', 'talenttrack' ), 409 );
         }
@@ -443,8 +457,8 @@ final class ReportsRestController extends BaseController {
 
         $report = ( new ReportsRepository() )->find( (int) $r['id'] );
         if ( $report === null ) return RestResponse::notFound();
-        $user_id = get_current_user_id();
-        if ( ! ReportAccess::canRead( $user_id, $report ) ) return self::notShared();
+        $reader = ReportReader::for( get_current_user_id() );
+        if ( ! ReportAccess::canRead( $reader, $report ) ) return self::notShared();
 
         $source = is_string( $r->get_param( 'source' ) ) ? (string) $r->get_param( 'source' ) : '';
         if ( ! in_array( $source, [ '', 'draft', 'published' ], true ) ) return self::badFilter( 'source' );
@@ -460,7 +474,7 @@ final class ReportsRestController extends BaseController {
             'team_id'   => $id_param( $r->get_param( 'team_id' ) ),
             'from'      => $text( $r->get_param( 'from' ) ),
             'to'        => $text( $r->get_param( 'to' ) ),
-        ], $user_id );
+        ], $reader );
         if ( $data instanceof StudioError ) return self::refuse( $data );
 
         return RestResponse::success( $data );
@@ -471,28 +485,31 @@ final class ReportsRestController extends BaseController {
     /**
      * The report, when it exists and this user may edit it.
      *
-     * @return array{0:Report, 1:int}|WP_REST_Response
+     * @return array{0:Report, 1:ReportReader}|WP_REST_Response
      */
     private static function editable( int $id ): array|WP_REST_Response {
         $report = ( new ReportsRepository() )->find( $id );
         if ( $report === null ) return RestResponse::notFound();
-        $user_id = get_current_user_id();
-        if ( ! ReportAccess::canEdit( $user_id, $report ) ) {
-            return ReportAccess::canRead( $user_id, $report )
+        $reader = ReportReader::for( get_current_user_id() );
+        if ( ! ReportAccess::canEdit( $reader, $report ) ) {
+            return ReportAccess::canRead( $reader, $report )
                 ? RestResponse::error( 'forbidden', __( 'You may read this report, not change it.', 'talenttrack' ), 403 )
                 : self::notShared();
         }
-        return [ $report, $user_id ];
+        return [ $report, $reader ];
     }
 
     /**
-     * The summary every list row and every single report carries.
+     * The summary every list row and every single report carries. A
+     * recipient does not get the group's cohort rule or the owner's account:
+     * they read the report, not how it was built or by whom.
      *
      * @param Report $report
      * @return array<string,mixed>
      */
-    private static function payload( array $report, int $user_id ): array {
-        return [
+    private static function payload( array $report, ReportReader $reader ): array {
+        $permissions = ReportAccess::permissions( $reader, $report );
+        $out = [
             'id'                   => $report['id'],
             'uuid'                 => $report['uuid'],
             'name'                 => $report['name'],
@@ -514,8 +531,12 @@ final class ReportsRestController extends BaseController {
             'created_at'           => $report['created_at'],
             'updated_at'           => $report['updated_at'],
             'archived_at'          => $report['archived_at'],
-            'permissions'          => ReportAccess::permissions( $user_id, $report ),
+            'permissions'          => $permissions,
         ];
+        if ( ! $permissions['can_edit'] ) {
+            unset( $out['subject']['cohort'], $out['owner_user_id'] );
+        }
+        return $out;
     }
 
     /**
@@ -525,11 +546,11 @@ final class ReportsRestController extends BaseController {
      * @param Report $report
      * @return array<string,mixed>
      */
-    private static function full( array $report, int $user_id ): array {
-        $out = self::payload( $report, $user_id );
-        if ( ReportAccess::canEdit( $user_id, $report ) ) {
+    private static function full( array $report, ReportReader $reader ): array {
+        $out = self::payload( $report, $reader );
+        if ( ReportAccess::canEdit( $reader, $report ) ) {
             $repo                = new ReportsRepository();
-            $out['draft']        = $repo->draft( $report['id'], $user_id );
+            $out['draft']        = $repo->draft( $report['id'], $reader->userId );
             $out['persona_keys'] = $repo->personaKeys( $report['id'] );
         }
         return $out;

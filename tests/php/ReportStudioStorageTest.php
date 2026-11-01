@@ -15,7 +15,7 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
  */
 final class ReportStudioStorageTest extends WP_UnitTestCase {
 
-    // The cascades commit, so the purge tests clean up what they wrote.
+    // Publishing and the cascades commit, so every test cleans up what it wrote.
     use CommitsAfterCascade;
 
     private const MIGRATION = '/database/migrations/0307_report_studio_storage.php';
@@ -23,6 +23,11 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         $this->markFixtureFloor();
+    }
+
+    public function tear_down(): void {
+        $this->cleanUpAndCommit();
+        parent::tear_down();
     }
 
     public function test_the_migration_runs_twice_and_writes_the_matrix_once(): void {
@@ -84,7 +89,6 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
         }
         $this->assertSame( 1, $this->rows( 'tt_reports', 'id', $other ), 'a report about nobody in particular stays' );
 
-        $this->cleanUpAndCommit();
     }
 
     public function test_purging_a_team_removes_its_reports_and_everything_on_them(): void {
@@ -101,7 +105,6 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
             $this->assertSame( 0, $this->rows( $table, 'report_id', $report ), $table );
         }
 
-        $this->cleanUpAndCommit();
     }
 
     public function test_a_report_is_a_recycle_bin_entity(): void {

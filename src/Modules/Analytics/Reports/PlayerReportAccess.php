@@ -42,6 +42,45 @@ final class PlayerReportAccess {
     }
 
     /**
+     * `canRead()` for many players at once, for a list: one read of the
+     * players' teams, one `canViewPlayers()` statement, and the `reports`
+     * grant asked once per distinct team.
+     *
+     * @param list<int> $player_ids
+     * @return array{read:array<int,bool>, teams:array<int,int>} per player id:
+     *         whether the report reads, and the player's team (0 for none).
+     *         A player outside the club is absent from `teams` and reads false.
+     */
+    public static function canReadMany( int $user_id, array $player_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        $out = [ 'read' => [], 'teams' => [] ];
+        if ( $ids === [] ) return $out;
+
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, team_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND FIND_IN_SET( id, %s )",
+            (int) CurrentClub::id(),
+            implode( ',', $ids )
+        ) );
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            if ( is_object( $row ) ) $out['teams'][ (int) ( $row->id ?? 0 ) ] = (int) ( $row->team_id ?? 0 );
+        }
+
+        $viewable = $user_id > 0 ? AuthorizationService::canViewPlayers( $user_id, array_keys( $out['teams'] ) ) : [];
+        $team_ok  = [];
+        foreach ( $ids as $id ) {
+            if ( $user_id <= 0 || ! isset( $out['teams'][ $id ] ) ) {
+                $out['read'][ $id ] = false;
+                continue;
+            }
+            $team = $out['teams'][ $id ];
+            if ( ! isset( $team_ok[ $team ] ) ) $team_ok[ $team ] = self::readsReports( $user_id, $team );
+            $out['read'][ $id ] = $team_ok[ $team ] && ! empty( $viewable[ $id ] );
+        }
+        return $out;
+    }
+
+    /**
      * May this user make a record out of this player's report: freeze a
      * snapshot, share one with the family, or write a note on one?
      *

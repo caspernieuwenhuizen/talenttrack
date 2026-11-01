@@ -661,7 +661,7 @@ What the scope means:
 
 **Publishing.** A builder can always publish a report for themselves. Publishing it to a role (a persona key such as `head_coach`) needs `report_publishing`. Only staff personas can be chosen: a family sees a shared snapshot, never a live report.
 
-**Reading a published report.** A user reads a published report when they hold one of the personas it was published to, and each block still checks its subject against them. Read on `reports` alone is not enough: a scout holds it for every team and still cannot open a report that was not published to scouts.
+**Reading a published report.** A user reads a published report when they hold one of the personas it was published to and can read what it is about, and each block still checks its subject against them. A coach who leaves the team stops seeing the report, in the list too. Read on `reports` alone is not enough: a scout holds it for every team and still cannot open a report that was not published to scouts.
 
 Existing installs get both entities' rows with the update that adds the Studio's storage (migration `0307_report_studio_storage`). It writes the seed's rows with `INSERT IGNORE`, so a row an admin has edited is left alone and a second run writes nothing.
 

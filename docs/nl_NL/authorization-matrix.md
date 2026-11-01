@@ -660,7 +660,7 @@ Wat de scope betekent:
 
 **Publiceren.** Een bouwer kan een rapport altijd voor zichzelf publiceren. Het voor een rol publiceren (een personasleutel zoals `head_coach`) vraagt `report_publishing`. Alleen staf-persona's zijn te kiezen: een gezin ziet een gedeelde momentopname, nooit een live rapport.
 
-**Een gepubliceerd rapport lezen.** Een gebruiker leest een gepubliceerd rapport als hij een van de persona's heeft waarvoor het is gepubliceerd, en elk blok controleert daarbij nog steeds zijn onderwerp. Lezen op `reports` alleen is niet genoeg: een scout heeft dat voor alle teams en kan toch geen rapport openen dat niet voor scouts is gepubliceerd.
+**Een gepubliceerd rapport lezen.** Een gebruiker leest een gepubliceerd rapport als hij een van de persona's heeft waarvoor het is gepubliceerd en kan lezen waar het over gaat, en elk blok controleert daarbij nog steeds zijn onderwerp. Een coach die het team verlaat, ziet het rapport niet meer, ook niet in de lijst. Lezen op `reports` alleen is niet genoeg: een scout heeft dat voor alle teams en kan toch geen rapport openen dat niet voor scouts is gepubliceerd.
 
 Bestaande installaties krijgen de rijen van beide entiteiten met de update die de opslag van de Studio toevoegt (migratie `0307_report_studio_storage`). Die schrijft de rijen uit de seed met `INSERT IGNORE`, dus een rij die een beheerder heeft aangepast blijft ongemoeid en een tweede run schrijft niets.
 

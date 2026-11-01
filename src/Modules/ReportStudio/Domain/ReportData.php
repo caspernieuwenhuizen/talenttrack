@@ -36,16 +36,17 @@ final class ReportData {
      * @param array{source:string, player_id:?int, team_id:?int, from:string, to:string} $in
      * @return array<string,mixed>|StudioError
      */
-    public static function compose( array $report, array $in, int $user_id ): array|StudioError {
-        $editor = ReportAccess::canEdit( $user_id, $report );
-        if ( ! $editor && ! ReportAccess::isRecipient( $user_id, $report ) ) {
+    public static function compose( array $report, array $in, ReportReader $reader ): array|StudioError {
+        $user_id = $reader->userId;
+        $editor  = ReportAccess::canEdit( $reader, $report );
+        if ( ! $editor && ! ReportAccess::isRecipient( $reader, $report ) ) {
             return new StudioError( 'forbidden', __( 'This report is not shared with you.', 'talenttrack' ), 403 );
         }
 
         $definition = self::definition( $report, $in['source'], $editor, $user_id );
         if ( $definition instanceof StudioError ) return $definition;
 
-        $subject = self::subject( $report, $in, $editor, $user_id );
+        $subject = self::subject( $report, $in, $editor, $reader );
         if ( $subject instanceof StudioError ) return $subject;
 
         $period = self::period( $report, $in, $editor );
@@ -68,6 +69,9 @@ final class ReportData {
         if ( $checked instanceof StudioError ) return $checked;
         $checked = ReportSubjectAccess::check( $checked );
         if ( $checked instanceof StudioError ) return $checked;
+        // A group is narrowed to the players this reader may see; the blocks
+        // and the payload get that list, never the cohort's whole roster.
+        $context['player_ids'] = $checked->playerIds;
 
         $blocks = [];
         foreach ( ReportDefinition::blocks( $definition['definition'] ) as $block ) {
@@ -92,7 +96,7 @@ final class ReportData {
                 'scope'      => $report['scope'],
                 'player_id'  => $subject['player_id'],
                 'team_id'    => $subject['team_id'],
-                'player_ids' => $subject['player_ids'],
+                'player_ids' => $checked->playerIds,
                 'from'       => $period['from'],
                 'to'         => $period['to'],
                 'audience'   => $report['audience'],
@@ -131,7 +135,8 @@ final class ReportData {
      * @param array{source:string, player_id:?int, team_id:?int, from:string, to:string} $in
      * @return array{player_id:?int, team_id:?int, player_ids:list<int>}|StudioError
      */
-    private static function subject( array $report, array $in, bool $editor, int $user_id ): array|StudioError {
+    private static function subject( array $report, array $in, bool $editor, ReportReader $reader ): array|StudioError {
+        $user_id = $reader->userId;
         $scope   = $report['scope'];
         $none    = [ 'player_id' => null, 'team_id' => null, 'player_ids' => [] ];
         $binding = $report['binding'];
@@ -154,7 +159,7 @@ final class ReportData {
                 if ( ! $editor ) {
                     return new StudioError( 'fixed_subject', __( 'This report is about a fixed subject.', 'talenttrack' ), 403, [ 'field' => $field ] );
                 }
-                $refused = ReportAccess::buildRefusal( $user_id, $scope, $is_player ? $asked : null, $is_player ? null : $asked, [] );
+                $refused = ReportAccess::buildRefusal( $reader, $scope, $is_player ? $asked : null, $is_player ? null : $asked, [] );
                 if ( $refused !== null ) return $refused;
                 $id = $asked;
             }

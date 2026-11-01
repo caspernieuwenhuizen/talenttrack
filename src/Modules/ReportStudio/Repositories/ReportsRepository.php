@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -18,6 +19,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * @phpstan-type Version array{id:int, uuid:string, version_no:int, definition:array<mixed>, note:string, published_by:int, published_at:string}
  */
 final class ReportsRepository {
+
+    /** The most reports one list reads before it is filtered and paged. */
+    public const MAX_LISTED = 2000;
 
     /**
      * Store a new report and its owner's empty draft.
@@ -77,21 +81,25 @@ final class ReportsRepository {
     }
 
     /**
-     * A page of the reports this user owns and the ones published to a
-     * persona they hold, newest first by id (the primary key).
+     * The reports this user owns and the ones published to a persona they
+     * hold, by id (the primary key). A published report a recipient may list
+     * is never an archived one.
+     *
+     * Not paged here: the caller still drops published rows whose subject
+     * the reader cannot reach, and pages what is left, so the total is
+     * right. `MAX_LISTED` bounds the read.
      *
      * @param array{kind:string, scope:string, owner:string, archived:string} $filters
      *        empty strings mean "any"; `owner` is `me` or `published`;
      *        `archived` is `active` or `archived`.
      * @param list<string> $persona_keys the personas the user holds
-     * @return array{rows:list<Report>, total:int}
+     * @return list<Report>
      */
-    public function listFor( int $user_id, array $persona_keys, array $filters, int $page, int $per_page, bool $ascending ): array {
+    public function listFor( int $user_id, array $persona_keys, array $filters, bool $ascending ): array {
         global $wpdb;
-        $p      = $wpdb->prefix;
-        $club   = CurrentClub::id();
-        $set    = implode( ',', $persona_keys );
-        $offset = max( 0, ( $page - 1 ) * $per_page );
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+        $set  = implode( ',', $persona_keys );
 
         $where = "r.club_id = %d
               AND r.trashed_at IS NULL
@@ -100,7 +108,8 @@ final class ReportsRepository {
               AND ( %s = '' OR r.scope = %s )
               AND (
                     ( %s IN ( '', 'me' ) AND r.owner_user_id = %d )
-                 OR ( %s IN ( '', 'published' ) AND r.published_version_id IS NOT NULL
+                 OR ( %s IN ( '', 'published' ) AND r.owner_user_id <> %d
+                      AND r.published_version_id IS NOT NULL AND r.archived_at IS NULL
                       AND EXISTS ( SELECT 1 FROM {$p}tt_report_publications pub
                                     WHERE pub.report_id = r.id AND pub.club_id = r.club_id
                                       AND FIND_IN_SET( pub.persona_key, %s ) ) )
@@ -111,21 +120,20 @@ final class ReportsRepository {
             $filters['kind'], $filters['kind'],
             $filters['scope'], $filters['scope'],
             $filters['owner'], $user_id,
-            $filters['owner'], $set,
+            $filters['owner'], $user_id, $set,
+            self::MAX_LISTED,
         ];
 
-        $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_reports r WHERE {$where}", ...$args ) );
-
         $sql = $ascending
-            ? "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id ASC LIMIT %d OFFSET %d"
-            : "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id DESC LIMIT %d OFFSET %d";
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...array_merge( $args, [ $per_page, $offset ] ) ), ARRAY_A );
+            ? "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id ASC LIMIT %d"
+            : "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id DESC LIMIT %d";
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$args ), ARRAY_A );
 
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             if ( is_array( $row ) ) $out[] = self::hydrate( $row );
         }
-        return [ 'rows' => $out, 'total' => $total ];
+        return $out;
     }
 
     /**
@@ -222,11 +230,14 @@ final class ReportsRepository {
      *
      * The next number is MAX + 1; `UNIQUE (report_id, version_no)` refuses a
      * second publish that read the same MAX, and that publish is tried once
-     * more before it gives up.
+     * more before it gives up. The version, the report's pointer to it and
+     * the publication list are written in one transaction, so a failure
+     * leaves the report as it was.
      *
      * @param array<mixed> $definition
-     * @param list<string>        $persona_keys
+     * @param list<string> $persona_keys
      * @return array{id:int, version_no:int}|null null when the version number stayed taken
+     * @throws \RuntimeException on any other database error, after rolling back.
      */
     public function publish( int $report_id, array $definition, string $note, array $persona_keys, int $user_id ): ?array {
         global $wpdb;
@@ -234,40 +245,62 @@ final class ReportsRepository {
         $club = CurrentClub::id();
         $now  = current_time( 'mysql', true );
 
-        $version = null;
-        for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
-            $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d",
-                $report_id, $club
-            ) );
-            $suppress = $wpdb->suppress_errors( true );
-            $ok       = $wpdb->insert( $p . 'tt_report_versions', [
-                'uuid'            => wp_generate_uuid4(),
-                'club_id'         => $club,
-                'report_id'       => $report_id,
-                'version_no'      => $next,
-                'definition_json' => (string) wp_json_encode( $definition ),
-                'note'            => $note,
-                'published_by'    => $user_id,
-                'published_at'    => $now,
-            ] );
-            $wpdb->suppress_errors( $suppress );
-            if ( $ok !== false ) $version = [ 'id' => (int) $wpdb->insert_id, 'version_no' => $next ];
-        }
-        if ( $version === null ) return null;
+        Transaction::begin();
+        try {
+            $version = null;
+            for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
+                $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d",
+                    $report_id, $club
+                ) );
+                $suppress = $wpdb->suppress_errors( true );
+                $ok       = $wpdb->insert( $p . 'tt_report_versions', [
+                    'uuid'            => wp_generate_uuid4(),
+                    'club_id'         => $club,
+                    'report_id'       => $report_id,
+                    'version_no'      => $next,
+                    'definition_json' => (string) wp_json_encode( $definition ),
+                    'note'            => $note,
+                    'published_by'    => $user_id,
+                    'published_at'    => $now,
+                ] );
+                $wpdb->suppress_errors( $suppress );
+                if ( $ok !== false ) {
+                    $version = [ 'id' => (int) $wpdb->insert_id, 'version_no' => $next ];
+                } elseif ( stripos( (string) $wpdb->last_error, 'Duplicate entry' ) === false ) {
+                    throw new \RuntimeException( 'Publishing a report version failed: ' . $wpdb->last_error );
+                }
+            }
+            if ( $version === null ) {
+                Transaction::rollback();
+                return null;
+            }
 
-        $wpdb->update( $p . 'tt_reports', [ 'published_version_id' => $version['id'], 'updated_at' => $now ], [ 'id' => $report_id, 'club_id' => $club ] );
-        $wpdb->delete( $p . 'tt_report_publications', [ 'report_id' => $report_id, 'club_id' => $club ] );
-        foreach ( $persona_keys as $key ) {
-            $wpdb->insert( $p . 'tt_report_publications', [
-                'club_id'      => $club,
-                'report_id'    => $report_id,
-                'persona_key'  => $key,
-                'published_by' => $user_id,
-                'published_at' => $now,
-            ] );
+            $this->check( $wpdb->update( $p . 'tt_reports', [ 'published_version_id' => $version['id'], 'updated_at' => $now ], [ 'id' => $report_id, 'club_id' => $club ] ) );
+            $this->check( $wpdb->delete( $p . 'tt_report_publications', [ 'report_id' => $report_id, 'club_id' => $club ] ) );
+            foreach ( $persona_keys as $key ) {
+                $this->check( $wpdb->insert( $p . 'tt_report_publications', [
+                    'club_id'      => $club,
+                    'report_id'    => $report_id,
+                    'persona_key'  => $key,
+                    'published_by' => $user_id,
+                    'published_at' => $now,
+                ] ) );
+            }
+        } catch ( \Throwable $e ) {
+            Transaction::rollback();
+            throw $e instanceof \RuntimeException ? $e : new \RuntimeException( $e->getMessage(), 0, $e );
         }
+        Transaction::commit();
         return $version;
+    }
+
+    /** Throw on a failed write inside the publish transaction. */
+    private function check( int|bool $result ): void {
+        if ( $result === false ) {
+            global $wpdb;
+            throw new \RuntimeException( 'Publishing a report failed: ' . $wpdb->last_error );
+        }
     }
 
     /**

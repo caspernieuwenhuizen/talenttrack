@@ -28,6 +28,10 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  */
 final class ReportsRestTest extends WP_UnitTestCase {
 
+    // Publishing commits, so every test cleans up what it wrote.
+    use CommitsAfterCascade;
+
+    private int $coach_person = 0;
     private int $team_a = 0;
     private int $team_b = 0;
     private int $player_a = 0;
@@ -39,6 +43,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->markFixtureFloor();
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
 
@@ -75,6 +80,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         LicenseMode::overrideForTests( null );
         LicenseGate::overrideTierForTests( null );
         wp_set_current_user( 0 );
+        $this->cleanUpAndCommit();
         $this->flush();
         parent::tear_down();
     }
@@ -335,6 +341,55 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertSame( 'forbidden_team', $this->code( $other ) );
     }
 
+    public function test_a_reader_who_loses_the_team_loses_the_published_report(): void {
+        // Head coach of team B too, so the coach keeps the persona the
+        // report is published to once team A is taken away.
+        $this->assign( $this->coach_person, $this->team_b, true );
+        $id = $this->publishedGroup( [ $this->team_a ] );
+
+        $get = $this->send( 'GET', "reports/{$id}" );
+        $this->assertSame( 200, $get->get_status(), 'Precondition: the recipient reads it.' );
+        $this->assertArrayNotHasKey( 'owner_user_id', $get->get_data()['data'], 'a recipient is not told who built it' );
+        $this->assertArrayNotHasKey( 'cohort', $get->get_data()['data']['subject'], 'nor how the group is made up' );
+        $this->assertSame( 1, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'] );
+        $this->assertSame( 200, $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] )->get_status() );
+
+        $this->unassign( $this->coach_person, $this->team_a );
+
+        $this->assertSame( 403, $this->send( 'GET', "reports/{$id}" )->get_status() );
+        $this->assertSame( 403, $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] )->get_status() );
+        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'] );
+    }
+
+    public function test_the_data_route_returns_the_group_as_narrowed_for_the_reader(): void {
+        $id = $this->publishedGroup( [ $this->team_a, $this->team_b ] );
+
+        $res = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] );
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( [ $this->player_a ], $res->get_data()['data']['context']['player_ids'], 'never the other team\'s player' );
+
+        wp_set_current_user( $this->hod );
+        $all = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'source' => 'published' ] );
+        $this->assertEqualsCanonicalizing( [ $this->player_a, $this->player_b ], $all->get_data()['data']['context']['player_ids'], 'Precondition: the cohort holds both.' );
+    }
+
+    public function test_an_archived_report_drops_off_its_recipients_list(): void {
+        wp_set_current_user( $this->hod );
+        $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+
+        wp_set_current_user( $this->coach );
+        $this->assertSame( 1, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'] );
+
+        wp_set_current_user( $this->hod );
+        $this->assertSame( 200, $this->send( 'DELETE', "reports/{$id}" )->get_status() );
+        $this->assertSame( 1, $this->send( 'GET', 'reports', [], [ 'filter' => [ 'archived' => 'archived' ] ] )->get_data()['data']['total'], 'its builder still finds it' );
+
+        wp_set_current_user( $this->coach );
+        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'] );
+        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'filter' => [ 'archived' => 'archived' ] ] )->get_data()['data']['total'] );
+    }
+
     public function test_every_route_answers_402_without_the_plan_feature(): void {
         $id = $this->create( [ 'scope' => 'me' ] );
         LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );
@@ -389,20 +444,47 @@ final class ReportsRestTest extends WP_UnitTestCase {
 
     private function coachOf( int $team, bool $head ): int {
         global $wpdb;
-        $p    = $wpdb->prefix;
         $user = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
-        $wpdb->insert( "{$p}tt_people", [
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
             'club_id' => CurrentClub::id(), 'first_name' => $head ? 'Head' : 'Assistant', 'last_name' => 'Coach',
             'role_type' => $head ? 'head_coach' : 'assistant_coach', 'wp_user_id' => $user, 'status' => 'active',
         ] );
         $person = (int) $wpdb->insert_id;
-        $wpdb->insert( "{$p}tt_team_people", [
+        if ( $head && $this->coach_person === 0 ) $this->coach_person = $person;
+        $this->assign( $person, $team, $head );
+        return $user;
+    }
+
+    private function assign( int $person, int $team, bool $head ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
             'team_id' => $team, 'person_id' => $person, 'role_in_team' => $head ? 'head_coach' : 'assistant_coach', 'is_head_coach' => $head ? 1 : 0,
         ] );
-        $wpdb->insert( "{$p}tt_user_role_scopes", [
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
             'club_id' => CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
         ] );
-        return $user;
+    }
+
+    private function unassign( int $person, int $team ): void {
+        global $wpdb;
+        $wpdb->delete( "{$wpdb->prefix}tt_team_people", [ 'person_id' => $person, 'team_id' => $team ] );
+        $wpdb->delete( "{$wpdb->prefix}tt_user_role_scopes", [ 'person_id' => $person, 'scope_type' => 'team', 'scope_id' => $team ] );
+        $this->flush();
+    }
+
+    /**
+     * A head-of-development report about a group, chosen when opened and
+     * published to head coaches, with one block.
+     *
+     * @param list<int> $teams
+     */
+    private function publishedGroup( array $teams ): int {
+        wp_set_current_user( $this->hod );
+        $id = $this->create( [ 'scope' => 'group', 'binding' => 'on_open', 'sharing' => 'role', 'name' => 'Group pack', 'cohort' => [ 'team_ids' => $teams ] ] );
+        $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        wp_set_current_user( $this->coach );
+        return $id;
     }
 
     private function flush(): void {

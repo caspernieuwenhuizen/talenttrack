@@ -1310,9 +1310,14 @@ assistant coach for the teams they coach. `tt_publish_reports` (matrix
 development and academy admin only. Both capabilities are club-wide, so every
 by-id route asks about the report itself (`ReportAccess`): an **editor** is
 its owner, or a builder for every team, while its subject is one they build
-for; a **recipient** holds one of the persona keys it is published to.
-Holding `tt_view_reports` alone opens nothing: a scout holds it club-wide and
-is answered `403 forbidden` on a report that was not published to scouts.
+for; a **recipient** holds one of the persona keys it is published to **and**
+can read its subject (`ReportAccess::canReadSubject()`): a stored player or
+team through the player or team report rule, a group through at least one of
+its teams, the academy through club-wide analytics, and a subject chosen when
+opened at that point. A coach who leaves the team stops reaching the report:
+`GET` and `/data` answer `403` and the list drops it. Holding
+`tt_view_reports` alone opens nothing: a scout holds it club-wide and is
+answered `403 forbidden` on a report that was not published to scouts.
 
 | Route | Cap | What |
 | --- | --- | --- |
@@ -1338,6 +1343,8 @@ same; a report that does not exist in the club is `404 not_found`.
 `page` from 1, `per_page` 10, 25 (default), 50 or 100, `order` `desc`
 (default) or `asc` on the report id. **An unknown value is `400 bad_filter`**
 with the parameter in `details`. Answers `{ rows, total, page, per_page }`.
+A report published to me is listed only while it is not archived and I can
+read its subject, and `total` counts what is left.
 
 ### `POST /reports`
 
@@ -1389,7 +1396,9 @@ report made for a role (`sharing: role`); persona keys are staff personas
 only, because a family reads a shared snapshot, never a live report (`400
 invalid_field` with the allowed keys). Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
-version_conflict`, and no duplicate is written. `201 { version_no,
+version_conflict`, and no duplicate is written. The version, the report's
+pointer to it and the persona list are written in one transaction; any other
+database error rolls them back and answers `500 db_error`. `201 { version_no,
 persona_keys }`. Publishing is its own action, never a field on the
 autosaving draft.
 
@@ -1448,7 +1457,9 @@ row scope. `source` is `draft` (a builder's own, their default) or
 
 `permissions` says what the caller may do; no role names travel.
 `owner_user_id` is a mapping to the account that made the report, not its
-identity, which is the `uuid`.
+identity, which is the `uuid`. A recipient gets neither `owner_user_id` nor
+`subject.cohort`, and `/data` gives them a group's players as narrowed to the
+ones they may see, never the cohort's whole roster.
 
 **Storage.** Archiving uses the recycle bin (entity `report`); purging a
 report takes its drafts, versions and publications. Purging a team removes

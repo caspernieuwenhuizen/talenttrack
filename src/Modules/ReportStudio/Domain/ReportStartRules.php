@@ -135,7 +135,7 @@ final class ReportStartRules {
             if ( $cohort instanceof StudioError ) return $cohort;
         }
 
-        $refused = ReportAccess::buildRefusal( $user_id, $scope, $player_id, $team_id, $cohort !== null ? $cohort['team_ids'] : [] );
+        $refused = ReportAccess::buildRefusal( ReportReader::for( $user_id ), $scope, $player_id, $team_id, $cohort !== null ? $cohort['team_ids'] : [] );
         if ( $refused !== null ) return $refused;
 
         return [
