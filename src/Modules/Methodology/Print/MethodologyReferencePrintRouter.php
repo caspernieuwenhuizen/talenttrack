@@ -142,7 +142,7 @@ class MethodologyReferencePrintRouter {
             <header class="ref-head">
                 <div>
                     <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php echo esc_html_x( 'Game principles', 'methodology reference card', 'talenttrack' ); /* tt-inline-ok: pre-existing style, line touched for i18n */ ?>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Game principles', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of principles */
                             __( '%1$s — game model · %2$d principles · use the codes when setting goals.', 'talenttrack' ),
@@ -203,7 +203,7 @@ class MethodologyReferencePrintRouter {
             <header class="ref-head">
                 <div>
                     <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php echo esc_html_x( 'Football actions', 'methodology reference card', 'talenttrack' ); /* tt-inline-ok: pre-existing style, line touched for i18n */ ?>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Football actions', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: %d = number of football actions */
                             __( 'The %d football actions every player practises — pick 1–2 per goal.', 'talenttrack' ),
@@ -271,7 +271,7 @@ class MethodologyReferencePrintRouter {
             <header class="ref-head">
                 <div>
                     <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php echo esc_html_x( 'Learning goals', 'methodology reference card', 'talenttrack' ); /* tt-inline-ok: pre-existing style, line touched for i18n */ ?>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Learning goals', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of learning goals */
                             __( '%1$s — %2$d learning goals · underpin the game principles with concrete sub-skills.', 'talenttrack' ),
@@ -416,6 +416,7 @@ body { font-family: var(--font); color: var(--ink); font-size: 11pt; line-height
 .brand { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); font-weight: 700; margin: 0 0 4px; }
 .title { margin: 0 0 12px; font-size: 18pt; font-weight: 800; color: var(--ink); line-height: 1.15; }
 .title small { display: block; font-size: 10pt; font-weight: 500; color: var(--ink-soft); margin-top: 2px; }
+.title--flush { margin-bottom: 0; }
 
 .ref-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 3mm; margin-bottom: 5mm; }
 .ref-head__sub { font-size: 9pt; color: var(--ink-soft); }

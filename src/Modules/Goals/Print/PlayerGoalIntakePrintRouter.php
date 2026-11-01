@@ -440,7 +440,7 @@ class PlayerGoalIntakePrintRouter {
             <div class="lookback__card">
                 <p class="lookback__card-title"><?php echo esc_html( (string) $card['title'] ); ?></p>
                 <?php if ( empty( $card['items'] ) ) : ?>
-                    <p style="color: var(--ink-soft); font-size: 10pt; font-style: italic;"><?php esc_html_e( 'No data from last season.', 'talenttrack' ); /* tt-inline-ok: pre-existing style, line touched for i18n */ ?></p>
+                    <p class="empty-note"><?php esc_html_e( 'No data from last season.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <ul>
                         <?php foreach ( $card['items'] as $item ) : ?>
@@ -785,6 +785,7 @@ body { font-family: var(--font); color: var(--ink); font-size: 11pt; line-height
 .brand { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); font-weight: 700; margin: 0 0 4px; }
 .title { margin: 0 0 12px; font-size: 18pt; font-weight: 800; color: var(--ink); line-height: 1.15; }
 .title small { display: block; font-size: 10pt; font-weight: 500; color: var(--ink-soft); margin-top: 2px; }
+.empty-note { color: var(--ink-soft); font-size: 10pt; font-style: italic; }
 
 .identity { display: grid; grid-template-columns: 28mm 1fr; gap: 8mm; padding-bottom: 4mm; border-bottom: 1px solid var(--line); margin-bottom: 5mm; }
 .identity__photo { width: 28mm; height: 32mm; background: var(--mute); border: 1px solid var(--line); border-radius: 2mm; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 8pt; text-align: center; padding: 2mm; }
