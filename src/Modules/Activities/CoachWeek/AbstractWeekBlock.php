@@ -4,9 +4,9 @@ namespace TT\Modules\Activities\CoachWeek;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * No-op defaults for a block: no help text, off unless a subclass says
- * otherwise, nothing on a row and nothing on the panel. A block overrides
- * only what it contributes.
+ * No-op defaults for a block: no help text, always available, off unless a
+ * subclass says otherwise, owns no fields, contributes nothing. A block
+ * overrides only what it contributes.
  */
 abstract class AbstractWeekBlock implements WeekBlock {
 
@@ -14,8 +14,24 @@ abstract class AbstractWeekBlock implements WeekBlock {
         return '';
     }
 
+    public function available(): bool {
+        return true;
+    }
+
     public function defaultFor( string $persona, string $device ): bool {
         return false;
+    }
+
+    public function optInFor( string $persona ): bool {
+        return false;
+    }
+
+    public function rowDefaults(): array {
+        return [];
+    }
+
+    public function panelDefaults(): array {
+        return [];
     }
 
     public function rowFields( WeekRow $row, WeekContext $week ): array {

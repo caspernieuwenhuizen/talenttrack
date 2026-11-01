@@ -19,6 +19,6 @@ final class OpenActivityAction extends CoreWeekBlock implements ActionBlock {
     public function label(): string { return __( 'Open activity', 'talenttrack' ); }
 
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
-        return ( $row->isMatch && $row->when !== WeekRow::WHEN_PAST ) ? CoachWeek::ACTION_OPEN_ACTIVITY : null;
+        return ( $row->isMatch && $row->when !== WeekRow::WHEN_PAST && $week->canSeeTeam( $row->teamId ) ) ? CoachWeek::ACTION_OPEN_ACTIVITY : null;
     }
 }

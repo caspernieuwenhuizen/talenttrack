@@ -48,6 +48,16 @@ final class WeekBlockRegistry {
         return self::$blocks;
     }
 
+    /**
+     * The blocks that can work on this install (`WeekBlock::available()`):
+     * the ones the settings screen lists and the week asks.
+     *
+     * @return array<string, WeekBlock> key => block, in display order
+     */
+    public static function available(): array {
+        return array_filter( self::all(), static fn( WeekBlock $b ): bool => $b->available() );
+    }
+
     public static function get( string $key ): ?WeekBlock {
         return self::all()[ $key ] ?? null;
     }
@@ -58,12 +68,12 @@ final class WeekBlockRegistry {
     }
 
     /**
-     * The blocks of one settings group, in display order.
+     * The available blocks of one settings group, in display order.
      *
      * @return list<WeekBlock>
      */
     public static function inGroup( string $group ): array {
-        return array_values( array_filter( self::all(), static fn( WeekBlock $b ): bool => $b->group() === $group ) );
+        return array_values( array_filter( self::available(), static fn( WeekBlock $b ): bool => $b->group() === $group ) );
     }
 
     /**

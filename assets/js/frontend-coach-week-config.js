@@ -71,8 +71,15 @@
                 var name = field.getAttribute('data-tt-coach-week-field');
                 s[name] = field.type === 'checkbox' ? field.checked : field.value;
             });
-            s.desktop = [];
-            s.phone = [];
+            // A block with no switch on the screen (its module is off) keeps
+            // whatever was saved for it; only the switches shown are read.
+            var shown = {};
+            Array.prototype.forEach.call(blocks, function (box) {
+                shown[box.getAttribute('data-tt-coach-week-block')] = true;
+            });
+            ['desktop', 'phone'].forEach(function (device) {
+                s[device] = s[device].filter(function (key) { return !shown[key]; });
+            });
             Array.prototype.forEach.call(blocks, function (box) {
                 if (box.checked) s[box.getAttribute('data-tt-coach-week-device')].push(box.getAttribute('data-tt-coach-week-block'));
             });

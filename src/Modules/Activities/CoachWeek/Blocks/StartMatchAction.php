@@ -3,11 +3,14 @@ namespace TT\Modules\Activities\CoachWeek\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\ModuleRegistry;
 use TT\Modules\Activities\CoachWeek\ActionBlock;
 use TT\Modules\Activities\CoachWeek\WeekBlockGroup;
 use TT\Modules\Activities\CoachWeek\WeekContext;
 use TT\Modules\Activities\CoachWeek\WeekRow;
 use TT\Modules\Activities\Services\CoachWeek;
+use TT\Modules\MatchExecution\MatchExecutionModule;
+use TT\Modules\MatchPrep\MatchPrepModule;
 
 /**
  * Start match: on match day, once a preparation exists and Match execution
@@ -23,8 +26,12 @@ final class StartMatchAction extends CoreWeekBlock implements ActionBlock {
 
     public function help(): string { return __( 'Only on match day, never on a completed match.', 'talenttrack' ); }
 
+    public function available(): bool {
+        return ModuleRegistry::isEnabled( MatchPrepModule::class ) && ModuleRegistry::isEnabled( MatchExecutionModule::class );
+    }
+
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
-        if ( ! $row->isOpenMatch() || ! $week->canEdit || ! $week->prepOn() ) return null;
+        if ( ! $row->isOpenMatch() || ! $week->prepOn() || ! $week->canEditTeam( $row->teamId ) ) return null;
         return self::applies( $row, $week ) ? CoachWeek::ACTION_START_MATCH : null;
     }
 

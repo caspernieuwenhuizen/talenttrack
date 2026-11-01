@@ -28,6 +28,7 @@ abstract class CoreWeekBlock extends AbstractWeekBlock {
     public function defaultFor( string $persona, string $device ): bool {
         $key = $this->key();
         if ( in_array( $key, self::OFF_BY_DEFAULT, true ) ) return false;
+        if ( $this->optInFor( $persona ) ) return false;
         if ( $persona === 'team_manager' ) return in_array( $key, self::TEAM_MANAGER, true );
         if ( $device === 'phone' ) return in_array( $key, self::COACH_PHONE, true );
         return true;

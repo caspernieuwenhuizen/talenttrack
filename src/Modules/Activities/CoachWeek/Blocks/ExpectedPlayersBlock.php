@@ -18,8 +18,10 @@ final class ExpectedPlayersBlock extends CoreWeekBlock {
 
     public function help(): string { return __( 'How many players are expected, from the planned squad.', 'talenttrack' ); }
 
+    public function rowDefaults(): array { return [ 'planned' => null ]; }
+
     public function rowFields( WeekRow $row, WeekContext $week ): array {
-        if ( $row->isMatch || $row->isDone() ) return [];
+        if ( $row->isMatch || $row->isDone() || ! $week->canSeeTeam( $row->teamId ) ) return [];
         return [ 'planned' => $week->planned( $row ) ];
     }
 }

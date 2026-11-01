@@ -7,7 +7,6 @@ use TT\Core\ModuleRegistry;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\ActivitiesModule;
 use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\CoachWeek\ActionBlock;
@@ -149,21 +148,25 @@ final class CoachWeek {
             'past'           => WeekSettings::PAST_SHOW,
             'blocks'         => [ WeekSettings::DEVICE_DESKTOP => [], WeekSettings::DEVICE_PHONE => [] ],
             'rows'           => [],
-            'next_week'      => [],
-        ];
+        ] + self::panelDefaults();
         if ( $settings === null ) return $out;
 
         $teams = self::teamsFor( $user_id, $settings['teams'] );
         if ( $teams === [] ) return $out;
 
-        $phone                 = $settings['phone_on'] ? $settings['phone'] : [];
+        // Only blocks that can work on this install are listed or asked.
+        $blocks    = WeekBlockRegistry::available();
+        $available = static fn( array $keys ): array => array_values( array_filter( $keys, static fn( string $k ): bool => isset( $blocks[ $k ] ) ) );
+        $desktop   = $available( $settings['desktop'] );
+        $phone     = $settings['phone_on'] ? $available( $settings['phone'] ) : [];
+
         $out['visible']        = true;
         $out['multiple_teams'] = count( $teams ) > 1;
         $out['phone_on']       = $settings['phone_on'];
         $out['past']           = $settings['past'];
-        $out['blocks']         = [ WeekSettings::DEVICE_DESKTOP => $settings['desktop'], WeekSettings::DEVICE_PHONE => $phone ];
+        $out['blocks']         = [ WeekSettings::DEVICE_DESKTOP => $desktop, WeekSettings::DEVICE_PHONE => $phone ];
 
-        $on = array_fill_keys( array_merge( $settings['desktop'], $phone ), true );
+        $on = array_fill_keys( array_merge( $desktop, $phone ), true );
 
         $activities = [];
         foreach ( ( new ActivitiesRepository() )->listForTeamsInWindow( array_keys( $teams ), $start, $end ) as $a ) {
@@ -178,11 +181,9 @@ final class CoachWeek {
             $end,
             $teams,
             $activities,
-            AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' ),
             $on
         );
 
-        $blocks      = WeekBlockRegistry::all();
         $type_labels = [];
         foreach ( $week->rows() as $row ) {
             if ( $row->isMatch ) $out['has_match'] = true;
@@ -191,12 +192,13 @@ final class CoachWeek {
             if ( ! isset( $type_labels[ $row->type ] ) ) {
                 $type_labels[ $row->type ] = (string) ( LabelTranslator::activityType( $row->type ) ?? ucfirst( str_replace( '_', ' ', $row->type ) ) );
             }
-            $fields  = self::baseRow( $row, $teams, $type_labels[ $row->type ] );
+            $fields  = self::baseRow( $row, $teams, $type_labels[ $row->type ] ) + self::rowDefaults();
             $actions = [];
 
             foreach ( $blocks as $key => $block ) {
                 if ( ! $week->isOn( $key ) ) continue;
-                $fields = array_merge( $fields, $block->rowFields( $row, $week ) );
+                // A block writes only the fields it owns.
+                $fields = array_replace( $fields, array_intersect_key( $block->rowFields( $row, $week ), $block->rowDefaults() ) );
                 if ( $block instanceof ActionBlock ) {
                     $action = $block->actionFor( $row, $week );
                     if ( $action !== null && ! in_array( $action, $actions, true ) ) $actions[] = $action;
@@ -207,9 +209,33 @@ final class CoachWeek {
         }
 
         foreach ( $blocks as $key => $block ) {
-            if ( $week->isOn( $key ) ) $out = array_merge( $out, $block->panelFields( $week ) );
+            if ( ! $week->isOn( $key ) ) continue;
+            $out = array_replace( $out, array_intersect_key( $block->panelFields( $week ), $block->panelDefaults() ) );
         }
 
+        return $out;
+    }
+
+    /**
+     * Every block's own row fields at their empty value, so a row has the
+     * same shape whatever is switched on.
+     *
+     * @return array<string, mixed>
+     */
+    public static function rowDefaults(): array {
+        $out = [];
+        foreach ( WeekBlockRegistry::all() as $block ) $out += $block->rowDefaults();
+        return $out;
+    }
+
+    /**
+     * Every block's own top-level fields at their empty value.
+     *
+     * @return array<string, mixed>
+     */
+    public static function panelDefaults(): array {
+        $out = [];
+        foreach ( WeekBlockRegistry::all() as $block ) $out += $block->panelDefaults();
         return $out;
     }
 
@@ -296,8 +322,9 @@ final class CoachWeek {
     }
 
     /**
-     * The fields every row carries, whatever is switched on. The values a
-     * block computes start empty and are filled by the block.
+     * The identity fields every row carries, whatever is switched on. The
+     * fields a block computes come from its `rowDefaults()` and `rowFields()`,
+     * and `actions` is set last. No block may write these.
      *
      * @param array<int, string> $teams
      * @return array<string, mixed>
@@ -320,12 +347,6 @@ final class CoachWeek {
             'end_time'            => self::hhmm( (string) ( $a['end_time'] ?? '' ) ),
             'meet_time'           => self::hhmm( (string) ( $a['time_of_presence'] ?? '' ) ),
             'location'            => (string) ( $a['location'] ?? '' ),
-            'attendance_recorded' => null,
-            'planned'             => null,
-            'training_plan'       => null,
-            'availability'        => null,
-            'lineup'              => null,
-            'actions'             => [],
         ];
     }
 

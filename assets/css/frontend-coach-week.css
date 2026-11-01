@@ -428,8 +428,10 @@ a.tt-week-row:active {
     outline-offset: 2px;
 }
 
+/* Off: a dashed outline, so the text keeps full contrast. */
 .tt-coach-week-config__pill.is-off span {
-    color: var(--tt-muted);
+    border-style: dashed;
+    color: var(--tt-ink);
 }
 
 .tt-coach-week-config__switches {
@@ -473,8 +475,9 @@ a.tt-week-row:active {
 }
 
 .tt-coach-week-config__select select {
+    width: 100%;
+    max-width: 24rem;
     min-height: 48px;
-    max-width: 100%;
     font-size: 1rem;
 }
 
@@ -505,9 +508,12 @@ a.tt-week-row:active {
     font-size: 0.8rem;
 }
 
+/* Wide enough for the longest header ("Telefoon"), with a gap between the
+ * two, so the labels never run together. */
 .tt-coach-week-config__devices {
     display: grid;
-    grid-template-columns: repeat(2, 3.5rem);
+    grid-template-columns: repeat(2, 4.25rem);
+    column-gap: var(--tt-sp-2, 0.5rem);
     justify-items: center;
 }
 

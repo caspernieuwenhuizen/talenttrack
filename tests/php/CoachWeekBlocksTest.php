@@ -106,6 +106,102 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertSame( array_values( CoachWeek::actionBlocks() ), array_map( static fn( ActionBlock $b ): string => $b->key(), WeekBlockRegistry::actions() ) );
     }
 
+    public function test_a_block_writes_only_its_own_fields_and_no_two_blocks_share_one(): void {
+        $base  = array_keys( CoachWeek::forUser( $this->coach, '2026-11-04' )['rows'][0] );
+        $owned = [];
+        foreach ( WeekBlockRegistry::all() as $key => $block ) {
+            foreach ( array_keys( $block->rowDefaults() ) as $field ) {
+                $this->assertArrayNotHasKey( $field, $owned, "{$key} and {$owned[ $field ]} both claim {$field}" );
+                $owned[ $field ] = $key;
+            }
+        }
+        $identity = array_diff( $base, array_keys( $owned ) );
+        foreach ( [ 'activity_id', 'team_id', 'date', 'when', 'actions' ] as $field ) {
+            $this->assertContains( $field, $identity, "{$field} is the row's own, no block may claim it" );
+        }
+
+        $panel = [];
+        foreach ( WeekBlockRegistry::all() as $key => $block ) {
+            foreach ( array_keys( $block->panelDefaults() ) as $field ) {
+                $this->assertNotContains( $field, [ 'visible', 'rows', 'blocks', 'week_start', 'week_end', 'today', 'past', 'phone_on', 'window', 'has_match', 'multiple_teams' ], "{$key} may not claim {$field}" );
+                $this->assertArrayNotHasKey( $field, $panel, "{$key} and another block both claim {$field}" );
+                $panel[ $field ] = $key;
+            }
+        }
+    }
+
+    public function test_a_block_whose_module_is_off_has_no_switch_and_is_not_listed(): void {
+        $module = \TT\Modules\Training\TrainingModule::class;
+        if ( \TT\Core\ModuleRegistry::isAlwaysOn( $module ) ) $this->markTestSkipped( 'Training is always on here.' );
+
+        \TT\Core\ModuleRegistry::setEnabled( $module, false );
+        try {
+            $this->assertArrayNotHasKey( 'training_plan', WeekBlockRegistry::available() );
+            $this->assertNotContains( 'training_plan', CoachWeek::forUser( $this->coach, '2026-11-04' )['blocks']['desktop'] );
+
+            $method = new \ReflectionMethod( FrontendConfigurationView::class, 'renderCoachWeekConfig' );
+            $method->setAccessible( true );
+            ob_start();
+            $method->invoke( null, [ 'head_coach' => 'Head coach' ] );
+            $html = (string) ob_get_clean();
+            $this->assertStringNotContainsString( 'data-tt-coach-week-block="training_plan"', $html );
+        } finally {
+            \TT\Core\ModuleRegistry::setEnabled( $module, true );
+        }
+        $this->assertContains( 'training_plan', CoachWeek::forUser( $this->coach, '2026-11-04' )['blocks']['desktop'], 'back on, the saved choice applies again' );
+    }
+
+    // Rights on the shared context
+
+    public function test_buttons_follow_the_edit_right_per_team_not_per_week(): void {
+        $dual = get_user_by( 'id', $this->coach );
+        $dual->add_role( 'tt_readonly_observer' );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        $this->assertTrue( \TT\Modules\Activities\ActivityAccess::hasGlobalRead( $this->coach ), 'precondition: the observer role reads every team' );
+
+        $all = [];
+        foreach ( CoachWeek::PERSONAS as $persona ) $all[ $persona ] = [ 'on' => true, 'teams' => 'all', 'desktop' => WeekBlockRegistry::keys() ];
+        $this->configureAll( $all );
+
+        $rows = [];
+        foreach ( CoachWeek::forUser( $this->coach, '2026-11-04' )['rows'] as $row ) $rows[ $row['activity_id'] ] = $row;
+
+        $this->assertArrayHasKey( $this->other, $rows, 'the second role widens the week to every team' );
+        $this->assertSame( [], $rows[ $this->other ]['actions'], 'no button on a team this user may not edit' );
+        $this->assertContains( CoachWeek::ACTION_MARK_ATTENDANCE, $rows[ $this->tuesday ]['actions'], 'their own team keeps its buttons' );
+    }
+
+    public function test_the_context_answers_who_may_see_a_player(): void {
+        global $wpdb;
+        $own   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_players WHERE team_id = %d LIMIT 1", $this->team ) );
+        $other = $this->player( $this->otherTeam, 'Elders' );
+        $week  = new \TT\Modules\Activities\CoachWeek\WeekContext( $this->coach, 'head_coach', '2026-11-04', '2026-11-02', '2026-11-08', [ $this->team => 'JO13-1' ], [], [] );
+
+        $this->assertTrue( $week->canSeePlayer( $own ), 'a player on their own team' );
+        $this->assertFalse( $week->canSeePlayer( $other ), 'a player on another team: a block gives a count, never the name' );
+        $this->assertTrue( $week->canSeeTeam( $this->team ) );
+        $this->assertFalse( $week->canSeeTeam( $this->otherTeam ) );
+        $this->assertFalse( $week->canEditTeam( $this->otherTeam ) );
+    }
+
+    // Availability for scouts and observers is opt-in
+
+    public function test_scouts_and_observers_get_availability_only_when_switched_on(): void {
+        foreach ( [ 'scout', 'readonly_observer' ] as $persona ) {
+            $defaults = CoachWeek::defaultSettings()[ $persona ];
+            $this->assertNotContains( 'availability', $defaults['desktop'], $persona );
+            $this->assertNotContains( 'availability', $defaults['phone'], $persona );
+        }
+
+        QueryHelpers::set_config( CoachWeek::CONFIG_KEY, '["head_coach","readonly_observer"]' );
+        $legacy = CoachWeek::settings();
+        $this->assertNotContains( 'availability', $legacy['readonly_observer']['desktop'], 'the older list does not switch it on for an observer' );
+        $this->assertContains( 'availability', $legacy['head_coach']['desktop'] );
+
+        $this->configure( 'readonly_observer', [ 'desktop' => [ 'availability' ] ] );
+        $this->assertSame( [ 'availability' ], CoachWeek::settings()['readonly_observer']['desktop'], 'an academy may switch it on' );
+    }
+
     // Defaults and the fallback to the older persona list
 
     public function test_with_no_settings_the_coach_gets_every_block_on_desktop_and_the_short_set_on_phone(): void {
@@ -119,6 +215,17 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertNotContains( 'training_plan', $week['blocks']['phone'] );
         $this->assertContains( 'action_start_match', $week['blocks']['phone'] );
         $this->assertSame( [], $week['next_week'], 'the peek is off until an academy turns it on' );
+    }
+
+    public function test_a_team_manager_on_the_older_list_keeps_the_whole_desktop_panel(): void {
+        QueryHelpers::set_config( CoachWeek::CONFIG_KEY, '["head_coach","team_manager"]' );
+        $settings = CoachWeek::settings();
+
+        $this->assertTrue( $settings['team_manager']['on'] );
+        $this->assertTrue( $settings['team_manager']['phone_on'] );
+        $this->assertSame( $settings['head_coach']['desktop'], $settings['team_manager']['desktop'], 'the same full desktop panel the coach gets' );
+        $this->assertContains( 'action_mark_attendance', $settings['team_manager']['desktop'] );
+        $this->assertSame( CoachWeek::defaultSettings()['team_manager']['phone'], $settings['team_manager']['phone'], 'phones take the shorter list' );
     }
 
     public function test_the_older_persona_list_still_decides_who_sees_the_panel(): void {
@@ -196,6 +303,25 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertTrue( $week['multiple_teams'] );
     }
 
+    public function test_all_teams_for_a_team_manager_stays_on_their_team_and_so_does_the_peek(): void {
+        if ( get_role( 'tt_team_manager' ) === null ) add_role( 'tt_team_manager', 'Team Manager', [ 'read' => true ] );
+        $manager = self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
+        $this->grantTeam( $manager, $this->team, 'team_manager' );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        $this->assertSame( 'team_manager', \TT\Modules\Authorization\PersonaResolver::landingPersona( $manager ) );
+        $this->assertFalse( \TT\Modules\Activities\ActivityAccess::hasGlobalRead( $manager ) );
+
+        $own_next   = $this->activity( $this->team, '2026-11-10', 'training', 'Own next' );
+        $other_next = $this->activity( $this->otherTeam, '2026-11-09', 'training', 'Other next' );
+        $this->configure( 'team_manager', [ 'on' => true, 'teams' => 'all', 'desktop' => WeekBlockRegistry::keys() ] );
+
+        $week = CoachWeek::forUser( $manager, '2026-11-04' );
+        $this->assertTrue( $week['visible'] );
+        $this->assertNotContains( $this->other, array_column( $week['rows'], 'activity_id' ) );
+        $this->assertContains( $own_next, array_column( $week['next_week'], 'activity_id' ) );
+        $this->assertNotContains( $other_next, array_column( $week['next_week'], 'activity_id' ), 'the peek reads the same teams' );
+    }
+
     public function test_the_next_seven_days_window_starts_today(): void {
         $this->configure( 'head_coach', [ 'window' => 'rolling' ] );
         $week = CoachWeek::forUser( $this->coach, '2026-11-05' );
@@ -263,6 +389,32 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [ 'type' ], CoachWeek::settings()['head_coach']['phone'] );
     }
 
+    public function test_a_user_who_may_not_change_feature_toggles_is_refused_and_nothing_changes(): void {
+        $this->configure( 'head_coach', [ 'past' => 'fold' ] );
+        $before = QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' );
+
+        $res = $this->postSettings( (string) wp_json_encode( [ 'head_coach' => [ 'on' => false ] ] ) );
+
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertContains( CoachWeek::SETTINGS_KEY, (array) $res->get_data()['data']['keys_skipped'] );
+        $this->assertSame( $before, QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' ), 'the coach cannot change the academy setting' );
+    }
+
+    public function test_an_unreadable_value_is_refused_not_reset(): void {
+        $this->configure( 'head_coach', [ 'past' => 'fold' ] );
+        $before = QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' );
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        foreach ( [ 'not json', '["head_coach"]', '42' ] as $raw ) {
+            $res = $this->postSettings( $raw );
+            $this->assertSame( 400, $res->get_status(), $raw );
+            $error = (array) $res->get_data()['errors'][0];
+            $this->assertSame( 'invalid_field', $error['code'] );
+            $this->assertSame( CoachWeek::SETTINGS_KEY, ( (array) $error['details'] )['field'] );
+            $this->assertSame( $before, QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' ), 'nothing was saved' );
+        }
+    }
+
     public function test_me_week_returns_the_blocks(): void {
         $res  = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/me/week' ) );
         $data = (array) $res->get_data()['data'];
@@ -283,7 +435,7 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'name="config[' . CoachWeek::SETTINGS_KEY . ']"', $html );
         $this->assertStringNotContainsString( 'value="player"', $html, 'players are never a choice' );
-        foreach ( WeekBlockRegistry::all() as $key => $block ) {
+        foreach ( WeekBlockRegistry::available() as $key => $block ) {
             $this->assertStringContainsString( 'aria-label="' . esc_attr( $block->label() . ' on desktop' ) . '"', $html, $key );
             $this->assertStringContainsString( 'aria-label="' . esc_attr( $block->label() . ' on phone' ) . '"', $html, $key );
         }
@@ -298,6 +450,20 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $settings              = CoachWeek::settings();
         $settings[ $persona ]  = array_merge( $settings[ $persona ], $overrides );
         QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, CoachWeek::normaliseSettingsStored( (string) wp_json_encode( $settings ) ) );
+    }
+
+    /** @param array<string, array<string, mixed>> $overrides persona => fields */
+    private function configureAll( array $overrides ): void {
+        $settings = CoachWeek::settings();
+        foreach ( $overrides as $persona => $fields ) $settings[ $persona ] = array_merge( $settings[ $persona ], $fields );
+        QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, CoachWeek::normaliseSettingsStored( (string) wp_json_encode( $settings ) ) );
+    }
+
+    private function postSettings( string $raw ): \WP_REST_Response {
+        $req = new WP_REST_Request( 'POST', '/talenttrack/v1/config' );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( [ 'config' => [ CoachWeek::SETTINGS_KEY => $raw ] ] ) );
+        return rest_do_request( $req );
     }
 
     /** @param array<string, mixed> $week */
@@ -342,13 +508,13 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
     }
 
     /** A staff record and an active team-scope grant, what get_teams_for_coach() reads. */
-    private function grantTeam( int $user_id, int $team_id ): void {
+    private function grantTeam( int $user_id, int $team_id, string $role_type = 'head_coach' ): void {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_people', [
             'club_id'    => 1,
             'first_name' => 'Week',
             'last_name'  => 'Coach',
-            'role_type'  => 'head_coach',
+            'role_type'  => $role_type,
             'wp_user_id' => $user_id,
             'status'     => 'active',
         ] );

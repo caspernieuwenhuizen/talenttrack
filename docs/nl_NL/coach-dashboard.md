@@ -37,16 +37,16 @@ Je academie kiest wat het paneel toont, per rol en per apparaat, onder **Configu
 - **Ook op telefoons** uit houdt het paneel bij tablets en desktops (768px en breder). Op een telefoon beginnen de tegels dan bovenaan.
 - **Welke week, welke teams**:
   - **Periode** is de kalenderweek, of vandaag en de zes dagen erna.
-  - **Teams** zijn de teams waarmee de gebruiker werkt, of alle teams van de academie. Alle teams van de academie geldt alleen voor wie de activiteiten van elk team mag zien, zoals het hoofd opleiding. Ieder ander ziet nog steeds de eigen teams.
+  - **Teams** is *Eigen teams* (de teams waarmee die gebruiker werkt) of *Alle teams van de academie*. Alle teams van de academie geldt alleen voor wie de activiteiten van elk team mag zien, zoals het hoofd opleiding. Ieder ander ziet nog steeds de eigen teams.
   - **Dagen die al voorbij zijn** kun je tonen, samenvouwen tot één regel, of verbergen. Een samengevouwen regel leest als *di, do · 2 activiteiten · aanwezigheid vastgelegd* en opent met een tik of met Enter.
   - **Teamnaam op elke regel** noemt het team als de week meer dan één team beslaat.
   - **Vooruitblik op volgende week** zet de eerste twee activiteiten van de zeven dagen daarna onder de lijst.
 - De andere onderdelen zetten elk deel van een regel op een rij (**Op elke regel**, **Trainingen**, **Wedstrijden**) en elke knop (**Knoppen op een regel**). Elk heeft een vakje **Desktop** en een vakje **Telefoon**, zodat een telefoon een korter paneel kan tonen dan een desktop. Er staan hooguit twee knoppen op een regel, en de eerste die van toepassing is, is de hoofdknop.
 - **Reset naar standaarden** zet de rol die je bekijkt terug op de begininstellingen. Druk op **Opslaan** om dat te bewaren.
 
-Het paneel toont nooit meer dan wat de gebruiker elders al mag zien. Een gebruiker in wiens week geen team zit, ziet het nooit, welke rol die ook heeft.
+Het paneel beslaat alleen teams die de gebruiker mag zien, en een knop verschijnt alleen op een regel van een team dat de gebruiker mag wijzigen. Een gebruiker in wiens week geen team zit, ziet het paneel nooit, welke rol die ook heeft. Scouts en waarnemers krijgen de aantallen beschikbare spelers alleen als je dat blok voor hen aanzet.
 
-Zonder aanpassingen toont een desktop alles wat hierboven staat. Een telefoon laat de locatie en het trainingsplan weg. Een teammanager ziet tijden, locatie, verwachte spelers en de tegenstander, zonder knoppen, zodra de academie het paneel voor die rol aanzet.
+Tot de instellingen voor het eerst worden opgeslagen, houdt elke rol die het paneel al zag het hele paneel op een desktop, teammanagers inbegrepen. Op een telefoon laat het de locatie en het trainingsplan weg, en ziet een teammanager daar tijden, locatie, verwachte spelers en de tegenstander. Een teammanager die pas na het opslaan wordt aangezet, begint op beide apparaten met die kortere set.
 
 ## Tegels die je het meeste gebruikt
 

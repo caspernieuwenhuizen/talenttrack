@@ -22,7 +22,7 @@ final class MarkAttendanceAction extends CoreWeekBlock implements ActionBlock {
     public function label(): string { return __( 'Mark attendance', 'talenttrack' ); }
 
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
-        if ( ! $row->register || ! $week->canEdit ) return null;
+        if ( ! $row->register || ! $week->canEditTeam( $row->teamId ) ) return null;
         if ( $row->isDone() ) {
             // A completed match dated after today gets no button: the
             // attendance rule refuses present and late before the day.

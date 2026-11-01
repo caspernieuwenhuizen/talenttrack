@@ -46,10 +46,15 @@ final class WeekSettings {
     public static function effective( array $personas, array $legacy_on ): array {
         $raw = trim( ( new ConfigService() )->get( self::CONFIG_KEY, '' ) );
         if ( $raw === '' ) {
+            // Never saved: a persona the older list switched on keeps the
+            // whole desktop panel it had, phones take the shorter defaults.
             $out = [];
             foreach ( $personas as $persona ) {
-                $settings       = self::defaultsFor( $persona );
-                $settings['on'] = in_array( $persona, $legacy_on, true );
+                $settings = self::defaultsFor( $persona );
+                $on       = in_array( $persona, $legacy_on, true );
+                $settings['on']       = $on;
+                $settings['phone_on'] = $on;
+                if ( $on ) $settings['desktop'] = self::fullDesktopFor( $persona, $personas );
                 $out[ $persona ] = $settings;
             }
             return $out;
@@ -80,6 +85,37 @@ final class WeekSettings {
             'desktop'  => $blocks[ self::DEVICE_DESKTOP ],
             'phone'    => $blocks[ self::DEVICE_PHONE ],
         ];
+    }
+
+    /**
+     * The whole desktop panel for a persona: every block some persona has
+     * on for desktop by default, less the blocks this persona must opt in
+     * to. What a persona on the older list saw before the settings existed.
+     *
+     * @param list<string> $personas every persona the setting may name
+     * @return list<string>
+     */
+    public static function fullDesktopFor( string $persona, array $personas ): array {
+        $out = [];
+        foreach ( WeekBlockRegistry::all() as $key => $block ) {
+            if ( $block->optInFor( $persona ) ) continue;
+            foreach ( $personas as $any ) {
+                if ( $block->defaultFor( $any, self::DEVICE_DESKTOP ) ) {
+                    $out[] = $key;
+                    break;
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Whether a stored or posted value can be read as settings at all: a
+     * JSON object. Anything else is refused rather than reset to defaults.
+     */
+    public static function isReadable( string $raw ): bool {
+        $decoded = json_decode( trim( $raw ), true );
+        return is_array( $decoded ) && ( $decoded === [] || ! array_is_list( $decoded ) );
     }
 
     /**

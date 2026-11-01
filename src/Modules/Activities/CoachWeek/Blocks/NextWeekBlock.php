@@ -22,6 +22,8 @@ final class NextWeekBlock extends CoreWeekBlock {
 
     public function help(): string { return __( 'The first two activities of next week, below the list.', 'talenttrack' ); }
 
+    public function panelDefaults(): array { return [ 'next_week' => [] ]; }
+
     public function panelFields( WeekContext $week ): array {
         $from = gmdate( 'Y-m-d', (int) strtotime( $week->end . ' 12:00:00 UTC +1 day' ) );
         $to   = gmdate( 'Y-m-d', (int) strtotime( $week->end . ' 12:00:00 UTC +7 days' ) );

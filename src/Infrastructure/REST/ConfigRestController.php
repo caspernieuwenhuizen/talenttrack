@@ -298,6 +298,21 @@ class ConfigRestController {
         if ( ! is_array( $payload ) ) {
             return RestResponse::error( 'bad_payload', __( 'Expected an object under `config`.', 'talenttrack' ), 400 );
         }
+        // #4492 — the This week settings hold a whole academy's setup, so a
+        // value that cannot be read is refused before anything is written,
+        // never reset to the defaults. Only asked of a caller who may write it.
+        $week_key = \TT\Modules\Activities\Services\CoachWeek::SETTINGS_KEY;
+        if ( array_key_exists( $week_key, $payload )
+            && current_user_can( self::capForKey( $week_key, 'edit' ) )
+            && ! \TT\Modules\Activities\CoachWeek\WeekSettings::isReadable( sanitize_text_field( (string) $payload[ $week_key ] ) )
+        ) {
+            return RestResponse::error(
+                'invalid_field',
+                __( 'The This week panel settings could not be read. Nothing was saved.', 'talenttrack' ),
+                400,
+                [ 'field' => $week_key ]
+            );
+        }
         $written = 0;
         $skipped = [];
         foreach ( $payload as $key => $value ) {

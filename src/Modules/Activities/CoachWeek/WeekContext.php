@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\ModuleRegistry;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
 use TT\Modules\Activities\Services\PlayerAvailability;
@@ -19,11 +21,17 @@ use TT\Modules\Training\TrainingModule;
 
 /**
  * Everything one week's blocks share: the viewer, the window, the teams,
- * the activities, and every source a block reads, each read in one batch
- * for the whole week and only when a block first asks for it.
+ * the activities, the viewer's rights, and the sources several blocks read,
+ * each read in one batch for the whole week and only when a block first
+ * asks for it.
  *
- * `once()` is the batching rule for new blocks too: wrap a read in it and
- * the week reads that source once, whatever the number of rows.
+ * `once()` is the batching rule for new blocks too: a block reads its own
+ * source inside its class through `once()`; only a fact several blocks
+ * share belongs here as a helper.
+ *
+ * The rights checks (`canSeeTeam()`, `canEditTeam()`, `canSeePlayer()`) are
+ * the one place a block asks what the viewer may see or do. `$persona` is a
+ * key for defaults only: a block never gates on it.
  */
 final class WeekContext {
 
@@ -34,7 +42,7 @@ final class WeekContext {
     private ?array $rows = null;
 
     /**
-     * @param array<int, string>          $teams      team id => name
+     * @param array<int, string>          $teams      team id => name, the teams the viewer may see this week
      * @param list<array<string, mixed>>  $activities the window's activities, repository rows
      * @param array<string, true>         $on         block key => true, when on for at least one device
      */
@@ -46,13 +54,44 @@ final class WeekContext {
         public readonly string $end,
         public readonly array $teams,
         public readonly array $activities,
-        public readonly bool $canEdit,
         private readonly array $on
     ) {}
 
     /** The block is on for at least one device of this viewer's persona. */
     public function isOn( string $block_key ): bool {
         return isset( $this->on[ $block_key ] );
+    }
+
+    /**
+     * The viewer may read this team's activities. The week's teams were
+     * chosen by that rule (their own teams, or every team with a global
+     * activities read), so this answers from them.
+     */
+    public function canSeeTeam( int $team_id ): bool {
+        return $team_id > 0 && isset( $this->teams[ $team_id ] );
+    }
+
+    /**
+     * The viewer may change this team's activities: the edit capability,
+     * and `activities` change at global scope or on this team. Asked per
+     * team, so a user whose second role widens the week to every team gets
+     * no button on a team they cannot edit.
+     */
+    public function canEditTeam( int $team_id ): bool {
+        return (bool) $this->once( 'edit_team:' . $team_id, function () use ( $team_id ): bool {
+            if ( ! $this->canSeeTeam( $team_id ) ) return false;
+            if ( ! AuthorizationService::userCanOrMatrix( $this->userId, 'tt_edit_activities' ) ) return false;
+            if ( MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return true;
+            return MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+        } );
+    }
+
+    /**
+     * The viewer may open this player's record. A block that names players
+     * names only these; everyone else gets a count.
+     */
+    public function canSeePlayer( int $player_id ): bool {
+        return (bool) $this->once( 'see_player:' . $player_id, fn(): bool => $player_id > 0 && AuthorizationService::canViewPlayer( $this->userId, $player_id ) );
     }
 
     /**

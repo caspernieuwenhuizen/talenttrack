@@ -73,8 +73,8 @@ msgid "Off: the row shows the activity title instead."
 msgstr "Uit: de regel toont dan de titel van de activiteit."
 
 #: src/Modules/Activities/CoachWeek/Blocks/AvailabilityBlock.php
-msgid "How many players can play. A count, never the reason."
-msgstr "Hoeveel spelers kunnen spelen. Een aantal, nooit de reden."
+msgid "How many players can play. A count, never the reason. Off for scouts and observers unless you switch it on."
+msgstr "Hoeveel spelers kunnen spelen. Een aantal, nooit de reden. Uit voor scouts en waarnemers, tenzij je het aanzet."
 
 #: src/Modules/Activities/CoachWeek/Blocks/LineupBlock.php
 msgid "Line-up status"
@@ -104,8 +104,12 @@ msgstr[0] "%d zonder aanwezigheid"
 msgstr[1] "%d zonder aanwezigheid"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
-msgid "The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. Blocks only ever show what that user may already see elsewhere."
-msgstr "Het tegeloverzicht toont een paneel Deze week: elke activiteit van de week bij de teams waar de gebruiker mee werkt, en wat elke activiteit nog nodig heeft. Kies per persona wat het paneel toont, op een desktop en op een telefoon. Blokken tonen nooit meer dan wat die gebruiker elders al mag zien."
+msgid "The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. The panel only covers teams that user may see, and a button only shows where that user may take the action."
+msgstr "Het tegeloverzicht toont een paneel Deze week: elke activiteit van de week bij de teams waar de gebruiker mee werkt, en wat elke activiteit nog nodig heeft. Kies per persona wat het paneel toont, op een desktop en op een telefoon. Het paneel beslaat alleen teams die die gebruiker mag zien, en een knop verschijnt alleen waar die gebruiker de handeling mag uitvoeren."
+
+#: src/Infrastructure/REST/ConfigRestController.php
+msgid "The This week panel settings could not be read. Nothing was saved."
+msgstr "De instellingen van het paneel Deze week konden niet worden gelezen. Er is niets opgeslagen."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Configure the panel for"
@@ -159,8 +163,8 @@ msgid "All academy teams applies only to users who may see every team's activiti
 msgstr "Alle teams van de academie geldt alleen voor gebruikers die de activiteiten van elk team mogen zien; anderen zien hun eigen teams."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
-msgid "Teams I work with"
-msgstr "Teams waarmee ik werk"
+msgid "Their own teams"
+msgstr "Eigen teams"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "All academy teams"

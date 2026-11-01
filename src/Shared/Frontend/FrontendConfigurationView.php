@@ -3120,7 +3120,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         <div class="tt-panel tt-coach-week-config" data-tt-coach-week-config>
             <h3 class="tt-coach-week-config__title"><?php esc_html_e( 'This week panel', 'talenttrack' ); ?></h3>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. Blocks only ever show what that user may already see elsewhere.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. The panel only covers teams that user may see, and a button only shows where that user may take the action.', 'talenttrack' ); ?>
             </p>
             <input type="hidden" name="config[<?php echo esc_attr( CoachWeek::SETTINGS_KEY ); ?>]" value="<?php echo esc_attr( (string) wp_json_encode( $settings ) ); ?>" data-tt-coach-week-json />
 
@@ -3177,8 +3177,13 @@ class FrontendConfigurationView extends FrontendViewBase {
                                     </span>
                                     <span class="tt-coach-week-config__devices">
                                         <?php foreach ( [ 'desktop', 'phone' ] as $device ) :
-                                            /* translators: %s: the name of a block of the This week panel, e.g. "Location" */
-                                            $aria = $device === 'desktop' ? sprintf( __( '%s on desktop', 'talenttrack' ), $block->label() ) : sprintf( __( '%s on phone', 'talenttrack' ), $block->label() );
+                                            if ( $device === 'desktop' ) {
+                                                /* translators: %s: the name of a block of the This week panel, e.g. "Location" */
+                                                $aria = sprintf( __( '%s on desktop', 'talenttrack' ), $block->label() );
+                                            } else {
+                                                /* translators: %s: the name of a block of the This week panel, e.g. "Location" */
+                                                $aria = sprintf( __( '%s on phone', 'talenttrack' ), $block->label() );
+                                            }
                                             ?>
                                             <label>
                                                 <input type="checkbox" data-tt-coach-week-block="<?php echo esc_attr( $key ); ?>" data-tt-coach-week-device="<?php echo esc_attr( $device ); ?>" aria-label="<?php echo esc_attr( $aria ); ?>" <?php checked( in_array( $key, $state[ $device ], true ) ); ?> />
@@ -3214,7 +3219,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             'teams' => [
                 __( 'Teams', 'talenttrack' ),
                 __( 'All academy teams applies only to users who may see every team\'s activities; others see their own teams.', 'talenttrack' ),
-                [ 'coached' => __( 'Teams I work with', 'talenttrack' ), 'all' => __( 'All academy teams', 'talenttrack' ) ],
+                [ 'coached' => __( 'Their own teams', 'talenttrack' ), 'all' => __( 'All academy teams', 'talenttrack' ) ],
             ],
             'past' => [
                 __( 'Days already past', 'talenttrack' ),

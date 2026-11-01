@@ -1460,6 +1460,9 @@ The academy's settings for the caller's persona (see **The settings** below) sha
 - `past` is `show`, `fold` (a client folds the `past` rows into one line that opens on demand) or `hide` (no `past` rows are returned; `has_match` still counts them).
 - `next_week` holds the first two activities of the seven days after `week_end` when the `next_week` block is on, as `activity_id`, `team_id`, `team_name`, `date`, `type_key`, `type_label`, `is_match`, `title`, `opponent` and `start_time`. It is `[]` otherwise.
 - With the `teams` setting at `all`, the week covers every academy team, but only for a caller with a global read on activities (`ActivityAccess::hasGlobalRead()`). Anyone else gets their own teams.
+- A button is offered per row only where the caller may change that team's activities (the edit capability and `activities` change at global scope or on that team). A user whose second role widens the week to every team gets no button on a team they cannot edit.
+- A block whose module is off (`training_plan` without Training, `lineup` and `action_match_prep` without Match prep, `action_start_match` without Match prep and Match execution) is listed for no device and leaves its field `null`.
+- `availability` is opt-in for the `scout` and `readonly_observer` personas: off by default and in the fallback, on only when the academy switches it on for them.
 
 **The settings** are the `tt_config` key `coach_week.config`: JSON keyed by persona, read and written through `GET/POST /config` on the `feature_toggles` area:
 
@@ -1468,7 +1471,7 @@ The academy's settings for the caller's persona (see **The settings** below) sha
                   "desktop": ["type", "time", "location"], "phone": ["type", "time"] } }
 ```
 
-A write is normalised: only the staff personas listed below are kept, every one of them is stored, a missing persona or field takes its default, and `desktop` / `phone` keep only registered block keys, in registry order. While `coach_week.config` has never been saved, the persona list below decides `on`, and every other field takes its default.
+A write is normalised: only the staff personas listed below are kept, every one of them is stored, a missing persona or field takes its default, and `desktop` / `phone` keep only registered block keys, in registry order. A value that is not a JSON object is refused with `400 invalid_field` (`details: { field: "coach_week.config" }`) before any key in the request is written; it is never reset to the defaults. A caller without the `feature_toggles` edit right gets the key back in `keys_skipped`, and nothing changes. While `coach_week.config` has never been saved, the persona list below decides `on` and `phone_on`; a persona it switches on gets the whole desktop panel (every block some persona has on for desktop by default, less the blocks that persona must opt in to), and phones take the persona's defaults.
 
 **The persona list** is the older `tt_config` key `coach_week.personas`, the fallback while `coach_week.config` is unsaved: a JSON list of persona keys, default `["head_coach","assistant_coach"]` when unset. It is read and written through `GET/POST /config` (gated like the `persona_dashboard.*` keys, on the `feature_toggles` area). A write is normalised to the known staff personas (`academy_admin`, `head_of_development`, `head_coach`, `assistant_coach`, `team_manager`, `scout`, `readonly_observer`); `player`, `parent` and unknown keys are dropped.
 
