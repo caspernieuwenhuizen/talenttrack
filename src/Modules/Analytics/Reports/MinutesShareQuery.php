@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
@@ -215,45 +214,36 @@ final class MinutesShareQuery {
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
 
-        // Minutes per (player, activity) in a derived table first, so a
-        // duplicate `actual` row cannot fan the join out and double a
-        // player's total (#2158). #4526 — one row per pair, by the shared
-        // newest-figure rule (`PlayerMatchMinutes`), so a duplicate is read
-        // once rather than summed. Same squad definition as
-        // Team · Minutes distribution: attendance on the team's played
-        // matches, archived players excluded (#2339, #2833).
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id AS player_id, CONCAT( pl.first_name, ' ', pl.last_name ) AS name, pl.jersey_number,
-                    COALESCE( SUM( m.match_minutes ), 0 ) AS minutes
-               FROM (
-                    SELECT att.player_id,
-                           att.activity_id,
-                           SUM( COALESCE( att.minutes_override, att.minutes_played, 0 ) ) AS match_minutes
-                      FROM {$p}tt_attendance att
-                      JOIN {$p}tt_activities a ON a.id = att.activity_id
-                           AND a.club_id = %d
-                           AND a.team_id = %d
-                           AND a.archived_at IS NULL
-                           AND a.trashed_at IS NULL
-                           AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
-                           AND {$played_sql}
-                     WHERE att.record_type = 'actual'
-                       AND att.is_guest = 0
-                       AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
-                       AND a.{$date_col} BETWEEN %s AND %s
-                       " . PlayerMatchMinutes::newestRowClause( 'att' ) . "
-                     GROUP BY att.player_id, att.activity_id
-                  ) m
-               JOIN {$p}tt_players pl ON pl.id = m.player_id AND pl.archived_at IS NULL
-              GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number
-              LIMIT 200",
+        // Same squad definition as Team · Minutes distribution: attendance on
+        // the team's played matches, archived players excluded (#2339,
+        // #2833). #4549 — the query names the squad and their matches; the
+        // minutes are the minutes reports' own read
+        // (`MinutesQuery::squadTotals()`): one figure per (player, match) by
+        // the #4526 rule, and the #4053 plan fallback on an old tournament
+        // fixture, which a SQL aggregate here never asked for.
+        $pairs = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+                    AND a.club_id = %d
+                    AND a.team_id = %d
+                    AND a.archived_at IS NULL
+                    AND a.trashed_at IS NULL
+                    AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
+                    AND {$played_sql}
+               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
+              WHERE att.record_type = 'actual'
+                AND att.is_guest = 0
+                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND a.{$date_col} BETWEEN %s AND %s
+              GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id",
             $club_id, $team_id, $from, $to
         ) );
-        $rows = is_array( $rows ) ? $rows : [];
+        $rows = array_slice( MinutesQuery::squadTotals( is_array( $pairs ) ? $pairs : [] ), 0, 200 );
 
         $players = [];
         foreach ( $rows as $r ) {
-            $minutes = (int) $r->minutes;
+            $minutes = (int) $r->total_minutes;
             $share   = $available['minutes'] > 0
                 ? ( $minutes / $available['minutes'] ) * 100
                 : null;

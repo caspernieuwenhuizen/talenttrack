@@ -167,7 +167,7 @@ final class MinutesQuery {
             // when a played match is recorded (execution finalize or the
             // manual attendance entry), and persisted as `record_type =
             // 'actual'`. Reports read only that. `$minutes_map` therefore
-            // stands as whatever persistedMinutes() returned — a match
+            // stands as whatever minutesFor() returned — a match
             // that was planned but never recorded contributes 0, not a
             // recompute from its (unplayed) lineup.
 
@@ -379,65 +379,138 @@ final class MinutesQuery {
     }
 
     /**
-     * #1489 — per-player persisted minutes for one activity, written to
-     * tt_attendance.minutes_played by MatchExecutionRepository on finish
-     * / finalize (and by the manual attendance-minutes entry, #2159).
-     * Excludes guests and zero / NULL minutes (only players who actually
-     * got on the pitch).
+     * The minutes per player for a set of activities, by the one rule every
+     * minutes report reads: the recorded register (#1489, #2159), with the
+     * #4053 rotation-plan fallback on a completed tournament fixture.
      *
-     * #2158 — restricted to `record_type = 'actual'` so only canonical
-     * recorded rows are summed (planned / forecast attendance rows never
-     * carry minutes, but the guard makes the contract explicit and
-     * future-proof). Aggregated per player so a player with more than one
-     * matching attendance row for the same activity is counted once, not
-     * fanned out.
+     *  - **Recorded minutes** are `PlayerMatchMinutes`' (#4526): the newest
+     *    recorded, non-guest row that carries a figure, with
+     *    `COALESCE(minutes_override, minutes_played)` so a coach's override
+     *    is what reports read, and a duplicate row read once, never summed.
+     *  - **A completed tournament fixture** arbitrates that register with
+     *    the rotation plan through `TournamentMinutesResolver::arbitrate()`:
+     *    a figure on the register wins, a confirmed `0` stays 0, and the
+     *    plan answers only where the register holds none — a fixture
+     *    completed before v4.135.0, whose register was written without
+     *    minutes. `plannedByActivity()` answers for completed fixtures only.
      *
-     * @return array<int,int> player_id => minutes
+     * Only players who got on the pitch: a nil is a fact about the register,
+     * not an appearance to count.
+     *
+     * #4549 — public and batched so a report keyed on many matches (Player ·
+     * Minutes played, Team · Minutes distribution, Minutes share) reads the
+     * same figures as `forTeam()` in a fixed number of queries, rather than
+     * a SQL aggregate of its own that never asked the resolver.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, array<int,int>> activity id => player id => minutes above 0
      */
-    private static function persistedMinutes( int $activity_id, int $club_id ): array {
-        // Effective minutes = COALESCE(minutes_override, minutes_played) so
-        // an explicit coach override on the match-execution surface is what
-        // reports read (the derived value stays in minutes_played). #4526 —
-        // the newest recorded row's, through the read the grid and the audit
-        // share; SUM here counted a duplicate row twice. That read scopes to
-        // the current club, which is the `$club_id` every caller passes.
-        $map = [];
-        foreach ( PlayerMatchMinutes::forActivities( [ $activity_id ] )[ $activity_id ] ?? [] as $pid => $minutes ) {
-            if ( $minutes !== null && $minutes > 0 ) $map[ (int) $pid ] = $minutes;
+    public static function minutesForActivities( array $activity_ids ): array {
+        $ids = [];
+        foreach ( $activity_ids as $aid ) {
+            $aid = (int) $aid;
+            if ( $aid > 0 ) $ids[ $aid ] = $aid;
         }
-        return $map;
+        if ( $ids === [] ) return [];
+        $ids = array_values( $ids );
+
+        $register = PlayerMatchMinutes::forActivities( $ids );
+        $planned  = TournamentMinutesResolver::plannedByActivity( $ids );
+
+        $out = [];
+        foreach ( $ids as $aid ) {
+            $values = $register[ $aid ] ?? [];
+            if ( isset( $planned[ $aid ] ) ) {
+                $values = [];
+                foreach ( TournamentMinutesResolver::arbitrate( $register[ $aid ] ?? [], $planned[ $aid ] ) as $pid => $answer ) {
+                    $values[ $pid ] = $answer['minutes'];
+                }
+            }
+            foreach ( $values as $pid => $minutes ) {
+                if ( $minutes !== null && (int) $minutes > 0 ) $out[ $aid ][ (int) $pid ] = (int) $minutes;
+            }
+        }
+        return $out;
     }
 
     /**
-     * #4053 — one activity's minutes, with the single documented fallback.
+     * #4549 — per-player totals over a squad's (player, match) pairs, by
+     * {@see minutesForActivities()}: the total minutes, and the matches with
+     * minutes (appearances). A player on a match's register with no minutes
+     * is in the squad at 0, as the reports have always shown.
      *
-     * For everything but a tournament fixture this is `persistedMinutes()`
-     * unchanged: the #2193 single source of truth, and nothing is derived.
+     * The caller's query names the squad and the matches (its own team,
+     * window and lifecycle filters); this answers the minutes for them, so
+     * Team · Minutes distribution and Minutes share read exactly what
+     * `forTeam()` reads. Sorted by total minutes, highest first, then by
+     * last and first name.
      *
-     * A **completed tournament fixture whose register carries no minutes at
-     * all** is the exception. Those predate the confirm step (v4.135.0), which
-     * wrote the register without minutes, so every minutes surface read the
-     * whole squad as nil for them. `TournamentMinutesResolver` answers for
-     * those — register first, rotation plan only where the register holds no
-     * figure — and it is the same class the player's Tournaments tab and the
-     * coach's ticker read, so the three cannot disagree about one child's
-     * afternoon. A confirmed `0` is a real figure and never falls back.
+     * @param list<object> $pairs Rows carrying `player_id`, `activity_id`,
+     *                            `first_name`, `last_name`, `jersey_number`.
+     * @return list<\stdClass> `player_id`, `name`, `first_name`, `last_name`,
+     *                         `jersey_number`, `total_minutes`, `apps`
+     */
+    public static function squadTotals( array $pairs ): array {
+        $activity_ids = [];
+        foreach ( $pairs as $pair ) {
+            $activity_ids[] = (int) ( $pair->activity_id ?? 0 );
+        }
+        $minutes = self::minutesForActivities( $activity_ids );
+
+        $players = [];
+        foreach ( $pairs as $pair ) {
+            $pid = (int) ( $pair->player_id ?? 0 );
+            $aid = (int) ( $pair->activity_id ?? 0 );
+            if ( $pid <= 0 ) continue;
+            if ( ! isset( $players[ $pid ] ) ) {
+                $first = (string) ( $pair->first_name ?? '' );
+                $last  = (string) ( $pair->last_name ?? '' );
+                $row   = new \stdClass();
+                $row->player_id     = $pid;
+                $row->name          = trim( $first . ' ' . $last );
+                $row->first_name    = $first;
+                $row->last_name     = $last;
+                $row->jersey_number = isset( $pair->jersey_number ) ? (int) $pair->jersey_number : null;
+                $row->total_minutes = 0;
+                $row->apps          = 0;
+                $players[ $pid ]    = $row;
+            }
+            $m = (int) ( $minutes[ $aid ][ $pid ] ?? 0 );
+            if ( $m > 0 ) {
+                $players[ $pid ]->total_minutes += $m;
+                $players[ $pid ]->apps++;
+            }
+        }
+
+        $out = array_values( $players );
+        usort( $out, static function ( \stdClass $a, \stdClass $b ): int {
+            if ( $a->total_minutes !== $b->total_minutes ) return $b->total_minutes <=> $a->total_minutes;
+            $by_last = strcasecmp( $a->last_name, $b->last_name );
+            return $by_last !== 0 ? $by_last : strcasecmp( $a->first_name, $b->first_name );
+        } );
+        return $out;
+    }
+
+    /**
+     * #4053 — one activity's minutes, with the single documented fallback:
+     * {@see minutesForActivities()} for one activity, so the per-match reads
+     * and the batched reports cannot disagree.
      *
-     * Only players who got on the pitch, which is what `persistedMinutes()`
-     * has always answered: a nil is a fact about the register, not an
-     * appearance to count.
+     * For everything but a tournament fixture this is the recorded register,
+     * the #2193 single source of truth, and nothing is derived. A **completed
+     * tournament fixture whose register carries no minutes at all** is the
+     * exception: those predate the confirm step (v4.135.0), so
+     * `TournamentMinutesResolver` answers — register first, rotation plan
+     * only where the register holds no figure — the same class the player's
+     * Tournaments tab and the coach's ticker read. A confirmed `0` is a real
+     * figure and never falls back.
+     *
+     * `$club_id` is the current club, which the shared read scopes to.
      *
      * @return array<int,int> player_id => minutes
      */
     private static function minutesFor( int $activity_id, int $club_id ): array {
-        $resolved = TournamentMinutesResolver::effectiveForActivity( $activity_id );
-        if ( $resolved === [] ) return self::persistedMinutes( $activity_id, $club_id );
-
-        $map = [];
-        foreach ( $resolved as $player_id => $minutes ) {
-            if ( $minutes > 0 ) $map[ $player_id ] = $minutes;
-        }
-        return $map;
+        return self::minutesForActivities( [ $activity_id ] )[ $activity_id ] ?? [];
     }
 
     /**
@@ -644,7 +717,7 @@ final class MinutesQuery {
     /**
      * Who played in one match, and for how long (#3516).
      *
-     * A thin public door onto {@see persistedMinutes()} rather than a second
+     * A thin public door onto {@see minutesFor()} rather than a second
      * query, so the monthly report's per-match squads reconcile exactly with
      * the minutes the rest of the product shows — the #2193 single source of
      * truth, persisted `record_type = 'actual'` only.

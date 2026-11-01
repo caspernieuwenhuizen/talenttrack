@@ -707,9 +707,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         ) );
         $rows = is_array( $rows ) ? $rows : [];
 
-        $played_minutes = \TT\Modules\Activities\Repositories\PlayerMatchMinutes::forActivities(
-            array_map( static fn( $r ): int => (int) $r->activity_id, $rows ),
-            $player_id
+        // #4549 — the minutes reports' own read, so an old tournament fixture
+        // reads the rotation plan's minutes here too (#4053).
+        $played_minutes = \TT\Modules\Analytics\Reports\MinutesQuery::minutesForActivities(
+            array_map( static fn( $r ): int => (int) $r->activity_id, $rows )
         );
         foreach ( $rows as $r ) {
             $r->minutes_played = (int) ( $played_minutes[ (int) $r->activity_id ][ $player_id ] ?? 0 );
@@ -1138,11 +1139,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // squad if they have ANY canonical attendance row on the team's
         // activities in the window — so players appear even with 0 recorded
         // minutes, and the squad + match count share one team-membership
-        // definition. Minutes are taken per (player, activity) in a derived
-        // table FIRST so a duplicate `actual` row can't fan the JOIN out.
-        // #4526 — one row per pair: the shared newest-figure rule
-        // (`PlayerMatchMinutes`), so a duplicate is read once, not summed.
-        $rows = $wpdb->get_results( $wpdb->prepare(
+        // definition.
+        //
+        // #4549 — the query names the squad and the matches each player has a
+        // register row on; the minutes are the minutes reports' own read,
+        // `MinutesQuery::minutesForActivities()`: one figure per (player,
+        // match) by the #4526 rule, so a duplicate row is read once, and the
+        // #4053 plan fallback on an old tournament fixture. A SQL aggregate
+        // here never asked the resolver, so those fixtures read 0.
+        $pairs = $wpdb->get_results( $wpdb->prepare(
             // #2849 — `tt_players` has no `name`; it carries `first_name` and
             // `last_name`. Selecting the column that does not exist made the
             // whole query fail, and `get_results()` returns null on error, so
@@ -1150,37 +1155,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             // pilot reported as "1 wedstrijd vastgelegd, 0 spelers in
             // selectie". #2833 converged the two counts, correctly, but the
             // contradiction had this cause underneath it.
-            "SELECT p.id AS player_id,
-                    CONCAT( p.first_name, ' ', p.last_name ) AS name,
-                    p.jersey_number,
-                    COALESCE( SUM( m.match_minutes ), 0 ) AS total_minutes,
-                    COUNT( CASE WHEN m.match_minutes > 0 THEN 1 END ) AS apps
-               FROM (
-                    SELECT att.player_id,
-                           att.{$att_fk} AS activity_id,
-                           SUM( COALESCE( att.minutes_override, att.minutes_played, 0 ) ) AS match_minutes
-                      FROM {$wpdb->prefix}tt_attendance att
-                      JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
-                           AND a.team_id = %d
-                           AND a.club_id = %d
-                           AND a.archived_at IS NULL
-                           AND a.trashed_at IS NULL
-                           AND a.plan_state <> 'cancelled'
-                           AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
-                     WHERE att.record_type = 'actual'
-                       AND att.is_guest = 0
-                       AND a.activity_type_key IN ('match','game','tournament')
-                       AND a.{$date_col} BETWEEN %s AND %s
-                       " . \TT\Modules\Activities\Repositories\PlayerMatchMinutes::newestRowClause( 'att' ) . "
-                     GROUP BY att.player_id, att.{$att_fk}
-                  ) m
-               JOIN {$wpdb->prefix}tt_players p ON p.id = m.player_id AND p.archived_at IS NULL
-              GROUP BY p.id, p.first_name, p.last_name, p.jersey_number
-              ORDER BY total_minutes DESC, p.last_name ASC, p.first_name ASC
-              LIMIT 60",
+            "SELECT p.id AS player_id, p.first_name, p.last_name, p.jersey_number,
+                    att.{$att_fk} AS activity_id
+               FROM {$wpdb->prefix}tt_attendance att
+               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
+                    AND a.team_id = %d
+                    AND a.club_id = %d
+                    AND a.archived_at IS NULL
+                    AND a.trashed_at IS NULL
+                    AND a.plan_state <> 'cancelled'
+                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+               JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.archived_at IS NULL
+              WHERE att.record_type = 'actual'
+                AND att.is_guest = 0
+                AND a.activity_type_key IN ('match','game','tournament')
+                AND a.{$date_col} BETWEEN %s AND %s
+              GROUP BY p.id, p.first_name, p.last_name, p.jersey_number, att.{$att_fk}",
             $team_id, $club_id, $bd_from, $bd_to
         ) );
-        $rows = is_array( $rows ) ? $rows : [];
+        $rows = array_slice( \TT\Modules\Analytics\Reports\MinutesQuery::squadTotals( is_array( $pairs ) ? $pairs : [] ), 0, 60 );
 
         // #2433 — the counted match, resolved in the domain layer (§4) so the
         // report and any future REST consumer answer identically. The old
