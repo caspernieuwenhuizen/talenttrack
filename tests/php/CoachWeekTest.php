@@ -245,7 +245,10 @@ final class CoachWeekTest extends WP_UnitTestCase {
         $sat  = $week['rows'][2];
 
         $this->assertSame( 'today', $sat['when'] );
-        $this->assertSame( [ CoachWeek::ACTION_MARK_ATTENDANCE, CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'], 'nothing recorded yet: mark attendance, then the activity' );
+        $this->assertSame( CoachWeek::ACTION_MARK_ATTENDANCE, $sat['actions'][0] ?? null, 'nothing recorded yet: mark attendance comes first' );
+        $this->assertContains( CoachWeek::ACTION_OPEN_ACTIVITY, $sat['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $sat['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_MATCH_PREP, $sat['actions'] );
         $this->assertFalse( $sat['attendance_recorded'] );
         $this->assertNull( $sat['availability'] );
         $this->assertNull( $sat['lineup'] );
@@ -253,7 +256,9 @@ final class CoachWeekTest extends WP_UnitTestCase {
         $this->recorded( $this->match );
         $sat = CoachWeek::forUser( $this->coach, '2026-11-07' )['rows'][2];
         $this->assertTrue( $sat['attendance_recorded'] );
-        $this->assertSame( [ CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_MARK_ATTENDANCE, $sat['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $sat['actions'] );
+        $this->assertContains( CoachWeek::ACTION_OPEN_ACTIVITY, $sat['actions'] );
     }
 
     public function test_an_upcoming_match_already_completed_follows_the_same_rule(): void {
@@ -262,7 +267,7 @@ final class CoachWeekTest extends WP_UnitTestCase {
 
         $this->assertSame( 'upcoming', $sat['when'] );
         $this->assertFalse( $sat['attendance_recorded'] );
-        $this->assertSame( [ CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'], 'no Mark attendance before the day: the attendance rule refuses present and late on a future date' );
+        $this->assertNotContains( CoachWeek::ACTION_MARK_ATTENDANCE, $sat['actions'], 'no Mark attendance before the day: the attendance rule refuses present and late on a future date' );
         $this->assertNotContains( CoachWeek::ACTION_MATCH_PREP, $sat['actions'] );
         $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $sat['actions'] );
         $this->assertContains( CoachWeek::ACTION_OPEN_ACTIVITY, $sat['actions'] );

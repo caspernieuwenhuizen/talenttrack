@@ -4,6 +4,7 @@ namespace TT\Modules\Activities\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\FeatureRegistry;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Reports\AttendanceGridQuery;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
@@ -55,6 +56,12 @@ final class ActivityGridLink {
      * @var array<int, bool>
      */
     private static array $columns = [];
+
+    /** @var array<int, bool> user id => may rate any team (#4494) */
+    private static array $rate_any = [];
+
+    /** @var array<int, array<int, true>> user id => the team ids they coach (#4494) */
+    private static array $rate_coached = [];
 
     /**
      * Seed an activity's team + date from a row the caller already holds.
@@ -139,6 +146,35 @@ final class ActivityGridLink {
     public static function canUseRatings( int $activity_id, int $user_id ): bool {
         if ( ! self::ratingsEnabled() ) return false;
         return self::hasTeamAndCap( $activity_id, $user_id );
+    }
+
+    /**
+     * #4494 — may this user rate players of this team on the ratings grid?
+     * Academy-wide roles rate any team; a coach only their own. The grid
+     * view asks this before it opens, so a link that asks it too lands on a
+     * grid that opens rather than on "You do not coach this activity's team".
+     */
+    public static function canRateTeam( int $user_id, int $team_id ): bool {
+        if ( $team_id <= 0 || $user_id <= 0 ) return false;
+        // Both answers once per user and request: a list of rows asks this
+        // for every team on it. `forget()` drops them.
+        if ( ! isset( self::$rate_any[ $user_id ] ) ) {
+            self::$rate_any[ $user_id ] = user_can( $user_id, 'tt_edit_settings' ) || user_can( $user_id, 'tt_view_all_teams' );
+        }
+        if ( self::$rate_any[ $user_id ] ) return true;
+        if ( ! isset( self::$rate_coached[ $user_id ] ) ) {
+            self::$rate_coached[ $user_id ] = [];
+            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+                self::$rate_coached[ $user_id ][ (int) ( ( (array) $team )['id'] ?? 0 ) ] = true;
+            }
+        }
+        return isset( self::$rate_coached[ $user_id ][ $team_id ] );
+    }
+
+    /** Drop the request's `canRateTeam()` answers, for a caller that changed a user's teams or rights. */
+    public static function forget(): void {
+        self::$rate_any     = [];
+        self::$rate_coached = [];
     }
 
     /**

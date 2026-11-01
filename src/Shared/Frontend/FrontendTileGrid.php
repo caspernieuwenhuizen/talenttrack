@@ -1040,6 +1040,56 @@ class FrontendTileGrid {
                 /* translators: 1: starters placed, 2: starters the formation needs */
                 : [ 'todo', sprintf( __( 'Line-up %1$d of %2$d', 'talenttrack' ), $placed, $target ), 'lineup' ];
         }
+        if ( ( $row['game_plan'] ?? null ) === true ) {
+            $chips[] = [ 'ok', __( 'Game plan ready', 'talenttrack' ), 'prep_notes' ];
+        } elseif ( ( $row['game_plan'] ?? null ) === false ) {
+            $chips[] = [ 'todo', __( 'No game plan yet', 'talenttrack' ), 'prep_notes' ];
+        }
+        if ( is_array( $row['result'] ?? null ) ) {
+            $ours   = (int) ( $row['result']['our_score'] ?? 0 );
+            $theirs = (int) ( $row['result']['their_score'] ?? 0 );
+            switch ( (string) ( $row['result']['outcome'] ?? '' ) ) {
+                case 'W':
+                    /* translators: 1: our goals, 2: their goals, e.g. "Won 2–1" */
+                    $chips[] = [ 'neutral', sprintf( __( 'Won %1$d–%2$d', 'talenttrack' ), $ours, $theirs ), 'score' ];
+                    break;
+                case 'L':
+                    /* translators: 1: our goals, 2: their goals, e.g. "Lost 0–3" */
+                    $chips[] = [ 'neutral', sprintf( __( 'Lost %1$d–%2$d', 'talenttrack' ), $ours, $theirs ), 'score' ];
+                    break;
+                case 'D':
+                    /* translators: 1: our goals, 2: their goals, e.g. "Drew 1–1" */
+                    $chips[] = [ 'neutral', sprintf( __( 'Drew %1$d–%2$d', 'talenttrack' ), $ours, $theirs ), 'score' ];
+                    break;
+            }
+        }
+        if ( is_array( $row['minutes_check'] ?? null ) ) {
+            $check     = $row['minutes_check'];
+            $total     = (int) ( $check['total_minutes'] ?? 0 );
+            $available = (int) ( $check['available_minutes'] ?? 0 );
+            /* translators: 1: minutes entered, 2: minutes the match holds, e.g. "795 / 770 min" */
+            $label  = sprintf( __( '%1$s / %2$s min', 'talenttrack' ), number_format_i18n( $total ), number_format_i18n( $available ) );
+            $status = (string) ( $check['status'] ?? '' );
+            $reason = (string) ( $check['status_reason'] ?? '' );
+            if ( $status === 'none' ) {
+                $label .= ' · ' . ( \TT\Modules\Analytics\Frontend\MinutesCompletenessLabels::labels()['none'] ?? '' );
+            } elseif ( $reason !== '' ) {
+                $label .= ' · ' . \TT\Modules\Analytics\Frontend\MinutesCompletenessLabels::reasonText( $reason, $total, $available );
+            }
+            $tone    = $status === 'complete' ? 'ok' : ( $reason === 'minutes_over' ? 'bad' : 'todo' );
+            $chips[] = [ $tone, $label, 'minutes' ];
+        }
+        if ( is_array( $row['ratings'] ?? null ) ) {
+            $rated  = (int) ( $row['ratings']['rated'] ?? 0 );
+            $played = (int) ( $row['ratings']['played'] ?? 0 );
+            /* translators: 1: players rated, 2: players who played */
+            $chips[] = [ $rated >= $played ? 'ok' : 'todo', sprintf( __( 'Ratings %1$d of %2$d', 'talenttrack' ), $rated, $played ), 'ratings' ];
+        }
+        if ( ( $row['analysis_written'] ?? null ) === true ) {
+            $chips[] = [ 'ok', __( 'Analysis written', 'talenttrack' ), 'analysis' ];
+        } elseif ( ( $row['analysis_written'] ?? null ) === false ) {
+            $chips[] = [ 'todo', __( 'No analysis yet', 'talenttrack' ), 'analysis' ];
+        }
         return $chips;
     }
 
@@ -1071,6 +1121,18 @@ class FrontendTileGrid {
                 case CoachWeek::ACTION_START_MATCH:
                     $url = CrossViewLink::allows( 'match-execution' ) ? add_query_arg( [ 'tt_view' => 'match-execution', 'activity_id' => $aid ], $base ) : '';
                     if ( $url !== '' ) $buttons[ $action ] = [ __( 'Start match', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    break;
+                case CoachWeek::ACTION_MINUTES_STATS:
+                    $url = CrossViewLink::allows( 'minutes-grid' ) ? ActivityGridLink::minutesUrl( $aid ) : '';
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Minutes + stats', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    break;
+                case CoachWeek::ACTION_RATE_PLAYERS:
+                    $url = CrossViewLink::allows( 'ratings-grid' ) ? ActivityGridLink::ratingsUrl( $aid ) : '';
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Rate players', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    break;
+                case CoachWeek::ACTION_MATCH_ANALYSIS:
+                    $url = CrossViewLink::allows( 'match-analysis' ) ? add_query_arg( [ 'tt_view' => 'match-analysis', 'activity_id' => $aid ], $base ) : '';
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Write match analysis', 'talenttrack' ), BackLink::appendTo( $url ) ];
                     break;
                 case CoachWeek::ACTION_OPEN_ACTIVITY:
                     $url = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';

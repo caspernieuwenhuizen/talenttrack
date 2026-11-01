@@ -362,11 +362,9 @@ final class FrontendRatingsGridView extends FrontendViewBase {
      */
     private static function canRateTeam( int $user_id, int $team_id, bool $is_admin ): bool {
         if ( $team_id <= 0 ) return false;
-        if ( $is_admin || current_user_can( 'tt_view_all_teams' ) ) return true;
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-            if ( (int) $t->id === $team_id ) return true;
-        }
-        return false;
+        // #4494 — the rule lives in `ActivityGridLink`, so the This week
+        // panel's Rate players button asks the same question this view does.
+        return $is_admin || \TT\Modules\Activities\Services\ActivityGridLink::canRateTeam( $user_id, $team_id );
     }
 
     /**

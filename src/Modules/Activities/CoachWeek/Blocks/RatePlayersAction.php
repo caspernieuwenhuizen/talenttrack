@@ -1,0 +1,58 @@
+<?php
+namespace TT\Modules\Activities\CoachWeek\Blocks;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+use TT\Modules\Activities\CoachWeek\AbstractWeekBlock;
+use TT\Modules\Activities\CoachWeek\ActionBlock;
+use TT\Modules\Activities\CoachWeek\WeekBlockGroup;
+use TT\Modules\Activities\CoachWeek\WeekContext;
+use TT\Modules\Activities\CoachWeek\WeekRow;
+use TT\Modules\Activities\Services\ActivityGridLink;
+use TT\Modules\Activities\Services\CoachWeek;
+use TT\Modules\License\LicenseGate;
+
+/**
+ * #4494 — Rate players: on a completed match with players still unrated,
+ * open the ratings grid. Shown only where the grid itself would open: the
+ * edit right on the row's team, the grid's own reachability and its plan.
+ */
+final class RatePlayersAction extends AbstractWeekBlock implements ActionBlock {
+
+    public function key(): string { return 'action_rate_players'; }
+
+    public function group(): string { return WeekBlockGroup::ACTIONS; }
+
+    public function label(): string { return __( 'Rate players', 'talenttrack' ); }
+
+    public function help(): string { return __( 'On a completed match with players still to rate.', 'talenttrack' ); }
+
+    public function available(): bool {
+        return ActivityGridLink::ratingsEnabled() && LicenseGate::allows( 'ratings_grid' );
+    }
+
+    /** persona => devices on by default (#4494); every other persona opts in. */
+    private const DEFAULTS = [ 'head_coach' => [ 'desktop' ] ];
+
+    public function defaultFor( string $persona, string $device ): bool {
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
+    }
+
+    public function actionFor( WeekRow $row, WeekContext $week ): ?string {
+        if ( ! $row->done || ! $week->canEditTeam( $row->teamId ) ) return null;
+        $counts = PlayerRatingsBlock::countsFor( $row, $week );
+        if ( $counts === null || $counts['rated'] >= $counts['played'] ) return null;
+        ActivityGridLink::primeAnchor( $row->activityId, $row->teamId, $row->date );
+        // One answer per user (feature switch, a team, the edit capability),
+        // asked once for the week.
+        $reachable = $week->once( 'can_use_ratings', static fn(): bool => ActivityGridLink::canUseRatings( $row->activityId, $week->userId ) );
+        // And the grid's own team rule, so the button never leads to "You do
+        // not coach this activity's team" (a global activities edit is not it).
+        if ( ! $reachable || ! ActivityGridLink::canRateTeam( $week->userId, $row->teamId ) ) return null;
+        return CoachWeek::ACTION_RATE_PLAYERS;
+    }
+}
