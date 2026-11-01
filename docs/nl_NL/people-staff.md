@@ -52,7 +52,7 @@ Een persoon zonder gekoppeld account houdt zijn contactgegevens zoals voorheen �
 
 ## Functionele rollen
 
-Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**, **Assistent-coach**, **Fysio**, **Materiaalman**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](access-control.md) — door iemand de functionele rol Hoofdcoach toe te kennen, krijgt hij/zij automatisch de benodigde rechten.
+Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdtrainer**, **Assistent-trainer**, **Fysio**, **Materiaalman**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](access-control.md) — door iemand de functionele rol Hoofdtrainer toe te kennen, krijgt hij/zij automatisch de benodigde rechten.
 
 Je kunt elk van deze rollen hernoemen op de pagina **Functionele rollen**, bijvoorbeeld **Hoofdtrainer** naar **Trainer A-selectie**. Elk scherm dat functionele rollen toont, laat dan de naam van je club zien. Een rol die je niet hebt hernoemd toont het standaardlabel in de taal van de site, en een rol die je zelf hebt toegevoegd toont altijd de naam die je hem gaf. Hernoemen verandert alleen het label: de rol houdt zijn toegang.
 
