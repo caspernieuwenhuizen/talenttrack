@@ -872,7 +872,10 @@ final class RateActorsStep implements WizardStepInterface {
         //
         // Who took part is `AttendanceWriter::attendedPlayerIds()`, the one
         // answer the wizard's write check reads too, so the roster offered
-        // and the rows accepted cannot differ.
+        // and the rows accepted cannot differ. For a match the roster comes
+        // from the line-up and substitutions instead, and
+        // `attendedPlayerIds()` counts those too, so every match row offered
+        // is accepted as well, register recorded or not.
         $ids = \TT\Modules\Activities\Repositories\AttendanceWriter::attendedPlayerIds( $activity_id );
         if ( $ids === [] ) return [];
 
