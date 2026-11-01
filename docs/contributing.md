@@ -215,7 +215,7 @@ Full rules in `languages/pending/README.md`.
 
 Translation drift is gated and reported automatically by two workflows under `.github/workflows/`:
 
-- **`i18n-pr-check.yml`** runs on every PR that touches `src/**/*.php` or `languages/**`. It asks one question: **does every new translatable string on this PR's added lines have an entry, with a non-empty `msgstr`, in the PR's fragment?** The failure names the msgids and the `file:line` that introduced them. It also validates the fragments themselves (`consolidate-translations.php --check`, `check-po-duplicates.php`), and fails on an obvious hardcoded English leak (`wp_die("Capital…")`, `WP_Error('code', "Capital…")`, `sprintf("Capital…")` — wrap those in `__()` / `_e()` / `esc_html__()`). Run the same check before pushing, with nothing installed but PHP:
+- **`i18n-pr-check.yml`** runs on every PR that touches `src/**/*.php`, `assets/js/**/*.js` or `languages/**`. It asks one question: **does every new translatable string on this PR's added lines have an entry, with a non-empty `msgstr`, in the PR's fragment?** The failure names the msgids and the `file:line` that introduced them. It also validates the fragments themselves (`consolidate-translations.php --check`, `check-po-duplicates.php`), and fails on an obvious hardcoded English leak (`wp_die("Capital…")`, `WP_Error('code', "Capital…")`, `sprintf("Capital…")` — wrap those in `__()` / `_e()` / `esc_html__()`). Run the same check before pushing, with nothing installed but PHP:
 
   ```
   php tools/check-i18n-fragment.php
@@ -224,6 +224,25 @@ Translation drift is gated and reported automatically by two workflows under `.g
   **Since #3864** this replaced a gate that regenerated the `.pot` on both sides and diffed untranslated counts. It was accurate and hard to act on: `Empty-msgstr delta: 3 (baseline=9, head=12)` alongside `New untranslated msgids: 0` are two true statements whose combination takes real effort to read as "you added three strings and translated none of them". It also needed `wp-cli`, `gettext` and a second worktree to produce a number nobody could reproduce locally.
 
   A string that is already untranslated on `main` is reported as a **note** and does not fail the PR — that drift predates you, and failing on it only teaches people to reach for the override label.
+
+  The same workflow also runs **`tools/check-hardcoded-strings.php`** (#4509), on PRs that touch `src/**/*.php` or `assets/js/**/*.js`. It reads the PR's **added lines only**: a file with old violations passes as long as the PR adds none. It fails on three things:
+
+  - **JS:** a literal with letters written to `textContent`, `innerText`, `placeholder`, `title` or `ariaLabel`, or passed to `setAttribute()` for `aria-label`, `title` or `placeholder`. Read the text from the script's localized i18n object instead (`TT.i18n`, filled server-side with `__()` through `wp_localize_script`). Symbol-only literals (`'—'`, `' · '`) pass.
+  - **PHP:** `echo`, `print`, `printf`, `esc_html()` or `esc_attr()` of a literal that still has letters once markup and `%s` placeholders are stripped. Wrap it in `__()`, `esc_html__()`, `_e()` and friends. Markup-only literals (`'<div class="tt-card">'`) pass.
+  - **A Dutch msgid:** a `talenttrack` msgid that reads as Dutch: two or more Dutch function words, or one plus a word spelled with "ij" or "aa". Msgids are English; the Dutch goes in the PR's `languages/pending/` fragment, so the string can still be translated into any other language.
+
+  A renamed or moved file is paired with its old path, so only the lines that changed are judged. A file moved into `src/` without edits passes.
+
+  **Known blind spot:** a literal that does not follow the `=` directly is not seen. `el.textContent = ( TT.i18n && TT.i18n.save ) || 'Save';` passes, so a pass does not mean "no English fallback".
+
+  **Opt-out:** a trailing `/* tt-i18n-ok */` (PHP) or `// tt-i18n-ok` (JS) on the same line exempts it. Use it for data that only looks like copy (a team code, a CSS value, a fixture), never for words a reader sees.
+
+  Run it before pushing, or print the whole backlog on `main`:
+
+  ```
+  php tools/check-hardcoded-strings.php            # this branch's added lines
+  php tools/check-hardcoded-strings.php --report   # every finding on the tree, for clean-up
+  ```
 - **`i18n-drift-report.yml`** runs every Monday 06:00 UTC and on manual dispatch. It refreshes the `.pot`, `msgmerge`s every locale `.po`, counts empty + fuzzy entries, and writes the result into an auto-managed tracking issue titled `i18n drift report`. The body lists per-locale counts, the top 10 source files driving the `nl_NL` gap, and PRs merged in the last 7 days that touched PHP under `src/`.
 
 **Override**: when a PR genuinely needs to ship new untranslated msgids (typically because a feature lands faster than the translator), label the PR `i18n-drift-acceptable`. The PR-check passes; the weekly drift report still records the new entries.
