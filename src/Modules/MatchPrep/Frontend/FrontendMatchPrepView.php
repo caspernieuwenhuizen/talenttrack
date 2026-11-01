@@ -86,7 +86,11 @@ class FrontendMatchPrepView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_edit_activities' ) ) {
+        // Reading a prep follows the activity read rule, changing it the
+        // write rule: the same split `GET` / `PUT match-prep/{id}`, the print
+        // page and the PDF export make. A reader who may not change the
+        // team's prep gets the printable document, as the match analysis does.
+        if ( ! current_user_can( 'tt_edit_activities' ) && ! current_user_can( 'tt_view_activities' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Match prep is restricted to coaches and admins.', 'talenttrack' ) . '</p>';
             return;
@@ -105,15 +109,18 @@ class FrontendMatchPrepView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>';
             return;
         }
-        // #3151 — `tt_edit_activities` is held club-wide, so it says the
-        // viewer runs matches, not whose. Narrow to the teams they coach
-        // before a squad is loaded.
-        // The prep is an editor, so it opens on the write scope.
-        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
+        // #3151 — both capabilities are held club-wide, so they say the
+        // viewer works with matches, not whose. Narrow to the teams they may
+        // read before a squad is loaded; only a reader the write scope also
+        // covers gets the editor.
+        $team_id = (int) ( $activity->team_id ?? 0 );
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, $team_id, $is_admin ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
             echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
             return;
         }
+        $can_edit = current_user_can( 'tt_edit_activities' )
+            && \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, $team_id, $is_admin );
 
         // #3105 — `match_prep` is Pro. A plan the club already wrote stays
         // on screen (and printable) with the panel above it; the REST
@@ -132,6 +139,11 @@ class FrontendMatchPrepView extends FrontendViewBase {
         if ( ( $activity->activity_type_key ?? '' ) !== ActivityTypeKey::GAME && ( $activity->activity_type_key ?? '' ) !== 'match' ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Match prep is only available for match-type activities.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        if ( ! $can_edit ) {
+            self::renderReadOnly( $activity, $activity_id, $user_id, $plan_locked );
             return;
         }
 
@@ -848,6 +860,61 @@ class FrontendMatchPrepView extends FrontendViewBase {
             echo wp_json_encode( $bootstrap );
         ?></script>
         <?php
+    }
+
+    /**
+     * Dashboard → Activities → [Activity] → Match prep (#1479). The activity
+     * crumb is the way back to the activity; the `tt_back` pill renders
+     * above it when the entry URL carried one.
+     */
+    private static function crumbs( object $activity, int $activity_id ): void {
+        $activity_crumb_label = (string) ( $activity->title ?? '' );
+        if ( $activity_crumb_label === '' ) {
+            $activity_crumb_label = __( 'Activity', 'talenttrack' );
+        }
+        FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ), [
+            FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ),
+            FrontendBreadcrumbs::viewCrumb( 'activities', $activity_crumb_label, [ 'id' => $activity_id ] ),
+        ] );
+    }
+
+    /**
+     * The prep for a reader who may not change it: the printable document
+     * the print page, the PDF and a share link render, with no control that
+     * writes. The coach's free-text reasons follow the renderer's viewer
+     * rule, so a reader who neither plans the team nor reads its injuries
+     * sees the status alone.
+     */
+    private static function renderReadOnly( object $activity, int $activity_id, int $user_id, bool $plan_locked ): void {
+        self::crumbs( $activity, $activity_id );
+
+        if ( $plan_locked ) {
+            echo \TT\Modules\License\UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+        }
+
+        $body = \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::bodyHtml( $activity_id, (int) CurrentClub::id(), $user_id );
+        if ( trim( $body ) === '' ) {
+            echo '<p class="tt-notice">' . esc_html__( 'No match preparation has been started for this match yet.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        // The renderer owns this CSS and returns it as a string; it is
+        // attached to an enqueued handle, as the share page does, and scoped
+        // to the wrapper so it does not restyle the dashboard around it.
+        wp_register_style( 'tt-match-prep-readonly', false, [], TT_VERSION );
+        wp_enqueue_style( 'tt-match-prep-readonly' );
+        // The document is a landscape sheet: on a phone it scrolls inside
+        // its wrapper rather than widening the page.
+        wp_add_inline_style(
+            'tt-match-prep-readonly',
+            \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::scopedStyleBlock( '.tt-mp--readonly' )
+                . "\n.tt-mp--readonly { overflow-x: auto; overscroll-behavior-x: contain; }"
+        );
+
+        echo '<div class="tt-mp tt-mp--readonly">';
+        echo '<p class="tt-notice tt-mp-readonly-note">' . esc_html__( "You can read this match preparation, but you can't change it.", 'talenttrack' ) . '</p>';
+        echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the renderer escapes its own values.
+        echo '</div>';
     }
 
     private static function enqueueViewAssets( int $prep_id, int $activity_id ): void {

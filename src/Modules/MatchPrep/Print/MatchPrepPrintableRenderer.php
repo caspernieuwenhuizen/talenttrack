@@ -363,6 +363,23 @@ final class MatchPrepPrintableRenderer {
     }
 
     /**
+     * `styleBlock()` for a page the document shares with other content: its
+     * bare element rules (`body`, headings, tables) are narrowed to `$scope`,
+     * so the document keeps its look without restyling the page around it.
+     */
+    public static function scopedStyleBlock( string $scope ): string {
+        return (string) preg_replace_callback(
+            '/^(\s*)(body|h1|h2|table|th, td|th) \{/m',
+            static function ( array $m ) use ( $scope ): string {
+                if ( $m[2] === 'body' ) return $m[1] . $scope . ' {';
+                $parts = array_map( static fn( string $sel ): string => $scope . ' ' . $sel, explode( ', ', $m[2] ) );
+                return $m[1] . implode( ', ', $parts ) . ' {';
+            },
+            self::styleBlock()
+        );
+    }
+
+    /**
      * Print-friendly CSS that pairs with `bodyHtml()`. Single block so
      * the print router's standalone document + the PDF exporter's
      * styled-section can both consume it without duplicating tokens.

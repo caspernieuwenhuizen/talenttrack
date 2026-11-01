@@ -1,0 +1,3 @@
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:915
+msgid "You can read this match preparation, but you can't change it."
+msgstr "Je kunt deze wedstrijdvoorbereiding lezen, maar niet wijzigen."

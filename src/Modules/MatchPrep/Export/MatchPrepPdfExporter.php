@@ -23,8 +23,7 @@ use TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer;
  * URL:
  *   `GET /wp-json/talenttrack/v1/exports/match_prep_pdf?format=pdf&activity_id=42`
  *
- * Cap: `tt_edit_activities`, the capability the match prep view, its REST
- * route and the print page ask; then the activity's team, as they do.
+ * Cap: `tt_view_activities`.
  */
 final class MatchPrepPdfExporter implements ExporterInterface {
 
@@ -34,7 +33,7 @@ final class MatchPrepPdfExporter implements ExporterInterface {
 
     public function supportedFormats(): array { return [ 'pdf' ]; }
 
-    public function requiredCap(): string { return 'tt_edit_activities'; }
+    public function requiredCap(): string { return 'tt_view_activities'; }
 
     /** Non-tabular exporter — opts out of the column picker (#986). */
     public function availableColumns(): array { return []; }
@@ -51,12 +50,8 @@ final class MatchPrepPdfExporter implements ExporterInterface {
         // the activity's team, asked as the activity brief and the print
         // router ask it. The admin flag is the requester's, who need not be
         // the user this request is authenticated as.
-        // The capability is asked here too, so a caller that reaches
-        // `collect()` without `ExportService` gets the same answer as the
-        // match prep view: a reader who sees every team is not a coach.
         $requester = (int) $request->requesterUserId;
-        if ( ! user_can( $requester, $this->requiredCap() )
-            || ! \TT\Modules\Authorization\ActivityTeamScope::coversActivity( $requester, $activity_id, user_can( $requester, 'tt_edit_settings' ) ) ) {
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversActivity( $requester, $activity_id, user_can( $requester, 'tt_edit_settings' ) ) ) {
             throw new \TT\Modules\Export\ExportException( 'forbidden', \TT\Modules\Authorization\ActivityTeamScope::refusalMessage() );
         }
         $body        =MatchPrepPrintableRenderer::bodyHtml( $activity_id, (int) $request->clubId, $requester );
