@@ -119,7 +119,11 @@ class MatchPrepRestController {
      * A refusal here is 403: the capability model said no, not the plan.
      */
     public static function can_edit( \WP_REST_Request $r ): bool {
-        if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
+        // Reading a prep is a read: the activity read rule, as the screen,
+        // the print page and the PDF export ask it. Every write keeps
+        // `tt_edit_activities` and the write scope.
+        $reads = $r->get_method() === 'GET';
+        if ( ! current_user_can( 'tt_edit_activities' ) && ! ( $reads && current_user_can( 'tt_view_activities' ) ) ) return false;
         return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
             get_current_user_id(),
             absint( $r['activity_id'] ),

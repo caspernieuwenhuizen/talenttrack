@@ -462,6 +462,14 @@ coacht, dan krijg je *Je bent geen trainer van het team van deze
 activiteit.*
 Academiebeheer en Hoofd Opleiding zien alle teams, zoals overal.
 
+Wie met zijn rol de activiteiten van elk team leest zonder ze te wijzigen,
+zoals de Read-Only Observer, opent het plan als document dat je alleen kunt
+lezen: hetzelfde blad als de afdrukpagina, met een notitie dat je het hier
+niet kunt wijzigen, en zonder velden, knoppen of opslagstatus. Afdrukken en
+de pdf downloaden kan ook. De reden die een trainer bij een afwezige speler
+typte, valt voor hen weg, zoals op elke plek voor wie het team niet plant en
+de blessures ervan niet leest.
+
 Datzelfde geldt voor de deellink en de rolverdeling: het team van het
 plan bepaalt, niet het feit dat je ergens in de academie coach bent.
 
