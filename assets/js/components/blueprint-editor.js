@@ -153,6 +153,9 @@
             var badge = document.createElement('span');
             badge.className = 'tt-bpe-pick-count';
             badge.textContent = '×' + count;
+            // A named generic span is ignored by some screen readers; as an
+            // image it is announced by its label ("1 keer geplaatst").
+            badge.setAttribute('role', 'img');
             badge.setAttribute('aria-label', ((cfg.i18n && cfg.i18n.placed_times) || 'Placed %d times').replace('%d', String(count)));
             nameLine.appendChild(badge);
         }
