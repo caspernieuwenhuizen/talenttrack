@@ -108,7 +108,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // unblocks academy admins / HoD who don't qualify for the
         // player-only `my-activities` gate.
         if ( $id > 0 && $action === 'edit' ) {
-            $session    = self::loadSession( $id );
+            $session    = self::loadSessionForEdit( $id );
             $attendance = $session ? self::loadAttendance( $id ) : [];
             $guests     = $session ? self::loadGuests( $id )     : [];
             self::renderHeader( $session ? sprintf( __( 'Edit activity — %s', 'talenttrack' ), (string) $session->title ) : __( 'Activity not found', 'talenttrack' ) );
@@ -152,6 +152,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // on the activities create/delete cap, so an assistant coach with
             // edit-only no longer sees them; a head coach (RCD) does.
             $can_delete_acts = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_delete_activities' );
+            // The detail is read on the read scope; its edit, prep, match and
+            // archive actions are writes, so they are offered only where the
+            // write scope covers the activity's team.
+            $session_team = $session ? (int) ( $session->team_id ?? 0 ) : 0;
+            if ( $session_team > 0 && ! \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $current_uid, $session_team ) ) {
+                $can_edit_acts   = false;
+                $can_delete_acts = false;
+            }
             // #3643 — taking the register is not editing the activity. A
             // team manager holds `attendance [rc]` and neither activity
             // cap (#3567), so the header-actions block skipped them
@@ -1546,7 +1554,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         $their_team = $result['opponent'] !== '' ? (string) $result['opponent'] : __( 'Opponent', 'talenttrack' );
 
-        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+        // The result saves through the activity's write scope, so the form is
+        // offered where that scope covers the team; everyone else reads it.
+        $team_id  = (int) ( $session->team_id ?? 0 );
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' )
+            && ( $team_id <= 0 || \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( get_current_user_id(), $team_id ) );
         $editable = $can_edit && ! $result['owned_by_execution'];
 
         echo '<div class="tt-act-card-d tt-act-card-d--span2">';
@@ -4669,17 +4681,31 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * activity no longer exists" with their breadcrumb chain intact.
      *
      * An activity with no team has no team to be out of scope for, the line
-     * the REST writes take for the same records.
+     * the REST writes take for the same records. `$write` asks the write
+     * scope instead of the read one, for the edit form.
      */
-    private static function inScope( ?object $session ): ?object {
+    private static function inScope( ?object $session, bool $write = false ): ?object {
         if ( $session === null ) return null;
 
         $team_id = (int) ( $session->team_id ?? 0 );
         if ( $team_id <= 0 ) return $session;
 
-        return \TT\Modules\Authorization\ActivityTeamScope::coversTeam( get_current_user_id(), $team_id )
-            ? $session
-            : null;
+        $covered = $write
+            ? \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( get_current_user_id(), $team_id )
+            : \TT\Modules\Authorization\ActivityTeamScope::coversTeam( get_current_user_id(), $team_id );
+        return $covered ? $session : null;
+    }
+
+    /**
+     * The activity for the edit form: the write scope, so a reader who may
+     * open the activity but not change it gets no form whose saves would
+     * all be refused.
+     */
+    private static function loadSessionForEdit( int $id ): ?object {
+        return self::inScope(
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id ),
+            true
+        );
     }
 
     /**

@@ -14,6 +14,7 @@ use TT\Modules\MatchAnalysis\Rest\MatchAnalysisRestController;
 use TT\Modules\MatchExecution\Rest\MatchExecutionRestController;
 use TT\Modules\MatchPrep\Rest\MatchPrepRestController;
 use TT\Shared\Admin\BulkActionsHelper;
+use TT\Shared\Frontend\FrontendActivitiesManageView;
 
 /**
  * A coach who also holds the club-wide read-only observer seat reads every
@@ -109,10 +110,38 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $this->assertSame( [ $this->own_match ], BulkActionsHelper::reachableIds( 'activity', [ $this->own_match, $this->other_match ] ) );
     }
 
+    public function test_the_activity_edit_form_opens_only_for_a_team_the_coach_may_write(): void {
+        $this->assertStringNotContainsString( 'That activity no longer exists.', $this->activitiesView( 'edit', $this->own_match ), 'precondition: their own form opens' );
+        $this->assertStringContainsString( 'That activity no longer exists.', $this->activitiesView( 'edit', $this->other_match ) );
+    }
+
+    public function test_the_activity_detail_still_opens_without_its_write_actions(): void {
+        $own   = $this->activitiesView( '', $this->own_match );
+        $other = $this->activitiesView( '', $this->other_match );
+
+        $this->assertStringContainsString( 'tt_view=match-prep', $own, 'precondition: their own match offers prep' );
+        $this->assertStringNotContainsString( 'That activity no longer exists.', $other, 'the read seat still reads the detail' );
+        $this->assertStringContainsString( 'Obswrite match', $other );
+        $this->assertStringNotContainsString( 'tt_view=match-prep', $other );
+
+        $this->assertStringContainsString( 'tt-act-result__form', $own, 'precondition: their own result is editable' );
+        $this->assertStringNotContainsString( 'tt-act-result__form', $other, 'the result is read, not offered for editing' );
+        $this->assertStringNotContainsString( 'match-analysis', $other );
+        $this->assertStringNotContainsString( 'data-tt-archive-rest-path', $other );
+    }
+
     public function test_a_club_wide_change_grant_still_writes_every_team(): void {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         AuthorizationService::flushCache();
         $this->assertTrue( ActivityTeamScope::coversActivityForWrite( $hod, $this->other_match, false ) );
+    }
+
+    private function activitiesView( string $action, int $activity_id ): string {
+        $_GET = [ 'tt_view' => 'activities', 'id' => (string) $activity_id ];
+        if ( $action !== '' ) $_GET['action'] = $action;
+        ob_start();
+        FrontendActivitiesManageView::render( $this->coach, false );
+        return (string) ob_get_clean();
     }
 
     private function request( string $method, int $activity_id ): \WP_REST_Request {
