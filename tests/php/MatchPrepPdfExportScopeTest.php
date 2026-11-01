@@ -10,13 +10,16 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExportException;
+use TT\Modules\Export\ExportService;
 use TT\Modules\MatchPrep\Export\MatchPrepPdfExporter;
 
 /**
  * The match-prep PDF is the team's plan: line-up, focus per player, the
  * coach's notes. The export capability is club-wide on every coach, so the
  * exporter asks whose match it is, as the activity brief does: another
- * team's coach is refused, the team's own coach is served.
+ * team's coach is refused, the team's own coach is served. It asks the
+ * capability the match prep view asks, so a reader who sees every team
+ * without coaching one is refused too.
  */
 final class MatchPrepPdfExportScopeTest extends WP_UnitTestCase {
 
@@ -87,14 +90,51 @@ final class MatchPrepPdfExportScopeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Prepdfplayer', (string) ( $out['html'] ?? '' ) );
     }
 
+    /**
+     * The read-only observer reads every team's activities and is refused
+     * the match prep view, its REST route and the print page. The PDF asks
+     * the same, on both ways in: the exporter itself and `ExportService`.
+     */
+    public function test_the_read_only_observer_is_refused_the_prep_pdf(): void {
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        $this->assertTrue( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $observer ), 'precondition: the seat reads every team' );
+
+        wp_set_current_user( $observer );
+        $get = new WP_REST_Request( 'GET', '/talenttrack/v1/match-prep/' . $this->activity );
+        $this->assertSame( 403, rest_do_request( $get )->get_status(), 'precondition: the REST route refuses the observer' );
+
+        try {
+            $out = $this->export( $observer );
+            $this->assertStringNotContainsString( 'Prepdfplayer', (string) ( $out['html'] ?? '' ), 'the observer\'s prep was rendered' );
+            $this->fail( 'the export was not refused' );
+        } catch ( ExportException $e ) {
+            $this->assertSame( 'forbidden', $e->errorKey );
+        }
+
+        try {
+            ( new ExportService() )->run( $this->request( $observer ) );
+            $this->fail( 'the export service did not refuse' );
+        } catch ( ExportException $e ) {
+            $this->assertSame( 'forbidden', $e->errorKey );
+        }
+    }
+
+    public function test_the_head_of_development_gets_the_prep_pdf(): void {
+        $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        $out = $this->export( $hod );
+        $this->assertStringContainsString( 'Prepdfplayer', (string) ( $out['html'] ?? '' ) );
+    }
+
     /** @return array<string, mixed> */
     private function export( int $user_id ): array {
+        return ( new MatchPrepPdfExporter() )->collect( $this->request( $user_id ) );
+    }
+
+    private function request( int $user_id ): ExportRequest {
         wp_set_current_user( $user_id );
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
-        return ( new MatchPrepPdfExporter() )->collect(
-            new ExportRequest( 'match_prep_pdf', 'pdf', $this->club, $user_id, null, [ 'activity_id' => $this->activity ] )
-        );
+        return new ExportRequest( 'match_prep_pdf', 'pdf', $this->club, $user_id, null, [ 'activity_id' => $this->activity ] );
     }
 
     private function coachOf( int $team_id ): int {
