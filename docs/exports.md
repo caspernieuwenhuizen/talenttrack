@@ -41,7 +41,7 @@ A refusal is always a message, never an empty file. An empty download looks like
 
 The per-player exports on a player's page — the one-pager and the evaluation report — open for exactly the players you can already see, and read as *not found* otherwise.
 
-The same holds for the exports that take a single team or a single activity: the team calendar feed, the team schedule PDF, the activity brief and the match-day team sheet. Each one asks whether you work with that squad before it builds anything, and answers "you do not coach this activity's team" or "you do not have access to this team" when you do not. A team or activity that does not exist gets the same answer, so a saved link cannot be edited into a tour of the academy's other squads. The subject-access export asks the same question about the player it names, and records both the export and the refused attempt in the audit log.
+The same holds for the exports that take a single team or a single activity: the team calendar feed, the team schedule PDF, the activity brief, the match-day team sheet and the match preparation PDF. Each one asks whether you work with that squad before it builds anything, and answers "you do not coach this activity's team" or "you do not have access to this team" when you do not. A team or activity that does not exist gets the same answer, so a saved link cannot be edited into a tour of the academy's other squads. The subject-access export asks the same question about the player it names, and records both the export and the refused attempt in the audit log.
 
 ## What the KPI snapshot contains
 
