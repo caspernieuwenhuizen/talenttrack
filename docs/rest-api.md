@@ -1767,6 +1767,22 @@ Soft-deletes a message: the body is blanked and `deleted_at` stamped. The author
 
 Marks the thread read for the caller without listing it. `POST /threads/{type}/{id}` does the same. Returns `{ ok: true }`.
 
+## Tournament squads and the anchor team
+
+A player may join a tournament squad only when the caller may create
+tournaments for that player's current team
+(`TournamentAccess::canAddToSquad()`): an academy-wide planner adds anyone, a
+coach of two teams may mix those two. `POST /tournaments` (its `squad[]`),
+`PATCH /tournaments/{id}/squad` and `PATCH /tournaments/{id}/squad/{player_id}`
+answer **403** `forbidden_player`, with `details.player_ids` naming the
+players, and write nothing. A player already in the squad is not asked about
+again, so a replace that keeps them, or an edit of their positions, still
+works.
+
+The anchor team is fixed once the tournament exists. `PUT /tournaments/{id}`
+with a different `team_id` answers **403** `team_locked` unless the caller
+plans academy-wide; a body without `team_id` keeps the team it has.
+
 ## Tournament matches — `opponent_level` (#3559)
 
 `POST /tournaments`, `POST /tournaments/{id}/matches` and

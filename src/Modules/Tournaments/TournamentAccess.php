@@ -190,6 +190,58 @@ final class TournamentAccess {
         return array_values( array_unique( $out ) );
     }
 
+    /**
+     * May this user put this player in a tournament squad? Only when they
+     * may create tournaments for the player's current team. An academy-wide
+     * planner adds anyone; a coach of two teams may mix those two squads.
+     * The wizard, the REST squad writes and the planner all ask this.
+     */
+    public static function canAddToSquad( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        // A player of this club; another club's player is nobody's to add.
+        $team_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
+        ) );
+        if ( $team_id === null ) return false;
+        if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return true;
+        return (int) $team_id > 0 && self::canCreateForTeam( $user_id, (int) $team_id );
+    }
+
+    /**
+     * The players in `$player_ids` this user may not add to a squad.
+     *
+     * @param list<int> $player_ids
+     * @return list<int>
+     */
+    public static function squadRefusals( int $user_id, array $player_ids ): array {
+        $out = [];
+        foreach ( $player_ids as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id > 0 && ! self::canAddToSquad( $user_id, $player_id ) ) $out[] = $player_id;
+        }
+        return array_values( array_unique( $out ) );
+    }
+
+    /**
+     * The teams this user may create a tournament for: null for every team
+     * (a global grant), otherwise the teams they are assigned to that
+     * `canCreateForTeam()` admits. Built like `readableTeamIds()`.
+     *
+     * @return list<int>|null
+     */
+    public static function creatableTeamIds( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return null;
+        $out = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( $team->id ?? 0 );
+            if ( $team_id > 0 && self::canCreateForTeam( $user_id, $team_id ) ) $out[] = $team_id;
+        }
+        return array_values( array_unique( $out ) );
+    }
+
     /** Shared body of `canView()` / `canEdit()`: global, or any participating team. */
     private static function holdsAny( int $user_id, int $tournament_id, string $activity ): bool {
         if ( $user_id <= 0 || $tournament_id <= 0 ) return false;
