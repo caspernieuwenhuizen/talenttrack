@@ -406,7 +406,7 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $before = QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' );
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-        foreach ( [ 'not json', '["head_coach"]', '42' ] as $raw ) {
+        foreach ( [ 'not json', '["head_coach"]', '42', '[]', ' [ ] ' ] as $raw ) {
             $res = $this->postSettings( $raw );
             $this->assertSame( 400, $res->get_status(), $raw );
             $error = (array) $res->get_data()['errors'][0];

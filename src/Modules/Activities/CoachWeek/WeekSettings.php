@@ -114,7 +114,11 @@ final class WeekSettings {
      * JSON object. Anything else is refused rather than reset to defaults.
      */
     public static function isReadable( string $raw ): bool {
-        $decoded = json_decode( trim( $raw ), true );
+        $raw = trim( $raw );
+        // `[]` decodes like `{}`, but it is a list, not settings: refusing it
+        // keeps a stray empty list from resetting every persona.
+        if ( str_starts_with( $raw, '[' ) ) return false;
+        $decoded = json_decode( $raw, true );
         return is_array( $decoded ) && ( $decoded === [] || ! array_is_list( $decoded ) );
     }
 
