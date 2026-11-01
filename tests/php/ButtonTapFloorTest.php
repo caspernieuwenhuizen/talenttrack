@@ -20,8 +20,7 @@ final class ButtonTapFloorTest extends WP_UnitTestCase {
 
     /**
      * Rules allowed to keep their own 48px floor on a `.tt-btn`, keyed by
-     * sheet. Each one carries the reason in a comment beside the rule, or is
-     * outside this change's reach.
+     * sheet. Each one carries the reason in a comment beside the rule.
      *
      * @var array<string, list<string>>
      */
@@ -32,9 +31,6 @@ final class ButtonTapFloorTest extends WP_UnitTestCase {
         'frontend-parent-search.css'       => [ '.tt-parent-search__form .tt-btn' ],
         'frontend-cohort-transitions.css'  => [ '.tt-dashboard .tt-cohort-filters .tt-btn' ],
         'frontend-suspensions.css'         => [ '.tt-suspension-filters .tt-btn' ],
-        // The player profile's sheets were left as they were.
-        'frontend-player-detail.css'        => [ '.tt-bp-card__actions .tt-btn', '.tt-player-row--injury .tt-player-row__actions .tt-btn' ],
-        'frontend-player-hero-popovers.css' => [ '.tt-player-hero__actions .tt-btn', '.tt-pp-footer .tt-btn' ],
     ];
 
     private function css( string $relative ): string {

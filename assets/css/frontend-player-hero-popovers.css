@@ -15,7 +15,6 @@
 }
 
 .tt-player-hero__actions .tt-btn {
-    min-height: 44px;
     padding: 8px 14px;
     font-size: 14px;
 }
@@ -199,7 +198,6 @@
 .tt-pp-footer .tt-btn {
     flex: 1 1 0;
     width: auto;
-    min-height: 48px;
     touch-action: manipulation;
 }
 

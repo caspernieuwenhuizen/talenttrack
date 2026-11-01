@@ -881,15 +881,18 @@
 }
 .tt-bp-card__actions:empty { display: none; }
 .tt-bp-card__actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 .tt-bp-card__link {
     display: inline-flex;
     align-items: center;
-    min-height: 48px;
     padding: 0 0.5rem;
     touch-action: manipulation;
+}
+/* The 48px floor is for thumbs; under a mouse the link sits level with the
+   card's buttons, which keep desktop density. */
+@media (pointer: coarse) {
+    .tt-bp-card__link { min-height: 48px; }
 }
 .tt-bp-card__link:focus-visible {
     outline: 2px solid currentColor;
@@ -977,7 +980,6 @@
     gap: 0.5rem;
 }
 .tt-player-row--injury .tt-player-row__actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 @media (min-width: 768px) {
