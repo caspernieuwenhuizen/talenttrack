@@ -85,12 +85,16 @@ final class MatchPrepState {
         // #4245 — who cannot play in this match (injured on its date, or
         // suspended), as the one neutral state planned attendance shows.
         // Derived and never stored: the coach's `availability` stays theirs.
+        // Both sets go to who plans the team or reads the player's injuries,
+        // as planned attendance gives them; a reader of the prep without
+        // either gets them empty.
+        $flagged              = \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $roster_ids, $team_id );
         $unavailable          = self::unavailableByPlayer( $activity_id, $roster_ids );
-        $state['unavailable'] = (object) $unavailable;
+        $state['unavailable'] = (object) array_intersect_key( $unavailable, $flagged );
         // #4246 / #4269 — available, but an injury record is overdue or
         // incomplete on the match date: a neutral marker, separate from
         // `unavailable`, derived and never stored.
-        $state['availability_check'] = (object) self::checkByPlayer( $activity_id, $roster_ids, $unavailable );
+        $state['availability_check'] = (object) array_intersect_key( self::checkByPlayer( $activity_id, $roster_ids, $unavailable ), $flagged );
 
         return $state;
     }
