@@ -161,7 +161,75 @@ final class PersonDeletionCascadeTest extends WP_UnitTestCase {
         $this->assertSame( 1, $this->rows( 'tt_staff_goals', 'id', $goal ) );
     }
 
+    /** #4613 — the preview counts exactly what the delete removes. */
+    public function test_the_preview_counts_what_the_delete_removes(): void {
+        $person = $this->person();
+        $club   = (int) CurrentClub::id();
+        $other  = $club + 1;
+
+        // This club: the rows the delete removes.
+        $this->teamRole( $person, $club, 990001 );
+        $this->staffGoal( $person, $club );
+        $evaluation = $this->staffEvaluation( $person );
+        $this->staffRating( $evaluation );
+        $this->staffRating( $evaluation );
+        $this->mentorship( $person, $club );
+        $this->invitation( $person, $club, 'pending' );
+        $this->invitation( $person, $club, 'accepted' );
+
+        // Another club, same person id: the delete leaves these alone.
+        $this->teamRole( $person, $other, 990002 );
+        $this->staffGoal( $person, $other );
+        $this->staffRating( $this->staffEvaluation( $person, $other ) );
+        $this->mentorship( $person, $other );
+        $this->invitation( $person, $other, 'pending' );
+        $this->invitation( $person, $other, 'accepted' );
+
+        $preview = ( new PersonDeletionCascade() )->preview( [ $person ] );
+        $entry   = $preview['persons'][0] ?? [ 'removals' => [], 'nullifications' => [] ];
+
+        $counted = [];
+        foreach ( $entry['removals'] as $r ) {
+            $kind = (string) $r['kind'];
+            $counted[ $kind ] = ( $counted[ $kind ] ?? 0 ) + ( $kind === 'team_role' ? 1 : (int) $r['count'] );
+        }
+        $nulled_counted = [];
+        foreach ( $entry['nullifications'] as $r ) {
+            $nulled_counted[ (string) $r['kind'] ] = (int) $r['count'];
+        }
+
+        $result = ( new PersonDeletionCascade() )->cascade( [ $person ] );
+
+        $this->assertSame( $result['per_table']['tt_team_people'], $counted['team_role'] ?? 0, 'team roles' );
+        $this->assertSame( $result['per_table']['tt_staff_goals'], $counted['staff_goals'] ?? 0, 'staff goals' );
+        $this->assertSame( $result['per_table']['tt_staff_evaluations'], $counted['staff_evaluations'] ?? 0, 'staff evaluations' );
+        $this->assertSame( $result['per_table']['tt_staff_eval_ratings'], $counted['staff_eval_ratings'] ?? 0, 'staff evaluation ratings' );
+        $this->assertSame( $result['per_table']['tt_staff_mentorships'], $counted['mentorship'] ?? 0, 'mentorships' );
+        $this->assertSame( $result['per_table']['tt_invitations'], $counted['invitation_pending'] ?? 0, 'pending invitations' );
+        $this->assertSame( $result['nulled']['tt_invitations.target_person_id'], $nulled_counted['invitation_accepted'] ?? 0, 'accepted invitations' );
+
+        $this->assertSame( 2, $counted['staff_eval_ratings'] ?? 0, 'the ratings are counted' );
+        $this->assertSame( 1, $counted['team_role'] ?? 0, "the other club's team role is not counted" );
+        $this->assertSame( 1, $counted['staff_goals'] ?? 0, "the other club's goal is not counted" );
+        $this->assertSame( 1, $counted['mentorship'] ?? 0, "the other club's mentorship is not counted" );
+        $this->assertSame( 1, $counted['invitation_pending'] ?? 0, "the other club's pending invitation is not counted" );
+        $this->assertSame( 1, $nulled_counted['invitation_accepted'] ?? 0, "the other club's accepted invitation is not counted" );
+    }
+
     // Fixtures
+
+    private function teamRole( int $person, int $club, int $team ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_team_people', [
+            'club_id'      => $club,
+            'team_id'      => $team,
+            'person_id'    => $person,
+            'role_in_team' => 'assistant_coach',
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a team role' );
+        return $id;
+    }
 
     private function mentorship( int $person, int $club ): int {
         global $wpdb;

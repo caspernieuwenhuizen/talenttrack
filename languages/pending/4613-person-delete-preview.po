@@ -1,0 +1,4 @@
+#: src/Modules/People/Admin/PeoplePage.php:83
+#, php-format
+msgid "%d staff evaluation rating(s) will be removed."
+msgstr "%d beoordeling(en) van staf-evaluaties wordt/worden verwijderd."

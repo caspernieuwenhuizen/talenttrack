@@ -86,7 +86,7 @@ Om een persoon definitief te verwijderen én tegelijk alle verwijzingen op te sc
 
 Voordat er iets wordt geschreven, opent een **impact-preview-dialoog** die exact toont wat er gaat gebeuren, per geselecteerde persoon:
 
-- **Verwijderd**: teamtoewijzingen, scopetoekenningen op functionele rollen, staf-ontwikkelingsentries, certificaten, staf-evaluaties, staf-doelen, mentorkoppelingen en openstaande uitnodigingen.
+- **Verwijderd**: teamtoewijzingen, scopetoekenningen op functionele rollen, staf-ontwikkelingsentries, certificaten, staf-evaluaties en hun beoordelingen, staf-doelen, mentorkoppelingen en openstaande uitnodigingen. Alleen rijen van je eigen club worden geteld en verwijderd.
 - **Leeggemaakt (bovenliggende rij blijft staan)**: "toegekend door"-attributie op scopes die deze persoon heeft toegekend, geaccepteerde uitnodigingen die op deze persoon waren gericht (historie blijft staan; de doelverwijzing wordt leeggemaakt), en spelerrecords die deze persoon als ouder-contact noemden.
 
 Bij bevestiging draait één database-transactie de schoonmaak; als één stap mislukt, wordt de hele batch teruggedraaid — een gedeeltelijke delete is onmogelijk.

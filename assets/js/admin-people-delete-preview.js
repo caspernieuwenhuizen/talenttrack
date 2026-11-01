@@ -198,6 +198,8 @@
                 return format(lang.staff_certifications || '%d staff certification record(s) will be removed.', r.count);
             case 'staff_evaluations':
                 return format(lang.staff_evaluations || '%d staff evaluation(s) will be removed.', r.count);
+            case 'staff_eval_ratings':
+                return format(lang.staff_eval_ratings || '%d staff evaluation rating(s) will be removed.', r.count);
             case 'staff_goals':
                 return format(lang.staff_goals || '%d staff goal(s) will be removed.', r.count);
             case 'mentorship':

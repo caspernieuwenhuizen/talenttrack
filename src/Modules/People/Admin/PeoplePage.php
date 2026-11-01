@@ -80,6 +80,7 @@ class PeoplePage {
                 'staff_development'      => __( '%d staff-development entry(ies) will be removed.', 'talenttrack' ),
                 'staff_certifications'   => __( '%d staff certification record(s) will be removed.', 'talenttrack' ),
                 'staff_evaluations'      => __( '%d staff evaluation(s) will be removed.', 'talenttrack' ),
+                'staff_eval_ratings'     => __( '%d staff evaluation rating(s) will be removed.', 'talenttrack' ),
                 'staff_goals'            => __( '%d staff goal(s) will be removed.', 'talenttrack' ),
                 'mentorship'             => __( '%d mentorship pairing(s) will be removed.', 'talenttrack' ),
                 'invitation_pending'     => __( '%d pending invitation(s) to this person will be cancelled.', 'talenttrack' ),

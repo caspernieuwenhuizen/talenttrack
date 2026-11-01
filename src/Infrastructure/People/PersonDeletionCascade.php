@@ -77,8 +77,8 @@ class PersonDeletionCascade {
                  FROM {$p}tt_team_people tp
                  LEFT JOIN {$p}tt_teams t ON t.id = tp.team_id
                  LEFT JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
-                 WHERE tp.person_id = %d",
-                $pid
+                 WHERE tp.person_id = %d AND tp.club_id = %d",
+                $pid, $club
             ) );
             foreach ( (array) $team_roles as $tr ) {
                 $removals[] = [
@@ -121,8 +121,8 @@ class PersonDeletionCascade {
             ] as $kind => $table ) {
                 if ( ! TableExists::has( $table ) ) continue;
                 $n = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$p}{$table} WHERE person_id = %d",
-                    $pid
+                    "SELECT COUNT(*) FROM {$p}{$table} WHERE person_id = %d AND club_id = %d",
+                    $pid, $club
                 ) );
                 if ( $n > 0 ) {
                     $removals[] = [ 'kind' => $kind, 'count' => $n ];
@@ -130,10 +130,26 @@ class PersonDeletionCascade {
                 }
             }
 
+            // tt_staff_eval_ratings — through the person's staff evaluations
+            if ( TableExists::has( 'tt_staff_eval_ratings' ) && TableExists::has( 'tt_staff_evaluations' ) ) {
+                $ratings_n = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$p}tt_staff_eval_ratings
+                     WHERE evaluation_id IN (
+                         SELECT id FROM {$p}tt_staff_evaluations
+                         WHERE person_id = %d AND club_id = %d
+                     )",
+                    $pid, $club
+                ) );
+                if ( $ratings_n > 0 ) {
+                    $removals[] = [ 'kind' => 'staff_eval_ratings', 'count' => $ratings_n ];
+                    $total_affected += $ratings_n;
+                }
+            }
+
             // tt_staff_mentorships — mentor OR mentee
             $mentor_n = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_staff_mentorships WHERE mentor_person_id = %d OR mentee_person_id = %d",
-                $pid, $pid
+                "SELECT COUNT(*) FROM {$p}tt_staff_mentorships WHERE ( mentor_person_id = %d OR mentee_person_id = %d ) AND club_id = %d",
+                $pid, $pid, $club
             ) );
             if ( $mentor_n > 0 ) {
                 $removals[] = [ 'kind' => 'mentorship', 'count' => $mentor_n ];
@@ -142,16 +158,16 @@ class PersonDeletionCascade {
 
             // tt_invitations — pending/expired (cascade) + accepted (null)
             $invite_cascade = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_invitations WHERE target_person_id = %d AND status IN ('pending','expired')",
-                $pid
+                "SELECT COUNT(*) FROM {$p}tt_invitations WHERE target_person_id = %d AND status IN ('pending','expired') AND club_id = %d",
+                $pid, $club
             ) );
             if ( $invite_cascade > 0 ) {
                 $removals[] = [ 'kind' => 'invitation_pending', 'count' => $invite_cascade ];
                 $total_affected += $invite_cascade;
             }
             $invite_null = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_invitations WHERE target_person_id = %d AND status = 'accepted'",
-                $pid
+                "SELECT COUNT(*) FROM {$p}tt_invitations WHERE target_person_id = %d AND status = 'accepted' AND club_id = %d",
+                $pid, $club
             ) );
             if ( $invite_null > 0 ) {
                 $nulls[] = [
