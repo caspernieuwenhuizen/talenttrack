@@ -322,7 +322,8 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
      * from every surface that reports this player's minutes for the day:
      * the grid, the audit, the `MinutesQuery` reports, Player · Minutes
      * played, Team · Minutes distribution and Minutes share (query and
-     * REST). Before #4549 the last three read the empty register as 0.
+     * REST) — plus the goal-intake season total and the recorded-match
+     * count. Before #4549 the last five read the empty register as 0.
      */
     public function test_the_same_minutes_in_all_six_places(): void {
         $from = '2026-03-01';
@@ -364,7 +365,13 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
             if ( (int) $p['player_id'] === $this->player ) $rest = (int) $p['minutes'];
         }
 
+        $season = ( new MinutesQuery() )->seasonTotalsForPlayer( $this->player, $from, $to );
+        $counts = ( new MinutesQuery() )->matchCountsForTeam( self::TEAM, $from, $to );
+
         $expected = 15 + 0 + 2 * self::PERIOD;
+        $this->assertSame( $expected, $season['minutes'], 'goal-intake season total' );
+        $this->assertSame( 2, $season['apps'], 'the corrected and the old fixture are appearances; the confirmed 0 is not' );
+        $this->assertSame( 2, $counts['recorded'], 'the old fixture counts as a recorded match, through its plan' );
         $this->assertSame( $expected, $cells, 'minutes grid' );
         $this->assertSame( $expected, $audit, 'minutes audit' );
         $this->assertSame( $expected, $report, 'MinutesQuery reports' );

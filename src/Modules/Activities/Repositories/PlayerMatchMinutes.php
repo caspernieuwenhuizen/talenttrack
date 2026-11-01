@@ -26,11 +26,14 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * the figure out. Guest rows are never a player's minutes.
  *
  * Every reader of a player's match minutes comes through here:
- * `MinutesGridQuery`, `MinutesAuditQuery`, `MinutesQuery`, `MinutesShareQuery`,
- * the Player · Minutes played and Team · Minutes distribution reports, and
- * the `TournamentMinutesResolver` register read. A reader that has to
- * aggregate in its own SQL (a JOIN across activities) applies
- * {@see newestRowClause()} so it keeps the same one row.
+ * `MinutesGridQuery`, `MinutesAuditQuery`, the `TournamentMinutesResolver`
+ * register read, and `MinutesQuery::minutesForActivities()` — which adds the
+ * #4053 tournament fallback and is what every minutes report reads (#4549):
+ * the team and player minutes reports, Player · Minutes played, Team ·
+ * Minutes distribution, `MinutesShareQuery`, the goal-intake season totals
+ * and the recorded-match count. Those name their matches in SQL and take the
+ * minutes from it, rather than aggregating minutes in SQL of their own.
+ * {@see newestRowClause()} is the rule as a SQL condition.
  *
  * `AttendanceWriter::recordActual()` stops new duplicates by updating the
  * existing recorded row, and the minutes grid's write drops older duplicates

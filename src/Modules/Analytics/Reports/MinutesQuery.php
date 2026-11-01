@@ -615,8 +615,13 @@ final class MinutesQuery {
         // Archived players count in NEITHER number: the report is about the
         // squad as it stands, and a number the rows beneath it cannot explain
         // is worse than a smaller one.
-        $recorded = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT( DISTINCT att.activity_id )
+        //
+        // #4549 — the query names the (match, player) pairs on the register;
+        // whether a match has minutes is `minutesForActivities()`' answer, so
+        // an old tournament fixture recorded through its plan (#4053) counts
+        // as recorded here, as its minutes do in the rows beneath.
+        $pairs = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT att.activity_id, att.player_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
@@ -628,11 +633,17 @@ final class MinutesQuery {
                 AND a.trashed_at IS NULL
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
-                AND att.is_guest = 0
-                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0
-                " . PlayerMatchMinutes::newestRowClause( 'att' ),
+                AND att.is_guest = 0",
             $club_id, $team_id, $from, $to
         ) );
+        $pairs   = is_array( $pairs ) ? $pairs : [];
+        $minutes = self::minutesForActivities( array_map( static fn( $r ): int => (int) ( $r->activity_id ?? 0 ), $pairs ) );
+        $with    = [];
+        foreach ( $pairs as $r ) {
+            $aid = (int) ( $r->activity_id ?? 0 );
+            if ( ( $minutes[ $aid ][ (int) ( $r->player_id ?? 0 ) ] ?? 0 ) > 0 ) $with[ $aid ] = true;
+        }
+        $recorded = count( $with );
 
         // #2833 — `session_date <= CURDATE()` counted a fixture kicking off at
         // 19:00 tonight as played, which is where "1 van 2 gespeelde
@@ -692,9 +703,13 @@ final class MinutesQuery {
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT COUNT( DISTINCT att.activity_id ) AS apps,
-                    COALESCE( SUM( COALESCE( att.minutes_override, att.minutes_played, 0 ) ), 0 ) AS minutes
+        // #4549 — the query names the matches the player is on the register
+        // of; the minutes are `minutesForActivities()`' (the shared
+        // newest-figure rule plus the #4053 plan fallback), so the intake
+        // sheet reads an old tournament fixture the way the minutes report
+        // beside it does.
+        $activity_ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT att.activity_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE a.club_id = %d
@@ -705,15 +720,22 @@ final class MinutesQuery {
                 AND a.trashed_at IS NULL
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
-                AND att.is_guest = 0
-                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0
-                " . PlayerMatchMinutes::newestRowClause( 'att' ),
+                AND att.is_guest = 0",
             $club_id, $player_id, $from, $to
         ) );
 
+        $apps    = 0;
+        $minutes = 0;
+        foreach ( self::minutesForActivities( array_map( 'intval', (array) $activity_ids ) ) as $by_player ) {
+            $m = (int) ( $by_player[ $player_id ] ?? 0 );
+            if ( $m <= 0 ) continue;
+            $apps++;
+            $minutes += $m;
+        }
+
         return [
-            'apps'    => (int) ( $row->apps ?? 0 ),
-            'minutes' => (int) ( $row->minutes ?? 0 ),
+            'apps'    => $apps,
+            'minutes' => $minutes,
         ];
     }
 
