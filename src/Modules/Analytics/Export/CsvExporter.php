@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Export;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\DimensionValueResolver;
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
@@ -35,7 +36,7 @@ final class CsvExporter {
      *
      * @param array<string,mixed> $extra_filters
      */
-    public static function forKpi( string $kpi_key, array $extra_filters = [] ): string {
+    public static function forKpi( string $kpi_key, FactScope $scope, array $extra_filters = [] ): string {
         $kpi = KpiRegistry::find( $kpi_key );
         if ( $kpi === null ) return '';
 
@@ -43,7 +44,7 @@ final class CsvExporter {
         if ( $fact === null ) return '';
 
         $filters = array_merge( $kpi->defaultFilters, $extra_filters );
-        return self::raw( $kpi->factKey, $kpi->exploreDimensions, [ $kpi->measureKey ], $filters, $kpi->label );
+        return self::raw( $kpi->factKey, $kpi->exploreDimensions, [ $kpi->measureKey ], $filters, $scope, $kpi->label );
     }
 
     /**
@@ -54,11 +55,11 @@ final class CsvExporter {
      * @param string[]            $measure_keys
      * @param array<string,mixed> $filters
      */
-    public static function raw( string $fact_key, array $dim_keys, array $measure_keys, array $filters = [], string $title = '' ): string {
+    public static function raw( string $fact_key, array $dim_keys, array $measure_keys, array $filters, FactScope $scope, string $title = '' ): string {
         $fact = FactRegistry::find( $fact_key );
         if ( $fact === null ) return '';
 
-        $rows = FactQuery::run( $fact_key, $dim_keys, $measure_keys, $filters );
+        $rows = FactQuery::run( $fact_key, $dim_keys, $measure_keys, $filters, $scope );
 
         $fp = fopen( 'php://temp', 'r+' );
         if ( $fp === false ) return '';

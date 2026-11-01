@@ -48,7 +48,7 @@ Players, teams, staff. Evaluations with the full category tree, weights and cove
 | **Match day** | Match analysis and its share link, match preparation, the live match surface, tournaments, and the three match-day PDF exports |
 | **Training** | Training plans, the exercise library, per-player training exposure, photo extraction |
 | **Media** | The media library — photo and video on a player's record |
-| **Analytics** | The dimension explorer, scheduled reports, custom widgets, the persona-dashboard editor |
+| **Analytics** | The dimension explorer, scheduled reports, custom widgets, the persona-dashboard editor, Report Studio |
 | **Reaching people** | Scheduled sends, the SMS channel, push notifications |
 | **Integrations** | Spond, Strava |
 | **Coach development** | Courses |

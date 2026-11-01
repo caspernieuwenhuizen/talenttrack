@@ -146,7 +146,7 @@ class FrontendAnalyticsView extends FrontendViewBase {
 
             echo '<div class="tt-analytics-grid">';
             foreach ( $academy_kpis as $key => $kpi ) {
-                $value = KpiResolver::value( $key );
+                $value = KpiResolver::value( $key, [], \TT\Modules\Analytics\Domain\FactScope::forUser( get_current_user_id() ) );
                 $explore_url = add_query_arg(
                     [ 'tt_view' => 'explore', 'kpi' => $key ],
                     WizardEntryPoint::dashboardBaseUrl()

@@ -6,16 +6,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\Dimension;
 use TT\Modules\Analytics\Domain\Fact;
+use TT\Modules\Analytics\Domain\FactResult;
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Domain\Measure;
 
 /**
  * FactQuery — the engine every KPI and explorer hits (#0083 Child 1).
  *
  * One method, `run()`, takes a fact key plus a list of dimension
- * keys to group by, a list of measure keys to compute, and a list of
- * filters. Returns a flat array of stdClass rows. Generates a single
- * SQL statement, scoped to the current `club_id`, cached for 60 seconds
- * via the WordPress object cache.
+ * keys to group by, a list of measure keys to compute, a list of
+ * filters and the reader's scope. Returns a flat array of stdClass rows.
+ * Generates a single SQL statement, scoped to the current `club_id`,
+ * cached for 60 seconds via the WordPress object cache.
  *
  * Filter operator vocabulary (the `$filters` array shape):
  *
@@ -37,6 +39,12 @@ use TT\Modules\Analytics\Domain\Measure;
  * impossible from this API — adding it later requires a separate
  * method with an explicit cap check, not a parameter override.
  *
+ * **Row scope (#4568):** every call takes a `FactScope`, and the engine
+ * applies it as SQL: the fact's read entity must be readable, a team-scoped
+ * reader gets only their teams' rows (through the fact's team or player
+ * column), and a fact that cannot be narrowed answers nothing below
+ * club-wide scope. Filters narrow inside that; they never widen it.
+ *
  * **SQL injection prevention:** every value goes through
  * `$wpdb->prepare()`. Identifier names (table, column, alias) are
  * either constants in this file or come from registered Fact /
@@ -47,6 +55,9 @@ final class FactQuery {
 
     private const CACHE_TTL_SECONDS = 60;
     private const CACHE_GROUP       = 'tt_analytics';
+
+    /** The most rows one query returns; `query()` says when it was reached. */
+    public const ROW_LIMIT = 5000;
 
     /**
      * Operators recognised by `applyFilters()`. Suffix on the filter
@@ -61,35 +72,62 @@ final class FactQuery {
      * @param array<string,mixed> $filters
      * @return array<int, \stdClass>
      */
-    public static function run( string $factKey, array $dimensionKeys, array $measureKeys, array $filters = [] ): array {
+    public static function run( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): array {
+        return self::query( $factKey, $dimensionKeys, $measureKeys, $filters, $scope )->rows;
+    }
+
+    /**
+     * `run()` with the truncation flag: `truncated` is true when the result
+     * reached `ROW_LIMIT` and more rows matched.
+     *
+     * @param string[]            $dimensionKeys
+     * @param string[]            $measureKeys
+     * @param array<string,mixed> $filters
+     */
+    public static function query( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): FactResult {
         $fact = FactRegistry::find( $factKey );
-        if ( $fact === null ) return [];
+        if ( $fact === null ) return new FactResult( [], false );
 
-        $cache_key = self::cacheKey( $factKey, $dimensionKeys, $measureKeys, $filters );
+        $cache_key = self::cacheKey( $factKey, $dimensionKeys, $measureKeys, $filters, $scope );
         $cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
-        if ( is_array( $cached ) ) return $cached;
+        if ( $cached instanceof FactResult ) return $cached;
 
-        $rows = self::execute( $fact, $dimensionKeys, $measureKeys, $filters );
-        wp_cache_set( $cache_key, $rows, self::CACHE_GROUP, self::CACHE_TTL_SECONDS );
-        return $rows;
+        $result = self::execute( $fact, $dimensionKeys, $measureKeys, $filters, $scope );
+        wp_cache_set( $cache_key, $result, self::CACHE_GROUP, self::CACHE_TTL_SECONDS );
+        return $result;
+    }
+
+    /**
+     * May this reader query this fact at all? False when the fact is
+     * unknown, its entity is not readable, or it cannot be narrowed and the
+     * reader is not club-wide. A surface offers only the facts this allows.
+     */
+    public static function canRead( string $factKey, FactScope $scope ): bool {
+        $fact = FactRegistry::find( $factKey );
+        if ( $fact === null ) return false;
+        [ $mode ] = $scope->access( $fact->readEntity );
+        if ( $mode === FactScope::ALL ) return true;
+        if ( $mode === FactScope::TEAMS ) return $fact->isScopable();
+        if ( $mode === FactScope::PLAYERS ) return $fact->playerColumn !== null;
+        return false;
     }
 
     /**
      * #874 — drilldown rows. Selects raw fact rows (not aggregated)
      * with every dimension expression aliased by its key. Same WHERE /
-     * tenancy / filter semantics as `run()`; respects the outer
+     * tenancy / scope / filter semantics as `run()`; respects the outer
      * 5000-row outer cap. Each row carries `_id` (the fact's primary
      * key) so detail links can be built downstream.
      *
      * @param array<string,mixed> $filters
      * @return array<int, \stdClass>
      */
-    public static function rows( string $factKey, array $filters = [], int $limit = 50, int $offset = 0 ): array {
+    public static function rows( string $factKey, array $filters, FactScope $scope, int $limit = 50, int $offset = 0 ): array {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return [];
-        $limit  = max( 1, min( 5000, $limit ) );
+        $limit  = max( 1, min( self::ROW_LIMIT, $limit ) );
         $offset = max( 0, $offset );
-        return self::executeRows( $fact, $filters, $limit, $offset );
+        return self::executeRows( $fact, $filters, $scope, $limit, $offset );
     }
 
     /**
@@ -98,10 +136,10 @@ final class FactQuery {
      *
      * @param array<string,mixed> $filters
      */
-    public static function countRows( string $factKey, array $filters = [] ): int {
+    public static function countRows( string $factKey, array $filters, FactScope $scope ): int {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return 0;
-        return self::executeCount( $fact, $filters );
+        return self::executeCount( $fact, $filters, $scope );
     }
 
     /**
@@ -111,14 +149,12 @@ final class FactQuery {
      * @param string[]            $dimensionKeys
      * @param string[]            $measureKeys
      * @param array<string,mixed> $filters
-     * @return array<int, \stdClass>
      */
-    private static function execute( Fact $fact, array $dimensionKeys, array $measureKeys, array $filters ): array {
+    private static function execute( Fact $fact, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): FactResult {
         global $wpdb;
 
         $select_parts = [];
         $group_by     = [];
-        $params       = [];
 
         foreach ( $dimensionKeys as $dim_key ) {
             $dim = $fact->dimension( $dim_key );
@@ -137,57 +173,39 @@ final class FactQuery {
         if ( empty( $select_parts ) ) {
             // Caller passed no dimensions and no measures. Return [] rather
             // than emitting a SELECT with no projections.
-            return [];
+            return new FactResult( [], false );
         }
 
-        // Build the FROM + optional join for the time column.
-        $from = $wpdb->prefix . self::ident( $fact->tableName ) . ' AS ' . self::ident( $fact->tableAlias );
-        $tc   = $fact->timeColumn;
-        if ( $tc->joinedTable !== null && $tc->joinKey !== null ) {
-            // Convention: joinedTable string is `'tt_table_name a'` (table + alias).
-            // Trust the caller (registered facts are author-controlled, not user input).
-            $from .= ' LEFT JOIN ' . $wpdb->prefix . $tc->joinedTable
-                  . ' ON ' . $fact->tableAlias . '.' . self::ident( $tc->joinKey )
-                  . ' = ' . self::tableAliasFromJoin( $tc->joinedTable ) . '.id';
-        }
+        $params = [];
+        $base   = self::fromWhere( $fact, $filters, $scope, $params );
+        if ( $base === null ) return new FactResult( [], false );
 
-        // WHERE: tenancy + filters.
-        $where = [];
-        $where[] = $fact->tableAlias . '.club_id = %d';
-        $params[] = CurrentClub::id();
-
-        $filter_sql = self::applyFilters( $fact, $filters, $params );
-        if ( $filter_sql !== '' ) {
-            $where[] = $filter_sql;
-        }
-
-        $sql = 'SELECT ' . implode( ', ', $select_parts )
-             . ' FROM ' . $from
-             . ' WHERE ' . implode( ' AND ', $where );
+        $sql = 'SELECT ' . implode( ', ', $select_parts ) . $base;
         if ( ! empty( $group_by ) ) {
             $sql .= ' GROUP BY ' . implode( ', ', $group_by );
         }
-        $sql .= ' LIMIT 5000';
+        // One row past the cap, so a result that reached it can say so.
+        $sql .= ' LIMIT ' . ( self::ROW_LIMIT + 1 );
 
-        if ( ! empty( $params ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $sql = $wpdb->prepare( $sql, ...$params );
-        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        $rows = is_array( $rows ) ? $rows : [];
 
-        $rows = $wpdb->get_results( $sql );
-        return is_array( $rows ) ? $rows : [];
+        $truncated = count( $rows ) > self::ROW_LIMIT;
+        if ( $truncated ) $rows = array_slice( $rows, 0, self::ROW_LIMIT );
+        return new FactResult( $rows, $truncated );
     }
 
     /**
      * #874 — execute the raw-row SQL for drilldown. Builds a SELECT
      * that aliases each dimension's expression by its key + emits
      * `f.id AS _id` so links can be built downstream. Reuses
-     * `applyFilters()` for parity with `execute()`.
+     * `fromWhere()` for parity with `execute()`.
      *
      * @param array<string,mixed> $filters
      * @return array<int, \stdClass>
      */
-    private static function executeRows( Fact $fact, array $filters, int $limit, int $offset ): array {
+    private static function executeRows( Fact $fact, array $filters, FactScope $scope, int $limit, int $offset ): array {
         global $wpdb;
 
         $select_parts = [ $fact->tableAlias . '.id AS _id' ];
@@ -196,28 +214,16 @@ final class FactQuery {
             $select_parts[] = $expr . ' AS ' . self::ident( $dim->key );
         }
 
-        $from = $wpdb->prefix . self::ident( $fact->tableName ) . ' AS ' . self::ident( $fact->tableAlias );
-        $tc   = $fact->timeColumn;
-        if ( $tc->joinedTable !== null && $tc->joinKey !== null ) {
-            $from .= ' LEFT JOIN ' . $wpdb->prefix . $tc->joinedTable
-                  . ' ON ' . $fact->tableAlias . '.' . self::ident( $tc->joinKey )
-                  . ' = ' . self::tableAliasFromJoin( $tc->joinedTable ) . '.id';
-        }
-
         $params = [];
-        $where  = [ $fact->tableAlias . '.club_id = %d' ];
-        $params[] = CurrentClub::id();
-        $filter_sql = self::applyFilters( $fact, $filters, $params );
-        if ( $filter_sql !== '' ) {
-            $where[] = $filter_sql;
-        }
+        $base   = self::fromWhere( $fact, $filters, $scope, $params );
+        if ( $base === null ) return [];
 
+        $tc    = $fact->timeColumn;
         $order = $tc->expression !== '' ? $tc->expression . ' DESC, ' : '';
         $order .= $fact->tableAlias . '.id DESC';
 
         $sql = 'SELECT ' . implode( ', ', $select_parts )
-             . ' FROM ' . $from
-             . ' WHERE ' . implode( ' AND ', $where )
+             . $base
              . ' ORDER BY ' . $order
              . ' LIMIT %d OFFSET %d';
 
@@ -235,29 +241,99 @@ final class FactQuery {
      *
      * @param array<string,mixed> $filters
      */
-    private static function executeCount( Fact $fact, array $filters ): int {
+    private static function executeCount( Fact $fact, array $filters, FactScope $scope ): int {
         global $wpdb;
+
+        $params = [];
+        $base   = self::fromWhere( $fact, $filters, $scope, $params );
+        if ( $base === null ) return 0;
+
+        $sql = 'SELECT COUNT(*)' . $base;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+        return min( $total, self::ROW_LIMIT );
+    }
+
+    /**
+     * ` FROM … WHERE …` shared by the three statements: the fact table, the
+     * optional time-column join, tenancy, the reader's scope and the filters.
+     * Null when the scope leaves nothing to read, so no statement is run.
+     *
+     * @param array<string,mixed> $filters
+     * @param array<int,mixed>    $params  (mutable, by reference)
+     */
+    private static function fromWhere( Fact $fact, array $filters, FactScope $scope, array &$params ): ?string {
+        global $wpdb;
+
+        $params_scope = [];
+        $scope_sql    = self::scopeClause( $fact, $scope, $params_scope );
+        if ( $scope_sql === null ) return null;
 
         $from = $wpdb->prefix . self::ident( $fact->tableName ) . ' AS ' . self::ident( $fact->tableAlias );
         $tc   = $fact->timeColumn;
         if ( $tc->joinedTable !== null && $tc->joinKey !== null ) {
+            // Convention: joinedTable string is `'tt_table_name a'` (table + alias).
+            // Trust the caller (registered facts are author-controlled, not user input).
             $from .= ' LEFT JOIN ' . $wpdb->prefix . $tc->joinedTable
                   . ' ON ' . $fact->tableAlias . '.' . self::ident( $tc->joinKey )
                   . ' = ' . self::tableAliasFromJoin( $tc->joinedTable ) . '.id';
         }
 
-        $params = [];
-        $where  = [ $fact->tableAlias . '.club_id = %d' ];
+        $where    = [ $fact->tableAlias . '.club_id = %d' ];
         $params[] = CurrentClub::id();
+
+        if ( $scope_sql !== '' ) {
+            $where[] = $scope_sql;
+            foreach ( $params_scope as $p ) $params[] = $p;
+        }
+
         $filter_sql = self::applyFilters( $fact, $filters, $params );
         if ( $filter_sql !== '' ) {
             $where[] = $filter_sql;
         }
 
-        $sql = 'SELECT COUNT(*) FROM ' . $from . ' WHERE ' . implode( ' AND ', $where );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $total = (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
-        return min( $total, 5000 );
+        return ' FROM ' . $from . ' WHERE ' . implode( ' AND ', $where );
+    }
+
+    /**
+     * The reader's row scope as SQL: '' when nothing narrows, null when
+     * nothing may be read.
+     *
+     * @param array<int,mixed> $params (out)
+     */
+    private static function scopeClause( Fact $fact, FactScope $scope, array &$params ): ?string {
+        global $wpdb;
+        $params = [];
+
+        // The scope follows the fact's own read entity (FactScope::access()).
+        [ $mode, $ids ] = $scope->access( $fact->readEntity );
+        if ( $mode === FactScope::NONE ) return null;
+
+        $clauses = [];
+        if ( $mode === FactScope::TEAMS ) {
+            if ( $ids === [] || ! $fact->isScopable() ) return null;
+            $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            if ( $fact->teamColumn !== null ) {
+                $clauses[] = $fact->teamColumn . " IN ({$in})";
+            } else {
+                $clauses[] = "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_players sp WHERE sp.id = "
+                    . $fact->playerColumn . " AND sp.team_id IN ({$in}) )";
+            }
+            foreach ( $ids as $t ) $params[] = $t;
+        } elseif ( $mode === FactScope::PLAYERS ) {
+            if ( $ids === [] || $fact->playerColumn === null ) return null;
+            $clauses[] = $fact->playerColumn . ' IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+            foreach ( $ids as $p ) $params[] = $p;
+        }
+
+        $levels = $scope->visibilities();
+        if ( $fact->visibilityColumn !== null && $levels !== null ) {
+            if ( $levels === [] ) return null;
+            $clauses[] = $fact->visibilityColumn . ' IN (' . implode( ',', array_fill( 0, count( $levels ), '%s' ) ) . ')';
+            foreach ( $levels as $l ) $params[] = $l;
+        }
+
+        return implode( ' AND ', $clauses );
     }
 
     /**
@@ -446,13 +522,14 @@ final class FactQuery {
      * @param string[]            $measures
      * @param array<string,mixed> $filters
      */
-    private static function cacheKey( string $factKey, array $dims, array $measures, array $filters ): string {
+    private static function cacheKey( string $factKey, array $dims, array $measures, array $filters, FactScope $scope ): string {
         $parts = [
             'club'     => CurrentClub::id(),
             'fact'     => $factKey,
             'dims'     => $dims,
             'measures' => $measures,
             'filters'  => $filters,
+            'scope'    => $scope->cacheKey(),
         ];
         return 'q_' . md5( (string) wp_json_encode( $parts ) );
     }

@@ -347,6 +347,12 @@ class ModuleMetadata {
                 'icon'        => 'trend-up',
                 'category'    => self::CAT_ANALYTICS,
             ],
+            'TT\\Modules\\ReportStudio\\ReportStudioModule' => [
+                'label'       => __( 'Report Studio', 'talenttrack' ),
+                'description' => __( 'One builder for reports and dashboards, from the figures the reports already show.', 'talenttrack' ),
+                'icon'        => 'reports',
+                'category'    => self::CAT_ANALYTICS,
+            ],
             'TT\\Modules\\Export\\ExportModule' => [
                 'label'       => __( 'Exports', 'talenttrack' ),
                 'description' => __( 'Download academy data as CSV, JSON or calendar files for use elsewhere.', 'talenttrack' ),

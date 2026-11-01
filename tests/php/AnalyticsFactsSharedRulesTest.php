@@ -3,6 +3,8 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\DimensionValueResolver;
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiResolver;
@@ -42,14 +44,15 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
             'evaluations_per_session',
             [ 'month' ],
             [ 'count_evaluations' ],
-            [ 'date_after' => '2020-05-01', 'date_before' => '2020-05-31' ]
+            [ 'date_after' => '2020-05-01', 'date_before' => '2020-05-31' ],
+            FactScope::unrestricted()
         );
 
         $this->assertCount( 1, $rows );
         $this->assertSame( '2020-05', (string) $rows[0]->month );
         $this->assertSame( 2, (int) $rows[0]->count_evaluations );
 
-        $kpi = KpiResolver::value( 'evaluation_coverage', [ 'date_after' => '2020-05-01', 'date_before' => '2020-05-31' ] );
+        $kpi = KpiResolver::value( 'evaluation_coverage', [ 'date_after' => '2020-05-01', 'date_before' => '2020-05-31' ], FactScope::unrestricted() );
         $this->assertSame( 2.0, $kpi, 'the Evaluation coverage KPI returns a value' );
     }
 
@@ -66,17 +69,52 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         $this->insertEvaluation( $activity, $player, 12 );
 
         $window = [ 'date_after' => '2020-06-01', 'date_before' => '2020-06-30' ];
-        $rows   = FactQuery::run( 'evaluations_per_session', [ 'evaluator_id' ], [ 'count_evaluations' ], $window );
+        $rows   = FactQuery::run( 'evaluations_per_session', [ 'evaluator_id' ], [ 'count_evaluations' ], $window, FactScope::unrestricted() );
         $counts = [];
         foreach ( $rows as $r ) $counts[ (int) $r->evaluator_id ] = (int) $r->count_evaluations;
         ksort( $counts );
         $this->assertSame( [ 11 => 2, 12 => 1 ], $counts );
 
-        $only = FactQuery::run( 'evaluations_per_session', [], [ 'count_evaluations' ], $window + [ 'evaluator_id_eq' => 12 ] );
+        $only = FactQuery::run( 'evaluations_per_session', [], [ 'count_evaluations' ], $window + [ 'evaluator_id_eq' => 12 ], FactScope::unrestricted() );
         $this->assertSame( 1, (int) $only[0]->count_evaluations, 'filtering by evaluator reads the coach too' );
 
-        $all = FactQuery::run( 'evaluations', [ 'evaluator_id' ], [ 'count' ], [ 'evaluator_id_in' => [ 11, 12 ] ] );
+        $all = FactQuery::run( 'evaluations', [ 'evaluator_id' ], [ 'count' ], [ 'evaluator_id_in' => [ 11, 12 ] ], FactScope::unrestricted() );
         $this->assertCount( 2, $all, 'the evaluations fact groups by the coach as well' );
+    }
+
+    /**
+     * #4568 — `tt_evaluations` has no team column. The team is the one at
+     * evaluation time: the activity's team, else the player's team on the
+     * evaluation date from the team history, else none.
+     */
+    public function test_the_team_of_an_evaluation_is_the_team_at_the_time(): void {
+        global $wpdb;
+        $then   = $this->insertTeam( 'U13 then' );
+        $now    = $this->insertTeam( 'U14 now' );
+        $player = $this->insertPlayer( $now, 'Moved' );
+
+        // Written for an activity of the old team, after the player moved.
+        $this->insertEvaluation( $this->insertActivity( $then, '2020-07-04', 'completed' ), $player, 1, '2020-07-04' );
+        // No activity; the history says the player was in the old team then.
+        $wpdb->insert( "{$this->p}tt_player_team_history", [ 'club_id' => $this->club, 'player_id' => $player, 'team_id' => $then, 'joined_at' => '2019-08-01', 'left_at' => '2020-06-30' ] );
+        $wpdb->insert( "{$this->p}tt_player_team_history", [ 'club_id' => $this->club, 'player_id' => $player, 'team_id' => $now, 'joined_at' => '2020-07-01', 'left_at' => null ] );
+        $this->insertEvaluation( 0, $player, 1, '2020-03-01' );
+        $this->insertEvaluation( 0, $player, 1, '2020-07-10' );
+        // Neither an activity nor any history on that date.
+        $this->insertEvaluation( 0, $player, 1, '2019-01-01' );
+
+        $rows = FactQuery::run( 'evaluations', [ 'team_id' ], [ 'count' ], [ 'player_id_eq' => $player ], FactScope::unrestricted() );
+        $counts = [];
+        foreach ( $rows as $r ) $counts[ $r->team_id === null ? 'none' : (int) $r->team_id ] = (int) $r->count;
+        $this->assertSame( 2, $counts[ $then ] ?? 0, 'the activity\'s team, and the history on the date' );
+        $this->assertSame( 1, $counts[ $now ] ?? 0 );
+        $this->assertSame( 1, $counts['none'] ?? 0 );
+
+        $fact = FactRegistry::find( 'evaluations' );
+        $this->assertNotNull( $fact );
+        $dim = $fact->dimension( 'team_id' );
+        $this->assertNotNull( $dim );
+        $this->assertSame( 'No team', DimensionValueResolver::resolve( $dim, null ) );
     }
 
     public function test_attendance_measures_equal_the_attendance_report(): void {
@@ -111,7 +149,8 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
             'attendance',
             [],
             [ 'attendance_pct', 'count_present', 'count_absent' ],
-            [ 'player_id_eq' => $player, 'date_after' => '2020-01-01', 'date_before' => '2020-12-31' ]
+            [ 'player_id_eq' => $player, 'date_after' => '2020-01-01', 'date_before' => '2020-12-31' ],
+            FactScope::unrestricted()
         );
         $this->assertCount( 1, $rows );
         $this->assertSame( $report['present_pct'], round( (float) $rows[0]->attendance_pct, 1 ), 'KPI attendance % equals the report' );
@@ -119,7 +158,7 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         $this->assertSame( $report['absent'], (int) $rows[0]->count_absent );
 
         // The fact itself stays unscoped (#3451): the data browser shows every row.
-        $this->assertSame( 6, FactQuery::countRows( 'attendance', [ 'player_id_eq' => $player ] ) );
+        $this->assertSame( 6, FactQuery::countRows( 'attendance', [ 'player_id_eq' => $player ], FactScope::unrestricted() ) );
     }
 
     private function insertTeam( string $name ): int {
@@ -166,14 +205,15 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         ] );
     }
 
-    private function insertEvaluation( int $activity_id, int $player_id, int $coach_id = 1 ): void {
+    /** An activity id of 0 writes an evaluation with no activity. */
+    private function insertEvaluation( int $activity_id, int $player_id, int $coach_id = 1, string $date = '2020-05-10' ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_evaluations", [
             'club_id'     => $this->club,
-            'activity_id' => $activity_id,
+            'activity_id' => $activity_id > 0 ? $activity_id : null,
             'player_id'   => $player_id,
             'coach_id'    => $coach_id,
-            'eval_date'   => '2020-05-10',
+            'eval_date'   => $date,
         ] );
     }
 }

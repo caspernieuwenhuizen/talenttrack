@@ -447,6 +447,51 @@ class AuthorizationService {
     }
 
     /**
+     * {@see self::canViewPlayer()} for many players at once (#4568): the
+     * same rules, with every player's team and account read in one
+     * statement, and each answer seeded into the decision cache so a later
+     * single check costs nothing.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, bool> player id => may view
+     */
+    public static function canViewPlayers( int $user_id, array $player_ids ): array {
+        $ids = [];
+        foreach ( $player_ids as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $ids[ $pid ] = $pid;
+        }
+        if ( $ids === [] ) return [];
+
+        $rows = [];
+        if ( $user_id > 0 ) {
+            global $wpdb;
+            $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            /** @var array<int,object> $found */
+            $found = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, team_id, wp_user_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
+                CurrentClub::id(),
+                ...array_values( $ids )
+            ) );
+            foreach ( (array) $found as $r ) $rows[ (int) ( $r->id ?? 0 ) ] = $r;
+        }
+
+        $out = [];
+        foreach ( $ids as $pid ) {
+            $row = $rows[ $pid ] ?? null;
+            $out[ $pid ] = self::decide( 'view_player', $user_id, 'player', $pid, function () use ( $user_id, $pid, $row ) {
+                if ( $user_id <= 0 ) return false;
+                if ( $row !== null && (int) ( $row->wp_user_id ?? 0 ) === $user_id ) return true;
+                if ( self::userHasPermission( $user_id, 'players.view' ) ) return true;
+                $team_id = $row !== null ? (int) ( $row->team_id ?? 0 ) : 0;
+                if ( $team_id > 0 && self::userHasPermission( $user_id, 'players.view', 'team', $team_id ) ) return true;
+                return self::userHasPermission( $user_id, 'players.view_own_children', 'player', $pid );
+            } );
+        }
+        return $out;
+    }
+
+    /**
      * Is this user STAFF for the player — global `players.view`, or
      * team-scoped `players.view` on the player's team? (#3715)
      *

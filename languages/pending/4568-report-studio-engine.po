@@ -1,0 +1,130 @@
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+#, php-format
+msgid "%s has a value this block does not offer."
+msgstr "%s heeft een waarde die dit blok niet aanbiedt."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+#, php-format
+msgid "A group holds at most %d players."
+msgstr "Een groep bevat hoogstens %d spelers."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+#, php-format
+msgid "A period covers at most %d days: one season plus one month."
+msgstr "Een periode beslaat hoogstens %d dagen: één seizoen plus één maand."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+#, php-format
+msgid "A preview request may be at most %d bytes."
+msgstr "Een voorbeeldverzoek mag hoogstens %d bytes zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "A report for the family or a scout is about one player."
+msgstr "Een rapport voor de familie of een scout gaat over één speler."
+
+#: src/Modules/ReportStudio/Blocks/AttendancePerWeekBlock.php
+msgid "Attendance per week"
+msgstr "Aanwezigheid per week"
+
+#: src/Modules/ReportStudio/Blocks/OwnQuestionBlock.php
+msgid "Break down by"
+msgstr "Uitsplitsen naar"
+
+#: src/Core/FeatureRegistry.php
+msgid "Build reports and dashboards from blocks that show the same figures as the reports."
+msgstr "Bouw rapporten en dashboards uit blokken die dezelfde cijfers tonen als de rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "Choose a player."
+msgstr "Kies een speler."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "Choose a team."
+msgstr "Kies een team."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "Choose at least one player."
+msgstr "Kies minstens één speler."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "Every player in the group must be a player id."
+msgstr "Elke speler in de groep moet een speler-id zijn."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "One builder for reports and dashboards, from the figures the reports already show."
+msgstr "Eén bouwer voor rapporten en dashboards, uit de cijfers die de rapporten al tonen."
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Players evaluated"
+msgstr "Geëvalueerde spelers"
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Players recorded"
+msgstr "Geregistreerde spelers"
+
+#: src/Modules/ReportStudio/Blocks/PlayingTimeBlock.php
+msgid "Playing time per player"
+msgstr "Speeltijd per speler"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Report Studio"
+msgstr "Rapportstudio"
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "The audience must be internal, scout or family."
+msgstr "Het publiek moet intern, scout of familie zijn."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+msgid "The context must be an object."
+msgstr "De context moet een object zijn."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+msgid "The options must be an object."
+msgstr "De opties moeten een object zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "The period needs a from and a to date (YYYY-MM-DD), from first."
+msgstr "De periode heeft een begin- en een einddatum nodig (JJJJ-MM-DD), de begindatum eerst."
+
+#: src/Modules/ReportStudio/Domain/ReportContext.php
+msgid "The scope must be me, player, team, group or academy."
+msgstr "Het bereik moet me, player, team, group of academy zijn."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "There is no block with that key."
+msgstr "Er is geen blok met die sleutel."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "This block cannot be used for this subject or audience."
+msgstr "Dit blok kan niet worden gebruikt voor dit onderwerp of dit publiek."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+#, php-format
+msgid "This block does not accept: %s."
+msgstr "Dit blok accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "This block has no data for this subject."
+msgstr "Dit blok heeft geen gegevens voor dit onderwerp."
+
+#: src/Modules/ReportStudio/Domain/ReportSubjectAccess.php
+msgid "This report subject is not in your scope."
+msgstr "Dit rapportonderwerp valt buiten je bereik."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "You do not have access to this block."
+msgstr "Je hebt geen toegang tot dit blok."
+
+#: src/Modules/ReportStudio/Blocks/OwnQuestionBlock.php
+msgid "Your own question"
+msgstr "Je eigen vraag"
+
+#: src/Modules/ReportStudio/Blocks/OwnQuestionBlock.php
+msgctxt "report studio option"
+msgid "Data"
+msgstr "Gegevens"
+
+#: src/Modules/ReportStudio/Blocks/OwnQuestionBlock.php
+msgctxt "report studio option"
+msgid "Measure"
+msgstr "Maat"

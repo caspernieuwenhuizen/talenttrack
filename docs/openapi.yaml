@@ -49,6 +49,7 @@ tags:
   - name: docs
   - name: config
   - name: media
+  - name: report-studio
 
 components:
   securitySchemes:
@@ -366,6 +367,35 @@ paths:
       summary: Bulk-import players via CSV
       description: 'Cap required: `tt_edit_players`.'
       responses: { '200': { description: OK } }
+
+  /report-blocks:
+    get:
+      tags: [report-studio]
+      summary: The Report Studio blocks the caller may place, with their option schemas
+      description: 'Cap required: `tt_view_reports`, the `report_studio` feature switched on, and the `report_studio` plan feature. `scope` and `audience` are taken plainly or as `filter[scope]` / `filter[audience]`.'
+      parameters:
+        - { in: query, name: scope, required: false, schema: { type: string, enum: [me, player, team, group, academy] } }
+        - { in: query, name: audience, required: false, schema: { type: string, enum: [internal, scout, family] } }
+      responses:
+        '200': { description: OK }
+        '400': { description: bad_filter — an unknown scope or audience }
+        '402': { description: license_required — the install is not on the plan }
+        '403': { description: The caller lacks the capability, or the feature is off }
+
+  /report-blocks/{key}/preview:
+    post:
+      tags: [report-studio]
+      summary: One block's data for a context, before a report exists; writes nothing
+      description: 'Body — `context` (scope, player_id / team_id / player_ids, from, to, audience) and `options`. The subject is checked on every call. At most 60 players in a group, 396 days in a period and 16384 bytes in the body.'
+      parameters:
+        - { in: path, name: key, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '400': { description: 'invalid_field, unknown_field, missing_fields or bad_date' }
+        '402': { description: license_required — the install is not on the plan }
+        '403': { description: 'forbidden_player, forbidden_team or forbidden_scope — the subject is not in the caller''s scope; forbidden — no access to the block' }
+        '404': { description: not_found — no such block, or no data for this subject }
+        '413': { description: body_too_large }
 
   /teams:
     get: { tags: [teams], summary: List teams, responses: { '200': { description: OK } } }

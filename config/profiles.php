@@ -142,6 +142,7 @@ return [
             // Advanced / developer.
             'TT\\Modules\\CustomCss\\CustomCssModule'             => false,
             'TT\\Modules\\CustomWidgets\\CustomWidgetsModule'     => false,
+            'TT\\Modules\\ReportStudio\\ReportStudioModule'       => false,
             'TT\\Modules\\DataBrowser\\DataBrowserModule'         => false,
             'TT\\Modules\\I18n\\I18nModule'                       => false,
             'TT\\Modules\\Translations\\TranslationsModule'       => false,
@@ -250,6 +251,7 @@ return [
             'TT\\Modules\\Strava\\StravaModule'                   => true,
             'TT\\Modules\\CustomCss\\CustomCssModule'             => true,
             'TT\\Modules\\CustomWidgets\\CustomWidgetsModule'     => true,
+            'TT\\Modules\\ReportStudio\\ReportStudioModule'       => true,
             'TT\\Modules\\DataBrowser\\DataBrowserModule'         => true,
             'TT\\Modules\\I18n\\I18nModule'                       => true,
             'TT\\Modules\\Translations\\TranslationsModule'       => true,

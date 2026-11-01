@@ -124,6 +124,9 @@ class AnalyticsModule implements ModuleInterface {
                 new Dimension( 'activity_type', __( 'Activity type', 'talenttrack' ), Dimension::TYPE_LOOKUP, null, 'activity_type', 'a.activity_type_key' ),
                 new Dimension( 'status',    __( 'Attendance status', 'talenttrack' ), Dimension::TYPE_ENUM ),
                 new Dimension( 'month',     __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%Y-%m')" ),
+                // ISO week, e.g. 2026-W07, so a per-week block reads the
+                // same rows and measures as every other attendance figure.
+                new Dimension( 'week',      __( 'Week', 'talenttrack' ),      Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%x-W%v')" ),
             ],
             // #3451 — the MEASURES are scoped to the recorded register, the
             // FACT is not. A planned squad stores Expected as `Present`, so
@@ -146,6 +149,8 @@ class AnalyticsModule implements ModuleInterface {
             measures: [
                 new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
                 new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
+                // #4568 — "distinct" is a declared measure, never composed by a reader.
+                new Measure( 'distinct_players', __( 'Players recorded', 'talenttrack' ), Measure::AGG_COUNT, "DISTINCT CASE WHEN f.record_type='actual' AND f.is_guest = 0 AND " . $countable . ' THEN f.player_id END' ),
                 // The percentage needs the planned rows out of the
                 // DENOMINATOR as well, so they resolve to NULL rather than
                 // to 0 — `AVG` skips NULLs, and a selection scoring 0%
@@ -159,6 +164,9 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',
+            readEntity:  'attendance',
+            teamColumn:  'a.team_id',
+            playerColumn: 'f.player_id',
         ) );
 
         // ── activities ─────────────────────────────────────────────
@@ -180,9 +188,16 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'f.session_date' ),
             entityScope: 'activity',
+            readEntity:  'activities',
+            teamColumn:  'f.team_id',
         ) );
 
         // ── evaluations ────────────────────────────────────────────
+        global $wpdb;
+        $eval_team = "COALESCE("
+            . "(SELECT NULLIF(ea.team_id, 0) FROM {$wpdb->prefix}tt_activities ea WHERE ea.id = f.activity_id AND ea.club_id = f.club_id), "
+            . "(SELECT h.team_id FROM {$wpdb->prefix}tt_player_team_history h WHERE h.player_id = f.player_id AND h.club_id = f.club_id"
+            . " AND h.joined_at <= f.eval_date AND ( h.left_at IS NULL OR h.left_at >= f.eval_date ) ORDER BY h.joined_at DESC, h.id DESC LIMIT 1))";
         FactRegistry::register( new Fact(
             key:        'evaluations',
             tableName:  'tt_evaluations',
@@ -191,14 +206,21 @@ class AnalyticsModule implements ModuleInterface {
             dimensions: [
                 new Dimension( 'player_id',    __( 'Player', 'talenttrack' ),    Dimension::TYPE_FOREIGN_KEY, 'tt_players' ),
                 new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users', null, 'f.coach_id' ),
-                new Dimension( 'team_id',      __( 'Team', 'talenttrack' ),      Dimension::TYPE_FOREIGN_KEY, 'tt_teams' ),
+                // `tt_evaluations` has no team column. The team is the one
+                // at evaluation time: the evaluation's activity's team, else
+                // the player's team on the evaluation date from the team
+                // history, else none ("No team").
+                new Dimension( 'team_id',      __( 'Team', 'talenttrack' ),      Dimension::TYPE_FOREIGN_KEY, 'tt_teams', null, $eval_team ),
                 new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.created_at, '%Y-%m')" ),
             ],
             measures: [
                 new Measure( 'count', __( 'Count', 'talenttrack' ), Measure::AGG_COUNT ),
+                new Measure( 'distinct_players', __( 'Players evaluated', 'talenttrack' ), Measure::AGG_COUNT, 'DISTINCT f.player_id' ),
             ],
             timeColumn:  new DateTimeColumn( 'f.created_at' ),
             entityScope: 'player',
+            readEntity:  'evaluations',
+            playerColumn: 'f.player_id',
         ) );
 
         // ── goals ──────────────────────────────────────────────────
@@ -220,6 +242,8 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'f.created_at' ),
             entityScope: 'player',
+            readEntity:  'goals',
+            playerColumn: 'f.player_id',
         ) );
 
         // ── trial decisions ────────────────────────────────────────
@@ -238,6 +262,8 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'f.decided_at' ),
             entityScope: 'player',
+            // No team column to narrow on: club-wide readers only (#4568).
+            readEntity:  'trial_cases',
         ) );
 
         // ── prospects ──────────────────────────────────────────────
@@ -257,6 +283,8 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'f.created_at' ),
             entityScope: 'player',
+            // No team column to narrow on: club-wide readers only (#4568).
+            readEntity:  'prospects',
         ) );
 
         // ── journey events ─────────────────────────────────────────
@@ -275,6 +303,9 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'f.event_date' ),
             entityScope: 'player',
+            readEntity:  'player_timeline',
+            playerColumn: 'f.player_id',
+            visibilityColumn: 'f.visibility',
         ) );
 
         // ── evaluations per session (derived coverage) ────────────
@@ -293,6 +324,8 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'activity',
+            readEntity:  'evaluations',
+            playerColumn: 'f.player_id',
         ) );
     }
 

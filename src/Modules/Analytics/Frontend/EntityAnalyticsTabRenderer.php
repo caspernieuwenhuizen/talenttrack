@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
@@ -57,7 +58,7 @@ final class EntityAnalyticsTabRenderer {
             $extra_filters = $entity_filter_key !== null
                 ? [ $entity_filter_key => $entity_id ]
                 : [];
-            $value = KpiResolver::value( $key, $extra_filters );
+            $value = KpiResolver::value( $key, $extra_filters, FactScope::forUser( get_current_user_id() ) );
             $explore_url = add_query_arg(
                 array_merge(
                     [ 'tt_view' => 'explore', 'kpi' => $key ],

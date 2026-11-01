@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportDelivery;
@@ -77,7 +78,8 @@ final class ScheduledReportsRunner {
                 $repo->markRun( (int) $schedule['id'], $now );
                 continue;
             }
-            $csv = CsvExporter::forKpi( $kpi_key );
+            // The schedule reads as the person who set it up: their scope, not the club.
+            $csv = CsvExporter::forKpi( $kpi_key, FactScope::forUser( (int) ( $schedule['created_by'] ?? 0 ) ) );
             $recipients = self::resolveRecipients( (array) $schedule['recipients'] );
             if ( empty( $recipients ) ) {
                 $repo->markRun( (int) $schedule['id'], $now );

@@ -48,7 +48,7 @@ Spelers, teams, staf. Evaluaties met de volledige categorieboom, wegingen en beo
 | **Wedstrijddag** | Wedstrijdanalyse en de deellink, wedstrijdvoorbereiding, het live-wedstrijdscherm, toernooien en de drie wedstrijd-pdf-exports |
 | **Training** | Trainingsplannen, de oefeningenbibliotheek, trainingsblootstelling per speler, foto-extractie |
 | **Media** | De mediabibliotheek — foto en video op het spelersdossier |
-| **Analyse** | De dimensieverkenner, geplande rapportages, eigen widgets, de persona-dashboardeditor |
+| **Analyse** | De dimensieverkenner, geplande rapportages, eigen widgets, de persona-dashboardeditor, Rapportstudio |
 | **Mensen bereiken** | Geplande verzendingen, het sms-kanaal, pushmeldingen |
 | **Koppelingen** | Spond, Strava |
 | **Trainersontwikkeling** | Cursussen |

@@ -194,6 +194,18 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'analytics', 'explore', 'scheduled-reports' ],
                 'entities'        => [],
             ],
+            // #4568 (epic #4564) — Report Studio. Default off while the
+            // Studio is built: phase 1 is its REST surface only, and each
+            // later child claims its own view slug here in the PR that adds
+            // the view. The plan tier is FeatureMap's `report_studio` key.
+            'report_studio' => [
+                'label'           => __( 'Report Studio', 'talenttrack' ),
+                'description'     => __( 'Build reports and dashboards from blocks that show the same figures as the reports.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\ReportStudio\\ReportStudioModule',
+                'default_enabled' => false,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
             // #2128 — per-tile toggles for the two HoD analytics surfaces.
             // Both share the `analytics` entity + `tt_view_analytics` cap with
             // the central Analytics tile, so gating MUST be by view-slug only
