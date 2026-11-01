@@ -68,10 +68,12 @@ class MatchAnalysisRepository {
     public function activityIdsWithAnalysis( array $activity_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
         if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $found = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT DISTINCT activity_id FROM {$this->wpdb->prefix}tt_match_analyses WHERE club_id = %d AND activity_id IN ({$placeholders})",
+        $found = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT activity_id FROM {$p}tt_match_analyses WHERE club_id = %d AND activity_id IN ({$placeholders})",
             ...array_merge( [ CurrentClub::id() ], $ids )
         ) );
         $out = [];

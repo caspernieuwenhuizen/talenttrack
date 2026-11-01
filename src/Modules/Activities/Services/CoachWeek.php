@@ -253,10 +253,10 @@ final class CoachWeek {
             self::ACTION_MARK_ATTENDANCE => 'action_mark_attendance',
             self::ACTION_MATCH_PREP      => 'action_match_prep',
             self::ACTION_START_MATCH     => 'action_start_match',
-            self::ACTION_OPEN_ACTIVITY   => 'action_open_activity',
             self::ACTION_MINUTES_STATS   => 'action_minutes_stats',
             self::ACTION_RATE_PLAYERS    => 'action_rate_players',
             self::ACTION_MATCH_ANALYSIS  => 'action_match_analysis',
+            self::ACTION_OPEN_ACTIVITY   => 'action_open_activity',
         ];
     }
 
