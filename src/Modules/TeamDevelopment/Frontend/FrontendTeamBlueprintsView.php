@@ -1384,6 +1384,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 'no_matches'            => __( 'No players match.', 'talenttrack' ),
                 /* translators: %d = placement count for that player */
                 'placed_n'              => __( '×%d on pitch', 'talenttrack' ),
+                /* translators: %d = how many slots this player fills; read out by a screen reader */
+                'placed_times'          => __( 'Placed %d times', 'talenttrack' ),
                 'pick_team_and_player'  => __( 'Pick a team and a player.', 'talenttrack' ),
                 'already_in_roster'     => __( 'That player is already on the roster.', 'talenttrack' ),
                 'name_required'         => __( 'Name is required.', 'talenttrack' ),

@@ -2415,7 +2415,7 @@ class DashboardShortcode {
             // keyboard does not have. Ctrl is the safer default: the server
             // cannot know the platform, so the majority case renders correct
             // even when the script never runs.
-            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true" data-tt-shortcut-hint>Ctrl K</span>';
+            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true" data-tt-shortcut-hint>Ctrl K</span>'; /* tt-i18n-ok */
             echo '<ul class="tt-spotlight-results" id="tt-spotlight-results" '
                 . 'role="listbox" aria-label="' . esc_attr__( 'Search results', 'talenttrack' ) . '" hidden></ul>';
             // Movement between options is announced from here, because focus

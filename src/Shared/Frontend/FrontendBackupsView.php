@@ -409,11 +409,19 @@ class FrontendBackupsView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #4532 — the type-to-confirm words, in the reader's language. The
+        // script compares what is typed against these and sends the API its
+        // fixed RESTORE / IMPORT token only on a match.
+        $restore_word = _x( 'RESTORE', 'type-to-confirm word for a destructive restore', 'talenttrack' );
+        $import_word  = _x( 'IMPORT', 'type-to-confirm word for a destructive import', 'talenttrack' );
         wp_localize_script(
             'tt-frontend-backups',
             'TT_Backups',
             [
                 'i18n' => [
+                    'restore_word'     => $restore_word,
+                    'import_word'      => $import_word,
+                    'confirm_mismatch' => __( 'Type the word shown, exactly, to confirm.', 'talenttrack' ),
                     'settings_saved'   => __( 'Backup settings saved.', 'talenttrack' ),
                     'running'          => __( 'Running backup…', 'talenttrack' ),
                     'run_ok'           => __( 'Backup created. Reload to see it in the list.', 'talenttrack' ),
@@ -423,7 +431,8 @@ class FrontendBackupsView extends FrontendViewBase {
                     'restored'         => __( 'Restore complete. Reload the page to see the restored data.', 'talenttrack' ),
                     'restore_intro'    => __( 'This action will replace the current data with the contents of the backup.', 'talenttrack' ),
                     'restore_meta'     => __( 'Snapshot created %1$s on plugin version %2$s.', 'talenttrack' ),
-                    'restore_type'     => __( 'Type RESTORE to confirm:', 'talenttrack' ),
+                    /* translators: %s: the word to type, e.g. RESTORE */
+                    'restore_type'     => sprintf( __( 'Type %s to confirm:', 'talenttrack' ), $restore_word ),
                     'restore_confirm'  => __( 'Restore from this backup', 'talenttrack' ),
                     'table'            => __( 'Table', 'talenttrack' ),
                     'rows'             => __( 'Rows', 'talenttrack' ),
@@ -447,7 +456,8 @@ class FrontendBackupsView extends FrontendViewBase {
                     'import_update_c'  => __( 'Update', 'talenttrack' ),
                     'import_skip_c'    => __( 'Skip', 'talenttrack' ),
                     'import_warn'      => __( 'This writes the data above into this install. It cannot be undone automatically — take a backup first if unsure.', 'talenttrack' ),
-                    'import_type'      => __( 'Type IMPORT to confirm:', 'talenttrack' ),
+                    /* translators: %s: the word to type, e.g. IMPORT */
+                    'import_type'      => sprintf( __( 'Type %s to confirm:', 'talenttrack' ), $import_word ),
                     'import_now'       => __( 'Import now', 'talenttrack' ),
                     'import_committing'=> __( 'Importing…', 'talenttrack' ),
                     'import_done'      => __( 'The selected data was imported. Source ids were not preserved — references were remapped to this install.', 'talenttrack' ),

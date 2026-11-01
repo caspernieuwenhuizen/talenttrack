@@ -361,6 +361,6 @@
 		var plat = (navigator.userAgentData && navigator.userAgentData.platform)
 			|| navigator.platform
 			|| '';
-		if (/mac/i.test(plat)) hint.textContent = '⌘K';
+		if (/mac/i.test(plat)) hint.textContent = '⌘K'; // tt-i18n-ok — a key name
 	}
 })();
