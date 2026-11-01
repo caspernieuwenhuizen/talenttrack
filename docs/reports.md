@@ -159,6 +159,12 @@ The date on its own still counts because completing an activity is a separate,
 deliberate act: a match played last season says *planned* unless somebody
 pressed the button, and it was still played.
 
+**Match types use your academy's names.** The type of each match (league,
+cup, friendly, or any type your academy added) is shown with the name it has
+in your academy's list of match types, in your language, in the per-match rows,
+the column headers and the type filter. A match without a type shows
+**No type**.
+
 **Matches, games and tournaments all count.** The minutes reports treat
 matches, games and tournaments the same way — each is a minutes-bearing
 activity. A single-game tournament records minutes exactly like a match (plan a

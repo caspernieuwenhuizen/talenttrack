@@ -161,6 +161,12 @@ De datum telt op zichzelf mee omdat een activiteit voltooien een aparte,
 bewuste handeling is: een wedstrijd van vorig seizoen staat op *gepland* als
 niemand op de knop heeft gedrukt, en is toch gespeeld.
 
+**Wedstrijdtypes gebruiken de namen van je academie.** Het type van elke
+wedstrijd (competitie, beker, oefenwedstrijd, of een type dat je academie zelf
+toevoegde) staat er met de naam uit de lijst wedstrijdtypes van je academie, in
+je eigen taal: in de regels per wedstrijd, de kolomkoppen en het typefilter.
+Een wedstrijd zonder type toont **Geen type**.
+
 **Wedstrijden, games en toernooien tellen allemaal mee.** De minutenrapporten
 behandelen wedstrijden, games en toernooien op dezelfde manier — elk is een
 activiteit die minuten oplevert. Een toernooi met één wedstrijd legt minuten

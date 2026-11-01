@@ -155,21 +155,8 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         // Collect every match-type key that actually appears (so we
         // only show columns the operator has data for, plus the
         // canonical League / Cup / Friendly even when empty).
-        $type_labels = [
-            'League'   => __( 'League',   'talenttrack' ),
-            'Cup'      => __( 'Cup',      'talenttrack' ),
-            'Friendly' => __( 'Friendly', 'talenttrack' ),
-        ];
-        $type_keys = array_keys( $type_labels );
-        foreach ( $rows as $r ) {
-            foreach ( array_keys( $r['by_type'] ) as $k ) {
-                if ( ! isset( $type_labels[ $k ] ) ) {
-                    $type_labels[ $k ] = $k;
-                    $type_keys[]       = $k;
-                }
-            }
-        }
-        $type_keys = array_values( array_unique( $type_keys ) );
+        $type_labels = self::typeLabels( $rows );
+        $type_keys   = array_keys( $type_labels );
 
         $type_match = ( $type_filter !== 'all' && isset( $type_labels[ $type_filter ] ) );
 
@@ -365,6 +352,31 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
     }
 
     /**
+     * #4536 — the match-type columns, stored key => label: League / Cup /
+     * Friendly always (in that order, even when empty), then every other key
+     * the rows actually carry. Labels come from the `game_subtype` lookup
+     * through `MinutesBreakdown::typeLabel()`, so a club-renamed type reads
+     * as renamed and a match with no type reads "No type" rather than the
+     * raw `unknown` bucket key.
+     *
+     * @param list<array<string, mixed>> $rows Rows from `MinutesQuery::forTeam()`.
+     * @return array<string, string>
+     */
+    private static function typeLabels( array $rows ): array {
+        $labels = [];
+        foreach ( [ 'League', 'Cup', 'Friendly' ] as $k ) {
+            $labels[ $k ] = MinutesBreakdown::typeLabel( $k );
+        }
+        foreach ( $rows as $r ) {
+            foreach ( array_keys( (array) ( $r['by_type'] ?? [] ) ) as $k ) {
+                $k = (string) $k;
+                if ( ! isset( $labels[ $k ] ) ) $labels[ $k ] = MinutesBreakdown::typeLabel( $k );
+            }
+        }
+        return $labels;
+    }
+
+    /**
      * #2349 — render the filter row through the shared FilterBar for visual
      * + a11y parity with the attendance reports (period quick-pills, mobile
      * bottom-sheet, 48px targets). The team + match-type selects auto-submit;
@@ -379,11 +391,9 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
 
         // Match-type buckets (subtype, distinct from ReportFilters' activity
         // type — this report splits League / Cup / Friendly).
-        $type_options = [
-            'League'   => __( 'League',   'talenttrack' ),
-            'Cup'      => __( 'Cup',      'talenttrack' ),
-            'Friendly' => __( 'Friendly', 'talenttrack' ),
-        ];
+        // #4536 — keyed by the stored key (the URL keeps it), labelled
+        // through the lookup like the columns.
+        $type_options = self::typeLabels( [] );
 
         // Team options keyed by id for the shared select group.
         $team_options = [];
