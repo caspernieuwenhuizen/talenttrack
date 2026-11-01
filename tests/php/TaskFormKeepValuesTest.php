@@ -145,6 +145,35 @@ final class TaskFormKeepValuesTest extends WP_UnitTestCase {
         $this->assertSame( [], $this->writes, 'a refused answer writes nothing' );
     }
 
+    public function test_a_post_from_someone_who_may_not_submit_gets_nothing_echoed_back(): void {
+        $task_id = $this->task( $this->template( 'test_keep_other_user', \TT\Modules\Workflow\Forms\RequestConsentForm::class ) );
+        $before  = $this->row( $task_id );
+        $other   = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $html = $this->submit( $task_id, [
+            'asked_at' => '2026-01-01',
+            'asked_of' => 'KV not the submitter',
+            'outcome'  => 'not-an-outcome',
+        ], $other );
+
+        $this->assertStringNotContainsString( 'KV not the submitter', $html, 'only the person who may submit gets their own values back' );
+        $this->assertSame( $before, $this->row( $task_id ), 'the task row is unchanged' );
+        $this->assertSame( [], $this->writes );
+    }
+
+    public function test_a_quote_breaking_value_in_a_single_line_field_comes_back_escaped(): void {
+        $task_id = $this->task( $this->template( 'test_keep_quote', \TT\Modules\Workflow\Forms\RequestConsentForm::class ) );
+
+        $html = $this->submit( $task_id, [
+            'asked_at' => '2026-01-01',
+            'asked_of' => 'KV" autofocus onfocus="alert(1)',
+            'outcome'  => 'not-an-outcome',
+        ] );
+
+        $this->assertStringContainsString( 'value="KV&quot; autofocus onfocus=&quot;alert(1)"', $html, 'the quotes stay inside the attribute' );
+        $this->assertStringNotContainsString( 'onfocus="alert(1)"', $html, 'no attribute is injected' );
+    }
+
     public function test_markup_in_a_typed_value_comes_back_as_plain_text(): void {
         KeepValuesRefusingForm::$inner = 'TT\\Modules\\Workflow\\Forms\\QuarterlyHoDReviewForm';
         $task_id = $this->task( $this->template( 'test_keep_markup', KeepValuesRefusingForm::class ) );
@@ -222,8 +251,9 @@ final class TaskFormKeepValuesTest extends WP_UnitTestCase {
     }
 
     /** @param array<string, mixed> $typed */
-    private function submit( int $task_id, array $typed ): string {
-        wp_set_current_user( $this->user );
+    private function submit( int $task_id, array $typed, int $as = 0 ): string {
+        $as = $as > 0 ? $as : $this->user;
+        wp_set_current_user( $as );
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = $typed + [
             'tt_workflow_submit'                => '1',
@@ -231,7 +261,7 @@ final class TaskFormKeepValuesTest extends WP_UnitTestCase {
         ];
         $this->writes = [];
         ob_start();
-        FrontendTaskDetailView::render( $this->user, $task_id );
+        FrontendTaskDetailView::render( $as, $task_id );
         return (string) ob_get_clean();
     }
 }
