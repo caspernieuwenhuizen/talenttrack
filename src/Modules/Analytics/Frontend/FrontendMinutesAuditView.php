@@ -432,16 +432,18 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
     /**
      * Match-type (game_subtype_key) filter options, mirroring the minutes
      * report so both surfaces split League / Cup / Friendly identically.
+     * #4536 — labelled through the `game_subtype` lookup by the same
+     * `MinutesBreakdown::typeLabel()` the minutes report uses, so a renamed
+     * type reads the same on both; the stored key stays the option value.
      *
      * @return array<string,string>
      */
     private static function typeOptions(): array {
-        return [
-            'all'      => __( 'All types', 'talenttrack' ),
-            'League'   => __( 'League',    'talenttrack' ),
-            'Cup'      => __( 'Cup',       'talenttrack' ),
-            'Friendly' => __( 'Friendly',  'talenttrack' ),
-        ];
+        $options = [ 'all' => __( 'All types', 'talenttrack' ) ];
+        foreach ( [ 'League', 'Cup', 'Friendly' ] as $key ) {
+            $options[ $key ] = \TT\Shared\Frontend\Components\MinutesBreakdown::typeLabel( $key );
+        }
+        return $options;
     }
 
     /**
