@@ -25,6 +25,10 @@ instrument; the three environments are your ground.
   before merge: 360 px, 48 px targets, the mobile viewport gate with no new
   baseline entries, copy, Dutch strings, nav contract, save model.
 - **The docs & i18n gate** verification on user-visible PRs.
+- **The reports quality gate** (`docs/review/reports-quality.md`) walkthrough
+  on report PRs: the same numbers on screen, in print and in the PDF, empty
+  states that say why, and 360 px without horizontal scroll. The architect
+  runs the rest of that list.
 - **The mobile gate baseline** (`tests/e2e/mobile-baseline.json`): every
   entry is a known offender with an issue, or documented as accepted.
 - **The quality signals** escaped bugs and re-failed fixes: you produce the
