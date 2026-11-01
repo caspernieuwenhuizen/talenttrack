@@ -1,3 +1,0 @@
-# Custom KPI widgets show the total they were built with (#4566)
-
-A custom widget of type KPI never worked out its aggregation. It showed the first number of the first row instead, so "Number of active players" showed one player's age and "Average overall" showed one evaluation. A KPI now shows its aggregation over every row its filters select: a count, a number of distinct teams or players, or the average overall rating, calculated the same way as on a player's profile. Changing a widget's aggregation no longer shows the old figure from the cache. The Age range filter on the Active players source, which was offered but did nothing, now narrows the players. A KPI without an aggregation shows what it did before. The widget's data route also returns the figure.

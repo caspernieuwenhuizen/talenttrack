@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 8.1
-Stable tag: 4.144.0
+Stable tag: 4.145.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.145.0 — Custom KPI widgets show the total they were built with (#4566) A custom widget of type KPI never worked out its aggregation. It showed the first number of the first row instead, so "Number of active players" showed one player's age and "Average overall" showed one evaluation. A KPI now shows its aggregation over every row its filters select: a count, a number of distinct teams or players, or the average overall rating, calculated the same way as on a player's profile. Changing a widget's aggregation no longer shows the old figure from the cache. The Age range filter on the Active players source, which was offered but did nothing, now narrows the players. A KPI without an aggregation shows what it did before. The widget's data route also returns the figure. =
+
+= 4.145.0 — Report Studio, phase 1: block registry, block engine and the report-blocks routes (#4568) The server side of Report Studio (epic #4564). A new Report Studio module registers blocks, each of which reads one shared report query or the analytics engine and returns data, never HTML. `GET /report-blocks` lists the blocks a reader may place, with typed option schemas. `POST /report-blocks/{key}/preview` returns one block's data for a subject and a period, and writes nothing. Three blocks ship as proof: playing time per player (the minutes query the team monthly report uses), attendance per week, and your own question (one declared measure of one analytics fact, optionally broken down by one declared dimension). The subject is checked on every call, an external audience never gets a breakdown by player, and the limits (60 players, 396 days, 5,000 rows with a truncation flag) are enforced. The Studio is a Pro feature (402 otherwise) and is switched off by default. The analytics engine now takes the reader's scope as SQL on every query, and each fact's scope follows its own read entity: global read sees every row, team-scoped read sees the reader's teams, self-scoped read sees the reader's own record, and a fact that names no entity is refused. Trial decisions and prospects need a global read, journey events follow the reader's visibility levels, and the result cache is keyed by that scope. The evaluations fact's Team now means the team at evaluation time (the activity's team, else the team history on the evaluation date, else "No team"), and the evaluations and attendance facts gain a declared distinct-players measure and, for attendance, a week dimension. =
+
+= 4.145.0 — Custom widgets show only the rows the viewer may see (#4583) A custom widget's rows and its KPI total now follow the viewer's team scope, the way the bulk exports do: a club-wide reader sees the whole club, a coach or team manager the teams they work with, and a parent or player no squad list. A team filter outside the viewer's teams gives an empty widget. =
+
+= 4.145.0 — Permanent person delete: staff evaluation ratings go too, and only this club's rows are touched (#4605) Permanently deleting a person removed their staff evaluations but left the ratings on those evaluations behind, pointing at evaluations that no longer existed. The ratings are now deleted first, in the same transaction. Every delete and clear the cascade runs is also limited to the current club, and an id that does not belong to a person of the current club is dropped before anything runs, so on an install with more than one club a delete can never reach another club's rows. =
+
+= 4.145.0 — Workflow configuration: the "Template" label reads in Dutch (#4606) The two "Template" column headers on the workflow configuration screen showed English on a Dutch install. They now read "Sjabloon", the same word as the My tasks filter and the tasks dashboard. =
 
 = 4.144.0 — Static analysis moves to PHPStan 2.3 (#4279) The development toolchain now runs PHPStan 2.3, and the code its stricter rules flagged has been fixed rather than added to the baseline. The fixes are a validator return type that now says what it returns, three null-coalescing defaults that could never apply, and a Spond paging loop whose first check was always true. No behaviour change for academies. This is tooling and code hygiene only. =
 
