@@ -1192,6 +1192,102 @@ against the previous window), `avg`, `count` and `last`. A category's value
 per evaluation is its effective rating: the direct rating, or the mean of its
 subcategories.
 
+## Report Studio blocks (#4568, epic #4564)
+
+The Studio builds reports and dashboards out of **blocks**. A block composes
+one shared read (a report query or the analytics `FactQuery`) and returns
+data, never HTML, so a block shows the same figure as the report it comes
+from. Both routes need `tt_view_reports`, the `report_studio` feature switched
+on (`403` otherwise) and the `report_studio` plan feature (`402
+license_required` otherwise, on every verb: the Studio stores nothing yet).
+
+### `GET /report-blocks?scope=&audience=`
+
+The blocks the caller may place. `scope` is `me`, `player`, `team`, `group` or
+`academy` (omit it for every scope); `audience` is `internal` (default),
+`scout` or `family`. Both are also accepted as `filter[scope]` /
+`filter[audience]`, the nested value winning. **An unknown value is `400
+bad_filter`**, never dropped.
+
+A block is listed only when its scopes and audiences fit, the caller holds its
+`capability`, and it can return data for the caller (`available`). A caller
+the audience rules read as a scout gets the scout audience whatever they ask
+for. The payload carries capabilities and keys, never role names.
+
+```json
+{ "blocks": [
+  { "key": "own_question", "label": "Your own question",
+    "scopes": [ "me", "player", "team", "group", "academy" ],
+    "audiences": [ "internal", "family", "scout" ],
+    "capability": "tt_view_analytics",
+    "available_scopes": [ "me", "team" ],
+    "options": [
+      { "key": "fact", "type": "enum", "label": "Data", "required": true, "default": null,
+        "depends_on": null, "min": null, "max": null,
+        "choices": [ { "value": "attendance", "label": "Attendance" } ] },
+      { "key": "measure", "type": "measure", "label": "Measure", "required": true, "depends_on": "fact",
+        "choices": { "attendance": [ { "value": "attendance_pct", "label": "Attendance %" } ] } }
+    ] }
+] }
+```
+
+Option types are `enum`, `bool`, `int`, `measure` and `breakdown`. A
+`depends_on` option's `choices` are grouped by the value of the option it
+names.
+
+### `POST /report-blocks/{key}/preview`
+
+One block's data for a context, for the canvas before a report exists. **No
+side effects.** The body is `{ "context": {…}, "options": {…} }`; any other
+key is `400 unknown_field`, and a body over 16384 bytes is `413
+body_too_large`.
+
+`context` holds `scope`, the subject (`player_id`, `team_id`, or `player_ids`
+for a group), `from` and `to` (`Y-m-d`; the season so far when omitted) and
+`audience`. The engine enforces:
+
+- **Limits.** A group of at most 60 players and a period of at most 396 days
+  (one season plus one month): `400 invalid_field` / `400 bad_date`. A
+  breakdown stops at 5,000 rows and says so with `"truncated": true`.
+- **The subject, on every call.** A player through the player report's rule, a
+  team through the team report's rule, a group player by player (a player out
+  of scope is dropped, and none left is `403`), the academy through club-wide
+  analytics read. A refusal is `403 forbidden_player`, `forbidden_team` or
+  `forbidden_scope`, the status `/players/{id}/report` and
+  `/teams/{id}/monthly-report` answer.
+- **Row scope in SQL.** Fact reads take the caller's scope as a `WHERE`: a
+  coach's query never fetches another team's row.
+- **The audience.** A family or scout audience is only ever about one player
+  (`400 invalid_field` otherwise), and its payload keeps only the keys the
+  block declares safe. A breakdown by player and a group average are never
+  sent to it.
+- **Options.** Only declared options and values: `400 unknown_field` /
+  `invalid_field` with the field in `details`.
+
+An unknown block, or one with no data for this subject, is `404 not_found`.
+
+```json
+{ "block": "attendance_per_week",
+  "context": { "scope": "team", "player_id": null, "team_id": 12, "player_ids": [],
+               "from": "2026-09-01", "to": "2026-09-30", "audience": "internal" },
+  "options": {},
+  "data": { "breakdown": "week", "truncated": false,
+            "rows": [ { "week": "2026-W36", "attendance_pct": 88.5, "present": 23, "absent": 3 } ] } }
+```
+
+The three blocks:
+
+- `playing_time` (team, staff only): minutes, matches and starts per player,
+  read through the minutes query the team monthly report uses.
+- `attendance_per_week` (player, team, group, academy): the attendance
+  measures grouped by ISO week, on the rows the attendance reports count.
+- `own_question` (every scope): one declared measure of one analytics fact,
+  optionally broken down by one declared dimension. Only facts the caller may
+  read, and that carry the dimension the subject needs, are offered.
+
+Shared reads are memoised per request by subject and period, so several
+blocks on one subject read it once.
+
 ## A player's evaluations, player-facing (#3478)
 
 ### `GET /players/{id}/evaluations?scope=current|all`

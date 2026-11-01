@@ -3,6 +3,8 @@ namespace TT\Modules\Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\FactScope;
+
 /**
  * KpiResolver — single value-resolution path for both new fact-driven
  * KPIs and legacy `KpiDataSourceRegistry` entries (#0083 Child 2).
@@ -28,15 +30,16 @@ final class KpiResolver {
 
     /**
      * Compute the headline number for `$key`. Optional `$extraFilters`
-     * narrow the result on top of the KPI's `defaultFilters`.
+     * narrow the result on top of the KPI's `defaultFilters`; `$scope` is the
+     * reader whose rows it may count (#4568).
      *
      * @param array<string,mixed> $extraFilters
      */
-    public static function value( string $key, array $extraFilters = [] ): ?float {
+    public static function value( string $key, array $extraFilters, FactScope $scope ): ?float {
         $kpi = KpiRegistry::find( $key );
         if ( $kpi !== null ) {
             $filters = array_merge( $kpi->defaultFilters, $extraFilters );
-            $rows    = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters );
+            $rows    = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, $scope );
             if ( empty( $rows ) ) return null;
             $row = $rows[0];
             $val = $row->{ $kpi->measureKey } ?? null;

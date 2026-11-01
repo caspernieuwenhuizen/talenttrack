@@ -74,6 +74,11 @@ return [
         'ActivityTeamScope::covers',
         'TeamChemistryAccess::can',
         'TeamReportAccess::canRead',
+        // #4568 — a Studio block's subject, on every call: the player and team
+        // report rules above, each group player through canViewPlayer, the
+        // academy through club-wide analytics read.
+        'ReportSubjectAccess::check',
+        'ReportSubjectAccess::canRead',
 
         // Entities with an access rule of their own.
         'canViewTournament',

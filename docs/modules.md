@@ -213,6 +213,7 @@ On the frontend Modules page each feature appears as an indented row (↳) direc
 - **Team chemistry** (Team Development module, default **off**) — the formation board with suggested XI and chemistry scoring (`?tt_view=team-chemistry`). Turning it off hides its tile, its page, and the chemistry/pairings/team-fit REST routes. The **Team blueprint** editor — which lives in the same module and shares the same capability — stays available.
 - **Analytics explorer** (Analytics module, default **off**) — the ad-hoc explorer for KPI and dimension queries (`?tt_view=analytics`, `explore`, `scheduled-reports`). See the section below for what stays running when it's off. (v4.30.0+ this is a `FeatureRegistry` feature, managed on the same frontend Modules page alongside the others, not only on the wp-admin page.)
 - **Custom widgets** (Custom widgets module, default **off**) — the beta builder for bespoke dashboard widgets. Turning it off skips the whole module boot: no admin page, no REST routes, no editor palette tile. Saved widgets are kept and reappear if you switch it back on.
+- **Report Studio** (Report Studio module, default **off**) — the builder for reports and dashboards made of blocks. For now it is the server side only: the block list and block previews over REST. With it off those routes refuse every caller. It is also a Pro feature, so a Standard install answers with a plan refusal even when it is on.
 
 The features that ship **on by default** (they run today; turning them off is an opt-out, so academies that want them keep them with no action):
 

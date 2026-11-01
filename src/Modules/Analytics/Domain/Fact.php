@@ -28,6 +28,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * attendance), `'team'` for team-scoped, `'activity'` for activity-
  * scoped, `null` when the fact is global (e.g. trial decisions live
  * at academy scope, not per-player).
+ *
+ * Row scope (#4568): a fact names the matrix entity it is read under and how
+ * a team-scoped reader is narrowed: by `teamColumn` (the row's team), or by
+ * `playerColumn` (the player's current team). A fact with neither cannot be
+ * narrowed and is read only with club-wide scope. `visibilityColumn` narrows
+ * journey rows to the levels the reader holds.
  */
 final class Fact {
 
@@ -41,6 +47,10 @@ final class Fact {
     public array $measures;
     public DateTimeColumn $timeColumn;
     public ?string $entityScope;
+    public string $readEntity;
+    public ?string $teamColumn;
+    public ?string $playerColumn;
+    public ?string $visibilityColumn;
 
     /**
      * @param Dimension[] $dimensions
@@ -54,16 +64,29 @@ final class Fact {
         array $measures,
         DateTimeColumn $timeColumn,
         ?string $entityScope = null,
-        string $tableAlias = 'f'
+        string $tableAlias = 'f',
+        string $readEntity = '',
+        ?string $teamColumn = null,
+        ?string $playerColumn = null,
+        ?string $visibilityColumn = null
     ) {
-        $this->key         = $key;
-        $this->tableName   = $tableName;
-        $this->tableAlias  = $tableAlias;
-        $this->label       = $label;
-        $this->dimensions  = $dimensions;
-        $this->measures    = $measures;
-        $this->timeColumn  = $timeColumn;
-        $this->entityScope = $entityScope;
+        $this->key              = $key;
+        $this->tableName        = $tableName;
+        $this->tableAlias       = $tableAlias;
+        $this->label            = $label;
+        $this->dimensions       = $dimensions;
+        $this->measures         = $measures;
+        $this->timeColumn       = $timeColumn;
+        $this->entityScope      = $entityScope;
+        $this->readEntity       = $readEntity;
+        $this->teamColumn       = $teamColumn;
+        $this->playerColumn     = $playerColumn;
+        $this->visibilityColumn = $visibilityColumn;
+    }
+
+    /** Can a team-scoped reader be narrowed to their own rows? */
+    public function isScopable(): bool {
+        return $this->teamColumn !== null || $this->playerColumn !== null;
     }
 
     public function dimension( string $key ): ?Dimension {

@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\DimensionValueResolver;
+use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
@@ -143,7 +144,7 @@ class FrontendExploreView extends FrontendViewBase {
         self::renderFilterChips( $kpi, $fact, $filters, $group_by );
 
         // Headline value — measure aggregated over the filtered rows.
-        $rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters );
+        $rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
         $headline = empty( $rows ) ? null : ( $rows[0]->{ $kpi->measureKey } ?? null );
 
         // #873 — time-series chart between the headline and the filter row.
@@ -221,7 +222,7 @@ class FrontendExploreView extends FrontendViewBase {
 
         // Group-by table.
         if ( $group_by !== '' && $fact->dimension( $group_by ) !== null ) {
-            $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters );
+            $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
             self::renderGroupByTable( $kpi, $fact, $group_by, $grouped_rows );
         } else {
             echo '<p class="tt-explore-hint">'
@@ -264,7 +265,7 @@ class FrontendExploreView extends FrontendViewBase {
 
         $is_grouped = $group_by !== '' && $fact->dimension( $group_by ) !== null && $group_by !== $primary;
         $dims = $is_grouped ? [ $primary, $group_by ] : [ $primary ];
-        $rows = FactQuery::run( $kpi->factKey, $dims, [ $kpi->measureKey ], $filters );
+        $rows = FactQuery::run( $kpi->factKey, $dims, [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
 
         if ( empty( $rows ) ) {
             echo '<div class="tt-empty tt-explore-empty">'
@@ -442,7 +443,7 @@ class FrontendExploreView extends FrontendViewBase {
             $dim_keys[] = $group_by;
         }
 
-        $csv = CsvExporter::raw( $kpi->factKey, $dim_keys, [ $kpi->measureKey ], $filters, $kpi->label );
+        $csv = CsvExporter::raw( $kpi->factKey, $dim_keys, [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ), $kpi->label );
         if ( $csv === '' ) return;
 
         $filename = sanitize_file_name( $kpi->key . '-' . gmdate( 'Y-m-d' ) . '.csv' );
@@ -482,7 +483,7 @@ class FrontendExploreView extends FrontendViewBase {
         $filters  = self::filtersFromRequest( $kpi );
         $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
 
-        $headline_rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters );
+        $headline_rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
         $headline = empty( $headline_rows ) ? null : ( $headline_rows[0]->{ $kpi->measureKey } ?? null );
 
         $body  = '<h1>' . esc_html( $kpi->label ) . '</h1>';
@@ -510,7 +511,7 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         if ( $group_by !== '' && $fact->dimension( $group_by ) !== null ) {
-            $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters );
+            $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
             $dim = $fact->dimension( $group_by );
             $measure = $fact->measure( $kpi->measureKey );
             $body .= '<h2 style="margin-top:14pt;">' . esc_html( $dim->label ) . '</h2>';
@@ -530,8 +531,8 @@ class FrontendExploreView extends FrontendViewBase {
             $body .= '</tbody></table>';
         } else {
             // Drilldown — top 50 rows.
-            $rows = FactQuery::rows( $kpi->factKey, $filters, 50, 0 );
-            $total = FactQuery::countRows( $kpi->factKey, $filters );
+            $rows = FactQuery::rows( $kpi->factKey, $filters, FactScope::forUser( get_current_user_id() ), 50, 0 );
+            $total = FactQuery::countRows( $kpi->factKey, $filters, FactScope::forUser( get_current_user_id() ) );
             $body .= '<h2 style="margin-top:14pt;">' . esc_html__( 'Underlying rows', 'talenttrack' )
                   . ' <span style="font-weight:normal; font-size:9pt; color:#5b6e75;">'
                   . esc_html( sprintf(
@@ -781,8 +782,8 @@ class FrontendExploreView extends FrontendViewBase {
         $page = isset( $_GET['page'] ) ? max( 1, (int) $_GET['page'] ) : 1;
         $offset = ( $page - 1 ) * $per_page;
 
-        $total = FactQuery::countRows( $kpi->factKey, $filters );
-        $rows  = FactQuery::rows( $kpi->factKey, $filters, $per_page, $offset );
+        $total = FactQuery::countRows( $kpi->factKey, $filters, FactScope::forUser( get_current_user_id() ) );
+        $rows  = FactQuery::rows( $kpi->factKey, $filters, FactScope::forUser( get_current_user_id() ), $per_page, $offset );
 
         // `FactQuery` caps counts + rows at 5000. When the count lands
         // exactly on the cap the true dataset is 5000-or-more and its

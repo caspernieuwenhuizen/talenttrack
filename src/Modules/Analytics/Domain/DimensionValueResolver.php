@@ -34,6 +34,48 @@ final class DimensionValueResolver {
     /** @var array<string,string> */
     private static array $cache = [];
 
+    /** Forget the per-request labels; a test that renames a record calls this. */
+    public static function flush(): void {
+        self::$cache = [];
+    }
+
+    /**
+     * Load the labels for many player or team ids in one statement, so a
+     * breakdown by player costs one query rather than one per row (#4568).
+     * Ids already cached, and other dimension types, are left to `resolve()`.
+     *
+     * @param array<int,mixed> $values
+     */
+    public static function prime( Dimension $dim, array $values ): void {
+        if ( $dim->type !== Dimension::TYPE_FOREIGN_KEY ) return;
+        $table = (string) ( $dim->foreignTable ?? '' );
+        if ( $table !== 'tt_players' && $table !== 'tt_teams' ) return;
+
+        $ids = [];
+        foreach ( $values as $v ) {
+            $id = (int) $v;
+            if ( $id > 0 && ! isset( self::$cache[ $dim->key . ':' . $id ] ) ) $ids[ $id ] = $id;
+        }
+        if ( $ids === [] ) return;
+
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $cols = $table === 'tt_players' ? 'id, first_name, last_name' : 'id, name';
+        /** @var array<int,object> $rows */
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT {$cols} FROM {$wpdb->prefix}{$table} WHERE club_id = %d AND id IN ({$in})",
+            CurrentClub::id(),
+            ...array_values( $ids )
+        ) );
+        foreach ( (array) $rows as $row ) {
+            $id    = (int) ( $row->id ?? 0 );
+            $label = $table === 'tt_players'
+                ? QueryHelpers::player_display_name( $row )
+                : (string) ( $row->name ?? $id );
+            self::$cache[ $dim->key . ':' . $id ] = $label;
+        }
+    }
+
     /**
      * Resolve `$value` for `$dim` to a display string. Falls back to the
      * raw value when nothing can be resolved — never blanks out, never
@@ -41,7 +83,11 @@ final class DimensionValueResolver {
      * is non-empty.
      */
     public static function resolve( Dimension $dim, $value ): string {
-        if ( $value === null || $value === '' ) return '—';
+        if ( $value === null || $value === '' ) {
+            // A row with no team (an evaluation with no activity and no team
+            // history on its date) says so rather than showing a dash.
+            return $dim->foreignTable === 'tt_teams' ? __( 'No team', 'talenttrack' ) : '—';
+        }
         $raw = (string) $value;
 
         $cache_key = $dim->key . ':' . $raw;

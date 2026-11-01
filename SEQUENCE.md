@@ -123,8 +123,8 @@ Settled non-goals, listed so nobody re-proposes them without new information.
 | - | - | - |
 | Timed opponent goals without the live sheet | #3529 | Their squad is not in the system; a minute typed on Sunday would be invented. |
 | Renaming `home_score` / `away_score` to `team_score` / `opponent_score` | #3529 | A data migration plus about 20 readers. The misnomer is documented instead. |
-| A report builder with freely rearranged blocks | #3513 | "A different product." |
-| Undo across devices, version history, two-editor merging | #2881 | Autosave undo is per session; last write wins. |
+| A report builder with freely rearranged blocks: **reversed** | #3513, #4564 | Was "a different product." Reversed by the owner on 1 November 2026: Report Studio (#4564) is that builder. The existing reports stay until the Studio fully replaces each one, tool by tool. #3513's notes rule stands. |
+| Undo across devices, two-editor merging | #2881 | Autosave undo is per session; last write wins. Version history and per-person drafts were **reversed** for Report Studio only (#4564, owner, 1 November 2026), with multi-step undo on its canvas as a recorded exception to the save model (#4571). |
 | Players and scouts reading training exposure | #2493 | Decision D16. |
 | SCORM/xAPI; public or parent-facing courses | #2641 | Courses are for coach development inside the club. |
 | Media transcoding, public share links, face detection | #2589 | Photographs of minors. |

@@ -86,6 +86,9 @@ return [
     // sources. Phases 2-6 build the schema, REST, builder UI, rendering,
     // cap layer, and docs on top.
     TT\Modules\CustomWidgets\CustomWidgetsModule::class          => true,
+    // #4568 (epic #4564) — Report Studio: block registry, block engine and
+    // the /report-blocks routes. Reads its figures through Analytics.
+    TT\Modules\ReportStudio\ReportStudioModule::class            => true,
     // #0090 Phase 1 — data-row i18n foundation. Owns tt_translations
     // table + TranslatableFieldRegistry + TranslationsRepository +
     // tt_edit_translations cap + translations matrix entity. Phases

@@ -220,6 +220,9 @@ class FeatureMap {
             'scheduled_reports'           => true,
             'custom_widgets'              => true,
             'persona_dashboard_editor'    => true,
+            // #4564 — the Studio brings the explorer, custom widgets and the
+            // dashboard editor together, each of them Pro.
+            'report_studio'               => true,
 
             // Rule 2 — every send has a per-message cost.
             'comms_scheduled_sends'       => true,
@@ -406,6 +409,7 @@ class FeatureMap {
             'analytics_explorer'   => __( 'Dimension explorer', 'talenttrack' ),
             'scheduled_reports'    => __( 'Scheduled reports', 'talenttrack' ),
             'custom_widgets'       => __( 'Custom widgets', 'talenttrack' ),
+            'report_studio'        => __( 'Report Studio', 'talenttrack' ),
             'knowledge_courses'    => __( 'Courses', 'talenttrack' ),
             'team_chemistry'       => __( 'Team chemistry', 'talenttrack' ),
             'spond_integration'    => __( 'Spond integration', 'talenttrack' ),
