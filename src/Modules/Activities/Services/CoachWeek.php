@@ -4,6 +4,7 @@ namespace TT\Modules\Activities\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Config\ConfigService;
@@ -159,7 +160,7 @@ final class CoachWeek {
             $a    = (array) $activity;
             $date = substr( (string) ( $a['session_date'] ?? '' ), 0, 10 );
             $type = strtolower( trim( (string) ( $a['activity_type_key'] ?? '' ) ) );
-            if ( $date < $today || ! ActivityTypeKey::isMatchLike( $type ) ) continue;
+            if ( $date < $today || ! ActivityTypeKey::isMatchLike( $type ) || self::isCompleted( $a ) ) continue;
             $team_id = (int) ( $a['team_id'] ?? 0 );
             $matches[ (int) ( $a['id'] ?? 0 ) ] = [
                 'team_id'    => $team_id,
@@ -211,12 +212,19 @@ final class CoachWeek {
                 'actions'             => [],
             ];
 
-            if ( $when === self::WHEN_PAST ) {
+            // #4486 — a completed match is done whatever day it falls on: a
+            // coach who recorded it by hand gets the record, never a live start.
+            $done = $is_match && self::isCompleted( $a );
+
+            if ( $when === self::WHEN_PAST || $done ) {
                 if ( $register ) {
                     $recorded                   = ActivityRegisterProgress::recordedCount( $aid ) > 0;
                     $row['attendance_recorded'] = $recorded;
-                    if ( ! $recorded && $can_edit ) $row['actions'][] = self::ACTION_MARK_ATTENDANCE;
+                    // A completed match dated after today gets no button: the
+                    // attendance rule refuses present and late before the day.
+                    if ( ! $recorded && $can_edit && $when !== self::WHEN_UPCOMING ) $row['actions'][] = self::ACTION_MARK_ATTENDANCE;
                 }
+                if ( $done && $when !== self::WHEN_PAST ) $row['actions'][] = self::ACTION_OPEN_ACTIVITY;
             } elseif ( $is_match ) {
                 $out_count           = count( $unavailable[ $aid ] ?? [] );
                 $row['availability'] = [ 'available' => count( $roster ) - $out_count, 'unavailable' => $out_count ];
@@ -377,6 +385,16 @@ final class CoachWeek {
             $out[ (int) $aid ] = [ 'placed' => min( $placed, $target ), 'target' => $target ];
         }
         return $out;
+    }
+
+    /**
+     * The activity's status is completed, compared case-insensitively as
+     * `Infrastructure\Query\ActivityLifecycle::completedClause()` does.
+     *
+     * @param array<string, mixed> $activity
+     */
+    private static function isCompleted( array $activity ): bool {
+        return strtolower( trim( (string) ( $activity['activity_status_key'] ?? '' ) ) ) === ActivityStatusKey::COMPLETED;
     }
 
     private static function homeAway( string $value ): string {
