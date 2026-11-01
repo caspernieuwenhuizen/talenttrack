@@ -1,0 +1,3 @@
+# Minutes audit counts the minutes of old tournament fixtures (#4500)
+
+A tournament fixture completed before the completion step existed has a register with no minutes on it. The minutes grid, the minutes reports and the player's Tournaments tab read the rotation plan's minutes there, but the Minutes-audit overview counted 0 for every player and showed the fixture as a gap nobody could close. The audit now reads those fixtures through the same rule. A minute confirmed on the register wins, a confirmed 0 stays 0, and the plan answers only where the register holds nothing. Tournament days roll up the same figures. League matches are unchanged.

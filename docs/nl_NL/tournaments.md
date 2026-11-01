@@ -304,7 +304,8 @@ naast de balk, zodat niets op de pagina van kleur afhangt.
 die de coach in de afsluitstap (hierboven) heeft bevestigd — wat het kind
 werkelijk speelde, niet wat er voor hem was ingepland. Een correctie die daar
 wordt gemaakt, is het getal dat dit tabblad, het minutenoverzicht, de
-minutenrapporten én de minutenteller van de trainer allemaal laten zien. Er is
+minutenrapporten, de minuten-audit én de minutenteller van de trainer allemaal
+laten zien. Er is
 één antwoord, en dat is het bevestigde.
 
 Is er niets bevestigd, dan antwoordt het rotatieplan en krijgt de regel het

@@ -28,8 +28,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * every surface that reports tournament minutes comes through here:
  * `PlayerTournamentHistoryQuery` (the tab and `GET /players/{id}/tournaments`),
  * `TournamentsRestController::computeTotals()` (the coach's ticker),
- * `MinutesGridQuery` (the grid and `GET /activities/{id}/minutes`) and
- * `MinutesQuery` (the minutes reports and the player report).
+ * `MinutesGridQuery` (the grid and `GET /activities/{id}/minutes`),
+ * `MinutesQuery` (the minutes reports and the player report) and
+ * `MinutesAuditQuery` (the Minutes-audit overview and
+ * `GET /reports/minutes-audit`, its fixture rows and tournament-day
+ * roll-ups alike, #4500).
  *
  * ## A confirmed zero is not an absent value
  *

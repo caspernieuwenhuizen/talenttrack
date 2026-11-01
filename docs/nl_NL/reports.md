@@ -424,8 +424,13 @@ en zou het totaal van elke speler verdubbelen. Een samenvatting toont alleen
 bevatten.
 
 Omdat de audit **dezelfde** geregistreerde, werkelijke, niet-gast-minuten leest
-als het minutenrapport, sluiten de cijfers exact aan op dat rapport. De
-eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder
+als het minutenrapport, sluiten de cijfers exact aan op dat rapport. Dat geldt
+ook voor de ene terugvaloptie die beide hebben: bij een voltooide
+toernooiwedstrijd waarvan de aanwezigheid helemaal geen minuten bevat (een
+wedstrijd die werd voltooid voordat de afsluitstap erom vroeg), worden de
+minuten uit het rotatieplan getoond, net als in het minutenraster, het
+minutenrapport van het team en het spelersrapport. Een op de aanwezigheid bevestigde minuut, ook 0, wint altijd.
+De eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder
 geregistreerde minuten toont elke wedstrijd, eerlijke *Niet geregistreerd*-chips
 en een duidelijke vervolgstap — nooit een misleidende "0 spelers"-lege staat. Een
 lege periode (helemaal geen wedstrijden) meldt dat apart.

@@ -304,8 +304,8 @@ nothing on the page depends on seeing a colour.
 **Where the minutes come from is written on the page.** They are the figures
 the coach confirmed on the completion step (above) — what the child actually
 played, not what was scheduled for them. A correction made there is the number
-this tab, the minutes overview, the minutes reports and the coach's own minutes
-ticker all show. There is one answer, and it is the confirmed one.
+this tab, the minutes overview, the minutes reports, the minutes audit and the
+coach's own minutes ticker all show. There is one answer, and it is the confirmed one.
 
 Where nothing was confirmed, the rotation plan answers instead and the row is
 marked **Planned**. That happens in two cases, and only two:
