@@ -253,14 +253,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // standards-compliant "back to the activity" affordance (no
         // bespoke button); the contextual pill is auto-rendered from
         // `tt_back` when match prep was entered from the activity.
-        $activity_crumb_label = (string) ( $activity->title ?? '' );
-        if ( $activity_crumb_label === '' ) {
-            $activity_crumb_label = __( 'Activity', 'talenttrack' );
-        }
-        FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ), [
-            FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ),
-            FrontendBreadcrumbs::viewCrumb( 'activities', $activity_crumb_label, [ 'id' => $activity_id ] ),
-        ] );
+        self::crumbs( $activity, $activity_id );
 
         // A plan that exists stays on screen, with the panel under the one
         // breadcrumb chain (#4284: a second chain above it broke §5a).
@@ -901,14 +894,15 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // The renderer owns this CSS and returns it as a string; it is
         // attached to an enqueued handle, as the share page does, and scoped
         // to the wrapper so it does not restyle the dashboard around it.
-        wp_register_style( 'tt-match-prep-readonly', false, [], TT_VERSION );
-        wp_enqueue_style( 'tt-match-prep-readonly' );
-        // The document is a landscape sheet: on a phone it scrolls inside
-        // its wrapper rather than widening the page.
+        wp_enqueue_style(
+            'tt-match-prep-readonly',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-prep-readonly.css',
+            [],
+            TT_VERSION
+        );
         wp_add_inline_style(
             'tt-match-prep-readonly',
             \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::scopedStyleBlock( '.tt-mp--readonly' )
-                . "\n.tt-mp--readonly { overflow-x: auto; overscroll-behavior-x: contain; }"
         );
 
         echo '<div class="tt-mp tt-mp--readonly">';
