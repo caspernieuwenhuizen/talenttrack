@@ -558,6 +558,30 @@ final class AttendanceWriter {
      * Static so the two paths that still write outside an instance method
      * (and any future one) can announce without holding a writer.
      */
+    /**
+     * The players who took part in an activity: a recorded register row
+     * (`actual`) marked present or late. A linked guest counts through
+     * `guest_player_id`, the column a guest row names its player in; an
+     * anonymous guest has no player and does not. The evaluation wizard's
+     * rate roster and its write check both read this one answer.
+     *
+     * @return list<int>
+     */
+    public static function attendedPlayerIds( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+        global $wpdb;
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT COALESCE( att.guest_player_id, att.player_id )
+               FROM {$wpdb->prefix}tt_attendance att
+              WHERE att.activity_id = %d AND att.club_id = %d
+                AND att.record_type = 'actual'
+                AND LOWER(att.status) IN ( 'present', 'late' )
+                AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )",
+            $activity_id, CurrentClub::id()
+        ) );
+        return array_values( array_filter( array_map( 'intval', (array) $ids ), static fn( int $id ): bool => $id > 0 ) );
+    }
+
     public static function announce( int $activity_id ): void {
         if ( $activity_id <= 0 ) return;
 

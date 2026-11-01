@@ -301,9 +301,10 @@ class MatchAnalysisRestController {
      */
     private static function refuseUnlessCoversActivity( \WP_REST_Request $r ): ?\WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
-        if ( $activity_id > 0 && \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+        if ( $activity_id > 0 && \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
             get_current_user_id(),
-            $activity_id
+            $activity_id,
+            $r
         ) ) {
             return null;
         }

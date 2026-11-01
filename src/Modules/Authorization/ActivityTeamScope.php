@@ -28,6 +28,10 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *   3. the activity's team appearing in `QueryHelpers::get_teams_for_coach()`,
  *      the single source of truth for a coach's team grants.
  *
+ * This is the *read* scope. A caller deciding a write asks
+ * `coversTeamForWrite()` / `coversActivityForWrite()`, which follow the
+ * `activities` change grant: a read grant never widens a write.
+ *
  * This is a *scope* answer, not a capability one: callers keep their own
  * capability check and add this. A refusal here is 403 — the capability
  * model saying no — never 402, which belongs to the plan (#3104).
@@ -66,6 +70,41 @@ final class ActivityTeamScope {
         $team_id = self::teamIdForActivity( $activity_id );
         if ( $team_id === null ) return false;
         return self::coversTeam( $user_id, $team_id, $is_admin );
+    }
+
+    /**
+     * May this user change activity data for this team? The write form of
+     * {@see self::coversTeam()}: the admin flag, then the `activities` change
+     * grant through `ActivityAccess::canWriteTeam()`. A club-wide read seat
+     * satisfies `coversTeam()` and never this, so a caller deciding a write
+     * asks this one.
+     */
+    public static function coversTeamForWrite( int $user_id, int $team_id, ?bool $is_admin = null ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+
+        if ( $is_admin === null ) {
+            $is_admin = current_user_can( 'tt_edit_settings' );
+        }
+        if ( $is_admin ) return true;
+
+        return \TT\Modules\Activities\ActivityAccess::canWriteTeam( $user_id, $team_id );
+    }
+
+    /** {@see self::coversTeamForWrite()} asked about an activity id. */
+    public static function coversActivityForWrite( int $user_id, int $activity_id, ?bool $is_admin = null ): bool {
+        $team_id = self::teamIdForActivity( $activity_id );
+        if ( $team_id === null ) return false;
+        return self::coversTeamForWrite( $user_id, $team_id, $is_admin );
+    }
+
+    /**
+     * The read or the write question, by the request's method: a GET reads,
+     * anything else writes. For a permission callback shared by both.
+     */
+    public static function coversActivityForRequest( int $user_id, int $activity_id, \WP_REST_Request $r ): bool {
+        return $r->get_method() === 'GET'
+            ? self::coversActivity( $user_id, $activity_id )
+            : self::coversActivityForWrite( $user_id, $activity_id );
     }
 
     /**

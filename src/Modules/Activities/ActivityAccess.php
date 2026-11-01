@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 
 /**
@@ -54,6 +55,89 @@ final class ActivityAccess {
             'intval',
             array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
         );
+    }
+
+    /**
+     * May this user write to this team's activities? `activities` change at
+     * global scope writes every team; at team scope, the teams it is held
+     * on. Asked of the change grant, never the read one: a coach who also
+     * holds a club-wide read seat writes only their own teams.
+     * An activity with no team has no team to be out of scope for, so the
+     * capability gate is the whole answer for it. The activities write
+     * routes and the attendance wizards ask this one question.
+     */
+    public static function canWriteTeam( int $user_id, ?int $team_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return true;
+        if ( $team_id === null || $team_id <= 0 ) return true;
+        return MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * The teams whose activities this user may write: null for every team,
+     * otherwise the coached teams {@see self::canWriteTeam()} admits.
+     *
+     * @return list<int>|null
+     */
+    public static function writableTeamIds( int $user_id ): ?array {
+        if ( $user_id > 0 && MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return null;
+        return array_values( array_filter(
+            self::coachedTeamIds( $user_id ),
+            static fn( int $team_id ): bool => self::canWriteTeam( $user_id, $team_id )
+        ) );
+    }
+
+    /**
+     * May this user take the register for this team's activities? Who may
+     * write the activity may, and so may a holder of `attendance` change at
+     * global scope or on this team: a team manager takes the register
+     * without planning the activity.
+     */
+    public static function canTakeRegisterForTeam( int $user_id, ?int $team_id ): bool {
+        if ( self::canWriteTeam( $user_id, $team_id ) ) return true;
+        if ( $user_id <= 0 ) return false;
+        if ( MatrixGate::can( $user_id, 'attendance', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return true;
+        return $team_id !== null && $team_id > 0
+            && MatrixGate::can( $user_id, 'attendance', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /** {@see self::canTakeRegisterForTeam()} for one stored activity. */
+    public static function canTakeRegister( int $user_id, int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        $activity = ( new ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
+        if ( $activity === null ) return false;
+        $team_id = (int) ( ( (array) $activity )['team_id'] ?? 0 );
+        return self::canTakeRegisterForTeam( $user_id, $team_id > 0 ? $team_id : null );
+    }
+
+    /**
+     * The teams whose register this user may take: null for every team,
+     * otherwise the teams they are assigned to that
+     * {@see self::canTakeRegisterForTeam()} admits.
+     *
+     * @return list<int>|null
+     */
+    public static function registerTeamIds( int $user_id ): ?array {
+        if ( $user_id > 0 && (
+            MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL )
+            || MatrixGate::can( $user_id, 'attendance', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL )
+        ) ) return null;
+        return array_values( array_filter(
+            self::coachedTeamIds( $user_id ),
+            static fn( int $team_id ): bool => self::canTakeRegisterForTeam( $user_id, $team_id )
+        ) );
+    }
+
+    /**
+     * {@see self::canWriteTeam()} for one stored activity, archived ones
+     * included. False when the activity does not exist.
+     */
+    public static function canWriteActivity( int $user_id, int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        $activity = ( new ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
+        if ( $activity === null ) return false;
+        $team_id = (int) ( $activity->team_id ?? 0 );
+        return self::canWriteTeam( $user_id, $team_id > 0 ? $team_id : null );
     }
 
     /**

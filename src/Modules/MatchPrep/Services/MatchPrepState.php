@@ -71,7 +71,14 @@ final class MatchPrepState {
         // #4285 — only players on the team's current roster, the same squad
         // the prep screen lists. The saved rows of a player who left stay in
         // the table; they are just not part of this squad any more.
-        $state['availability'] = (object) self::availabilityByPlayer( $repo->listAvailability( $prep_id ), $roster_ids );
+        // The coach's reason is free text and can name an injury, so it goes
+        // where the unavailable flag goes; anyone else reads the status.
+        $flagged      = \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $roster_ids, $team_id );
+        $availability = self::availabilityByPlayer( $repo->listAvailability( $prep_id ), $roster_ids );
+        foreach ( $availability as $pid => $entry ) {
+            if ( ! isset( $flagged[ $pid ] ) ) $availability[ $pid ]['reason'] = '';
+        }
+        $state['availability'] = (object) $availability;
         $state['lineup']       = [ '1' => (object) $lineup[1], '2' => (object) $lineup[2] ];
         $state['player_goals'] = (object) self::playerGoalsByPlayer( $repo->listPlayerGoals( $prep_id ) );
         $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
@@ -85,12 +92,15 @@ final class MatchPrepState {
         // #4245 — who cannot play in this match (injured on its date, or
         // suspended), as the one neutral state planned attendance shows.
         // Derived and never stored: the coach's `availability` stays theirs.
+        // Both sets go to who plans the team or reads the player's injuries,
+        // as planned attendance gives them; a reader of the prep without
+        // either gets them empty.
         $unavailable          = self::unavailableByPlayer( $activity_id, $roster_ids );
-        $state['unavailable'] = (object) $unavailable;
+        $state['unavailable'] = (object) array_intersect_key( $unavailable, $flagged );
         // #4246 / #4269 — available, but an injury record is overdue or
         // incomplete on the match date: a neutral marker, separate from
         // `unavailable`, derived and never stored.
-        $state['availability_check'] = (object) self::checkByPlayer( $activity_id, $roster_ids, $unavailable );
+        $state['availability_check'] = (object) array_intersect_key( self::checkByPlayer( $activity_id, $roster_ids, $unavailable ), $flagged );
 
         return $state;
     }

@@ -449,7 +449,7 @@ class ActivitiesRestController {
         }
 
         // Team scope — a coach may only rate on a team they coach.
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( (int) $activity->team_id, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not coach this activity\'s team.', 'talenttrack' ), 403 );
         }
@@ -552,6 +552,27 @@ class ActivitiesRestController {
     }
 
     /**
+     * The grid's team scope for a write: the teams the caller may change,
+     * which a club-wide read seat does not widen. Null = every team.
+     *
+     * @return list<int>|null
+     */
+    private static function gridWritableTeamIds(): ?array {
+        return ActivityAccess::writableTeamIds( get_current_user_id() );
+    }
+
+    /**
+     * The attendance grid's team scope for a write: the teams whose
+     * register the caller may take, a team manager's included. Null =
+     * every team.
+     *
+     * @return list<int>|null
+     */
+    private static function gridRegisterTeamIds(): ?array {
+        return ActivityAccess::registerTeamIds( get_current_user_id() );
+    }
+
+    /**
      * #3616 — may the caller write to activities of this team?
      *
      * The write routes checked the capability and stopped. `can_edit()` and
@@ -574,14 +595,9 @@ class ActivitiesRestController {
      * Returns null when the write is allowed, or the 403 to return.
      */
     private static function refuseUnlessTeamWritable( ?int $team_id ): ?\WP_REST_Response {
-        $allowed = self::gridAllowedTeamIds();
-        if ( $allowed === null ) return null; // global scope: any team.
-
-        // An activity with no team has no team to be out of scope for; the
-        // capability gate is the whole answer for it.
-        if ( $team_id === null || $team_id <= 0 ) return null;
-
-        if ( in_array( $team_id, $allowed, true ) ) return null;
+        // The rule lives in `ActivityAccess::canWriteTeam()` so the
+        // attendance wizards ask the same question these routes do.
+        if ( ActivityAccess::canWriteTeam( get_current_user_id(), $team_id ) ) return null;
 
         return RestResponse::error(
             'forbidden_team',
@@ -677,7 +693,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed  = self::gridAllowedTeamIds();
+        $allowed  = self::gridRegisterTeamIds();
         $repo     = self::repo();
         $saved    = 0;
         $skipped  = 0;
@@ -853,7 +869,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         $repo    = self::repo();
         $exec    = new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository();
         $saved   = 0;
@@ -1005,7 +1021,7 @@ class ActivitiesRestController {
         }
 
         $team    = self::repo()->activityTeamId( $activity_id );
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
         }
@@ -1047,7 +1063,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
         }
 
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
         }
@@ -3156,7 +3172,12 @@ class ActivitiesRestController {
         $date        = $repo->activityDate( $id );
         $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity( $roster_ids, $id, $date );
         $check       = \TT\Modules\Activities\Services\PlayerAvailability::checkForActivity( $roster_ids, $id, $date, $unavailable );
-        $out = array_map( static function ( $row ) use ( $unavailable, $check ) {
+        // The flag is shown to who plans the team or reads the player's
+        // injuries; for everyone else `availability` is null and there is
+        // no check marker.
+        $flagged     = \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $uid, $roster_ids, $team_id );
+        $out = array_map( static function ( $row ) use ( $unavailable, $check, $flagged ) {
+            $pid = (int) ( $row->player_id ?? 0 );
             $status = (string) ( $row->status ?? '' );
             return [
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
@@ -3170,11 +3191,10 @@ class ActivitiesRestController {
                 'plan_status' => self::plannedStatusToKey( $status ),
                 'notes'       => (string) ( $row->notes ?? '' ),
                 // #4005 — read-only, derived, and never a plan state.
-                'availability' => \TT\Modules\Activities\Services\PlayerAvailability::flagFor(
-                    (int) ( $row->player_id ?? 0 ),
-                    $unavailable
-                ),
-                'availability_check' => isset( $check[ (int) ( $row->player_id ?? 0 ) ] ),
+                'availability' => isset( $flagged[ $pid ] )
+                    ? \TT\Modules\Activities\Services\PlayerAvailability::flagFor( $pid, $unavailable )
+                    : null,
+                'availability_check' => isset( $flagged[ $pid ] ) && isset( $check[ $pid ] ),
             ];
         }, $roster );
 

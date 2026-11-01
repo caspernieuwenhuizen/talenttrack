@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -56,17 +57,15 @@ final class AttendanceStep implements WizardStepInterface {
         $p = $wpdb->prefix;
         $aid = (int) ( $state['activity_id'] ?? 0 );
 
-        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
-            $aid, CurrentClub::id()
-        ) );
+        // Asked again here, not only where the id entered the wizard: the
+        // roster names minors, so it is shown for an activity the reader
+        // may write attendance for and no other.
+        if ( ! ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'That team is not in your scope.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
-        $players = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, jersey_number FROM {$p}tt_players
-              WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
-              ORDER BY last_name, first_name",
-            $team_id, CurrentClub::id()
-        ) );
+        $players = self::roster( $aid );
 
         $statuses = $wpdb->get_results( $wpdb->prepare(
             "SELECT name FROM {$p}tt_lookups WHERE lookup_type = 'attendance_status' AND club_id = %d ORDER BY sort_order",
@@ -406,11 +405,17 @@ final class AttendanceStep implements WizardStepInterface {
 
         // Persist attendance rows now — this is a real attendance update.
         $aid = (int) ( $state['activity_id'] ?? 0 );
+        if ( $aid > 0 && ! ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
+            return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
+        }
         if ( $aid > 0 && ! empty( $att ) ) {
             $writer = new AttendanceWriter();
+            // A row is written only for a player on the roster the step
+            // showed; any other posted id is dropped.
+            $on_roster = array_map( static fn( \stdClass $pl ): int => (int) $pl->id, self::roster( $aid ) );
             foreach ( $att as $player_id => $status ) {
                 $player_id = (int) $player_id;
-                if ( $player_id <= 0 ) continue;
+                if ( $player_id <= 0 || ! in_array( $player_id, $on_roster, true ) ) continue;
                 // #2909 — the card UI's state machine works in lowercase and
                 // posts what it holds. Fold to the canonical member on the way
                 // in, so the column carries one vocabulary regardless of which
@@ -458,6 +463,33 @@ final class AttendanceStep implements WizardStepInterface {
     }
 
     /**
+     * The activity's team roster: the players the step lists and the only
+     * ones it writes a row for.
+     *
+     * @return list<\stdClass>
+     */
+    private static function roster( int $activity_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        // An activity without a team has no roster. Read as `team_id = 0`
+        // it would be every player not on a team.
+        if ( $team_id <= 0 ) return [];
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, first_name, last_name, jersey_number FROM {$p}tt_players
+              WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
+              ORDER BY last_name, first_name",
+            $team_id, CurrentClub::id()
+        ) );
+        return array_values( array_map( static fn( $row ): \stdClass => (object) (array) $row, (array) $rows ) );
+    }
+
+    /**
      * v3.110.81 — terminal-completion helper. Mark-attendance wizard's
      * final steps (`RateConfirmStep::submit` for Skip, `ReviewStep::submitActivityFirst`
      * for the rate-and-submit path) call this to flip the activity to
@@ -473,6 +505,9 @@ final class AttendanceStep implements WizardStepInterface {
      */
     public static function completeActivityIfNotTerminal( int $activity_id ): void {
         if ( $activity_id <= 0 ) return;
+        // The same question the activities write routes ask: the flip is a
+        // write to the activity, for the reader finishing the wizard.
+        if ( ! ActivityAccess::canTakeRegister( get_current_user_id(), $activity_id ) ) return;
         global $wpdb;
         $p = $wpdb->prefix;
         $current = (string) $wpdb->get_var( $wpdb->prepare(

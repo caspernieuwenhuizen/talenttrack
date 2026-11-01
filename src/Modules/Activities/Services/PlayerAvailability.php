@@ -4,6 +4,7 @@ namespace TT\Modules\Activities\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Security\AuthorizationService;
 
 /**
  * PlayerAvailability (#4005) — can this player be planned for, or are they
@@ -187,6 +188,31 @@ final class PlayerAvailability {
      */
     public static function flagFor( int $player_id, array $unavailable ): string {
         return isset( $unavailable[ $player_id ] ) ? self::UNAVAILABLE : self::AVAILABLE;
+    }
+
+    /**
+     * The players whose flag this reader may see on a team's activity. The
+     * flag is for the people who plan the team, so it goes to a reader who
+     * may write that team's activities, and to a reader of the player's own
+     * injuries, who learns nothing new from it. On a training it can only
+     * mean an open injury, so a club-wide reader without either, the
+     * Read-Only Observer, gets the roster without it.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, true>
+     */
+    public static function readableFlagSet( int $user_id, array $player_ids, int $team_id ): array {
+        if ( $user_id <= 0 ) return [];
+        $plans = $team_id > 0 && \TT\Modules\Activities\ActivityAccess::canWriteTeam( $user_id, $team_id );
+        $out   = [];
+        foreach ( $player_ids as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id <= 0 ) continue;
+            if ( $plans || AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'player_injuries' ) ) {
+                $out[ $player_id ] = true;
+            }
+        }
+        return $out;
     }
 
     /** One player, one query — for a surface that has a single name to ask about. */

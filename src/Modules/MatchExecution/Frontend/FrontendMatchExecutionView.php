@@ -236,7 +236,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         }
         // #3151 — the list view narrows to the viewer's teams; this detail
         // view did not, and `tt_edit_activities` is club-wide.
-        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
+        // The console only writes, so it opens on the write scope.
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
             echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
             return;

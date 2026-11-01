@@ -373,9 +373,10 @@ class MatchExecutionRestController {
      */
     public static function can_edit( \WP_REST_Request $r ): bool {
         if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
-        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
             get_current_user_id(),
-            absint( $r['activity_id'] )
+            absint( $r['activity_id'] ),
+            $r
         );
     }
     // -----------------------------------------------------------------

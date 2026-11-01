@@ -86,7 +86,10 @@ final class NewEvaluationWizard implements WizardInterface {
             $seed['_path'] = 'player-first';
         }
         $aid = isset( $url_params['activity_id'] ) ? absint( $url_params['activity_id'] ) : 0;
-        if ( $aid > 0 && $seed !== [] && ( $seed['mode'] ?? '' ) === 'activity' ) {
+        // The id comes from the URL: seeded only for an activity the reader
+        // may write attendance for, otherwise the picker asks.
+        if ( $aid > 0 && $seed !== [] && ( $seed['mode'] ?? '' ) === 'activity'
+            && \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
             $seed['activity_id'] = $aid;
         }
         return $seed;

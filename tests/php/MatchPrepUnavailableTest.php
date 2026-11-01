@@ -104,6 +104,67 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
         $this->assertSame( [], MatchPrepState::suspendedForViewer( $this->activity, array_values( $this->players ), $assistant ) );
     }
 
+    /**
+     * A reader of the prep who neither plans this team nor reads its
+     * injuries, here another team's coach holding the club-wide read-only
+     * seat, gets the prep without the flags.
+     */
+    public function test_a_club_wide_reader_gets_neither_flag(): void {
+        global $wpdb;
+        $this->savePrep();
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $this->club, 'name' => 'JO7-2' ] );
+        $elsewhere = (int) $wpdb->insert_id;
+        $reader    = $this->makeCoach( true, $elsewhere );
+        ( new \WP_User( $reader ) )->add_role( 'tt_readonly_observer' );
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+
+        wp_set_current_user( $reader );
+        $res = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/match-prep/' . $this->activity ) );
+        $this->assertSame( 200, $res->get_status(), 'precondition: the read seat opens the prep' );
+        $state = (array) ( $res->get_data()['data'] ?? [] );
+
+        $this->assertSame( [], (array) $state['unavailable'] );
+        $this->assertSame( [], (array) $state['availability_check'] );
+        $this->assertArrayNotHasKey( 'suspended', $state );
+
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        $this->assertSame( [], (array) ( (array) MatchPrepState::forActivity( $this->activity, $observer ) )['unavailable'] );
+    }
+
+    /**
+     * The coach's reason beside an absent player is free text and can name
+     * an injury: it goes where the flag goes. A club-wide reader gets the
+     * status alone, over REST and on the print; the team's coach and the
+     * share link keep it.
+     */
+    public function test_the_coachs_reason_goes_only_where_the_flag_goes(): void {
+        global $wpdb;
+        $absent = $this->players['injured'];
+        $this->savePrep( [ $absent => [ 'status' => 'Absent', 'reason' => 'Hamstring' ] ] );
+
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $this->club, 'name' => 'JO7-3' ] );
+        $reader = $this->makeCoach( true, (int) $wpdb->insert_id );
+        ( new \WP_User( $reader ) )->add_role( 'tt_readonly_observer' );
+        $head = $this->makeCoach( true );
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+
+        wp_set_current_user( $reader );
+        $entry = (array) ( (array) $this->prep()['availability'] )[ $absent ];
+        $this->assertSame( 'Absent', $entry['status'], 'the status is still read' );
+        $this->assertSame( '', $entry['reason'] );
+        $print = \TT\Modules\MatchPrep\Print\MatchPrepPrintRouter::renderHtml( $this->activity );
+        $this->assertStringContainsString( 'Absent', $print, 'precondition: the print lists the absent player' );
+        $this->assertStringNotContainsString( 'Hamstring', $print );
+
+        wp_set_current_user( $head );
+        $this->assertSame( 'Hamstring', (string) ( (array) ( (array) $this->prep()['availability'] )[ $absent ] )['reason'] );
+        $this->assertStringContainsString( 'Hamstring', \TT\Modules\MatchPrep\Print\MatchPrepPrintRouter::renderHtml( $this->activity ) );
+
+        $this->assertStringContainsString( 'Hamstring', \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::bodyHtml( $this->activity, $this->club ), 'the share body keeps it' );
+    }
+
     public function test_staff_with_injury_access_get_both_lists(): void {
         $this->savePrep();
         $head = $this->makeCoach( true );
@@ -279,9 +340,10 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
      * head or assistant by `is_head_coach`, with the team-scoped role row.
      * Only the head coach's role holds `player_injuries`.
      */
-    private function makeCoach( bool $head ): int {
+    private function makeCoach( bool $head, int $team_id = 0 ): int {
         global $wpdb;
-        $p = $wpdb->prefix;
+        $p       = $wpdb->prefix;
+        $team_id = $team_id > 0 ? $team_id : $this->team;
 
         $uid = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
 
@@ -304,7 +366,7 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
 
         $wpdb->insert( "{$p}tt_team_people", [
             'club_id'       => $this->club,
-            'team_id'       => $this->team,
+            'team_id'       => $team_id,
             'person_id'     => $person_id,
             'role_in_team'  => $head ? 'head_coach' : 'assistant_coach',
             'is_head_coach' => $head ? 1 : 0,
@@ -315,7 +377,7 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
             'person_id'  => $person_id,
             'role_id'    => $role_id,
             'scope_type' => 'team',
-            'scope_id'   => $this->team,
+            'scope_id'   => $team_id,
         ] );
 
         AuthorizationService::flushCache();
@@ -323,10 +385,11 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
     }
 
     /** Everyone Present, as a coach who has not noticed the injuries would save it. */
-    private function savePrep(): void {
+    /** @param array<int, array{status:string, reason:string}> $override */
+    private function savePrep( array $override = [] ): void {
         $availability = [];
         foreach ( $this->players as $pid ) {
-            $availability[ $pid ] = [ 'status' => 'Present', 'reason' => '' ];
+            $availability[ $pid ] = $override[ $pid ] ?? [ 'status' => 'Present', 'reason' => '' ];
         }
         $request = new WP_REST_Request( 'PUT', '/talenttrack/v1/match-prep/' . $this->activity );
         $request->set_header( 'content-type', 'application/json' );

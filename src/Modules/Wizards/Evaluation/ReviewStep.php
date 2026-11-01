@@ -223,9 +223,13 @@ final class ReviewStep implements WizardStepInterface {
         $eval_date = $activity_row && $activity_row->session_date ? (string) $activity_row->session_date : current_time( 'Y-m-d' );
 
         $created = 0;
+        $uid     = get_current_user_id();
         foreach ( $ratings as $player_id => $cats ) {
             $player_id = (int) $player_id;
             if ( $player_id <= 0 ) continue;
+            // Each posted key is asked about: a player the reader may not
+            // evaluate gets no row. A linked guest on this activity counts.
+            if ( ! EvaluationInserter::mayWriteForActivity( $uid, $player_id, $aid ) ) continue;
             if ( ! empty( $skip[ $player_id ] ) ) continue;
             if ( ! is_array( $cats ) || empty( $cats ) ) continue;
 
@@ -353,6 +357,9 @@ final class ReviewStep implements WizardStepInterface {
 
         if ( $pid <= 0 ) {
             return new \WP_Error( 'no_player', __( 'No player selected.', 'talenttrack' ) );
+        }
+        if ( ! EvaluationInserter::mayWriteFor( get_current_user_id(), $pid ) ) {
+            return new \WP_Error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ) );
         }
 
         // #3583 — this path writes the row itself, so it asks the date rule

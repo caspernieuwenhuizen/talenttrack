@@ -47,6 +47,14 @@ final class EvaluationWizardRecordTypeTest extends WP_UnitTestCase {
             'status'     => 'active',
         ] );
         $this->player = (int) $wpdb->insert_id;
+
+        // The step writes for a reader who may write the activity.
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+    }
+
+    public function tear_down(): void {
+        wp_set_current_user( 0 );
+        parent::tear_down();
     }
 
     /* ---- S1: the step skipping itself ---------------------------------- */

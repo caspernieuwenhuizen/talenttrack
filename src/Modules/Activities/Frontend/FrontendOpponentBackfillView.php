@@ -3,7 +3,6 @@ namespace TT\Modules\Activities\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Domain\OpponentFromTitle;
 use TT\Shared\Frontend\Components\BackLink;
@@ -201,10 +200,7 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
         $team_clause = '';
         $params      = [ (int) CurrentClub::id() ];
         if ( ! self::readsEveryTeam( $user_id, $is_admin ) ) {
-            $team_ids = array_map(
-                'intval',
-                array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
-            );
+            $team_ids = (array) \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id );
             if ( $team_ids === [] ) return [];
             $team_clause = ' AND a.team_id IN ( ' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ' )';
             $params      = array_merge( $params, $team_ids );
@@ -248,14 +244,15 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
     }
 
     /**
-     * Academy-wide roles review the club's matches; everyone else reviews
-     * the teams they coach. The same rule the activity surfaces apply, so
-     * this screen can never show a coach a fixture they could not open.
+     * Every row on this screen is a write, so it lists the matches the
+     * caller may change: academy-wide for a club-wide change grant, the
+     * teams they may write otherwise. A club-wide read seat does not widen
+     * it. The same rule the activity writes apply.
      */
     private static function readsEveryTeam( int $user_id, bool $is_admin ): bool {
         return $is_admin
             || current_user_can( 'tt_edit_settings' )
-            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
+            || \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id ) === null;
     }
 
     // ── Handler ────────────────────────────────────────────────────────

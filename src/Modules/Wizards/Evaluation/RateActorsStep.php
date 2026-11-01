@@ -869,25 +869,28 @@ final class RateActorsStep implements WizardStepInterface {
         // squad stores Expected as `Present`, so the coach was handed a
         // rating form for players nobody had registered — and the count on
         // the previous step and the roster on this one now agree.
-        return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT pl.id, pl.first_name, pl.last_name
-               FROM {$p}tt_attendance att
-               INNER JOIN {$p}tt_players pl
-                   ON pl.id = COALESCE( att.guest_player_id, att.player_id )
-                   AND pl.club_id = att.club_id
-              WHERE att.activity_id = %d AND att.club_id = %d
-                AND att.record_type = 'actual'
-                AND LOWER(att.status) IN ( 'present', 'late' )
-                AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
+        //
+        // Who took part is `AttendanceWriter::attendedPlayerIds()`, the one
+        // answer the wizard's write check reads too, so the roster offered
+        // and the rows accepted cannot differ.
+        $ids = \TT\Modules\Activities\Repositories\AttendanceWriter::attendedPlayerIds( $activity_id );
+        if ( $ids === [] ) return [];
+
+        $club_id = CurrentClub::id();
+        $in      = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql     = "SELECT pl.id, pl.first_name, pl.last_name
+               FROM {$p}tt_players pl
+              WHERE pl.id IN ( {$in} ) AND pl.club_id = %d
                 AND pl.archived_at IS NULL
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_evaluations e
-                     WHERE e.activity_id = att.activity_id
+                     WHERE e.activity_id = %d
                        AND e.player_id   = pl.id
-                       AND e.club_id     = att.club_id
+                       AND e.club_id     = pl.club_id
                   )
-              ORDER BY pl.last_name, pl.first_name",
-            $activity_id, CurrentClub::id()
-        ) );
+              ORDER BY pl.last_name, pl.first_name";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (array) $wpdb->get_results( $wpdb->prepare( $sql, ...array_merge( $ids, [ $club_id, $activity_id ] ) ) );
     }
 }

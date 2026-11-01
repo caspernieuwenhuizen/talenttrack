@@ -62,16 +62,26 @@ class FrontendMyTeamView extends FrontendViewBase {
         $team_name  = $team ? (string) $team->name : '';
         $team_svc   = new TeamStatsService();
         $top        = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
-        $rank_info  = $team_svc->getRankInTeam( (int) $player->id, 5 );
+        $player_id  = (int) $player->id;
+        $rank_info  = $team_svc->getRankInTeam( $player_id, 5 );
 
         // #1384 — the player-visible team rank ("#N of M") is opt-in per
         // academy. Default OFF: the player sees a growth-framed personal
         // trend chip instead. ON: rank badge + trend chip together. Staff
         // personas always see rank elsewhere; this gates the player's own
         // "My team" surface only.
-        $show_rank = QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1';
-        $trend     = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
-            ->personalTrendForPlayer( (int) $player->id );
+        //
+        // The card's numbers, the rank and the trend are all evaluation
+        // scores, so they ask the evaluations tab's question: a parent the
+        // child keeps evaluations from gets the card without them, as on
+        // the profile.
+        $scores    = \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection(
+            get_current_user_id(), $player_id, 'evaluations'
+        );
+        $show_rank = $scores && QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1';
+        $trend     = $scores
+            ? ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )->personalTrendForPlayer( $player_id )
+            : null;
 
         $own_in_top = false;
         if ( $rank_info !== null ) {
@@ -177,7 +187,7 @@ class FrontendMyTeamView extends FrontendViewBase {
                 // Removing the broken link rather than inventing a new
                 // destination — My profile is already a tile away, and a new
                 // affordance here would spend the view's § 5 budget.
-                \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true, null, true, 'none' );
+                \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', $scores, $scores ? null : 'neutral', $scores, 'none' );
                 ?>
                 <?php if ( $show_rank ) : ?>
                     <?php if ( $rank_info !== null ) : ?>
@@ -198,7 +208,7 @@ class FrontendMyTeamView extends FrontendViewBase {
                         </span>
                     <?php endif; ?>
                 <?php endif; ?>
-                <?php self::renderTrendChip( $trend, $voice ); ?>
+                <?php if ( $trend !== null ) self::renderTrendChip( $trend, $voice ); ?>
             </div>
 
             <?php

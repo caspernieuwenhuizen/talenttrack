@@ -46,8 +46,8 @@ abstract class AbstractTemplate implements TemplateInterface {
             $copy = $this->defaultCopy( $channelKey, $resolved_locale );
         }
 
-        [ $subject, $body ] = $copy;
         $payload = $request->payload + self::recipientTokens( $recipient );
+        [ $subject, $body ] = $this->shapeCopy( $copy, $payload );
 
         return [
             self::substitute( (string) $subject, $payload ),
@@ -59,6 +59,18 @@ abstract class AbstractTemplate implements TemplateInterface {
      * @return array{0: string, 1: string} subject + body for this channel × locale
      */
     abstract protected function defaultCopy( string $channelKey, string $locale ): array;
+
+    /**
+     * Last look at the copy before its tokens are filled in, for a template
+     * whose wording depends on which tokens the payload carries.
+     *
+     * @param array{0: string, 1: string} $copy
+     * @param array<string,scalar|null>   $payload
+     * @return array{0: string, 1: string}
+     */
+    protected function shapeCopy( array $copy, array $payload ): array {
+        return $copy;
+    }
 
     private static function resolveLocale( Recipient $recipient, CommsRequest $request, string $given ): string {
         if ( $given !== '' ) return $given;

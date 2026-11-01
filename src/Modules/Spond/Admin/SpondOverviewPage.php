@@ -303,7 +303,7 @@ final class SpondOverviewPage {
         // squad outside the caller's scope gets the notice a squad that is not
         // there gets.
         if ( $team_id <= 0
-            || ! ActivityTeamScope::coversTeam( get_current_user_id(), $team_id )
+            || ! ActivityTeamScope::coversTeamForWrite( get_current_user_id(), $team_id )
         ) {
             wp_safe_redirect( add_query_arg( 'tt_spond_msg', 'no_team', admin_url( 'admin.php?page=' . self::SLUG ) ) );
             exit;

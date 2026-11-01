@@ -110,6 +110,13 @@ class CoachForms {
         // profile passes ?player_id=N. Look up the player's team_id and
         // pre-fill both pickers; render hidden inputs in place of the
         // dropdowns.
+        //
+        // The id comes from the URL, so it is asked the question the save
+        // asks (`POST /evaluations`): a player outside the reader's teams is
+        // not named on the form, and the form opens with the picker instead.
+        if ( $preset_player_id > 0 && ! self::mayPresetPlayer( get_current_user_id(), $preset_player_id ) ) {
+            $preset_player_id = 0;
+        }
         $preset_player = $preset_player_id > 0 ? QueryHelpers::get_player( $preset_player_id ) : null;
         $preset_team_id = $preset_player ? (int) ( $preset_player->team_id ?? 0 ) : 0;
         $hide_pickers = $preset_player !== null && $preset_team_id > 0;
@@ -469,6 +476,14 @@ class CoachForms {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+    }
+
+    /**
+     * Whether this reader may write an evaluation for this player, the
+     * question the evaluation wizard's writes ask.
+     */
+    private static function mayPresetPlayer( int $user_id, int $player_id ): bool {
+        return \TT\Modules\Wizards\Evaluation\EvaluationInserter::mayWriteFor( $user_id, $player_id );
     }
 
     /**

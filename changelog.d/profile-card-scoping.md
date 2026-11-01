@@ -1,0 +1,5 @@
+# Access checks tightened on player scores, wizards, match-day screens and exports (#4607)
+
+Bump: patch
+
+A child's evaluations switch now covers every score taken from their evaluations: the player card, My team, the trend chip, the development header, the rating trend, the timeline's overall score, the team rank and the dashboard tiles. The parent reminder e-mail leaves out the lines for hidden sections. The attendance and new-evaluation wizards work only on activities and players the user may change, and an activity without a team lists no roster. Writing to activities, match execution, match prep, match analysis, the opponent backfill and the wp-admin activity screens now asks the change permission, so read-only access never widens it, and the activity detail page offers its edit actions on the same terms. The unavailable markers and the coach's absence reasons go to people who plan the team or may read the player's injuries. The match prep PDF export asks which team the match belongs to.

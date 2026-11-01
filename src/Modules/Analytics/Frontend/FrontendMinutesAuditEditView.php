@@ -129,19 +129,11 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
             return;
         }
 
-        // Team scope: a coach may only edit matches on a team they coach.
-        $is_scope_admin = $is_admin
-            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
-        if ( ! $is_scope_admin ) {
-            $allowed = array_values( array_map(
-                'intval',
-                array_column( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
-            ) );
-            if ( ! in_array( (int) $data['activity']['team_id'], $allowed, true ) ) {
-                FrontendBreadcrumbs::fromDashboard( __( 'Record minutes', 'talenttrack' ), [ $reports_crumb, $audit_crumb ] );
-                echo '<p class="tt-notice">' . esc_html__( 'You do not coach this match’s team.', 'talenttrack' ) . '</p>';
-                return;
-            }
+        // Team scope: a coach may only edit matches on a team they may write.
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, (int) $data['activity']['team_id'], $is_admin ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Record minutes', 'talenttrack' ), [ $reports_crumb, $audit_crumb ] );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not coach this match’s team.', 'talenttrack' ) . '</p>';
+            return;
         }
 
         $title = (string) $data['activity']['title'];

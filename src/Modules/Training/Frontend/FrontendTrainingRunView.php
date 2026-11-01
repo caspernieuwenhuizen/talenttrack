@@ -92,7 +92,7 @@ final class FrontendTrainingRunView extends FrontendViewBase {
                 // #4001 — attaching a plan writes against this activity, so it
                 // asks the question the activity writes ask. A refusal reads as
                 // an activity that is not there.
-                if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversActivity( $user_id, $activity_id ) ) {
+                if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversActivityForWrite( $user_id, $activity_id ) ) {
                     self::renderNotFound();
                     return;
                 }

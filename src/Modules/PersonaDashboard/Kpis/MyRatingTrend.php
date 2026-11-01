@@ -15,6 +15,11 @@ class MyRatingTrend extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         $player_id = PlayerKpiResolver::playerId( $user_id );
         if ( $player_id <= 0 ) return KpiValue::unavailable();
+        // The trend is evaluation scores: a parent the child keeps
+        // evaluations from is not shown it.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+            return KpiValue::unavailable();
+        }
 
         $trend = ( new EvaluationsRepository() )->personalTrendForPlayer( $player_id );
         if ( empty( $trend['has_data'] ) || $trend['current_avg'] === null ) {

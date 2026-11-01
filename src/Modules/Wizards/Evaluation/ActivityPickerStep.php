@@ -105,6 +105,11 @@ final class ActivityPickerStep implements WizardStepInterface {
         if ( $aid <= 0 ) {
             return new \WP_Error( 'no_activity', __( 'Pick an activity to continue.', 'talenttrack' ) );
         }
+        // The posted id is not taken on trust: an activity outside the
+        // reader's teams reads as no pick at all.
+        if ( ! \TT\Modules\Activities\ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
+            return new \WP_Error( 'no_activity', __( 'Pick an activity to continue.', 'talenttrack' ) );
+        }
         return [ 'activity_id' => $aid, '_path' => 'activity-first' ];
     }
 

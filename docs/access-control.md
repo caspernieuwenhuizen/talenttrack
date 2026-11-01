@@ -78,6 +78,10 @@ All five single-record writes now ask both questions. The rule is about **scope,
 
 An activity with no team has no team to be out of scope for; the capability is the whole answer for it.
 
+**A read grant never widens a write.** Write scope asks the `activities` change grant. Reading every team's activities is a different grant: the Read-Only Observer seat holds it at global scope, and a coach who also holds that seat reads every team's matches but still writes only their own teams. Match execution, match prep, the match analysis form, the opponent backfill, the attendance and evaluation wizards, the grids, the activity admin page and its bulk actions all ask the change grant. The read scope decides only what is shown: such a coach opens another team's match analysis as a read-only document.
+
+The attendance and new-evaluation wizards follow the same rule: they open only an activity the reader may write, list only that activity's own players (an activity with no team lists none), and save an evaluation only for a player the reader may evaluate. The new-evaluation form fills in a player from the link only when the reader may evaluate that player. The match preparation PDF export asks about the activity's team as the other single-activity exports do.
+
 **The WordPress admin pages ask the same questions.** They were the other half of the same shape: on several pages one branch resolved the record and its twin did not — the save path checked, the delete path did not; the create path checked, the status change did not. A delete, an unassign and a paused schedule are all writes, and a capability that is club-wide answers none of them. So the player and team deletes ask what their saves ask, the activity page asks about the activity's team on render, save and delete, unassigning a staff member asks about the team on the assignment row rather than the team named in the form, permanently deleting a PDP file asks whether the caller may see that player's file at all, a Spond refresh asks whether the caller writes that squad's activities, and pausing, resuming, archiving or deleting a scheduled report asks what creating it asked about the same team or player.
 
 A bulk action filters the selection row by row before it dispatches, and reports the count it actually acted on.
@@ -179,6 +183,8 @@ Use cases:
 **And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of development and Academy admin alone, and several are deliberately withheld even from head coaches.
 
 Each player's guardian contact **is** visible to an observer: it is part of the player record, which the role reads.
+
+Because an observer does not see injuries, an observer also does not get the **Unavailable** or **Check availability** markers beside a name on an activity's expected attendance or in a match preparation, and does not see the reason a coach typed beside an absent player in a match preparation or its printout: on a training those can only mean an injury. The status the coach set (present, absent and so on) stays visible. The markers and reasons go to whoever may plan that team, and to whoever may read that player's injuries.
 
 That boundary is the point of the role. "Read-only" sounds harmless, and a seat that could read a child's safeguarding record would not be, however little it could change.
 
@@ -719,6 +725,8 @@ Player records reference `wp_user_id` directly today. The future SaaS auth model
 ## Player-controlled parent visibility
 
 A player can hide individual development sections (evaluations, goals, journey, measurements, playing time, PDP, tournaments, training history) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. The `measurements` section covers test results (the measurements profile and its trends); `height_cm` / `weight_kg` on the player record are profile facts, not gated by the `measurements` section, and stay visible to a linked parent. Both the rendered views and the section REST reads consult the gate.
+
+Hiding **evaluations** also hides every score taken from them, wherever it appears: the ratings on the player card (the card itself stays, without numbers), the rating and rank on My team, the trend chip, the rating in the development header, the rating-trend tile and route, the overall score on the timeline's evaluation entries (the entries stay), the team rank, and the podium-position and evaluation-count tiles. The reminder e-mail to a parent who has not signed in for a while leaves out the line for a hidden section, and when both evaluations and goals are hidden it leaves out the sentence introducing them too. `AuthorizationService::mayReadPlayerSection()` is the one question all of these ask.
 
 ## Parent → child link model
 
