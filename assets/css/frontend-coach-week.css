@@ -176,6 +176,12 @@ a.tt-week-row:active {
     color: var(--tt-danger-ink);
 }
 
+/* #4493 — a fact about the row (a theme, a count), not something it needs. */
+.tt-week-chip--neutral {
+    background: var(--tt-line-soft);
+    color: var(--tt-ink);
+}
+
 .tt-week-actions {
     display: flex;
     flex-wrap: wrap;

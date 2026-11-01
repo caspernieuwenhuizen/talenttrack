@@ -105,7 +105,7 @@ final class ActivityRegisterProgress {
      * `prime()` and read by `forRow()`, `recordedCount()` and
      * `expectedCount()`, so a card that has been primed costs nothing.
      *
-     * @var array<int, array{recorded:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int}>
+     * @var array<int, array{recorded:int, attended:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int}>
      */
     private static array $counts = [];
 
@@ -159,6 +159,18 @@ final class ActivityRegisterProgress {
                 AND status IS NOT NULL AND status <> ''",
             $activity_id, CurrentClub::id()
         ) );
+    }
+
+    /**
+     * #4493 — recorded rows that count as attended: Present and Late, by
+     * `AttendanceFlagService`'s rule (#4041), non-guest. The same batched
+     * row as `recordedCount()`, so a primed week reads it with no query of
+     * its own.
+     */
+    public static function attendedCount( int $activity_id ): int {
+        if ( $activity_id <= 0 ) return 0;
+        if ( ! isset( self::$counts[ $activity_id ] ) ) self::loadCounts( [ $activity_id ] );
+        return self::$counts[ $activity_id ]['attended'];
     }
 
     /** How many players the register is meant to cover. */
@@ -375,10 +387,11 @@ final class ActivityRegisterProgress {
         ) );
     }
 
-    /** @return array{recorded:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int} */
+    /** @return array{recorded:int, attended:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int} */
     private static function emptyCounts(): array {
         return [
             'recorded'     => 0,
+            'attended'     => 0,
             'planned'      => 0,
             'min_expected' => 0,
             'min_recorded' => 0,
@@ -405,10 +418,17 @@ final class ActivityRegisterProgress {
         $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
 
+        // #4493 — attended (present or late) by the one rule every report
+        // uses, on the same actual, non-guest rows as `recorded`.
+        $attended = \TT\Modules\Analytics\Domain\AttendanceFlagService::attendedStatusClause( 'status' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_id,
                     SUM( CASE WHEN record_type = 'actual' AND is_guest = 0
                                    AND status IS NOT NULL AND status <> '' THEN 1 ELSE 0 END ) AS recorded,
+                    SUM( CASE WHEN record_type = 'actual' AND is_guest = 0
+                                   AND {$attended} THEN 1 ELSE 0 END ) AS attended,
                     SUM( CASE WHEN record_type = 'expected' AND is_guest = 0 THEN 1 ELSE 0 END ) AS planned,
                     SUM( CASE WHEN record_type = 'actual' AND is_guest = 0
                                    AND status IN ( 'Present', 'Late' ) THEN 1 ELSE 0 END ) AS min_expected,
@@ -448,6 +468,7 @@ final class ActivityRegisterProgress {
 
             $found[ (int) $r->activity_id ] = [
                 'recorded'     => (int) $r->recorded,
+                'attended'     => (int) $r->attended,
                 'planned'      => (int) $r->planned,
                 'min_expected' => (int) $r->min_expected,
                 'min_recorded' => (int) $r->min_recorded,
