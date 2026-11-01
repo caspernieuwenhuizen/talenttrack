@@ -179,7 +179,7 @@ class FrontendVctConfigView extends FrontendViewBase {
         // Reference templates (read-only) in the shared table.
         if ( $references ) {
             echo '<h3 class="tt-vct-section-title">' . esc_html__( 'Reference phase profiles', 'talenttrack' ) . '</h3>';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Template', 'talenttrack' ) . '</th><th>' . esc_html__( 'Weeks', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            echo '<table class="tt-table"><thead><tr><th>' . esc_html_x( 'Template', 'VCT cycle template', 'talenttrack' ) . '</th><th>' . esc_html__( 'Weeks', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $references as $r ) {
                 $weeks = is_array( $r['phase_profile'] ) ? count( $r['phase_profile'] ) : 0;
                 echo '<tr><td>' . esc_html( (string) $r['label'] ) . '</td><td>' . esc_html( (string) $weeks ) . '</td></tr>';
