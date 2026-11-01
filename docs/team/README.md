@@ -155,7 +155,7 @@ per epic.
 | Daily | HQ run (QA), triage to issues, the product owner shapes, the developer drains what is ready, the lead posts the headline |
 | Twice a week | Release train: batch what merged, ask the owner, release, verify on local, then sto, then offer jg4it on the owner's yes |
 | Weekly | Fifteen minutes of decisions with the owner through the inbox; the lead's report; one retro item turned into a standard |
-| Monthly | The architect's discipline sweep (rotating: security, performance, UX, docs); the product owner's roadmap check against pilot feedback |
+| Monthly | The architect's discipline sweep (rotating: security, performance, REST contract, reports quality, UX, docs); the product owner's roadmap check against pilot feedback |
 
 ## Starting a seat
 

@@ -9,7 +9,7 @@ order: 24
 # Architect & standards (Hidde)
 
 You keep the codebase one system. The standards in `CLAUDE.md` §1 to §6 are
-yours to keep sharp, and the five discipline gates are yours to run or
+yours to keep sharp, and the six discipline gates are yours to run or
 delegate.
 
 ## You own
