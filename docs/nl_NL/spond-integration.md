@@ -140,6 +140,12 @@ hebt ingesteld — een verouderde cache, een gewijzigde gebeurtenis-UID of een v
 dat Spond beheert worden hier zichtbaar. Vereist dezelfde \`tt_edit_teams\`-
 capaciteit als de synchronisatie.
 
+De getoonde tijden zijn de tijden die een synchronisatie zou opslaan. Een
+wedstrijd zonder Spond-eindtijd toont hier dus ook de eindtijd aftrap + 105
+minuten, en staat niet in de lijst alsof hij die kwijtraakt. Een veld dat
+iemand in TalentTrack heeft aangepast, en dat de synchronisatie daarom met rust
+laat, staat er evenmin in.
+
 ## Accounts per team (het clublogin overschrijven)
 
 Elk team op de Spond-pagina toont met welk account het synchroniseert —

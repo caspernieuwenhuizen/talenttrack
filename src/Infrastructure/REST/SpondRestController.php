@@ -262,9 +262,6 @@ final class SpondRestController {
         return RestResponse::success( $result );
     }
 
-    /** Activity types that carry kickoff + presence times (mirrors SpondSync). */
-    private const MATCH_TYPES = [ 'game', 'match', 'friendly', 'tournament' ];
-
     /**
      * Dry-run preview of what a Spond sync would do for one team (#2284).
      *
@@ -351,7 +348,8 @@ final class SpondRestController {
 
             $existing = $wpdb->get_row( $wpdb->prepare(
                 "SELECT id, title, location, activity_type_key, session_date,
-                        start_time, end_time, kickoff_time, time_of_presence
+                        start_time, end_time, kickoff_time, time_of_presence,
+                        sync_locked_fields
                    FROM {$p}tt_activities
                   WHERE external_id = %s
                     AND activity_source_key = %s
@@ -360,10 +358,23 @@ final class SpondRestController {
                 $uid, 'spond', $club
             ) );
 
+            // #4562 — the time columns a sync would write, from the sync's own
+            // mapping: an existing row keeps its type (corrected the way the
+            // sync corrects it), and a match with no Spond end gets the
+            // sync's fallback end. Diffing the feed's raw end instead showed
+            // every fallback end as being cleared.
+            $time_type = $type;
+            if ( $existing ) {
+                $time_type = (string) $existing->activity_type_key;
+                $time_type = SpondTypeResolver::correctedType( $time_type, $title, ! empty( $event['is_match'] ) ) ?? $time_type;
+            }
+            $time_cols = SpondSync::timeColumns( $time_type, $start_time, $end_time, $meet_time );
+
             if ( $existing ) {
                 $status  = 'update';
                 $changes = self::diffChanges(
-                    $existing, $title, $location, $start_time, $end_time, $meet_time
+                    $existing, $title, $location, $time_cols,
+                    \TT\Modules\Activities\Domain\SyncLockedFields::decode( $existing->sync_locked_fields ?? null )
                 );
                 $counts['update']++;
             } else {
@@ -380,7 +391,7 @@ final class SpondRestController {
                 'dtend'       => $dtend,
                 'meetup'      => $meetup,
                 'start_time'  => $start_time,
-                'end_time'    => $end_time,
+                'end_time'    => (string) ( $time_cols['end_time'] ?? '' ),
                 'meet_time'   => $meet_time,
                 'location'    => $location,
                 'description' => $description,
@@ -429,37 +440,45 @@ final class SpondRestController {
      * diffed here. A change is emitted only when the stored value actually
      * differs from what the sync would write.
      *
+     * #4562 — `$time_cols` is `SpondSync::timeColumns()` for this event, so
+     * the times compared are the ones the update writes, the match
+     * fallback end included. Kickoff and presence are in it only for a
+     * match type, exactly the rows the sync writes them for.
+     *
+     * #4485 — the field groups a person edited are locked, and the sync
+     * leaves them alone, so they are dropped here through the same
+     * `SyncLockedFields::stripLocked()` before anything is compared. The
+     * preview never lists a change the sync will not make.
+     *
+     * @param array<string,string|null> $time_cols
+     * @param list<string>              $locked the row's locked groups
      * @return list<array{field:string,from:string,to:string}>
      */
     private static function diffChanges(
         object $existing,
         string $title,
         string $location,
-        string $start_time,
-        string $end_time,
-        string $meet_time
+        array $time_cols,
+        array $locked = []
     ): array {
-        $changes = [];
+        $writes = \TT\Modules\Activities\Domain\SyncLockedFields::stripLocked(
+            [ 'title' => $title, 'location' => $location ] + $time_cols,
+            $locked
+        );
+        $stored = (array) $existing;
 
-        $compare = static function ( string $field, string $from, string $to ) use ( &$changes ): void {
+        $changes = [];
+        foreach ( [ 'title', 'location', 'start_time', 'end_time', 'kickoff_time', 'time_of_presence' ] as $field ) {
+            if ( ! array_key_exists( $field, $writes ) ) continue;
+            $from = (string) ( $stored[ $field ] ?? '' );
+            $to   = (string) ( $writes[ $field ] ?? '' );
+            if ( $field !== 'title' && $field !== 'location' ) {
+                $from = self::hhmm( $from );
+                $to   = self::hhmm( $to );
+            }
             if ( trim( $from ) !== trim( $to ) ) {
                 $changes[] = [ 'field' => $field, 'from' => $from, 'to' => $to ];
             }
-        };
-
-        $compare( 'title',    (string) ( $existing->title ?? '' ),    $title );
-        $compare( 'location', (string) ( $existing->location ?? '' ), $location );
-
-        // start_time / end_time are stored for every activity type.
-        $compare( 'start_time', self::hhmm( (string) ( $existing->start_time ?? '' ) ), self::hhmm( $start_time ) );
-        $compare( 'end_time',   self::hhmm( (string) ( $existing->end_time   ?? '' ) ), self::hhmm( $end_time ) );
-
-        // kickoff_time / time_of_presence only apply to match-type rows —
-        // exactly the rows SpondSync writes those columns for.
-        $type = (string) ( $existing->activity_type_key ?? '' );
-        if ( in_array( $type, self::MATCH_TYPES, true ) ) {
-            $compare( 'kickoff_time',     self::hhmm( (string) ( $existing->kickoff_time     ?? '' ) ), self::hhmm( $start_time ) );
-            $compare( 'time_of_presence', self::hhmm( (string) ( $existing->time_of_presence ?? '' ) ), self::hhmm( $meet_time ) );
         }
 
         return $changes;
