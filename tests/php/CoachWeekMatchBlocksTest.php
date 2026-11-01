@@ -373,6 +373,33 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [], $audit->matrixForTeams( [], '2026-11-02', '2026-11-08' ) );
     }
 
+    public function test_a_team_id_with_no_team_row_takes_the_fallback_basis_alongside_the_others(): void {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Gone', 'age_group' => 'U14' ] );
+        $gone     = (int) $wpdb->insert_id;
+        $original = $this->team;
+        $this->team = $gone;
+        $this->minutes( $this->completedMatch( '2026-11-04', 2, 0, 'home' ), 60 );
+        $this->team = $original;
+        $this->minutes( $this->completedMatch( '2026-11-05', 1, 1, 'away' ), 70 );
+        $wpdb->delete( $wpdb->prefix . 'tt_teams', [ 'id' => $gone ] );
+        $never = $gone + 1000;
+
+        $audit = new MinutesAuditQuery();
+        $all   = $audit->matrixForTeams( [ $gone, $this->team, $never ], '2026-11-02', '2026-11-08' );
+
+        $this->assertSame( [ $gone, $this->team, $never ], array_keys( $all ) );
+        foreach ( [ $gone, $this->team, $never ] as $team ) {
+            $this->assertSame( $audit->matrix( $team, '2026-11-02', '2026-11-08' ), $all[ $team ], "team {$team}" );
+        }
+        $this->assertNotEmpty( $all[ $gone ]['games'], 'the orphaned team\'s match is still audited' );
+        foreach ( $all[ $gone ]['games'] as $game ) {
+            $this->assertGreaterThan( 0, (int) $game['available_minutes'], 'a missing team row takes the fallback form, not zero' );
+        }
+        $this->assertNotEmpty( $all[ $this->team ]['games'], 'the missing row does not take the other team down with it' );
+        $this->assertSame( [], $all[ $never ]['games'] );
+    }
+
     // Helpers
 
     /** @return array<string, mixed> */
