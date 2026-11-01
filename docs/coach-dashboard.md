@@ -29,9 +29,24 @@ Each row shows the day, the type, the activity and its time and place, and below
 
 A week without a match says *No match this week.* under the list. A week with no activities on your teams shows a single line saying so instead of rows.
 
-### Who sees the panel
+### Setting up the panel
 
-Your academy chooses which roles see the panel, under **Configuration → Default dashboard → This week panel**. By default it is the head coach and the assistant coach. Tick or untick a role and save; the change shows the next time the dashboard is opened. Someone with several roles sees the panel while acting in a ticked role, and not while acting in another. A user who coaches no team never sees it, whatever their role.
+Your academy chooses what the panel shows, per role and per device, under **Configuration → Default dashboard → This week panel**. Pick a role with the buttons at the top, set it up, pick the next role, and press **Save** once for all of them. The change shows the next time the dashboard is opened.
+
+- **Show the panel to this persona** switches the panel on or off for that role. By default the head coach and the assistant coach see it. Someone with several roles sees the panel while acting in a role that has it, and not while acting in another.
+- **Also on phones** off keeps the panel to tablets and desktops (768px and wider). On a phone the tiles then start at the top.
+- **Which week, which teams**:
+  - **Time window** is the calendar week, or today and the six days after it.
+  - **Teams** is *Their own teams* (the teams that user works with) or *All academy teams*. All academy teams only applies to someone who may see every team's activities, such as the head of development. Anyone else still sees their own teams.
+  - **Days already past** can be shown, folded into one line, or hidden. A folded line reads like *Tue, Thu · 2 activities · attendance recorded* and opens on a tap or with Enter.
+  - **Team name on each row** names the team when the week covers more than one team.
+  - **Peek at next week** lists the first two activities of the next seven days below the list.
+- The other sections list every part of a row (**On every row**, **Trainings**, **Matches**) and every button (**Buttons on a row**). Each one has a **Desktop** and a **Phone** box, so a phone can show a shorter panel than a desktop. At most two buttons show on a row, and the first one that applies is the main button.
+- **Reset to defaults** puts the role you are looking at back to its starting settings. Press **Save** to keep that.
+
+The panel only covers teams the user may see, and a button only shows on a row whose team the user may change. A user whose week holds no team never sees the panel, whatever their role. Scouts and read-only observers get the availability counts only when you switch that block on for them.
+
+Until the settings are first saved, every role that already saw the panel keeps the whole panel on a desktop, team managers included. On a phone it leaves out the location and the training plan, and a team manager sees times, location, expected players and the opponent there. A team manager newly switched on after the settings are saved starts from that shorter set on both devices.
 
 ## Tiles you'll use most
 

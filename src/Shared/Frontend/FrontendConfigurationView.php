@@ -3080,7 +3080,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
 
-            <?php self::renderCoachWeekPersonas( $personas ); ?>
+            <?php self::renderCoachWeekConfig( $personas ); ?>
 
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
@@ -3092,38 +3092,155 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * #4379 — which personas see the "This week" panel on the tile landing.
-     * The checkboxes fill one hidden JSON field, which the shared config
-     * submit sends as `coach_week.personas`.
+     * #4492 — the "This week" panel per persona: whether it shows (also on
+     * phones), which week and teams it covers, how past days show, and every
+     * block of `WeekBlockRegistry` with a Desktop and a Phone switch. The
+     * controls carry no `name`; the script keeps one hidden JSON field in
+     * step, which the shared config submit sends as `coach_week.config`.
+     * Save-only: a settings sub-form (CLAUDE.md §6 exemption a).
      *
      * @param array<string, string> $personas persona key => label
      */
-    private static function renderCoachWeekPersonas( array $personas ): void {
+    private static function renderCoachWeekConfig( array $personas ): void {
         wp_enqueue_style( 'tt-frontend-coach-week', TT_PLUGIN_URL . 'assets/css/frontend-coach-week.css', [], TT_VERSION );
         wp_enqueue_script( 'tt-frontend-coach-week-config', TT_PLUGIN_URL . 'assets/js/frontend-coach-week-config.js', [], TT_VERSION, true );
+        wp_localize_script( 'tt-frontend-coach-week-config', 'TT_CoachWeekConfig', [
+            'defaults' => CoachWeek::defaultSettings(),
+        ] );
 
-        $chosen = CoachWeek::configuredPersonas();
+        $settings = CoachWeek::settings();
+        $shown    = [];
+        foreach ( $personas as $key => $label ) {
+            if ( in_array( $key, CoachWeek::PERSONAS, true ) ) $shown[ $key ] = $label;
+        }
+        if ( $shown === [] ) return;
+        $current = isset( $shown['head_coach'] ) ? 'head_coach' : (string) array_key_first( $shown );
+        $state   = $settings[ $current ];
         ?>
         <div class="tt-panel tt-coach-week-config" data-tt-coach-week-config>
             <h3 class="tt-coach-week-config__title"><?php esc_html_e( 'This week panel', 'talenttrack' ); ?></h3>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'The tile landing shows a This week panel: every activity of the week on the teams the user coaches, and what each still needs. Choose which personas see it. A user also needs at least one team they coach.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. The panel only covers teams that user may see, and a button only shows where that user may take the action.', 'talenttrack' ); ?>
             </p>
-            <input type="hidden" name="config[<?php echo esc_attr( CoachWeek::CONFIG_KEY ); ?>]" value="<?php echo esc_attr( (string) wp_json_encode( $chosen ) ); ?>" data-tt-coach-week-json />
-            <fieldset class="tt-coach-week-config__list">
-                <legend class="tt-coach-week-config__legend"><?php esc_html_e( 'Show the This week panel to', 'talenttrack' ); ?></legend>
-                <?php foreach ( $personas as $key => $label ) :
-                    if ( ! in_array( $key, CoachWeek::PERSONAS, true ) ) continue;
-                    $field_id = 'tt-coach-week-persona-' . sanitize_html_class( $key );
-                    ?>
-                    <label class="tt-coach-week-config__row" for="<?php echo esc_attr( $field_id ); ?>">
-                        <input type="checkbox" id="<?php echo esc_attr( $field_id ); ?>" value="<?php echo esc_attr( $key ); ?>" data-tt-coach-week-persona <?php checked( in_array( $key, $chosen, true ) ); ?> />
+            <input type="hidden" name="config[<?php echo esc_attr( CoachWeek::SETTINGS_KEY ); ?>]" value="<?php echo esc_attr( (string) wp_json_encode( $settings ) ); ?>" data-tt-coach-week-json />
+
+            <fieldset class="tt-coach-week-config__personas">
+                <legend class="tt-coach-week-config__legend"><?php esc_html_e( 'Configure the panel for', 'talenttrack' ); ?></legend>
+                <?php foreach ( $shown as $key => $label ) : ?>
+                    <label class="tt-coach-week-config__pill<?php echo $settings[ $key ]['on'] ? '' : ' is-off'; ?>" data-tt-coach-week-pill="<?php echo esc_attr( $key ); ?>">
+                        <input type="radio" name="tt_coach_week_persona" value="<?php echo esc_attr( $key ); ?>" data-tt-coach-week-persona <?php checked( $key, $current ); ?> />
                         <span><?php echo esc_html( $label ); ?></span>
                     </label>
                 <?php endforeach; ?>
             </fieldset>
+
+            <div class="tt-coach-week-config__switches">
+                <label class="tt-coach-week-config__row">
+                    <input type="checkbox" data-tt-coach-week-field="on" <?php checked( $state['on'] ); ?> />
+                    <span><?php esc_html_e( 'Show the panel to this persona', 'talenttrack' ); ?></span>
+                </label>
+                <label class="tt-coach-week-config__row">
+                    <input type="checkbox" data-tt-coach-week-field="phone_on" <?php checked( $state['phone_on'] ); ?> />
+                    <span>
+                        <?php esc_html_e( 'Also on phones', 'talenttrack' ); ?>
+                        <small><?php esc_html_e( 'Off: the panel only shows on tablet and desktop.', 'talenttrack' ); ?></small>
+                    </span>
+                </label>
+            </div>
+
+            <?php foreach ( \TT\Modules\Activities\CoachWeek\WeekBlockGroup::labels() as $group => $group_label ) :
+                $blocks = \TT\Modules\Activities\CoachWeek\WeekBlockRegistry::inGroup( $group );
+                $scope  = $group === \TT\Modules\Activities\CoachWeek\WeekBlockGroup::SCOPE;
+                if ( $blocks === [] && ! $scope ) continue;
+                ?>
+                <details class="tt-coach-week-config__group" open>
+                    <summary><?php echo esc_html( $group_label ); ?></summary>
+                    <div class="tt-coach-week-config__body">
+                        <?php if ( $scope ) self::renderCoachWeekScope( $state ); ?>
+                        <?php if ( $blocks !== [] ) : ?>
+                            <div class="tt-coach-week-config__head" aria-hidden="true">
+                                <span></span>
+                                <span class="tt-coach-week-config__devices">
+                                    <span><?php echo esc_html_x( 'Desktop', 'device', 'talenttrack' ); ?></span>
+                                    <span><?php esc_html_e( 'Phone', 'talenttrack' ); ?></span>
+                                </span>
+                            </div>
+                            <?php foreach ( $blocks as $block ) :
+                                $key = $block->key();
+                                ?>
+                                <div class="tt-coach-week-config__block">
+                                    <span class="tt-coach-week-config__text">
+                                        <b><?php echo esc_html( $block->label() ); ?></b>
+                                        <?php if ( $block->help() !== '' ) : ?>
+                                            <small><?php echo esc_html( $block->help() ); ?></small>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span class="tt-coach-week-config__devices">
+                                        <?php foreach ( [ 'desktop', 'phone' ] as $device ) :
+                                            if ( $device === 'desktop' ) {
+                                                /* translators: %s: the name of a block of the This week panel, e.g. "Location" */
+                                                $aria = sprintf( __( '%s on desktop', 'talenttrack' ), $block->label() );
+                                            } else {
+                                                /* translators: %s: the name of a block of the This week panel, e.g. "Location" */
+                                                $aria = sprintf( __( '%s on phone', 'talenttrack' ), $block->label() );
+                                            }
+                                            ?>
+                                            <label>
+                                                <input type="checkbox" data-tt-coach-week-block="<?php echo esc_attr( $key ); ?>" data-tt-coach-week-device="<?php echo esc_attr( $device ); ?>" aria-label="<?php echo esc_attr( $aria ); ?>" <?php checked( in_array( $key, $state[ $device ], true ) ); ?> />
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+
+            <div class="tt-coach-week-config__reset">
+                <button type="button" class="tt-btn tt-btn-secondary" data-tt-coach-week-reset><?php esc_html_e( 'Reset to defaults', 'talenttrack' ); ?></button>
+            </div>
         </div>
         <?php
+    }
+
+    /**
+     * The scope group's three choices: which week, which teams, past days.
+     *
+     * @param array<string, mixed> $state the shown persona's settings
+     */
+    private static function renderCoachWeekScope( array $state ): void {
+        $selects = [
+            'window' => [
+                __( 'Time window', 'talenttrack' ),
+                __( 'The calendar week follows the first day of the week in General settings.', 'talenttrack' ),
+                [ 'week' => __( 'Calendar week', 'talenttrack' ), 'rolling' => __( 'Next 7 days', 'talenttrack' ) ],
+            ],
+            'teams' => [
+                __( 'Teams', 'talenttrack' ),
+                __( 'All academy teams applies only to users who may see every team\'s activities; others see their own teams.', 'talenttrack' ),
+                [ 'coached' => __( 'Their own teams', 'talenttrack' ), 'all' => __( 'All academy teams', 'talenttrack' ) ],
+            ],
+            'past' => [
+                __( 'Days already past', 'talenttrack' ),
+                __( 'Show them, fold them into one line, or leave them out.', 'talenttrack' ),
+                [ 'show' => __( 'Show', 'talenttrack' ), 'fold' => __( 'Fold into one line', 'talenttrack' ), 'hide' => _x( 'Hide', 'past days in the This week panel', 'talenttrack' ) ],
+            ],
+        ];
+        foreach ( $selects as $field => [ $label, $hint, $options ] ) :
+            $id = 'tt-coach-week-' . $field;
+            ?>
+            <div class="tt-coach-week-config__select">
+                <label for="<?php echo esc_attr( $id ); ?>"><b><?php echo esc_html( $label ); ?></b></label>
+                <select id="<?php echo esc_attr( $id ); ?>" class="tt-input" data-tt-coach-week-field="<?php echo esc_attr( $field ); ?>">
+                    <?php foreach ( $options as $value => $option ) : ?>
+                        <option value="<?php echo esc_attr( $value ); ?>" <?php selected( (string) ( $state[ $field ] ?? '' ), $value ); ?>><?php echo esc_html( $option ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <small class="tt-field-hint"><?php echo esc_html( $hint ); ?></small>
+            </div>
+            <?php
+        endforeach;
     }
 
     private static function renderConfigJs( bool $with_logo ): void {
