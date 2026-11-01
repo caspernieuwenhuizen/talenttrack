@@ -18,7 +18,7 @@ TalentTrack ships its own backup module (separate from any general-purpose WordP
 
 ## Frontend view
 
-From this release the Backups surface is a frontend view at `?tt_view=backups` — no wp-admin bounce. It covers settings, the stored-backups list (download / restore / delete), Run now, and the full `.ttmig` data migration export + import flow. Each action runs through a capability-gated, nonce-protected REST endpoint (`tt_manage_backups`); the two destructive writes — full restore and migration import — keep the typed-confirmation gate ("RESTORE" / "IMPORT"), refuse to run while you are impersonating another user, and are written to the audit log (`backup.restored` / `migration.imported`).
+From this release the Backups surface is a frontend view at `?tt_view=backups` — no wp-admin bounce. It covers settings, the stored-backups list (download / restore / delete), Run now, and the full `.ttmig` data migration export + import flow. Each action runs through a capability-gated, nonce-protected REST endpoint (`tt_manage_backups`); the two destructive writes — full restore and migration import — keep the typed-confirmation gate ("RESTORE" / "IMPORT", or "HERSTELLEN" / "IMPORTEREN" on a Dutch install: the word is in the site's language), refuse to run while you are impersonating another user, and are written to the audit log (`backup.restored` / `migration.imported`).
 
 Backup downloads come back as a URL (object-storage-ready), so the list keeps working unchanged if the storage backend moves off the local filesystem in a future SaaS deployment.
 
@@ -45,7 +45,7 @@ While the backup runs, a full-screen "Backup in progress…" overlay covers the 
 
 1. Pick a backup from the local list and click **Restore**. A confirmation dialog asks you to acknowledge that you're entering the restore preview.
 2. The page shows a per-table summary of what will be replaced and the snapshot's plugin version.
-3. Type **RESTORE** in the confirmation field.
+3. Type the word the field shows, exactly: **RESTORE**, or **HERSTELLEN** on a Dutch install.
 4. Submit. The same "in progress…" overlay covers the page during the restore — non-dismissible until the server completes.
 5. The action truncates each table in the snapshot and replays the rows. Tables present on disk but missing from the snapshot are not touched.
 6. If row counts don't match expectations after replay, an error surfaces.
@@ -127,7 +127,7 @@ From the preview, **Configure import** lets you apply the archive to this instal
 2. **Resolve matches** — for each record set where an incoming record matches an existing one on its stable key, choose **Insert as new** (default — keep both) or **Update the existing record**.
 3. **Link WordPress users** — records that referenced a user on the source install are listed with a suggested target user (matched by email); confirm, pick another, or leave unlinked.
 4. **Dry run** — produces a per-table count of what *would* be inserted / updated / skipped. **Nothing is written during the dry run.**
-5. **Confirm** — type `IMPORT` and apply. The write runs inside a database transaction and rolls back completely if any row fails, so a partial import never lands.
+5. **Confirm** — type the word shown (`IMPORT`, or `IMPORTEREN` on a Dutch install) and apply. The write runs inside a database transaction and rolls back completely if any row fails, so a partial import never lands.
 
 How references are handled:
 

@@ -18,7 +18,7 @@ TalentTrack heeft een eigen back-upmodule (los van een eventuele algemene WordPr
 
 ## Frontendweergave
 
-Vanaf deze release is de Back-ups-omgeving een frontendweergave op `?tt_view=backups` — zonder omweg via wp-admin. Hij dekt de instellingen, de lijst met opgeslagen back-ups (downloaden / terugzetten / verwijderen), Nu uitvoeren en de volledige `.ttmig`-gegevensmigratie voor export + import. Elke actie loopt via een REST-endpoint met capability-controle en nonce-beveiliging (`tt_manage_backups`); de twee destructieve acties — volledig terugzetten en migratie-import — houden de typ-bevestiging ("RESTORE" / "IMPORT"), weigeren te draaien terwijl je een andere gebruiker impersoneert, en worden in het auditlog vastgelegd (`backup.restored` / `migration.imported`).
+Vanaf deze release is de Back-ups-omgeving een frontendweergave op `?tt_view=backups` — zonder omweg via wp-admin. Hij dekt de instellingen, de lijst met opgeslagen back-ups (downloaden / terugzetten / verwijderen), Nu uitvoeren en de volledige `.ttmig`-gegevensmigratie voor export + import. Elke actie loopt via een REST-endpoint met capability-controle en nonce-beveiliging (`tt_manage_backups`); de twee destructieve acties — volledig terugzetten en migratie-import — houden de typ-bevestiging ("HERSTELLEN" / "IMPORTEREN"; op een Engelstalige installatie "RESTORE" / "IMPORT"), weigeren te draaien terwijl je een andere gebruiker impersoneert, en worden in het auditlog vastgelegd (`backup.restored` / `migration.imported`).
 
 Back-updownloads komen terug als URL (klaar voor objectopslag), zodat de lijst ongewijzigd blijft werken als de opslag in een toekomstige SaaS-deployment van het lokale bestandssysteem af gaat.
 
@@ -45,7 +45,7 @@ Tijdens de back-up komt er een schermvullende "Bezig met back-up…"-overlay ove
 
 1. Kies een back-up uit de lokale lijst en klik **Terugzetten**. Een bevestigingsvenster vraagt of je het herstelvoorbeeld wilt openen.
 2. De pagina toont een overzicht per tabel van wat vervangen wordt plus de pluginversie van de snapshot.
-3. Typ **RESTORE** in het bevestigingsveld.
+3. Typ precies het woord dat het veld toont: **HERSTELLEN**, of **RESTORE** op een Engelstalige installatie.
 4. Verstuur. Tijdens het terugzetten verschijnt dezelfde "Bezig met…"-overlay over de pagina — niet weg te klikken totdat de server klaar is.
 5. De actie maakt elke tabel in de snapshot leeg en speelt de rijen opnieuw in. Tabellen die op de site bestaan maar niet in de snapshot staan, worden niet aangeraakt.
 6. Als rij-aantallen na het terugzetten niet overeenkomen met de verwachting verschijnt er een foutmelding.
@@ -127,7 +127,7 @@ Vanuit het voorbeeld kun je met **Import configureren** het archief op deze inst
 2. **Los matches op** — voor elke recordset waar een binnenkomend record overeenkomt met een bestaand record op de stabiele sleutel, kies je **Als nieuw toevoegen** (standaard — beide behouden) of **Het bestaande record bijwerken**.
 3. **Koppel WordPress-gebruikers** — records die naar een gebruiker op de broninstallatie verwezen, worden getoond met een voorgestelde doelgebruiker (gematcht op e‑mail); bevestig, kies een andere, of laat ongekoppeld.
 4. **Proefrun** — geeft een telling per tabel van wat er *zou* worden toegevoegd / bijgewerkt / overgeslagen. **Tijdens de proefrun wordt niets weggeschreven.**
-5. **Bevestig** — typ `IMPORT` en pas toe. De schrijfactie draait in een databasetransactie en wordt volledig teruggedraaid als een rij faalt, zodat een gedeeltelijke import nooit blijft staan.
+5. **Bevestig** — typ het getoonde woord (`IMPORTEREN`, of `IMPORT` op een Engelstalige installatie) en pas toe. De schrijfactie draait in een databasetransactie en wordt volledig teruggedraaid als een rij faalt, zodat een gedeeltelijke import nooit blijft staan.
 
 Hoe verwijzingen worden behandeld:
 
