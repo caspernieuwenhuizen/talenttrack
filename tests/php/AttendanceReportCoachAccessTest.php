@@ -229,6 +229,8 @@ final class AttendanceReportCoachAccessTest extends WP_UnitTestCase {
 
     public function test_the_team_report_renders_the_saved_views_strip_for_a_coach(): void {
         wp_set_current_user( $this->coach );
+        // The save control appears once there is a filter worth saving.
+        $_GET = [ 'period' => 'last_month' ];
         $html = $this->render( FrontendAttendanceTeamReportView::class );
         $this->assertStringContainsString( 'Save current filters', $html );
     }
