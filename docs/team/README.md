@@ -42,7 +42,7 @@ live writes, and sets the themes. Everything else is the team's.
 
 ## Disciplines are gates, not seats
 
-Security, performance, UX and documentation are too important to leave to
+Security, performance, the REST contract, UX and documentation are too important to leave to
 whoever is building, and too thin to occupy a session each. Each is a
 checklist under [`docs/review/`](../review/security.md) that a PR must pass
 when it touches that area. The issue names the gates it needs when it is
@@ -52,6 +52,7 @@ shaped; the reviewer ticks the list in the PR.
 | --- | --- | --- |
 | Security & privacy | [review/security.md](../review/security.md) | Architect, with a security review subagent |
 | Performance | [review/performance.md](../review/performance.md) | Architect |
+| REST contract | [review/rest-contract.md](../review/rest-contract.md) | Architect |
 | UX & mobile | [review/ux-mobile.md](../review/ux-mobile.md) | QA |
 | Docs & i18n | [review/docs-i18n.md](../review/docs-i18n.md) | The developer; QA verifies |
 
