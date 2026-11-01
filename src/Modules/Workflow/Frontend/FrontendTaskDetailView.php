@@ -136,8 +136,11 @@ class FrontendTaskDetailView extends FrontendViewBase {
         // when `task_completion:create` is held at global scope.
         // Non-eligible POSTs are silently ignored (no error notice —
         // the submit button isn't rendered for them so reaching this
-        // branch means a manual POST or a stale form).
-        if ( $can_submit && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['tt_workflow_submit'] ) ) {
+        // branch means a manual POST or a stale form). #4560 — so is a
+        // POST for a task that is already completed: a stale tab, whose
+        // answer would otherwise replace the one on record.
+        $already_completed = (string) ( $task['status'] ?? '' ) === TaskStatus::COMPLETED;
+        if ( $can_submit && ! $already_completed && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['tt_workflow_submit'] ) ) {
             $nonce_ok = isset( $_POST[ self::NONCE_FIELD ] )
                 && wp_verify_nonce( sanitize_text_field( (string) $_POST[ self::NONCE_FIELD ] ), self::NONCE_ACTION );
             if ( ! $nonce_ok ) {
@@ -171,7 +174,10 @@ class FrontendTaskDetailView extends FrontendViewBase {
                             exit;
                         }
                         $flash = __( 'Task completed.', 'talenttrack' );
-                    } else {
+                    } elseif ( (string) ( $repo->find( $task_id )['status'] ?? '' ) !== TaskStatus::COMPLETED ) {
+                        // #4560 — a submit that lost the race to another one
+                        // finds the task completed; the page says so below,
+                        // so it is not a failure to retry.
                         $errors['__form'] = __( 'Could not save the task. Please try again.', 'talenttrack' );
                     }
                 }

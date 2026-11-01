@@ -9,6 +9,7 @@ use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
+use TT\Modules\Workflow\Forms\RequestConsentForm;
 use TT\Modules\Workflow\Frontend\FrontendTaskDetailView;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Resolvers\LambdaResolver;
@@ -34,6 +35,10 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         'tt_players', 'tt_player_events', 'tt_audit_log',
     ];
 
+    // The completion runs in its own transaction, whose START TRANSACTION
+    // commits the one the suite opened for the test.
+    use CommitsAfterCascade;
+
     private int $user = 0;
 
     private bool $fail_completion = false;
@@ -46,6 +51,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->markFixtureFloor();
         $this->user = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         wp_set_current_user( $this->user );
         AuthorizationService::flushCache();
@@ -54,9 +60,12 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         remove_filter( 'query', [ $this, 'watch' ] );
+        ThrowingOnceConsentForm::$throw = false;
+        ThrowingOnceConsentForm::$wrote = false;
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
         wp_set_current_user( 0 );
+        $this->cleanUpAndCommit();
         parent::tear_down();
     }
 
@@ -196,10 +205,77 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         // stored answer keeps the id.
         $stored_json  = (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' );
         $this->writes = [];
-        WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw );
+        $this->assertFalse(
+            WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ),
+            'the second completion completed nothing'
+        );
         $this->assertSame( $before + 1, $this->records( $case, $extra ), 'a task already completed is not written for twice' );
         $this->assertSame( [], $this->writes );
         $this->assertSame( $stored_json, (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' ) );
+    }
+
+    public function test_a_completion_step_that_throws_leaves_the_task_open_and_a_retry_works(): void {
+        [ , $raw, $extra ] = $this->arrange( 'consent' );
+        $task_id = $this->task( $this->template( 'test_writes_after_throwing', ThrowingOnceConsentForm::class ), $extra );
+        $before  = $this->records( 'consent', $extra );
+        $form    = new ThrowingOnceConsentForm();
+        $task    = ( new TasksRepository() )->find( $task_id );
+        $this->assertIsArray( $task );
+
+        // It writes the consent request, then throws: the request goes too.
+        ThrowingOnceConsentForm::$throw = true;
+        $this->assertFalse( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->assertTrue( ThrowingOnceConsentForm::$wrote, 'precondition: the step wrote before it threw' );
+        $this->assertNotSame( TaskStatus::COMPLETED, $this->status( $task_id ), 'the task is still open' );
+        $this->assertSame( $before, $this->records( 'consent', $extra ), 'the write before the failure was rolled back' );
+
+        ThrowingOnceConsentForm::$throw = false;
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ), 'the retry completes' );
+        $this->assertSame( TaskStatus::COMPLETED, $this->status( $task_id ) );
+        $this->assertSame( $before + 1, $this->records( 'consent', $extra ) );
+    }
+
+    public function test_a_task_without_a_completion_step_is_completed_once(): void {
+        $task_id   = $this->task( $this->template( 'test_writes_after_plain', 'TT\\Modules\\Workflow\\Forms\\QuarterlyHoDReviewForm' ) );
+        $completed = 0;
+        $count     = static function () use ( &$completed ): void { $completed++; };
+        add_action( 'tt_workflow_task_completed', $count );
+
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, [ 'what_worked' => 'Pressing' ] ) );
+        $stored = (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' );
+        $this->assertFalse( WorkflowModule::engine()->complete( $task_id, [ 'what_worked' => 'Something else' ] ), 'a completed task is not completed again' );
+        remove_action( 'tt_workflow_task_completed', $count );
+
+        $this->assertSame( $stored, (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' ), 'the answer on record stays' );
+        $this->assertSame( 1, $completed, 'the hook and chain ran once' );
+    }
+
+    public function test_a_resubmit_from_a_stale_tab_changes_nothing(): void {
+        [ $form_class, $raw, $extra ] = $this->arrange( 'consent' );
+        $task_id = $this->task( $this->template( 'test_writes_after_stale', $form_class ), $extra );
+        /** @var FormInterface&CompletionStepInterface $form */
+        $form = new $form_class();
+        $task = ( new TasksRepository() )->find( $task_id );
+        $this->assertIsArray( $task );
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $stored = (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' );
+        $before = $this->records( 'consent', $extra );
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [ 'asked_of' => 'Stale tab coordinator' ] + $raw + [
+            'tt_workflow_submit'                => '1',
+            FrontendTaskDetailView::NONCE_FIELD => wp_create_nonce( FrontendTaskDetailView::NONCE_ACTION ),
+        ];
+        $this->writes = [];
+        ob_start();
+        FrontendTaskDetailView::render( $this->user, $task_id );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringNotContainsString( 'Could not save the task.', $html );
+        $this->assertStringNotContainsString( 'Stale tab coordinator', $html, 'the page shows the answer on record' );
+        $this->assertSame( $stored, (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' ) );
+        $this->assertSame( $before, $this->records( 'consent', $extra ) );
+        $this->assertSame( [], $this->writes );
     }
 
     // Fixtures
@@ -363,5 +439,25 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
             "SELECT status FROM {$wpdb->prefix}tt_workflow_tasks WHERE id = %d",
             $task_id
         ) );
+    }
+}
+
+/**
+ * The consent-request form, whose completion step writes its record and then
+ * fails while `$throw` is set.
+ */
+final class ThrowingOnceConsentForm extends RequestConsentForm {
+
+    public static bool $throw = false;
+
+    public static bool $wrote = false;
+
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $written = parent::onCompleted( $task, $raw, $response );
+        if ( self::$throw ) {
+            self::$wrote = (int) ( $written['entry_id'] ?? 0 ) > 0;
+            throw new \RuntimeException( 'Failed after writing, for the test.' );
+        }
+        return $written;
     }
 }

@@ -35,8 +35,8 @@ use TT\Modules\Workflow\WorkflowModule;
  *
  * Why GET, not POST: parents click a link in an email. Links are
  * GETs. The endpoint is idempotent on the workflow side
- * (TaskEngine::complete is a no-op on already-completed tasks),
- * which keeps GET safe.
+ * (TaskEngine::complete leaves an already-completed task alone and
+ * answers false, #4560), which keeps GET safe.
  */
 final class ParentConfirmationController {
 
@@ -130,6 +130,17 @@ final class ParentConfirmationController {
             'recorded_via' => 'parent_link',
         ] );
         if ( ! $ok ) {
+            // #4560 — a second click that raced the first finds the task
+            // completed: the same idempotent answer as the branch above.
+            $now = $tasks->find( $task_id );
+            if ( is_array( $now ) && (string) ( $now['status'] ?? '' ) === 'completed' ) {
+                $existing = json_decode( (string) ( $now['response_json'] ?? '' ), true );
+                return RestResponse::success( [
+                    'task_id' => $task_id,
+                    'outcome' => is_array( $existing ) ? ( $existing['outcome'] ?? '' ) : '',
+                    'already_completed' => true,
+                ] );
+            }
             return RestResponse::error( 'complete_failed', __( 'Could not record your response. Please try again.', 'talenttrack' ), 500 );
         }
 
