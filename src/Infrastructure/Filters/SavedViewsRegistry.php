@@ -86,6 +86,21 @@ final class SavedViewsRegistry {
     ];
 
     /**
+     * #4579 — surfaces whose own gate is a question to the capability matrix
+     * that no WordPress capability expresses. The gate grants saved views on
+     * its own, next to the surface's capabilities above: the three
+     * attendance reports open for anyone who may read attendance on a team,
+     * so a coach gets the saved-view chips on the reports they can open.
+     *
+     * @var array<string,array{0:class-string,1:string}>
+     */
+    private const MATRIX_GATES = [
+        'attendance_team'        => [ \TT\Infrastructure\Security\AuthorizationService::class, 'canOpenAttendanceReports' ],
+        'attendance_player'      => [ \TT\Infrastructure\Security\AuthorizationService::class, 'canOpenAttendanceReports' ],
+        'attendance_leaderboard' => [ \TT\Infrastructure\Security\AuthorizationService::class, 'canOpenAttendanceReports' ],
+    ];
+
+    /**
      * Register a surface. Later calls win, so a module can override a default.
      *
      * @param string|array<int,string> $capability one cap, or a list of which any grants access.
@@ -134,6 +149,9 @@ final class SavedViewsRegistry {
         // Unknown surface → refuse. Never fall back to a permissive default:
         // an unregistered key must not become a way to bypass the gate.
         if ( $caps === [] ) return false;
+
+        $gate = self::MATRIX_GATES[ $view_key ] ?? null;
+        if ( $gate !== null && call_user_func( $gate, get_current_user_id() ) === true ) return true;
 
         foreach ( $caps as $cap ) {
             if ( current_user_can( $cap ) ) return true;

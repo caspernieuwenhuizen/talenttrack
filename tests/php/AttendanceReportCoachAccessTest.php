@@ -199,6 +199,40 @@ final class AttendanceReportCoachAccessTest extends WP_UnitTestCase {
         }
     }
 
+    // Saved views
+
+    public function test_a_head_coach_gets_saved_views_on_the_attendance_reports(): void {
+        wp_set_current_user( $this->coach );
+        foreach ( [ 'attendance_team', 'attendance_player', 'attendance_leaderboard' ] as $key ) {
+            $this->assertTrue( \TT\Infrastructure\Filters\SavedViewsRegistry::currentUserCan( $key ), $key );
+
+            $req = new WP_REST_Request( 'GET', '/talenttrack/v1/filter-presets' );
+            $req->set_param( 'view_key', $key );
+            $this->assertSame( 200, rest_get_server()->dispatch( $req )->get_status(), $key . ' lists the coach\'s views' );
+        }
+        $this->assertFalse(
+            \TT\Infrastructure\Filters\SavedViewsRegistry::currentUserCan( 'minutes_team' ),
+            'the minutes reports keep their analytics gate'
+        );
+    }
+
+    public function test_a_viewer_without_attendance_read_gets_no_saved_views_there(): void {
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        AuthorizationService::flushCache();
+        wp_set_current_user( $observer );
+        foreach ( [ 'attendance_team', 'attendance_player', 'attendance_leaderboard' ] as $key ) {
+            $req = new WP_REST_Request( 'GET', '/talenttrack/v1/filter-presets' );
+            $req->set_param( 'view_key', $key );
+            $this->assertSame( 403, rest_get_server()->dispatch( $req )->get_status(), $key );
+        }
+    }
+
+    public function test_the_team_report_renders_the_saved_views_strip_for_a_coach(): void {
+        wp_set_current_user( $this->coach );
+        $html = $this->render( FrontendAttendanceTeamReportView::class );
+        $this->assertStringContainsString( 'Save current filters', $html );
+    }
+
     // Helpers
 
     private function render( string $view, int $user_id = 0 ): string {
