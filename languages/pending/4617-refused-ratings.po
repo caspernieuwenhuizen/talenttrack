@@ -1,0 +1,6 @@
+#. translators: %d: number of player ratings that were not saved
+#: src/Modules/Wizards/Evaluation/ReviewStep.php
+msgid "%d rating was not saved: this player didn't take part, or you can't rate them on this activity."
+msgid_plural "%d ratings were not saved: these players didn't take part, or you can't rate them on this activity."
+msgstr[0] "%d beoordeling is niet opgeslagen: deze speler deed niet mee, of je kunt hem op deze activiteit niet beoordelen."
+msgstr[1] "%d beoordelingen zijn niet opgeslagen: deze spelers deden niet mee, of je kunt ze op deze activiteit niet beoordelen."

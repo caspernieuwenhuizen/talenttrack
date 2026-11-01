@@ -77,6 +77,8 @@ Toont hoeveel evaluaties er gemaakt zullen worden. Is er een aanwezige speler on
 
 Klik **Versturen**. De wizard schrijft één `tt_evaluations`-rij per beoordeelde speler met `activity_id` ingesteld, plus de per-categorie ratings, en markeert de activiteit als **voltooid**.
 
+Een beoordeling die de wizard niet kan opslaan, omdat de speler niet meedeed of omdat jij hem op deze activiteit niet mag beoordelen, verdwijnt nooit zonder melding. Je ziet hoeveel beoordelingen niet zijn opgeslagen en waarom. Kon geen enkele worden opgeslagen, dan blijft de wizard op de stap Controleren staan en toont hij die melding.
+
 ## Pad 2 — 1 speler evalueren (ad-hoc, diep)
 
 `Speler kiezen → Diep beoordelen → Gedrag → Controleren`

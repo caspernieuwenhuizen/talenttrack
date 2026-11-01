@@ -76,6 +76,8 @@ Lists how many evaluations will be created. If any present player is unrated and
 
 Click **Submit**. The wizard writes one `tt_evaluations` row per rated player with `activity_id` set, plus the per-category rating rows, and marks the activity **completed**.
 
+A rating the wizard can't save, because the player didn't take part or because you can't rate them on this activity, is never dropped without a word. You see how many ratings were not saved and why. If none of them could be saved, the wizard stays on the Review step and shows that message.
+
 ## Path 2 — Evaluate 1 player (ad-hoc, deep)
 
 `Player picker → Deep rate → Behaviour → Review`
