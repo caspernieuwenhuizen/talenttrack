@@ -211,13 +211,13 @@ class AnalyticsModule implements ModuleInterface {
                 // the player's team on the evaluation date from the team
                 // history, else none ("No team").
                 new Dimension( 'team_id',      __( 'Team', 'talenttrack' ),      Dimension::TYPE_FOREIGN_KEY, 'tt_teams', null, $eval_team ),
-                new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.created_at, '%Y-%m')" ),
+                new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.eval_date, '%Y-%m')" ),
             ],
             measures: [
                 new Measure( 'count', __( 'Count', 'talenttrack' ), Measure::AGG_COUNT ),
                 new Measure( 'distinct_players', __( 'Players evaluated', 'talenttrack' ), Measure::AGG_COUNT, 'DISTINCT f.player_id' ),
             ],
-            timeColumn:  new DateTimeColumn( 'f.created_at' ),
+            timeColumn:  new DateTimeColumn( 'f.eval_date' ),
             entityScope: 'player',
             readEntity:  'evaluations',
             playerColumn: 'f.player_id',

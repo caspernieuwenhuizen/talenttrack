@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Time-series KPIs use this column for `date_after` / `date_before`
  * filters and for the "month" / "season" derived dimensions. Some
- * facts have a column on the fact table itself (`evaluations.created_at`);
+ * facts have a column on the fact table itself (`evaluations.eval_date`);
  * others need a join (`attendance.activity_id` → `tt_activities.session_date`).
  *
  * `joinedTable` + `joinKey` describe the optional join:
