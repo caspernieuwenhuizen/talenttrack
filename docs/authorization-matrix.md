@@ -468,7 +468,8 @@ Several reporting and analytics surfaces show an **academy-wide ("all teams") le
 | Surface | Matrix entity checked |
 | - | - |
 | Standard reports, reports launcher, player-radar report, coach-evaluation-quality REST | `reports` (read / global) |
-| Attendance (team / player / leaderboard) + minutes reports, attendance-ranking REST, cohort board, team planner, match executions list, matches-needing-review widget, the Activities tile's deep-link | `activities` (read / global) |
+| Attendance reports (team / player / leaderboard), their launcher tiles and the attendance-ranking REST | `attendance` (read / global) |
+| Minutes reports, cohort board, team planner, match executions list, matches-needing-review widget, the Activities tile's deep-link | `activities` (read / global) |
 | Evaluations "audit another coach" override (`GET /evaluations/recent`) | `evaluations` (read / global) |
 
 Because the rendered views and the REST permission callbacks now resolve from the same helper, the frontend and the API can no longer answer the all-teams question differently.
@@ -487,7 +488,7 @@ The WordPress settings-admin / administrator path is preserved as a fallback on 
 
 So the capability is not, on its own, the scope answer. The rule (#3832) is:
 
-- **A surface that can narrow to one team does**, and a team-scoped reader sees their own squads there. The attendance reports (team, player, leaderboard), the minutes audit, the minutes team report, the monthly team report and the cohort board and potential overview all narrow inside their own queries, through `AllTeamsScope` / `get_teams_for_coach()`.
+- **A surface that can narrow to one team does**, and a team-scoped reader sees their own squads there. The minutes audit, the minutes team report, the monthly team report and the cohort board and potential overview all narrow inside their own queries, through `AllTeamsScope` / `get_teams_for_coach()`. The attendance reports (team, player, leaderboard) no longer read `analytics` at all; see [Matrix entity `attendance`](#matrix-entity-attendance--the-attendance-reports).
 - **A surface that cannot narrow asks for global-scope read on `analytics`**, through `AllTeamsScope::canSeeClubWideAnalytics()`, and refuses a team-scoped reader with a message rather than an empty page:
 
 | Club-wide analytics surface | Why it has no team to narrow to |
@@ -597,7 +598,19 @@ Migration `0249_authorization_seed_topup_observer_and_staff` backfills both pers
 
 By default **Head of development** and **Academy admin** hold read and change, globally. A persona you give read only, for example an observer who should see coverage, sees the windows listed but has no form to change them, and the API refuses the write.
 
-**Team manager** holds read at **team** scope. The attendance reports — the at-risk list, the leaderboard and the per-player rows — all gate on this entity, and chasing the players who keep missing training is the job the seat exists for. The rows those reports return are narrowed separately, by the teams the reader is assigned to, so the grant reaches the manager's own squads and no others. The same grant sits on the **Manager functional role** (see the axis below), because a team manager on a given install is as likely to be a Staff account holding that role as to hold the persona.
+**Team manager** holds read at **team** scope, which opens the analytics surfaces that narrow to a team for the manager's own squads. The attendance reports are not among them any more: they read the `attendance` entity, below. The same grant sits on the **Manager functional role** (see the axis below), because a team manager on a given install is as likely to be a Staff account holding that role as to hold the persona.
+
+## Matrix entity `attendance` — the attendance reports
+
+The team attendance report, the player attendance report and the attendance leaderboard, their tiles on the Reports launcher and their REST routes (`/reports/attendance`, `/reports/attendance-leaderboard`, `/reports/attendance-at-risk`) gate on **read** on `attendance`, the entity that also governs the attendance register. Analytics read is not needed and coaches are not given it.
+
+The scope decides what the reports show:
+
+- **Global** read (head of development, academy admin) sees every team. A user holding the settings capability is treated the same way.
+- **Team** read (head coach, assistant coach, team manager, and a Staff account holding the Manager functional role) sees the teams the user is assigned to and holds that read on. The leaderboard ranks only those teams' players. Picking another team on the player report shows a refusal, not an empty table, and the REST routes answer `403` for it.
+- **Player** read (a parent on their own child) opens none of the reports: they compare players, so they need a team.
+
+The coach's dashboard attendance figure links to the team report, and the report shows the same percentage for the same window. Each report keeps its own switch under the report settings.
 
 Existing installs get the change right for head of development and academy admin with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`), and the team manager's read with `0277_authorization_seed_topup_manager_analytics`. Both add their tuples with `INSERT IGNORE` and leave every row an admin has edited alone.
 
@@ -648,7 +661,7 @@ Shipped contents: `physio` grants `player_injuries [rc]`, `measurements [r]` and
 
 `staff_only_notes [c]` on `physio` and `manager` is what lets a first aider or a team manager keep an operational note about a child within the staff — see [Matrix entity `staff_only_notes`](#matrix-entity-staff_only_notes--keeping-a-note-within-the-staff). One consequence is worth naming, because `grants` is additive across every persona: a parent who volunteers as their child's team manager or physio counts as staff for staff-only notes, so a coach's staff-only note on that child's **goal** conversation becomes readable to them. The player note itself is unaffected — `PlayerThreadAdapter` refuses the parent persona outright, whatever functional role is held. It is the same trade #3257 made for the injury record.
 
-`analytics [r]` on `manager` is the grant behind the attendance reports. A Staff account holding the Manager role is the shape a team manager most often takes on an install, and the at-risk list is the only surface that names the players who keep missing training — the job the seat exists for. It reads the reports for the squads the role is held on: the report rows are narrowed by `get_teams_for_coach()` regardless of how the grant arrived.
+`attendance [rc]` on `manager` is the grant behind the attendance reports. A Staff account holding the Manager role is the shape a team manager most often takes on an install, and the at-risk list is the only surface that names the players who keep missing training — the job the seat exists for. It reads the reports for the squads the role is held on. `analytics [r]` on `manager` still opens the analytics surfaces that narrow to a team.
 
 ### Why `measurements` followed, one release later (#3433)
 

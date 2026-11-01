@@ -66,6 +66,9 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             return \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Measurements\\MeasurementsModule' )
                 && \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
         };
+        $can_read_attendance = static function ( int $uid ): bool {
+            return \TT\Infrastructure\Security\AuthorizationService::canOpenAttendanceReports( $uid );
+        };
         $tiles = [
             [
                 'slug'  => 'team_ratings',
@@ -154,25 +157,28 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             // authorized". Whether a given role holds tt_view_analytics is
             // decided in the capability matrix, not here — carrying the cap
             // makes the tile follow that decision automatically.
+            // #4579 — the three attendance tiles now follow the matrix's
+            // `attendance` read instead, as their views and REST routes do;
+            // the two minutes tiles below keep tt_view_analytics.
             [
                 'slug'  => 'attendance-report-team',
                 'label' => __( 'Team attendance statistics', 'talenttrack' ),
                 'desc'  => __( 'Present / late / absent / excused / injured percentages per team over a configurable date range.', 'talenttrack' ),
-                'cap'   => 'tt_view_analytics',
+                'can'   => $can_read_attendance,
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-team' ], $base_url ),
             ],
             [
                 'slug'  => 'attendance-report-player',
                 'label' => __( 'Player attendance statistics', 'talenttrack' ),
                 'desc'  => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
-                'cap'   => 'tt_view_analytics',
+                'can'   => $can_read_attendance,
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base_url ),
             ],
             [
                 'slug'  => 'attendance-leaderboard',
                 'label' => __( 'Attendance leaderboard', 'talenttrack' ),
                 'desc'  => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
-                'cap'   => 'tt_view_analytics',
+                'can'   => $can_read_attendance,
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base_url ),
             ],
             // #1637 — minutes-played-per-team moved here from the Analytics

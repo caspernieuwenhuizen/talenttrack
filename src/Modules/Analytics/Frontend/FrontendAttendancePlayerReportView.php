@@ -3,7 +3,6 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
@@ -27,7 +26,7 @@ use TT\Shared\Frontend\FrontendViewBase;
  *
  * Status lookups use `LOWER(att.status)` for case insensitivity
  * (legacy mixed-case rows aggregate into the same bucket as the
- * v3.110.78-onward lowercase rows). Cap-gated on `tt_view_analytics`.
+ * v3.110.78-onward lowercase rows). Gated on the matrix's `attendance` read (#4579).
  * Scope: club-wide, narrowed by an optional `team_id` filter.
  */
 final class FrontendAttendancePlayerReportView extends FrontendViewBase {
@@ -50,7 +49,8 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
-        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+        // #4579 — the matrix's attendance read, not analytics read.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canOpenAttendanceReports( $user_id ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Not authorized', 'talenttrack' ),
                 [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
@@ -100,33 +100,23 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // range" when the seeded window equals the current season window.
         $effective_period = ReportFilters::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
 
-        // v4.20.4 (#1147) — analytics scope honours the user's team
-        // assignment. Global-read-on-`activities` holders keep the
-        // club-wide view; everyone else (notably AC, scoped to
-        // `team` per the #1060 trim) only ever sees teams they coach.
-        // Routed through `QueryHelpers::get_teams_for_coach()` — the
-        // same resolver the players list + teamplanner use, so analytics
-        // can't drift from the rest of the app. #1942 — academy-wide =
-        // global-scope read on `activities`; the settings-admin flag
-        // stays as the WP-admin fallback.
-        $is_scope_admin = $is_admin
-            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
-        $allowed_team_ids = $is_scope_admin
-            ? null
-            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+        // #4579 — the teams the matrix's attendance read reaches: every team
+        // at global scope (or with tt_edit_settings), else the teams the
+        // user holds attendance read on — the same answer the REST readers
+        // and the launcher tile get from AuthorizationService.
+        $allowed_team_ids = \TT\Infrastructure\Security\AuthorizationService::attendanceReadableTeamIds( $user_id );
+        $is_scope_admin   = $allowed_team_ids === null;
 
         if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
             echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
             return;
         }
 
-        // If user picked a team they're not allowed to see, fall through
-        // to empty — no row leak via URL tampering.
+        // A team the user may not read is refused, not shown as empty:
+        // "no attendance recorded" would be a claim about the data (#2893).
         if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
             self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $effective_period, $type_key );
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' )
-                . ( $allowed_team_ids !== null ? ' ' . esc_html__( 'This report is limited to the teams you coach.', 'talenttrack' ) : '' )
-                . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this team’s players.', 'talenttrack' ) . '</p>';
             return;
         }
 

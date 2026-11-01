@@ -464,7 +464,8 @@ Diverse rapportage- en analyse-schermen tonen een **academiebrede ("alle teams")
 | Scherm | Gecontroleerde matrix-entiteit |
 | - | - |
 | Standaardrapporten, rapporten-launcher, speler-radar-rapport, coach-evaluatiekwaliteit (REST) | `reports` (read / global) |
-| Aanwezigheid (team / speler / klassement) + minuten-rapporten, aanwezigheids-ranglijst (REST), cohortbord, teamplanner, lijst wedstrijduitvoeringen, widget "wedstrijden die beoordeling nodig hebben", de deep-link van de Activiteiten-tegel | `activities` (read / global) |
+| Aanwezigheidsrapporten (team / speler / ranglijst), hun tegels in de Rapporten-launcher en de aanwezigheids-ranglijst (REST) | `attendance` (read / global) |
+| Minuten-rapporten, cohortbord, teamplanner, lijst wedstrijduitvoeringen, widget "wedstrijden die beoordeling nodig hebben", de deep-link van de Activiteiten-tegel | `activities` (read / global) |
 | Evaluaties "audit een andere coach"-override (`GET /evaluations/recent`) | `evaluations` (read / global) |
 
 Doordat de gerenderde views én de REST-permission-callbacks nu uit dezelfde helper beslissen, kunnen de frontend en de API de alle-teams-vraag niet meer verschillend beantwoorden.
@@ -483,7 +484,7 @@ Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terug
 
 De capability is op zichzelf dus geen antwoord op de scopevraag. De regel (#3832) luidt:
 
-- **Een scherm dat tot één team kan beperken, doet dat**, en een lezer op teamscope ziet daar zijn eigen teams. De aanwezigheidsrapporten (team, speler, ranglijst), de minutencontrole, het minutenrapport per team, het maandrapport, het cohortbord en het potentieeloverzicht beperken allemaal binnen hun eigen query, via `AllTeamsScope` / `get_teams_for_coach()`.
+- **Een scherm dat tot één team kan beperken, doet dat**, en een lezer op teamscope ziet daar zijn eigen teams. De minutencontrole, het minutenrapport per team, het maandrapport, het cohortbord en het potentieeloverzicht beperken allemaal binnen hun eigen query, via `AllTeamsScope` / `get_teams_for_coach()`. De aanwezigheidsrapporten (team, speler, ranglijst) lezen `analytics` helemaal niet meer; zie [Matrix-entiteit `attendance`](#matrix-entiteit-attendance--de-aanwezigheidsrapporten).
 - **Een scherm dat niet kan beperken, vraagt om globale leestoegang op `analytics`**, via `AllTeamsScope::canSeeClubWideAnalytics()`, en weigert een lezer op teamscope met een bericht in plaats van een lege pagina:
 
 | Clubbreed analyse-scherm | Waarom er geen team is om toe te beperken |
@@ -596,7 +597,19 @@ Bij `analytics` tellen twee activiteiten:
 
 Standaard hebben **Hoofd opleiding** en **Academiebeheerder** lezen en wijzigen, globaal. Een persona die je alleen lezen geeft, bijvoorbeeld een waarnemer die de dekking mag zien, ziet de periodes in een lijst maar krijgt geen formulier om ze te wijzigen, en de API weigert de wijziging.
 
-**Teammanager** heeft lezen op **teamscope**. De aanwezigheidsrapporten — de risicolijst, de ranglijst en de regels per speler — hangen allemaal aan deze entiteit, en achter de spelers aangaan die trainingen blijven missen is precies waarvoor die rol bestaat. De regels die deze rapporten teruggeven worden apart afgebakend tot de teams waaraan de lezer is toegewezen, dus de grant reikt tot de eigen elftallen van de manager en niet verder. Dezelfde grant staat op de **functionele rol Manager** (zie de as hieronder), omdat een teammanager op een installatie net zo vaak een Staff-account met die rol is als een houder van de persona.
+**Teammanager** heeft lezen op **teamscope**. Dat opent de analyseschermen die tot een team kunnen beperken, voor de eigen elftallen van de manager. De aanwezigheidsrapporten horen daar niet meer bij: die lezen de entiteit `attendance`, hieronder. Dezelfde grant staat op de **functionele rol Manager** (zie de as hieronder), omdat een teammanager op een installatie net zo vaak een Staff-account met die rol is als een houder van de persona.
+
+## Matrix-entiteit `attendance` — de aanwezigheidsrapporten
+
+Het teamaanwezigheidsrapport, het spelersaanwezigheidsrapport en de aanwezigheidsranglijst, hun tegels in de Rapporten-launcher en hun REST-routes (`/reports/attendance`, `/reports/attendance-leaderboard`, `/reports/attendance-at-risk`) vragen **lezen** op `attendance`, dezelfde entiteit die ook de presentielijst regelt. Leestoegang tot analytics is niet nodig, en coaches krijgen die ook niet.
+
+De scope bepaalt wat de rapporten tonen:
+
+- Lezen op **global** (hoofd opleiding, academy-beheerder) ziet alle teams. Een gebruiker met de instellingenbevoegdheid wordt net zo behandeld.
+- Lezen op **team** (hoofdtrainer, assistent-trainer, teammanager, en een Staff-account met de functionele rol Manager) ziet de teams waaraan de gebruiker is toegewezen en waarop die leestoegang geldt. De ranglijst rangschikt alleen de spelers van die teams. Kies je in het spelersrapport een ander team, dan krijg je een weigering in plaats van een lege tabel, en de REST-routes antwoorden daarop met `403`.
+- Lezen op **player** (een ouder voor het eigen kind) opent geen van de rapporten: ze vergelijken spelers, dus ze hebben een team nodig.
+
+Het aanwezigheidscijfer op het dashboard van de coach linkt naar het teamrapport, en dat rapport toont hetzelfde percentage over dezelfde periode. Elk rapport houdt zijn eigen schakelaar in de rapportinstellingen.
 
 Bestaande installaties krijgen het wijzigrecht voor hoofd opleiding en academiebeheerder met de update die het invoerde (migratie `0272_authorization_seed_topup_analytics_change`), en het leesrecht van de teammanager met `0277_authorization_seed_topup_manager_analytics`. Beide voegen hun regels toe met `INSERT IGNORE` en laten elke rij die een beheerder heeft aangepast ongemoeid.
 
@@ -647,7 +660,7 @@ Meegeleverde inhoud: `physio` geeft `player_injuries [rc]`, `measurements [r]` e
 
 `staff_only_notes [c]` op `physio` en `manager` is wat een EHBO'er of teammanager in staat stelt een operationele notitie over een kind binnen de staf te houden — zie [Matrix-entiteit `staff_only_notes`](#matrix-entiteit-staff_only_notes--een-notitie-binnen-de-staf-houden). Eén gevolg verdient het benoemd te worden, want `grants` is optellend over elke persona heen: een ouder die vrijwilliger is als teammanager of fysio van het elftal van het eigen kind, telt voor staf-only notities als staf, dus een staf-only notitie van een coach in het **doel**gesprek van dat kind wordt voor hen leesbaar. De spelersnotitie zelf blijft ongemoeid — `PlayerThreadAdapter` weigert de ouder-persona hoe dan ook, welke functionele rol er ook is. Het is dezelfde afweging die #3257 voor het blessuredossier maakte.
 
-`analytics [r]` op `manager` is de grant achter de aanwezigheidsrapporten. Een Staff-account met de rol Manager is de vorm die een teammanager op een installatie het vaakst heeft, en de risicolijst is het enige scherm dat de spelers benoemt die trainingen blijven missen — precies waarvoor die rol bestaat. De rapporten gelden voor de elftallen waarop de rol wordt gehouden: de regels worden hoe dan ook afgebakend door `get_teams_for_coach()`.
+`attendance [rc]` op `manager` is de grant achter de aanwezigheidsrapporten. Een Staff-account met de rol Manager is de vorm die een teammanager op een installatie het vaakst heeft, en de risicolijst is het enige scherm dat de spelers benoemt die trainingen blijven missen — precies waarvoor die rol bestaat. De rapporten gelden voor de elftallen waarop de rol wordt gehouden. `analytics [r]` op `manager` opent nog steeds de analyseschermen die tot een team kunnen beperken.
 
 ### Waarom `measurements` een release later volgde (#3433)
 

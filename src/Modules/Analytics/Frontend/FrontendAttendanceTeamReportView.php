@@ -3,7 +3,6 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
@@ -32,7 +31,7 @@ use TT\Shared\Frontend\FrontendViewBase;
  * the player report and the leaderboard. Only past, actually-held
  * activities count (#2135: `session_date <= CURDATE()`).
  *
- * Cap-gated on `tt_view_analytics` (same as the parent Analytics view).
+ * Gated on the matrix's `attendance` read (#4579).
  * Scope: club-wide.
  */
 final class FrontendAttendanceTeamReportView extends FrontendViewBase {
@@ -59,7 +58,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             ],
         ] );
 
-        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+        // #4579 — the matrix's attendance read, not analytics read: a coach
+        // opens the report behind their own dashboard attendance figure.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canOpenAttendanceReports( $user_id ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Not authorized', 'talenttrack' ),
                 [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
@@ -109,14 +110,10 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         // reflects the state the user is looking at.
         $effective_period = ReportFilters::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
 
-        // v4.20.4 (#1147) — same team-scope pattern as the player report.
-        // #1942 — academy-wide = global-scope read on `activities`; the
-        // settings-admin flag stays as the WP-admin fallback.
-        $is_scope_admin = $is_admin
-            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
-        $allowed_team_ids = $is_scope_admin
-            ? null
-            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+        // #4579 — the teams the matrix's attendance read reaches: every team
+        // at global scope (or with tt_edit_settings), else the user's own.
+        $allowed_team_ids = \TT\Infrastructure\Security\AuthorizationService::attendanceReadableTeamIds( $user_id );
+        $is_scope_admin   = $allowed_team_ids === null;
 
         if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
             echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';

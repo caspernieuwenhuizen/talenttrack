@@ -162,6 +162,56 @@ class AuthorizationService {
     }
 
     /**
+     * #4579 — the teams whose attendance this user may read, for the
+     * attendance reports (team, player, leaderboard) and their REST routes.
+     *
+     * `null` means every team: `attendance` read at global scope (head of
+     * development, academy admin), or the `tt_edit_settings` fallback the
+     * report scope has always honoured. Otherwise the teams the user holds
+     * a team-scope assignment on where the matrix grants `attendance` read
+     * on that team, which is what a head coach, an assistant coach and a
+     * team manager hold for their own squads. An empty list means none.
+     *
+     * The reports used to gate on `tt_view_analytics`, which no coach
+     * holds, so a coach tapping their own attendance figure on the
+     * dashboard was refused the report behind it. Analytics read is not
+     * granted to coaches by this; the reports ask about attendance.
+     *
+     * @return list<int>|null
+     */
+    public static function attendanceReadableTeamIds( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [];
+
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+        if ( user_can( $user_id, 'tt_edit_settings' )
+            || $gate::can( $user_id, 'attendance', $gate::READ, $gate::SCOPE_GLOBAL ) ) {
+            return null;
+        }
+
+        $out = [];
+        $ids = array_map( 'intval', array_column( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) );
+        foreach ( $ids as $team_id ) {
+            if ( $team_id > 0 && $gate::can( $user_id, 'attendance', $gate::READ, $gate::SCOPE_TEAM, $team_id ) ) {
+                $out[] = $team_id;
+            }
+        }
+        return $out;
+    }
+
+    /** #4579 — may this user open the attendance reports at all? */
+    public static function canOpenAttendanceReports( int $user_id ): bool {
+        return self::attendanceReadableTeamIds( $user_id ) !== [];
+    }
+
+    /** #4579 — may this user read this team's attendance in the reports? */
+    public static function canReadTeamAttendance( int $user_id, int $team_id ): bool {
+        if ( $team_id <= 0 ) return false;
+        $team_ids = self::attendanceReadableTeamIds( $user_id );
+        return $team_ids === null || in_array( $team_id, $team_ids, true );
+    }
+
+    /**
      * #0095 VCT — per-team scope check for the VCT module's REST
      * permission_callbacks. `userCanOrMatrix()` is the cap helper; it
      * does NOT narrow to a team. This wrapper does:
