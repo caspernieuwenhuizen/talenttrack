@@ -220,7 +220,7 @@ same layout.
 ## Player names — short form
 
 Every player label on the match-prep surface — roster column, pitch
-slot labels, Doen per speler column, Rollen pane, availability drawer
+slot labels, Player focus panel, Roles & set pieces pane, availability drawer
 — renders as the player's **first name only** (`Daan`, `Senna`,
 `Javi`). The full name is reserved for the player's own profile and
 the team roster pages.
@@ -311,7 +311,7 @@ What it reaches, and what it does not:
 The **Export as PDF (A4)** button in the toolbar takes a picture of the
 match-prep grid exactly as it appears on screen — both formation
 pitches, the **Selection · minutes** table (per-half minutes + totals),
-the **Wedstrijddoelen**, **Doen per speler**, and the **Roles & set
+the **Match goals**, **Tasks per player**, and the **Roles & set
 pieces** — and lays it out on **landscape A4**. The slot numbers, player
 names, the `!` icon (red) and the camera icon (green) all keep their
 on-screen colours. The PDF downloads straight to your device. Because it
@@ -340,7 +340,7 @@ the screen:
   Both are the same squad read the same way, a name per line, so they
   share the narrow column.
 - **Middle** — the two half-pitches, then the match goals.
-- **Right** — Doen per speler, which always reserves **fifteen rows**:
+- **Right** — Tasks per player, which always reserves **fifteen rows**:
   the players who already carry a note, then ruled lines to the count.
   It is the block you write in during the warm-up, so the room is there
   whether or not you filled it in beforehand.

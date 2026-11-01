@@ -53,22 +53,22 @@ final class MethodologyEnums {
     /** @return array<string,string> slug => translated label */
     public static function teamFunctions(): array {
         return [
-            self::FUNCTION_AANVALLEN              => __( 'Aanvallen',                       'talenttrack' ),
+            self::FUNCTION_AANVALLEN              => _x( 'Attacking', 'methodology team function', 'talenttrack' ),
             self::FUNCTION_OMSCHAKELEN_VERDEDIGEN => _x( 'Transition to defending', 'methodology team function', 'talenttrack' ),
             self::FUNCTION_OMSCHAKELEN_AANVALLEN  => _x( 'Transition to attacking', 'methodology team function', 'talenttrack' ),
-            self::FUNCTION_VERDEDIGEN             => __( 'Verdedigen',                      'talenttrack' ),
+            self::FUNCTION_VERDEDIGEN             => _x( 'Defending', 'methodology team function', 'talenttrack' ),
         ];
     }
 
     /** @return array<string,string> */
     public static function teamTasks(): array {
         return [
-            self::TASK_OPBOUWEN              => __( 'Opbouwen',              'talenttrack' ),
-            self::TASK_SCOREN                => __( 'Scoren',                'talenttrack' ),
-            self::TASK_OVERGANG_BALVERLIES   => __( 'Overgang na balverlies','talenttrack' ),
-            self::TASK_OVERGANG_BALWINST     => __( 'Overgang na balwinst',  'talenttrack' ),
-            self::TASK_STOREN                => __( 'Storen',                'talenttrack' ),
-            self::TASK_DOELPUNTEN_VOORKOMEN  => __( 'Doelpunten voorkomen',  'talenttrack' ),
+            self::TASK_OPBOUWEN              => _x( 'Building up', 'methodology team task', 'talenttrack' ),
+            self::TASK_SCOREN                => _x( 'Scoring', 'methodology team task', 'talenttrack' ),
+            self::TASK_OVERGANG_BALVERLIES   => _x( 'Transition after losing the ball', 'methodology team task', 'talenttrack' ),
+            self::TASK_OVERGANG_BALWINST     => _x( 'Transition after winning the ball', 'methodology team task', 'talenttrack' ),
+            self::TASK_STOREN                => _x( 'Disrupting', 'methodology team task', 'talenttrack' ),
+            self::TASK_DOELPUNTEN_VOORKOMEN  => _x( 'Preventing goals', 'methodology team task', 'talenttrack' ),
         ];
     }
 
@@ -76,30 +76,30 @@ final class MethodologyEnums {
     public static function setPieceKinds(): array {
         return [
             self::SET_PIECE_CORNER           => __( 'Corner',          'talenttrack' ),
-            self::SET_PIECE_FREE_KICK_DIRECT => __( 'Vrije trap (direct)', 'talenttrack' ),
-            self::SET_PIECE_FREE_KICK_PASS   => __( 'Vrije trap (voorzet)', 'talenttrack' ),
+            self::SET_PIECE_FREE_KICK_DIRECT => _x( 'Free kick (direct)', 'methodology set piece', 'talenttrack' ),
+            self::SET_PIECE_FREE_KICK_PASS   => _x( 'Free kick (cross)', 'methodology set piece', 'talenttrack' ),
             self::SET_PIECE_PENALTY          => __( 'Penalty',         'talenttrack' ),
-            self::SET_PIECE_THROW_IN         => __( 'Inworp',          'talenttrack' ),
+            self::SET_PIECE_THROW_IN         => _x( 'Throw-in', 'methodology set piece', 'talenttrack' ),
         ];
     }
 
     /** @return array<string,string> */
     public static function sides(): array {
         return [
-            self::SIDE_ATTACKING  => __( 'Aanvallend',  'talenttrack' ),
-            self::SIDE_DEFENDING  => __( 'Verdedigend', 'talenttrack' ),
-            self::SIDE_TRANSITION => __( 'Omschakelen', 'talenttrack' ),
+            self::SIDE_ATTACKING  => _x( 'Attacking', 'methodology side', 'talenttrack' ),
+            self::SIDE_DEFENDING  => _x( 'Defending', 'methodology side', 'talenttrack' ),
+            self::SIDE_TRANSITION => _x( 'Transition', 'methodology side', 'talenttrack' ),
         ];
     }
 
     /** @return array<string,string> */
     public static function stylesOfPlay(): array {
         return [
-            self::STYLE_AANVALLEND_POSITIESPEL => __( 'Aanvallend positiespel', 'talenttrack' ),
-            self::STYLE_DOMINANT_BALBEZIT      => __( 'Dominant balbezit',      'talenttrack' ),
-            self::STYLE_REACTIEF_COUNTER       => __( 'Reactief / counter',     'talenttrack' ),
+            self::STYLE_AANVALLEND_POSITIESPEL => _x( 'Attacking positional play', 'methodology style of play', 'talenttrack' ),
+            self::STYLE_DOMINANT_BALBEZIT      => _x( 'Dominant possession', 'methodology style of play', 'talenttrack' ),
+            self::STYLE_REACTIEF_COUNTER       => _x( 'Reactive / counter', 'methodology style of play', 'talenttrack' ),
             self::STYLE_HIGH_PRESS             => __( 'High press',             'talenttrack' ),
-            self::STYLE_PRAGMATISCH            => __( 'Pragmatisch',            'talenttrack' ),
+            self::STYLE_PRAGMATISCH            => _x( 'Pragmatic', 'methodology style of play', 'talenttrack' ),
         ];
     }
 
@@ -113,11 +113,11 @@ final class MethodologyEnums {
      */
     public static function lines(): array {
         return [
-            self::LINE_AANVALLERS    => __( 'Aanvallers',    'talenttrack' ),
-            self::LINE_MIDDENVELDERS => __( 'Middenvelders', 'talenttrack' ),
-            self::LINE_VERDEDIGERS   => __( 'Verdedigers',   'talenttrack' ),
-            self::LINE_KEEPER        => __( 'Keeper',        'talenttrack' ),
-            self::LINE_ALGEMEEN      => __( 'Algemeen',      'talenttrack' ),
+            self::LINE_AANVALLERS    => _x( 'Attackers', 'methodology line', 'talenttrack' ),
+            self::LINE_MIDDENVELDERS => _x( 'Midfielders', 'methodology line', 'talenttrack' ),
+            self::LINE_VERDEDIGERS   => _x( 'Defenders', 'methodology line', 'talenttrack' ),
+            self::LINE_KEEPER        => _x( 'Goalkeeper', 'methodology line', 'talenttrack' ),
+            self::LINE_ALGEMEEN      => _x( 'General', 'methodology line', 'talenttrack' ),
         ];
     }
 

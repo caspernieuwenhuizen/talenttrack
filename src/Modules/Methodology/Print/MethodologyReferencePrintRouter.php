@@ -83,7 +83,7 @@ class MethodologyReferencePrintRouter {
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php esc_html_e( 'Methodiek-referentie', 'talenttrack' ); ?></title>
+    <title><?php echo esc_html_x( 'Methodology reference', 'methodology reference card', 'talenttrack' ); ?></title>
     <style><?php echo self::stylesCss(); ?></style>
 </head>
 <body>
@@ -141,8 +141,8 @@ class MethodologyReferencePrintRouter {
         <article class="paper">
             <header class="ref-head">
                 <div>
-                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodiek-referentie', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Spelprincipes', 'talenttrack' ); ?>
+                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Game principles', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of principles */
                             __( '%1$s — game model · %2$d principles · use the codes when setting goals.', 'talenttrack' ),
@@ -178,8 +178,8 @@ class MethodologyReferencePrintRouter {
             <?php endforeach; ?>
 
             <div class="paper-footer">
-                <span><?php echo esc_html( sprintf( __( '%1$s · Spelprincipes (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
-                <span><?php esc_html_e( 'Spelprincipes', 'talenttrack' ); ?></span>
+                <span><?php echo esc_html( sprintf( __( '%1$s · Game principles (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
+                <span><?php echo esc_html_x( 'Game principles', 'methodology reference card', 'talenttrack' ); ?></span>
             </div>
         </article>
         <?php
@@ -194,16 +194,16 @@ class MethodologyReferencePrintRouter {
             if ( isset( $by_cat[ $cat ] ) ) $by_cat[ $cat ][] = $r;
         }
         $cat_labels = [
-            'with_ball'    => __( 'Met balcontact',    'talenttrack' ),
-            'without_ball' => __( 'Zonder balcontact', 'talenttrack' ),
-            'support'      => __( 'Ondersteunend',     'talenttrack' ),
+            'with_ball'    => _x( 'On the ball', 'methodology reference card', 'talenttrack' ),
+            'without_ball' => _x( 'Off the ball', 'methodology reference card', 'talenttrack' ),
+            'support'      => _x( 'Supporting', 'methodology reference card', 'talenttrack' ),
         ];
         ?>
         <article class="paper">
             <header class="ref-head">
                 <div>
-                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodiek-referentie', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Voetbalhandelingen', 'talenttrack' ); ?>
+                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Football actions', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: %d = number of football actions */
                             __( 'The %d football actions every player practises — pick 1–2 per goal.', 'talenttrack' ),
@@ -234,8 +234,8 @@ class MethodologyReferencePrintRouter {
             </div>
 
             <div class="paper-footer">
-                <span><?php echo esc_html( sprintf( __( '%1$s · Voetbalhandelingen (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
-                <span><?php esc_html_e( 'Voetbalhandelingen', 'talenttrack' ); ?></span>
+                <span><?php echo esc_html( sprintf( __( '%1$s · Football actions (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
+                <span><?php echo esc_html_x( 'Football actions', 'methodology reference card', 'talenttrack' ); ?></span>
             </div>
         </article>
         <?php
@@ -253,25 +253,25 @@ class MethodologyReferencePrintRouter {
             if ( isset( $by_side[ $side ] ) ) $by_side[ $side ][] = $r;
         }
         $side_labels = [
-            'attacking'  => __( 'Aanvallen',  'talenttrack' ),
-            'defending'  => __( 'Verdedigen', 'talenttrack' ),
-            'transition' => __( 'Omschakelen','talenttrack' ),
+            'attacking'  => _x( 'Attacking', 'methodology reference card', 'talenttrack' ),
+            'defending'  => _x( 'Defending', 'methodology reference card', 'talenttrack' ),
+            'transition' => _x( 'Transition', 'methodology reference card', 'talenttrack' ),
         ];
         // Group within side by team_task.
         $task_labels = [
-            'opbouwen'             => __( 'opbouwen',              'talenttrack' ),
-            'scoren'               => __( 'scoren',                'talenttrack' ),
-            'storen'               => __( 'storen',                'talenttrack' ),
-            'doelpunten_voorkomen' => __( 'doelpunten voorkomen',  'talenttrack' ),
-            'overgang_balwinst'    => __( 'na balwinst',           'talenttrack' ),
-            'overgang_balverlies'  => __( 'na balverlies',         'talenttrack' ),
+            'opbouwen'             => _x( 'building up', 'methodology reference card', 'talenttrack' ),
+            'scoren'               => _x( 'scoring', 'methodology reference card', 'talenttrack' ),
+            'storen'               => _x( 'disrupting', 'methodology reference card', 'talenttrack' ),
+            'doelpunten_voorkomen' => _x( 'preventing goals', 'methodology reference card', 'talenttrack' ),
+            'overgang_balwinst'    => _x( 'after winning the ball', 'methodology reference card', 'talenttrack' ),
+            'overgang_balverlies'  => _x( 'after losing the ball', 'methodology reference card', 'talenttrack' ),
         ];
         ?>
         <article class="paper">
             <header class="ref-head">
                 <div>
-                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodiek-referentie', 'talenttrack' ); ?></p>
-                    <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Leerdoelen', 'talenttrack' ); ?>
+                    <p class="brand"><?php esc_html_e( 'TalentTrack · methodology reference', 'talenttrack' ); ?></p>
+                    <h1 class="title title--flush"><?php echo esc_html_x( 'Learning goals', 'methodology reference card', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of learning goals */
                             __( '%1$s — %2$d learning goals · underpin the game principles with concrete sub-skills.', 'talenttrack' ),
@@ -323,8 +323,8 @@ class MethodologyReferencePrintRouter {
             </div>
 
             <div class="paper-footer">
-                <span><?php echo esc_html( sprintf( __( '%1$s · Leerdoelen (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
-                <span><?php esc_html_e( 'Leerdoelen', 'talenttrack' ); ?></span>
+                <span><?php echo esc_html( sprintf( __( '%1$s · Learning goals (%2$d) · v %3$s', 'talenttrack' ), $academy, count( $rows ), $season ) ); ?></span>
+                <span><?php echo esc_html_x( 'Learning goals', 'methodology reference card', 'talenttrack' ); ?></span>
             </div>
         </article>
         <?php
@@ -416,6 +416,7 @@ body { font-family: var(--font); color: var(--ink); font-size: 11pt; line-height
 .brand { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); font-weight: 700; margin: 0 0 4px; }
 .title { margin: 0 0 12px; font-size: 18pt; font-weight: 800; color: var(--ink); line-height: 1.15; }
 .title small { display: block; font-size: 10pt; font-weight: 500; color: var(--ink-soft); margin-top: 2px; }
+.title--flush { margin-bottom: 0; }
 
 .ref-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 3mm; margin-bottom: 5mm; }
 .ref-head__sub { font-size: 9pt; color: var(--ink-soft); }

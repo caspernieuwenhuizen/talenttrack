@@ -174,10 +174,10 @@ final class MatchPrepPrintableRenderer {
             <h2><?php esc_html_e( 'Selection · minutes', 'talenttrack' ); ?></h2>
             <table class="tt-mpp-minutes-table">
                 <thead><tr>
-                    <th><?php esc_html_e( 'Speler', 'talenttrack' ); ?></th>
+                    <th><?php echo esc_html_x( 'Player', 'match prep print', 'talenttrack' ); ?></th>
                     <th class="tt-mpp-num-col"><?php esc_html_e( 'min', 'talenttrack' ); ?> 1e</th>
                     <th class="tt-mpp-num-col"><?php esc_html_e( 'min', 'talenttrack' ); ?> 2e</th>
-                    <th class="tt-mpp-num-col"><?php esc_html_e( 'tot', 'talenttrack' ); ?></th>
+                    <th class="tt-mpp-num-col"><?php echo esc_html_x( 'total', 'match prep print: total minutes', 'talenttrack' ); ?></th>
                 </tr></thead>
                 <tbody>
                 <?php foreach ( $available_ids as $pid ) :
@@ -197,7 +197,7 @@ final class MatchPrepPrintableRenderer {
                 <?php endforeach; ?>
                 </tbody>
                 <tfoot><tr>
-                    <th><?php esc_html_e( 'tot', 'talenttrack' ); ?></th>
+                    <th><?php echo esc_html_x( 'total', 'match prep print: total minutes', 'talenttrack' ); ?></th>
                     <th class="tt-mpp-num-col"><?php echo (int) $tot1; ?></th>
                     <th class="tt-mpp-num-col"><?php echo (int) $tot2; ?></th>
                     <th class="tt-mpp-num-col"><?php echo (int) ( $tot1 + $tot2 ); ?></th>
@@ -234,8 +234,8 @@ final class MatchPrepPrintableRenderer {
 
         <div class="tt-mpp-col tt-mpp-col-mid">
             <div class="tt-mpp-pitches">
-                <?php self::renderPitch( __( '1e helft', 'talenttrack' ), $slots, $lineup_by_half[1], $players_by_id ); ?>
-                <?php self::renderPitch( __( '2e helft', 'talenttrack' ), $slots, $lineup_by_half[2], $players_by_id ); ?>
+                <?php self::renderPitch( _x( '1st half', 'match prep print', 'talenttrack' ), $slots, $lineup_by_half[1], $players_by_id ); ?>
+                <?php self::renderPitch( _x( '2nd half', 'match prep print', 'talenttrack' ), $slots, $lineup_by_half[2], $players_by_id ); ?>
             </div>
 
             <div class="tt-mpp-bench-row">
@@ -243,8 +243,8 @@ final class MatchPrepPrintableRenderer {
                 $bench_1 = self::benchNames( $availability, $pitch_ids_by_half[1], $players_by_id );
                 $bench_2 = self::benchNames( $availability, $pitch_ids_by_half[2], $players_by_id );
                 ?>
-                <p><strong><?php esc_html_e( 'Bank 1e helft:', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_1 !== [] ? implode( ', ', $bench_1 ) : '—' ); ?></p>
-                <p><strong><?php esc_html_e( 'Bank 2e helft:', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_2 !== [] ? implode( ', ', $bench_2 ) : '—' ); ?></p>
+                <p><strong><?php echo esc_html_x( 'Bench 1st half:', 'match prep print', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_1 !== [] ? implode( ', ', $bench_1 ) : '—' ); ?></p>
+                <p><strong><?php echo esc_html_x( 'Bench 2nd half:', 'match prep print', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_2 !== [] ? implode( ', ', $bench_2 ) : '—' ); ?></p>
             </div>
 
             <div class="tt-mpp-bottom-col">
@@ -263,17 +263,17 @@ final class MatchPrepPrintableRenderer {
                         ?>
                     </div>
                 <?php endif; ?>
-                <h2><?php esc_html_e( 'Wedstrijddoelen', 'talenttrack' ); ?></h2>
+                <h2><?php echo esc_html_x( 'Match goals', 'match prep print', 'talenttrack' ); ?></h2>
                 <table class="tt-mpp-goals-table">
                     <?php
                     // Same field-set + Dutch labels as the on-screen view
                     // (see FrontendMatchPrepView's renderGoalsPanel).
                     $rows = [
-                        'goals_general'         => __( 'Algemeen', 'talenttrack' ),
-                        'goals_attack'          => __( 'Aanvallen', 'talenttrack' ),
-                        'goals_defend'          => __( 'Verdedigen', 'talenttrack' ),
-                        'goals_attack_setpiece' => __( 'Spelhervattingen (aanvallend)', 'talenttrack' ),
-                        'goals_defend_setpiece' => __( 'Spelhervattingen (verdedigend)', 'talenttrack' ),
+                        'goals_general'         => _x( 'General', 'match prep print', 'talenttrack' ),
+                        'goals_attack'          => _x( 'Attacking', 'match prep print', 'talenttrack' ),
+                        'goals_defend'          => _x( 'Defending', 'match prep print', 'talenttrack' ),
+                        'goals_attack_setpiece' => _x( 'Set pieces (attacking)', 'match prep print', 'talenttrack' ),
+                        'goals_defend_setpiece' => _x( 'Set pieces (defending)', 'match prep print', 'talenttrack' ),
                     ];
                     foreach ( $rows as $field => $label ) :
                         $value = trim( (string) ( $prep->$field ?? '' ) );
@@ -306,16 +306,16 @@ final class MatchPrepPrintableRenderer {
         </div><!-- /.tt-mpp-col-mid -->
 
             <div class="tt-mpp-col tt-mpp-col-right">
-                <h2><?php esc_html_e( 'Doen per speler', 'talenttrack' ); ?></h2>
+                <h2><?php echo esc_html_x( 'Tasks per player', 'match prep print', 'talenttrack' ); ?></h2>
                 <?php if ( ! $available_ids ) : ?>
                     <p class="tt-mpp-empty"><?php esc_html_e( 'No availability recorded.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <table class="tt-mpp-dps-table">
                         <thead><tr>
-                            <th><?php esc_html_e( 'Speler', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Aandachtspunt', 'talenttrack' ); ?></th>
-                            <th class="tt-mpp-flag-col" title="<?php esc_attr_e( 'Specifiek doel', 'talenttrack' ); ?>">!</th>
-                            <th class="tt-mpp-flag-col" title="<?php esc_attr_e( 'Video-analist toegewezen', 'talenttrack' ); ?>">🎥</th>
+                            <th><?php echo esc_html_x( 'Player', 'match prep print', 'talenttrack' ); ?></th>
+                            <th><?php echo esc_html_x( 'Focus point', 'match prep print', 'talenttrack' ); ?></th>
+                            <th class="tt-mpp-flag-col" title="<?php echo esc_attr_x( 'Specific goal', 'match prep print', 'talenttrack' ); ?>">!</th>
+                            <th class="tt-mpp-flag-col" title="<?php echo esc_attr_x( 'Video analyst assigned', 'match prep print', 'talenttrack' ); ?>">🎥</th>
                         </tr></thead>
                         <tbody>
                         <?php foreach ( $available_ids as $pid ) :
@@ -428,7 +428,7 @@ CSS;
 
     private static function metaLine( object $activity, object $prep ): string {
         $kick = trim( (string) ( $activity->kickoff_time ?? '' ) );
-        $home = ( ( $activity->home_away ?? '' ) === 'home' ) ? __( 'thuis', 'talenttrack' ) : __( 'uit', 'talenttrack' );
+        $home = ( ( $activity->home_away ?? '' ) === 'home' ) ? _x( 'home', 'match prep print: venue', 'talenttrack' ) : _x( 'away', 'match prep print: venue', 'talenttrack' );
         $opp  = (string) ( $activity->opponent ?? '' );
         return sprintf(
             /* translators: 1: opponent, 2: thuis/uit, 3: kickoff_time, 4: formation */

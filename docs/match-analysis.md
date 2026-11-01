@@ -51,13 +51,13 @@ each read top to bottom as a chain:
 
 **With the ball**
 
-- **Aanvallen**
+- **Attacking**
 - **Transition to defending** — the instant we lose it
 - **Set pieces — ours**
 
 **Without the ball**
 
-- **Verdedigen**
+- **Defending**
 - **Transition to attacking** — the instant we win it
 - **Set pieces — theirs**
 

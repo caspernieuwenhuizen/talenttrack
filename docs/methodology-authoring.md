@@ -40,9 +40,9 @@ Deleting a principle removes it permanently and asks for confirmation first.
 
 The **Sub-principes** tab authors the concrete per-line coaching points that sit under the main principles. The list is grouped by game phase; each sub-principle carries:
 
-- **Phase side** — Aanvallend, Verdedigend or Omschakelen.
-- **Phase number** — which phase within that side (e.g. Verdedigen 1, 2, 3).
-- **Line** — Aanvallers, Middenvelders, Verdedigers, Keeper or **Algemeen** (a phase-wide point that applies to the whole team).
+- **Phase side** — Attacking, Defending or Transition.
+- **Phase number** — which phase within that side (e.g. Defending 1, 2, 3).
+- **Line** — Attackers, Midfielders, Defenders, Goalkeeper or **General** (a phase-wide point that applies to the whole team).
 - **Title** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs. The title is the short bullet a coach reads out; the description is optional detail.
 
 Fill in Dutch first; English is optional and falls back to Dutch. Save and Cancel sit together at the bottom of the form — Cancel returns you to the list (or to wherever you came from). Deleting a sub-principle removes it permanently and asks for confirmation first. Shipped sub-principles (such as the JO13-1 Hedel set's) are read-only reference content and show a "Shipped" badge instead of edit/delete actions.

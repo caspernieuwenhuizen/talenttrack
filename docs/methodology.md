@@ -72,7 +72,7 @@ Every entry can carry diagrams and images. Each entry's edit page has a section 
 
 ## Sub-principes
 
-Under the **Principles** tab, the **Sub-principes** section lists the concrete per-line coaching points that support each main principle, grouped by game phase (Verdedigen 1/2/3, the transition phases, Aanvallen 1/2) and then by line — **Aanvallers**, **Middenvelders**, **Verdedigers** and **Algemeen** (phase-wide points that apply to the whole team). These are the specific agreements a coach reads out on the pitch: "screen the passing lanes", "keep the axis closed", "at least three players in the box".
+Under the **Principles** tab, the **Sub-principes** section lists the concrete per-line coaching points that support each main principle, grouped by game phase (Verdedigen 1/2/3, the transition phases, Aanvallen 1/2) and then by line — **Attackers**, **Midfielders**, **Defenders** and **General** (phase-wide points that apply to the whole team). These are the specific agreements a coach reads out on the pitch: "screen the passing lanes", "keep the axis closed", "at least three players in the box".
 
 Sub-principes are a first-class entity: they can be listed, created, edited and deleted through the authoring surface and the REST API (see the authoring guide), and shipped sub-principes are read-only reference content. The **JO13-1 Hedel** set ships with the full per-line sub-principes from its playing-style document.
 
@@ -86,7 +86,7 @@ The JO13-1 formation renders its real **1-4-3-3** on both the **Formaties** and 
 
 The **Speelwijze** tab shows animated per-phase tactical scenes for the active methodology set. Each scene is a game-phase snapshot — an SVG pitch with your players (filled circles), the opponents (outlined circles) and the ball — that animates the movement for that phase when you press **Play**.
 
-- Scenes are grouped by phase side: **Aanvallend**, **Verdedigend** and **Omschakelen**.
+- Scenes are grouped by phase side: **Attacking**, **Defending** and **Transition**.
 - Every scene carries **coaching points** beside the pitch — the key sub-principes for that phase.
 - **Play / Pause / Restart** controls sit under each pitch. Nothing moves until you press Play, so the page never surprises you with motion.
 - If your device asks for reduced motion, scenes do not autoplay: the final frame is shown statically and you can still press Play to watch it.

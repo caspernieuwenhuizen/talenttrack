@@ -34,7 +34,7 @@ final class FootballActionsPage {
         ?>
         <div class="wrap">
             <h1>
-                <?php esc_html_e( 'Voetbalhandelingen', 'talenttrack' ); ?>
+                <?php echo esc_html_x( 'Football actions', 'football actions admin', 'talenttrack' ); ?>
                 <?php if ( current_user_can( self::CAP_EDIT ) ) : ?>
                     <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . FootballActionEditPage::SLUG . '&action=new' ) ); ?>" class="page-title-action">
                         <?php esc_html_e( 'Add action', 'talenttrack' ); ?>
