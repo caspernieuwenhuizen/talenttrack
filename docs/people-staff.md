@@ -54,6 +54,8 @@ A person with no linked account keeps their contact details as before — nothin
 
 Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**, **Kit manager**. These map to authorization roles via the [Access control](access-control.md) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.
 
+You can rename any of these roles on the **Functional roles** page, for example **Head coach** to **Trainer A-selectie**. Every screen that lists functional roles then shows your club's name. A role you have not renamed shows its stock label in the site's language, and a role you added yourself always shows the name you gave it. Renaming changes the label only: the role keeps its access.
+
 Four of them decide access on their own, for the team the role is held on: **Physio** reads and records that team's injuries and reads its measurements, **Head coach** and **Assistant coach** read its measurements, and **Kit manager** reads neither. That is the one place where the role somebody does on a squad, rather than their account-wide role, is what opens a screen — see [Access control](access-control.md) for the full picture and for what happens to staff accounts that have no functional role yet.
 
 ## Assigning people to teams

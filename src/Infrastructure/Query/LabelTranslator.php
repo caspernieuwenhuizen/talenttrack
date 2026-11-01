@@ -169,6 +169,16 @@ class LabelTranslator {
         // passes the row id. Falls through to the gettext switch for
         // string-only callers and seeded keys without translations
         // backfilled yet.
+        //
+        // #4557 — a club that renamed a seeded role ("Head coach" to
+        // "Trainer A-selectie") sees its own name. The stored label counts
+        // as renamed only when it differs from the seed's default for that
+        // key, ignoring case: installs seeded before #4523 still hold the
+        // Title Case original ("Head Coach"), which is not a rename.
+        $stored  = self::storedFunctionalRoleLabel( $key, $entity_id );
+        $seed    = self::seededFunctionalRoleLabel( $key );
+        $renamed = $stored !== '' && $seed !== '' && strcasecmp( $stored, $seed ) !== 0;
+
         if ( $entity_id !== null && $entity_id > 0 ) {
             $tx = ( new TranslationsRepository() )->translate(
                 TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE,
@@ -177,8 +187,15 @@ class LabelTranslator {
                 self::currentLocale(),
                 ''
             );
-            if ( $tx !== '' ) return $tx;
+            // Migration 0085 stored the Dutch of the original seed label
+            // ("Hoofdtrainer") as a translation of every seeded row. After a
+            // rename that row translates the old name, so it is skipped; a
+            // translation somebody entered for the new name still wins.
+            if ( $tx !== '' && ! ( $renamed && self::isSeedTranslation( $tx, $seed ) ) ) return $tx;
         }
+
+        if ( $renamed ) return $stored;
+
         switch ( strtolower( $key ) ) {
             case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
             case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
@@ -192,6 +209,66 @@ class LabelTranslator {
             case 'other':               return _x( 'Other', 'role label', 'talenttrack' );
             default:                    return null;
         }
+    }
+
+    /** @var array<int, array{by_id: array<int, string>, by_key: array<string, string>}> club id => stored labels */
+    private static array $functional_role_labels = [];
+
+    /**
+     * The label stored on the club's functional role row, by id when the
+     * caller has it and by key otherwise; '' when there is no row. One read
+     * per club per request.
+     */
+    private static function storedFunctionalRoleLabel( string $key, ?int $entity_id ): string {
+        $club = (int) \TT\Infrastructure\Tenancy\CurrentClub::id();
+        if ( ! isset( self::$functional_role_labels[ $club ] ) ) {
+            global $wpdb;
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, role_key, label FROM {$wpdb->prefix}tt_functional_roles WHERE club_id = %d",
+                $club
+            ) );
+            $labels = [ 'by_id' => [], 'by_key' => [] ];
+            foreach ( (array) $rows as $row ) {
+                $f     = (array) $row;
+                $label = trim( (string) ( $f['label'] ?? '' ) );
+                $labels['by_id'][ (int) ( $f['id'] ?? 0 ) ] = $label;
+                $labels['by_key'][ strtolower( (string) ( $f['role_key'] ?? '' ) ) ] = $label;
+            }
+            self::$functional_role_labels[ $club ] = $labels;
+        }
+        $labels = self::$functional_role_labels[ $club ];
+        if ( $entity_id !== null && $entity_id > 0 && isset( $labels['by_id'][ $entity_id ] ) ) {
+            return $labels['by_id'][ $entity_id ];
+        }
+        return $labels['by_key'][ strtolower( $key ) ] ?? '';
+    }
+
+    /** The English label the Activator seeds for this functional role key; '' for a key it does not seed. */
+    private static function seededFunctionalRoleLabel( string $key ): string {
+        foreach ( \TT\Core\Activator::defaultFunctionalRoleDefinitions() as $def ) {
+            if ( strtolower( (string) $def['key'] ) === strtolower( $key ) ) return (string) $def['label'];
+        }
+        return '';
+    }
+
+    /**
+     * Whether `$tx` is only the translation of a seed label: the sentence-case
+     * seed, or the Title Case spelling installs seeded before #4523 hold,
+     * either through the plain msgid migration 0085 used or the `role label`
+     * context.
+     */
+    private static function isSeedTranslation( string $tx, string $seed ): bool {
+        $title = str_replace( ' Of ', ' of ', ucwords( $seed ) );
+        foreach ( array_unique( [ $seed, $title ] ) as $msgid ) {
+            // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.NonSingularStringLiteralContext
+            if ( $tx === __( $msgid, 'talenttrack' ) || $tx === _x( $msgid, 'role label', 'talenttrack' ) ) return true;
+        }
+        return false;
+    }
+
+    /** Forget the stored functional role labels read this request (after a rename, and in tests). */
+    public static function flushFunctionalRoleLabels(): void {
+        self::$functional_role_labels = [];
     }
 
     private static function currentLocale(): string {
