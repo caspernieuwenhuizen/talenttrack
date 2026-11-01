@@ -390,6 +390,43 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'filter' => [ 'archived' => 'archived' ] ] )->get_data()['data']['total'] );
     }
 
+    public function test_a_report_kept_for_its_owner_is_theirs_alone(): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
+
+        wp_set_current_user( $this->hod );
+        $this->assertSame( 403, $this->send( 'GET', "reports/{$id}" )->get_status(), 'a builder for every team does not open it' );
+        $this->assertSame( 403, $this->send( 'PATCH', "reports/{$id}", [ 'name' => 'Mine now' ] )->get_status() );
+        $this->assertSame( 403, $this->send( 'DELETE', "reports/{$id}" )->get_status() );
+        $this->assertSame( 403, $this->send( 'POST', "reports/{$id}/versions", [] )->get_status() );
+        $this->assertSame( 403, $this->send( 'GET', "reports/{$id}/data", [], [ 'source' => 'draft' ] )->get_status() );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_drafts WHERE report_id = %d AND user_id = %d", $id, $this->hod
+        ) ), 'no draft is seeded for anyone else' );
+
+        // Once a report is shared, a builder for every team works on it.
+        $shared = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
+        $admin  = (int) self::factory()->user->create( [ 'role' => 'tt_club_admin' ] );
+        wp_set_current_user( $admin );
+        $this->assertSame( 200, $this->send( 'PATCH', "reports/{$shared}", [ 'name' => 'Shared pack' ] )->get_status() );
+    }
+
+    public function test_the_group_limit_applies_to_what_each_reader_sees(): void {
+        for ( $i = 0; $i < 30; $i++ ) $this->player( $this->team_a, 'A' . $i );
+        for ( $i = 0; $i < 34; $i++ ) $this->player( $this->team_b, 'B' . $i );
+        $id = $this->publishedGroup( [ $this->team_a, $this->team_b ] );
+
+        $coach = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] );
+        $this->assertSame( 200, $coach->get_status(), 'a cohort of 66 is not refused' );
+        $this->assertCount( 31, $coach->get_data()['data']['context']['player_ids'], 'the coach gets team A, all of it' );
+
+        wp_set_current_user( $this->hod );
+        $hod = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'source' => 'published' ] );
+        $this->assertSame( 200, $hod->get_status() );
+        $this->assertCount( 60, $hod->get_data()['data']['context']['player_ids'], 'a reader who sees everyone gets the first 60' );
+    }
+
     public function test_every_route_answers_402_without_the_plan_feature(): void {
         $id = $this->create( [ 'scope' => 'me' ] );
         LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );

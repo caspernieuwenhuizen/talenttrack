@@ -4,6 +4,7 @@ namespace TT\Modules\ReportStudio\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
@@ -145,7 +146,16 @@ final class ReportData {
 
         if ( $scope === ReportContext::SCOPE_GROUP ) {
             if ( $report['cohort'] === null ) return self::missing( 'cohort', __( 'This group has no teams.', 'talenttrack' ) );
-            return [ 'player_id' => null, 'team_id' => null, 'player_ids' => ( new ReportsRepository() )->cohortPlayers( $report['cohort'] ) ];
+            // The cap is per reader: each gets the cohort's players they may
+            // see, up to the group limit, so a large cohort is not refused for
+            // everyone.
+            $cohort  = ( new ReportsRepository() )->cohortPlayers( $report['cohort'] );
+            $allowed = AuthorizationService::canViewPlayers( $user_id, $cohort );
+            $visible = array_values( array_filter( $cohort, static fn( int $pid ): bool => ! empty( $allowed[ $pid ] ) ) );
+            if ( $visible === [] ) {
+                return new StudioError( 'forbidden_player', __( 'This report subject is not in your scope.', 'talenttrack' ), 403 );
+            }
+            return [ 'player_id' => null, 'team_id' => null, 'player_ids' => array_slice( $visible, 0, ReportContext::MAX_GROUP ) ];
         }
 
         $is_player = $scope === ReportContext::SCOPE_PLAYER;

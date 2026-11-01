@@ -656,7 +656,7 @@ Nobody else is seeded: not the team manager, the scout, the observer, the player
 What the scope means:
 
 - A **team** builder builds reports about the players and teams they coach, and about themselves. They cannot build a report about another team, another team's players or the whole academy, and they only edit their own reports.
-- A **global** builder builds about any team, player or group and about the academy, and may edit any report.
+- A **global** builder builds about any team, player or group and about the academy, and may edit any report that is shared beyond its owner. A report its builder kept for themselves stays theirs alone.
 - The capability is club-wide, so holding it never decides one report: every request asks again whether the report's subject is one the user builds for. A coach who leaves a team stops reaching the reports about it.
 
 **Publishing.** A builder can always publish a report for themselves. Publishing it to a role (a persona key such as `head_coach`) needs `report_publishing`. Only staff personas can be chosen: a family sees a shared snapshot, never a live report.

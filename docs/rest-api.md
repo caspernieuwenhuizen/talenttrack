@@ -1309,8 +1309,10 @@ assistant coach for the teams they coach. `tt_publish_reports` (matrix
 `report_publishing : create_delete`) publishes to a role: head of
 development and academy admin only. Both capabilities are club-wide, so every
 by-id route asks about the report itself (`ReportAccess`): an **editor** is
-its owner, or a builder for every team, while its subject is one they build
-for; a **recipient** holds one of the persona keys it is published to **and**
+its owner, or a builder for every team once the report is shared beyond its
+owner, while its subject is one they build for. A report kept for its owner
+(`sharing: me`) is theirs alone: nobody else opens, edits, archives,
+publishes or reads its draft; a **recipient** holds one of the persona keys it is published to **and**
 can read its subject (`ReportAccess::canReadSubject()`): a stored player or
 team through the player or team report rule, a group through at least one of
 its teams, the academy through club-wide analytics, and a subject chosen when
@@ -1423,7 +1425,8 @@ row scope. `source` is `draft` (a builder's own, their default) or
   change it only to a subject they build for. A subject chosen when opened
   takes `player_id` / `team_id`. A report that follows the viewer reads the
   viewer's own player, or one of the teams they coach. A group reads its
-  cohort's players.
+  cohort's players that this reader may see, up to the group limit of 60, so
+  a large cohort is narrowed per reader rather than refused for everyone.
 - **The period comes from the report** too: fixed, rolling, or `from` / `to`
   when it is chosen on opening. A recipient sending a period for a report
   that sets one is `403 fixed_period`.

@@ -655,7 +655,7 @@ Niemand anders krijgt ze: niet de teammanager, de scout, de waarnemer, de speler
 Wat de scope betekent:
 
 - Een bouwer op **team**-scope bouwt rapporten over de spelers en teams die hij traint, en over zichzelf. Hij kan geen rapport bouwen over een ander team, de spelers van een ander team of de hele academie, en hij bewerkt alleen zijn eigen rapporten.
-- Een bouwer op **global**-scope bouwt over elk team, elke speler of groep en over de academie, en mag elk rapport bewerken.
+- Een bouwer op **global**-scope bouwt over elk team, elke speler of groep en over de academie, en mag elk rapport bewerken dat verder is gedeeld dan met de maker. Een rapport dat de maker voor zichzelf hield, blijft alleen van hem.
 - De bevoegdheid geldt voor de hele club, dus wie haar heeft, beslist daarmee nooit over één rapport: bij elk verzoek wordt opnieuw gevraagd of het onderwerp van het rapport er een is waarvoor de gebruiker bouwt. Een coach die een team verlaat, komt niet meer bij de rapporten over dat team.
 
 **Publiceren.** Een bouwer kan een rapport altijd voor zichzelf publiceren. Het voor een rol publiceren (een personasleutel zoals `head_coach`) vraagt `report_publishing`. Alleen staf-persona's zijn te kiezen: een gezin ziet een gedeelde momentopname, nooit een live rapport.

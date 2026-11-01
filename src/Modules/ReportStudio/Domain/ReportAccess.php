@@ -79,15 +79,21 @@ final class ReportAccess {
     }
 
     /**
-     * May this user edit the report: its owner, or a builder for every team,
-     * and only while its subject is still one they build for.
+     * May this user edit the report: its owner, or a builder for every team
+     * once the report is shared beyond its owner, and only while its subject
+     * is still one they build for. A report kept for its owner (`sharing:
+     * me`) is theirs alone: nobody else opens, edits, archives or publishes
+     * it.
      *
      * @param Report $report
      */
     public static function canEdit( ReportReader $reader, array $report ): bool {
         $uid = $reader->userId;
         if ( $uid <= 0 || ! user_can( $uid, 'tt_build_reports' ) ) return false;
-        if ( $report['owner_user_id'] !== $uid && $reader->builderTeams() !== null ) return false;
+        if ( $report['owner_user_id'] !== $uid ) {
+            if ( $report['sharing'] === ReportStartRules::SHARING_ME ) return false;
+            if ( $reader->builderTeams() !== null ) return false;
+        }
         return self::buildRefusal(
             $reader,
             $report['scope'],
