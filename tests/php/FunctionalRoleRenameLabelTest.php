@@ -134,7 +134,34 @@ final class FunctionalRoleRenameLabelTest extends WP_UnitTestCase {
         $this->assertSame( 'Trainer A', LabelTranslator::functionalRoleLabel( 'head_coach', $id ) );
     }
 
+    public function test_a_rename_over_rest_clears_the_old_names_translations(): void {
+        $id = $this->role( 'head_coach', 'Head Coach' );
+        $this->translation( $id, 'Hoofdtrainer' );
+
+        $this->put( $id, [ 'description' => 'Leidt de trainingen.' ] );
+        $this->assertSame( 'Hoofdtrainer', $this->storedTranslation( $id ), 'a change that is not a rename keeps it' );
+
+        $this->put( $id, [ 'label' => 'Trainer A-selectie' ] );
+        $this->assertSame( '', $this->storedTranslation( $id ), 'a rename clears it' );
+        $this->dutch();
+        $this->assertSame( 'Trainer A-selectie', LabelTranslator::functionalRoleLabel( 'head_coach', $id ) );
+    }
+
     // Helpers
+
+    /** @param array<string,string> $body */
+    private function put( int $role_id, array $body ): void {
+        $req = new WP_REST_Request( 'PUT', '/talenttrack/v1/functional-roles/' . $role_id );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( $body ) );
+        $this->assertSame( 200, rest_do_request( $req )->get_status() );
+    }
+
+    private function storedTranslation( int $role_id ): string {
+        return ( new TranslationsRepository() )->translate(
+            TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, $role_id, 'label', 'nl_NL', ''
+        );
+    }
 
     /** A `nl_NL` label translation on this functional role row. */
     private function translation( int $role_id, string $value ): void {

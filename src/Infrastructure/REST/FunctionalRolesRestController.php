@@ -189,7 +189,13 @@ class FunctionalRolesRestController {
             Logger::error( 'rest.functional_role.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The role type could not be updated.', 'talenttrack' ), 500 );
         }
-        // #4557 — a rename shows in the labels read later in this request.
+        // #4557 — the role's label translations translate the old name, so
+        // a rename clears them; a translator can enter new ones. The rename
+        // then shows in the labels read later in this request.
+        $old_label = (string) ( ( (array) $existing )['label'] ?? '' );
+        if ( isset( $data['label'] ) && $data['label'] !== $old_label ) {
+            ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, $id );
+        }
         \TT\Infrastructure\Query\LabelTranslator::flushFunctionalRoleLabels();
         return RestResponse::success( [ 'id' => $id ] );
     }
