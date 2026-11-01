@@ -26,6 +26,25 @@ class BackupSettingsPage {
 
     public const CAP    = 'tt_manage_backups';
 
+    /** The restore type-to-confirm word, in the reader's language (same msgid as the frontend view). */
+    public static function restoreWord(): string {
+        return _x( 'RESTORE', 'type-to-confirm word for a destructive restore', 'talenttrack' );
+    }
+
+    /** The import type-to-confirm word, in the reader's language (same msgid as the frontend view). */
+    public static function importWord(): string {
+        return _x( 'IMPORT', 'type-to-confirm word for a destructive import', 'talenttrack' );
+    }
+
+    /**
+     * The fixed token when the typed text is exactly the word the page
+     * showed, null otherwise. The handlers then keep their literal checks.
+     */
+    public static function confirmToken( string $typed, string $word, string $token ): ?string {
+        $word = trim( $word );
+        return $word !== '' && trim( $typed ) === $word ? $token : null;
+    }
+
     public static function init(): void {
         add_action( 'admin_post_tt_backup_save_settings',     [ self::class, 'handleSaveSettings' ] );
         add_action( 'admin_post_tt_backup_run_now',           [ self::class, 'handleRunNow' ] );
@@ -376,8 +395,11 @@ class BackupSettingsPage {
                 <input type="hidden" name="action" value="tt_backup_restore" />
                 <input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />
                 <label>
-                    <?php esc_html_e( 'Type RESTORE to confirm:', 'talenttrack' ); ?>
-                    <input type="text" name="confirm_text" placeholder="RESTORE" class="regular-text" required />
+                    <?php
+                    /* translators: %s: the word to type, e.g. RESTORE */
+                    echo esc_html( sprintf( __( 'Type %s to confirm:', 'talenttrack' ), self::restoreWord() ) );
+                    ?>
+                    <input type="text" name="confirm_text" placeholder="<?php echo esc_attr( self::restoreWord() ); ?>" class="regular-text" required />
                 </label>
                 <p>
                     <?php submit_button( __( 'Restore from this backup', 'talenttrack' ), 'delete', '', false ); ?>
@@ -1112,11 +1134,12 @@ class BackupSettingsPage {
             exit;
         }
         $opts    = self::readMigrationImportOpts();
-        $confirm = trim( (string) wp_unslash( $_POST['confirm_text'] ?? '' ) );
+        $confirm = self::confirmToken( (string) wp_unslash( $_POST['confirm_text'] ?? '' ), self::importWord(), 'IMPORT' );
         if ( $confirm !== 'IMPORT' ) {
             $opts['dry_run'] = true;
             $result = \TT\Modules\Backup\MigrationImporter::commit( $snapshot, $opts );
-            self::renderMigrationImportResult( $result, $opts, false, __( 'Type IMPORT to confirm before the data is written.', 'talenttrack' ) );
+            /* translators: %s: the word to type, e.g. IMPORT */
+            self::renderMigrationImportResult( $result, $opts, false, sprintf( __( 'Type %s to confirm before the data is written.', 'talenttrack' ), self::importWord() ) );
             exit;
         }
         $opts['dry_run'] = false;
@@ -1221,8 +1244,9 @@ class BackupSettingsPage {
             echo '<input type="hidden" name="user_map[' . esc_attr( (string) $s ) . ']" value="' . esc_attr( (string) $t ) . '" />';
         }
         echo '<p><strong>' . esc_html__( 'This writes the data above into this install. It cannot be undone automatically — take a backup first if unsure.', 'talenttrack' ) . '</strong></p>';
-        echo '<label>' . esc_html__( 'Type IMPORT to confirm:', 'talenttrack' )
-            . ' <input type="text" name="confirm_text" placeholder="IMPORT" class="regular-text" required /></label>';
+        /* translators: %s: the word to type, e.g. IMPORT */
+        echo '<label>' . esc_html( sprintf( __( 'Type %s to confirm:', 'talenttrack' ), self::importWord() ) )
+            . ' <input type="text" name="confirm_text" placeholder="' . esc_attr( self::importWord() ) . '" class="regular-text" required /></label>';
         echo '<p style="margin-top:12px;">';
         submit_button( __( 'Import now', 'talenttrack' ), 'delete', 'submit', false );
         echo ' <a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>';
@@ -1271,7 +1295,7 @@ class BackupSettingsPage {
         self::guard( 'tt_backup_restore' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'backup.restore' );
         $id      = sanitize_text_field( wp_unslash( (string) ( $_POST['id'] ?? '' ) ) );
-        $confirm = trim( (string) wp_unslash( $_POST['confirm_text'] ?? '' ) );
+        $confirm = self::confirmToken( (string) wp_unslash( $_POST['confirm_text'] ?? '' ), self::restoreWord(), 'RESTORE' );
         if ( $confirm !== 'RESTORE' ) {
             self::redirectBack( [ 'tt_bk_msg' => 'restore_unconfirmed' ] );
         }

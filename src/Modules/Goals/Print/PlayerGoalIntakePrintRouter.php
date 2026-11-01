@@ -207,7 +207,7 @@ class PlayerGoalIntakePrintRouter {
     <title><?php
         echo esc_html( sprintf(
             /* translators: 1: team name, 2: season e.g. 2026/27 */
-            __( 'Seizoens-intakes — %1$s — %2$s', 'talenttrack' ),
+            __( 'Season intakes — %1$s — %2$s', 'talenttrack' ),
             (string) $team->name, $season
         ) );
     ?></title>
@@ -229,7 +229,7 @@ class PlayerGoalIntakePrintRouter {
 
 <?php
         if ( empty( $players ) ) {
-            echo '<article class="paper"><h1 class="title">' . esc_html( sprintf( __( '%s — geen actieve spelers', 'talenttrack' ), $team->name ) ) . '</h1></article>';
+            echo '<article class="paper"><h1 class="title">' . esc_html( sprintf( __( '%s — no active players', 'talenttrack' ), $team->name ) ) . '</h1></article>';
         } else {
             foreach ( $players as $pid ) {
                 // #2572 — take the sheets straight from pagesHtml(). This
@@ -395,7 +395,7 @@ class PlayerGoalIntakePrintRouter {
 <?php // PAGE 1 — speler-snapshot. #1313 — only emit if snapshot block is selected. ?>
 <?php if ( $blocks['snapshot'] ) : ?>
 <article class="paper">
-    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
+    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · season intake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Page 1: player snapshot — read before the conversation starts. Goals follow on pages 2 + 3.', 'talenttrack' ); ?></small>
     </h1>
@@ -410,7 +410,7 @@ class PlayerGoalIntakePrintRouter {
             if ( $photo !== '' ) {
                 echo '<img src="' . esc_url( $photo ) . '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:2mm;">';
             } else {
-                esc_html_e( 'Foto', 'talenttrack' );
+                echo esc_html_x( 'Photo', 'goal intake print', 'talenttrack' );
             }
             ?>
         </div>
@@ -418,29 +418,29 @@ class PlayerGoalIntakePrintRouter {
             <p class="identity__name"><?php echo esc_html( $name ); ?></p>
             <dl class="identity__meta">
                 <div><dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt><dd><?php echo esc_html( (string) ( $player->team_name ?? '—' ) ); ?></dd></div>
-                <div><dt><?php esc_html_e( 'Rugnummer', 'talenttrack' ); ?></dt><dd><?php echo $player->jersey_number ? '#' . (int) $player->jersey_number : '—'; ?></dd></div>
-                <div><dt><?php esc_html_e( 'Leeftijd · Geboortedatum', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::ageDob( (string) $player->date_of_birth ) ); ?></dd></div>
-                <div><dt><?php esc_html_e( 'Voorkeursvoet', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::footLabel( (string) $player->preferred_foot ) ); ?></dd></div>
+                <div><dt><?php echo esc_html_x( 'Shirt number', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo $player->jersey_number ? '#' . (int) $player->jersey_number : '—'; ?></dd></div>
+                <div><dt><?php echo esc_html_x( 'Age · Date of birth', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::ageDob( (string) $player->date_of_birth ) ); ?></dd></div>
+                <div><dt><?php echo esc_html_x( 'Preferred foot', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::footLabel( (string) $player->preferred_foot ) ); ?></dd></div>
             </dl>
         </div>
     </section>
 
-    <section class="stats" aria-label="<?php esc_attr_e( 'Vorig seizoen', 'talenttrack' ); ?>">
-        <div class="stat"><span class="stat__num"><?php echo (int) $stats['apps']; ?></span><span class="stat__label"><?php esc_html_e( 'Wedstr.', 'talenttrack' ); ?></span></div>
-        <div class="stat"><span class="stat__num"><?php echo (int) $stats['minutes']; ?></span><span class="stat__label"><?php esc_html_e( 'Minuten', 'talenttrack' ); ?></span></div>
-        <div class="stat"><span class="stat__num"><?php echo (int) $stats['goals']; ?></span><span class="stat__label"><?php esc_html_e( 'Doelpunten', 'talenttrack' ); ?></span></div>
+    <section class="stats" aria-label="<?php echo esc_attr_x( 'Last season', 'goal intake print', 'talenttrack' ); ?>">
+        <div class="stat"><span class="stat__num"><?php echo (int) $stats['apps']; ?></span><span class="stat__label"><?php echo esc_html_x( 'Matches', 'goal intake print', 'talenttrack' ); ?></span></div>
+        <div class="stat"><span class="stat__num"><?php echo (int) $stats['minutes']; ?></span><span class="stat__label"><?php echo esc_html_x( 'Minutes', 'goal intake print', 'talenttrack' ); ?></span></div>
+        <div class="stat"><span class="stat__num"><?php echo (int) $stats['goals']; ?></span><span class="stat__label"><?php echo esc_html_x( 'Goals scored', 'goal intake print', 'talenttrack' ); ?></span></div>
         <div class="stat"><span class="stat__num"><?php echo (int) $stats['assists']; ?></span><span class="stat__label"><?php esc_html_e( 'Assists', 'talenttrack' ); ?></span></div>
-        <div class="stat"><span class="stat__num"><?php echo esc_html( $stats['avg_rating'] !== null ? number_format_i18n( (float) $stats['avg_rating'], 1 ) : '—' ); ?></span><span class="stat__label"><?php esc_html_e( 'Gem. score', 'talenttrack' ); ?></span></div>
+        <div class="stat"><span class="stat__num"><?php echo esc_html( $stats['avg_rating'] !== null ? number_format_i18n( (float) $stats['avg_rating'], 1 ) : '—' ); ?></span><span class="stat__label"><?php echo esc_html_x( 'Avg. score', 'goal intake print', 'talenttrack' ); ?></span></div>
     </section>
 
-    <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Terugblik', 'talenttrack' ); ?></h2></div>
+    <div class="section-h"><h2 class="section-h__title"><?php echo esc_html_x( 'Looking back', 'goal intake print', 'talenttrack' ); ?></h2></div>
 
     <section class="lookback">
         <?php foreach ( $lookback as $card ) : ?>
             <div class="lookback__card">
                 <p class="lookback__card-title"><?php echo esc_html( (string) $card['title'] ); ?></p>
                 <?php if ( empty( $card['items'] ) ) : ?>
-                    <p style="color: var(--ink-soft); font-size: 10pt; font-style: italic;"><?php esc_html_e( 'Geen gegevens vorig seizoen.', 'talenttrack' ); ?></p>
+                    <p style="color: var(--ink-soft); font-size: 10pt; font-style: italic;"><?php esc_html_e( 'No data from last season.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <ul>
                         <?php foreach ( $card['items'] as $item ) : ?>
@@ -454,7 +454,7 @@ class PlayerGoalIntakePrintRouter {
 
     <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Reflection — in the player\'s own words', 'talenttrack' ); ?></h2></div>
     <section class="reflection">
-        <p class="reflection__label"><?php esc_html_e( 'Speler schrijft / trainer noteert:', 'talenttrack' ); ?></p>
+        <p class="reflection__label"><?php esc_html_e( 'Player writes / coach notes:', 'talenttrack' ); ?></p>
         <div class="write-line"></div>
         <div class="write-line"></div>
         <div class="write-line"></div>
@@ -462,7 +462,7 @@ class PlayerGoalIntakePrintRouter {
 
     <div class="paper-footer">
         <span><?php echo esc_html( $name ); ?> · <?php echo esc_html( (string) ( $player->team_name ?? '' ) ); ?></span>
-        <span><?php esc_html_e( 'Pagina 1 van 3 · speler-snapshot', 'talenttrack' ); ?></span>
+        <span><?php esc_html_e( 'Page 1 of 3 · player snapshot', 'talenttrack' ); ?></span>
     </div>
 </article>
 <?php endif; // snapshot ?>
@@ -470,7 +470,7 @@ class PlayerGoalIntakePrintRouter {
 <?php // PAGE 2 — doelen 1 + 2. #1313 — only emit if at least one goal block on this page is selected. ?>
 <?php if ( $blocks['doel1'] || $blocks['doel2'] ) : ?>
 <article class="paper">
-    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
+    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · season intake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Goals 1 + 2 · fill in during the conversation.', 'talenttrack' ); ?></small>
     </h1>
@@ -480,7 +480,7 @@ class PlayerGoalIntakePrintRouter {
 
     <div class="paper-footer">
         <span><?php echo esc_html( $name ); ?> · <?php echo esc_html( (string) ( $player->team_name ?? '' ) ); ?></span>
-        <span><?php esc_html_e( 'Pagina 2 van 3 · doelen 1 + 2', 'talenttrack' ); ?></span>
+        <span><?php esc_html_e( 'Page 2 of 3 · goals 1 + 2', 'talenttrack' ); ?></span>
     </div>
 </article>
 <?php endif; // doel1 || doel2 ?>
@@ -488,9 +488,9 @@ class PlayerGoalIntakePrintRouter {
 <?php // PAGE 3 — doel 3 + afronding. #1313 — only emit if at least one block on this page is selected. ?>
 <?php if ( $blocks['doel3'] || $blocks['afsluiting'] || $blocks['handtekeningen'] || $blocks['reminder'] ) : ?>
 <article class="paper">
-    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
+    <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · season intake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
-        <small><?php esc_html_e( 'Doel 3 · afsluitende reflectie · ondertekening.', 'talenttrack' ); ?></small>
+        <small><?php esc_html_e( 'Goal 3 · closing reflection · signatures.', 'talenttrack' ); ?></small>
     </h1>
 
     <?php if ( $blocks['doel3'] ) self::renderGoalBox( 3 ); ?>
@@ -507,7 +507,7 @@ class PlayerGoalIntakePrintRouter {
     <section class="signatures">
         <div class="sig">
             <div class="sig__line"></div>
-            <p class="sig__label"><?php esc_html_e( 'Speler', 'talenttrack' ); ?> · <?php echo esc_html( $name ); ?></p>
+            <p class="sig__label"><?php echo esc_html_x( 'Player', 'goal intake print', 'talenttrack' ); ?> · <?php echo esc_html( $name ); ?></p>
         </div>
         <div class="sig">
             <div class="sig__line"></div>
@@ -515,7 +515,7 @@ class PlayerGoalIntakePrintRouter {
         </div>
         <div class="sig">
             <div class="sig__line"></div>
-            <p class="sig__label"><?php esc_html_e( 'Datum gesprek', 'talenttrack' ); ?></p>
+            <p class="sig__label"><?php echo esc_html_x( 'Conversation date', 'goal intake print', 'talenttrack' ); ?></p>
         </div>
     </section>
     <?php endif; ?>
@@ -529,7 +529,7 @@ class PlayerGoalIntakePrintRouter {
 
     <div class="paper-footer">
         <span><?php echo esc_html( $name ); ?> · <?php echo esc_html( (string) ( $player->team_name ?? '' ) ); ?></span>
-        <span><?php esc_html_e( 'Pagina 3 van 3 · doel 3 + afronding', 'talenttrack' ); ?></span>
+        <span><?php esc_html_e( 'Page 3 of 3 · goal 3 + wrap-up', 'talenttrack' ); ?></span>
     </div>
 </article>
 <?php endif; // page 3 has any block ?>
@@ -543,34 +543,34 @@ class PlayerGoalIntakePrintRouter {
             <div class="goal__head">
                 <span class="goal__num"><?php echo (int) $num; ?></span>
                 <div class="goal__categories">
-                    <span class="goal__cat"><?php esc_html_e( 'Technisch', 'talenttrack' ); ?></span>
-                    <span class="goal__cat"><?php esc_html_e( 'Tactisch',  'talenttrack' ); ?></span>
-                    <span class="goal__cat"><?php esc_html_e( 'Fysiek',    'talenttrack' ); ?></span>
-                    <span class="goal__cat"><?php esc_html_e( 'Mentaal',   'talenttrack' ); ?></span>
+                    <span class="goal__cat"><?php echo esc_html_x( 'Technical', 'goal intake print', 'talenttrack' ); ?></span>
+                    <span class="goal__cat"><?php echo esc_html_x( 'Tactical', 'goal intake print', 'talenttrack' ); ?></span>
+                    <span class="goal__cat"><?php echo esc_html_x( 'Physical', 'goal intake print', 'talenttrack' ); ?></span>
+                    <span class="goal__cat"><?php echo esc_html_x( 'Mental', 'goal intake print', 'talenttrack' ); ?></span>
                 </div>
             </div>
 
             <div class="goal__field">
-                <p class="goal__field-label"><?php esc_html_e( 'Doelomschrijving', 'talenttrack' ); ?> <small><?php esc_html_e( 'the SMART sentence you write together', 'talenttrack' ); ?></small></p>
+                <p class="goal__field-label"><?php echo esc_html_x( 'Goal description', 'goal intake print', 'talenttrack' ); ?> <small><?php esc_html_e( 'the SMART sentence you write together', 'talenttrack' ); ?></small></p>
                 <div class="write-line"></div>
                 <div class="write-line"></div>
             </div>
 
             <div class="goal__row">
                 <div class="goal__field">
-                    <p class="goal__field-label"><?php esc_html_e( 'Gekoppeld(e) spelprincipe(s)', 'talenttrack' ); ?></p>
+                    <p class="goal__field-label"><?php echo esc_html_x( 'Linked game principle(s)', 'goal intake print', 'talenttrack' ); ?></p>
                     <div class="goal__codes">
                         <span class="goal__code-box"></span>
                         <span class="goal__code-box"></span>
-                        <small><?php esc_html_e( 'bijv. AO-01, VS-03', 'talenttrack' ); ?></small>
+                        <small><?php esc_html_e( 'e.g. AO-01, VS-03', 'talenttrack' ); ?></small>
                     </div>
                 </div>
                 <div class="goal__field">
-                    <p class="goal__field-label"><?php esc_html_e( 'Gekoppelde voetbalhandeling(en)', 'talenttrack' ); ?></p>
+                    <p class="goal__field-label"><?php echo esc_html_x( 'Linked football action(s)', 'goal intake print', 'talenttrack' ); ?></p>
                     <div class="goal__codes goal__codes--actions">
                         <span class="goal__code-box"></span>
                         <span class="goal__code-box"></span>
-                        <small><?php esc_html_e( 'bijv. Passen, Vrijlopen', 'talenttrack' ); ?></small>
+                        <small><?php esc_html_e( 'e.g. Passing, Getting free', 'talenttrack' ); ?></small>
                     </div>
                 </div>
             </div>
@@ -590,11 +590,11 @@ class PlayerGoalIntakePrintRouter {
             <div class="goal__footer">
                 <div class="goal__footer-cell">
                     <div class="write-line"></div>
-                    <p class="goal__footer-cell-label"><?php esc_html_e( 'Eerste check-in datum', 'talenttrack' ); ?></p>
+                    <p class="goal__footer-cell-label"><?php echo esc_html_x( 'First check-in date', 'goal intake print', 'talenttrack' ); ?></p>
                 </div>
                 <div class="goal__footer-cell">
                     <div class="write-line"></div>
-                    <p class="goal__footer-cell-label"><?php esc_html_e( 'Eigenaar (speler / trainer / beide)', 'talenttrack' ); ?></p>
+                    <p class="goal__footer-cell-label"><?php esc_html_e( 'Owner (player / coach / both)', 'talenttrack' ); ?></p>
                 </div>
             </div>
         </article>
@@ -611,9 +611,9 @@ class PlayerGoalIntakePrintRouter {
 
     private static function footLabel( string $foot ): string {
         $f = strtolower( trim( $foot ) );
-        if ( $f === 'right' || $f === 'rechts' ) return __( 'Rechts', 'talenttrack' );
-        if ( $f === 'left'  || $f === 'links'  ) return __( 'Links',  'talenttrack' );
-        if ( $f === 'both'  || $f === 'beide'  ) return __( 'Beide',  'talenttrack' );
+        if ( $f === 'right' || $f === 'rechts' ) return _x( 'Right', 'goal intake print: preferred foot', 'talenttrack' );
+        if ( $f === 'left'  || $f === 'links'  ) return _x( 'Left', 'goal intake print: preferred foot', 'talenttrack' );
+        if ( $f === 'both'  || $f === 'beide'  ) return _x( 'Both', 'goal intake print: preferred foot', 'talenttrack' );
         return $foot !== '' ? $foot : '—';
     }
 
@@ -738,10 +738,10 @@ class PlayerGoalIntakePrintRouter {
         }, (array) $goal_rows );
 
         return [
-            [ 'title' => __( 'Sterke punten vorig seizoen (mediaan eval)', 'talenttrack' ), 'items' => $strong ],
-            [ 'title' => __( 'Ontwikkelpunten',                            'talenttrack' ), 'items' => $weak ],
+            [ 'title' => __( 'Strengths last season (median evaluation)', 'talenttrack' ), 'items' => $strong ],
+            [ 'title' => _x( 'Development points', 'goal intake print', 'talenttrack' ), 'items' => $weak ],
             [ 'title' => __( 'Goals from last season',                     'talenttrack' ), 'items' => $goals ],
-            [ 'title' => __( 'Trainersnotities',                           'talenttrack' ), 'items' => [] ],
+            [ 'title' => _x( 'Coach notes', 'goal intake print', 'talenttrack' ), 'items' => [] ],
         ];
     }
 
@@ -877,7 +877,7 @@ CSS;
 
         return self::renderPicker(
             sprintf( __( 'Goals intake — %1$s — choose blocks', 'talenttrack' ), $name ),
-            sprintf( __( 'Speler: %1$s · Seizoen %2$s', 'talenttrack' ), $name, $season ),
+            sprintf( __( 'Player: %1$s · Season %2$s', 'talenttrack' ), $name, $season ),
             [
                 'tt_goal_intake_print' => 1,
                 'player_id'            => $player_id,
@@ -924,10 +924,10 @@ CSS;
         ], home_url( '/' ) );
 
         return self::renderPicker(
-            sprintf( __( 'Seizoens-intakes — %1$s — kies blokken', 'talenttrack' ), (string) $team->name ),
+            sprintf( __( 'Season intakes — %1$s — choose blocks', 'talenttrack' ), (string) $team->name ),
             sprintf(
                 /* translators: 1: team name, 2: season, 3: player count */
-                __( 'Team: %1$s · Seizoen %2$s · %3$d spelers', 'talenttrack' ),
+                __( 'Team: %1$s · Season %2$s · %3$d players', 'talenttrack' ),
                 (string) $team->name, $season, $player_count
             ),
             [
@@ -951,13 +951,13 @@ CSS;
         $cancel_url = wp_get_referer() ?: home_url( '/' );
 
         $block_labels = [
-            'snapshot'       => __( 'Snapshot (foto, stats, terugblik, reflectie)',     'talenttrack' ),
-            'doel1'          => __( 'Doel 1',                                            'talenttrack' ),
-            'doel2'          => __( 'Doel 2',                                            'talenttrack' ),
-            'doel3'          => __( 'Doel 3',                                            'talenttrack' ),
+            'snapshot'       => __( 'Snapshot (photo, stats, looking back, reflection)', 'talenttrack' ),
+            'doel1'          => _x( 'Goal 1', 'goal intake print', 'talenttrack' ),
+            'doel2'          => _x( 'Goal 2', 'goal intake print', 'talenttrack' ),
+            'doel3'          => _x( 'Goal 3', 'goal intake print', 'talenttrack' ),
             'afsluiting'     => __( 'Wrap-up (reflection: 1 thing to take away)',      'talenttrack' ),
-            'handtekeningen' => __( 'Handtekeningen (speler / trainer / datum)',         'talenttrack' ),
-            'reminder'       => __( 'Trainer-reminder (CTA-note)',                       'talenttrack' ),
+            'handtekeningen' => __( 'Signatures (player / coach / date)', 'talenttrack' ),
+            'reminder'       => __( 'Coach reminder (CTA note)', 'talenttrack' ),
         ];
 
         ob_start();
@@ -997,8 +997,8 @@ CSS;
         </fieldset>
 
         <div class="picker__actions">
-            <button type="submit" class="picker__btn picker__btn--primary"><?php esc_html_e( 'Print geselecteerde blokken', 'talenttrack' ); ?></button>
-            <a class="picker__btn picker__btn--secondary" href="<?php echo esc_url( $print_all_url ); ?>"><?php esc_html_e( 'Print alles', 'talenttrack' ); ?></a>
+            <button type="submit" class="picker__btn picker__btn--primary"><?php echo esc_html_x( 'Print selected blocks', 'goal intake print', 'talenttrack' ); ?></button>
+            <a class="picker__btn picker__btn--secondary" href="<?php echo esc_url( $print_all_url ); ?>"><?php echo esc_html_x( 'Print all', 'goal intake print', 'talenttrack' ); ?></a>
             <a class="picker__btn picker__btn--ghost" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
         </div>
     </form>
