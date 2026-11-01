@@ -1,4 +1,4 @@
-# Tournament squads follow the planner's teams; a tournament's team stays fixed
+# Tournament squads follow the planner's teams; a tournament's team stays fixed (#4636)
 
 Bump: patch
 
