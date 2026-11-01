@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend\Components;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -27,6 +28,21 @@ use TT\Shared\Dates\TTDate;
  *     rules in frontend-app-chrome.css
  */
 final class MinutesBreakdown {
+
+	/**
+	 * #4536 — the label for a stored match-type key (`game_subtype_key`),
+	 * read through the `game_subtype` lookup the way the activity wizard
+	 * shows it, so a club that renamed a type sees its own name here too.
+	 * The `unknown` bucket the minutes queries give a match with no type
+	 * keeps its key and gets a translated label. Shared by the per-match
+	 * rows and the team report's columns and filter.
+	 */
+	public static function typeLabel( string $type_key ): string {
+		if ( $type_key === '' || $type_key === 'unknown' ) {
+			return _x( 'No type', 'match type', 'talenttrack' );
+		}
+		return LookupTranslator::byTypeAndName( 'game_subtype', $type_key );
+	}
 
 	/**
 	 * Echo the breakdown table for one player.
@@ -73,7 +89,7 @@ final class MinutesBreakdown {
 			$out .= '<tr>';
 			$out .= '<td>' . esc_html( TTDate::date( (string) $b['session_date'] ) ) . '</td>';
 			$out .= '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
-			$out .= '<td>' . esc_html( (string) $b['type_key'] ) . '</td>';
+			$out .= '<td>' . esc_html( self::typeLabel( (string) $b['type_key'] ) ) . '</td>';
 			$out .= '<td>' . esc_html( $source ) . '</td>';
 			$out .= '<td class="num">' . (int) $b['minutes'] . '</td>';
 			$out .= '</tr>';
