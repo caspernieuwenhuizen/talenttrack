@@ -1,0 +1,207 @@
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "You do not build reports."
+msgstr "Je bouwt geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "You do not build reports for any team."
+msgstr "Je bouwt voor geen enkel team rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "Only a builder for every team builds a report about the whole academy."
+msgstr "Alleen wie voor alle teams bouwt, bouwt een rapport over de hele academie."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "This team is not one you build reports for."
+msgstr "Voor dit team bouw je geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "This player is not one you build reports for."
+msgstr "Voor deze speler bouw je geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report is not shared with you."
+msgstr "Dit rapport is niet met jou gedeeld."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "A draft is read only by the people who build the report."
+msgstr "Een concept lezen alleen de mensen die het rapport bouwen."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report has not been published yet."
+msgstr "Dit rapport is nog niet gepubliceerd."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This group has no teams."
+msgstr "Deze groep heeft geen teams."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report is about a fixed subject."
+msgstr "Dit rapport gaat over een vast onderwerp."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report covers a set period."
+msgstr "Dit rapport beslaat een vaste periode."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "The definition must be an object."
+msgstr "De opbouw moet een object zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A definition does not accept: %s."
+msgstr "Een opbouw accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "The blocks must be a list."
+msgstr "De blokken moeten een lijst zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A report holds at most %d blocks."
+msgstr "Een rapport bevat hoogstens %d blokken."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Every block must be an object."
+msgstr "Elk blok moet een object zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A block does not accept: %s."
+msgstr "Een blok accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A definition may be at most %d bytes."
+msgstr "Een opbouw mag hoogstens %d bytes zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+#, php-format
+msgid "A report name is at most %d characters."
+msgstr "Een rapportnaam is hoogstens %d tekens."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report about the whole academy is for staff only."
+msgstr "Een rapport over de hele academie is alleen voor staf."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A dashboard follows the calendar: its period cannot be fixed."
+msgstr "Een dashboard volgt de kalender: de periode kan niet vastliggen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report that is mailed or shared with the family is laid out in rows."
+msgstr "Een rapport dat wordt gemaild of met het gezin wordt gedeeld, is in rijen opgemaakt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report published for a role is chosen when opened or follows the viewer, so each reader sees their own subject."
+msgstr "Een rapport dat voor een rol is gepubliceerd, wordt bij het openen gekozen of volgt de kijker, zodat elke lezer zijn eigen onderwerp ziet."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "You may build this report for yourself, not publish it for a role."
+msgstr "Je mag dit rapport voor jezelf bouwen, niet voor een rol publiceren."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Only a report about me, a player or a team can follow the viewer."
+msgstr "Alleen een rapport over mij, een speler of een team kan de kijker volgen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Choose which period the report rolls with."
+msgstr "Kies met welke periode het rapport meeschuift."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A fixed period is a from and a to date (YYYY-MM-DD/YYYY-MM-DD), from first."
+msgstr "Een vaste periode is een begin- en een einddatum (JJJJ-MM-DD/JJJJ-MM-DD), het begin eerst."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A group is chosen by team, with an age group or a position if you want one."
+msgstr "Een groep kies je per team, met een leeftijdsgroep of een positie als je dat wilt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Every team in the group must be a team id."
+msgstr "Elk team in de groep moet een team-id zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Choose at least one team for the group."
+msgstr "Kies minstens één team voor de groep."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report is a report or a dashboard."
+msgstr "Een rapport is een rapport of een dashboard."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The subject is fixed, chosen when opened, or follows the viewer."
+msgstr "Het onderwerp ligt vast, wordt bij het openen gekozen of volgt de kijker."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The period is fixed, rolling, or chosen when opened."
+msgstr "De periode ligt vast, schuift mee of wordt bij het openen gekozen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The layout is rows or grid."
+msgstr "De opmaak is rijen of raster."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Sharing is only me, a role, a scheduled mail, or the family."
+msgstr "Delen is alleen ik, een rol, een geplande mail of het gezin."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "The report could not be saved."
+msgstr "Het rapport kon niet worden opgeslagen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "Send a name or a definition to change."
+msgstr "Stuur een naam of een opbouw om te wijzigen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "The revision is a whole number."
+msgstr "De revisie is een geheel getal."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report is not archived."
+msgstr "Dit rapport is niet gearchiveerd."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "There is no such version of this report."
+msgstr "Deze versie van dit rapport bestaat niet."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "A version note is at most 500 characters."
+msgstr "Een versienotitie is hoogstens 500 tekens."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "A report is published to staff roles only."
+msgstr "Een rapport wordt alleen voor stafrollen gepubliceerd."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "You may publish this report for yourself, not for others."
+msgstr "Je mag dit rapport voor jezelf publiceren, niet voor anderen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report was made to be shared only with you."
+msgstr "Dit rapport is gemaakt om alleen met jou te delen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "Someone published this report at the same moment. Try again."
+msgstr "Iemand publiceerde dit rapport op hetzelfde moment. Probeer het opnieuw."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "You may read this report, not change it."
+msgstr "Je mag dit rapport lezen, niet wijzigen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report was changed elsewhere. Reload it before saving again."
+msgstr "Dit rapport is ergens anders gewijzigd. Laad het opnieuw voordat je weer opslaat."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Report Studio: build reports"
+msgstr "Report Studio: rapporten bouwen"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Report Studio: publish to a role"
+msgstr "Report Studio: voor een rol publiceren"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgctxt "a Report Studio report"
+msgid "Report"
+msgstr "Rapport"

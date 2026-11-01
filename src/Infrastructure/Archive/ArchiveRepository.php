@@ -68,6 +68,9 @@ class ArchiveRepository {
         // never be purged by the retention cron. That hole is what a bespoke
         // hard-delete button on the LIVE record grew to fill.
         'pdp_file'               => 'tt_pdp_files',
+        // #4569 — a Report Studio report. Deleting it archives; the bin
+        // restores or purges it with its drafts, versions and publications.
+        'report'                 => 'tt_reports',
     ];
 
     /**

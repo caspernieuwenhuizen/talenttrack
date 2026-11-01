@@ -192,6 +192,29 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             ), ARRAY_A )
             : [];
 
+        // #4569 — Report Studio reports built about this player, with every
+        // builder's draft of them: a draft is what someone is writing about
+        // the player, published or not.
+        $studio_reports = TableExists::has( 'tt_reports' )
+            ? $wpdb->get_results( $wpdb->prepare(
+                "SELECT uuid, name, kind, scope, audience, period_mode, period_value, owner_user_id, created_at, updated_at, archived_at
+                    FROM {$p}tt_reports
+                    WHERE player_id = %d AND club_id = %d AND trashed_at IS NULL
+                    ORDER BY created_at ASC, id ASC",
+                $player_id, (int) $request->clubId
+            ), ARRAY_A )
+            : [];
+        $studio_drafts = TableExists::has( 'tt_report_drafts' ) && TableExists::has( 'tt_reports' )
+            ? $wpdb->get_results( $wpdb->prepare(
+                "SELECT r.uuid AS report_uuid, d.user_id, d.definition_json, d.revision, d.updated_at
+                    FROM {$p}tt_report_drafts d
+                    INNER JOIN {$p}tt_reports r ON r.id = d.report_id AND r.club_id = d.club_id
+                    WHERE r.player_id = %d AND r.club_id = %d AND r.trashed_at IS NULL
+                    ORDER BY d.updated_at ASC, d.id ASC",
+                $player_id, (int) $request->clubId
+            ), ARRAY_A )
+            : [];
+
         // Render the standard evaluation report PDF inline so the
         // recipient sees something human-readable alongside the JSON
         // dumps. We synthesise a sub-request that the v3.110.4 exporter
@@ -213,6 +236,10 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
                 'files_included' => false,
                 'note'           => __( 'The academy holds the photographs and video listed below. The files themselves are not included in this export — ask the academy for them.', 'talenttrack' ),
                 'items'          => $media ?: [],
+            ] ),
+            'studio_reports.json' => self::jsonPretty( [
+                'reports' => $studio_reports ?: [],
+                'drafts'  => $studio_drafts ?: [],
             ] ),
             'README.txt'       => self::readme( $player, $request ),
         ];
@@ -239,6 +266,8 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
                 'comms'        => is_array( $comms ) ? count( $comms ) : 0,
                 'parents'      => is_array( $parents ) ? count( $parents ) : 0,
                 'media'        => is_array( $media ) ? count( $media ) : 0,
+                'studio_reports' => is_array( $studio_reports ) ? count( $studio_reports ) : 0,
+                'studio_drafts'  => is_array( $studio_drafts ) ? count( $studio_drafts ) : 0,
             ],
             'media_note' => __( 'media.json lists the photographs and video held of this player. The files themselves are not included — request them from the academy.', 'talenttrack' ),
             'tombstones_note' => __( 'comms_log rows with empty address_blob and subject reflect GDPR retention tombstoning (#0066) — the audit fact is preserved without the PII payload.', 'talenttrack' ),
@@ -314,6 +343,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             '  - comms_log.json — outbound messages about this player (tombstoned rows excluded; see tombstones_note in MANIFEST.json)',
             '  - parents.json — linked parent user ids',
             '  - media.json — photographs and video held of this player (a listing; the files are not in this archive)',
+            '  - studio_reports.json — Report Studio reports built about this player, and every draft of them',
             '  - evaluation_report.pdf — rendered evaluation report (human-readable)',
             '',
             // Said plainly, because a listing without this reads as though

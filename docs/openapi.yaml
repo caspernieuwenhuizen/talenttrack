@@ -397,6 +397,66 @@ paths:
         '404': { description: not_found — no such block, or no data for this subject }
         '413': { description: body_too_large }
 
+  /reports:
+    get:
+      tags: [report-studio]
+      summary: Stored Report Studio reports — mine, and the ones published to a persona I hold
+      description: 'Cap required: `tt_view_reports` and the `report_studio` feature and plan feature. Filters `kind`, `scope`, `owner` (me | published) and `archived` (active | archived), plainly or as `filter[...]`; `page`, `per_page` (10, 25, 50, 100), `order` (desc | asc, on the id).'
+      responses:
+        '200': { description: 'OK — rows, total, page, per_page' }
+        '400': { description: bad_filter }
+        '402': { description: license_required }
+    post:
+      tags: [report-studio]
+      summary: Create a report from its seven starting choices
+      description: 'Cap required: `tt_build_reports`. Body — kind, scope, binding, audience, period_mode, period_value, layout, sharing, name, player_id / team_id / cohort. Validated by the start rules; the subject must be one the caller builds for.'
+      responses:
+        '201': { description: Created }
+        '400': { description: 'invalid_field with details.field, or unknown_field' }
+        '402': { description: license_required }
+        '403': { description: 'forbidden_team, forbidden_player or forbidden_scope' }
+
+  /reports/{id}:
+    get:
+      tags: [report-studio]
+      summary: One report; the caller's own draft and its persona keys when they build it
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: forbidden — not built by or published to the caller }, '404': { description: not_found } }
+    patch:
+      tags: [report-studio]
+      summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
+      description: 'Body — name, definition, revision. A stale revision is 409 stale_revision with details.current_revision.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field or no_writable_field' }, '403': { description: forbidden }, '409': { description: stale_revision } }
+    delete:
+      tags: [report-studio]
+      summary: Archive the report
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '403': { description: forbidden } }
+
+  /reports/{id}/restore:
+    post: { tags: [report-studio], summary: Un-archive the report, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: not_found — not archived } } }
+
+  /reports/{id}/draft:
+    post: { tags: [report-studio], summary: 'Replace the caller''s draft with a version''s definition (body — from_version)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: not_found — no such version } } }
+
+  /reports/{id}/versions:
+    get: { tags: [report-studio], summary: 'The published versions, newest first', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    post:
+      tags: [report-studio]
+      summary: Publish the caller's draft as the next version
+      description: 'Body — note, persona_keys. Publishing to a persona needs `tt_publish_reports` and a report made for a role; staff personas only. A concurrent publish is 409 version_conflict.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '201': { description: Created }, '400': { description: invalid_field }, '403': { description: forbidden_publish }, '409': { description: version_conflict } }
+
+  /reports/{id}/data:
+    get:
+      tags: [report-studio]
+      summary: Every block's data for the caller
+      description: 'Query — source (draft | published), player_id / team_id for a subject chosen when opened, from / to for a period chosen when opened. A recipient cannot change a fixed subject or period. Each block is read through the block engine, which checks the subject on every call.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field or bad_date' }, '403': { description: 'forbidden, forbidden_team, forbidden_player, forbidden_scope, fixed_subject or fixed_period' }, '404': { description: not_published } }
+
   /teams:
     get: { tags: [teams], summary: List teams, responses: { '200': { description: OK } } }
     post: { tags: [teams], summary: Create team, responses: { '201': { description: Created } } }

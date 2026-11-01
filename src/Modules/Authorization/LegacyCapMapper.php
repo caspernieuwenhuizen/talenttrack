@@ -320,6 +320,11 @@ final class LegacyCapMapper {
         // to the same matrix entity; HoD holds RC, academy_admin RCD.
         'tt_author_custom_widgets'       => [ 'custom_widgets',        'change' ],
         'tt_manage_custom_widgets'       => [ 'custom_widgets',        'create_delete' ],
+        // #4569 — the Report Studio. Building and publishing are separate
+        // entities because publishing reaches other people. Both caps are
+        // club-wide; the routes check the report's subject on every call.
+        'tt_build_reports'               => [ 'report_studio',         'create_delete' ],
+        'tt_publish_reports'             => [ 'report_publishing',     'create_delete' ],
         // #0090 Phase 1 — data-row i18n. One cap covers per-club
         // translation editing. Granted to HoD + admin via ensureCapabilities().
         'tt_edit_translations'           => [ 'translations',          'change' ],

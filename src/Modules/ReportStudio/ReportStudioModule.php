@@ -10,6 +10,7 @@ use TT\Modules\ReportStudio\Blocks\OwnQuestionBlock;
 use TT\Modules\ReportStudio\Blocks\PlayingTimeBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
+use TT\Modules\ReportStudio\Rest\ReportsRestController;
 
 /**
  * ReportStudioModule (#4568, epic #4564) — one builder for reports and
@@ -28,5 +29,6 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new AttendancePerWeekBlock() );
         BlockRegistry::register( new OwnQuestionBlock() );
         ReportBlocksRestController::init();
+        ReportsRestController::init();
     }
 }

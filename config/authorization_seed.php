@@ -79,6 +79,8 @@ $mod_custom_css       = class_exists( '\TT\Modules\CustomCss\CustomCssModule' ) 
 $mod_translations     = class_exists( '\TT\Modules\Translations\TranslationsModule' ) ? \TT\Modules\Translations\TranslationsModule::class : $mod_authorization;
 $mod_prospects        = class_exists( '\TT\Modules\Prospects\ProspectsModule' )       ? \TT\Modules\Prospects\ProspectsModule::class     : $mod_authorization;
 $mod_custom_widgets   = class_exists( '\TT\Modules\CustomWidgets\CustomWidgetsModule' ) ? \TT\Modules\CustomWidgets\CustomWidgetsModule::class : $mod_authorization;
+// #4569 — Report Studio storage. Falls back like the modules above.
+$mod_report_studio    = class_exists( '\TT\Modules\ReportStudio\ReportStudioModule' ) ? \TT\Modules\ReportStudio\ReportStudioModule::class : $mod_authorization;
 $mod_i18n             = class_exists( '\TT\Modules\I18n\I18nModule' )                     ? \TT\Modules\I18n\I18nModule::class                     : $mod_authorization;
 // #0095 — VCT module class shortcut. The module ships later in the
 // epic (VCT-5 onwards introduces VctModule); until then the class
@@ -300,6 +302,9 @@ return array_merge(
         // since #3955 retired the report wizard (#3985). `change` is
         // deliberately omitted (no edit-existing-report surface).
         'reports'                    => [ 'rd',  'team',   $mod_reports ],
+        // #4569 — owner decision: an assistant coach builds Studio reports
+        // about the teams they coach, as the head coach does. No publishing.
+        'report_studio'              => [ 'rcd', 'team',   $mod_report_studio ],
         // #1106 — `rate_cards` + `compare` removed. Both aggregate
         // evaluation data #1060 stripped from AC; same loophole #1105
         // closed for `podium_panel`. `reports` stays — it's a surface
@@ -465,6 +470,9 @@ return array_merge(
         // `PlayerReportAccess` since #3955 retired the wizard (#3985).
         // No `change`.
         'reports'                    => [ 'rd',  'team',   $mod_reports ],
+        // #4569 — builds Studio reports about the teams they coach; the
+        // subject is checked against the team on every route.
+        'report_studio'              => [ 'rcd', 'team',   $mod_report_studio ],
         'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
         'compare'                    => [ 'r',   'team',   $mod_stats ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
@@ -856,6 +864,9 @@ return array_merge(
         // `global` scope (HoD oversees the whole academy). No `change` — there
         // is no edit-existing-report surface, only generate (create) + read.
         'reports'                       => [ 'rd',  'global', $mod_reports ],
+        // #4569 — the Report Studio: building, and publishing to a role.
+        'report_studio'                 => [ 'rcd', 'global', $mod_report_studio ],
+        'report_publishing'             => [ 'rcd', 'global', $mod_report_studio ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
@@ -1030,6 +1041,9 @@ return array_merge(
         // from the People page; full `rcd` globally. Raw holder: tt_club_admin.
         'email_compose'                 => [ 'rcd', 'global', $mod_comms ],
         'reports'                       => [ 'rcd', 'global', $mod_reports ],
+        // #4569 — the Report Studio: building, and publishing to a role.
+        'report_studio'                 => [ 'rcd', 'global', $mod_report_studio ],
+        'report_publishing'             => [ 'rcd', 'global', $mod_report_studio ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],

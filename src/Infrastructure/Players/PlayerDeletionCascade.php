@@ -136,6 +136,11 @@ class PlayerDeletionCascade {
                 [ 'tt_trial_case_staff_inputs', 'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_extensions',        'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_case_checklist',    'trial_case_id', 'tt_trial_cases', 'id' ],
+                // #4569 — a Studio report about the player goes with the
+                // sweep below; its drafts, versions and publications first.
+                [ 'tt_report_drafts',           'report_id',   'tt_reports',      'id' ],
+                [ 'tt_report_versions',         'report_id',   'tt_reports',      'id' ],
+                [ 'tt_report_publications',     'report_id',   'tt_reports',      'id' ],
             ];
             foreach ( $children as [ $child, $fk, $parent, $pk ] ) {
                 if ( ! TableExists::has( $child ) || ! TableExists::has( $parent ) ) continue;

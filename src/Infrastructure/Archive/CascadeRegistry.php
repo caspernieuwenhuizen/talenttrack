@@ -221,6 +221,23 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Report (#4569) — a Report Studio report owns every builder's
+        // draft of it, its published versions and the list of personas it
+        // is published to. Nothing outside the Studio references it.
+        'report' => [
+            'table'        => 'tt_reports',
+            'ref_columns'  => [ 'report_id' ],
+            'cascade'      => [
+                [ 'tt_report_drafts', 'report_id' ],
+                [ 'tt_report_versions', 'report_id' ],
+                [ 'tt_report_publications', 'report_id' ],
+            ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
         // Scheduled report (#1808) — standalone recurring-export config;
         // nothing references it, so a permanent delete just removes the row.
         // (#1784 migration 0172 added archived_at/archived_by + backfilled
@@ -278,6 +295,15 @@ final class CascadeRegistry {
                 // refuses team 0 — leaving a row nobody can open and nobody
                 // can purge.
                 [ 'tt_team_report_snapshots', 'team_id' ],
+                // #4569 — a Studio report about this team has nothing left to
+                // show once the team is gone. Its drafts, versions and
+                // publications hang off it and go first (`children`).
+                [ 'tt_reports', 'team_id' ],
+            ],
+            'children'     => [
+                [ 'tt_report_drafts', 'report_id', 'tt_reports', 'id', 'team_id' ],
+                [ 'tt_report_versions', 'report_id', 'tt_reports', 'id', 'team_id' ],
+                [ 'tt_report_publications', 'report_id', 'tt_reports', 'id', 'team_id' ],
             ],
             // #2571 — the team's scope rows. Polymorphic: `scope_id` is a
             // team id only when `scope_type = 'team'`, so it can't go in

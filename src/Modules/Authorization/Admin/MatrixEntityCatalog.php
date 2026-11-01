@@ -196,6 +196,9 @@ final class MatrixEntityCatalog {
             'analytics'                     => __( 'Analytics', 'talenttrack' ),
             // #0078 Phase 5 — custom widget builder.
             'custom_widgets'                => __( 'Custom widgets', 'talenttrack' ),
+            // #4569 — the Report Studio.
+            'report_studio'                 => __( 'Report Studio: build reports', 'talenttrack' ),
+            'report_publishing'             => __( 'Report Studio: publish to a role', 'talenttrack' ),
             // #2020 — recycle bin (archive → trash → purge).
             'recycle_bin'                   => __( 'Recycle bin', 'talenttrack' ),
             // #0090 Phase 1 — data-row translations.

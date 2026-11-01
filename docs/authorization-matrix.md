@@ -642,6 +642,29 @@ The tile therefore has its own entity, used only for tile visibility:
 
 Nothing else changes: the staff personas keep `methodology: read`, and the editor itself still checks `tt_edit_methodology`. Existing installs gain the two rows with migration `0302_authorization_methodology_vocabulary_panel`, which adds them with `INSERT IGNORE` and leaves every row an admin has edited alone.
 
+## Matrix entities `report_studio` and `report_publishing` — building and publishing Studio reports
+
+The Report Studio stores reports and dashboards that a builder puts together from blocks. Two entities govern it, because building a report and publishing it to other people are different rights:
+
+| Entity | Capability it answers | Seeded for |
+| --- | --- | --- |
+| `report_studio` (create/delete) | `tt_build_reports` | **Head coach** and **assistant coach** at **team** scope; **head of development** and **academy admin** at **global** scope |
+| `report_publishing` (create/delete) | `tt_publish_reports` | **Head of development** and **academy admin** at **global** scope only |
+
+Nobody else is seeded: not the team manager, the scout, the observer, the player or the parent.
+
+What the scope means:
+
+- A **team** builder builds reports about the players and teams they coach, and about themselves. They cannot build a report about another team, another team's players or the whole academy, and they only edit their own reports.
+- A **global** builder builds about any team, player or group and about the academy, and may edit any report that is shared beyond its owner. A report its builder kept for themselves stays theirs alone.
+- The capability is club-wide, so holding it never decides one report: every request asks again whether the report's subject is one the user builds for. A coach who leaves a team stops reaching the reports about it.
+
+**Publishing.** A builder can always publish a report for themselves. Publishing it to a role (a persona key such as `head_coach`) needs `report_publishing`. Only staff personas can be chosen: a family sees a shared snapshot, never a live report.
+
+**Reading a published report.** A user reads a published report when they hold one of the personas it was published to and can read what it is about, and each block still checks its subject against them. A coach who leaves the team stops seeing the report, in the list too. Read on `reports` alone is not enough: a scout holds it for every team and still cannot open a report that was not published to scouts.
+
+Existing installs get both entities' rows with the update that adds the Studio's storage (migration `0307_report_studio_storage`). It writes the seed's rows with `INSERT IGNORE`, so a row an admin has edited is left alone and a second run writes nothing.
+
 ## The functional-role axis (#3257, #3433)
 
 The matrix keys on `(persona, entity, activity, scope_kind)`. A physio and a kit manager hold the same `tt_staff` WordPress role, so they resolve to the same persona — `staff` — and **no cell on this grid can tell them apart**. That is not a gap in the seed; it is the shape of the key. #3232's `player_injuries [rc, team]` grant therefore reached every Staff account, including ones issued for entirely non-clinical reasons.
