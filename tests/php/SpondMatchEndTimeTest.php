@@ -39,10 +39,15 @@ final class SpondMatchEndTimeTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( 'kickoff_time', $cols, 'trainings carry no kickoff column' );
     }
 
-    public function test_late_kickoff_end_is_clamped_to_end_of_day(): void {
-        // 22:30 + 105 min = 24:15, which would wrap past midnight; clamp to 23:59.
+    public function test_late_kickoff_end_wraps_past_midnight(): void {
+        // #4529 — 22:30 + 105 min wraps to 00:15 the next day, no longer
+        // clamped to 23:59, and reads as the full 105 minutes.
         $cols = $this->timeColumns( 'game', '22:30:00', '', '' );
-        $this->assertSame( '23:59:00', $cols['end_time'] );
+        $this->assertSame( '00:15:00', $cols['end_time'] );
+        $this->assertSame( 105, \TT\Modules\Activities\Services\ActivityTimeWindow::minutes( '22:30:00', (string) $cols['end_time'] ) );
+
+        $cols = $this->timeColumns( 'game', '18:00:00', '', '' );
+        $this->assertSame( '19:45:00', $cols['end_time'], 'a same-day default is unchanged' );
     }
 
     public function test_match_with_no_start_gets_no_defaulted_end(): void {
