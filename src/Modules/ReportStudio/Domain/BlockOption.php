@@ -50,7 +50,7 @@ final class BlockOption {
             foreach ( $this->choices as $parent => $set ) {
                 $list = [];
                 foreach ( is_array( $set ) ? $set : [] as $value => $label ) {
-                    $list[] = [ 'value' => (string) $value, 'label' => is_string( $label ) ? $label : '' ];
+                    $list[] = [ 'value' => (string) $value, 'label' => $label ];
                 }
                 $choices[ (string) $parent ] = $list;
             }
