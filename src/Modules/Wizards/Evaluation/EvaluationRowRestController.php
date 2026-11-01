@@ -100,6 +100,14 @@ final class EvaluationRowRestController {
                 'message' => __( 'You can only evaluate players in your team.', 'talenttrack' ),
             ], 403 );
         }
+        // The activity sets the evaluation's type and date, and counts it
+        // as rated, so it is one the reader may write.
+        if ( $row['activity_id'] > 0 && ! \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $row['activity_id'] ) ) {
+            return new WP_REST_Response( [
+                'error'   => 'forbidden_team',
+                'message' => __( 'That team is not in your scope.', 'talenttrack' ),
+            ], 403 );
+        }
 
         $result = EvaluationInserter::insert( $row );
         if ( is_wp_error( $result ) ) {

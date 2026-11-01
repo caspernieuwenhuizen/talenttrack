@@ -20,7 +20,8 @@ final class WizardEvaluationWriteScopeTest extends WP_UnitTestCase {
 
     private int $own_player   = 0;
     private int $other_player = 0;
-    private int $own_activity = 0;
+    private int $own_activity   = 0;
+    private int $other_activity = 0;
     private int $coach        = 0;
 
     public function set_up(): void {
@@ -46,6 +47,12 @@ final class WizardEvaluationWriteScopeTest extends WP_UnitTestCase {
             'activity_type_key' => 'training', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
         ] );
         $this->own_activity = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_activities", [
+            'club_id' => $club, 'team_id' => $other_team, 'title' => 'Evalwrite other training',
+            'session_date' => gmdate( 'Y-m-d', (int) strtotime( '-2 days' ) ),
+            'activity_type_key' => 'training', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
+        ] );
+        $this->other_activity = (int) $wpdb->insert_id;
 
         $this->coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $wpdb->insert( "{$p}tt_people", [
@@ -81,6 +88,16 @@ final class WizardEvaluationWriteScopeTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->evaluationsFor( $this->other_player ) );
     }
 
+    public function test_the_row_route_attaches_to_the_coachs_own_activity(): void {
+        $this->assertSame( 201, $this->rowRoute( $this->own_player, $this->own_activity )->get_status() );
+        $this->assertSame( 1, $this->evaluationsFor( $this->own_player ) );
+    }
+
+    public function test_the_row_route_refuses_another_teams_activity(): void {
+        $this->assertSame( 403, $this->rowRoute( $this->own_player, $this->other_activity )->get_status() );
+        $this->assertSame( 0, $this->evaluationsFor( $this->own_player ) );
+    }
+
     public function test_the_player_pick_refuses_another_teams_player(): void {
         $step = new PlayerPickerStep();
         $this->assertIsArray( $step->validate( [ 'player_id' => $this->own_player ], [] ), 'precondition: the own player is a pick' );
@@ -105,12 +122,12 @@ final class WizardEvaluationWriteScopeTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->evaluationsFor( $this->other_player ) );
     }
 
-    private function rowRoute( int $player_id ): \WP_REST_Response {
+    private function rowRoute( int $player_id, int $activity_id = 0 ): \WP_REST_Response {
+        $body = [ 'player_id' => $player_id, 'eval_date' => current_time( 'Y-m-d' ), 'ratings' => [ 1 => 7 ] ];
+        if ( $activity_id > 0 ) $body['activity_id'] = $activity_id;
         $request = new \WP_REST_Request( 'POST', '/talenttrack/v1/wizards/new-evaluation/insert-row' );
         $request->set_header( 'Content-Type', 'application/json' );
-        $request->set_body( (string) wp_json_encode( [
-            'player_id' => $player_id, 'eval_date' => current_time( 'Y-m-d' ), 'ratings' => [ 1 => 7 ],
-        ] ) );
+        $request->set_body( (string) wp_json_encode( $body ) );
         return EvaluationRowRestController::insert( $request );
     }
 
