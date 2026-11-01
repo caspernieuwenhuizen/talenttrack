@@ -36,10 +36,6 @@ final class PdpReadyTemplate extends AbstractTemplate {
                     __( "{player_name}'s PDP is ready", 'talenttrack' ),
                     __( "Hi {recipient_first_name},\n\n{player_name}'s development plan for {season_name} is ready to read.\n\nOpen it here: {deep_link}\n\nThe coaching team", 'talenttrack' ),
                 ],
-                'nl_NL' => [
-                    __( "Het ontwikkelingsplan van {player_name} is klaar", 'talenttrack' ),
-                    __( "Hoi {recipient_first_name},\n\nHet ontwikkelingsplan van {player_name} voor {season_name} is klaar om te lezen.\n\nOpen het hier: {deep_link}\n\nHet coaching team", 'talenttrack' ),
-                ],
             ], $locale );
         }
         return self::pickLocale( [
@@ -47,9 +43,11 @@ final class PdpReadyTemplate extends AbstractTemplate {
                 __( 'PDP ready', 'talenttrack' ),
                 __( "{player_name}'s development plan for {season_name} is ready to read.", 'talenttrack' ),
             ],
+            // A Dutch recipient's short title has its own wording ("Plan
+            // klaar", not "POP klaar"), so it is a separate msgid by context.
             'nl_NL' => [
-                __( 'Plan klaar', 'talenttrack' ),
-                __( "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar.", 'talenttrack' ),
+                _x( 'PDP ready', 'short notification title, Dutch-language recipient', 'talenttrack' ),
+                __( "{player_name}'s development plan for {season_name} is ready to read.", 'talenttrack' ),
             ],
         ], $locale );
     }

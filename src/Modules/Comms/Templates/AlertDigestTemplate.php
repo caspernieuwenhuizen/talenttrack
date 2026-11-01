@@ -38,10 +38,6 @@ final class AlertDigestTemplate extends AbstractTemplate {
                 __( '{alert_count} things need your attention', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nThese need a look:\n\n{alert_lines}\n\nEach one clears itself once the underlying thing is fixed — there is nothing to tick off.\n\nOpen TalentTrack: {deep_link}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( '{alert_count} dingen vragen je aandacht', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nHier moet even naar gekeken worden:\n\n{alert_lines}\n\nElke melding verdwijnt vanzelf zodra het onderliggende is opgelost — je hoeft niets af te vinken.\n\nOpen TalentTrack: {deep_link}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

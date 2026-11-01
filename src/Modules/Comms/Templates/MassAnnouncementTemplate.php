@@ -35,10 +35,6 @@ final class MassAnnouncementTemplate extends AbstractTemplate {
                 __( '{announcement_subject}', 'talenttrack' ),
                 __( "{announcement_body}\n\n— {sender_name}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( '{announcement_subject}', 'talenttrack' ),
-                __( "{announcement_body}\n\n— {sender_name}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

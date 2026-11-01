@@ -31,10 +31,6 @@ final class OnboardingNudgeInactiveTemplate extends AbstractTemplate {
                 __( "What's new on {player_name}", 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nWe haven't seen you log in for a while. Here's what's been happening with {player_name}:\n\n• {recent_evaluations_count} new evaluation(s)\n• {recent_goals_count} new goal(s)\n\nTake a look: {deep_link}\n\nThe coaching team", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( "Wat is er nieuw bij {player_name}", 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nWe hebben je een tijdje niet zien inloggen. Dit is er gebeurd bij {player_name}:\n\n• {recent_evaluations_count} nieuwe evaluatie(s)\n• {recent_goals_count} nieuw(e) doel(en)\n\nKijk eens: {deep_link}\n\nHet coaching team", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

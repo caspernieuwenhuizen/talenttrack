@@ -35,10 +35,6 @@ final class TrialInputReminderTemplate extends AbstractTemplate {
                 __( 'Trial input needed: {player_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nThe trial period for {player_name} runs to {end_date}, and your input on the case is still missing.\n\nGo to the case here: {case_url}\n\nThanks,\n{club_name}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Stage-input gevraagd: {player_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nDe stageperiode van {player_name} loopt tot {end_date} en jouw input op het dossier ontbreekt nog.\n\nGa naar het dossier: {case_url}\n\nDank,\n{club_name}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

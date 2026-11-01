@@ -30,10 +30,6 @@ final class GoalNudgeTemplate extends AbstractTemplate {
                 __( "How's your goal going, {recipient_first_name}?", 'talenttrack' ),
                 __( "You set the goal \"{goal_title}\" {weeks_since_creation} weeks ago. Tap to update your progress: {deep_link}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( "Hoe gaat het met je doel, {recipient_first_name}?", 'talenttrack' ),
-                __( "Je hebt het doel \"{goal_title}\" {weeks_since_creation} weken geleden gesteld. Tik om je voortgang bij te werken: {deep_link}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

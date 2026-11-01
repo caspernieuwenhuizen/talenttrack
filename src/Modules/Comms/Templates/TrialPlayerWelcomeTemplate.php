@@ -48,10 +48,6 @@ final class TrialPlayerWelcomeTemplate extends AbstractTemplate {
                 __( 'Welcome to the trial — {player_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nWelcome! {player_name}'s trial with us starts on {start_date}.\n\nOne of the coaches will be in touch before then with the time, the place and what to bring.\n\nWe're looking forward to seeing what {player_name} can do.\n\nThe coaching team", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Welkom bij de proefperiode — {player_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nWelkom! De proefperiode van {player_name} bij ons begint op {start_date}.\n\nEen van de trainers neemt vóór die tijd contact op met het tijdstip, de plek en wat er mee moet.\n\nWe kijken ernaar uit om te zien wat {player_name} laat zien.\n\nHet trainersteam", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

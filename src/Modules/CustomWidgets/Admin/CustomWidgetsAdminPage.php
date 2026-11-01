@@ -192,6 +192,13 @@ final class CustomWidgetsAdminPage {
                 'cacheTtl'        => __( 'Cache TTL (minutes)', 'talenttrack' ),
                 'aggregation'     => __( 'Aggregation', 'talenttrack' ),
                 'noAggregation'   => __( 'No aggregations available for this source.', 'talenttrack' ),
+                'sourceHelp'      => __( 'Each source declares the columns and filters its widget can use.', 'talenttrack' ),
+                'columnsHelp'     => __( 'Pick the columns this widget should show. Required for table widgets; KPI / bar / line widgets ignore the column list.', 'talenttrack' ),
+                'filtersHelp'     => __( 'Filters are applied at fetch time; leave blank to show everything the source returns.', 'talenttrack' ),
+                'noFilters'       => __( 'This source does not declare any filters.', 'talenttrack' ),
+                'previewHelp'     => __( 'Live preview against the actual data this widget will read on a dashboard. Save to deploy.', 'talenttrack' ),
+                'nameLabel'       => __( 'Name', 'talenttrack' ),
+                'namePlaceholder' => __( 'e.g. Top 10 active players', 'talenttrack' ),
             ],
         ];
 

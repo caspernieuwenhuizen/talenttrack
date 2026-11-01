@@ -30,10 +30,6 @@ final class ScheduleChangeFromSpondTemplate extends AbstractTemplate {
                 __( 'Schedule changed — {activity_title}', 'talenttrack' ),
                 __( "{activity_title} has been rescheduled.\n\nNew date: {new_date} at {new_time}\nNew location: {new_location}\n\nOpen: {deep_link}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Schema gewijzigd — {activity_title}', 'talenttrack' ),
-                __( "{activity_title} is verplaatst.\n\nNieuwe datum: {new_date} om {new_time}\nNieuwe locatie: {new_location}\n\nOpen: {deep_link}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

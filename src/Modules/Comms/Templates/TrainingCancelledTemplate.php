@@ -36,12 +36,20 @@ final class TrainingCancelledTemplate extends AbstractTemplate {
     public function isEditable(): bool { return true; }
 
     protected function defaultCopy( string $channelKey, string $locale ): array {
-        return self::pickLocale( [
-            'en_US' => $this->englishCopy( $channelKey ),
-            'nl_NL' => $this->dutchCopy( $channelKey ),
-        ], $locale );
+        /** @var array<string, array{0:string, 1:string}> $variants */
+        $variants = [ 'en_US' => $this->englishCopy( $channelKey ) ];
+        if ( $channelKey !== 'email' ) {
+            // A Dutch recipient's short message has its own wording, so its
+            // body is a separate msgid by context. The email copy is shared.
+            $variants['nl_NL'] = [
+                __( 'Training cancelled', 'talenttrack' ),
+                _x( '{activity_title} on {date} is cancelled. We will follow up about a replacement.', 'short message, Dutch-language recipient', 'talenttrack' ),
+            ];
+        }
+        return self::pickLocale( $variants, $locale );
     }
 
+    /** @return array{0:string, 1:string} */
     private function englishCopy( string $ch ): array {
         if ( $ch === 'email' ) {
             return [
@@ -53,19 +61,6 @@ final class TrainingCancelledTemplate extends AbstractTemplate {
         return [
             __( 'Training cancelled', 'talenttrack' ),
             __( '{activity_title} on {date} is cancelled. We will follow up about a replacement.', 'talenttrack' ),
-        ];
-    }
-
-    private function dutchCopy( string $ch ): array {
-        if ( $ch === 'email' ) {
-            return [
-                __( 'Training afgelast — {activity_title}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nDe activiteit \"{activity_title}\" op {date} voor {team_name} is afgelast.\n\nWe komen terug op een vervangende sessie.\n\nDank,\nHet coaching team", 'talenttrack' ),
-            ];
-        }
-        return [
-            __( 'Training afgelast', 'talenttrack' ),
-            __( '{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie.', 'talenttrack' ),
         ];
     }
 }

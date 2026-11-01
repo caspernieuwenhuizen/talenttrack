@@ -34,10 +34,6 @@ final class ScheduledReportTemplate extends AbstractTemplate {
                 __( 'Scheduled report: {schedule_name} ({kpi_label})', 'talenttrack' ),
                 __( "Your scheduled report \"{schedule_name}\" is attached.\n\nSee the dashboard for the live view.", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Gepland rapport: {schedule_name} ({kpi_label})', 'talenttrack' ),
-                __( "Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n\nBekijk het dashboard voor de actuele cijfers.", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

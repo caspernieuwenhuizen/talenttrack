@@ -25,10 +25,6 @@ final class ParentMeetingInviteTemplate extends AbstractTemplate {
                 __( 'Parent meeting invitation — {player_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nWe would like to invite you to a parent meeting about {player_name}.\n\nWhen: {meeting_date} at {meeting_time}\nWhere: {meeting_location}\n\nLet us know if the time doesn't work and we'll reschedule.\n\n{coach_name}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Uitnodiging oudergesprek — {player_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nWe nodigen je graag uit voor een oudergesprek over {player_name}.\n\nWanneer: {meeting_date} om {meeting_time}\nWaar: {meeting_location}\n\nLaat het ons weten als de tijd niet schikt, dan plannen we opnieuw.\n\n{coach_name}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }
