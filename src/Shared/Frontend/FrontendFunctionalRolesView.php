@@ -330,7 +330,8 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
 
         $role_options = [];
         foreach ( ( new FunctionalRolesRepository() )->listRoles() as $r ) {
-            $role_options[ (int) $r->id ] = (string) $r->label;
+            // #4523 — the translated label, not the stored English seed.
+            $role_options[ (int) $r->id ] = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $r->role_key ?? '' ), (int) $r->id ) ?? (string) $r->label;
         }
 
         $row_actions = [

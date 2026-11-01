@@ -172,7 +172,8 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                     $team_rows[] = [
                         'id'   => $team_id,
                         'name' => $team_name,
-                        'role' => (string) ( $t->functional_role_label ?? '' ),
+                        // #4523 — the translated label, not the stored English seed.
+                        'role' => (string) ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $t->functional_role_key ?? '' ) ) ?? ( $t->functional_role_label ?? '' ) ),
                     ];
                 }
                 if ( ! empty( $team_rows ) ) : ?>

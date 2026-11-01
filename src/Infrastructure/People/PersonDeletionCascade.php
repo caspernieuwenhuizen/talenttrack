@@ -67,7 +67,7 @@ class PersonDeletionCascade {
 
             // tt_team_people — team-role removals (human-readable team + role)
             $team_roles = $wpdb->get_results( $wpdb->prepare(
-                "SELECT tp.role_in_team, tp.functional_role_id, t.name AS team_name, fr.label AS role_label
+                "SELECT tp.role_in_team, tp.functional_role_id, t.name AS team_name, fr.label AS role_label, fr.role_key AS role_key
                  FROM {$p}tt_team_people tp
                  LEFT JOIN {$p}tt_teams t ON t.id = tp.team_id
                  LEFT JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
@@ -77,7 +77,8 @@ class PersonDeletionCascade {
             foreach ( (array) $team_roles as $tr ) {
                 $removals[] = [
                     'kind'  => 'team_role',
-                    'role'  => (string) ( $tr->role_label ?: $tr->role_in_team ?: __( 'staff', 'talenttrack' ) ),
+                    // #4523 — the translated label first, then the stored one.
+                    'role'  => (string) ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $tr->role_key ?? '' ), $tr->functional_role_id ? (int) $tr->functional_role_id : null ) ?: ( $tr->role_label ?: $tr->role_in_team ?: __( 'staff', 'talenttrack' ) ) ),
                     'team'  => (string) ( $tr->team_name ?: __( '(unknown team)', 'talenttrack' ) ),
                 ];
                 $total_affected++;

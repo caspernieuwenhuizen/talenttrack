@@ -110,7 +110,7 @@ Ze tonen een trainer nu alleen de spelers en teams van de eigen teams:
 
 Een beheerder, en elke persona met een **globaal** leesrecht op de entiteit —
 Hoofd opleiding, Academiebeheerder, Clubbeheerder en de Alleen-lezen
-Waarnemer op de schermen waarvoor het is toegekend — ziet nog steeds alles.
+waarnemer op de schermen waarvoor het is toegekend — ziet nog steeds alles.
 
 Meldt een trainer dat een wp-adminlijst leeg is, vraag dan aan welke teams die
 persoon is gekoppeld onder **Personen → Functionele rollen**: het bereik komt
@@ -347,10 +347,10 @@ Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de ged
 
 De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzettelijk smal toegangsbereik omdat prospect-gegevens de gevoeligste PII in het systeem zijn (verzameld voordat er een contractuele relatie bestaat — wettelijke grondslag is toestemming):
 
-- **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd Opleiding en Academy Admin hebben RCD globaal.
+- **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd opleiding en Academiebeheerder hebben RCD globaal.
 - **`test_trainings`** — zelfde toegangsbereik, behalve dat de Scout deze globaal mag lezen (zodat een scout de geplande sessie kan zien waarvoor zijn prospect is uitgenodigd).
 
-**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd opleiding en Academy Admin hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
+**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd opleiding en Academiebeheerder hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
 
 Tot #3869 was het recht wel gekoppeld en gedocumenteerd maar nergens gecontroleerd, zodat het enige echte slot op die klussen was aan wie de toewijzer ze had gericht — de matrixcel aan- of uitzetten veranderde niets. Het wordt nu op de kluspagina gecontroleerd, wat betekent dat een persona die de klus wél heeft maar het recht niet, hem niet langer kan afronden. Die blijft niet met een dode knop achter: het formulier wordt vergrendeld getoond met een melding wie je erom moet vragen. De ondertekende bevestigingslink voor de ouder (`GET /prospects/confirm`) omzeilt dit alles met opzet — daar is niemand ingelogd.
 
@@ -475,7 +475,7 @@ De capability wordt **alleen** verleend aan de WordPress-administrator en de
 rol Academiebeheerder (`tt_club_admin`). Hij maakt bewust **geen** deel uit
 van `RolesService::VIEW_CAPS` / `EDIT_CAPS` — die stromen via
 `allViewCapsTrue()` door naar het Hoofd opleiding en de Alleen-lezen
-Waarnemer, wat de prullenbak zou geven aan rollen die geen gegevens mogen
+waarnemer, wat de prullenbak zou geven aan rollen die geen gegevens mogen
 opschonen. In plaats daarvan zit hij in een eigen `RECYCLE_BIN_CAPS`-constante:
 `ensureCapabilities()` verleent hem aan WP `administrator`, en de
 `tt_club_admin`-roldefinitie noemt hem expliciet. Geen enkele andere
@@ -583,10 +583,10 @@ vooral-lezen `feature_toggles` configuratie-entiteit die het eerder deelde
  en van de `module_state` statusweergave: een module aan/uit zetten is
 een wezenlijk ander recht dan een configuratie-feature-toggle bewerken, en
 moet op een eigen rij door de matrix bestuurbaar zijn. De entiteit is
-geseed **`rcd` globaal aan alleen Academy Admin** — overeenkomend met de ruwe
+geseed **`rcd` globaal aan alleen Academiebeheerder** — overeenkomend met de ruwe
 capability-houders (WordPress `administrator`, die elke `tt_*`-capability
-omzeilt, plus de `tt_club_admin`-rol achter de Academy Admin-persona). Head
-of Development heeft `feature_toggles [read]` maar **geen** `module_management`-rij,
+omzeilt, plus de `tt_club_admin`-rol achter de Academiebeheerder-persona). Het Hoofd
+opleiding heeft `feature_toggles [read]` maar **geen** `module_management`-rij,
 dus wint niets — de omzetting is toegangsbehoudend.
 
 Migratie `0194_authorization_seed_module_management` vult de
@@ -769,7 +769,7 @@ Het persona-dashboard (`persona_dashboard.enabled`) levert een parallelle, rijke
 
 Twee cap-en-matrix-aanpalende operator-handleidingen zijn in v3.97.2 (#0086 Workstream A) gepubliceerd:
 
-- [Beveiliging — handleiding voor de academy admin](security-operator-guide.md) — de dag-één- + jaarlijkse-checklist voor de Academy Admin: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
+- [Beveiliging — handleiding voor de academy admin](security-operator-guide.md) — de dag-één- + jaarlijkse-checklist voor de academiebeheerder: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
 - [Privacy — handleiding voor de academy admin](privacy-operator-guide.md) — de AVG-georiënteerde how-to: inzage-verzoeken, recht-op-vergetelheid-verzoeken (handmatig tot de formele wis-pijplijn er is), retentie-vensters per datacategorie, de privacy-levenscyclus van een speler die toetreedt en vertrekt.
 
 De publieke trust-artefacten (security-pagina, privacybeleid, DPA-template) staan op `mediamaniacs.nl/talenttrack/security` en `mediamaniacs.nl/talenttrack/privacy`; de bron staat ter bewerking in `marketing/security/`.

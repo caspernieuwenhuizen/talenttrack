@@ -31,3 +31,58 @@ msgstr "Alleen-lezen waarnemer"
 #: src/Modules/Authorization/Admin/RolesPage.php:72
 msgid "Permission debug"
 msgstr "Rechten-diagnose"
+
+#: src/Infrastructure/Query/LabelTranslator.php:91
+msgctxt "role label"
+msgid "Coach"
+msgstr "Trainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:98
+msgctxt "role label"
+msgid "Team manager"
+msgstr "Teammanager"
+
+#: src/Infrastructure/Query/LabelTranslator.php:101
+msgctxt "role label"
+msgid "Staff"
+msgstr "Staf"
+
+#: src/Infrastructure/Query/LabelTranslator.php:102
+msgctxt "role label"
+msgid "Physio"
+msgstr "Fysio"
+
+#: src/Infrastructure/Query/LabelTranslator.php:103
+msgctxt "role label"
+msgid "Scout"
+msgstr "Scout"
+
+#: src/Infrastructure/Query/LabelTranslator.php:104
+msgctxt "role label"
+msgid "Parent"
+msgstr "Ouder"
+
+#: src/Infrastructure/Query/LabelTranslator.php:105
+msgctxt "role label"
+msgid "Other"
+msgstr "Overig"
+
+#: src/Infrastructure/Query/LabelTranslator.php:149
+msgctxt "role label"
+msgid "Manager"
+msgstr "Manager"
+
+#: src/Infrastructure/Query/LabelTranslator.php:156
+msgctxt "role label"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Infrastructure/Query/LabelTranslator.php:186
+msgctxt "role label"
+msgid "Kit manager"
+msgstr "Materiaalman"
+
+#: src/Infrastructure/Query/LabelTranslator.php:188
+msgctxt "role label"
+msgid "Mentor"
+msgstr "Mentor"

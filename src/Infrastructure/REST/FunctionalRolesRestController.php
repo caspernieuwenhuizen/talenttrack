@@ -619,6 +619,13 @@ class FunctionalRolesRestController {
         $last  = (string) ( $r->last_name ?? '' );
         $start = $r->start_date;
         $end   = $r->end_date;
+        // #4523 — the role's translated label, not the stored English seed
+        // ("Head Coach" on an install seeded before the sentence-case labels).
+        $role_key   = (string) ( $r->role_key ?? $r->role_in_team ?? '' );
+        $role_label = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel(
+            $role_key,
+            $r->functional_role_id !== null ? (int) $r->functional_role_id : null
+        ) ?? (string) ( $r->role_label ?? $r->role_in_team ?? '' );
         return [
             'id'                  => (int) $r->assignment_id,
             'team_id'             => (int) $r->team_id,
@@ -628,8 +635,8 @@ class FunctionalRolesRestController {
             'person_name'         => trim( $first . ' ' . $last ),
             'person_email'        => (string) ( $r->email ?? '' ),
             'functional_role_id'  => $r->functional_role_id !== null ? (int) $r->functional_role_id : null,
-            'functional_role_key' => (string) ( $r->role_key ?? $r->role_in_team ?? '' ),
-            'role'                => (string) ( $r->role_label ?? $r->role_in_team ?? '' ),
+            'functional_role_key' => $role_key,
+            'role'                => $role_label,
             'start_date'          => $start,
             'end_date'            => $end,
             // #4221 — the academy's date format, next to the ISO fields.
