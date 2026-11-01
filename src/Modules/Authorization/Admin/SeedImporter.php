@@ -151,7 +151,15 @@ final class SeedImporter {
         Transaction::begin();
         // DELETE, not TRUNCATE: TRUNCATE commits on the spot, so an insert
         // failing below used to leave the matrix half-replaced (#4561).
-        $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" );
+        // A failed clear is logged once the transaction has ended: the
+        // logger writes to tt_error_log on this connection, so a row
+        // written inside would be rolled back with the import.
+        $clear_error = null;
+        if ( $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" ) === false ) {
+            // The inserts below then collide with the rows still there and
+            // roll the import back; the log says why.
+            $clear_error = (string) $wpdb->last_error;
+        }
 
         $inserted = 0;
         foreach ( $rows as $row ) {
@@ -165,6 +173,9 @@ final class SeedImporter {
             ] );
             if ( $ok === false ) {
                 Transaction::rollback();
+                if ( $clear_error !== null ) {
+                    \TT\Infrastructure\Logging\Logger::error( 'authorization.seed_import.clear_failed', [ 'error' => $clear_error ] );
+                }
                 return [ 'ok' => false, 'inserted' => 0, 'error' => sprintf(
                     /* translators: %s: persona|entity|activity tuple that failed to insert */
                     __( 'Insert failed at row %s — rolled back.', 'talenttrack' ),
@@ -174,6 +185,9 @@ final class SeedImporter {
             $inserted++;
         }
         Transaction::commit();
+        if ( $clear_error !== null ) {
+            \TT\Infrastructure\Logging\Logger::error( 'authorization.seed_import.clear_failed', [ 'error' => $clear_error ] );
+        }
 
         MatrixRepository::clearCache();
 

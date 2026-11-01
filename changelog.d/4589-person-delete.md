@@ -1,0 +1,3 @@
+# Permanently deleting a person works again (#4589)
+
+Permanently deleting a person always failed and changed nothing. The cleanup that runs with it removed the person's staff-development record from a table name that no install has, so the whole delete stopped on that step and rolled back. It now removes the record from the table where it actually lives, and the delete preview counts it there too. A staff table that an install does not have is skipped rather than stopping the delete. Separately, a transaction step the database refuses, and a failed clear-out at the start of a matrix upload or a backup restore, are now written to the error log instead of passing silently.
