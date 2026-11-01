@@ -52,6 +52,8 @@ Custom widgets respect two layers:
 
 A parent without `tt_view_evaluations` can't see an evaluations-backed custom widget on someone else's dashboard, even if an admin placed it there. The same gate that protects the underlying record list protects the widget.
 
+- **Row scope** — the capability says whether a viewer reads the data at all, never whose. A widget's rows and its KPI total are narrowed as the bulk exports narrow theirs: a club-wide reader sees the whole club, a coach or team manager sees the teams they work with, and a parent or player, who reads one child's data, gets no rows. A team filter outside the viewer's teams gives an empty widget, not someone else's squad. A table and a KPI on the same source always count the same rows.
+
 ## Caching
 
 Each custom widget has a per-widget transient cache keyed on `(uuid, user_id)`:

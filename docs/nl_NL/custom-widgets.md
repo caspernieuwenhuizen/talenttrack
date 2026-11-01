@@ -52,6 +52,8 @@ Aangepaste widgets respecteren twee lagen:
 
 Een ouder zonder `tt_view_evaluations` kan geen op evaluaties gebaseerde aangepaste widget zien op iemand anders' dashboard, ook niet als een beheerder die daar heeft geplaatst. Dezelfde gate die de onderliggende recordlijst beschermt, beschermt de widget.
 
+- **Rij-afbakening** — het recht zegt of een kijker de gegevens überhaupt leest, nooit van wie. De rijen en het KPI-totaal van een widget worden afgebakend zoals de bulkexports dat doen: wie clubbreed leest ziet de hele club, een trainer of teammanager ziet de teams waarmee die werkt, en een ouder of speler, die de gegevens van één kind leest, krijgt geen rijen. Een teamfilter buiten de teams van de kijker geeft een lege widget, niet de selectie van iemand anders. Een tabel en een KPI op dezelfde bron tellen altijd dezelfde rijen.
+
 ## Caching
 
 Elke aangepaste widget heeft een per-widget transient-cache met sleutel `(uuid, user_id)`:
