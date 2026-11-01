@@ -316,6 +316,39 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $this->assertSame( 'family-' . $extra['prospect_id'] . '@example.test', (string) ( $this->mails[0]['to'] ?? '' ) );
     }
 
+    /** @return array<string, array{0: string, 1: array<string, string>}> */
+    public static function trialForms(): array {
+        return [
+            'team offer decision' => [ 'AwaitTeamOfferDecisionForm', [ 'outcome' => 'declined', 'notes' => 'Family chose another club.' ] ],
+            'trial group review'  => [ 'ReviewTrialGroupMembershipForm', [ 'decision' => 'decline_final', 'rationale' => 'Not at the level.' ] ],
+        ];
+    }
+
+    /**
+     * @dataProvider trialForms
+     * @param array<string, string> $raw
+     */
+    public function test_a_task_with_no_trial_is_refused_with_a_reason( string $form, array $raw ): void {
+        $form_class = 'TT\\Modules\\Workflow\\Forms\\' . $form;
+        $task_id    = $this->task( $this->template( 'test_writes_after_no_trial_' . strtolower( $form ), $form_class ) );
+        $before     = ( new TasksRepository() )->find( $task_id );
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = $raw + [
+            'tt_workflow_submit'                => '1',
+            FrontendTaskDetailView::NONCE_FIELD => wp_create_nonce( FrontendTaskDetailView::NONCE_ACTION ),
+        ];
+        $this->writes = [];
+        ob_start();
+        FrontendTaskDetailView::render( $this->user, $task_id );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'This task is not linked to a trial. Ask an administrator to look at it.', $html );
+        $this->assertStringNotContainsString( 'Could not save the task.', $html, 'the refusal names the reason, not the generic failure' );
+        $this->assertSame( $before, ( new TasksRepository() )->find( $task_id ), 'the task is untouched' );
+        $this->assertSame( [], $this->writes );
+    }
+
     public function test_a_task_without_a_completion_step_is_completed_once(): void {
         $task_id   = $this->task( $this->template( 'test_writes_after_plain', 'TT\\Modules\\Workflow\\Forms\\QuarterlyHoDReviewForm' ) );
         $completed = 0;

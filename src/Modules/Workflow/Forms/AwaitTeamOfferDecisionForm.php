@@ -76,6 +76,13 @@ class AwaitTeamOfferDecisionForm implements FormInterface, CompletionStepInterfa
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
+        // #4550 — the answer is recorded on the task's trial case; a task
+        // without one is refused here, with a reason, rather than failing
+        // the completion with the generic error.
+        if ( (int) ( $task['trial_case_id'] ?? 0 ) <= 0 ) {
+            $errors['__form'] = __( 'This task is not linked to a trial. Ask an administrator to look at it.', 'talenttrack' );
+            return $errors;
+        }
         $outcome = (string) ( $raw['outcome'] ?? '' );
         if ( ! in_array( $outcome, [ 'accepted', 'declined', 'no_response' ], true ) ) {
             $errors['outcome'] = __( 'Pick one outcome.', 'talenttrack' );

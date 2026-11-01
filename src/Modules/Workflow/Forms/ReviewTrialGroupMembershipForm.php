@@ -71,6 +71,13 @@ class ReviewTrialGroupMembershipForm implements FormInterface, CompletionStepInt
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
+        // #4550 — the decision is recorded on the task's trial case; a task
+        // without one is refused here, with a reason, rather than failing
+        // the completion with the generic error.
+        if ( (int) ( $task['trial_case_id'] ?? 0 ) <= 0 ) {
+            $errors['__form'] = __( 'This task is not linked to a trial. Ask an administrator to look at it.', 'talenttrack' );
+            return $errors;
+        }
         $decision = (string) ( $raw['decision'] ?? '' );
         if ( ! in_array( $decision, [ 'offer_team_position', 'continue_in_trial_group', 'decline_final' ], true ) ) {
             $errors['decision'] = __( 'Pick one decision.', 'talenttrack' );

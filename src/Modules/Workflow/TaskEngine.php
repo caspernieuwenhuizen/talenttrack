@@ -200,6 +200,14 @@ class TaskEngine {
      * response with the ids of what was written, or null when the task was
      * not completed: already completed, or rolled back after a failure.
      *
+     * Known gap (#4561): MySQL has no nested transactions, and a
+     * `START TRANSACTION` inside the step commits this one. Archiving a
+     * player opens its own (`ArchiveRepository::archive()`), and a group
+     * review's `decline_final` reaches it through
+     * `TrialDecisionPlayerStatusSubscriber`. On that path what was written
+     * before the archive is committed early, and a later failure cannot
+     * roll it back.
+     *
      * @param array<string,mixed> $response
      * @param array<string,mixed> $raw
      * @return array<string,mixed>|null
