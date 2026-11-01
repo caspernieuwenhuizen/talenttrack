@@ -33,8 +33,9 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  * the same fixture in the same process, and their payloads are compared as
  * JSON, byte for byte, per block and whole; the HTML and the PDF data array
  * each renderer builds from them are compared the same way. Only
- * `generated_at` is levelled, because the two runs may fall either side of a
- * second.
+ * `generated_at` and the status block's `as_of` (`StatusVerdict`, the one
+ * payload that carries that key) are levelled, because both come from the
+ * clock and the two runs may fall either side of a second.
  *
  * A comparison of two empty payloads proves nothing, so every block is also
  * checked against the same block composed for a squad and a player with no
@@ -374,7 +375,9 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     }
 
     /**
-     * The payload with every `generated_at` set to one value.
+     * The payload with every `generated_at`, and the status block's `as_of`,
+     * set to one value. Both are read from the clock, so two compositions
+     * either side of a second would differ by it.
      *
      * @param mixed $payload
      * @return mixed
@@ -382,7 +385,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     private function level( $payload ) {
         if ( ! is_array( $payload ) ) return $payload;
         foreach ( $payload as $key => $value ) {
-            if ( $key === 'generated_at' ) {
+            if ( $key === 'generated_at' || $key === 'as_of' ) {
                 $payload[ $key ] = '2020-04-01 00:00:00';
                 continue;
             }
