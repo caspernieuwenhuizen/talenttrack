@@ -17,7 +17,7 @@ The **This week** panel on the tile landing, and `GET /me/week` behind it, are b
 | `WeekBlock` | The interface every block implements: `key()`, `group()`, `label()`, `help()`, `available()`, `defaultFor( $persona, $device )`, `optInFor( $persona )`, `rowDefaults()`, `panelDefaults()`, `rowFields( WeekRow, WeekContext )`, `panelFields( WeekContext )`. |
 | `ActionBlock` | A `WeekBlock` that also offers one button: `actionFor( WeekRow, WeekContext ): ?string`. At most `ActionBlock::MAX_PER_ROW` (2) show per device. |
 | `AbstractWeekBlock` | No-op defaults: no help, always available, off by default, no opt-in, owns no fields, contributes nothing. Extend it and override only what the block contributes. |
-| `WeekBlockGroup` | The settings screen's sections, in order: `scope`, `row`, `training`, `match`, `actions`. |
+| `WeekBlockGroup` | The settings screen's sections, in order: `scope`, `overview`, `row`, `training`, `match`, `actions`. |
 | `WeekBlockRegistry` | The ordered list of block classes (`BLOCKS`). The order is the display order and, among action blocks, the button priority. |
 | `WeekRow` | The facts about one activity: id, team, date, `when` (past / today / upcoming), type, whether it is a match, `done` (a completed match), whether it keeps a register. `isDone()` and `isOpenMatch()` are the two questions most blocks ask. |
 | `WeekContext` | The viewer, the window, the teams and the activities; the rights checks `canSeeTeam()`, `canEditTeam()` and `canSeePlayer()`; and the sources several blocks share, each read once per week. |

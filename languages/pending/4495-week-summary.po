@@ -1,0 +1,26 @@
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgid "Week overview"
+msgstr "Weekoverzicht"
+
+#: src/Modules/Activities/CoachWeek/Blocks/SummaryBlock.php
+msgid "Week summary"
+msgstr "Weeksamenvatting"
+
+#: src/Modules/Activities/CoachWeek/Blocks/SummaryBlock.php
+msgid "Trainings, matches and attendance for the window, above the list."
+msgstr "Trainingen, wedstrijden en aanwezigheid voor de periode, boven de lijst."
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Trainings"
+msgstr "Trainingen"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Attendance"
+msgstr "Aanwezigheid"

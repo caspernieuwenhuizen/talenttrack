@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class WeekBlockGroup {
 
     public const SCOPE    = 'scope';
+    public const OVERVIEW = 'overview';
     public const ROW      = 'row';
     public const TRAINING = 'training';
     public const MATCH    = 'match';
@@ -19,6 +20,7 @@ final class WeekBlockGroup {
     public static function labels(): array {
         return [
             self::SCOPE    => __( 'Which week, which teams', 'talenttrack' ),
+            self::OVERVIEW => __( 'Week overview', 'talenttrack' ),
             self::ROW      => __( 'On every row', 'talenttrack' ),
             self::TRAINING => _x( 'Trainings', 'This week panel settings group', 'talenttrack' ),
             self::MATCH    => __( 'Matches', 'talenttrack' ),

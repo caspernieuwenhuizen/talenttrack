@@ -645,6 +645,7 @@ class FrontendTileGrid {
                     <span class="tt-week-range"><?php echo esc_html( $range ); ?></span>
                 <?php endif; ?>
             </div>
+            <?php self::renderWeekSummary( $week ); ?>
             <?php if ( $rows !== [] || $folded !== [] ) : ?>
                 <ul class="tt-week-list">
                     <?php if ( $folded !== [] ) : ?>
@@ -684,6 +685,30 @@ class FrontendTileGrid {
             <?php endif; ?>
         </section>
         <?php
+    }
+
+    /**
+     * #4495 — the summary strip: trainings, matches and attendance for the
+     * window, as three labelled figures. "—" when no register is recorded.
+     *
+     * @param array<string, mixed> $week
+     */
+    private static function renderWeekSummary( array $week ): void {
+        $summary = is_array( $week['summary'] ?? null ) ? $week['summary'] : null;
+        $class   = self::weekDeviceClass( $week, 'summary' );
+        if ( $summary === null || $class === null ) return;
+
+        $pct   = $summary['attendance_pct'] ?? null;
+        $cells = [
+            [ _x( 'Trainings', 'This week summary', 'talenttrack' ), (string) (int) ( $summary['trainings'] ?? 0 ) ],
+            [ _x( 'Matches', 'This week summary', 'talenttrack' ), (string) (int) ( $summary['matches'] ?? 0 ) ],
+            [ _x( 'Attendance', 'This week summary', 'talenttrack' ), $pct === null ? '—' : number_format_i18n( (float) $pct, 1 ) . '%' ],
+        ];
+        echo '<dl class="' . esc_attr( trim( 'tt-week-summary ' . $class ) ) . '">';
+        foreach ( $cells as [ $label, $value ] ) {
+            echo '<div class="tt-week-summary-cell"><dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd></div>';
+        }
+        echo '</dl>';
     }
 
     /**

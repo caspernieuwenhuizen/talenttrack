@@ -223,7 +223,14 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
 
         $this->assertTrue( $settings['team_manager']['on'] );
         $this->assertTrue( $settings['team_manager']['phone_on'] );
-        $this->assertSame( $settings['head_coach']['desktop'], $settings['team_manager']['desktop'], 'the same full desktop panel the coach gets' );
+        // The same full desktop panel the coach gets, less the blocks a team
+        // manager only gets once an academy switches them on (the #4495 summary).
+        $coach_desktop = array_values( array_filter(
+            $settings['head_coach']['desktop'],
+            static fn( string $key ): bool => ! WeekBlockRegistry::get( $key )->optInFor( 'team_manager' )
+        ) );
+        $this->assertSame( $coach_desktop, $settings['team_manager']['desktop'], 'the same full desktop panel the coach gets' );
+        $this->assertNotContains( 'summary', $settings['team_manager']['desktop'] );
         $this->assertContains( 'action_mark_attendance', $settings['team_manager']['desktop'] );
         $this->assertSame( CoachWeek::defaultSettings()['team_manager']['phone'], $settings['team_manager']['phone'], 'phones take the shorter list' );
     }

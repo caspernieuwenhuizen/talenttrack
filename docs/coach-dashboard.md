@@ -41,6 +41,8 @@ Your academy chooses what the panel shows, per role and per device, under **Conf
   - **Days already past** can be shown, folded into one line, or hidden. A folded line reads like *Tue, Thu · 2 activities · attendance recorded* and opens on a tap or with Enter.
   - **Team name on each row** names the team when the week covers more than one team.
   - **Peek at next week** lists the first two activities of the next seven days below the list.
+- **Week overview**:
+  - **Week summary** puts three figures above the list for the window and teams the panel covers: the number of trainings, the number of matches, and the attendance percentage over the activities whose attendance is recorded. Present and late both count as attended, exactly as in the team attendance report, so the two show the same figure for the same dates and teams. With nothing recorded yet it shows *—*. It is on for the head coach on a desktop, and for the head of development and the academy admin on both; switch it on for any other role here.
 - The other sections list every part of a row (**On every row**, **Trainings**, **Matches**) and every button (**Buttons on a row**). Each one has a **Desktop** and a **Phone** box, so a phone can show a shorter panel than a desktop. At most two buttons show on a row, and the first one that applies is the main button.
 - **Reset to defaults** puts the role you are looking at back to its starting settings. Press **Save** to keep that.
 
