@@ -126,12 +126,23 @@ final class PlayerMatchMinutes {
      * @param array<int> $activity_ids
      */
     public static function duplicatePairs( array $activity_ids ): int {
+        return array_sum( self::duplicatePairsByActivity( $activity_ids ) );
+    }
+
+    /**
+     * #4553 — the same count per activity, in one query, so a caller that
+     * reports several teams at once can sum each team's own activities.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, int> activity id => duplicate pairs; absent means none
+     */
+    public static function duplicatePairsByActivity( array $activity_ids ): array {
         $ids = [];
         foreach ( $activity_ids as $aid ) {
             $aid = (int) $aid;
             if ( $aid > 0 ) $ids[ $aid ] = $aid;
         }
-        if ( $ids === [] ) return 0;
+        if ( $ids === [] ) return [];
         $ids = array_values( $ids );
 
         global $wpdb;
@@ -139,8 +150,8 @@ final class PlayerMatchMinutes {
         $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM (
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT d.activity_id, COUNT(*) AS pairs FROM (
                 SELECT activity_id, player_id
                   FROM {$p}tt_attendance
                  WHERE activity_id IN ($in)
@@ -150,8 +161,15 @@ final class PlayerMatchMinutes {
                    AND player_id > 0
               GROUP BY activity_id, player_id
                 HAVING COUNT(*) > 1
-             ) d",
+             ) d
+             GROUP BY d.activity_id",
             array_merge( $ids, [ (int) CurrentClub::id() ] )
         ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $fields = (array) $row;
+            $out[ (int) ( $fields['activity_id'] ?? 0 ) ] = (int) ( $fields['pairs'] ?? 0 );
+        }
+        return $out;
     }
 }

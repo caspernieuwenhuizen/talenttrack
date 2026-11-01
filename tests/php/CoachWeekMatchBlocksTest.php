@@ -266,11 +266,11 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [ 'score', 'minutes', 'action_minutes_stats' ], array_values( array_intersect( $d['head_coach']['phone'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis', 'action_minutes_stats', 'action_rate_players', 'action_match_analysis' ] ) ) );
         // The assistant coach has no evaluations read (#1060), so no ratings.
         $this->assertSame( [], array_values( array_intersect( $d['assistant_coach']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
-        // The minutes check reads the audit per team, so the two all-teams
-        // personas opt in to it rather than get it by default.
-        $this->assertSame( [ 'score', 'ratings', 'analysis' ], array_values( array_intersect( $d['head_of_development']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+        // #4553 — the audit reads all teams at once, so the two all-teams
+        // personas get the minutes check by default again (#4494's table).
+        $this->assertSame( [ 'score', 'minutes', 'ratings', 'analysis' ], array_values( array_intersect( $d['head_of_development']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
         $this->assertSame( [ 'score' ], array_values( array_intersect( $d['head_of_development']['phone'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
-        $this->assertSame( [ 'score' ], array_values( array_intersect( $d['academy_admin']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+        $this->assertSame( [ 'score', 'minutes' ], array_values( array_intersect( $d['academy_admin']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
     }
 
     public function test_the_fallback_follows_each_blocks_table_for_the_assistant_coach(): void {
@@ -290,15 +290,87 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         }
     }
 
-    public function test_the_all_teams_personas_opt_in_to_the_minutes_check(): void {
+    public function test_the_all_teams_personas_get_the_minutes_check_again(): void {
         QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, '' );
         QueryHelpers::set_config( CoachWeek::CONFIG_KEY, '["head_coach","head_of_development","academy_admin"]' );
         $settings = CoachWeek::settings();
         foreach ( [ 'head_of_development', 'academy_admin' ] as $persona ) {
-            $this->assertNotContains( 'minutes', $settings[ $persona ]['desktop'], "{$persona}: the older list does not switch it on" );
-            $this->assertNotContains( 'action_minutes_stats', $settings[ $persona ]['desktop'], $persona );
+            $this->assertContains( 'minutes', $settings[ $persona ]['desktop'], "{$persona}: on by default, the fallback included" );
+            $this->assertNotContains( 'action_minutes_stats', $settings[ $persona ]['desktop'], "{$persona}: the button stays the head coach's" );
         }
         $this->assertContains( 'minutes', $settings['head_coach']['desktop'] );
+    }
+
+    public function test_the_minutes_check_query_count_does_not_grow_with_the_number_of_teams(): void {
+        global $wpdb;
+        // One completed match each for six teams this week, against one team.
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $teams = [];
+        for ( $i = 0; $i < 6; $i++ ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Multi ' . $i, 'age_group' => 'U14' ] );
+            $teams[] = (int) $wpdb->insert_id;
+        }
+        $original = $this->team;
+        foreach ( $teams as $team ) {
+            $this->team = $team;
+            $this->minutes( $this->completedMatch( '2026-11-14', 1, 0, 'home' ), 60 );
+        }
+        $this->team = $teams[0];
+        $this->minutes( $this->completedMatch( '2026-11-21', 1, 0, 'home' ), 60 );
+        $this->team = $original;
+
+        // Only the minutes check on, so this measures the audit read alone.
+        $settings = CoachWeek::settings();
+        foreach ( $settings as $persona => $s ) {
+            $settings[ $persona ] = array_merge( $s, [ 'on' => true, 'teams' => 'all', 'desktop' => [ 'minutes' ], 'phone' => [] ] );
+        }
+        QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, CoachWeek::normaliseSettingsStored( (string) wp_json_encode( $settings ) ) );
+
+        $count = function ( string $today ) use ( $admin ): array {
+            ActivityRegisterProgress::forget();
+            $sql     = [];
+            $capture = static function ( $query ) use ( &$sql ) {
+                $sql[] = preg_replace( '/\s+/', ' ', (string) $query );
+                return $query;
+            };
+            add_filter( 'query', $capture );
+            $week = CoachWeek::forUser( $admin, $today );
+            remove_filter( 'query', $capture );
+            return [ $sql, count( array_filter( $week['rows'], static fn( $r ) => $r['minutes_check'] !== null ) ) ];
+        };
+
+        $count( '2026-11-15' );
+        $count( '2026-11-22' );
+        [ $six_sql, $six ] = $count( '2026-11-15' );
+        [ $one_sql, $one ] = $count( '2026-11-22' );
+
+        $this->assertGreaterThanOrEqual( 6, $six, 'the admin sees the six teams\' matches with a minutes check' );
+        $this->assertSame( 1, $one );
+        $this->assertSame( count( $one_sql ), count( $six_sql ), "one audit read for every team. With six:\n" . implode( "\n", $six_sql ) );
+    }
+
+    public function test_matrix_for_teams_answers_what_matrix_answers_for_each_team(): void {
+        global $wpdb;
+        $teams = [ $this->team ];
+        for ( $i = 0; $i < 2; $i++ ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Pair ' . $i, 'age_group' => $i === 0 ? 'U12' : 'U16' ] );
+            $teams[] = (int) $wpdb->insert_id;
+        }
+        $original = $this->team;
+        foreach ( $teams as $n => $team ) {
+            $this->team = $team;
+            $this->minutes( $this->completedMatch( '2026-11-04', 2, $n, 'home' ), 50 + 10 * $n );
+            $this->completedMatch( '2026-11-06', null, null, 'away' ); // nothing recorded
+        }
+        $this->team = $original;
+
+        $audit = new MinutesAuditQuery();
+        $all   = $audit->matrixForTeams( $teams, '2026-11-02', '2026-11-08' );
+        $this->assertSame( $teams, array_keys( $all ) );
+        foreach ( $teams as $team ) {
+            $this->assertSame( $audit->matrix( $team, '2026-11-02', '2026-11-08' ), $all[ $team ], "team {$team}" );
+        }
+        $this->assertSame( [], $audit->matrixForTeams( [], '2026-11-02', '2026-11-08' ) );
     }
 
     // Helpers

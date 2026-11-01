@@ -67,41 +67,59 @@ use TT\Modules\Teams\FootballFormResolver;
  *
  * Tenant-scoped on `club_id` (no-op single-tenant today; structural for the
  * SaaS migration, CLAUDE.md §4).
+ *
+ * @phpstan-type AuditPlayer array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }
+ * @phpstan-type AuditMatrix array{
+ *   games: list<array{
+ *     activity_id:int, session_date:string, title:string, type_key:string,
+ *     minutes:array<int,int>, on_squad:array<int,bool>, selected:array<int,bool>, unavailable:array<int,bool>,
+ *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
+ *     status:string, status_reason:string,
+ *     is_rollup:bool, editable:bool, tournament_id:int
+ *   }>,
+ *   players: list<AuditPlayer>,
+ *   column_totals: array<int,int>,
+ *   grand_total: int,
+ *   summary: array{ total_games:int, complete:int, partial:int, none:int, rollups:int, duplicate_pairs:int }
+ * }
  */
 final class MinutesAuditQuery {
 
     /**
      * Build the full matrix for a team over a window, optionally narrowed to
      * one match-type key (game_subtype_key). `$type_filter === 'all'` (or '')
-     * keeps every match type.
+     * keeps every match type. One team of `matrixForTeams()`, so the two can
+     * never answer differently.
      *
-     * @return array{
-     *   games: list<array{
-     *     activity_id:int, session_date:string, title:string, type_key:string,
-     *     minutes:array<int,int>, on_squad:array<int,bool>, selected:array<int,bool>, unavailable:array<int,bool>,
-     *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
-     *     status:string, status_reason:string,
-     *     is_rollup:bool, editable:bool, tournament_id:int
-     *   }>,
-     *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
-     *   column_totals: array<int,int>,
-     *   grand_total: int,
-     *   summary: array{ total_games:int, complete:int, partial:int, none:int, rollups:int, duplicate_pairs:int }
-     * }
+     * @return AuditMatrix
      */
     public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all' ): array {
+        if ( $team_id <= 0 ) return self::emptyMatrix();
+        return $this->matrixForTeams( [ $team_id ], $from, $to, $type_filter )[ $team_id ] ?? self::emptyMatrix();
+    }
+
+    /**
+     * #4553 — the matrix for several teams at once, in one fixed set of
+     * queries whatever the number of teams: the window's activities for every
+     * team in one read, then each per-activity source once over all of them.
+     * Each team's matrix is exactly what `matrix()` returns for it.
+     *
+     * @param array<int> $team_ids
+     * @return array<int, AuditMatrix> team id => matrix, one per team asked for
+     */
+    public function matrixForTeams( array $team_ids, string $from, string $to, string $type_filter = 'all' ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
 
-        $empty = [
-            'games'         => [],
-            'players'       => [],
-            'column_totals' => [],
-            'grand_total'   => 0,
-            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0, 'duplicate_pairs' => 0 ],
-        ];
-        if ( $team_id <= 0 ) return $empty;
+        $teams = [];
+        foreach ( $team_ids as $tid ) {
+            $tid = (int) $tid;
+            if ( $tid > 0 ) $teams[ $tid ] = $tid;
+        }
+        $teams = array_values( $teams );
+        if ( $teams === [] ) return [];
+        $out = array_fill_keys( $teams, self::emptyMatrix() );
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
@@ -112,18 +130,19 @@ final class MinutesAuditQuery {
             $where_type = $wpdb->prepare( ' AND game_subtype_key = %s', $type_filter );
         }
 
-        // 1. Game / tournament activities for the team in the window — the
+        // 1. Game / tournament activities for the teams in the window — the
         //    SAME set MinutesQuery counts (match | game | tournament), so
         //    row totals reconcile with the minutes report.
+        $in_teams = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
+            "SELECT id, team_id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
                     match_length_minutes, start_time, end_time,
                     ( SELECT mp.half_length_minutes FROM {$p}tt_match_prep mp
                        WHERE mp.activity_id = {$p}tt_activities.id LIMIT 1 ) AS prep_half_minutes
                FROM {$p}tt_activities
               WHERE club_id = %d
-                AND team_id = %d
+                AND team_id IN ({$in_teams})
                 AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
@@ -131,9 +150,9 @@ final class MinutesAuditQuery {
                 AND " . ActivityLifecycle::notCancelledClause( '' ) . "
                 {$where_type}
               ORDER BY {$date_col} ASC, id ASC",
-            $club_id, $team_id, $from, $to
+            ...array_merge( [ $club_id ], $teams, [ $from, $to ] )
         ) );
-        if ( empty( $activities ) ) return $empty;
+        if ( empty( $activities ) ) return $out;
 
         $activity_ids = array_map( static fn( $a ): int => (int) $a->id, $activities );
 
@@ -141,16 +160,17 @@ final class MinutesAuditQuery {
         // the match length. Resolved once per team; the length per game.
         // #4087 — times the periods it was played in, as the minutes report
         // counts it, so a quarters match is not read as half a match.
-        $team_basis = $this->teamBasis( $team_id );
-        $periods    = MinutesQuery::periodCountsFor( $activity_ids );
-        $available  = [];
+        $bases     = $this->teamBases( $teams );
+        $periods   = MinutesQuery::periodCountsFor( $activity_ids );
+        $available = [];
         foreach ( $activities as $a ) {
+            $basis = $bases[ (int) $a->team_id ] ?? self::fallbackBasis();
             $available[ (int) $a->id ] = self::isTournamentRow( $a ) ? 0 : self::availableMinutes(
-                $team_basis['players_a_side'],
+                $basis['players_a_side'],
                 MatchLengthResolver::resolvePlayedLength(
                     (int) ( $a->prep_half_minutes ?? 0 ),
                     (int) ( $a->match_length_minutes ?? 0 ),
-                    $team_basis['config_half_minutes'],
+                    $basis['config_half_minutes'],
                     isset( $a->start_time ) ? (string) $a->start_time : '',
                     isset( $a->end_time ) ? (string) $a->end_time : '',
                     $periods[ (int) $a->id ] ?? 2
@@ -165,7 +185,7 @@ final class MinutesAuditQuery {
         $squad_marks = $this->squadMarks( $activity_ids );
         // #4526 — legacy duplicate recorded rows in this window, counted for
         // the admin footer; the minutes above read past them.
-        $duplicate_pairs = PlayerMatchMinutes::duplicatePairs( $activity_ids );
+        $duplicates = PlayerMatchMinutes::duplicatePairsByActivity( $activity_ids );
 
         // 3. Recorded actual minutes per game+player, the same read the grid
         //    and the minutes reports make. Effective minutes =
@@ -178,10 +198,9 @@ final class MinutesAuditQuery {
         //    lives once, in `MinutesQuery::playerMatchMinutes()`.
         $minutes_by_game = MinutesQuery::minutesForActivities( $activity_ids );
 
-        // Fold into per-activity maps + collect the union of squad players.
+        // Fold into per-activity maps.
         $squad_by_game   = []; // aid => [pid => true]
         $unavail_by_game = []; // aid => [pid => true], #4101
-        $player_ids      = []; // set of every player that appears anywhere
         foreach ( $squad_marks as $aid => $marks ) {
             foreach ( $marks as $pid => $is_unavailable ) {
                 if ( $is_unavailable ) {
@@ -189,12 +208,6 @@ final class MinutesAuditQuery {
                 } else {
                     $squad_by_game[ $aid ][ $pid ] = true;
                 }
-                $player_ids[ $pid ] = true;
-            }
-        }
-        foreach ( $minutes_by_game as $by_player ) {
-            foreach ( array_keys( $by_player ) as $pid ) {
-                $player_ids[ $pid ] = true; // recorded minutes imply squad membership even if the attendance row is only 'actual'
             }
         }
 
@@ -205,27 +218,105 @@ final class MinutesAuditQuery {
         //     largest block of minutes in the month. Its squad + minutes are
         //     rolled up from those fixtures instead, and the row is marked
         //     not editable — minutes have one home, the tournament planner.
-        $rollups = $this->fixtureRollups( $activities );
-        foreach ( $rollups as $aid => $rollup ) {
+        foreach ( $this->fixtureRollups( $activities ) as $aid => $rollup ) {
             foreach ( $rollup['squad'] as $pid => $_on ) {
                 $squad_by_game[ $aid ][ $pid ] = true;
-                $player_ids[ $pid ]            = true;
             }
             foreach ( $rollup['unavailable'] as $pid => $_off ) {
                 $unavail_by_game[ $aid ][ $pid ] = true;
-                $player_ids[ $pid ]              = true;
             }
             foreach ( $rollup['minutes'] as $pid => $mins ) {
                 $minutes_by_game[ $aid ][ $pid ] = $mins;
-                $player_ids[ $pid ]              = true;
             }
         }
 
-        if ( empty( $player_ids ) ) {
+        // Per team: its activities and every player that appears on them
+        // (a squad mark, an unavailable mark or recorded minutes).
+        $by_team    = [];
+        $team_pids  = [];
+        $all_pids   = [];
+        foreach ( $activities as $a ) {
+            $tid = (int) $a->team_id;
+            $aid = (int) $a->id;
+            $by_team[ $tid ][] = $a;
+            foreach ( [ $squad_by_game[ $aid ] ?? [], $unavail_by_game[ $aid ] ?? [], $minutes_by_game[ $aid ] ?? [] ] as $map ) {
+                foreach ( array_keys( $map ) as $pid ) {
+                    $team_pids[ $tid ][ $pid ] = true;
+                    $all_pids[ $pid ]          = true;
+                }
+            }
+        }
+
+        // 4. Player display info for the column headers, once for every team.
+        //    Column order: jersey number asc (nulls last), then last name.
+        $players = [];
+        if ( $all_pids !== [] ) {
+            $pids = array_keys( $all_pids );
+            $in_p = implode( ',', array_fill( 0, count( $pids ), '%d' ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $players_raw = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, first_name, last_name, jersey_number
+                   FROM {$p}tt_players
+                  WHERE id IN ($in_p) AND club_id = %d",
+                array_merge( $pids, [ $club_id ] )
+            ) );
+            foreach ( (array) $players_raw as $pl ) {
+                $players[] = [
+                    'player_id'     => (int) $pl->id,
+                    'first_name'    => (string) $pl->first_name,
+                    'last_name'     => (string) $pl->last_name,
+                    'jersey_number' => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
+                ];
+            }
+            usort( $players, static function ( array $a, array $b ): int {
+                $ja = $a['jersey_number'] ?? PHP_INT_MAX;
+                $jb = $b['jersey_number'] ?? PHP_INT_MAX;
+                if ( $ja !== $jb ) return $ja <=> $jb;
+                return strcasecmp( $a['last_name'], $b['last_name'] );
+            } );
+        }
+
+        foreach ( $by_team as $tid => $team_activities ) {
+            $duplicate_pairs = 0;
+            foreach ( $team_activities as $a ) $duplicate_pairs += $duplicates[ (int) $a->id ] ?? 0;
+            $team_players = array_values( array_filter(
+                $players,
+                static fn( array $pl ): bool => isset( $team_pids[ $tid ][ $pl['player_id'] ] )
+            ) );
+            $out[ $tid ] = self::assemble( $team_activities, $team_players, $available, $squad_by_game, $unavail_by_game, $minutes_by_game, $duplicate_pairs );
+        }
+        return $out;
+    }
+
+    /** @return AuditMatrix the matrix of a team with no games in the window */
+    private static function emptyMatrix(): array {
+        return [
+            'games'         => [],
+            'players'       => [],
+            'column_totals' => [],
+            'grand_total'   => 0,
+            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0, 'duplicate_pairs' => 0 ],
+        ];
+    }
+
+    /**
+     * One team's rows, column totals and summary from the maps read for the
+     * whole window. The rule every caller reads.
+     *
+     * @param array<int, object>                           $activities the team's games, in date order
+     * @param list<AuditPlayer>                            $players the team's players, in column order
+     * @param array<int, int>                              $available       activity id => minutes the match holds
+     * @param array<int, array<int, bool>>                 $squad_by_game   activity id => [ player id => true ]
+     * @param array<int, array<int, bool>>                 $unavail_by_game activity id => [ player id => true ]
+     * @param array<int, array<int, int>>                  $minutes_by_game activity id => [ player id => minutes ]
+     * @return AuditMatrix
+     */
+    private static function assemble( array $activities, array $players, array $available, array $squad_by_game, array $unavail_by_game, array $minutes_by_game, int $duplicate_pairs ): array {
+        if ( $players === [] ) {
             // Games exist, but no player is on any squad and nothing is
             // recorded — an honest "games present, no minutes recorded" state.
-            $games      = [];
-            $editable   = 0;
+            $games    = [];
+            $editable = 0;
             foreach ( $activities as $a ) {
                 $is_rollup = self::isTournamentRow( $a );
                 if ( ! $is_rollup ) $editable++;
@@ -265,33 +356,6 @@ final class MinutesAuditQuery {
             ];
         }
 
-        // 4. Player display info for the column headers.
-        $pids   = array_keys( $player_ids );
-        $in_p   = implode( ',', array_fill( 0, count( $pids ), '%d' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $players_raw = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, jersey_number
-               FROM {$p}tt_players
-              WHERE id IN ($in_p) AND club_id = %d",
-            array_merge( $pids, [ $club_id ] )
-        ) );
-
-        $players = [];
-        foreach ( (array) $players_raw as $pl ) {
-            $players[] = [
-                'player_id'     => (int) $pl->id,
-                'first_name'    => (string) $pl->first_name,
-                'last_name'     => (string) $pl->last_name,
-                'jersey_number' => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
-            ];
-        }
-        // Column order: jersey number asc (nulls last), then last name.
-        usort( $players, static function ( array $a, array $b ): int {
-            $ja = $a['jersey_number'] ?? PHP_INT_MAX;
-            $jb = $b['jersey_number'] ?? PHP_INT_MAX;
-            if ( $ja !== $jb ) return $ja <=> $jb;
-            return strcasecmp( $a['last_name'], $b['last_name'] );
-        } );
         $ordered_pids = array_map( static fn( array $pl ): int => (int) $pl['player_id'], $players );
 
         // 5. Assemble the rows + running column totals.
@@ -449,26 +513,39 @@ final class MinutesAuditQuery {
     }
 
     /**
-     * Players a side and the configured half length for one team, read once
-     * for the whole matrix.
+     * Players a side and the configured half length per team, read once for
+     * every team in the window. A team that is not found takes the fallback
+     * form and no configured half length.
      *
-     * @return array{players_a_side:int, config_half_minutes:int}
+     * @param list<int> $team_ids
+     * @return array<int, array{players_a_side:int, config_half_minutes:int}>
      */
-    private function teamBasis( int $team_id ): array {
+    private function teamBases( array $team_ids ): array {
         global $wpdb;
-        $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT football_form, age_group FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
-            $team_id,
-            CurrentClub::id()
+        $in   = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, football_form, age_group FROM {$wpdb->prefix}tt_teams WHERE id IN ({$in}) AND club_id = %d",
+            ...array_merge( $team_ids, [ CurrentClub::id() ] )
         ) );
+        $map = ( new MatchLengthResolver() )->configuredMap();
 
-        $form      = is_object( $team ) ? FootballFormResolver::forTeamRow( $team ) : FootballFormResolver::FALLBACK_FORM;
-        $age_group = is_object( $team ) ? trim( (string) ( $team->age_group ?? '' ) ) : '';
-        $map       = ( new MatchLengthResolver() )->configuredMap();
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $team ) {
+            $age_group = trim( (string) ( $team->age_group ?? '' ) );
+            $out[ (int) $team->id ] = [
+                'players_a_side'      => FootballFormResolver::playersASide( FootballFormResolver::forTeamRow( $team ) ),
+                'config_half_minutes' => $age_group !== '' ? (int) ( $map[ $age_group ] ?? 0 ) : 0,
+            ];
+        }
+        return $out;
+    }
 
+    /** @return array{players_a_side:int, config_half_minutes:int} the basis of a team that is not found */
+    private static function fallbackBasis(): array {
         return [
-            'players_a_side'      => FootballFormResolver::playersASide( $form ),
-            'config_half_minutes' => $age_group !== '' ? (int) ( $map[ $age_group ] ?? 0 ) : 0,
+            'players_a_side'      => FootballFormResolver::playersASide( FootballFormResolver::FALLBACK_FORM ),
+            'config_half_minutes' => 0,
         ];
     }
 
