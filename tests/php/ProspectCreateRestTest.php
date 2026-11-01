@@ -195,12 +195,15 @@ final class ProspectCreateRestTest extends WP_UnitTestCase {
     public function test_the_legacy_workflow_form_creates_through_the_service(): void {
         $visit = $this->seedVisit();
 
-        $payload = ( new LogProspectForm() )->serializeResponse( [
+        $form = new LogProspectForm();
+        $raw  = [
             'first_name'        => 'Sem',
             'last_name'         => 'de Vries',
             'current_club'      => 'VV Voorbeeld',
             'scouting_visit_id' => $visit,
-        ], [ 'assignee_user_id' => $this->scout ] );
+        ];
+        $task    = [ 'assignee_user_id' => $this->scout ];
+        $payload = $form->onCompleted( $task, $raw, $form->serializeResponse( $raw, $task ) );
 
         $prospect_id = (int) ( $payload['prospect_id'] ?? 0 );
         $this->assertGreaterThan( 0, $prospect_id );

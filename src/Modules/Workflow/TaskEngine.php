@@ -3,7 +3,9 @@ namespace TT\Modules\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\AfterCommit;
 use TT\Modules\Workflow\Chain\ChainStep;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
@@ -141,16 +143,34 @@ class TaskEngine {
 
     /**
      * Mark a task completed and run the template's onComplete hook.
-     * Returns true on success.
+     * Returns true only when this call completed the task.
+     *
+     * #4560 — a task that is already completed is left alone and the answer
+     * is false, for every caller: completing it again would overwrite the
+     * stored answer and run the template's hook and chain a second time. The
+     * repository's UPDATE carries the status test, so of two racing submits
+     * exactly one gets through.
+     *
+     * `$step` is the form's own writes (#4550). It runs in one transaction
+     * with the completing UPDATE, so either the task is completed with its
+     * records or neither happened and the task is still open to try again.
+     * The template's hook and chain run after the commit. Without a step the
+     * UPDATE is the only write and needs no transaction.
      *
      * @param array<string,mixed> $response
+     * @param array<string,mixed> $raw      The validated input `$step` receives.
      */
-    public function complete( int $task_id, array $response ): bool {
+    public function complete( int $task_id, array $response, ?CompletionStepInterface $step = null, array $raw = [] ): bool {
         $task = $this->tasks->find( $task_id );
         if ( $task === null ) return false;
 
-        $ok = $this->tasks->complete( $task_id, $response );
-        if ( ! $ok ) return false;
+        if ( $step === null ) {
+            if ( ! $this->tasks->complete( $task_id, $response ) ) return false;
+        } else {
+            $written = $this->completeWithStep( $task_id, $response, $step, $raw );
+            if ( $written === null ) return false;
+            $response = $written;
+        }
 
         $template = $this->registry->get( (string) $task['template_key'] );
         if ( $template !== null ) {
@@ -173,6 +193,55 @@ class TaskEngine {
             }
         }
         return true;
+    }
+
+    /**
+     * The completing UPDATE and the form's writes, committed together. The
+     * response with the ids of what was written, or null when the task was
+     * not completed: already completed, or rolled back after a failure.
+     *
+     * Known gap (#4561): MySQL has no nested transactions, and a
+     * `START TRANSACTION` inside the step commits this one. Archiving a
+     * player opens its own (`ArchiveRepository::archive()`), and a group
+     * review's `decline_final` reaches it through
+     * `TrialDecisionPlayerStatusSubscriber`. On that path what was written
+     * before the archive is committed early, and a later failure cannot
+     * roll it back.
+     *
+     * @param array<string,mixed> $response
+     * @param array<string,mixed> $raw
+     * @return array<string,mixed>|null
+     */
+    private function completeWithStep( int $task_id, array $response, CompletionStepInterface $step, array $raw ): ?array {
+        global $wpdb;
+        $wpdb->query( 'START TRANSACTION' );
+        // Messages the step's writes trigger wait for the commit, so a
+        // rollback announces nothing.
+        AfterCommit::open();
+        $written = $response;
+        try {
+            if ( ! $this->tasks->complete( $task_id, $response ) ) {
+                throw new CompletionStepFailed( 'The task was not completed by this call.' );
+            }
+            $completed = $this->tasks->find( $task_id );
+            if ( ! is_array( $completed ) ) {
+                throw new CompletionStepFailed( 'The completed task could not be read back.' );
+            }
+            $written = $step->onCompleted( $completed, $raw, $response );
+            if ( $written !== $response
+                && ! $this->tasks->update( $task_id, [ 'response_json' => (string) wp_json_encode( $written ) ] ) ) {
+                throw new CompletionStepFailed( 'The ids of what was written could not be stored.' );
+            }
+        } catch ( \Throwable $e ) {
+            $wpdb->query( 'ROLLBACK' );
+            AfterCommit::discard();
+            $this->log( 'Completing task ' . $task_id . ' was rolled back: ' . $e->getMessage() );
+            return null;
+        }
+
+        $wpdb->query( 'COMMIT' );
+        AfterCommit::commit();
+        return $written;
     }
 
     /**

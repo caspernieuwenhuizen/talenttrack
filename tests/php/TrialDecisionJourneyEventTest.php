@@ -6,6 +6,8 @@ use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Rest\TrialsRestController;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\Contracts\FormInterface;
 use TT\Modules\Workflow\Forms\AwaitTeamOfferDecisionForm;
 use TT\Modules\Workflow\Forms\ReviewTrialGroupMembershipForm;
 use WP_UnitTestCase;
@@ -42,7 +44,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new AwaitTeamOfferDecisionForm() )->serializeResponse(
+        $this->completeWith( new AwaitTeamOfferDecisionForm(),
             [ 'outcome' => 'declined', 'notes' => 'Family chose another club.' ],
             $this->task( $case_id, $player_id )
         );
@@ -63,7 +65,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new AwaitTeamOfferDecisionForm() )->serializeResponse(
+        $this->completeWith( new AwaitTeamOfferDecisionForm(),
             [ 'outcome' => 'accepted', 'notes' => 'Signed for the U15.' ],
             $this->task( $case_id, $player_id )
         );
@@ -78,7 +80,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new AwaitTeamOfferDecisionForm() )->serializeResponse(
+        $this->completeWith( new AwaitTeamOfferDecisionForm(),
             [ 'outcome' => 'declined', 'notes' => 'Family chose another club.' ],
             $this->task( $case_id, $player_id )
         );
@@ -92,7 +94,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new AwaitTeamOfferDecisionForm() )->serializeResponse(
+        $this->completeWith( new AwaitTeamOfferDecisionForm(),
             [ 'outcome' => 'no_response', 'notes' => 'Two reminders, no reply.' ],
             $this->task( $case_id, $player_id )
         );
@@ -109,7 +111,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new ReviewTrialGroupMembershipForm() )->serializeResponse(
+        $this->completeWith( new ReviewTrialGroupMembershipForm(),
             [ 'decision' => 'continue_in_trial_group', 'rationale' => 'Another block to look at him.' ],
             $this->task( $case_id, $player_id )
         );
@@ -129,7 +131,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new ReviewTrialGroupMembershipForm() )->serializeResponse(
+        $this->completeWith( new ReviewTrialGroupMembershipForm(),
             [ 'decision' => 'offer_team_position', 'rationale' => 'Offer a place in the U15.' ],
             $this->task( $case_id, $player_id )
         );
@@ -154,7 +156,7 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
         $player_id = $this->makeTrialPlayer();
         $case_id   = $this->makeCase( $player_id );
 
-        ( new ReviewTrialGroupMembershipForm() )->serializeResponse(
+        $this->completeWith( new ReviewTrialGroupMembershipForm(),
             [ 'decision' => 'decline_final', 'rationale' => 'Not at the level for the age group.' ],
             $this->task( $case_id, $player_id )
         );
@@ -265,6 +267,18 @@ final class TrialDecisionJourneyEventTest extends WP_UnitTestCase {
     }
 
     /* ---- helpers -------------------------------------------------------- */
+
+    /**
+     * What a submit does with the form's answer: the response, then the
+     * writes once the task is completed (#4550).
+     *
+     * @param array<string,mixed> $raw
+     * @param array<string,mixed> $task
+     * @return array<string,mixed>
+     */
+    private function completeWith( FormInterface&CompletionStepInterface $form, array $raw, array $task ): array {
+        return $form->onCompleted( $task, $raw, $form->serializeResponse( $raw, $task ) );
+    }
 
     /** @return array<string,mixed> */
     private function task( int $case_id, int $player_id ): array {

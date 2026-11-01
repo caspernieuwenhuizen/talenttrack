@@ -1,0 +1,4 @@
+#: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php
+#: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php
+msgid "This task is not linked to a trial. Ask an administrator to look at it."
+msgstr "Deze taak is niet aan een stage gekoppeld. Vraag een beheerder ernaar te kijken."

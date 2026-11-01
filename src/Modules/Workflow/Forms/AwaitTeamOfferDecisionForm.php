@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -20,7 +22,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * announcing nothing, because nothing was decided; the operator can
  * revisit later. The prospect is archived here on decline and no-response.
  */
-class AwaitTeamOfferDecisionForm implements FormInterface {
+class AwaitTeamOfferDecisionForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -74,6 +76,13 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
+        // #4550 — the answer is recorded on the task's trial case; a task
+        // without one is refused here, with a reason, rather than failing
+        // the completion with the generic error.
+        if ( (int) ( $task['trial_case_id'] ?? 0 ) <= 0 ) {
+            $errors['__form'] = __( 'This task is not linked to a trial. Ask an administrator to look at it.', 'talenttrack' );
+            return $errors;
+        }
         $outcome = (string) ( $raw['outcome'] ?? '' );
         if ( ! in_array( $outcome, [ 'accepted', 'declined', 'no_response' ], true ) ) {
             $errors['outcome'] = __( 'Pick one outcome.', 'talenttrack' );
@@ -82,8 +91,20 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
     }
 
     public function serializeResponse( array $raw, array $task ): array {
-        $outcome = (string) ( $raw['outcome'] ?? '' );
-        $notes   = sanitize_textarea_field( (string) ( $raw['notes'] ?? '' ) );
+        return [
+            'outcome'       => (string) ( $raw['outcome'] ?? '' ),
+            'notes'         => sanitize_textarea_field( (string) ( $raw['notes'] ?? '' ) ),
+            'trial_case_id' => (int) ( $task['trial_case_id'] ?? 0 ),
+        ];
+    }
+
+    /**
+     * #4550 — the trial case and the prospect change once the task is
+     * completed, so a completion that fails changes neither.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $outcome = (string) ( $response['outcome'] ?? '' );
+        $notes   = (string) ( $response['notes'] ?? '' );
 
         // Trial-case side-effect. The trial_case_id was carried through
         // the chain by InviteToTestTraining → ConfirmTestTraining →
@@ -94,39 +115,45 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
         $prospect_id   = (int) ( $task['prospect_id']   ?? 0 );
         $actor         = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
 
-        if ( $trial_case_id > 0 ) {
-            $repo = new TrialCasesRepository();
+        // #4550 — the answer is about this trial case; without it, or when
+        // the case was not written, the completion fails and rolls back.
+        if ( $trial_case_id <= 0 ) {
+            throw new CompletionStepFailed( 'The task names no trial case.' );
+        }
+        $repo = new TrialCasesRepository();
 
-            // #3138 — through `recordDecision()`, not `update()`. Both
-            // decision branches used to write the case row and announce
-            // nothing, so a trial that ended here never closed on the
-            // player's timeline: the declined branch left a trial that
-            // started and never finished, and the accepted branch produced
-            // no "Signed after trial" either.
-            //
-            // The decision hook now carries both, which also means the
-            // player's status is written by one owner —
-            // `TrialDecisionPlayerStatusSubscriber` (#3116), whose mapping
-            // already covers `admit` -> active and
-            // `declined_offered_position` -> inactive. The manual
-            // `tt_players` write that used to live below is gone with it;
-            // two writers with two opinions about the same column is the
-            // thing that gap invites.
-            if ( $outcome === 'accepted' ) {
-                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_ADMIT, $actor, $notes );
-            } elseif ( $outcome === 'declined' ) {
-                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION, $actor, $notes );
-            } else {
-                // no_response → archive without decision change. Nothing was
-                // decided, so nothing is announced.
-                $repo->update( $trial_case_id, [
-                    'decision_made_at' => current_time( 'mysql', true ),
-                    'decision_made_by' => $actor,
-                    'decision_notes'   => $notes,
-                    'archived_at'      => current_time( 'mysql', true ),
-                    'archived_by'      => $actor,
-                ] );
-            }
+        // #3138 — through `recordDecision()`, not `update()`. Both
+        // decision branches used to write the case row and announce
+        // nothing, so a trial that ended here never closed on the
+        // player's timeline: the declined branch left a trial that
+        // started and never finished, and the accepted branch produced
+        // no "Signed after trial" either.
+        //
+        // The decision hook now carries both, which also means the
+        // player's status is written by one owner —
+        // `TrialDecisionPlayerStatusSubscriber` (#3116), whose mapping
+        // already covers `admit` -> active and
+        // `declined_offered_position` -> inactive. The manual
+        // `tt_players` write that used to live below is gone with it;
+        // two writers with two opinions about the same column is the
+        // thing that gap invites.
+        if ( $outcome === 'accepted' ) {
+            $written = $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_ADMIT, $actor, $notes );
+        } elseif ( $outcome === 'declined' ) {
+            $written = $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION, $actor, $notes );
+        } else {
+            // no_response → archive without decision change. Nothing was
+            // decided, so nothing is announced.
+            $written = $repo->update( $trial_case_id, [
+                'decision_made_at' => current_time( 'mysql', true ),
+                'decision_made_by' => $actor,
+                'decision_notes'   => $notes,
+                'archived_at'      => current_time( 'mysql', true ),
+                'archived_by'      => $actor,
+            ] );
+        }
+        if ( ! $written ) {
+            throw new CompletionStepFailed( 'The trial case was not updated.' );
         }
 
         // v3.110.85 — close the docblock gap. Pre-v3.110.85 only the
@@ -153,11 +180,7 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
             );
         }
 
-        return [
-            'outcome'       => $outcome,
-            'notes'         => $notes,
-            'trial_case_id' => $trial_case_id,
-        ];
+        return $response;
     }
 
     /** @param array<string,mixed> $task */

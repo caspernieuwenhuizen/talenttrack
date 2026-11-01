@@ -8,6 +8,8 @@ use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ConsentRequestDate;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -29,7 +31,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * in this folder predate the inline-style rule and are grandfathered, new
  * ones are not.
  */
-class RequestConsentForm implements FormInterface {
+class RequestConsentForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -117,28 +119,45 @@ class RequestConsentForm implements FormInterface {
         $outcome     = (string) ( $raw['outcome'] ?? ConsentOutcome::AWAITING );
         $notes       = sanitize_textarea_field( (string) ( $raw['notes'] ?? '' ) );
 
-        $entry_id = 0;
-        if ( $prospect_id > 0 ) {
-            $entry_id = ( new ProspectConsentRequestsRepository() )
-                ->create( $prospect_id, $asked_at, $asked_of, $outcome, $notes );
-
-            if ( $entry_id > 0 ) {
-                ( new AuditService() )->record( 'prospect.consent_requested', 'prospect', $prospect_id, [
-                    'entry_id' => $entry_id,
-                    'asked_at' => $asked_at,
-                    'outcome'  => $outcome,
-                ] );
-            }
-        }
-
         return [
             'prospect_id' => $prospect_id,
-            'entry_id'    => $entry_id,
+            'entry_id'    => 0,
             'asked_at'    => $asked_at,
             'asked_of'    => $asked_of,
             'outcome'     => $outcome,
             'notes'       => $notes,
         ];
+    }
+
+    /**
+     * #4550 — the consent request is recorded once the task is completed,
+     * so a completion that fails leaves no request behind.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $prospect_id = (int) ( $response['prospect_id'] ?? 0 );
+        if ( $prospect_id <= 0 ) return $response;
+
+        $outcome  = (string) ( $response['outcome'] ?? ConsentOutcome::AWAITING );
+        $asked_at = (string) ( $response['asked_at'] ?? '' );
+        $entry_id = ( new ProspectConsentRequestsRepository() )->create(
+            $prospect_id,
+            $asked_at,
+            (string) ( $response['asked_of'] ?? '' ),
+            $outcome,
+            (string) ( $response['notes'] ?? '' )
+        );
+
+        if ( $entry_id <= 0 ) {
+            throw new CompletionStepFailed( 'The consent request was not recorded.' );
+        }
+        ( new AuditService() )->record( 'prospect.consent_requested', 'prospect', $prospect_id, [
+            'entry_id' => $entry_id,
+            'asked_at' => $asked_at,
+            'outcome'  => $outcome,
+        ] );
+
+        $response['entry_id'] = $entry_id;
+        return $response;
     }
 
     /**

@@ -72,7 +72,7 @@ class ReviewTrialGroupMembershipTemplate extends TaskTemplate {
 
     /**
      * On `decline_final` the trial case + prospect both terminate
-     * here. The form's `serializeResponse()` already wrote the
+     * here. The form's `onCompleted()` already wrote the
      * trial case decision; this hook archives the prospect for
      * symmetry with the other terminal-outcome paths.
      */

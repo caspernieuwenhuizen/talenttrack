@@ -7,6 +7,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Domain\ConsentGate;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -28,7 +30,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * surface a copy-pasteable string that the HoD can send manually
  * until the comms module lands.
  */
-class InviteToTestTrainingForm implements FormInterface {
+class InviteToTestTrainingForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing  = self::decodeResponse( $task );
@@ -141,22 +143,33 @@ class InviteToTestTrainingForm implements FormInterface {
         $test_training_id = isset( $raw['test_training_id'] ) ? (int) $raw['test_training_id'] : 0;
         $new_date         = trim( (string) ( $raw['new_date'] ?? '' ) );
 
-        // Schedule a new session if the HoD chose that path.
-        if ( $test_training_id <= 0 && $new_date !== '' ) {
-            $repo = new TestTrainingsRepository();
-            $test_training_id = $repo->create( [
-                'date'          => str_replace( 'T', ' ', $new_date ) . ':00',
-                'location'      => sanitize_text_field( (string) ( $raw['new_location'] ?? '' ) ) ?: null,
-                'coach_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
-            ] );
-        }
-
         return [
             'test_training_id'   => $test_training_id,
             'new_date'           => $new_date,
             'new_location'       => sanitize_text_field( (string) ( $raw['new_location'] ?? '' ) ),
             'invitation_message' => sanitize_textarea_field( (string) ( $raw['invitation_message'] ?? '' ) ),
         ];
+    }
+
+    /**
+     * #4550 — a new test training is scheduled once the task is completed,
+     * so a completion that fails leaves no session behind.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $new_date = (string) ( $response['new_date'] ?? '' );
+        if ( (int) ( $response['test_training_id'] ?? 0 ) > 0 || $new_date === '' ) return $response;
+
+        $location = (string) ( $response['new_location'] ?? '' );
+        $test_training_id = ( new TestTrainingsRepository() )->create( [
+            'date'          => str_replace( 'T', ' ', $new_date ) . ':00',
+            'location'      => $location !== '' ? $location : null,
+            'coach_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
+        ] );
+        if ( $test_training_id <= 0 ) {
+            throw new CompletionStepFailed( 'The test training was not scheduled.' );
+        }
+        $response['test_training_id'] = $test_training_id;
+        return $response;
     }
 
     /** @param array<string,mixed> $task */

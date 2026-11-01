@@ -138,16 +138,28 @@ class TasksRepository {
 
     /**
      * Mark a task completed and stamp completed_at + response_json. Returns
-     * true on success.
+     * true only when this call completed it.
+     *
+     * #4560 — a task that is already completed is left alone, and the answer
+     * is false. The status test is in the UPDATE itself, so of two submits
+     * racing for the same task exactly one changes the row.
      *
      * @param array<string,mixed> $response
      */
     public function complete( int $id, array $response ): bool {
-        return $this->update( $id, [
-            'status'       => TaskStatus::COMPLETED,
-            'completed_at' => current_time( 'mysql' ),
-            'response_json' => wp_json_encode( $response ),
-        ] );
+        global $wpdb;
+        $changed = $wpdb->query( $wpdb->prepare(
+            "UPDATE {$this->table()}
+                SET status = %s, completed_at = %s, response_json = %s
+              WHERE id = %d AND club_id = %d AND status <> %s",
+            TaskStatus::COMPLETED,
+            current_time( 'mysql' ),
+            (string) wp_json_encode( $response ),
+            $id,
+            CurrentClub::id(),
+            TaskStatus::COMPLETED
+        ) );
+        return is_int( $changed ) && $changed > 0;
     }
 
     /**

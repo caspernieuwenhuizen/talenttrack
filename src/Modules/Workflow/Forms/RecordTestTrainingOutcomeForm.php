@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -20,11 +22,11 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * which already aggregates per-stage tasks; the widget is a more
  * natural place for that batching.
  *
- * On `admit_to_trial`, the form creates the trial case directly
+ * On `admit_to_trial`, the form creates the trial case in `onCompleted()`
  * (mirrors the LogProspect → tt_prospects pattern) so the chain step
  * can read `trial_case_id` from the response payload.
  */
-class RecordTestTrainingOutcomeForm implements FormInterface {
+class RecordTestTrainingOutcomeForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -95,38 +97,56 @@ class RecordTestTrainingOutcomeForm implements FormInterface {
         $recommendation = (string) ( $raw['recommendation'] ?? '' );
         $observations   = sanitize_textarea_field( (string) ( $raw['observations'] ?? '' ) );
 
-        $payload = [
+        return [
             'recommendation' => $recommendation,
             'observations'   => $observations,
         ];
+    }
 
-        if ( $recommendation === 'admit_to_trial' ) {
+    /**
+     * #4550 — on `admit_to_trial` the player and the trial case are created
+     * once the task is completed, so a completion that fails leaves neither
+     * behind.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $payload = $response;
+
+        if ( (string) ( $response['recommendation'] ?? '' ) === 'admit_to_trial' ) {
             // Promote prospect to a player on admit (matches the
             // existing trial_case → player flow). Without a player_id
             // the trial case can't be created.
+            // An admit that opens no trial case leaves the prospect admitted
+            // to nothing, so each missing id fails the completion, which
+            // rolls back (#4550).
             $prospect_id = (int) ( $task['prospect_id'] ?? 0 );
             $player_id   = self::ensurePromotedPlayer( $prospect_id );
-            $track_id    = self::defaultTrialTrackId();
-            if ( $player_id > 0 && $track_id > 0 ) {
-                $repo = new TrialCasesRepository();
-                $trial_case_id = $repo->create( [
-                    'player_id'  => $player_id,
-                    'track_id'   => $track_id,
-                    'start_date' => gmdate( 'Y-m-d' ),
-                    'end_date'   => gmdate( 'Y-m-d', strtotime( '+90 days' ) ),
-                    'created_by' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
-                ] );
-                $payload['player_id']     = $player_id;
-                $payload['trial_case_id'] = $trial_case_id;
-
-                // Stamp the prospect with the promotion link so future
-                // queries (PlayerDataMap, retention cron, pipeline
-                // widget) can navigate prospect → player.
-                ( new ProspectsRepository() )->update( $prospect_id, [
-                    'promoted_to_player_id'    => $player_id,
-                    'promoted_to_trial_case_id' => $trial_case_id,
-                ] );
+            if ( $player_id <= 0 ) {
+                throw new CompletionStepFailed( 'The prospect was not promoted to a player.' );
             }
+            $track_id = self::defaultTrialTrackId();
+            if ( $track_id <= 0 ) {
+                throw new CompletionStepFailed( 'There is no trial track to open the trial on.' );
+            }
+            $trial_case_id = ( new TrialCasesRepository() )->create( [
+                'player_id'  => $player_id,
+                'track_id'   => $track_id,
+                'start_date' => gmdate( 'Y-m-d' ),
+                'end_date'   => gmdate( 'Y-m-d', strtotime( '+90 days' ) ),
+                'created_by' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
+            ] );
+            if ( $trial_case_id <= 0 ) {
+                throw new CompletionStepFailed( 'The trial case was not opened.' );
+            }
+            $payload['player_id']     = $player_id;
+            $payload['trial_case_id'] = $trial_case_id;
+
+            // Stamp the prospect with the promotion link so future
+            // queries (PlayerDataMap, retention cron, pipeline
+            // widget) can navigate prospect → player.
+            ( new ProspectsRepository() )->update( $prospect_id, [
+                'promoted_to_player_id'    => $player_id,
+                'promoted_to_trial_case_id' => $trial_case_id,
+            ] );
         }
 
         return $payload;
