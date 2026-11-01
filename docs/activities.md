@@ -194,7 +194,7 @@ about the result, not the result itself.
 2. Pick the **type** from the dropdown. Five types ship by default — Training, Game, Tournament, Meeting and Other — and your academy can rename or add new ones.
 3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
 4. If you picked **Other**, give it a short label.
-5. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
+5. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it. An end time earlier than the start counts as the next day when the activity lasts six hours or less, so a tournament evening from 23:00 to 00:30 keeps its end and lasts 90 minutes. A longer "next-day" span, such as 10:00 to 09:00, is taken as a typing mistake and the end time is not saved.
    - **Coach** — who is running it. The picker offers the staff assigned to the selected team and prefills the team's head coach, so an academy administrator typing a season schedule doesn't end up down as the coach of every session in it. Leave it on *— No coach —* if it isn't settled yet; see [Who runs it](#who-runs-it).
 6. For a **match** type (Game, Tournament, or a custom match/friendly type) three extra fields appear:
  - **Presence time** (optional) — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.

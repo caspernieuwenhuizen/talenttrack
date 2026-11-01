@@ -14,6 +14,7 @@ use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Modules\Activities\Services\ActivityTimeWindow;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 
 /**
@@ -2079,7 +2080,7 @@ class ActivitiesRestController {
             'title'                => [ 'type' => 'string',  'description' => 'What the activity is called.' ],
             'session_date'         => [ 'type' => 'string',  'description' => 'The date it is held, as YYYY-MM-DD.' ],
             'start_time'           => [ 'type' => 'string',  'description' => 'Start time as HH:MM. Empty clears it. Mirrored into kickoff_time for match types.' ],
-            'end_time'             => [ 'type' => 'string',  'description' => 'End time as HH:MM. Dropped when it is not after the start.' ],
+            'end_time'             => [ 'type' => 'string',  'description' => 'End time as HH:MM. An end earlier than the start is the next day when the span is at most 6 hours; otherwise it is dropped.' ],
             'time_of_presence'     => [ 'type' => 'string',  'description' => 'Arrival time as HH:MM, for match types.' ],
             'team_id'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team it belongs to. The caller must be able to write for both the current and the target team.' ],
             'coach_id'             => [
@@ -2342,7 +2343,7 @@ class ActivitiesRestController {
 
         // #1126 — optional start_time + end_time. Validate HH:MM
         // shape, treat empty as null. End must come after start when
-        // both are set.
+        // both are set, or be a next-day end (#4513).
         $start_time_raw = trim( (string) ( $r['start_time'] ?? '' ) );
         $end_time_raw   = trim( (string) ( $r['end_time']   ?? '' ) );
         $start_time = null;
@@ -2355,9 +2356,11 @@ class ActivitiesRestController {
         }
         if ( $start_time !== null && $end_time !== null
             && strtotime( '1970-01-01 ' . $end_time ) <= strtotime( '1970-01-01 ' . $start_time )
+            && ! ActivityTimeWindow::endIsNextDay( $start_time, $end_time )
         ) {
             // Silently drop end_time on a malformed combo so the row
-            // still persists; UI validation should have caught this.
+            // still persists; UI validation should have caught this. An
+            // activity crossing midnight (23:00 to 00:30) keeps its end.
             $end_time = null;
         }
         // #1729 — optional arrival/presence time (match types). Same

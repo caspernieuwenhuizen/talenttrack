@@ -1,0 +1,3 @@
+# Activities crossing midnight keep their end time (#4513, #4528)
+
+An activity that ends after midnight, such as a tournament evening from 23:00 to 00:30, no longer loses its end time on save, and the new-activity wizard accepts it too, including the 00:15 end it suggests for a 22:30 kick-off. An end earlier than the start now counts as the next day when the span is six hours or less: the duration in the stat strip, the planner PDF and the weekly planner print, and the match-length basis all count it (23:00 to 00:30 is 90 minutes). A longer span, such as 10:00 to 09:00, is still treated as a typo. Re-saving a late Spond activity without changes no longer locks its times against the Spond sync.

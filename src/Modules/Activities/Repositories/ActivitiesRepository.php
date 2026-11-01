@@ -1514,17 +1514,12 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #2220 — minutes between two `HH:MM[:SS]` clock times on the same
-     * day. Returns 0 when either is missing / unparseable or the window
-     * is non-positive.
+     * #2220 — minutes between two `HH:MM[:SS]` clock times. Returns 0 when
+     * either is missing / unparseable or the window is non-positive. A
+     * next-day end counts (#4513): 23:00 to 00:30 is 90.
      */
     private static function minutesBetween( string $start, string $end ): int {
-        if ( ! preg_match( '/^(\d{1,2}):(\d{2})/', $start, $s ) ) return 0;
-        if ( ! preg_match( '/^(\d{1,2}):(\d{2})/', $end, $e ) )   return 0;
-        $start_min = (int) $s[1] * 60 + (int) $s[2];
-        $end_min   = (int) $e[1] * 60 + (int) $e[2];
-        $diff      = $end_min - $start_min;
-        return $diff > 0 ? $diff : 0;
+        return \TT\Modules\Activities\Services\ActivityTimeWindow::minutes( $start, $end );
     }
 
     /**

@@ -93,7 +93,8 @@ final class DetailsStep implements WizardStepInterface {
         $notes    = isset( $post['notes'] )    ? sanitize_textarea_field( wp_unslash( (string) $post['notes'] ) ) : '';
 
         // #1126 — start_time + end_time, both optional. Validate HH:MM
-        // and that end > start when both are set. Empty → null.
+        // and that end > start when both are set, or is a next-day end
+        // (#4528: a 22:30 kick-off defaults its end to 00:15). Empty → null.
         $start_time = isset( $post['start_time'] ) ? trim( (string) $post['start_time'] ) : '';
         $end_time   = isset( $post['end_time'] )   ? trim( (string) $post['end_time'] )   : '';
         if ( $start_time !== '' && ! preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $start_time ) ) {
@@ -105,7 +106,10 @@ final class DetailsStep implements WizardStepInterface {
         if ( $end_time !== '' && $start_time === '' ) {
             return new \WP_Error( 'end_without_start', __( 'Set a start time before setting an end time.', 'talenttrack' ) );
         }
-        if ( $start_time !== '' && $end_time !== '' && strtotime( '1970-01-01 ' . $end_time ) <= strtotime( '1970-01-01 ' . $start_time ) ) {
+        if ( $start_time !== '' && $end_time !== ''
+            && strtotime( '1970-01-01 ' . $end_time ) <= strtotime( '1970-01-01 ' . $start_time )
+            && ! \TT\Modules\Activities\Services\ActivityTimeWindow::endIsNextDay( $start_time, $end_time )
+        ) {
             return new \WP_Error( 'end_before_start', __( 'End time must be after start time.', 'talenttrack' ) );
         }
 

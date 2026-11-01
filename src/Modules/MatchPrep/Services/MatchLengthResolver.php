@@ -4,6 +4,7 @@ namespace TT\Modules\MatchPrep\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Activities\Services\ActivityTimeWindow;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -199,19 +200,12 @@ class MatchLengthResolver {
     }
 
     /**
-     * Minutes between two `TIME` values on the same day; 0 when either is
-     * missing or the end is not after the start.
+     * Minutes between two `TIME` values; 0 when either is missing or the
+     * end is neither after the start nor a next-day end (#4513, 23:00 to
+     * 00:30 is 90).
      */
     public static function scheduledMinutes( string $start_time, string $end_time ): int {
-        $start_time = trim( $start_time );
-        $end_time   = trim( $end_time );
-        if ( $start_time === '' || $end_time === '' ) return 0;
-
-        $start = strtotime( '1970-01-01 ' . $start_time . ' UTC' );
-        $end   = strtotime( '1970-01-01 ' . $end_time . ' UTC' );
-        if ( $start === false || $end === false || $end <= $start ) return 0;
-
-        return (int) floor( ( $end - $start ) / 60 );
+        return ActivityTimeWindow::minutes( $start_time, $end_time );
     }
 
     /**
