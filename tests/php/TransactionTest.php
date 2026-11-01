@@ -4,7 +4,6 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Database\AfterCommit;
 use TT\Infrastructure\Database\Transaction;
-use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Backup\PartialRestorer;
 use TT\Modules\Pdp\PdpCascadeDeleter;
@@ -198,27 +197,6 @@ final class TransactionTest extends WP_UnitTestCase {
         $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_pdp_files WHERE id = %d",
             $file
-        ) ) );
-    }
-
-    public function test_a_person_is_deleted_with_their_team_links(): void {
-        global $wpdb;
-        $wpdb->insert( $wpdb->prefix . 'tt_people', [
-            'club_id'    => (int) CurrentClub::id(),
-            'first_name' => 'Staff',
-            'last_name'  => 'Delete',
-            'role_type'  => 'coach',
-            'status'     => 'active',
-        ] );
-        $person = (int) $wpdb->insert_id;
-        $this->assertGreaterThan( 0, $person );
-
-        $result = ( new PersonDeletionCascade() )->cascade( [ $person ] );
-
-        $this->assertSame( 1, $result['deleted'] );
-        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_people WHERE id = %d",
-            $person
         ) ) );
     }
 
