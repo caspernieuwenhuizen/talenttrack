@@ -397,7 +397,7 @@ class PlayerGoalIntakePrintRouter {
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
-        <small><?php esc_html_e( 'Pagina 1: speler-snapshot — lees voor het gesprek begint. Doelen volgen op pagina 2 + 3.', 'talenttrack' ); ?></small>
+        <small><?php esc_html_e( 'Page 1: player snapshot — read before the conversation starts. Goals follow on pages 2 + 3.', 'talenttrack' ); ?></small>
     </h1>
 
     <section class="identity">
@@ -452,7 +452,7 @@ class PlayerGoalIntakePrintRouter {
         <?php endforeach; ?>
     </section>
 
-    <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Reflectie — in de eigen woorden van de speler', 'talenttrack' ); ?></h2></div>
+    <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Reflection — in the player\'s own words', 'talenttrack' ); ?></h2></div>
     <section class="reflection">
         <p class="reflection__label"><?php esc_html_e( 'Speler schrijft / trainer noteert:', 'talenttrack' ); ?></p>
         <div class="write-line"></div>
@@ -496,7 +496,7 @@ class PlayerGoalIntakePrintRouter {
     <?php if ( $blocks['doel3'] ) self::renderGoalBox( 3 ); ?>
 
     <?php if ( $blocks['afsluiting'] ) : ?>
-    <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Afsluiting — één ding om mee te nemen het seizoen in', 'talenttrack' ); ?></h2></div>
+    <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Wrap-up — one thing to take into the season', 'talenttrack' ); ?></h2></div>
     <section class="reflection">
         <div class="write-line"></div>
         <div class="write-line"></div>
@@ -522,8 +522,8 @@ class PlayerGoalIntakePrintRouter {
 
     <?php if ( $blocks['reminder'] ) : ?>
     <div class="cta-note">
-        <strong><?php esc_html_e( 'Reminder voor de trainer:', 'talenttrack' ); ?></strong>
-        <?php esc_html_e( 'zet de drie doelen hierboven binnen 48 uur in TalentTrack (Speler › Doelen › + Nieuw doel) zodat de digitale versie aan dit gesprek hangt. Gebruik de velden "gekoppeld spelprincipe" en "gekoppelde voetbalhandeling" in de wizard zodat het digitale doel hetzelfde leest als hierboven.', 'talenttrack' ); ?>
+        <strong><?php esc_html_e( 'Reminder for the coach:', 'talenttrack' ); ?></strong>
+        <?php esc_html_e( 'enter the three goals above in TalentTrack within 48 hours (Player › Goals › + New goal) so the digital version is linked to this conversation. Use the "linked game principle" and "linked football action" fields in the wizard so the digital goal reads the same as above.', 'talenttrack' ); ?>
     </div>
     <?php endif; ?>
 
@@ -551,7 +551,7 @@ class PlayerGoalIntakePrintRouter {
             </div>
 
             <div class="goal__field">
-                <p class="goal__field-label"><?php esc_html_e( 'Doelomschrijving', 'talenttrack' ); ?> <small><?php esc_html_e( 'de SMART-zin die jullie samen formuleren', 'talenttrack' ); ?></small></p>
+                <p class="goal__field-label"><?php esc_html_e( 'Doelomschrijving', 'talenttrack' ); ?> <small><?php esc_html_e( 'the SMART sentence you write together', 'talenttrack' ); ?></small></p>
                 <div class="write-line"></div>
                 <div class="write-line"></div>
             </div>
@@ -576,13 +576,13 @@ class PlayerGoalIntakePrintRouter {
             </div>
 
             <div class="goal__field">
-                <p class="goal__field-label"><?php esc_html_e( 'Waarom dit belangrijk is', 'talenttrack' ); ?></p>
+                <p class="goal__field-label"><?php esc_html_e( 'Why this matters', 'talenttrack' ); ?></p>
                 <div class="write-line"></div>
                 <div class="write-line"></div>
             </div>
 
             <div class="goal__field">
-                <p class="goal__field-label"><?php esc_html_e( 'Hoe we dit meten', 'talenttrack' ); ?></p>
+                <p class="goal__field-label"><?php esc_html_e( 'How we measure this', 'talenttrack' ); ?></p>
                 <div class="write-line"></div>
                 <div class="write-line"></div>
             </div>
@@ -955,7 +955,7 @@ CSS;
             'doel1'          => __( 'Doel 1',                                            'talenttrack' ),
             'doel2'          => __( 'Doel 2',                                            'talenttrack' ),
             'doel3'          => __( 'Doel 3',                                            'talenttrack' ),
-            'afsluiting'     => __( 'Afsluiting (reflectie 1 ding om mee te nemen)',     'talenttrack' ),
+            'afsluiting'     => __( 'Wrap-up (reflection: 1 thing to take away)',      'talenttrack' ),
             'handtekeningen' => __( 'Handtekeningen (speler / trainer / datum)',         'talenttrack' ),
             'reminder'       => __( 'Trainer-reminder (CTA-note)',                       'talenttrack' ),
         ];
@@ -983,7 +983,7 @@ CSS;
         <?php endforeach; ?>
 
         <fieldset class="picker__fieldset">
-            <legend class="picker__legend"><?php esc_html_e( 'Selecteer de blokken om te printen', 'talenttrack' ); ?></legend>
+            <legend class="picker__legend"><?php esc_html_e( 'Select the blocks to print', 'talenttrack' ); ?></legend>
             <ul class="picker__list">
                 <?php foreach ( $block_labels as $key => $label ) : ?>
                     <li class="picker__item">

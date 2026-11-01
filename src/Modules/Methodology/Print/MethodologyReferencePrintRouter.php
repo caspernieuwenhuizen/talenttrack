@@ -145,20 +145,20 @@ class MethodologyReferencePrintRouter {
                     <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Spelprincipes', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of principles */
-                            __( '%1$s — speelmodel · %2$d principes · gebruik de codes bij het opstellen van doelen.', 'talenttrack' ),
+                            __( '%1$s — game model · %2$d principles · use the codes when setting goals.', 'talenttrack' ),
                             $academy, count( $rows )
                         ) ); ?></small>
                     </h1>
                 </div>
-                <p class="ref-head__sub"><?php esc_html_e( 'Eenmaal printen · lamineren · bewaren in de doelenmap', 'talenttrack' ); ?></p>
+                <p class="ref-head__sub"><?php esc_html_e( 'Print once · laminate · keep in the goals folder', 'talenttrack' ); ?></p>
             </header>
 
             <div class="ref-howto">
-                <strong><?php esc_html_e( 'Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):', 'talenttrack' ); ?></strong>
+                <strong><?php esc_html_e( 'How to use this card in a goal intake (1:1):', 'talenttrack' ); ?></strong>
                 <ol>
-                    <li><?php esc_html_e( 'Bespreek het ontwikkelpunt van de speler in gewone taal.', 'talenttrack' ); ?></li>
-                    <li><?php esc_html_e( 'Kies samen 1–2 principes die hieraan raken (de code komt op het intakeformulier).', 'talenttrack' ); ?></li>
-                    <li><?php esc_html_e( 'Ga daarna naar de voetbalhandelingen en kies 1–2 handelingen die — als ze beter worden — het principe versterken.', 'talenttrack' ); ?></li>
+                    <li><?php esc_html_e( 'Discuss the player\'s development point in plain language.', 'talenttrack' ); ?></li>
+                    <li><?php esc_html_e( 'Pick 1–2 principles together that relate to it (the code goes on the intake form).', 'talenttrack' ); ?></li>
+                    <li><?php esc_html_e( 'Then go to the football actions and pick 1–2 actions that — as they improve — strengthen the principle.', 'talenttrack' ); ?></li>
                 </ol>
             </div>
 
@@ -206,12 +206,12 @@ class MethodologyReferencePrintRouter {
                     <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Voetbalhandelingen', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: %d = number of football actions */
-                            __( 'De %d voetbalhandelingen die elke speler oefent — kies er 1–2 per doel.', 'talenttrack' ),
+                            __( 'The %d football actions every player practises — pick 1–2 per goal.', 'talenttrack' ),
                             count( $rows )
                         ) ); ?></small>
                     </h1>
                 </div>
-                <p class="ref-head__sub"><?php esc_html_e( 'Eenmaal printen · lamineren · bewaren in de doelenmap', 'talenttrack' ); ?></p>
+                <p class="ref-head__sub"><?php esc_html_e( 'Print once · laminate · keep in the goals folder', 'talenttrack' ); ?></p>
             </header>
 
             <div class="actions-grid">
@@ -274,17 +274,17 @@ class MethodologyReferencePrintRouter {
                     <h1 class="title" style="margin-bottom:0;"><?php esc_html_e( 'Leerdoelen', 'talenttrack' ); ?>
                         <small><?php echo esc_html( sprintf(
                             /* translators: 1: academy name, 2: number of learning goals */
-                            __( '%1$s — %2$d leerdoelen · onderbouwen de spelprincipes met concrete deelvaardigheden.', 'talenttrack' ),
+                            __( '%1$s — %2$d learning goals · underpin the game principles with concrete sub-skills.', 'talenttrack' ),
                             $academy, count( $rows )
                         ) ); ?></small>
                     </h1>
                 </div>
-                <p class="ref-head__sub"><?php esc_html_e( 'Eenmaal printen · lamineren · bewaren in de doelenmap', 'talenttrack' ); ?></p>
+                <p class="ref-head__sub"><?php esc_html_e( 'Print once · laminate · keep in the goals folder', 'talenttrack' ); ?></p>
             </header>
 
             <div class="ref-howto">
-                <strong><?php esc_html_e( 'Hoe je deze kaart gebruikt:', 'talenttrack' ); ?></strong>
-                <?php esc_html_e( ' elk leerdoel bestaat uit een titel + 4–5 deelvaardigheden. Tijdens de doelenintake kies je samen met de speler één deelvaardigheid om aan te werken — die wordt het "waarom dit belangrijk is" of "hoe we dit meten" op het intakeformulier.', 'talenttrack' ); ?>
+                <strong><?php esc_html_e( 'How to use this card:', 'talenttrack' ); ?></strong>
+                <?php esc_html_e( ' every learning goal has a title + 4–5 sub-skills. In the goal intake you and the player pick one sub-skill to work on — it becomes the "why this matters" or "how we measure this" on the intake form.', 'talenttrack' ); ?>
             </div>
 
             <div class="leerdoelen-grid">

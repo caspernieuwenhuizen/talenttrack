@@ -286,7 +286,7 @@ final class MatchPrepPrintableRenderer {
                     <?php endforeach; ?>
                 </table>
                 <?php if ( $absent ) : ?>
-                    <h2><?php esc_html_e( 'Niet beschikbaar', 'talenttrack' ); ?></h2>
+                    <h2><?php echo esc_html( _x( 'Not available', 'match prep print: unavailable players heading', 'talenttrack' ) ); ?></h2>
                     <ul class="tt-mpp-absent">
                         <?php foreach ( $absent as $row ) :
                             $pl   = $players_by_id[ $row['pid'] ] ?? null;
@@ -308,7 +308,7 @@ final class MatchPrepPrintableRenderer {
             <div class="tt-mpp-col tt-mpp-col-right">
                 <h2><?php esc_html_e( 'Doen per speler', 'talenttrack' ); ?></h2>
                 <?php if ( ! $available_ids ) : ?>
-                    <p class="tt-mpp-empty"><?php esc_html_e( 'Geen beschikbaarheid vastgelegd.', 'talenttrack' ); ?></p>
+                    <p class="tt-mpp-empty"><?php esc_html_e( 'No availability recorded.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <table class="tt-mpp-dps-table">
                         <thead><tr>

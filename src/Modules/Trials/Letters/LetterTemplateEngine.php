@@ -163,16 +163,16 @@ final class LetterTemplateEngine {
      * @param array<string,string> $context
      */
     private static function acceptanceSlipPage( array $context, string $locale ): string {
-        $is_nl = strpos( $locale, 'nl' ) === 0;
-        $heading = $is_nl
-            ? sprintf( __( 'Acceptatie van het aanbod voor %s', 'talenttrack' ), $context['player_full_name'] )
-            : sprintf( __( 'Acceptance of trial offer for %s', 'talenttrack' ), $context['player_full_name'] );
-        $confirm = $is_nl
-            ? sprintf( __( 'Ik bevestig de acceptatie van het aanbod voor het seizoen %s.', 'talenttrack' ), $context['next_season'] )
-            : sprintf( __( 'I confirm acceptance of the trial offer for the %s season.', 'talenttrack' ), $context['next_season'] );
-        $instructions = $is_nl
-            ? sprintf( __( 'Lever deze pagina aan bij %s vóór %s.', 'talenttrack' ), $context['club_address'] ?: __( 'het secretariaat', 'talenttrack' ), $context['response_deadline'] )
-            : sprintf( __( 'Please return this page to %s by %s.', 'talenttrack' ), $context['club_address'] ?: __( 'the club office', 'talenttrack' ), $context['response_deadline'] );
+        // #4533 — one set of English msgids; the catalogue carries the Dutch
+        // the slip used to hard-code, word for word.
+        $heading = sprintf( __( 'Acceptance of trial offer for %s', 'talenttrack' ), $context['player_full_name'] );
+        $confirm = sprintf( __( 'I confirm acceptance of the trial offer for the %s season.', 'talenttrack' ), $context['next_season'] );
+        /* translators: 1: where to return the slip, 2: the response deadline */
+        $instructions = sprintf(
+            __( 'Please return this page to %s by %s.', 'talenttrack' ),
+            $context['club_address'] ?: _x( 'the club office', 'trial acceptance slip: where to hand it in', 'talenttrack' ),
+            $context['response_deadline']
+        );
 
         return sprintf(
             '<section class="tt-letter-page tt-letter-acceptance"><h2>%s</h2><p>%s</p>'
@@ -182,9 +182,9 @@ final class LetterTemplateEngine {
             . '<p class="tt-letter-instructions">%s</p></section>',
             esc_html( $heading ),
             esc_html( $confirm ),
-            esc_html( $is_nl ? __( 'Naam ouder/verzorger:', 'talenttrack' ) : __( 'Parent/guardian name:', 'talenttrack' ) ),
-            esc_html( $is_nl ? __( 'Handtekening:', 'talenttrack' ) : __( 'Signature:', 'talenttrack' ) ),
-            esc_html( $is_nl ? __( 'Datum:', 'talenttrack' ) : __( 'Date:', 'talenttrack' ) ),
+            esc_html__( 'Parent/guardian name:', 'talenttrack' ),
+            esc_html__( 'Signature:', 'talenttrack' ),
+            esc_html__( 'Date:', 'talenttrack' ),
             esc_html( $instructions )
         );
     }

@@ -54,8 +54,8 @@ final class MethodologyEnums {
     public static function teamFunctions(): array {
         return [
             self::FUNCTION_AANVALLEN              => __( 'Aanvallen',                       'talenttrack' ),
-            self::FUNCTION_OMSCHAKELEN_VERDEDIGEN => __( 'Omschakelen naar verdedigen',     'talenttrack' ),
-            self::FUNCTION_OMSCHAKELEN_AANVALLEN  => __( 'Omschakelen naar aanvallen',      'talenttrack' ),
+            self::FUNCTION_OMSCHAKELEN_VERDEDIGEN => _x( 'Transition to defending', 'methodology team function', 'talenttrack' ),
+            self::FUNCTION_OMSCHAKELEN_AANVALLEN  => _x( 'Transition to attacking', 'methodology team function', 'talenttrack' ),
             self::FUNCTION_VERDEDIGEN             => __( 'Verdedigen',                      'talenttrack' ),
         ];
     }
