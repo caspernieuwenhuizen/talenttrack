@@ -221,6 +221,7 @@
 
 	var dataTimer = null;
 	var dataFailed = false;
+	var dataSeq = 0;
 	function scheduleData() {
 		if (dataTimer) window.clearTimeout(dataTimer);
 		dataTimer = window.setTimeout(loadData, 600);
@@ -228,10 +229,14 @@
 
 	/** The whole canvas in one request, after the draft it reads is saved. */
 	function loadData() {
+		// A slower answer for an older subject or period must not land over
+		// the newer one: only the latest request is applied.
+		var seq = ++dataSeq;
 		var settle = pending();
 		return Promise.resolve(settle).then(function () {
 			return api('GET', reportPath('/data'), null, dataQuery());
 		}).then(function (d) {
+			if (seq !== dataSeq) return;
 			state.data = {};
 			(d.blocks || []).forEach(function (b) { state.data[b.id] = b; });
 			state.context = d.context;
@@ -247,6 +252,7 @@
 			renderCanvas();
 			previewMissing();
 		})['catch'](function (err) {
+			if (seq !== dataSeq) return;
 			state.context = null;
 			state.data = {};
 			dataFailed = true;
@@ -791,7 +797,7 @@
 	function useVersion(no, dialog) {
 		var before = JSON.stringify(snapshot());
 		pending().then(function () {
-			return api('POST', reportPath('/draft'), { from_version: no });
+			return api('POST', reportPath('/draft'), { from_version: no, revision: state.revision });
 		}).then(function (r) {
 			state.history.push(before);
 			if (state.history.length > MAX_HISTORY) state.history.shift();

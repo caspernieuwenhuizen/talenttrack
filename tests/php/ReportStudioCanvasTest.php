@@ -192,6 +192,52 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->send( 'GET', "reports/{$own_team}/reach", [], [ 'persona_keys' => 'head_coach' ] )->get_status(), 'only an editor counts' );
     }
 
+    public function test_the_reach_counts_a_functional_role_and_every_role_of_a_persona(): void {
+        wp_set_current_user( $this->hod );
+        $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        $count = fn( string $keys ): int => (int) $this->send( 'GET', "reports/{$id}/reach", [], [ 'persona_keys' => $keys ] )->get_data()['data']['count'];
+
+        // A staff account that reads team A only through the manager role.
+        $before_staff = $count( 'staff' );
+        $staff        = $this->staffWithFunctionalRole( $this->team_a, 'manager' );
+        $this->assertTrue( \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $staff, $this->team_a ), 'Precondition: the functional role reads the team\'s reports.' );
+        $this->assertSame( $before_staff + 1, $count( 'staff' ), 'a read through a functional role is a reader' );
+
+        // The academy admin persona comes from two WordPress roles.
+        $before_admin = $count( 'academy_admin' );
+        self::factory()->user->create( [ 'role' => 'tt_club_admin' ] );
+        $this->assertSame( $before_admin + 1, $count( 'academy_admin' ), 'a club admin holds the persona as much as an administrator does' );
+    }
+
+    // ---- publishing and restoring ---------------------------------------------
+
+    public function test_publishing_needs_a_note(): void {
+        $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        foreach ( [ [], [ 'note' => '' ], [ 'note' => "  \n " ] ] as $body ) {
+            $res = $this->send( 'POST', "reports/{$id}/versions", $body );
+            $this->assertSame( 400, $res->get_status(), (string) wp_json_encode( $body ) );
+            $this->assertSame( 'missing_fields', $this->code( $res ) );
+            $this->assertSame( 'note', $res->get_data()['errors'][0]['details']['field'] ?? null );
+        }
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'First' ] )->get_status() );
+    }
+
+    public function test_restoring_a_version_checks_the_revision(): void {
+        $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        $this->patch( $id, [ [ 'id' => 'b1', 'key' => 'attendance_per_week' ] ] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'First' ] )->get_status() );
+        $this->patch( $id, [] );
+        $current = (int) $this->send( 'GET', "reports/{$id}" )->get_data()['data']['draft']['revision'];
+
+        $stale = $this->send( 'POST', "reports/{$id}/draft", [ 'from_version' => 1, 'revision' => $current - 1 ] );
+        $this->assertSame( 409, $stale->get_status(), 'another tab moved the draft on' );
+        $this->assertSame( 'stale_revision', $this->code( $stale ) );
+
+        $ok = $this->send( 'POST', "reports/{$id}/draft", [ 'from_version' => 1, 'revision' => $current ] );
+        $this->assertSame( 200, $ok->get_status() );
+        $this->assertSame( 'attendance_per_week', $ok->get_data()['data']['draft']['definition']['blocks'][0]['key'] );
+    }
+
     // ---- the draft -------------------------------------------------------------
 
     public function test_a_block_is_full_or_half_and_a_report_holds_at_most_40(): void {
@@ -382,6 +428,39 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
         $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
             'club_id' => CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
         ] );
+        return $user;
+    }
+
+    /** A staff account whose only team access is a functional role on this team. */
+    private function staffWithFunctionalRole( int $team, string $role_key ): int {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $user = (int) self::factory()->user->create( [ 'role' => 'tt_staff' ] );
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => CurrentClub::id(), 'first_name' => 'Team', 'last_name' => 'Manager',
+            'role_type' => 'staff', 'wp_user_id' => $user, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+
+        $role = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_functional_roles WHERE role_key = %s AND club_id = %d",
+            $role_key, CurrentClub::id()
+        ) );
+        if ( $role <= 0 ) {
+            $wpdb->insert( "{$p}tt_functional_roles", [
+                'club_id' => CurrentClub::id(), 'role_key' => $role_key, 'label' => ucfirst( $role_key ),
+                'description' => 'Created by ReportStudioCanvasTest.', 'is_system' => 1, 'sort_order' => 90,
+            ] );
+            $role = (int) $wpdb->insert_id;
+        }
+        $wpdb->insert( "{$p}tt_team_people", [
+            'club_id' => CurrentClub::id(), 'team_id' => $team, 'person_id' => $person,
+            'functional_role_id' => $role, 'role_in_team' => $role_key,
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id' => CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
+        ] );
+        $this->flush();
         return $user;
     }
 

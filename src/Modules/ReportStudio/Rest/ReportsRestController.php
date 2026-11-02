@@ -219,13 +219,14 @@ final class ReportsRestController extends BaseController {
     private static function draftArgs(): array {
         return [
             'from_version' => [ 'type' => 'integer', 'description' => 'The version number whose definition replaces my draft.' ],
+            'revision'     => [ 'type' => 'integer', 'description' => 'The draft revision this was asked on. A stale one is refused with 409, as on PATCH.' ],
         ];
     }
 
     /** @return array<string, array<string, mixed>> */
     private static function publishArgs(): array {
         return [
-            'note'         => [ 'type' => 'string', 'description' => 'What changed, for the version list. At most 500 characters.' ],
+            'note'         => [ 'type' => 'string', 'description' => 'What changed, for the version list. Required; at most 500 characters.' ],
             'persona_keys' => [ 'type' => 'array', 'description' => 'The personas the report is published to. Empty publishes it for me only.' ],
         ];
     }
@@ -456,8 +457,20 @@ final class ReportsRestController extends BaseController {
         $version = $repo->version( $report['id'], (int) $no );
         if ( $version === null ) return RestResponse::notFound( 'not_found', __( 'There is no such version of this report.', 'talenttrack' ) );
 
-        $repo->ensureDraft( $report, $user_id );
-        $repo->saveDraft( $report['id'], $user_id, $version['definition'], null );
+        $revision = null;
+        if ( array_key_exists( 'revision', $body ) ) {
+            if ( ! is_int( $body['revision'] ) && ! ( is_string( $body['revision'] ) && ctype_digit( $body['revision'] ) ) ) {
+                return RestResponse::error( 'invalid_field', __( 'The revision is a whole number.', 'talenttrack' ), 400, [ 'field' => 'revision' ] );
+            }
+            $revision = (int) $body['revision'];
+        }
+
+        $draft = $repo->ensureDraft( $report, $user_id );
+        if ( $revision !== null && $revision !== $draft['revision'] ) return self::stale( $draft['revision'] );
+        if ( $repo->saveDraft( $report['id'], $user_id, $version['definition'], $revision ) === null ) {
+            $current = $repo->draft( $report['id'], $user_id );
+            return self::stale( $current !== null ? $current['revision'] : 0 );
+        }
 
         return RestResponse::success( [ 'from_version' => $version['version_no'], 'draft' => $repo->draft( $report['id'], $user_id ) ] );
     }
@@ -486,7 +499,15 @@ final class ReportsRestController extends BaseController {
         $user_id = $reader->userId;
 
         $body = self::body( $r );
-        $note = is_string( $body['note'] ?? null ) ? sanitize_textarea_field( (string) $body['note'] ) : '';
+        $note = is_string( $body['note'] ?? null ) ? trim( sanitize_textarea_field( (string) $body['note'] ) ) : '';
+        if ( $note === '' ) {
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Say what changed in this version.', 'talenttrack' ),
+                400,
+                [ 'field' => 'note', 'fields' => [ 'note' ] ]
+            );
+        }
         if ( mb_strlen( $note ) > 500 ) {
             return RestResponse::error( 'invalid_field', __( 'A version note is at most 500 characters.', 'talenttrack' ), 400, [ 'field' => 'note' ] );
         }
@@ -593,12 +614,13 @@ final class ReportsRestController extends BaseController {
         if ( $blocked ) return $blocked;
 
         $reader  = ReportReader::for( get_current_user_id() );
+        $offered = ReportSubjectOptions::teams( $reader );
         $teams   = [];
-        foreach ( ReportSubjectOptions::teams( $reader ) as $id => $team ) {
+        foreach ( $offered as $id => $team ) {
             $teams[] = [ 'id' => $id, 'name' => $team['name'], 'age_group' => $team['age_group'] ];
         }
         $players = [];
-        foreach ( ReportSubjectOptions::players( $reader ) as $team_id => $list ) {
+        foreach ( ReportSubjectOptions::players( $reader, $offered ) as $team_id => $list ) {
             foreach ( $list as $pid => $name ) $players[] = [ 'id' => $pid, 'name' => $name, 'team_id' => $team_id ];
         }
         return RestResponse::success( [ 'teams' => $teams, 'players' => $players ] );

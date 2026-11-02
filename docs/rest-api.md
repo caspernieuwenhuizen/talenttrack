@@ -1443,7 +1443,9 @@ the revision by one.
 ### `POST /reports/{id}/versions`
 
 `{ "note": "…", "persona_keys": [ … ] }`. Publishes the caller's draft as the
-next version and replaces the list of personas it reaches. An empty list
+next version and replaces the list of personas it reaches. The note says
+what changed and is required: an empty or blank one is `400 missing_fields`
+with `details.field = "note"`. An empty list
 publishes the report for its builder only, which `tt_build_reports` allows.
 Reaching a persona needs `tt_publish_reports` (`403 forbidden_publish`) and a
 report made for a role (`sharing: role`); persona keys are staff personas
@@ -1462,14 +1464,17 @@ autosaving draft.
 
 `{ "from_version": 2 }` replaces the caller's draft with that version's
 definition; the next publish makes it live. `404 not_found` for an unknown
-version. It is deliberately not called `restore`, which on this API means
+version. `revision` is optional and works as on `PATCH`: a stale one is `409
+stale_revision`, so a restore never writes over a draft another tab moved on. It is deliberately not called `restore`, which on this API means
 un-archiving.
 
 ### `GET /reports/{id}/reach?persona_keys=`
 
 How many people publishing to these personas (comma-separated, or as a
-list) would reach: the accounts holding one of them that can read the
-report's subject, the two questions a recipient is asked when they open it.
+list) would reach: the accounts holding one of them, through any WordPress
+role the persona comes from, that can read the report's subject, including
+through a functional role. These are the two questions a recipient is asked
+when they open it.
 Editors only. `{ "count": 7, "personas": [ { "key": "head_coach", "label":
 "Head coach" } ] }`. A persona that cannot be published to is `400
 bad_filter`. The Studio's publish confirm shows this number.

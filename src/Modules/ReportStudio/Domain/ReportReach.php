@@ -8,9 +8,15 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
 /**
  * ReportReach (#4571) — how many people a report would reach if it were
- * published to these personas: the accounts that hold one of them and can
- * read what the report is about, the same two questions
- * `ReportAccess::isRecipient()` asks when one of them opens it.
+ * published to these personas, by the rule a recipient is held to when
+ * they open it (`ReportAccess::readsAs()`, which `isRecipient()` asks): the
+ * account holds one of the personas and can read the subject. A team read
+ * that comes from a functional role counts, because the subject check is
+ * the one every route asks.
+ *
+ * The holders are found through every WordPress role a persona comes from,
+ * and loaded in one query with their roles, so resolving their personas
+ * reads no account twice.
  *
  * The publish confirm shows this number, so it is counted here and never in
  * the browser.
@@ -28,16 +34,13 @@ final class ReportReach {
 
         $roles = [];
         foreach ( $persona_keys as $key ) {
-            $role = PersonaResolver::defaultWpRoleFor( $key );
-            if ( $role !== null ) $roles[ $role ] = $role;
+            foreach ( PersonaResolver::wpRolesFor( $key ) as $role ) $roles[ $role ] = $role;
         }
         if ( $roles === [] ) return 0;
 
         $count = 0;
-        foreach ( get_users( [ 'role__in' => array_values( $roles ), 'fields' => 'ID' ] ) as $id ) {
-            $reader = ReportReader::for( (int) $id );
-            if ( array_intersect( $reader->personas(), $persona_keys ) === [] ) continue;
-            if ( ReportAccess::canReadSubject( $reader, $report ) ) $count++;
+        foreach ( get_users( [ 'role__in' => array_values( $roles ), 'fields' => 'all' ] ) as $user ) {
+            if ( ReportAccess::readsAs( ReportReader::for( (int) $user->ID ), $report, $persona_keys ) ) $count++;
         }
         return $count;
     }

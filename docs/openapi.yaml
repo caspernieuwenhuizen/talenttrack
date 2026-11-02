@@ -448,16 +448,16 @@ paths:
     post: { tags: [report-studio], summary: Un-archive the report, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: not_found — not archived } } }
 
   /reports/{id}/draft:
-    post: { tags: [report-studio], summary: 'Replace the caller''s draft with a version''s definition (body — from_version)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: not_found — no such version } } }
+    post: { tags: [report-studio], summary: 'Replace the caller''s draft with a version''s definition (body — from_version, revision)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: not_found — no such version }, '409': { description: stale_revision } } }
 
   /reports/{id}/versions:
     get: { tags: [report-studio], summary: 'The published versions, newest first', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
     post:
       tags: [report-studio]
       summary: Publish the caller's draft as the next version
-      description: 'Body — note, persona_keys. Publishing to a persona needs `tt_publish_reports` and a report made for a role; staff personas only. A concurrent publish is 409 version_conflict.'
+      description: 'Body — note (required), persona_keys. Publishing to a persona needs `tt_publish_reports` and a report made for a role; staff personas only. A concurrent publish is 409 version_conflict.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
-      responses: { '201': { description: Created }, '400': { description: invalid_field }, '403': { description: forbidden_publish }, '409': { description: version_conflict } }
+      responses: { '201': { description: Created }, '400': { description: 'missing_fields (no note) or invalid_field' }, '403': { description: forbidden_publish }, '409': { description: version_conflict } }
 
   /reports/{id}/data:
     get:
