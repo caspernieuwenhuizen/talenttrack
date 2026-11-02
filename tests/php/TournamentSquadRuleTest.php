@@ -125,8 +125,22 @@ final class TournamentSquadRuleTest extends WP_UnitTestCase {
     public function test_create_refuses_an_archived_or_other_club_team_even_for_an_academy_wide_planner(): void {
         wp_set_current_user( $this->headOfDevelopment() );
         foreach ( [ $this->archivedTeam(), $this->otherClubTeam(), 999999 ] as $team ) {
-            $this->assertSame( 403, $this->dispatch( 'POST', '/tournaments', $this->body( $team, [] ) )->get_status(), 'team ' . $team );
+            $res = $this->dispatch( 'POST', '/tournaments', $this->body( $team, [] ) );
+            $this->assertSame( 422, $res->get_status(), 'team ' . $team );
+            $this->assertSame( 'team_invalid', $this->errorCode( $res ), 'the code PUT gives for the same team' );
         }
+        $this->assertSame( 0, $this->tournamentCount() );
+    }
+
+    public function test_an_academy_wide_planner_posting_no_team_is_told_the_team_is_required(): void {
+        wp_set_current_user( $this->headOfDevelopment() );
+        $res = $this->dispatch( 'POST', '/tournaments', $this->body( 0, [] ) );
+        $this->assertSame( 422, $res->get_status() );
+        $this->assertSame( 'team_required', $this->errorCode( $res ) );
+    }
+
+    public function test_a_coach_posting_another_teams_anchor_is_still_forbidden(): void {
+        $this->assertSame( 403, $this->dispatch( 'POST', '/tournaments', $this->body( $this->team_c, [] ) )->get_status() );
         $this->assertSame( 0, $this->tournamentCount() );
     }
 
@@ -238,6 +252,11 @@ final class TournamentSquadRuleTest extends WP_UnitTestCase {
     private function teamOf( int $tournament_id ): int {
         global $wpdb;
         return (int) $wpdb->get_var( $wpdb->prepare( "SELECT team_id FROM {$wpdb->prefix}tt_tournaments WHERE id = %d", $tournament_id ) );
+    }
+
+    private function errorCode( \WP_REST_Response $res ): string {
+        $data = $res->get_data();
+        return is_array( $data ) ? (string) ( $data['errors'][0]['code'] ?? $data['code'] ?? '' ) : '';
     }
 
     private function tournamentCount(): int {

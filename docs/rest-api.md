@@ -1783,8 +1783,13 @@ The anchor team is fixed once the tournament exists. `PUT /tournaments/{id}`
 with a different `team_id` answers **403** `forbidden_team` unless the caller
 plans academy-wide, and **422** `team_invalid` when an academy-wide planner
 names a team that is archived or not in the club. A body without `team_id`
-keeps the team it has. `POST /tournaments` refuses an archived or unknown
-anchor team for every caller, academy-wide planners included.
+keeps the team it has.
+
+`POST /tournaments` answers **422** `team_required` when the body has no
+`team_id`, and **422** `team_invalid` when the anchor team is archived,
+unknown or another club's, for every caller, academy-wide planners
+included: the same code `PUT` gives. A caller who does not plan
+academy-wide and names a team outside their scope gets **403**.
 
 A player may also not be archived or belong to another club; such a player is
 refused like any other the caller may not add.

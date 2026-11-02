@@ -116,11 +116,12 @@ class TournamentsRestController {
         $can_view = static function (): bool {
             return TournamentAccess::canAnywhere( get_current_user_id(), MatrixGate::READ );
         };
+        // A global planner passes here so a missing or unusable team gets
+        // its 422 from `create_tournament()`, not a generic 403.
         $can_create = static function ( \WP_REST_Request $r ): bool {
-            return TournamentAccess::canCreateForTeam(
-                get_current_user_id(),
-                absint( $r['team_id'] ?? 0 )
-            );
+            $user_id = get_current_user_id();
+            return TournamentAccess::hasGlobal( $user_id, MatrixGate::CREATE_DELETE )
+                || TournamentAccess::canCreateForTeam( $user_id, absint( $r['team_id'] ?? 0 ) );
         };
 
         // Tournament collection.
@@ -510,6 +511,10 @@ class TournamentsRestController {
         }
         if ( $payload['team_id'] <= 0 ) {
             return RestResponse::error( 'team_required', __( 'An anchor team is required.', 'talenttrack' ), 422 );
+        }
+        // An archived, unknown or other club's team, the same answer PUT gives.
+        if ( ! TournamentAccess::isActiveClubTeam( $payload['team_id'] ) ) {
+            return RestResponse::error( 'team_invalid', __( 'Pick an anchor team.', 'talenttrack' ), 422 );
         }
         // #4031 — `extractTournament()` turns a blank date into null, so the
         // `=== ''` this used to compare never matched and a tournament could
@@ -2519,7 +2524,7 @@ class TournamentsRestController {
         if ( $refused === [] ) return null;
         return RestResponse::error(
             'forbidden_player',
-            __( 'That team is not in your scope.', 'talenttrack' ),
+            __( 'You can\'t add these players to the squad.', 'talenttrack' ),
             403,
             [ 'player_ids' => $refused ]
         );
