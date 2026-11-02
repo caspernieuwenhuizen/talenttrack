@@ -10,8 +10,8 @@ use WP_UnitTestCase;
  */
 final class DashHelpFocusRingTest extends WP_UnitTestCase {
 
-    private function css(): string {
-        $css = (string) file_get_contents( dirname( __DIR__, 2 ) . '/assets/css/public.css' );
+    private function css( string $sheet = 'public.css' ): string {
+        $css = (string) file_get_contents( dirname( __DIR__, 2 ) . '/assets/css/' . $sheet );
         return (string) preg_replace( '/\s+/', ' ', (string) preg_replace( '#/\*.*?\*/#s', '', $css ) );
     }
 
@@ -36,6 +36,14 @@ final class DashHelpFocusRingTest extends WP_UnitTestCase {
 
         $ring = implode( ' ', $this->rulesFor( '.tt-dash-help:focus-visible', $css ) );
         $this->assertMatchesRegularExpression( '/outline: 2px solid var\(--tt-primary/', $ring );
+    }
+
+    public function test_the_shell_header_draws_a_ring_that_shows_on_the_dark_band(): void {
+        $css  = $this->css( 'frontend-app-chrome.css' );
+        $ring = implode( ' ', $this->rulesFor( '.tt-dashboard .tt-dash-help:focus-visible', $css ) );
+
+        $this->assertStringNotContainsString( 'outline: none', $ring );
+        $this->assertMatchesRegularExpression( '/outline: 2px solid #fff/', $ring, 'the header band is --tt-primary, so the ring is white' );
     }
 
     public function test_hover_keeps_the_colour_change(): void {

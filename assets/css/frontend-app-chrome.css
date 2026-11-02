@@ -180,6 +180,11 @@
     color: var(--tt-secondary);
     background: rgba(255, 255, 255, 0.08);
 }
+/* On the dark band a primary ring would not show; white, as on .tt-dash-home. */
+.tt-dashboard .tt-dash-help:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
 
 /* ---- Parent search field (#3806) ---------------------------------
    Sits in the actions row beside the help icon. Mobile-first: on a
