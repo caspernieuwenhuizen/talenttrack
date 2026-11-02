@@ -10,6 +10,7 @@ use TT\Modules\StaffDevelopment\Repositories\StaffEvaluationsRepository;
 use TT\Modules\StaffDevelopment\Repositories\StaffGoalsRepository;
 use TT\Modules\StaffDevelopment\Repositories\StaffMentorshipsRepository;
 use TT\Modules\StaffDevelopment\Repositories\StaffPdpRepository;
+use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 use WP_REST_Request;
 
 /**
@@ -261,21 +262,25 @@ final class StaffDevelopmentRestController {
 
     /* ===== permission gates ===== */
 
-    public static function can_view(): bool {
-        return current_user_can( 'tt_view_staff_development' );
+    /**
+     * Read gate for the `/staff/{person_id}/...` lists: the person's own
+     * record, or every record for a global reader.
+     */
+    public static function can_view( WP_REST_Request $r ): bool {
+        return StaffDevelopmentAccess::canRead( get_current_user_id(), (int) $r['person_id'] );
     }
 
     public static function can_manage(): bool {
-        return current_user_can( 'tt_manage_staff_development' );
+        return StaffDevelopmentAccess::canManageAll( get_current_user_id() );
     }
 
     /**
-     * Manage-or-self gate: a staff member is always allowed to write
-     * to their own goals / certs / PDP. Managers can write to anyone.
+     * Manage-or-self gate: a staff member may write to their own goals /
+     * certs / PDP when they hold the change right. Managers can write to
+     * anyone.
      */
     public static function can_manage_target( WP_REST_Request $r ): bool {
-        if ( current_user_can( 'tt_manage_staff_development' ) ) return true;
-        return self::isSelfTarget( (int) $r['person_id'] );
+        return StaffDevelopmentAccess::canWrite( get_current_user_id(), (int) $r['person_id'] );
     }
 
     /**
@@ -283,19 +288,11 @@ final class StaffDevelopmentRestController {
      * only submit a `self` evaluation against themselves.
      */
     public static function can_evaluate_target( WP_REST_Request $r ): bool {
-        if ( current_user_can( 'tt_manage_staff_development' ) ) return true;
-        if ( ! self::isSelfTarget( (int) $r['person_id'] ) ) return false;
+        $user_id = get_current_user_id();
+        if ( StaffDevelopmentAccess::canManageAll( $user_id ) ) return true;
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, (int) $r['person_id'] ) ) return false;
         $kind = (string) $r->get_param( 'review_kind' );
         return $kind === '' || $kind === StaffEvaluationsRepository::KIND_SELF;
-    }
-
-    private static function isSelfTarget( int $person_id ): bool {
-        if ( $person_id <= 0 ) return false;
-        global $wpdb;
-        $owner = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT wp_user_id FROM {$wpdb->prefix}tt_people WHERE id = %d", $person_id
-        ) );
-        return $owner > 0 && $owner === get_current_user_id();
     }
 
     /* ===== Goals ===== */
