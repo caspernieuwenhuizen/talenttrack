@@ -30,7 +30,7 @@ The academy-wide oversight tile moved to the **People** group:
 
 ## Functional role: Mentor
 
-The migration adds a **Mentor** functional role to the existing list (Head Coach / Assistant Coach / Manager / Physio / Other). Mentors are paired with a mentee staff member through the `tt_staff_mentorships` pivot — admin-grant via the People page, same flow as the other functional roles. Mentors get manage-scope on their mentee's staff-development records (PDP / goals / evaluations / certifications). They don't get blanket access to all staff.
+The migration adds a **Mentor** functional role to the existing list (Head Coach / Assistant Coach / Manager / Physio / Other). Mentors are paired with a mentee staff member through the `tt_staff_mentorships` pivot — admin-grant via the People page, same flow as the other functional roles. Being a mentor does not open the mentee's staff-development records.
 
 ## Workflow templates
 
@@ -56,10 +56,10 @@ All four use the shared `StaffStubForm` placeholder for now — completing the t
 | Capability | Granted to | What it allows |
 | --- | --- | --- |
 | `tt_view_staff_development` | Administrator, Head of Development, Club Admin, Coach, Scout, Staff | See your own staff-development records on the dashboard. |
-| `tt_manage_staff_development` | Administrator, Head of Development, Club Admin | Edit any staff member's records. Mentors get this scoped to their mentee(s) via the `tt_staff_mentorships` table. |
+| `tt_manage_staff_development` | Administrator, Head of Development, Club Admin | Edit any staff member's records. |
 | `tt_view_staff_certifications_expiry` | Administrator, Head of Development, Club Admin | See the org-wide certification-expiry roll-up tile. |
 
-The existing auth-matrix gate also kicks in: a non-manager user can only write to records on their own `tt_people` row (enforced in `StaffDevelopmentRestController::can_manage_target`).
+The authorization matrix decides whose records you reach. You read your own record, or every staff member's record when you hold academy-wide staff-development access. A team grant does not reach a colleague's record. Writing to your own record needs the staff-development change right. The screens and the REST API give the same answer.
 
 ## REST surface
 
