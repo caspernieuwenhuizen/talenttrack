@@ -87,6 +87,15 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         $photo     = \TT\Modules\Players\Services\PlayerPhoto::dataUri( $player );
         $dob       = ! empty( $player->date_of_birth ) ? (string) $player->date_of_birth : '';
         $age       = self::computeAge( $dob );
+        // #4691 — a reader the registry hides the date from gets "Hidden"
+        // and the birth year; the age would narrow the date down again.
+        if ( $dob !== '' && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', (int) $request->requesterUserId, $player_id ) ) {
+            $year = \TT\Infrastructure\Players\PlayerDates::birthYear( $dob );
+            $dob  = \TT\Shared\Frontend\Components\MaskedValue::label()
+                /* translators: %d: a four-digit birth year */
+                . ( $year !== null ? ' · ' . sprintf( __( 'Born %d', 'talenttrack' ), $year ) : '' );
+            $age  = '';
+        }
         $position  = \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( (string) ( $player->preferred_positions ?? '' ) );
         $foot      = (string) ( $player->preferred_foot ?? '' );
         $jersey    = isset( $player->jersey_number ) && $player->jersey_number !== null

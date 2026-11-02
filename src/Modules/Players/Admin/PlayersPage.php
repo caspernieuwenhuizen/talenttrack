@@ -12,6 +12,8 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
+use TT\Shared\Frontend\Components\MaskedValue;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\AdminListScope;
@@ -66,6 +68,29 @@ class PlayersPage {
      * themselves, a global read, a team-scoped coach and a linked parent, so
      * wp-admin and REST cannot answer differently.
      */
+    /**
+     * #4691 — the form fields of a player record that the sensitive-field
+     * registry hides from this user: rendered empty, and never written back.
+     *
+     * @return list<string>
+     */
+    private static function hiddenFormFields( int $user_id, int $player_id ): array {
+        $hidden = [];
+        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'date_of_birth' ] as $field ) {
+            if ( RecordRedactor::isMasked( 'players', $field, $user_id, $player_id ) ) $hidden[] = $field;
+        }
+        return $hidden;
+    }
+
+    /** #4691 — the date of birth as a table cell: the date, "Hidden", or a dash. */
+    private static function dobCell( object $player, int $user_id ): string {
+        $dob = (string) ( $player->date_of_birth ?? '' );
+        if ( $dob === '' ) return '—';
+        return RecordRedactor::isMasked( 'players', 'date_of_birth', $user_id, (int) ( $player->id ?? 0 ) )
+            ? MaskedValue::label()
+            : $dob;
+    }
+
     private static function canSeePlayer( int $player_id ): bool {
         return $player_id > 0
             && AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );
@@ -131,6 +156,14 @@ class PlayersPage {
             (array) $players,
             static fn( $row ): bool => AuthorizationService::canViewPlayer( $user_id, (int) $row->id )
         ) );
+
+        // #4691 — guardian and date-of-birth cells follow the sensitive-field
+        // registry, resolved for the whole list at once.
+        $team_by_player = [];
+        foreach ( $players as $row ) {
+            $team_by_player[ (int) $row->id ] = (int) ( $row->team_id ?? 0 );
+        }
+        RecordRedactor::prime( $user_id, $team_by_player );
 
         $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
 
@@ -230,7 +263,9 @@ class PlayersPage {
                         $parent_id    = (int) ( $pl->parent_id ?? 0 );
                         $parent_name  = trim( (string) ( $pl->parent_display_name ?? '' ) );
                         $parent_count = max( 1, (int) ( $pl->parent_count ?? 1 ) );
-                        if ( $parent_id > 0 && $parent_name !== '' ) {
+                        if ( $parent_id > 0 && $parent_name !== '' && RecordRedactor::isMasked( 'players', 'parent_name', $user_id, (int) $pl->id ) ) {
+                            echo esc_html( MaskedValue::label() );
+                        } elseif ( $parent_id > 0 && $parent_name !== '' ) {
                             echo \TT\Shared\Frontend\Components\RecordLink::inline(
                                 $parent_count > 1 ? $parent_name . ' +' . ( $parent_count - 1 ) : $parent_name,
                                 add_query_arg( [ 'tt_view' => 'parent-accounts' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
@@ -246,7 +281,7 @@ class PlayersPage {
                     ?></td>
 
                     <td><?php echo $pl->jersey_number ? (int) $pl->jersey_number : '—'; ?></td>
-                    <td><?php echo esc_html( $pl->date_of_birth ?: '—' ); ?></td>
+                    <td><?php echo esc_html( self::dobCell( $pl, $user_id ) ); ?></td>
                     <td><?php if ( current_user_can( 'tt_edit_players' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$pl->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_player&id={$pl->id}" ), 'tt_delete_player_' . $pl->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td>
                 </tr>
             <?php endforeach; endif; ?></tbody></table>
@@ -274,13 +309,13 @@ class PlayersPage {
         // #4689 — the guardian on file follows the staff rule, as on the
         // profile and the REST record: a reader who may open this player but
         // does not work with them gets the form with those fields empty.
-        if ( $player !== null && $is_edit
-            && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), (int) ( $player->id ?? 0 ) ) ) {
-            $player = (object) array_merge( get_object_vars( $player ), [
-                'guardian_name'  => '',
-                'guardian_email' => '',
-                'guardian_phone' => '',
-            ] );
+        // #4691 — and so does every other field the sensitive-field registry
+        // hides from this reader, the date of birth included.
+        if ( $player !== null && $is_edit ) {
+            $hidden = self::hiddenFormFields( get_current_user_id(), (int) ( $player->id ?? 0 ) );
+            if ( $hidden !== [] ) {
+                $player = (object) array_merge( get_object_vars( $player ), array_fill_keys( $hidden, '' ) );
+            }
         }
 
         // v2.14.0: Rate Card tab embedded on the edit view. Only available
@@ -536,11 +571,15 @@ class PlayersPage {
                         <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><?php echo esc_html( $team ? (string) $team->name : '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><td><?php echo is_array( $pos ) && $pos !== [] ? esc_html( implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) ) : '—'; ?></td></tr>
                         <tr><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->preferred_foot ?: '—' ); ?></td></tr>
-                        <tr><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->date_of_birth ?: '—' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><td><?php echo esc_html( self::dobCell( $player, get_current_user_id() ) ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->nationality ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><?php echo esc_html( LabelTranslator::playerStatus( (string) $player->status ) ); ?></td></tr>
                     </table>
-                    <?php CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_PLAYER, $id ); ?>
+                    <?php
+                    if ( ! RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $id ) ) {
+                        CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_PLAYER, $id );
+                    }
+                    ?>
                 </div>
                 <div style="flex:1;min-width:320px;">
                     <h3><?php esc_html_e( 'Development Radar', 'talenttrack' ); ?></h3>
@@ -640,11 +679,13 @@ class PlayersPage {
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
-        // #4689 — a saver who is not staff for the player was shown the
-        // guardian fields empty; writing them back would erase the guardian
-        // on file. Leave the stored values as they are.
-        if ( $id > 0 && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), $id ) ) {
-            unset( $data['guardian_name'], $data['guardian_email'], $data['guardian_phone'] );
+        // #4689 / #4691 — a saver the registry hides a field from was shown
+        // it empty; writing it back would erase the stored value (the
+        // guardian on file, the date of birth). Leave those as they are.
+        if ( $id > 0 ) {
+            foreach ( self::hiddenFormFields( get_current_user_id(), $id ) as $field ) {
+                unset( $data[ $field ] );
+            }
         }
 
         if ( $id ) {

@@ -105,8 +105,7 @@ final class ScoutPlayerCard {
     private static function birthYear( string $dob ): ?int {
         $usable = QueryHelpers::usableDate( $dob );
         if ( $usable === null ) return null;
-        $year = (int) substr( $usable, 0, 4 );
-        return $year > 1900 ? $year : null;
+        return \TT\Infrastructure\Players\PlayerDates::birthYear( $usable );
     }
 
     private static function teamName( int $team_id ): ?string {

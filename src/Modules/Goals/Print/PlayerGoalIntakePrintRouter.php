@@ -419,7 +419,7 @@ class PlayerGoalIntakePrintRouter {
             <dl class="identity__meta">
                 <div><dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt><dd><?php echo esc_html( (string) ( $player->team_name ?? '—' ) ); ?></dd></div>
                 <div><dt><?php echo esc_html_x( 'Shirt number', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo $player->jersey_number ? '#' . (int) $player->jersey_number : '—'; ?></dd></div>
-                <div><dt><?php echo esc_html_x( 'Age · Date of birth', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::ageDob( (string) $player->date_of_birth ) ); ?></dd></div>
+                <div><dt><?php echo esc_html_x( 'Age · Date of birth', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::ageDob( (string) $player->date_of_birth, (int) $player->id ) ); ?></dd></div>
                 <div><dt><?php echo esc_html_x( 'Preferred foot', 'goal intake print', 'talenttrack' ); ?></dt><dd><?php echo esc_html( self::footLabel( (string) $player->preferred_foot ) ); ?></dd></div>
             </dl>
         </div>
@@ -601,8 +601,14 @@ class PlayerGoalIntakePrintRouter {
         <?php
     }
 
-    private static function ageDob( string $dob ): string {
+    private static function ageDob( string $dob, int $player_id ): string {
         if ( $dob === '' || $dob === '0000-00-00' ) return '—';
+        // #4691 — hidden from this reader: "Hidden" and the birth year, no age.
+        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), $player_id ) ) {
+            $year = \TT\Infrastructure\Players\PlayerDates::birthYear( $dob );
+            /* translators: %d: a four-digit birth year */
+            return \TT\Shared\Frontend\Components\MaskedValue::label() . ( $year !== null ? ' · ' . sprintf( __( 'Born %d', 'talenttrack' ), $year ) : '' );
+        }
         $ts = strtotime( $dob );
         if ( ! $ts ) return $dob;
         $age = (int) date_diff( date_create( $dob ), date_create( 'now' ) )->y;

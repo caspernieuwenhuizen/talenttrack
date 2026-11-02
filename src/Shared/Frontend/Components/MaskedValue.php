@@ -33,6 +33,14 @@ final class MaskedValue {
     }
 
     /**
+     * The word alone, unescaped, for output that has no component sheet:
+     * a PDF, a print view, a wp-admin table, a spreadsheet cell.
+     */
+    public static function label(): string {
+        return _x( 'Hidden', 'masked field value', 'talenttrack' );
+    }
+
+    /**
      * The stylesheet. Enqueued on first use, which on a dashboard render is
      * before the head is printed; a view that builds markup later can call
      * this up front.

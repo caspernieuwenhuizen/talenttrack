@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -138,15 +139,20 @@ final class PlayersListCsvExporter implements ExporterInterface, ScopeGatedExpor
             $team_by_player[ (int) $r->id ] = (int) ( $r->team_id ?? 0 );
         }
         $staff = AuthorizationService::staffForPlayers( $request->requesterUserId, $team_by_player );
+        // #4691 — and the date of birth follows the sensitive-field registry.
+        RecordRedactor::prime( $request->requesterUserId, $team_by_player );
 
         $out_rows = [];
         foreach ( $rows as $r ) {
             $contact = ! empty( $staff[ (int) $r->id ] );
+            $dob     = RecordRedactor::isMasked( 'players', 'date_of_birth', $request->requesterUserId, (int) $r->id )
+                ? ''
+                : (string) ( $r->date_of_birth ?? '' );
             $out_rows[] = [
                 (int)    $r->id,
                 (string) $r->first_name,
                 (string) $r->last_name,
-                (string) ( $r->date_of_birth ?? '' ),
+                $dob,
                 $r->jersey_number !== null ? (int) $r->jersey_number : '',
                 ExportValueFormatter::preferredFoot( $r->preferred_foot ?? '' ),
                 ExportValueFormatter::positions( $r->preferred_positions ?? '' ),

@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -126,6 +127,8 @@ final class FederationJsonExporter implements ExporterInterface, ScopeGatedExpor
             $team_by_player[ (int) $row['id'] ] = (int) $row['team_id'];
         }
         $staff = AuthorizationService::staffForPlayers( $request->requesterUserId, $team_by_player );
+        // #4691 — and the date of birth follows the sensitive-field registry.
+        RecordRedactor::prime( $request->requesterUserId, $team_by_player );
 
         $teams_index = [];
         foreach ( $rows as $row ) {
@@ -143,7 +146,10 @@ final class FederationJsonExporter implements ExporterInterface, ScopeGatedExpor
                 'id'                  => (int) $row['id'],
                 'first_name'          => (string) $row['first_name'],
                 'last_name'           => (string) $row['last_name'],
-                'date_of_birth'       => $row['date_of_birth'] !== null ? (string) $row['date_of_birth'] : null,
+                'date_of_birth'       => $row['date_of_birth'] !== null
+                    && ! RecordRedactor::isMasked( 'players', 'date_of_birth', $request->requesterUserId, (int) $row['id'] )
+                    ? (string) $row['date_of_birth']
+                    : null,
                 'jersey'              => $row['jersey_number'] !== null ? (int) $row['jersey_number'] : null,
                 'preferred_foot'      => (string) $row['preferred_foot'],
                 'preferred_positions' => (string) $row['preferred_positions'],

@@ -703,7 +703,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $fields = [];
         $dob = (string) ( $player->date_of_birth ?? '' );
         if ( $dob !== '' && $dob !== '0000-00-00' ) {
-            $fields[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob ) ) ];
+            $fields[] = [
+                __( 'Date of birth', 'talenttrack' ),
+                self::dobMasked( (int) $player->id )
+                    ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                    : esc_html( self::shortDate( $dob ) ),
+            ];
         }
         $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         if ( is_array( $positions ) && ! empty( $positions ) ) {
@@ -1041,8 +1046,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $joined_raw = (string) ( \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->date_joined ?? '' ) ?? '' );
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
 
-        $dob_value = $dob_raw !== '' ? self::shortDate( $dob_raw ) : '—';
+        $dob_value = $dob_raw !== '' ? esc_html( self::shortDate( $dob_raw ) ) : '—';
         $dob_hint  = $dob_raw !== '' ? self::ageHint( $dob_raw )   : '';
+        // #4691 — a reader the registry does not let read the date sees
+        // "Hidden" and the birth year, which places the player in an age
+        // band without the date itself.
+        if ( $dob_raw !== '' && self::dobMasked( (int) ( $player->id ?? 0 ) ) ) {
+            $dob_value = \TT\Shared\Frontend\Components\MaskedValue::html();
+            $year      = \TT\Infrastructure\Players\PlayerDates::birthYear( $dob_raw );
+            /* translators: %d: a four-digit birth year */
+            $dob_hint  = $year !== null ? sprintf( __( 'Born %d', 'talenttrack' ), $year ) : '';
+        }
 
         $foot_value = $foot_raw !== ''
             ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', $foot_raw )
@@ -1059,7 +1073,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             <div class="tt-player-facts__cell">
                 <?php // #4702 — short label forms: the three columns are equal width, and a label must not break inside a word on a 360px phone. ?>
                 <span class="tt-player-facts__label"><?php echo esc_html_x( 'DOB', 'player facts label', 'talenttrack' ); ?></span>
-                <p class="tt-player-facts__value"><?php echo esc_html( $dob_value ); ?></p>
+                <p class="tt-player-facts__value"><?php echo $dob_value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above or MaskedValue markup. ?></p>
                 <?php if ( $dob_hint !== '' ) : ?>
                     <p class="tt-player-facts__hint"><?php echo esc_html( $dob_hint ); ?></p>
                 <?php endif; ?>
@@ -1582,7 +1596,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // sentinel renders "—" instead of the literal "0000-00-00".
         $dob_raw = (string) ( $player->date_of_birth ?? '' );
         if ( $dob_raw !== '' && $dob_raw !== '0000-00-00' ) {
-            $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob_raw ) ) ];
+            if ( self::dobMasked( $player_id ) ) {
+                // #4691 — hidden from this reader; the birth year stays.
+                $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), \TT\Shared\Frontend\Components\MaskedValue::html() ];
+                $year = \TT\Infrastructure\Players\PlayerDates::birthYear( $dob_raw );
+                if ( $year !== null ) $identity_rows[] = [ __( 'Birth year', 'talenttrack' ), (string) $year ];
+            } else {
+                $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob_raw ) ) ];
+            }
         }
         if ( is_array( $positions ) && ! empty( $positions ) ) {
             // #2155 — long position descriptions on the profile tab.
@@ -1941,6 +1962,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * A viewer who reached this player only via own-record / parent-of-child
      * is not staff and gets `false`.
      */
+    /** #4691 — is the full date of birth hidden from the current viewer? */
+    private static function dobMasked( int $player_id ): bool {
+        return \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), $player_id );
+    }
+
     private static function viewerIsStaffForPlayer( int $player_id ): bool {
         // #3715 — the rule moved to AuthorizationService so the capture
         // screen this view links to can ask the same question and get the

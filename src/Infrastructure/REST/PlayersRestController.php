@@ -663,7 +663,7 @@ class PlayersRestController {
         }
 
         return RestResponse::success( [
-            'rows'     => array_map( [ __CLASS__, 'fmtRow' ], $rows ),
+            'rows'     => RecordRedactor::redactRows( 'players', array_map( [ __CLASS__, 'fmtRow' ], $rows ), get_current_user_id() ),
             'total'    => $total,
             'page'     => $page,
             'per_page' => $per_page,
@@ -1052,6 +1052,7 @@ class PlayersRestController {
             // which is the whole point of moving photos off uploads/.
             'photo_url'        => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ),
             'date_of_birth'    => PlayerDates::forOutput( $pl->date_of_birth ?? null ),
+            'birth_year'       => PlayerDates::birthYear( $pl->date_of_birth ?? null ),
             'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
             // #3804 — consent on the list row, so "which children may we
@@ -1459,7 +1460,8 @@ class PlayersRestController {
 
     private static function fmt( ?object $pl ): array {
         if ( ! $pl ) return [];
-        $out = self::fmtBase( $pl );
+        $player_id = (int) $pl->id;
+        $out       = RecordRedactor::redact( 'players', self::fmtBase( $pl ), get_current_user_id(), $player_id );
 
         // Guardian contact and the club's own fields are family data of a
         // minor. The route gate admits more than staff (linked parent, the
@@ -1467,7 +1469,6 @@ class PlayersRestController {
         // the sensitive-field registry lets read them (#4690); the response
         // filter strips them again for anyone else. Asked here as well so a
         // read that discloses nothing is not audit-logged as one.
-        $player_id = (int) $pl->id;
         if ( RecordRedactor::isMasked( 'players', 'guardian_email', get_current_user_id(), $player_id ) ) {
             return $out;
         }
@@ -1495,6 +1496,7 @@ class PlayersRestController {
             'first_name'          => (string) $pl->first_name,
             'last_name'           => (string) $pl->last_name,
             'date_of_birth'       => PlayerDates::forOutput( $pl->date_of_birth ),
+            'birth_year'          => PlayerDates::birthYear( $pl->date_of_birth ),
             'sex'                 => (string) ( $pl->sex ?? '' ),
             'nationality'         => $pl->nationality ?: null,
             'height_cm'           => $pl->height_cm !== null ? (int) $pl->height_cm : null,
