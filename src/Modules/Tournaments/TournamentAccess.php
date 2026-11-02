@@ -77,10 +77,23 @@ final class TournamentAccess {
      * is a squad to widen the answer.
      */
     public static function canCreateForTeam( int $user_id, int $team_id ): bool {
-        if ( $user_id <= 0 ) return false;
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+        // The anchor is a team of this club, not archived, for every caller:
+        // an academy-wide grant reaches every team, not a team that is not
+        // there.
+        if ( ! self::isActiveClubTeam( $team_id ) ) return false;
         if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return true;
-        if ( $team_id <= 0 ) return false;
         return MatrixGate::can( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /** A team of the current club, not archived. */
+    public static function isActiveClubTeam( int $team_id ): bool {
+        if ( $team_id <= 0 ) return false;
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d AND archived_at IS NULL",
+            $team_id, CurrentClub::id()
+        ) ) > 0;
     }
 
     /**
@@ -186,6 +199,59 @@ final class TournamentAccess {
             if ( MatrixGate::can( $user_id, self::ENTITY, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $team_id ) ) {
                 $out[] = $team_id;
             }
+        }
+        return array_values( array_unique( $out ) );
+    }
+
+    /**
+     * May this user put this player in a tournament squad? Only when they
+     * may create tournaments for the player's current team. An academy-wide
+     * planner adds anyone; a coach of two teams may mix those two squads.
+     * The wizard, the REST squad writes and the planner all ask this.
+     */
+    public static function canAddToSquad( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        // A current player of this club; another club's player, or an
+        // archived one, is nobody's to add.
+        $team_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d AND archived_at IS NULL",
+            $player_id, CurrentClub::id()
+        ) );
+        if ( $team_id === null ) return false;
+        if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return true;
+        return (int) $team_id > 0 && self::canCreateForTeam( $user_id, (int) $team_id );
+    }
+
+    /**
+     * The players in `$player_ids` this user may not add to a squad.
+     *
+     * @param list<int> $player_ids
+     * @return list<int>
+     */
+    public static function squadRefusals( int $user_id, array $player_ids ): array {
+        $out = [];
+        foreach ( $player_ids as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id > 0 && ! self::canAddToSquad( $user_id, $player_id ) ) $out[] = $player_id;
+        }
+        return array_values( array_unique( $out ) );
+    }
+
+    /**
+     * The teams this user may create a tournament for: null for every team
+     * (a global grant), otherwise the teams they are assigned to that
+     * `canCreateForTeam()` admits. Built like `readableTeamIds()`.
+     *
+     * @return list<int>|null
+     */
+    public static function creatableTeamIds( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return null;
+        $out = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( $team->id ?? 0 );
+            if ( $team_id > 0 && self::canCreateForTeam( $user_id, $team_id ) ) $out[] = $team_id;
         }
         return array_values( array_unique( $out ) );
     }

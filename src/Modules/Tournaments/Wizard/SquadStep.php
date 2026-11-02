@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Tournaments\TournamentAccess;
 use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -83,14 +84,24 @@ final class SquadStep implements WizardStepInterface {
             echo '<div class="tt-tournament-wizard"><p class="tt-notice">' . esc_html__( 'No anchor team picked. Go back to the Basics step.', 'talenttrack' ) . '</p></div>';
             return;
         }
+        // Asked again here, not only at the Basics step: the list names a
+        // squad of minors, and wizard state outlives the request it came in.
+        if ( ! TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+            echo '<div class="tt-tournament-wizard"><p class="tt-notice">' . esc_html__( 'That team is not in your scope.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
 
+        // The anchor team's players first, then those of every other team the
+        // planner may create a tournament for: a squad may mix them.
+        $team_ids = self::offeredTeamIds( get_current_user_id(), $team_id );
         global $wpdb; $p = $wpdb->prefix;
+        $in      = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
         $players = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, preferred_positions, status
+            "SELECT id, first_name, last_name, preferred_positions, status, team_id
                FROM {$p}tt_players
-              WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
-           ORDER BY last_name ASC, first_name ASC",
-            $team_id, CurrentClub::id()
+              WHERE team_id IN ( {$in} ) AND club_id = %d AND archived_at IS NULL
+           ORDER BY ( team_id = %d ) DESC, last_name ASC, first_name ASC",
+            ...array_merge( $team_ids, [ CurrentClub::id(), $team_id ] )
         ) ) ?: [];
 
         if ( ! $players ) {
@@ -122,6 +133,18 @@ final class SquadStep implements WizardStepInterface {
         // #4359 — the neutral "Check availability" marker for an overdue or
         // incomplete record, same day, never beside an unavailable player.
         $check = PlayerAvailability::checkSet( $roster_ids, $start_date, $unavailable );
+        // The markers go where the planned-attendance surfaces send them.
+        // Asked per player's own team, as the list may hold several teams.
+        $by_team = [];
+        foreach ( $players as $player ) {
+            $by_team[ (int) ( $player->team_id ?? 0 ) ][] = (int) ( $player->id ?? 0 );
+        }
+        $flagged = [];
+        foreach ( $by_team as $player_team => $ids ) {
+            $flagged += PlayerAvailability::readableFlagSet( get_current_user_id(), $ids, (int) $player_team );
+        }
+        $unavailable = array_intersect_key( $unavailable, $flagged );
+        $check       = array_intersect_key( $check, $flagged );
 
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
@@ -200,17 +223,20 @@ final class SquadStep implements WizardStepInterface {
         $picked = isset( $post['squad_in'] ) && is_array( $post['squad_in'] )
             ? array_map( 'absint', $post['squad_in'] )
             : [];
-        if ( ! $picked ) {
-            return new \WP_Error( 'squad_empty', __( 'Pick at least one player for the squad.', 'talenttrack' ) );
-        }
         $positions_post = isset( $post['squad_positions'] ) && is_array( $post['squad_positions'] )
             ? $post['squad_positions']
             : [];
 
+        $team_id = (int) ( $state['team_id'] ?? 0 );
+        if ( $team_id <= 0 || ! TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+            return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
+        }
+        // Only players the planner may add: any other posted id is dropped.
+        $uid     = get_current_user_id();
         $allowed = array_keys( self::positionCodes() );
         $squad = [];
         foreach ( $picked as $pid ) {
-            if ( $pid <= 0 ) continue;
+            if ( $pid <= 0 || ! TournamentAccess::canAddToSquad( $uid, $pid ) ) continue;
             $raw = $positions_post[ (string) $pid ] ?? [];
             $positions = [];
             if ( is_array( $raw ) ) {
@@ -225,11 +251,29 @@ final class SquadStep implements WizardStepInterface {
                 'eligible_positions' => $positions,
             ];
         }
+        // After that filter, so a squad of only foreign ids is empty.
+        if ( ! $squad ) {
+            return new \WP_Error( 'squad_empty', __( 'Pick at least one player for the squad.', 'talenttrack' ) );
+        }
         return [ 'squad' => $squad ];
     }
 
     public function nextStep( array $state ): ?string { return 'matches'; }
     public function submit( array $state ) { return null; }
+
+    /**
+     * The teams whose players the step offers: the anchor team, and for a
+     * planner held to their own teams, every other team they may create a
+     * tournament for. An academy-wide planner is offered the anchor team;
+     * they may still add anyone through the planner.
+     *
+     * @return list<int>
+     */
+    private static function offeredTeamIds( int $user_id, int $anchor_team_id ): array {
+        $creatable = TournamentAccess::creatableTeamIds( $user_id );
+        if ( $creatable === null ) return [ $anchor_team_id ];
+        return array_values( array_unique( array_merge( [ $anchor_team_id ], $creatable ) ) );
+    }
 
     /**
      * Derive default eligible positions from the player's
