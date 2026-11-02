@@ -60,6 +60,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const { uniqueName } = require( './helpers/admin' );
 const { rest } = require( './helpers/match-prep' );
+const { widestOffender } = require( './helpers/overflow' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
@@ -244,33 +245,25 @@ async function waitForListHydration( page ) {
  * @returns {Promise<{ kind: string, detail: string }[]>}
  */
 async function measure( page, cls ) {
-	return page.evaluate( ( { minTap, cls } ) => {
+	// Name the widest offending element — "the page overflows" is a fact
+	// you then have to go and diagnose by hand; the widest box that sticks
+	// out is usually the answer itself. Boxes inside a horizontal scroll
+	// strip are not candidates (#4767).
+	const offender = await page.evaluate( widestOffender );
+
+	return page.evaluate( ( { minTap, cls, offender } ) => {
 		/** @type {{ kind: string, detail: string }[]} */
 		const findings = [];
 		const doc = document.documentElement;
 
 		if ( doc.scrollWidth > doc.clientWidth ) {
-			// Name the widest offending element — "the page overflows" is
-			// a fact you then have to go and diagnose by hand; the widest
-			// box that sticks out is usually the answer itself.
-			let worst = null;
-			let worstRight = doc.clientWidth;
-			document.querySelectorAll( '.tt-dashboard *' ).forEach( ( el ) => {
-				const r = el.getBoundingClientRect();
-				if ( r.width === 0 || r.height === 0 ) return;
-				if ( r.right > worstRight ) {
-					worstRight = r.right;
-					worst = el;
-				}
-			} );
-
-			const where = worst
-				? `${ worst.tagName.toLowerCase() }.${ String( worst.className || '' ).trim().split( /\s+/ ).slice( 0, 3 ).join( '.' ) }`
-				: 'unknown element';
+			const where = offender
+				? `${ offender.where } reaching ${ offender.right }px`
+				: 'not found outside a horizontal scroll strip';
 
 			findings.push( {
 				kind: 'overflow',
-				detail: `scrollWidth ${ doc.scrollWidth } exceeds clientWidth ${ doc.clientWidth }; widest box is ${ where } reaching ${ Math.round( worstRight ) }px`,
+				detail: `scrollWidth ${ doc.scrollWidth } exceeds clientWidth ${ doc.clientWidth }; widest box is ${ where }`,
 			} );
 		}
 
@@ -335,7 +328,7 @@ async function measure( page, cls ) {
 		}
 
 		return findings;
-	}, { minTap: MIN_TAP, cls } );
+	}, { minTap: MIN_TAP, cls, offender } );
 }
 
 /**
