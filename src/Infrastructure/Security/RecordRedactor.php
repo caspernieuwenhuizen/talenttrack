@@ -137,6 +137,8 @@ final class RecordRedactor {
      * row of that entity sits.
      *
      * @param mixed $result
+     * @param mixed $server
+     * @param mixed $request
      * @return mixed
      */
     public static function filterResponse( $result, $server, $request ) {
