@@ -12,6 +12,10 @@ name: Inline-style containment
 # dynamic case that can't live in a stylesheet (e.g. a computed
 # progress-bar width), add a trailing `/* tt-inline-ok */` on the same
 # line to grandfather it.
+#
+# Renderer-owned CSS (a shared printable that screen, print and PDF all
+# read) may be attached with wp_add_inline_style() to an enqueued handle;
+# CSS a view writes itself still belongs in assets/css/ (CLAUDE.md §2).
 
 on:
   pull_request:
