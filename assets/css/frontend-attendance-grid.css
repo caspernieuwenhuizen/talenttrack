@@ -256,3 +256,25 @@ table.tt-agrid {
     content: " " attr(data-mobile-hint);
   }
 }
+
+/* Touch: every control in the grid reaches the 48px floor (§2), with 8px
+   between neighbouring cells. A mouse keeps the spreadsheet density above.
+   The minutes grid shares these cells and layers its boxes on top. */
+@media (pointer: coarse) {
+  .tt-agrid__fill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--tt-tap-min, 48px);
+    min-height: var(--tt-tap-min, 48px);
+    margin-top: var(--tt-sp-2, 8px);
+    padding: 0 var(--tt-sp-2, 8px);
+    touch-action: manipulation;
+  }
+  .tt-agrid td.tt-agrid-cell { padding: 4px; }
+  .tt-agrid-sel {
+    min-width: var(--tt-tap-min, 48px);
+    min-height: var(--tt-tap-min, 48px);
+    touch-action: manipulation;
+  }
+}

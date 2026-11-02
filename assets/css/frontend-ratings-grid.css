@@ -22,6 +22,11 @@
 }
 .tt-dashboard .tt-rgrid-desktop-only {
     display: block;
+    /* The notice is the whole phone surface: it wraps within the viewport,
+       long Dutch compounds included, instead of scrolling sideways (§2). */
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-wrap: anywhere;
 }
 
 @media (min-width: 1024px) {
