@@ -625,7 +625,7 @@ The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric
 
 A scheduled KPI report is checked per recipient every time it runs, so a report never reaches someone who could not open the same figures in the plugin:
 
-- **A role key** (for example `tt_head_dev`) stands for every account holding that role, and each of them is checked separately. An email address that belongs to an account here is treated as that account.
+- **A role key** (for example `tt_head_dev`) stands for every account holding that role in this academy, and each of them is checked separately. A member of the role who is not part of this academy is left out. An email address that belongs to an account here is treated as that account.
 - **An account** receives its own CSV, built from the rows it may read itself: all teams with academy-wide access, otherwise its own teams. An account that may read none of the report's data receives nothing. A schedule sent to the parent role therefore delivers nothing to parents for a report about players.
 - **An address with no account here** receives the report only when it holds no player data, such as activity volume. It then reads with the access of the person who set up the schedule. A report about players (attendance, evaluations, goals, journey events, trial decisions, prospects) is never sent to such an address.
 - **Accounts that may read the same rows** share one CSV, so a role with many academy-wide readers is built once, not once per person.

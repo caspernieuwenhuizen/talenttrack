@@ -43,7 +43,7 @@ final class ReportAccess {
      */
     public static function buildRefusal( ReportReader $reader, string $scope, ?int $player_id, ?int $team_id, array $cohort_team_ids ): ?StudioError {
         $uid = $reader->userId;
-        if ( ! user_can( $uid, 'tt_build_reports' ) ) return self::forbidden( 'forbidden', __( 'You do not build reports.', 'talenttrack' ) );
+        if ( ! $reader->buildsReports() ) return self::forbidden( 'forbidden', __( 'You do not build reports.', 'talenttrack' ) );
 
         $teams  = $reader->builderTeams();
         $covers = static fn( int $team ): bool => $teams === null || in_array( $team, $teams, true );
@@ -89,7 +89,7 @@ final class ReportAccess {
      */
     public static function canEdit( ReportReader $reader, array $report ): bool {
         $uid = $reader->userId;
-        if ( $uid <= 0 || ! user_can( $uid, 'tt_build_reports' ) ) return false;
+        if ( $uid <= 0 || ! $reader->buildsReports() ) return false;
         if ( $report['owner_user_id'] !== $uid ) {
             if ( $report['sharing'] === ReportStartRules::SHARING_ME ) return false;
             if ( $reader->builderTeams() !== null ) return false;
@@ -114,7 +114,7 @@ final class ReportAccess {
     public static function canPublish( ReportReader $reader, array $report, array $persona_keys ): bool {
         if ( ! self::canEdit( $reader, $report ) ) return false;
         if ( $persona_keys === [] ) return true;
-        return user_can( $reader->userId, 'tt_publish_reports' );
+        return $reader->publishesReports();
     }
 
     /**
@@ -142,6 +142,32 @@ final class ReportAccess {
                 return self::readsAcademy( $reader->userId );
         }
         return false;
+    }
+
+    /**
+     * `canReadSubject()` as values a list query applies in SQL: the teams the
+     * user reads reports about (null for every team), the players among
+     * `$player_ids` whose report they read, and whether they read the
+     * academy. A group reads when one of its teams is in `teams`.
+     *
+     * The player rule has no team-only form: it also asks
+     * `AuthorizationService::canViewPlayer()`. So the caller passes the
+     * player subjects that could be listed and they are read in one go.
+     *
+     * @param list<int> $player_ids
+     * @return array{teams:list<int>|null, players:list<int>, academy:bool}
+     */
+    public static function listedSubjects( ReportReader $reader, array $player_ids ): array {
+        $reader->primePlayers( $player_ids );
+        $players = [];
+        foreach ( $player_ids as $id ) {
+            if ( $reader->readsPlayer( $id ) ) $players[] = $id;
+        }
+        return [
+            'teams'   => $reader->reportTeams(),
+            'players' => $players,
+            'academy' => self::readsAcademy( $reader->userId ),
+        ];
     }
 
     /**
@@ -177,7 +203,7 @@ final class ReportAccess {
         $edit = self::canEdit( $reader, $report );
         return [
             'can_edit'    => $edit,
-            'can_publish' => $edit && user_can( $reader->userId, 'tt_publish_reports' ),
+            'can_publish' => $edit && $reader->publishesReports(),
         ];
     }
 

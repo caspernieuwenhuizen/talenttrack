@@ -201,7 +201,13 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
     public function test_the_skipped_recipients_are_listed_on_the_run_record_and_the_rest_still_receive(): void {
         $hod_email = (string) get_userdata( $this->hod )->user_email;
         if ( get_role( 'tt_parent' ) === null ) add_role( 'tt_parent', 'parent', [ 'read' => true ] );
-        self::factory()->user->create( [ 'role' => 'tt_parent', 'user_email' => 'parent-b-4619@example.test' ] );
+        $parent_b = (int) self::factory()->user->create( [ 'role' => 'tt_parent', 'user_email' => 'parent-b-4619@example.test' ] );
+        // #4662 — a member of the club, so it is the read check that leaves them out.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Parent', 'last_name' => 'Recipients',
+            'role_type' => 'parent', 'wp_user_id' => $parent_b, 'status' => 'active',
+        ] );
         $this->flush();
 
         $id = $this->runSchedule( self::PLAYER_KPI, [ $hod_email, 'tt_parent', 'outside-4619@example.test' ], $this->hod );

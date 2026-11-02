@@ -197,8 +197,7 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
 
     /**
      * The view's own answer for a reader with no activity capability. The
-     * dashboard does not route this reader to the activities panel yet
-     * (that is a separate change), so this pins the view, not the dispatch.
+     * dispatch half lives in `ObserverActivitiesPanelTest`.
      */
     public function test_the_read_only_observer_alone_is_offered_view_match_prep(): void {
         ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );

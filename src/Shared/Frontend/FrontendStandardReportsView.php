@@ -709,6 +709,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // shared read's (newest recorded figure, `minutes_override` first),
         // not a SUM of `minutes_played` that doubled a duplicate row and
         // ignored a coach's override.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key
                FROM {$wpdb->prefix}tt_attendance att
@@ -721,7 +722,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.activity_type_key IN ('match','game','tournament')
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
@@ -1174,6 +1175,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // match) by the #4526 rule, so a duplicate row is read once, and the
         // #4053 plan fallback on an old tournament fixture. A SQL aggregate
         // here never asked the resolver, so those fixtures read 0.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             // #2849 — `tt_players` has no `name`; it carries `first_name` and
             // `last_name`. Selecting the column that does not exist made the
@@ -1195,7 +1197,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.archived_at IS NULL
               WHERE att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.activity_type_key IN ('match','game','tournament')
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY p.id, p.first_name, p.last_name, p.jersey_number, att.{$att_fk}",
             $team_id, $club_id, $bd_from, $bd_to

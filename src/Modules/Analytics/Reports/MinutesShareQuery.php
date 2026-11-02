@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -87,6 +88,7 @@ final class MinutesShareQuery {
         // The prep row's half length is the per-match override
         // MatchLengthResolver takes first; pulling it in the same query
         // saves a lookup per match on a full season.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id,
                     COALESCE( mp.half_length_minutes, 0 ) AS half_length_minutes
@@ -94,7 +96,7 @@ final class MinutesShareQuery {
                LEFT JOIN {$p}tt_match_prep mp ON mp.activity_id = a.id
               WHERE a.club_id = %d
                 AND a.team_id = %d
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND {$played_sql}
                 AND a.archived_at IS NULL
@@ -150,6 +152,7 @@ final class MinutesShareQuery {
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
 
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS matches,
                     MIN( a.{$date_col} ) AS earliest,
@@ -157,7 +160,7 @@ final class MinutesShareQuery {
                FROM {$p}tt_activities a
               WHERE a.club_id = %d
                 AND a.team_id = %d
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} IS NOT NULL
                 AND a.{$date_col} NOT BETWEEN %s AND %s
                 AND {$played_sql}
@@ -221,6 +224,7 @@ final class MinutesShareQuery {
         // (`MinutesQuery::squadTotals()`): one figure per (player, match) by
         // the #4526 rule, and the #4053 plan fallback on an old tournament
         // fixture, which a SQL aggregate here never asked for.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id
                FROM {$p}tt_attendance att
@@ -234,7 +238,7 @@ final class MinutesShareQuery {
                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
               WHERE att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id",
             $club_id, $team_id, $from, $to

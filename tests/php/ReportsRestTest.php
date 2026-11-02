@@ -562,6 +562,85 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertCount( 60, $hod->get_data()['data']['context']['player_ids'], 'a reader who sees everyone gets the first 60' );
     }
 
+    /**
+     * #4639 — the subject rule is applied in the query, so the list is paged
+     * there and `total` is exact; it used to read up to 2000 rows and filter
+     * and page them afterwards.
+     */
+    public function test_the_list_pages_and_counts_what_the_reader_may_open_in_the_query(): void {
+        for ( $i = 0; $i < 12; $i++ ) $this->insertPublished( 'team', null, $this->team_a );
+        for ( $i = 0; $i < 3; $i++ ) $this->insertPublished( 'team', null, $this->team_b );
+        $own_player   = $this->insertPublished( 'player', $this->player_a, null );
+        $other_player = $this->insertPublished( 'player', $this->player_b, null );
+        $mixed_group  = $this->insertPublished( 'group', null, null, [ $this->team_b, $this->team_a ] );
+        $other_group  = $this->insertPublished( 'group', null, null, [ $this->team_b ] );
+        $academy      = $this->insertPublished( 'academy', null, null );
+
+        $queries = [];
+        $capture = static function ( $sql ) use ( &$queries ) {
+            if ( is_string( $sql ) ) $queries[] = $sql;
+            return $sql;
+        };
+        add_filter( 'query', $capture );
+        $page_two = $this->send( 'GET', 'reports', [], [ 'owner' => 'published', 'per_page' => 10, 'page' => 2, 'order' => 'asc' ] );
+        remove_filter( 'query', $capture );
+
+        $this->assertSame( 200, $page_two->get_status() );
+        $data = $page_two->get_data()['data'];
+        $this->assertSame( 14, $data['total'], 'twelve team A reports, the own player and the group with team A' );
+        $this->assertCount( 4, $data['rows'] );
+        $this->assertSame( [ $own_player, $mixed_group ], array_slice( array_column( $data['rows'], 'id' ), 2 ) );
+
+        $listed = array_column( $this->send( 'GET', 'reports', [], [ 'owner' => 'published', 'per_page' => 100 ] )->get_data()['data']['rows'], 'id' );
+        $this->assertCount( 14, $listed );
+        $this->assertNotContains( $other_player, $listed, 'a player on another team' );
+        $this->assertNotContains( $other_group, $listed, 'a group of another team only' );
+        $this->assertNotContains( $academy, $listed, 'the academy needs club-wide analytics' );
+
+        $paged = array_filter( $queries, static fn( string $sql ): bool => strpos( $sql, 'tt_reports r' ) !== false && strpos( $sql, 'SELECT r.*' ) !== false );
+        $this->assertCount( 1, $paged );
+        $this->assertStringContainsString( 'LIMIT 10 OFFSET 10', (string) reset( $paged ), 'the page is cut in the query' );
+
+        wp_set_current_user( $this->scout );
+        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'], 'Edge: a persona the reports are not published to lists none of them' );
+    }
+
+    /** #4639 — the list costs the same number of queries for 2 reports and for 200. */
+    public function test_the_list_costs_the_same_queries_for_2_and_200_reports(): void {
+        $add = function ( int $n ): void {
+            for ( $i = 0; $i < $n; $i++ ) {
+                switch ( $i % 3 ) {
+                    case 0: $this->insertPublished( 'team', null, $this->team_a ); break;
+                    case 1: $this->insertPublished( 'player', $this->player_a, null ); break;
+                    default: $this->insertPublished( 'group', null, null, [ $this->team_a, $this->team_b ] );
+                }
+            }
+        };
+        $count = function (): array {
+            $n       = 0;
+            $counter = static function ( $sql ) use ( &$n ) {
+                $n++;
+                return $sql;
+            };
+            add_filter( 'query', $counter );
+            $res = $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] );
+            remove_filter( 'query', $counter );
+            return [ $n, (int) $res->get_data()['data']['total'] ];
+        };
+
+        $add( 2 );
+        // Warm the caches the request flush leaves alone, so both counts
+        // start from the same state.
+        $count();
+        [ $small, $small_total ] = $count();
+        $add( 198 );
+        [ $large, $large_total ] = $count();
+
+        $this->assertSame( 2, $small_total, 'Precondition: both reports list.' );
+        $this->assertSame( 200, $large_total, 'Precondition: all 200 list.' );
+        $this->assertSame( $small, $large, 'the query count does not grow with the reports' );
+    }
+
     public function test_every_route_answers_402_without_the_plan_feature(): void {
         $id = $this->create( [ 'scope' => 'me' ] );
         LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );
@@ -656,6 +735,38 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
         $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
         wp_set_current_user( $this->coach );
+        return $id;
+    }
+
+    /**
+     * A report by the head of development, published to head coaches,
+     * written straight to the tables so a list of hundreds stays quick.
+     *
+     * @param list<int>|null $cohort_teams
+     */
+    private function insertPublished( string $scope, ?int $player, ?int $team, ?array $cohort_teams = null ): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $now = current_time( 'mysql', true );
+        $wpdb->insert( "{$p}tt_reports", [
+            'uuid'                 => wp_generate_uuid4(),
+            'club_id'              => CurrentClub::id(),
+            'scope'                => $scope,
+            'binding'              => 'fixed',
+            'sharing'              => 'role',
+            'name'                 => 'Listed ' . $scope,
+            'player_id'            => $player,
+            'team_id'              => $team,
+            'cohort_json'          => $cohort_teams !== null ? (string) wp_json_encode( [ 'team_ids' => $cohort_teams, 'age_group' => '', 'position' => '' ] ) : null,
+            'owner_user_id'        => $this->hod,
+            'published_version_id' => 1,
+            'created_at'           => $now,
+            'updated_at'           => $now,
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_report_publications", [
+            'club_id' => CurrentClub::id(), 'report_id' => $id, 'persona_key' => 'head_coach', 'published_by' => $this->hod, 'published_at' => $now,
+        ] );
         return $id;
     }
 

@@ -1534,7 +1534,12 @@ class DashboardShortcode {
                 return true;
             case 'player-journey':
                 $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
-                $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;
+                // A player this user may not view answers as one that does
+                // not exist, so the id cannot be walked.
+                $journey_player = $journey_player_id > 0
+                    && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $journey_player_id )
+                    ? QueryHelpers::get_player( $journey_player_id )
+                    : null;
                 if ( ! $journey_player ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Player not found', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';

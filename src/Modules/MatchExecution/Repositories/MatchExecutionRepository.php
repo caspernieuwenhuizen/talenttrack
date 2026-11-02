@@ -4,6 +4,7 @@ namespace TT\Modules\MatchExecution\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
@@ -134,6 +135,7 @@ class MatchExecutionRepository {
 
         // Params: club_id (activities), team_ids…, today, club_id (exec scope).
         $params = array_merge( [ $club_id ], array_map( 'intval', $team_ids ), [ $today, $club_id ] );
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
 
         $sql = "SELECT a.id AS activity_id, a.title, a.opponent, a.session_date,
                        a.start_time, a.team_id, a.location, a.activity_type_key,
@@ -145,7 +147,7 @@ class MatchExecutionRepository {
                  WHERE a.club_id = %d
                    AND a.team_id IN ({$placeholders})
                    AND a.session_date = %s
-                   AND a.activity_type_key IN ('match','game','tournament')
+                   AND {$is_match_sql}
                    AND a.archived_at IS NULL
                    AND ( e.state IS NULL OR e.state = 'not_started' )
                    AND a.club_id = %d

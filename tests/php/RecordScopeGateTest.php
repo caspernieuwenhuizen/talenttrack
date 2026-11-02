@@ -385,8 +385,81 @@ final class RecordScopeGateTest extends TestCase {
     }
 
     // -----------------------------------------------------------------
+    // #4663 — a check is matched by its whole name
+    // -----------------------------------------------------------------
+
+    public function test_an_entry_without_a_star_matches_only_that_exact_name(): void {
+        $config = $this->checksOnly( [ 'Access::canRead' ] );
+
+        $this->assertTrue( tt_rs_has_check( 'Access::canRead( $u, $id )', $config ) );
+        $this->assertTrue( tt_rs_has_check( '\\TT\\Access::canRead( $u, $id )', $config ) );
+        // Longer on the right: a different method that shares the prefix.
+        $this->assertFalse( tt_rs_has_check( 'Access::canReadAll( $u )', $config ) );
+        // Longer on the left: a different class that shares the suffix.
+        $this->assertFalse( tt_rs_has_check( 'TeamAccess::canRead( $u, $id )', $config ) );
+    }
+
+    public function test_a_trailing_star_matches_the_family_and_nothing_else(): void {
+        $config = $this->checksOnly( [ 'Scope::covers*' ] );
+
+        $this->assertTrue( tt_rs_has_check( 'Scope::coversTeam( $u, $t )', $config ) );
+        $this->assertTrue( tt_rs_has_check( 'Scope::covers( $u, $t )', $config ) );
+        $this->assertFalse( tt_rs_has_check( 'OtherScope::coversTeam( $u, $t )', $config ) );
+        $this->assertFalse( tt_rs_has_check( 'Scope::cover( $u, $t )', $config ) );
+    }
+
+    public function test_a_capability_roll_up_sharing_a_checks_prefix_does_not_pass(): void {
+        // `canRead()` asks the matrix about team chemistry at any scope and no
+        // team at all; `canReadForTeam()` is the record check. Under prefix
+        // matching the first passed as the second.
+        $roll_up = $this->only( '<?php
+            class C {
+                public static function routes() {
+                    register_rest_route( "talenttrack/v1", "/teams/(?P<id>\\\\d+)/chemistry", [
+                        "callback"            => [ self::class, "get_chemistry" ],
+                        "permission_callback" => [ self::class, "can_view" ],
+                    ] );
+                }
+                public static function can_view() {
+                    return TeamChemistryAccess::canRead( get_current_user_id() );
+                }
+                public static function get_chemistry( $r ) {
+                    return ( new Repo() )->find( (int) $r["id"] );
+                }
+            }
+        ' );
+        $this->assertFalse( $roll_up['passed'] );
+
+        $record = $this->only( '<?php
+            class C {
+                public static function routes() {
+                    register_rest_route( "talenttrack/v1", "/teams/(?P<id>\\\\d+)/chemistry", [
+                        "callback"            => [ self::class, "get_chemistry" ],
+                        "permission_callback" => [ self::class, "can_view" ],
+                    ] );
+                }
+                public static function can_view( $r ) {
+                    return TeamChemistryAccess::canReadForTeam( get_current_user_id(), (int) $r["id"] );
+                }
+                public static function get_chemistry( $r ) {
+                    return ( new Repo() )->find( (int) $r["id"] );
+                }
+            }
+        ' );
+        $this->assertTrue( $record['passed'] );
+    }
+
+    // -----------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------
+
+    /**
+     * @param list<string> $checks
+     * @return array{checks:list<string>, capability_gates:list<string>, id_params:list<string>, loaders:list<string>}
+     */
+    private function checksOnly( array $checks ): array {
+        return [ 'checks' => $checks, 'capability_gates' => [], 'id_params' => [], 'loaders' => [] ];
+    }
 
     /** A by-id view with no check — the base case several tests mutate. */
     private function view(): string {

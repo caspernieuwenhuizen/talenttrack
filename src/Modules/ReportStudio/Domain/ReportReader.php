@@ -35,6 +35,15 @@ final class ReportReader {
     /** @var array<int,bool> team id => reads a report about it */
     private array $team_reads = [];
 
+    private ?bool $builds = null;
+
+    private ?bool $publishes = null;
+
+    private bool $report_teams_loaded = false;
+
+    /** @var list<int>|null */
+    private ?array $report_teams = null;
+
     private function __construct( public readonly int $userId ) {}
 
     public static function for( int $user_id ): self {
@@ -65,6 +74,19 @@ final class ReportReader {
             }
         }
         return $this->teams = array_values( $teams );
+    }
+
+    /**
+     * `tt_build_reports`, asked once: the matrix answers a capability with
+     * queries, and a list asks it for every row.
+     */
+    public function buildsReports(): bool {
+        return $this->builds ??= $this->userId > 0 && user_can( $this->userId, 'tt_build_reports' );
+    }
+
+    /** `tt_publish_reports`, asked once. */
+    public function publishesReports(): bool {
+        return $this->publishes ??= $this->userId > 0 && user_can( $this->userId, 'tt_publish_reports' );
     }
 
     /** @return list<string> */
@@ -100,6 +122,20 @@ final class ReportReader {
     public function teamOfPlayer( int $player_id ): ?int {
         if ( ! isset( $this->players[ $player_id ] ) ) $this->primePlayers( [ $player_id ] );
         return $this->player_teams[ $player_id ] ?? null;
+    }
+
+    /**
+     * The teams this user reads reports about, for a list: null for every
+     * team, otherwise the team report's rule as a list.
+     *
+     * @return list<int>|null
+     */
+    public function reportTeams(): ?array {
+        if ( ! $this->report_teams_loaded ) {
+            $this->report_teams_loaded = true;
+            $this->report_teams        = TeamReportAccess::readableTeamIds( $this->userId );
+        }
+        return $this->report_teams;
     }
 
     /** May this user read a report about this team (the team report's rule). */

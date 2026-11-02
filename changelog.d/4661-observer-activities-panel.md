@@ -1,0 +1,3 @@
+# Read-only observer opens the activities panel read-only (#4661)
+
+The read-only observer can now open the activities list and any activity's page. The seat already read activities across the academy, but the dashboard refused `?tt_view=activities` because the seat lacked the panel entity, so the "View match prep" entry was out of reach. The page renders read-only: no edit, archive, status or rating actions, and the result is shown rather than offered for editing. The team planner tile shares the same entity, so the observer can open the planner too, also read-only. Migration 0308 adds the `activities_panel` read row at global scope for the observer on existing installs. It uses `INSERT IGNORE`, so a second run writes nothing.

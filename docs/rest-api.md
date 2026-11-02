@@ -1351,9 +1351,8 @@ same; a report that does not exist in the club is `404 not_found`.
 (default) or `asc` on the report id. **An unknown value is `400 bad_filter`**
 with the parameter in `details`. Answers `{ rows, total, page, per_page }`.
 A report published to me is listed only while it is not archived and I can
-read its subject. The list reads at most 2000 reports, then drops the ones
-whose subject I cannot read, then pages; `total` counts what is left within
-that read.
+read its subject. The subject rule is applied in the query, so the list is
+paged there and `total` is the exact count of what I may open.
 
 ### `POST /reports`
 

@@ -190,6 +190,14 @@ opgeslagen weergaven later wijzigen verandert niet wat er wordt verstuurd. Het
 rapport wordt opgesteld zoals jij het zou zien, dus stuur het alleen naar de
 staf.
 
+Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt de
+pdf alleen als het het rapport over elke speler erin mag lezen, dezelfde
+controle als bij het openen van het rapport in de plugin. Met de standaardrechten
+ontvangen ouders en spelers het nooit. Een rolsleutel bereikt de leden die bij deze academie
+horen, en een e-mailadres telt alleen als het bij een account hier hoort. Een
+adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de
+verzending op het scherm met planningen.
+
 Een planning stopt in plaats van te versturen als het team of de speler is
 gearchiveerd of verwijderd, of als jij hun rapporten niet meer mag inzien; het
 scherm met planningen zegt waarom. Bij een teamronde wordt één speler die je

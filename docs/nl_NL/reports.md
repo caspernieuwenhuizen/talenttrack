@@ -665,7 +665,7 @@ De dimensieverkenner (de *Verken*-actie bij een KPI) laat je de onderliggende fe
 
 Een gepland KPI-rapport wordt bij elke run per ontvanger gecontroleerd, zodat een rapport nooit terechtkomt bij iemand die dezelfde cijfers in de plugin niet zou mogen openen:
 
-- **Een rolsleutel** (bijvoorbeeld `tt_head_dev`) staat voor elk account met die rol, en elk daarvan wordt apart gecontroleerd. Een e-mailadres dat bij een account hier hoort, telt als dat account.
+- **Een rolsleutel** (bijvoorbeeld `tt_head_dev`) staat voor elk account met die rol in deze academie, en elk daarvan wordt apart gecontroleerd. Een lid van de rol dat niet bij deze academie hoort, wordt overgeslagen. Een e-mailadres dat bij een account hier hoort, telt als dat account.
 - **Een account** ontvangt een eigen CSV, opgebouwd uit de rijen die het zelf mag lezen: alle teams bij academiebrede toegang, anders de eigen teams. Een account dat niets van de gegevens van het rapport mag lezen, ontvangt niets. Een schema naar de ouderrol levert ouders bij een rapport over spelers dus niets op.
 - **Een adres zonder account hier** ontvangt het rapport alleen als het geen spelersgegevens bevat, zoals het activiteitenvolume. Het leest dan met de toegang van degene die het schema heeft aangemaakt. Een rapport over spelers (aanwezigheid, evaluaties, doelen, ontwikkelingslijn-gebeurtenissen, trialbeslissingen, prospects) gaat nooit naar zo'n adres.
 - **Accounts die dezelfde rijen mogen lezen**, delen één CSV, zodat een rol met veel academiebrede lezers één keer wordt opgebouwd en niet per persoon.
