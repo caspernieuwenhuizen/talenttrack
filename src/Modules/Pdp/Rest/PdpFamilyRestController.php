@@ -27,11 +27,12 @@ use TT\Modules\Pdp\Services\PdpFamilyReader;
  *
  * ## The gate
  *
- * `canViewPlayer` (own record, own child, own team, or global) **plus**
+ * `canViewPlayer` (own record, own child, own team, or global), read on the
+ * `pdp_file` section for this player, **plus**
  * `parentCanViewSection( …, 'pdp' )`, the section key the My PDP view
  * already honours, so a player who has hidden their plan from a parent has
- * hidden it here too (#1867). Staff who pass `canViewPlayer` get the same
- * family projection; their full view is `pdp-files/{id}`.
+ * hidden it here too (#1867). Staff who hold `pdp_file` for the player get
+ * the same family projection; their full view is `pdp-files/{id}`.
  */
 final class PdpFamilyRestController {
 
@@ -64,7 +65,13 @@ final class PdpFamilyRestController {
         $player_id = absint( $request['id'] ?? 0 );
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
 
-        return AuthorizationService::canViewPlayer( $user_id, $player_id );
+        // #4688 — opening the record is not reading its plan: the plan is
+        // the `pdp_file` section of it, asked about THIS player, as the
+        // journey and status routes ask their own sections. The player
+        // (self), a linked parent (player) and the team's staff hold it; a
+        // seat that reads every record and holds no PDP row does not.
+        return AuthorizationService::canViewPlayer( $user_id, $player_id )
+            && AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'pdp_file' );
     }
 
     public static function get_for_player( \WP_REST_Request $request ): \WP_REST_Response {

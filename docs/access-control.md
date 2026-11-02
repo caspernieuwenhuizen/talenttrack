@@ -186,8 +186,17 @@ Use cases:
 | **Goals** — the development goals set for players | Set or close a goal |
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
 | **Settings** — the configuration screens, read-only | Change any setting |
+| **Measurements** — test results, test sessions and the tests themselves | Record or plan a measurement |
+| **Tournaments** — every tournament day and each player's tournament record | Plan a tournament or share out minutes |
+| **Training and VCT** — training plans, training load, the exercise library and VCT sessions | Plan training or change the library |
+| **Media** — photographs and video attached to records | Upload, edit or remove media |
+| **The academy's reference data** — seasons, methodology, football actions, evaluation categories and weights, the rating scale, holidays, the help pages | Change any of it |
 
-**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of development and Academy admin alone, and several are deliberately withheld even from head coaches.
+The rule behind the list: an observer reads everything that is not sensitive, and a sensitive field on a record it reads is masked, shown as "Hidden" on screen and left out of the API answer.
+
+**What stays closed.** An observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, staff-only notes, private message threads, parent accounts, anything in the PDP cycle (plans, talks, verdicts, evidence and planning), the audit log, or the impersonation log, and has no access to Report Studio. Those stay with the people accountable for them.
+
+**What waits for its masking.** Some records carry a sensitive field that cannot be masked yet. Those are not readable for an observer until it can be: attendance (absence reasons), the evaluations list (evaluation comments), the status verdict and potential, trials, prospects and scouting (contact details and judgements), the club's own player fields, the people list (parent and guardian contact), and the team roster screen, the coach's player list and the player comparison (date of birth). A player's journey, behaviour ratings and team chemistry are not readable for an observer either.
 
 Each player's guardian contact is **not** visible to an observer. Reading every player is not the same as working with one, and a family's details stay with the people around their child. Someone counts as working with a player when they hold one of three things: a staff role on the player's team; a role that may change players academy-wide (the Head of development and the Academy admin); or an academy-wide role assignment that reads players, given to the person under Roles (a Head of development, scout or physio appointed for the whole academy rather than per team). The observer's academy-wide read comes from the role itself, not from such an assignment, so it does not count. An observer gets the player record without the guardian name, e-mail and phone (the wp-admin player form shows those fields empty too), does not see the profile's Parents · Guardians card, and does not get the match-day squad (start, bench, out) on an activity's expected attendance.
 

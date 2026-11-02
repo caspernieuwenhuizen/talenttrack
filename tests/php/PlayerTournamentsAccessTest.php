@@ -47,7 +47,9 @@ final class PlayerTournamentsAccessTest extends WP_UnitTestCase {
         $this->assertSame( 'team',   $granted['head_coach'] ?? null );
         $this->assertSame( 'global', $granted['head_of_development'] ?? null );
         $this->assertSame( 'global', $granted['academy_admin'] ?? null );
-        $this->assertCount( 6, $granted, 'nobody else reads a player\'s tournament record' );
+        // #4688 — the read-only observer reads the non-sensitive set academy-wide.
+        $this->assertSame( 'global', $granted['readonly_observer'] ?? null );
+        $this->assertCount( 7, $granted, 'nobody else reads a player\'s tournament record' );
     }
 
     /** The planner stays where #3703 left it. This is the AC that guards the whole design. */
@@ -58,13 +60,15 @@ final class PlayerTournamentsAccessTest extends WP_UnitTestCase {
             $tournaments[ (string) $row['persona'] ][] = (string) $row['activity'];
         }
 
-        foreach ( [ 'player', 'parent', 'readonly_observer', 'staff' ] as $never ) {
+        foreach ( [ 'player', 'parent', 'staff' ] as $never ) {
             $this->assertArrayNotHasKey(
                 $never,
                 $tournaments,
-                'the planner must not reach a family or an observer — that is why player_tournaments exists'
+                'the planner must not reach a family — that is why player_tournaments exists'
             );
         }
+        // #4688 — the observer reads every squad's board, and writes none of it.
+        $this->assertSame( [ 'read' ], $tournaments['readonly_observer'] ?? null );
         $this->assertArrayHasKey( 'head_coach', $tournaments );
         $this->assertArrayHasKey( 'academy_admin', $tournaments );
     }

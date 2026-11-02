@@ -330,6 +330,8 @@ final class TournamentTeamScopeTest extends WP_UnitTestCase {
             'assistant_coach|team'       => $rcd,
             'head_coach|team'            => $rcd,
             'head_of_development|global' => $rcd,
+            // #4688 — the read-only observer reads the board, from migration 0310.
+            'readonly_observer|global'   => [ 'read' ],
             'team_manager|team'          => $rcd,
         ], $seen );
     }

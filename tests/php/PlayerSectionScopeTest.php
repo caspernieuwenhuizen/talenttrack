@@ -99,11 +99,13 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
         $this->assertSame( 200, $this->status( "/talenttrack/v1/players/{$this->playerA}/evaluations" ) );
         $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'evaluations' ) );
 
-        $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/measurements" ) );
+        // #4688 — measurements are among the non-sensitive set it reads.
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'measurements' ) );
+
         $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/injuries" ) );
         $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/timeline" ) );
 
-        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status', 'prospects' ] as $entity ) {
+        foreach ( [ 'player_injuries', 'safeguarding_notes', 'pdp_file', 'player_status', 'prospects' ] as $entity ) {
             $this->assertFalse(
                 AuthorizationService::canReadPlayerSection( $observer, $this->playerA, $entity ),
                 "the observer holds no {$entity} row; opening the record does not grant it"

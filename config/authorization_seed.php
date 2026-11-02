@@ -1225,15 +1225,42 @@ return array_merge(
     // it grants the matrix precisely what the capability bridge already
     // grants, and restores what the role could always do.
     //
-    // The seed deliberately stops there. A first pass proposed global
-    // read on all 138 entities, on the strength of the role's
-    // "view EVERYTHING, edit NOTHING" docstring — but that docstring
-    // describes `allViewCapsTrue()`, which is these eight caps, not the
-    // matrix. The wide version would have made a sponsor account the
-    // third persona able to read `safeguarding_notes` about minors,
-    // alongside `player_injuries`, `player_notes`, `parent_accounts`,
-    // `media`, `audit_log` and `impersonation_log` — none of which this
-    // role has ever held.
+    // #4688 — owner decision, 2 November 2026 (epic #4687): the observer
+    // reads everything that is not sensitive, and sensitive fields are
+    // masked through `RecordRedactor` (`config/sensitive_fields.php`).
+    // The second block below is the non-sensitive set: development data
+    // (measurements, tournaments, VCT, training plans, media) and the
+    // academy's own reference data (methodology, seasons, evaluation
+    // categories, the rating scale). Existing installs get it through
+    // migration 0310, which leaves a cell an academy changed alone.
+    //
+    // Not granted, by decision rather than by omission:
+    //   - closed by the owner: `player_injuries`, `safeguarding_notes`,
+    //     `player_notes`, `staff_only_notes`, `thread_messages`,
+    //     `parent_accounts`, every `pdp_*` entity, `audit_log`;
+    //   - closed to the observer by #4695: `report_studio`,
+    //     `report_publishing`;
+    //   - granted with their masking, never before it: `attendance`
+    //     (#4692, absence reasons), `evaluations_panel` (#4693,
+    //     evaluation comments), `player_status`, `player_status_breakdown`
+    //     (#4694, potential notes and band), `trial_*`, `prospects`,
+    //     `test_trainings`, `scout_*`, `scouting_visits_panel`,
+    //     `player_potential` (#4694), `custom_field_values` (#4716),
+    //     `people_directory_panel` (#4715), `team_roster_panel`,
+    //     `coach_player_list_panel`, `compare` (#4691, date of birth);
+    //   - `player_timeline` and `cohort_transitions`: the journey carries
+    //     the PDP verdict entry, and PDP stays closed;
+    //   - `player_behaviour_ratings`: free-text notes on a child's
+    //     behaviour, with no masking registered;
+    //   - left as they were: `team_chemistry` and its panel (#1922),
+    //     `analytics` (it reads through the measure engine, not the masked
+    //     surfaces), `lookups` (D-15), `player_suspensions`, `rate_cards`,
+    //     `podium_panel`, `holidays_panel`, and the staff-development
+    //     entities, which hold judgements about staff;
+    //   - operating the install (backup, migrations, the matrix itself,
+    //     integrations, impersonation, usage statistics, workflow
+    //     templates and the like), and the `self` / `player` scoped
+    //     `my_*` rows, where a global row means nothing.
     //
     // READ ONLY. No `c`, no `d`, anywhere, ever — that is the whole
     // value of the seat, and `ObserverAndStaffPersonaTest` asserts it
@@ -1255,6 +1282,30 @@ return array_merge(
         'goals'            => [ 'r', 'global', $mod_goals ],
         'reports'          => [ 'r', 'global', $mod_reports ],
         'settings'         => [ 'r', 'global', $mod_configuration ],
+
+        // #4688 — the non-sensitive set. Keep this list and
+        // `0310_authorization_observer_reads_non_sensitive::ENTITIES` equal.
+        'measurements'            => [ 'r', 'global', $mod_measurements ],
+        'measurement_sessions'    => [ 'r', 'global', $mod_measurements ],
+        'measurement_definitions' => [ 'r', 'global', $mod_measurements ],
+        'player_tournaments'      => [ 'r', 'global', $mod_tournaments ],
+        'tournaments'             => [ 'r', 'global', $mod_tournaments ],
+        'seasons'                 => [ 'r', 'global', $mod_pdp ],
+        'methodology'             => [ 'r', 'global', $mod_methodology ],
+        'football_actions'        => [ 'r', 'global', $mod_methodology ],
+        'vct'                     => [ 'r', 'global', $mod_vct ],
+        'vct_library'             => [ 'r', 'global', $mod_vct ],
+        'vct_workload'            => [ 'r', 'global', $mod_vct ],
+        'training_plan'           => [ 'r', 'global', $mod_training ],
+        'training_exposure'       => [ 'r', 'global', $mod_training ],
+        'exercises'               => [ 'r', 'global', $mod_exercises ],
+        'media'                   => [ 'r', 'global', $mod_media ],
+        'evaluation_categories'   => [ 'r', 'global', $mod_evals ],
+        'category_weights'        => [ 'r', 'global', $mod_evals ],
+        'rating_scale'            => [ 'r', 'global', $mod_configuration ],
+        'goals_panel'             => [ 'r', 'global', $mod_goals ],
+        'holidays'                => [ 'r', 'global', $mod_holidays ],
+        'documentation'           => [ 'r', 'global', $mod_documentation ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────

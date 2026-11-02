@@ -86,8 +86,10 @@ class PdpModule implements ModuleInterface {
     /**
      * Idempotent capability assignment.
      *
-     *   tt_view_pdp         — coaches + admins + observers; players + parents
-     *                         see their own scope via the matrix.
+     *   tt_view_pdp         — coaches + admins; players + parents see their
+     *                         own scope via the matrix. Not the read-only
+     *                         observer: PDP stays closed to that seat
+     *                         (#4688), and the stale grant is revoked.
      *   tt_edit_pdp         — coaches + admins (own teams via matrix scope).
      *   tt_edit_pdp_verdict — head of academy + head coach + admin.
      */
@@ -96,7 +98,7 @@ class PdpModule implements ModuleInterface {
         $edit   = 'tt_edit_pdp';
         $edit_v = 'tt_edit_pdp_verdict';
 
-        $view_roles    = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach', 'tt_readonly_observer', 'tt_player', 'tt_parent' ];
+        $view_roles    = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach', 'tt_player', 'tt_parent' ];
         $edit_roles    = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach' ];
         $verdict_roles = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach' ];
 
@@ -111,6 +113,14 @@ class PdpModule implements ModuleInterface {
         foreach ( $verdict_roles as $r ) {
             $role = get_role( $r );
             if ( $role && ! $role->has_cap( $edit_v ) ) $role->add_cap( $edit_v );
+        }
+
+        // #4688 — the observer holds no PDP row in the matrix; revoke the
+        // raw grant too, so an install whose matrix is dormant answers the
+        // same (mirrors #1922's team_chemistry revoke).
+        $observer = get_role( 'tt_readonly_observer' );
+        if ( $observer && $observer->has_cap( $view ) ) {
+            $observer->remove_cap( $view );
         }
     }
 
