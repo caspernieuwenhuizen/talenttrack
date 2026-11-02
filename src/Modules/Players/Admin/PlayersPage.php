@@ -86,6 +86,11 @@ class PlayersPage {
         return $hidden;
     }
 
+    /** #4691 — are the club's own player fields hidden from this user on this player? */
+    private static function customFieldsHidden( int $user_id, int $player_id ): bool {
+        return $player_id > 0 && RecordRedactor::isMasked( 'players', 'custom_fields', $user_id, $player_id );
+    }
+
     /** #4691 — the date of birth as a table cell: the date, "Hidden", or a dash. */
     private static function dobCell( object $player, int $user_id ): string {
         $dob = (string) ( $player->date_of_birth ?? '' );
@@ -326,6 +331,9 @@ class PlayersPage {
                 $player = (object) array_merge( get_object_vars( $player ), array_fill_keys( $hidden, '' ) );
             }
         }
+        // The club's own fields render no inputs for that reader, and the
+        // save leaves their stored values alone (handle_save()).
+        $cf_hidden = $is_edit && self::customFieldsHidden( get_current_user_id(), (int) ( $player->id ?? 0 ) );
 
         // v2.14.0: Rate Card tab embedded on the edit view. Only available
         // when editing an existing player (no evaluations to rate-card on
@@ -480,9 +488,9 @@ class PlayersPage {
                 <?php if ( ! $is_edit && $from_attendance_id > 0 ) : ?><input type="hidden" name="from_attendance_id" value="<?php echo (int) $from_attendance_id; ?>" /><?php endif; ?>
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'First Name', 'talenttrack' ); ?> *</th><td><input type="text" name="first_name" value="<?php echo esc_attr( $player->first_name ?? '' ); ?>" class="regular-text" required /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'first_name' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'first_name' ); ?>
                     <tr><th><?php esc_html_e( 'Last Name', 'talenttrack' ); ?> *</th><td><input type="text" name="last_name" value="<?php echo esc_attr( $player->last_name ?? '' ); ?>" class="regular-text" required /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'last_name' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'last_name' ); ?>
                     <tr><th><?php esc_html_e( 'Date of Birth', 'talenttrack' ); ?></th><td><input type="date" name="date_of_birth" value="<?php echo esc_attr( $player->date_of_birth ?? '' ); ?>" /></td></tr>
                     <?php // #2894 — same field as the frontend form, same optional-by-default rule. ?>
                     <tr><th><?php esc_html_e( 'Sex (for growth references)', 'talenttrack' ); ?></th><td>
@@ -494,29 +502,29 @@ class PlayersPage {
                             <?php endforeach; ?>
                         </select>
                     </td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_of_birth' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_of_birth' ); ?>
                     <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><input type="text" name="nationality" value="<?php echo esc_attr( $player->nationality ?? '' ); ?>" class="regular-text" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'nationality' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'nationality' ); ?>
                     <tr><th><?php esc_html_e( 'Height (cm)', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="height_cm" value="<?php echo esc_attr( $player->height_cm ?? '' ); ?>" min="50" max="250" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'height_cm' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'height_cm' ); ?>
                     <tr><th><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="weight_kg" value="<?php echo esc_attr( $player->weight_kg ?? '' ); ?>" min="20" max="200" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'weight_kg' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'weight_kg' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Foot', 'talenttrack' ); ?></th><td><select name="preferred_foot"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $foot_opts as $stored => $label ) : ?><option value="<?php echo esc_attr( $stored ); ?>" <?php selected( $player->preferred_foot ?? '', $stored ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_foot' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_foot' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Position(s)', 'talenttrack' ); ?></th><td>
                         <?php foreach ( $positions as $pos ) : ?><label style="display:inline-block;margin-right:12px;"><input type="checkbox" name="preferred_positions[]" value="<?php echo esc_attr( $pos ); ?>" <?php echo in_array( $pos, $sel_pos ) ? 'checked' : ''; ?> /> <?php echo esc_html( $pos ); ?></label><?php endforeach; ?>
                     </td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_positions' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_positions' ); ?>
                     <tr><th><?php esc_html_e( 'Jersey Number', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="jersey_number" value="<?php echo esc_attr( $player->jersey_number ?? '' ); ?>" min="1" max="99" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'jersey_number' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'jersey_number' ); ?>
                     <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><select name="team_id"><option value="0"><?php esc_html_e( '— No Team —', 'talenttrack' ); ?></option>
                         <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $player->team_id ?? 0, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'team_id' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'team_id' ); ?>
                     <tr><th><?php esc_html_e( 'Date Joined', 'talenttrack' ); ?></th><td><input type="date" name="date_joined" value="<?php echo esc_attr( $player->date_joined ?? '' ); ?>" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_joined' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_joined' ); ?>
                     <tr><th><?php esc_html_e( 'Photo', 'talenttrack' ); ?></th><td><input type="text" name="photo_url" id="tt_photo_url" value="<?php echo esc_url( $player->photo_url ?? '' ); ?>" class="regular-text" /> <button type="button" class="button" id="tt-upload-photo"><?php esc_html_e( 'Upload', 'talenttrack' ); ?></button></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'photo_url' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'photo_url' ); ?>
                     <?php
                     // #3572 — parents are linked on the Parent accounts
                     // screen, through `tt_player_parents`: the one parent
@@ -541,18 +549,18 @@ class PlayersPage {
                         </td>
                     </tr>
                     <tr><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_name' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_name' ); ?>
                     <tr><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_email' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_email' ); ?>
                     <tr><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_phone' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_phone' ); ?>
                     <tr><th><?php esc_html_e( 'Linked WP User', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'wp_user_id', 'selected' => $player->wp_user_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
                         <?php foreach ( $status_options as $k => $l ) : ?>
                             <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? PlayerStatus::ACTIVE, $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'status' ); ?>
-                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ) ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'status' ); ?>
+                    <?php if ( ! $cf_hidden ) CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ) ); ?>
                 </table>
 
                 <?php submit_button( $is_edit ? __( 'Update Player', 'talenttrack' ) : __( 'Add Player', 'talenttrack' ) ); ?>
@@ -638,7 +646,13 @@ class PlayersPage {
         // native entity if required fields are missing (keeps the UX
         // predictable — error banner, user's input preserved via
         // transient, no half-saved state).
-        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        //
+        // #4691 — a saver the registry hides the club's fields from was shown
+        // no inputs for them: nothing is validated or written for those
+        // fields, so the stored values stay as they are.
+        $fields = self::customFieldsHidden( get_current_user_id(), $id_check )
+            ? []
+            : ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         $submitted_cf = ( isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) )
             ? array_map( function ( $v ) { return is_string( $v ) ? wp_unslash( $v ) : $v; }, wp_unslash( $_POST['custom_fields'] ) )
             : [];

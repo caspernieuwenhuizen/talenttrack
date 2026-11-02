@@ -14,6 +14,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Shared\Frontend\FrontendPlayersManageView;
 
+/** Thrown from the `wp_redirect` filter so the save handler's `exit` never runs. */
+final class SurfacesSaveRedirected extends \Exception {}
+
 /**
  * #4691 / #4736 — the remaining player surfaces follow the sensitive-field
  * registry: the potential overview's rows (keyed `player_id`), the player
@@ -134,21 +137,68 @@ final class PlayerSurfacesMaskingTest extends WP_UnitTestCase {
     // ---- b) the player card at ?tt_view=players&player_id=N ---------
 
     public function test_the_player_card_keeps_custom_fields_for_staff_only(): void {
-        $field_id = ( new CustomFieldsRepository() )->create( [
-            'entity_type' => CustomFieldsRepository::ENTITY_PLAYER,
-            'field_key'   => 'second_contact',
-            'label'       => 'Second contact',
-            'field_type'  => CustomFieldsRepository::TYPE_TEXT,
-            'is_required' => 0,
-            'is_active'   => 1,
-        ] );
-        ( new CustomValuesRepository() )->upsert( CustomFieldsRepository::ENTITY_PLAYER, $this->player, $field_id, self::CUSTOM_VALUE );
+        $this->makeCustomField();
 
         $this->assertStringContainsString( 'oma Jansen', $this->renderCard( $this->hod ), 'HoD sees the club fields' );
 
         $html = $this->renderCard( $this->observer );
         $this->assertStringContainsString( 'Smit', $html, 'the card renders for the observer' );
         $this->assertStringNotContainsString( 'oma Jansen', $html );
+    }
+
+    /**
+     * The wp-admin edit form renders no custom-field input for a reader the
+     * registry hides the club's fields from, and a save by such a reader
+     * leaves the stored values as they are.
+     */
+    public function test_the_admin_form_hides_custom_fields_and_a_save_keeps_them(): void {
+        $field_id = $this->makeCustomField();
+
+        $hod_form = $this->renderAdminEdit( $this->hod );
+        $this->assertStringContainsString( 'oma Jansen', $hod_form, 'HoD sees the value' );
+        $this->assertStringContainsString( 'custom_fields', $hod_form, 'HoD gets the inputs' );
+
+        $form = $this->renderAdminEdit( $this->observer );
+        $this->assertStringContainsString( 'name="first_name"', $form, 'the observer opens the form' );
+        $this->assertStringNotContainsString( 'oma Jansen', $form );
+        $this->assertStringNotContainsString( 'custom_fields[', $form, 'no custom-field inputs' );
+
+        $saver = $this->makeEditOnlySaver();
+        $this->assertTrue( AuthorizationService::canEditPlayer( $saver, $this->player ), 'the saver may edit the player' );
+        $this->assertTrue( RecordRedactor::isMasked( 'players', 'custom_fields', $saver, $this->player ), 'the fields are hidden from the saver' );
+
+        wp_set_current_user( $saver );
+        $_POST = [
+            'tt_nonce'      => wp_create_nonce( 'tt_save_player' ),
+            'id'            => (string) $this->player,
+            'first_name'    => 'Daan',
+            'last_name'     => 'Smit-de Boer',
+            'team_id'       => (string) $this->team,
+            'status'        => 'active',
+            'custom_fields' => [ 'second_contact' => '', (string) $field_id => '' ],
+        ];
+        $_REQUEST = $_POST;
+        $redirect = static function ( $location ): string {
+            throw new SurfacesSaveRedirected( (string) $location );
+        };
+        add_filter( 'wp_redirect', $redirect );
+        try {
+            \TT\Modules\Players\Admin\PlayersPage::handle_save();
+            $this->fail( 'the save must end in a redirect' );
+        } catch ( SurfacesSaveRedirected $e ) {
+            $this->assertStringContainsString( 'tt_msg=saved', $e->getMessage() );
+        } finally {
+            remove_filter( 'wp_redirect', $redirect );
+            $_POST    = [];
+            $_REQUEST = [];
+        }
+
+        global $wpdb;
+        $this->assertSame( 'Smit-de Boer', (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT last_name FROM {$wpdb->prefix}tt_players WHERE id = %d", $this->player
+        ) ), 'the rest of the form was saved' );
+        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $this->player );
+        $this->assertSame( self::CUSTOM_VALUE, (string) ( $values['second_contact'] ?? '' ), 'the stored value is unchanged' );
     }
 
     // ---- c) a guardian's person record ------------------------------
@@ -227,6 +277,56 @@ final class PlayerSurfacesMaskingTest extends WP_UnitTestCase {
     }
 
     // ---- fixtures ------------------------------------------------------
+
+    /** A required custom player field with a stored value; required, so a save that validated it without input would fail. */
+    private function makeCustomField(): int {
+        $field_id = ( new CustomFieldsRepository() )->create( [
+            'entity_type' => CustomFieldsRepository::ENTITY_PLAYER,
+            'field_key'   => 'second_contact',
+            'label'       => 'Second contact',
+            'field_type'  => CustomFieldsRepository::TYPE_TEXT,
+            'is_required' => 1,
+            'is_active'   => 1,
+        ] );
+        ( new CustomValuesRepository() )->upsert( CustomFieldsRepository::ENTITY_PLAYER, $this->player, $field_id, self::CUSTOM_VALUE );
+        return $field_id;
+    }
+
+    private function renderAdminEdit( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $this->player;
+        ob_start();
+        \TT\Modules\Players\Admin\PlayersPage::render_page();
+        $html = (string) ob_get_clean();
+        unset( $_GET['action'], $_GET['id'] );
+        return $html;
+    }
+
+    /**
+     * An account with no persona and one custom role scope on the team that
+     * grants `players.edit` alone: may edit the player, is not staff for them.
+     */
+    private function makeEditOnlySaver(): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'subscriber' ] );
+
+        $wpdb->insert( "{$p}tt_roles", [
+            'club_id' => $this->club, 'role_key' => 'test_players_edit_only_4691', 'label' => 'Players edit only', 'description' => '', 'is_system' => 0,
+        ] );
+        $role_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_role_permissions", [ 'club_id' => $this->club, 'role_id' => $role_id, 'permission' => 'players.edit' ] );
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Alleen', 'last_name' => 'Bewerken', 'role_type' => 'staff', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id' => $this->club, 'person_id' => (int) $wpdb->insert_id, 'role_id' => $role_id, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        AuthorizationService::flushCache();
+        return $uid;
+    }
 
     private function serve( WP_REST_Request $request ): WP_REST_Response {
         $server   = rest_get_server();
