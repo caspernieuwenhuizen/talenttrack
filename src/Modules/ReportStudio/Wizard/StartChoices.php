@@ -57,9 +57,12 @@ final class StartChoices {
             : ( $mode === ReportStartRules::PERIOD_FIXED ? (string) ( $state['period_from'] ?? '' ) . '/' . (string) ( $state['period_to'] ?? '' ) : '' );
         $in['name'] = (string) ( $state['name'] ?? '' );
 
+        // Only a report that always shows the same subject stores one; the
+        // review reads this same input, so it never shows a dropped subject.
         $scope = $in['scope'];
-        if ( $scope === ReportContext::SCOPE_PLAYER ) $in['player_id'] = (int) ( $state['player_id'] ?? 0 );
-        if ( $scope === ReportContext::SCOPE_TEAM ) $in['team_id'] = (int) ( $state['team_id'] ?? 0 );
+        $fixed = ( $in['binding'] ?? '' ) === ReportStartRules::BINDING_FIXED;
+        if ( $fixed && $scope === ReportContext::SCOPE_PLAYER ) $in['player_id'] = (int) ( $state['player_id'] ?? 0 );
+        if ( $fixed && $scope === ReportContext::SCOPE_TEAM ) $in['team_id'] = (int) ( $state['team_id'] ?? 0 );
         if ( $scope === ReportContext::SCOPE_GROUP ) {
             $in['cohort'] = [
                 'team_ids'  => array_map( 'intval', is_array( $state['cohort_team_ids'] ?? null ) ? $state['cohort_team_ids'] : [] ),

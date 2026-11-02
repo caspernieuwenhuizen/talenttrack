@@ -1,9 +1,9 @@
 # Report Studio, phase 2: the start wizard and its rules (#4570)
 
-**+ New report** opens a six-step wizard, one or two questions per page, for the seven starting choices of a Report Studio report or dashboard:
+A six-step wizard, one or two questions per page, asks the seven starting choices of a Report Studio report or dashboard:
 1. What, and about whom.
-2. The subject: which player, team or group. The builder is offered only the subjects they build reports about. The step is skipped for a report about themselves or the academy, and when the wizard is opened from a player's or team's page.
-3. Who reads it.
+2. Who reads it.
+3. The subject: which player, team or group. The builder is offered only the subjects they build reports about. A group is always asked; a player or team only when the report always shows the same one. The step is skipped for a report about themselves or the academy, and when the wizard is opened from a player's or team's page.
 4. When and how.
 5. Sharing.
 6. Name and review. The report is created here and opens in the Studio; nothing is stored before this step.

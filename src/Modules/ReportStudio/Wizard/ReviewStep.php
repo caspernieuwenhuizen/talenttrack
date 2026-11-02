@@ -36,7 +36,7 @@ final class ReviewStep implements WizardStepInterface {
             __( 'What', 'talenttrack' )             => ReportStartRules::label( 'kind', (string) ( $in['kind'] ?? '' ) ),
             __( 'About', 'talenttrack' )            => $this->subjectText( $in ),
             __( 'Written for', 'talenttrack' )      => ReportStartRules::label( 'audience', (string) ( $in['audience'] ?? '' ) ),
-            __( 'Subject', 'talenttrack' )          => ReportStartRules::label( 'binding', (string) ( $in['binding'] ?? '' ) ),
+            __( 'Whose data it shows', 'talenttrack' ) => ReportStartRules::label( 'binding', (string) ( $in['binding'] ?? '' ) ),
             __( 'Period', 'talenttrack' )           => $this->periodText( $in ),
             __( 'Layout', 'talenttrack' )           => ReportStartRules::label( 'layout', (string) ( $in['layout'] ?? '' ) ),
             __( 'Sharing', 'talenttrack' )          => ReportStartRules::label( 'sharing', (string) ( $in['sharing'] ?? '' ) ),
@@ -123,7 +123,7 @@ final class ReviewStep implements WizardStepInterface {
     private function fieldName( string $field ): string {
         switch ( $field ) {
             case 'audience':    return __( 'Written for', 'talenttrack' );
-            case 'binding':     return __( 'Subject', 'talenttrack' );
+            case 'binding':     return __( 'Whose data it shows', 'talenttrack' );
             case 'period_mode': return __( 'Period', 'talenttrack' );
             case 'layout':      return __( 'Layout', 'talenttrack' );
             case 'sharing':     return __( 'Sharing', 'talenttrack' );

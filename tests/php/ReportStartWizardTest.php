@@ -24,6 +24,7 @@ use TT\Modules\ReportStudio\Wizard\NewReportWizard;
 use TT\Modules\ReportStudio\Wizard\ReadersStep;
 use TT\Modules\ReportStudio\Wizard\ReviewStep;
 use TT\Modules\ReportStudio\Wizard\SharingStep;
+use TT\Modules\ReportStudio\Wizard\StartChoices;
 use TT\Modules\ReportStudio\Wizard\SubjectStep;
 use TT\Modules\ReportStudio\Wizard\WhatStep;
 use TT\Modules\ReportStudio\Wizard\WhenStep;
@@ -266,8 +267,8 @@ final class ReportStartWizardTest extends WP_UnitTestCase {
 
         $state = [];
         $state = $this->step( new WhatStep(), [ 'kind' => 'report', 'scope' => 'team' ], $state );
-        $state = $this->step( new SubjectStep(), [ 'team_id' => $this->team_a ], $state );
         $state = $this->step( new ReadersStep(), [ 'audience' => 'internal', 'binding' => 'fixed' ], $state );
+        $state = $this->step( new SubjectStep(), [ 'team_id' => $this->team_a ], $state );
         $state = $this->step( new WhenStep(), [ 'period_mode' => 'rolling', 'period_rolling' => 'last_month', 'layout' => 'rows' ], $state );
         $state = $this->step( new SharingStep(), [ 'sharing' => 'me' ], $state );
         $state = $this->step( new ReviewStep(), [ 'report_name' => 'Month pack' ], $state );
@@ -287,8 +288,8 @@ final class ReportStartWizardTest extends WP_UnitTestCase {
     public function test_changing_an_earlier_step_moves_a_later_choice_and_says_so(): void {
         $state = [];
         $state = $this->step( new WhatStep(), [ 'kind' => 'report', 'scope' => 'team' ], $state );
-        $state = $this->step( new SubjectStep(), [ 'team_id' => $this->team_a ], $state );
         $state = $this->step( new ReadersStep(), [ 'audience' => 'internal', 'binding' => 'fixed' ], $state );
+        $state = $this->step( new SubjectStep(), [ 'team_id' => $this->team_a ], $state );
 
         // Back to the first step: the report is about me now.
         $state = $this->step( new WhatStep(), [ 'kind' => 'report', 'scope' => 'me' ], $state );
@@ -307,7 +308,37 @@ final class ReportStartWizardTest extends WP_UnitTestCase {
         $seed = $wizard->initialState( [ 'player_id' => (string) $this->player_a ] );
         $this->assertSame( 'player', $seed['scope'] );
         $this->assertTrue( ( new SubjectStep() )->notApplicableFor( $seed ) );
-        $this->assertFalse( ( new SubjectStep() )->notApplicableFor( [ 'scope' => 'team' ] ) );
+        $this->assertFalse( ( new SubjectStep() )->notApplicableFor( [ 'scope' => 'team', 'binding' => 'fixed' ] ) );
+    }
+
+    public function test_the_steps_run_what_readers_subject_when_sharing_review(): void {
+        $slugs = array_map( static fn( $s ): string => $s->slug(), ( new NewReportWizard() )->steps() );
+        $this->assertSame( [ 'what', 'readers', 'subject', 'when', 'sharing', 'review' ], $slugs );
+        $this->assertSame( 'subject', ( new ReadersStep() )->nextStep( [] ) );
+        $this->assertSame( 'when', ( new SubjectStep() )->nextStep( [] ) );
+    }
+
+    public function test_a_player_or_team_subject_is_asked_only_for_a_fixed_binding_and_a_group_always(): void {
+        $step = new SubjectStep();
+        foreach ( [ 'player', 'team' ] as $scope ) {
+            $this->assertFalse( $step->notApplicableFor( [ 'scope' => $scope, 'binding' => 'fixed' ] ), "{$scope}, fixed: asked" );
+            $this->assertTrue( $step->notApplicableFor( [ 'scope' => $scope, 'binding' => 'on_open' ] ), "{$scope}, chosen on open: skipped" );
+            $this->assertTrue( $step->notApplicableFor( [ 'scope' => $scope, 'binding' => 'viewer' ] ), "{$scope}, follows the viewer: skipped" );
+        }
+        $this->assertFalse( $step->notApplicableFor( [ 'scope' => 'group', 'binding' => 'fixed' ] ) );
+        $this->assertFalse( $step->notApplicableFor( [ 'scope' => 'group', 'binding' => 'on_open' ] ), 'a group is a rule and is always asked' );
+
+        // A team picked under a fixed binding is dropped once the binding opens up:
+        // neither the stored report nor the review carries it.
+        $state = [];
+        $state = $this->step( new WhatStep(), [ 'kind' => 'report', 'scope' => 'team' ], $state );
+        $state = $this->step( new ReadersStep(), [ 'audience' => 'internal', 'binding' => 'fixed' ], $state );
+        $state = $this->step( $step, [ 'team_id' => $this->team_a ], $state );
+        $this->assertSame( $this->team_a, StartChoices::toInput( $state )['team_id'] ?? null );
+
+        $state = $this->step( new ReadersStep(), [ 'audience' => 'internal', 'binding' => 'on_open' ], $state );
+        $this->assertTrue( $step->notApplicableFor( $state ) );
+        $this->assertArrayNotHasKey( 'team_id', StartChoices::toInput( $state ) );
     }
 
     // ---- helpers ---------------------------------------------------------------

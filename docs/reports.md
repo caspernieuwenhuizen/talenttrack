@@ -634,11 +634,11 @@ A scheduled KPI report is checked per recipient every time it runs, so a report 
 
 The Report Studio is where you build a report or a dashboard of your own, from the figures TalentTrack already holds. A head coach or assistant coach builds about their own teams and players; the head of development and the academy admin build about any team, any player and the whole academy. It is part of the Pro plan and is switched on under the modules and features settings.
 
-**+ New report** opens a short wizard. It asks seven starting choices, one or two per page, and they decide what the report can be. An option that does not fit what you chose earlier is still shown, switched off, with the reason under it.
+**Add report** opens a short wizard. It asks seven starting choices, one or two per page, and they decide what the report can be. An option that does not fit what you chose earlier is still shown, switched off, with the reason under it.
 
 1. **What and about whom.** A report or a dashboard, and who it is about: you, one player, one team, a group of players, or the whole academy.
-2. **The subject.** Which player, which team, or which teams make up the group (optionally one age group). You are only offered the players and teams you build reports about. This page is skipped for a report about you or about the academy, and when you start from a player's or a team's page.
-3. **Who reads it.** Staff, an external scout, or the player and their family; and whether the report always shows the same subject, lets the reader choose it when they open it, or follows whoever opens it.
+2. **Who reads it.** Staff, an external scout, or the player and their family; and whether the report always shows the same subject, lets the reader choose it when they open it, or follows whoever opens it.
+3. **The subject.** Which player, which team, or which teams make up the group (optionally one age group). You are only offered the players and teams you build reports about. A player or team is asked only when the report always shows the same one; a group is always asked. This page is skipped for a report about you or about the academy, and when you start from a player's or a team's page.
 4. **When and how.** The period: chosen when the report is opened, rolling (last week, last month, this month, this season), or fixed dates. And the layout: rows, which print and work on a phone, or a grid for screens.
 5. **Sharing.** Only you, published for a role, a scheduled mail, or shared with the family.
 6. **Name and review.** Give it a name, read your choices back, and create it. Nothing is saved before this last step.
@@ -657,4 +657,4 @@ The rules between the choices:
 - Sharing with the family needs a report written for the family.
 - Publishing for a role needs a subject each reader chooses or follows (or the academy), and the right to publish.
 
-Building needs the **Report Studio: build reports** permission; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **+ New report** button is hidden.
+Building needs the **Report Studio: build reports** permission; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **Add report** button is hidden.

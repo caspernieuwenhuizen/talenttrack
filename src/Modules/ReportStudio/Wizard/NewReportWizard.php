@@ -15,13 +15,14 @@ use TT\Shared\Wizards\WizardInterface;
  * report or dashboard (CLAUDE.md §3), at `?tt_view=wizard&slug=new-report`.
  *
  * Six steps, one or two questions each, decided in the order the rules
- * depend on them: what and about whom, the subject, who reads it, when and
- * how, sharing, name and review. `ReportStartRules` answers every switched-off
- * option and moves a later choice an earlier one ruled out.
+ * depend on them: what and about whom, who reads it, the subject (asked only
+ * when the report always shows the same subject, or is about a group), when
+ * and how, sharing, name and review. `ReportStartRules` answers every
+ * switched-off option and moves a later choice an earlier one ruled out.
  *
  * Wizard plan: the wizard is the only screen that creates a report; the
  * fallback for integrations is `POST /reports`, which takes the same path.
- * Switching `new-report` off hides the "+ New report" button.
+ * Switching `new-report` off hides the "Add report" button.
  */
 final class NewReportWizard implements WizardInterface {
 
@@ -29,7 +30,7 @@ final class NewReportWizard implements WizardInterface {
 
     public function slug(): string { return self::SLUG; }
 
-    public function label(): string { return __( 'New report', 'talenttrack' ); }
+    public function label(): string { return __( 'Add report', 'talenttrack' ); }
 
     public function requiredCap(): string { return 'tt_build_reports'; }
 
@@ -39,8 +40,8 @@ final class NewReportWizard implements WizardInterface {
     public function steps(): array {
         return [
             new WhatStep(),
-            new SubjectStep(),
             new ReadersStep(),
+            new SubjectStep(),
             new WhenStep(),
             new SharingStep(),
             new ReviewStep(),

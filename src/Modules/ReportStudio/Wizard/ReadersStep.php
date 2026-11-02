@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 3 — who reads it: the audience, and whether the subject is fixed,
+ * Step 2 — who reads it: the audience, and whether the subject is fixed,
  * chosen when the report is opened, or follows whoever opens it.
  */
 final class ReadersStep implements WizardStepInterface {
@@ -25,7 +25,7 @@ final class ReadersStep implements WizardStepInterface {
         return StartChoices::settle( $state, $answers );
     }
 
-    public function nextStep( array $state ): string { return 'when'; }
+    public function nextStep( array $state ): string { return 'subject'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }

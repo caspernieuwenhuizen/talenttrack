@@ -275,5 +275,9 @@ msgid "Give the report a name."
 msgstr "Geef het rapport een naam."
 
 #: src/Modules/ReportStudio/Wizard/NewReportWizard.php
-msgid "New report"
-msgstr "Nieuw rapport"
+msgid "Add report"
+msgstr "Rapport toevoegen"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Whose data it shows"
+msgstr "Wiens gegevens het toont"

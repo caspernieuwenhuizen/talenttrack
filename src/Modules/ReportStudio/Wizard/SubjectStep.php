@@ -5,15 +5,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportReader;
+use TT\Modules\ReportStudio\Domain\ReportStartRules;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 2 — the subject: which player, which team, or which teams make up the
+ * Step 3 — the subject: which player, which team, or which teams make up the
  * group. Only subjects the builder builds reports about are offered.
  *
- * Skipped for a report about me or the academy, and when the wizard was
- * opened from the player's or the team's page.
+ * Asked after the binding, because only a report that always shows the same
+ * player or team stores one: one chosen when opened or following the viewer
+ * has no subject to pick, so the step is skipped. A group is a rule and is
+ * always asked. Also skipped for a report about me or the academy, and when
+ * the wizard was opened from the player's or the team's page.
  */
 final class SubjectStep implements WizardStepInterface {
 
@@ -24,6 +28,8 @@ final class SubjectStep implements WizardStepInterface {
     public function notApplicableFor( array $state ): bool {
         $scope = (string) ( $state['scope'] ?? '' );
         if ( $scope === ReportContext::SCOPE_ME || $scope === ReportContext::SCOPE_ACADEMY ) return true;
+        if ( $scope === ReportContext::SCOPE_GROUP ) return false;
+        if ( (string) ( $state['binding'] ?? '' ) !== ReportStartRules::BINDING_FIXED ) return true;
         if ( ! empty( $state['subject_from_page'] ) ) {
             if ( $scope === ReportContext::SCOPE_PLAYER && (int) ( $state['player_id'] ?? 0 ) > 0 ) return true;
             if ( $scope === ReportContext::SCOPE_TEAM && (int) ( $state['team_id'] ?? 0 ) > 0 ) return true;
@@ -88,7 +94,7 @@ final class SubjectStep implements WizardStepInterface {
         return [];
     }
 
-    public function nextStep( array $state ): string { return 'readers'; }
+    public function nextStep( array $state ): string { return 'when'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }

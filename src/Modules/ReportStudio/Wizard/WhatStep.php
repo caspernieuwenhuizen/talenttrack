@@ -32,7 +32,7 @@ final class WhatStep implements WizardStepInterface {
         return $merge;
     }
 
-    public function nextStep( array $state ): string { return 'subject'; }
+    public function nextStep( array $state ): string { return 'readers'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }
