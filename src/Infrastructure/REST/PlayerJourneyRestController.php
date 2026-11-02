@@ -246,7 +246,12 @@ class PlayerJourneyRestController extends BaseController {
             ] );
         }
 
-        $events = array_map( [ __CLASS__, 'formatEvent' ], $result['events'] );
+        // A PDP verdict entry is PDP data, so it follows the PDP verdict
+        // right; the rest of the journey is unchanged.
+        $events = array_map(
+            [ __CLASS__, 'formatEvent' ],
+            PlayerEventsRepository::readableBy( $user_id, $result['events'], $player_id )
+        );
         // The journey switch governs the entry; the score on an evaluation
         // entry is evaluation data, so it follows the evaluations switch as
         // it does everywhere else. The entry stays, without its score.
@@ -277,7 +282,11 @@ class PlayerJourneyRestController extends BaseController {
         }
 
         $allowed = PlayerEventsRepository::visibilitiesForUser( $user_id );
-        $rows    = ( new PlayerEventsRepository() )->transitionsForPlayer( $player_id, $allowed );
+        $rows    = PlayerEventsRepository::readableBy(
+            $user_id,
+            ( new PlayerEventsRepository() )->transitionsForPlayer( $player_id, $allowed ),
+            $player_id
+        );
         return RestResponse::success( [ 'events' => array_map( [ __CLASS__, 'formatEvent' ], $rows ) ] );
     }
 
@@ -495,7 +504,10 @@ class PlayerJourneyRestController extends BaseController {
         }
 
         $allowed = PlayerEventsRepository::visibilitiesForUser( get_current_user_id() );
-        $rows = ( new PlayerEventsRepository() )->cohortByType( $event_type, $from, $to, $team_id, $allowed );
+        $rows = PlayerEventsRepository::readableBy(
+            get_current_user_id(),
+            ( new PlayerEventsRepository() )->cohortByType( $event_type, $from, $to, $team_id, $allowed )
+        );
         return RestResponse::success( [ 'rows' => array_map( [ __CLASS__, 'formatCohortRow' ], $rows ) ] );
     }
 

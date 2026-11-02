@@ -84,6 +84,8 @@ Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarh
 - **Medisch** — alleen rollen met de medische-zicht-permissie. Blessures staan standaard hierop.
 - **Veiligheid** — alleen hoofd opleidingen + beheerder. Gereserveerd voor gevoelige regels.
 
+Een regel met het **POP-besluit** volgt daarnaast het POP: die zie je alleen als je het POP-besluit van die speler mag lezen, op de tijdlijn, in de overgangen, bij de cohortovergangen, in het spelersrapport en in het maandrapport van het team. Ieder ander ziet de rest van de reis zonder die regel.
+
 Als de reis een regel bevat die je niet mag zien, lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld.
 
 Medische gegevens zijn dubbel afgeschermd en audit-gelogd: blessures van een speler bekijken of bewerken vereist zowel de medische-zicht-permissie **als** toegang tot die specifieke speler (dezelfde scoperegel als de rest van het dossier), en elke blessure-weergave, -aanmaak, -bewerking en -archivering — plus elke tijdlijn-weergave die medische of veiligheidsregels opleverde — komt in het auditlog met wie, wanneer en welke speler. Dat is precies het spoor waar een veiligheidsonderzoek om vraagt.

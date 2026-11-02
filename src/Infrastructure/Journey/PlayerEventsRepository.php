@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\JourneyEventType;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -39,6 +41,37 @@ final class PlayerEventsRepository {
      */
     public static function visibilitiesForUser( int $user_id ): array {
         return \TT\Infrastructure\Visibility\RecordVisibility::forJourney( $user_id );
+    }
+
+    /**
+     * The entries as this reader may see them: a PDP verdict entry only for
+     * a reader who may read that player's PDP verdict (`pdp_verdict`, asked
+     * about the entry's player). Every other entry passes unchanged.
+     *
+     * Visibility rungs decide medical and safeguarding entries in SQL; this
+     * is the entity rule on top, applied by every surface that shows journey
+     * entries to a reader. A reader of 0 (an unattended render) holds no
+     * right, so it gets no verdict entry.
+     *
+     * @param list<object> $rows      Each with `event_type`, and `player_id` unless `$player_id` is given.
+     * @param int|null     $player_id The player every row belongs to, for rows read without the column.
+     * @return list<object>
+     */
+    public static function readableBy( int $user_id, array $rows, ?int $player_id = null ): array {
+        $out     = [];
+        $allowed = [];
+        foreach ( $rows as $row ) {
+            if ( (string) ( $row->event_type ?? '' ) === JourneyEventType::PDP_VERDICT_RECORDED ) {
+                $pid = $player_id ?? (int) ( $row->player_id ?? 0 );
+                if ( ! isset( $allowed[ $pid ] ) ) {
+                    $allowed[ $pid ] = $pid > 0
+                        && AuthorizationService::canReadPlayerSection( $user_id, $pid, 'pdp_verdict' );
+                }
+                if ( ! $allowed[ $pid ] ) continue;
+            }
+            $out[] = $row;
+        }
+        return $out;
     }
 
     /**

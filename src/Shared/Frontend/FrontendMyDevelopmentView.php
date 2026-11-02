@@ -450,7 +450,12 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
     /** Your journey — most recent milestone → My journey. */
     private static function renderJourney( object $player, bool $is_self, SubjectVoice $voice ): void {
         $vis    = PlayerEventsRepository::visibilitiesForUser( get_current_user_id() );
-        $events = ( new PlayerEventsRepository() )->transitionsForPlayer( (int) $player->id, $vis );
+        $pid    = (int) $player->id;
+        $events = PlayerEventsRepository::readableBy(
+            get_current_user_id(),
+            ( new PlayerEventsRepository() )->transitionsForPlayer( $pid, $vis ),
+            $pid
+        );
         $latest = ! empty( $events ) ? $events[0] : null;
 
         self::sectionOpen(

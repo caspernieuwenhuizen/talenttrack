@@ -21,9 +21,11 @@ final class ChangesComposer {
             ? PlayerEventsRepository::visibilitiesForUser( $ctx->viewer_user_id )
             : [ 'public', 'coaching_staff' ];
 
-        $events = ( new PlayerEventsRepository() )->forTeamBetween(
+        // A PDP verdict entry follows the PDP verdict right, as on the
+        // timeline; an unattended caller holds none, so it gets none.
+        $events = PlayerEventsRepository::readableBy( $ctx->viewer_user_id, ( new PlayerEventsRepository() )->forTeamBetween(
             $ctx->team_id, $ctx->from, $ctx->to, TeamMonthlyReport::CHANGE_EVENT_TYPES, $visibilities
-        );
+        ) );
 
         $items = [];
         foreach ( $events as $e ) {
