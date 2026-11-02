@@ -1,3 +1,255 @@
+# TalentTrack v4.146.0 — PDP block detail: section help in a coach's words (#4481)
+
+The help line under the Conducted and Planned sections of the PDP planning block detail named database columns ("conducted_at", "scheduled_at"). It now describes the state: "The conversation took place." and "The conversation has a date but hasn't taken place yet." The Not held and Missing lines already read that way and are unchanged. Text only; no change to how talks are counted.
+
+# TalentTrack v4.146.0 — Empty lists offer their "first" button to everyone the authorization matrix allows (#4503)
+
+An empty list or player-profile tab now decides its create button ("Plan your first activity", "Add first holiday", "Add your first player", "Create your first team", and the goals, evaluations, activities, PDP and trials tabs) through the authorization matrix as well as the capability. A user who holds the right only through the matrix now sees the button, as they already saw the other buttons on the same list. Users with neither still see the explanation without the button.
+
+# TalentTrack v4.146.0 — Messages are written in the recipient's language (#4531)
+
+A message's shipped wording now translates in the recipient's language instead of the language of the request that sends it. An English-speaking parent on a Dutch academy's site gets English, and a Dutch recipient on an English site gets Dutch. The template switches to the recipient's language only while it builds the copy and switches back afterwards, also when building the copy fails, so the rest of the request is unaffected. Wording an academy has reworded per language is unchanged: it was already picked by the recipient's language.
+
+# TalentTrack v4.146.0 — Report Studio, phase 1: stored reports, drafts, versions and publishing (#4569)
+
+Report Studio (epic #4564) can now store what a builder makes. A report keeps its seven starting choices (kind, scope, binding, audience, period, layout, sharing), and the new start rules check them on creation: a family or scout report is about one player, the academy is a staff-only subject that only a builder for every team chooses, a dashboard's period is never fixed, anything mailed or shared with the family is laid out in rows, and publishing for a role needs a subject that is not fixed. Every builder edits their own draft, so two people never overwrite each other, and a save made on a stale copy is refused with 409. Publishing freezes the draft as a numbered version and can reach staff personas, never families; restoring an older version copies it into the draft. `GET /reports/{id}/data` reads every block for the reader, from the report's own subject and period. Who may do what follows two new matrix entities. A head coach or assistant coach builds about their own teams and players, while the head of development and the academy admin build about any team and the academy. Only the head of development and the academy admin publish to a role. A recipient reads a published report through one of its personas, and each block checks the subject again; holding report read alone opens nothing. Reports use the recycle bin, go with a purged team or an erased player, are in the backup's Thorough preset and appear in a player's subject-access export. Migration 0307 adds the four tables and the matrix rows on existing installs.
+
+# TalentTrack v4.146.0 — Report Studio, phase 2: the start wizard and its rules (#4570)
+
+A six-step wizard, one or two questions per page, asks the seven starting choices of a Report Studio report or dashboard:
+1. What, and about whom.
+2. Who reads it.
+3. The subject: which player, team or group. The builder is offered only the subjects they build reports about. A group is always asked; a player or team only when the report always shows the same one. The step is skipped for a report about themselves or the academy, and when the wizard is opened from a player's or team's page.
+4. When and how.
+5. Sharing.
+6. Name and review. The report is created here and opens in the Studio; nothing is stored before this step.
+
+An option that does not fit the earlier choices stays visible, switched off, with the reason under it. If the builder goes back and changes an earlier answer, a later choice that no longer fits moves to the first option that does, and the wizard says which and why.
+
+One rules service gives the same answer to three callers: the wizard, the new `GET /reports/start-options`, and `POST /reports`. `POST /reports` never moves a value a client sent. It answers 400 naming the later field, with the reason the wizard shows.
+
+The rules now also cover these:
+- A scout report is a report, about one player, written by someone who publishes.
+- A parent reads a family report only through a shared snapshot.
+- A report about me always follows the viewer, and one about the academy is always fixed.
+- A grid is for staff.
+- A scheduled mail needs a report in rows over a period it can choose.
+- Sharing with the family needs a family report.
+
+The wizard is offered only where the Studio is switched on and in the plan.
+
+# TalentTrack v4.146.0 — Minutes audit marks plan minutes as Planned, not recorded (#4580)
+
+Minutes audit: minutes taken from a tournament fixture's rotation plan, on a fixture completed before the completion step asked for minutes, are now shown with a "Planned" marker and no longer count as recorded. Such a match is no longer reported as complete. Tapping the figure opens the minutes grid on that match, where saving confirms the real minutes. The totals still include the plan minutes, so the audit keeps matching the minutes reports.
+
+# TalentTrack v4.146.0 — Mark attendance wizard opens for users who can take the register (#4611)
+
+The Mark attendance wizard now opens for anyone who may take the register for a team, a team manager included, instead of only for users who may write evaluations. They can only pick their own teams' activities. Someone who takes the register but doesn't plan the activity isn't offered the rating steps: after the register the wizard shows "Attendance saved" with a single Finish button, which completes the activity and leaves it open for the coach to rate. Coaches and the head of development keep the flow they have today.
+
+# TalentTrack v4.146.0 — Evaluations: the REST routes ask the same write rule as the wizard (#4612)
+
+`POST /evaluations`, `PUT /evaluations/{id}` and the archive, trash, restore and permanent-delete routes now ask the rule the evaluation wizard asks: evaluations change academy-wide, or on the player's team. Before, they asked "settings admin, or a coach linked to the player", so a head of development could save an evaluation through the wizard and was refused by the API. A head coach is still refused for another team's player. The wizard's own rule no longer carries a separate settings-admin rung; every seeded settings admin already has the academy-wide evaluations grant.
+
+# TalentTrack v4.146.0 — Permanent person delete: the preview counts what the delete removes (#4613)
+
+The impact preview before a permanent person delete counted team roles, staff records, mentorships and invitations by person id alone, while the delete itself only touches the current club's rows. On an install with more than one club the preview could promise removals the delete never made. Every count in the preview is now limited to the current club, and the preview lists the staff evaluation ratings the delete removes, which it did not show before.
+
+# TalentTrack v4.146.0 — "Template" reads "Sjabloon" on the training plan, PDP and VCT screens (#4614)
+
+The training plan list's kind column, the PDP conversations table and the VCT reference phase profiles still showed "Template" in English on a Dutch install, because they used the bare msgid whose Dutch is "Template". Each now carries its own context and reads "Sjabloon". The My tasks label is unchanged.
+
+# TalentTrack v4.146.0 — Analytics: evaluations count in the month they took place (#4615)
+
+The analytics evaluations figures put each evaluation in the month it was typed in, not the month it took place, so a backdated evaluation counted in the wrong month in explorations, scheduled reports and Report Studio blocks, and a date range missed it. The month and the date bounds now read the evaluation date.
+
+Figures in saved explorations, scheduled reports and Report Studio blocks that count evaluations by month or by date range can move: an evaluation entered later than it took place now shows in its own month.
+
+# TalentTrack v4.146.0 — Evaluation wizard: a match's rate roster and its write check read one answer (#4616)
+
+On a match whose register was never recorded (it wasn't run through match execution, or the recompute gave up), the evaluation wizard offered a linked guest from another team on the rate screen and then refused to save their rating. Who took part in a match now also counts the line-up and the substitutes who came on (reversed substitutions left out), the same set the rate screen lists. So every player the wizard offers can be rated. A player who wasn't in the line-up, didn't come on and has no register row is still refused.
+
+# TalentTrack v4.146.0 — Evaluation wizard: a rating that can't be saved is reported, not dropped (#4617)
+
+When a coach rates players from an activity and the wizard can't save some of those ratings (the player didn't take part, or the coach can't rate them on that activity), the coach is now told how many were not saved and why. Before, those ratings were dropped without a word, and if none could be saved the wizard said "No ratings were entered", which wasn't true. That message now shows only when nothing was typed.
+
+# TalentTrack v4.146.0 — Permanent person delete removes their course enrolments and records (#4618)
+
+Permanently deleting a person left their knowledge-library course records behind: enrolments, lesson progress, quiz attempts and assignment submissions, and a submission they had reviewed for someone else kept pointing at a person who no longer existed. The delete now removes the person's enrolments and everything under them, in the same transaction and only in the current club, and clears the reviewer on submissions they reviewed for others, which stay. The impact preview lists these rows before you confirm.
+
+# TalentTrack v4.146.0 — Scheduled reports reach only recipients who may read their data (#4619)
+
+A scheduled KPI report is now checked per recipient on every run. A role key expands to its accounts and each is checked on its own; an account receives the CSV for the rows it may read, built once for every account that reads the same rows, and nothing when it may not read the report's data, so a schedule sent to the parent role no longer delivers club attendance or evaluations to parents. An address with no account receives only a report that holds no player data, read with the creator's access. After the run the schedule shows who was left out: a role key with the number of its members, never their addresses, and typed addresses by name until the note is full. The run's audit entry records every skipped recipient with the reason. The schedule form says so under the recipients field.
+
+# TalentTrack v4.146.0 — Attendance, minutes and ratings grids: a refused save is reported, and read-only teams render read-only (#4620)
+
+The attendance and minutes grids could say "All changes saved" when nothing
+had been saved, for instance for a team whose assignment had ended. They now
+say how many changes were not saved and why, and your edits stay marked so
+nothing is lost. The ratings grid does the same when a player or category is
+no longer part of the activity, and asks you to reload the grid.
+
+The grids also stop offering what can't be saved. The team list holds the
+teams you can record for, so an assignment that has ended, or hasn't started
+yet, no longer puts a team on it. If your role lets you see every team, you
+still see them all, but a team you can't change opens read-only: the recorded
+values are shown, with no dropdowns, boxes or Save, and a note says why.
+
+# TalentTrack v4.146.0 — Match preparation: one access rule for the screen, the printout and the PDF (#4621)
+
+A match preparation now follows the same rule everywhere it appears. Anyone
+who may read a team's activities can read its preparation: on the screen, on
+the print page and as the PDF. Someone whose role reads every team without
+changing anything, such as the Read-Only Observer, used to be turned away
+from the screen and the printout but could still download the PDF. They now
+open the preparation as a read-only sheet, with a note that it can't be
+changed there, and can print or download it.
+
+Changing a preparation is unchanged: only the coaches who may write the
+team's activities get the editor. The reason a coach types beside an absent
+player still goes only to who plans the team or reads its injuries.
+
+# TalentTrack v4.146.0 — Tournament squads follow the planner's teams; a tournament's team stays fixed (#4636)
+
+A player joins a tournament squad only when the planner may create tournaments for that player's team. The Head of Development and an Academy Admin can add anyone, and a coach of two teams can mix those squads. The new-tournament wizard, the create route and the squad edits in the planner all apply the same rule. The wizard offers only the teams the planner may create for, refuses an archived or unknown team, and shows the availability markers on the same terms as the other planning screens. Once a tournament exists its anchor team stays fixed; only an academy-wide planner can move it. Editing a tournament without sending a team no longer clears it.
+
+# TalentTrack v4.146.0 — Reports ask for a period before the current season has started (#4637)
+
+When the season marked current had not started yet, every report's default window ran backwards, from the season's future start to today. The player report stopped with a fatal error and its PDF export answered 500, and the other season-scoped reports came back empty. Now there is no default until the season starts. Reports show "Pick a period to see this report" under their filter bar until a pill or a date range is picked. The PDF exports and the report REST reads without a window answer 422 `no_period` with the same message. A typed window whose start is after its end shows a form error instead of a report, and a From on its own runs up to today. Taking a player report snapshot without a window answers 422 instead of failing with 500. A scout's "my players" report, which has no period control, says it starts when the season starts. A scheduled player report that relies on the season default is skipped for that run, without stopping the schedule. Once the current season has started, the default is the season so far again, as before.
+
+# TalentTrack v4.146.0 — Active players widget leaves out released players (#4638)
+
+The "Active players" source for custom widgets counted every player who was not archived by status, so released, trial and inactive players showed up as active. A club-wide count on the demo read 83 instead of 67. The source now uses the same rule as the team roster and the players list's active filter: status active, not archived, not in the recycle bin. The widget's count matches the list's active count again.
+
+# TalentTrack v4.146.0 — Report Studio: the report list pages and counts in the query (#4639)
+
+The list of stored reports now applies "may this reader open what the report
+is about" in the database query instead of reading up to 2000 reports and
+filtering them afterwards. Beyond 2000 published reports nothing drops off the
+list any more, and the total is exact. Player subjects still ask both halves
+of the player report rule (the `reports` grant on the player's team and
+whether the reader may view the player), read once for the whole list. The
+player lookup behind it now uses the primary key.
+
+# TalentTrack v4.146.0 — Attendance and minutes grids: touch targets reach 48 px on a phone (#4640)
+
+On a phone, the attendance and minutes grids had controls too small to tap
+reliably: the **all present** buttons, the column switches and the goals and
+assists boxes. On a touch screen every control in the grids is now at least
+48 px square, with room between neighbouring cells, and the column switches
+respond to a tap anywhere on the chip. With a mouse the grids keep their
+compact spreadsheet look. The ratings grid's "needs a wider screen" notice now
+wraps within a phone screen, and when you can only read a team's ratings,
+the line above the grid no longer tells you to type a score and save.
+
+# TalentTrack v4.146.0 — Report Studio: two first publishes at once answer 409, not 500 (#4641)
+
+When two builders published the same report for the first time at the same moment, one of them could get "The report could not be saved" (500) instead of "Someone published this report at the same moment. Try again." (409). With no versions yet, both version inserts hold only gap locks and can deadlock. Publishing now treats a deadlock or a lock wait timeout on the version read or insert the same as a taken version number: it rolls back, tries once more, then answers 409. No data was ever written wrongly; only the answer was wrong. Other database errors still answer 500.
+
+# TalentTrack v4.146.0 — Complete activity shows only where you can change the team (#4642)
+
+A coach who can also read every team was offered **Complete activity** on
+another team's match that ran on the live match sheet, and finishing it was
+then refused. The button now appears only on matches of teams you can
+change. The team's own coaches and the head of development see it as
+before.
+
+# TalentTrack v4.146.0 — Activity page offers View match prep to staff who read every team (#4643)
+
+Staff whose role lets them read every team's activities without changing
+them, such as the Read-Only Observer, can read a match preparation since the
+previous release, but the activity's page offered them no way to it. Once a
+coach has made a preparation, the match's page now shows **View match prep**
+to them, which opens the read-only sheet. Coaches who may change the team
+keep the match prep editor as before, and a coach of another team who does
+not read every team sees neither.
+
+# TalentTrack v4.146.0 — Match prep: the REST routes, the print sheet and the PDF ask one access rule (#4651)
+
+The match prep's `GET` and `PUT` routes, its share and role routes, the
+printable prep sheet and the PDF export now ask `MatchPrepAccess`, the rule
+the prep screen and the activity page's button already use, instead of each
+keeping its own copy of "may read" and "may change". Who can read or change
+a match plan is unchanged; the surfaces can no longer drift apart.
+
+# TalentTrack v4.146.0 — Breadcrumb chain never widens the page on a phone (#4655)
+
+Between about 390 and 413px wide, a one-word crumb such as "Aanwezigheidsraster" was wider than the box the chain gave it, and the page scrolled sideways by about 15px on the attendance, minutes and ratings grids. Every crumb can now shrink, and a label that does not fit ends in an ellipsis instead of overflowing. Screen readers still read the full name, because only the display is cut. Each crumb keeps its 48px tap band, and desktop is unchanged. The trade-off: a long current crumb on a phone is now cut to one line instead of wrapping onto a second.
+
+# TalentTrack v4.146.0 — Read-only observer opens the activities panel read-only (#4661)
+
+The read-only observer can now open the activities list and any activity's page. The seat already read activities across the academy, but the dashboard refused `?tt_view=activities` because the seat lacked the panel entity, so the "View match prep" entry was out of reach. The page renders read-only: no edit, archive, status or rating actions, and the result is shown rather than offered for editing. The team planner tile shares the same entity, so the observer can open the planner too, also read-only. Migration 0308 adds the `activities_panel` read row at global scope for the observer on existing installs. It uses `INSERT IGNORE`, so a second run writes nothing.
+
+# TalentTrack v4.146.0 — Scheduled PDF reports reach only recipients who may read them (#4662)
+
+The scheduled team monthly report and player report are now checked per
+recipient on every run, as the KPI schedules already are. An account receives
+the PDF only when it may read that team's reports, or the report about every
+player in it. A role key reaches its members who have a person record in this
+academy, and a typed address counts only when it belongs to such an account; an
+address with no account here receives nothing. Whoever is left out is shown on
+the schedules screen and recorded with the reason in the run's audit entry. The
+KPI schedules' role expansion and address lookup are limited to this academy in
+the same way.
+
+# TalentTrack v4.146.0 — Record-scope gate matches check names exactly (#4663)
+
+The record-scope CI gate now matches each listed check by its whole name, and only a trailing `*` matches a family. Before, every entry worked as a prefix, so `TeamChemistryAccess::can` also admitted `canRead()` and `canManage()`, capability roll-ups that check no team. The list now names the record-taking methods themselves. The one surface that had only passed through a roll-up, the `player-journey` dispatch, now asks `canViewPlayer` before it loads the player, so a player you may not view answers as "Player not found", the same as one that does not exist.
+
+# TalentTrack v4.146.0 — Match prep availability: chips on one line on a tablet (#4664)
+
+On the match prep Availability step, a tablet showed the player's name beside the status chips. That left the chips two thirds of the row, too narrow for five. They wrapped four and one, every player row grew to about 150px, and "Verontschuldigd" ran over the edges of its chip. Now the name sits above the chips below 1024px, the chips sit on one line from 480px however many statuses the academy uses, and a long label breaks inside its chip. On a small phone the chips still wrap, three and two. Each chip keeps its 48px height and the 8px between chips, and the checked state, the focus ring and the reason field are unchanged.
+
+# TalentTrack v4.146.0 — Navigation groups: one keyed list, one fixed order, for the dashboard and the sidebar (#4669)
+
+The dashboard and the app-shell sidebar now show their groups in one fixed
+order, read from a single list, whatever order the modules happen to load in.
+Before, any group outside a hard-coded list of six landed wherever its module
+booted, which is why Administration, Configuration, the idea pipeline and
+About came out in a different order from install to install. Each tile now
+names a group key from that list (Me, Players & teams, Activities & matches,
+Development, Tactics, Analytics & reports, Intake, Communication, Product
+ideas, Settings, then the ten Configuration sections), and an unknown group or
+an unknown tile kind is refused instead of quietly creating a heading or
+turning into everyday work. Today's tiles are mapped onto the nearest group:
+Tests & measurements and Learning sit under Development, Trials under Intake,
+Planning & tactics is split between Activities & matches and Tactics, and the
+old Administration and About groups are spread over the Configuration
+sections. Media retention and Import history are now setup tiles. The
+app-shell sidebar and slide-out menu now list everyday work only; setup
+screens are reached through the Configuration tile, so the menu no longer
+shows two headings with the same name. A refused tile is written to the
+error log once, not on every page load. No two
+tiles in one group share an icon any more, and the gear is kept for the
+Configuration tile alone.
+
+# TalentTrack v4.146.0 — Read-only observer: guardian contact follows the staff rule (#4689)
+
+Reading every player is no longer the same as working with one. The staff check behind a player's family details now asks for a staff role on the player's team, a role that may change players academy-wide (Head of development, Academy admin), or an academy-wide role assigned to the person under Roles (a Head of development, scout or physio appointed for the whole academy). The read-only observer's academy-wide read no longer counts. The observer still reads every player record, without the guardian name, e-mail and phone (also empty on the wp-admin player form), and no longer sees the profile's Parents · Guardians card, the Discovery card or the match-day squad on expected attendance. Team staff, the Head of development and admins see exactly what they saw before.
+
+# TalentTrack v4.146.0 — One chokepoint for sensitive fields: RecordRedactor and the field registry (#4690)
+
+Sensitive fields on a player-linked record are now listed in one registry, `config/sensitive_fields.php`, each with the right that unlocks it, and hidden in one place, `RecordRedactor`. Controllers redact what they return, views ask the redactor whether to show a value, and for the registered route patterns the redactor checks the REST answer once more after the controller, so a reader without the right gets the answer without the field. Views get a shared "Hidden" marker (`MaskedValue`) with a screen-reader label, "Hidden for your role". The player record's guardian contact and custom fields are the first fields registered and follow the same staff rule as before; nothing a reader sees changes in this release. Absence reasons, evaluation comments, date of birth and the trial and scouting fields move onto the redactor with their own surfaces.
+
+# TalentTrack v4.146.0 — Player profile: a long name wraps in the hero heading instead of being cut off (#4701)
+
+The player's name at the top of the profile now wraps onto as many lines as it needs, instead of ending in an ellipsis on one line. On a phone a long name such as "Maximiliaan-Alexander van Oldenbarnevelt-Wijnberghuizen" was cut to "Maximiliaan-Al…" at 320px and was still cut at 480px. Now it is shown in full at every width. A single long word breaks only as a last resort. On a desktop, a name that already fitted looks the same. The team page's heading, which uses the same style, keeps its two-line limit on a phone and one line from 768px. CSS only.
+
+# TalentTrack v4.146.0 — My staff development: read-only when you may not change your record (#4712)
+
+The four "My staff development" pages (plan, goals, certifications, evaluations) now offer the form only where a Save would succeed. A staff member who may read their own record but not change it sees the record with the notice "You can view this, but not change it." and no form or Save button. The check is the same access rule the save path already used, so nothing changes for anyone who may write; no seeded persona is affected, only an operator who grants read without change in the matrix.
+
+# TalentTrack v4.146.0 — Conversations: administering them is its own right (#4717)
+
+Reading every staff-only note, marking a note staff-only on any conversation and deleting somebody else's message are administering conversations. They now follow the academy-wide thread right in the authorization matrix (or WordPress `manage_options`), and viewing the settings is no longer part of that answer. The player notes thread applies the same rule to its academy-wide rung, which is the global player notes grant. Admins, the head of development, team staff, players and parents keep what they had; a read-only observer reads the public side of a goal conversation only.
+
+# TalentTrack v4.146.0 — Staff development reads follow the record owner (#4713)
+
+Staff development reads follow the record owner. A staff member's goals,
+evaluations, certifications, PDP and mentorships are read by that staff
+member, or by somebody with academy-wide staff development access. A
+team-level grant does not reach a colleague's record. Writing to your own
+record now also needs the staff development change right.
+
 # TalentTrack v4.145.0 — Custom KPI widgets show the total they were built with (#4566)
 
 A custom widget of type KPI never worked out its aggregation. It showed the first number of the first row instead, so "Number of active players" showed one player's age and "Average overall" showed one evaluation. A KPI now shows its aggregation over every row its filters select: a count, a number of distinct teams or players, or the average overall rating, calculated the same way as on a player's profile. Changing a widget's aggregation no longer shows the old figure from the cache. The Age range filter on the Active players source, which was offered but did nothing, now narrows the players. A KPI without an aggregation shows what it did before. The widget's data route also returns the figure.

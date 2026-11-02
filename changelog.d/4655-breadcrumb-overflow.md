@@ -1,3 +1,0 @@
-# Breadcrumb chain never widens the page on a phone (#4655)
-
-Between about 390 and 413px wide, a one-word crumb such as "Aanwezigheidsraster" was wider than the box the chain gave it, and the page scrolled sideways by about 15px on the attendance, minutes and ratings grids. Every crumb can now shrink, and a label that does not fit ends in an ellipsis instead of overflowing. Screen readers still read the full name, because only the display is cut. Each crumb keeps its 48px tap band, and desktop is unchanged. The trade-off: a long current crumb on a phone is now cut to one line instead of wrapping onto a second.
