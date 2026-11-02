@@ -222,6 +222,13 @@ metingen op de versie van één pagina, dan zegt het formulier dat, en drukt de
 pdf de samenvatting af. Het rapport noemt spelers bij naam, dus stuur het
 alleen naar stafleden.
 
+Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt de
+pdf alleen als het de rapporten van dit team mag lezen, dezelfde controle als
+bij het openen van het rapport in de plugin. Een rolsleutel bereikt de leden die
+bij deze academie horen, en een e-mailadres telt alleen als het bij een account
+hier hoort. Een adres zonder account hier ontvangt niets. Wie wordt
+overgeslagen, staat na de verzending op het scherm met planningen.
+
 De planning bewaart **een eigen kopie** van het rapport. Wat je later aan een
 van je opgeslagen weergaven verandert of verwijdert, verandert niet wat er wordt
 verstuurd. Wil je iets anders versturen, archiveer de planning dan en maak een

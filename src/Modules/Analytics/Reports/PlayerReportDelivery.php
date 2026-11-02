@@ -174,14 +174,15 @@ final class PlayerReportDelivery {
     }
 
     /**
-     * The plan plus the PDF.
+     * The plan plus the PDF, and the players it is about, so the runner
+     * sends it only to recipients who may read every one of them.
      *
      * @param array<string,mixed> $schedule
-     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string}
+     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string, players:list<int>}
      */
     public static function render( array $schedule, string $today ): array {
         $plan = self::plan( $schedule, $today );
-        $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'] ];
+        $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'], 'players' => $plan['players'] ];
         if ( ! $plan['ok'] ) return $out;
 
         $c = $plan['composition'];

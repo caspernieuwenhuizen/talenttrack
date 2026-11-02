@@ -5,13 +5,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
+use TT\Modules\Analytics\Reports\PlayerReportAccess;
 use TT\Modules\Analytics\Reports\PlayerReportDelivery;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
+use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsOutcomeSummary;
@@ -129,8 +133,10 @@ final class ScheduledReportsRunner {
     /**
      * Who receives a KPI schedule, with which scope, and who is left out.
      *
-     * A role key expands to its users; a plain address that belongs to an
-     * account is that account. An account receives the CSV built with its
+     * A role key expands to its users in this club, and a member of the role
+     * from outside it is left out (`not_in_club`); a plain address that
+     * belongs to an account in this club is that account, any other address
+     * has no account here. An account receives the CSV built with its
      * own scope, when `FactQuery::canRead()` lets it read the fact; accounts
      * that read the same rows (`FactScope::rowsKey()`) share one build.
      * Addresses with no account share one CSV built with the creator's
@@ -149,14 +155,15 @@ final class ScheduledReportsRunner {
         $users     = [];
         $via       = [];
         $addresses = [];
+        $skipped   = [];
+        $foreign   = [];
         foreach ( $entries as $entry ) {
             $entry = trim( (string) $entry );
             if ( $entry === '' ) continue;
 
             if ( is_email( $entry ) ) {
-                $account = get_user_by( 'email', $entry );
-                if ( $account instanceof \WP_User && (int) $account->ID > 0 ) {
-                    $user_id = (int) $account->ID;
+                $user_id = self::clubAccountFor( $entry );
+                if ( $user_id > 0 ) {
                     $users[ $user_id ] = self::userRecipient( $user_id, $entry );
                     $via[ $user_id ]   = '';
                 } else {
@@ -169,6 +176,12 @@ final class ScheduledReportsRunner {
             foreach ( $role_users as $u ) {
                 $user_id = (int) ( $u->ID ?? 0 );
                 if ( $user_id <= 0 || isset( $users[ $user_id ] ) ) continue;
+                if ( isset( $foreign[ $user_id ] ) ) continue;
+                if ( ! self::inClub( $user_id ) ) {
+                    $foreign[ $user_id ] = true;
+                    $skipped[]           = self::notInClub( $entry );
+                    continue;
+                }
                 $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
                 if ( $email === '' || ! is_email( $email ) ) continue;
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
@@ -180,7 +193,6 @@ final class ScheduledReportsRunner {
         $entity        = $fact !== null ? $fact->readEntity : '';
         $by_visibility = $fact !== null && $fact->visibilityColumn !== null;
         $groups        = [];
-        $skipped       = [];
         $taken         = [];
         foreach ( $users as $user_id => $recipient ) {
             $taken[ strtolower( $recipient->emailAddress ) ] = true;
@@ -225,6 +237,34 @@ final class ScheduledReportsRunner {
             if ( $dimension->foreignTable === 'tt_players' ) return true;
         }
         return false;
+    }
+
+    /**
+     * The account this address belongs to, when that account has a person
+     * record in the current club; 0 otherwise. The lookup alone searches the
+     * whole install.
+     */
+    private static function clubAccountFor( string $email ): int {
+        $account = get_user_by( 'email', $email );
+        if ( ! $account instanceof \WP_User || (int) $account->ID <= 0 ) return 0;
+        $user_id = (int) $account->ID;
+        return self::inClub( $user_id ) ? $user_id : 0;
+    }
+
+    /** Does this account have a person record in the current club? */
+    private static function inClub( int $user_id ): bool {
+        return QueryHelpers::person_id_for_user( $user_id ) > 0;
+    }
+
+    /**
+     * A member of a role who is not in this club, counted under the role and
+     * never named: neither their address nor their account is this club's
+     * to record.
+     *
+     * @return array{email: string, user_id: int, reason: string, via: string}
+     */
+    private static function notInClub( string $role ): array {
+        return [ 'email' => '', 'user_id' => 0, 'reason' => 'not_in_club', 'via' => $role ];
     }
 
     private static function userRecipient( int $user_id, string $email ): Recipient {
@@ -375,7 +415,14 @@ final class ScheduledReportsRunner {
      * @param array<string,mixed> $schedule
      */
     public static function runTeamMonthly( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
-        self::runPdf( $repo, $schedule, $now_utc, [ TeamMonthlyReportDelivery::class, 'render' ] );
+        $composition = TeamMonthlyReportComposition::normalise( is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [] );
+        $team_id     = $composition['team_id'];
+        self::runPdf(
+            $repo, $schedule, $now_utc,
+            [ TeamMonthlyReportDelivery::class, 'render' ],
+            // #4662 — the team report's own read rule, per recipient.
+            static fn( int $user_id, array $result ): bool => TeamReportAccess::canRead( $user_id, $team_id )
+        );
     }
 
     /**
@@ -385,7 +432,20 @@ final class ScheduledReportsRunner {
      * @param array<string,mixed> $schedule
      */
     public static function runPlayerReport( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
-        self::runPdf( $repo, $schedule, $now_utc, [ PlayerReportDelivery::class, 'render' ] );
+        self::runPdf(
+            $repo, $schedule, $now_utc,
+            [ PlayerReportDelivery::class, 'render' ],
+            // #4662 — the player report's own read rule, for every player in
+            // the PDF: a squad round goes only to someone who reads them all.
+            static function ( int $user_id, array $result ): bool {
+                $players = is_array( $result['players'] ?? null ) ? $result['players'] : [];
+                if ( $players === [] ) return false;
+                foreach ( $players as $player_id ) {
+                    if ( ! PlayerReportAccess::canRead( $user_id, (int) $player_id ) ) return false;
+                }
+                return true;
+            }
+        );
     }
 
     /**
@@ -393,15 +453,24 @@ final class ScheduledReportsRunner {
      * a `note` — a squad round that left a player out — keeps that note on the
      * schedules screen rather than clearing it, so the omission is visible.
      *
+     * #4662 — only recipients who may read the report receive it
+     * (`$may_receive`, asked per account after the render). A plain address
+     * receives it only when it belongs to an account in this club. Whoever is
+     * left out is named on the schedule and in the audit row, the way the KPI
+     * path does it.
+     *
      * @param array<string,mixed> $schedule
-     * @param callable(array<string,mixed>, string): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string} $render
+     * @param callable(array<string,mixed>, string): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>} $render
+     * @param callable(int, array<string,mixed>): bool $may_receive
      */
-    private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render ): void {
+    private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render, callable $may_receive ): void {
         $id         = (int) ( $schedule['id'] ?? 0 );
-        $recipients = self::resolveRecipients( (array) ( $schedule['recipients'] ?? [] ) );
+        $resolved   = self::resolveRecipients( (array) ( $schedule['recipients'] ?? [] ) );
+        $recipients = $resolved['recipients'];
+        $skipped    = $resolved['skipped'];
         if ( $recipients === [] ) {
-            $repo->recordError( $id, __( 'Not sent: none of the recipients has an email address.', 'talenttrack' ) );
-            self::auditLog( $schedule, 0, false );
+            $repo->recordError( $id, $skipped !== [] ? self::skippedNote( $skipped ) : __( 'Not sent: none of the recipients has an email address.', 'talenttrack' ) );
+            self::auditLog( $schedule, 0, false, $skipped );
             $repo->markRun( $id, $now_utc );
             return;
         }
@@ -410,7 +479,7 @@ final class ScheduledReportsRunner {
         $result = $render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ) );
         if ( ! $result['ok'] ) {
             $repo->recordError( $id, $result['error'] );
-            self::auditLog( $schedule, count( $recipients ), false );
+            self::auditLog( $schedule, count( $recipients ), false, $skipped );
             if ( $result['stop'] ) {
                 $repo->setStatus( $id, ScheduledReportsRepository::STATUS_PAUSED );
             } else {
@@ -419,10 +488,27 @@ final class ScheduledReportsRunner {
             return;
         }
 
+        $allowed = [];
+        foreach ( $recipients as $recipient ) {
+            if ( $may_receive( $recipient->userId, $result ) ) {
+                $allowed[] = $recipient;
+            } else {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_read_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];
+            }
+        }
+        $recipients   = $allowed;
+        $skipped_note = $skipped !== [] ? self::skippedNote( $skipped ) : '';
+        if ( $recipients === [] ) {
+            $repo->recordError( $id, $skipped_note );
+            self::auditLog( $schedule, 0, false, $skipped );
+            $repo->markRun( $id, $now_utc );
+            return;
+        }
+
         $dir = self::stagingDir();
         if ( $dir === '' ) {
             $repo->recordError( $id, __( 'Not sent: the PDF could not be prepared for sending.', 'talenttrack' ) );
-            self::auditLog( $schedule, count( $recipients ), false );
+            self::auditLog( $schedule, count( $recipients ), false, $skipped );
             $repo->markRun( $id, $now_utc );
             return;
         }
@@ -431,7 +517,7 @@ final class ScheduledReportsRunner {
             $path = $dir . '/' . $result['filename'];
             if ( file_put_contents( $path, $result['bytes'] ) === false ) {
                 $repo->recordError( $id, __( 'Not sent: the PDF could not be prepared for sending.', 'talenttrack' ) );
-                self::auditLog( $schedule, count( $recipients ), false );
+                self::auditLog( $schedule, count( $recipients ), false, $skipped );
                 $repo->markRun( $id, $now_utc );
                 return;
             }
@@ -451,15 +537,15 @@ final class ScheduledReportsRunner {
             );
 
             $sent = CommsOutcomeSummary::sentCount( $results ) > 0;
-            $note = (string) ( $result['note'] ?? '' );
+            $note = trim( (string) ( $result['note'] ?? '' ) . ' ' . $skipped_note );
             if ( $sent && $note !== '' ) {
-                $repo->recordError( $id, $note );
+                $repo->recordError( $id, mb_substr( $note, 0, self::NOTE_LIMIT ) );
             } elseif ( $sent ) {
                 $repo->clearError( $id );
             } else {
                 $repo->recordError( $id, __( 'Not sent: no recipient could be emailed. Check their addresses and email preferences.', 'talenttrack' ) );
             }
-            self::auditLog( $schedule, count( $recipients ), $sent );
+            self::auditLog( $schedule, count( $recipients ), $sent, $skipped );
             $repo->markRun( $id, $now_utc );
         } finally {
             self::discardStagingDir( $dir );
@@ -535,48 +621,60 @@ final class ScheduledReportsRunner {
     }
 
     /**
-     * Expand role keys (e.g. `tt_head_dev`) into individual recipients.
-     * Plain email strings pass through as account-less recipients —
-     * an operator may legitimately schedule a report to an address that
-     * has no login here. Empty / invalid entries silently dropped;
-     * duplicates collapse on the address.
+     * The accounts in this club a PDF schedule could reach, and the entries
+     * that reach nobody. A role key expands to its members with a person
+     * record in this club; a plain address is the club account it belongs
+     * to. The PDF names minors, so an address with no account here is left
+     * out (`no_account`), and so is a member of the role from outside the
+     * club (`not_in_club`). Empty and invalid entries are dropped; each
+     * account is listed once.
      *
      * @param string[] $entries
-     * @return Recipient[]
+     * @return array{
+     *     recipients: list<Recipient>,
+     *     via: array<int, string>,
+     *     skipped: list<array{email: string, user_id: int, reason: string, via: string}>
+     * }
      */
     private static function resolveRecipients( array $entries ): array {
-        $byEmail = [];
+        $users   = [];
+        $via     = [];
+        $skipped = [];
+        $seen    = [];
         foreach ( $entries as $entry ) {
             $entry = trim( (string) $entry );
             if ( $entry === '' ) continue;
 
             if ( is_email( $entry ) ) {
-                if ( ! isset( $byEmail[ $entry ] ) ) {
-                    $byEmail[ $entry ] = new Recipient( 0, Recipient::KIND_SYSTEM, null, $entry );
+                $user_id = self::clubAccountFor( $entry );
+                if ( $user_id > 0 ) {
+                    if ( ! isset( $users[ $user_id ] ) ) {
+                        $users[ $user_id ] = self::userRecipient( $user_id, $entry );
+                        $via[ $user_id ]   = '';
+                    }
+                } elseif ( ! isset( $seen[ strtolower( $entry ) ] ) ) {
+                    $seen[ strtolower( $entry ) ] = true;
+                    $skipped[] = [ 'email' => $entry, 'user_id' => 0, 'reason' => 'no_account', 'via' => '' ];
                 }
                 continue;
             }
 
             // Treat as a WP role key.
-            $users = get_users( [ 'role' => $entry, 'fields' => [ 'ID' ] ] );
-            foreach ( $users as $u ) {
+            foreach ( get_users( [ 'role' => $entry, 'fields' => [ 'ID' ] ] ) as $u ) {
                 $user_id = (int) ( $u->ID ?? 0 );
-                $email   = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
+                if ( $user_id <= 0 || isset( $users[ $user_id ] ) || isset( $seen[ $user_id ] ) ) continue;
+                if ( ! self::inClub( $user_id ) ) {
+                    $seen[ $user_id ] = true;
+                    $skipped[]        = self::notInClub( $entry );
+                    continue;
+                }
+                $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
                 if ( $email === '' || ! is_email( $email ) ) continue;
-                // A role expansion wins over a bare address for the same
-                // person: it carries the user id, which is what opt-out
-                // and locale resolution need.
-                $byEmail[ $email ] = new Recipient(
-                    $user_id,
-                    Recipient::KIND_COACH,
-                    null,
-                    $email,
-                    '',
-                    (string) get_user_meta( $user_id, 'locale', true )
-                );
+                $users[ $user_id ] = self::userRecipient( $user_id, $email );
+                $via[ $user_id ]   = $entry;
             }
         }
-        return array_values( $byEmail );
+        return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => $skipped ];
     }
 
     /**
