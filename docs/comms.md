@@ -17,7 +17,7 @@ This page explains what sends, who receives it, what can stop it, and where to l
 
 Four things decide whether a message leaves the building and what it says.
 
-**A template.** Every kind of message has one — a cancelled training, a development plan ready to read, an invitation to create an account. The template owns the wording in English and Dutch. A handful of the most-used ones can be reworded per academy so the tone matches how you already talk to families; the rest are fixed.
+**A template.** Every kind of message has one — a cancelled training, a development plan ready to read, an invitation to create an account. The template owns the wording in English and Dutch, and a recipient whose account has a language set reads it in that language, whichever language the person or process that sent it was using. A handful of the most-used ones can be reworded per academy so the tone matches how you already talk to families; the rest are fixed.
 
 **A recipient rule.** You never address a message at a child directly. You address it at a *player*, and the youth-contact rules decide who actually receives it: for the youngest age groups the parents, for the middle groups both, and from U12 up the player themselves. That rule lives in one place and every message obeys it, so no individual feature can get it wrong.
 
