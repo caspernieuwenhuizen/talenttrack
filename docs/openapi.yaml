@@ -416,6 +416,16 @@ paths:
         '402': { description: license_required }
         '403': { description: 'forbidden_team, forbidden_player or forbidden_scope' }
 
+  /reports/start-options:
+    get:
+      tags: [report-studio]
+      summary: 'Every starting choice''s options, each ok or switched off with the reason, for the choices sent so far'
+      description: 'Cap required: `tt_build_reports`. Query — kind, scope (default me), audience, binding, period_mode, layout, sharing. Reads only. `moved` names each choice an earlier one ruled out.'
+      responses:
+        '200': { description: 'OK — choices, moved, options' }
+        '400': { description: bad_filter }
+        '402': { description: license_required }
+
   /reports/{id}:
     get:
       tags: [report-studio]

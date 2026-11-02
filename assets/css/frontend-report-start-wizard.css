@@ -1,0 +1,119 @@
+/*
+ * frontend-report-start-wizard.css — the Report Studio start wizard's steps
+ * (#4570). Each step asks one or two choices as radio rows; a switched-off
+ * option stays visible with the reason it is off.
+ *
+ * Mobile-first (CLAUDE.md §2): the base is ~360px, every row is a 48px tap
+ * target with 8px between rows, and nothing depends on hover. Scoped under
+ * .tt-dashboard; tokens from tokens.css.
+ */
+
+.tt-dashboard .tt-rsw-choices {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rsw-choices legend {
+    font-weight: 600;
+    padding: 0 var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-rsw-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-3, 12px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rsw-option input {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0.125rem 0 0;
+}
+
+.tt-dashboard .tt-rsw-option:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rsw-option:has(input:checked) {
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-rsw-option:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rsw-option-text {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rsw-option--off {
+    cursor: not-allowed;
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rsw-option--off .tt-rsw-option-label {
+    color: var(--tt-muted, #5b6660);
+}
+
+.tt-dashboard .tt-rsw-reason {
+    font-size: 0.875rem;
+    color: var(--tt-muted, #5b6660);
+}
+
+.tt-dashboard .tt-rsw-moved {
+    margin: 0;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-rsw-dates {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rsw-review {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-1, 4px);
+    margin: var(--tt-sp-4, 16px) 0;
+}
+
+.tt-dashboard .tt-rsw-review dt {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rsw-review dd {
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-rsw-dates {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tt-dashboard .tt-rsw-review {
+        grid-template-columns: minmax(8rem, auto) minmax(0, 1fr);
+        column-gap: var(--tt-sp-4, 16px);
+    }
+
+    .tt-dashboard .tt-rsw-review dd {
+        margin: 0;
+    }
+}

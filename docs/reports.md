@@ -630,3 +630,31 @@ A scheduled KPI report is checked per recipient every time it runs, so a report 
 - **An address with no account here** receives the report only when it holds no player data, such as activity volume. It then reads with the access of the person who set up the schedule. A report about players (attendance, evaluations, goals, journey events, trial decisions, prospects) is never sent to such an address.
 - **Accounts that may read the same rows** share one CSV, so a role with many academy-wide readers is built once, not once per person.
 - **Whoever is left out** is shown on the schedule in the schedules list after the run. A role key is shown with how many of its members were left out, never their addresses; addresses you typed are named, and when the list gets too long the rest are counted ("and 3 more"). The run's audit entry records every skipped recipient with the reason.
+## Report Studio — starting a report
+
+The Report Studio is where you build a report or a dashboard of your own, from the figures TalentTrack already holds. A head coach or assistant coach builds about their own teams and players; the head of development and the academy admin build about any team, any player and the whole academy. It is part of the Pro plan and is switched on under the modules and features settings.
+
+**Add report** opens a short wizard. It asks seven starting choices, one or two per page, and they decide what the report can be. An option that does not fit what you chose earlier is still shown, switched off, with the reason under it.
+
+1. **What and about whom.** A report or a dashboard, and who it is about: you, one player, one team, a group of players, or the whole academy.
+2. **Who reads it.** Staff, an external scout, or the player and their family; and whether the report always shows the same subject, lets the reader choose it when they open it, or follows whoever opens it.
+3. **The subject.** Which player, which team, or which teams make up the group (optionally one age group). You are only offered the players and teams you build reports about. A player or team is asked only when the report always shows the same one; a group is always asked. This page is skipped for a report about you or about the academy, and when you start from a player's or a team's page.
+4. **When and how.** The period: chosen when the report is opened, rolling (last week, last month, this month, this season), or fixed dates. And the layout: rows, which print and work on a phone, or a grid for screens.
+5. **Sharing.** Only you, published for a role, a scheduled mail, or shared with the family.
+6. **Name and review.** Give it a name, read your choices back, and create it. Nothing is saved before this last step.
+
+If you go back and change an earlier answer, a later choice that no longer fits moves to the first option that does, and the wizard tells you which one moved and why.
+
+The rules between the choices:
+
+- A report for the family or a scout is about one player. A parent reads a family report only through a snapshot you share with them, never the live report.
+- A report for a scout is a report, not a dashboard, and only someone who publishes reports writes one.
+- A report about the whole academy is for staff, and only a builder for every team makes one. It always shows the whole academy.
+- A report about you always follows whoever opens it. Only a report about you, a player or a team can follow the viewer.
+- A dashboard follows the calendar: its period is never fixed.
+- A grid is for a staff audience. A report for a family or a scout is laid out in rows.
+- A scheduled mail sends a report laid out in rows, over a period it can choose by itself (fixed or rolling).
+- Sharing with the family needs a report written for the family.
+- Publishing for a role needs a subject each reader chooses or follows (or the academy), and the right to publish.
+
+Building needs the **Report Studio: build reports** permission; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **Add report** button is hidden.
