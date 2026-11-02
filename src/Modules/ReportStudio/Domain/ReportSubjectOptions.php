@@ -35,19 +35,24 @@ final class ReportSubjectOptions {
     }
 
     /**
+     * Every team's roster comes from one query (#4719), the roster
+     * `get_players()` reads per team, so an academy with 30 teams costs what
+     * one with 3 does.
+     *
      * @param array<int, array{name:string, age_group:string}>|null $teams `teams()`, when the caller already has it
      * @return array<int, array<int,string>> team id => player id => name
      */
     public static function players( ReportReader $reader, ?array $teams = null ): array {
-        $by_team = [];
-        $ids     = [];
-        foreach ( array_keys( $teams ?? self::teams( $reader ) ) as $team_id ) {
-            foreach ( QueryHelpers::get_players( $team_id ) as $row ) {
-                $pid = (int) ( ( (array) $row )['id'] ?? 0 );
-                if ( $pid <= 0 ) continue;
-                $by_team[ $team_id ][ $pid ] = QueryHelpers::player_display_name( $row );
-                $ids[] = $pid;
-            }
+        $team_ids = array_keys( $teams ?? self::teams( $reader ) );
+        $by_team  = array_fill_keys( $team_ids, [] );
+        $ids      = [];
+        foreach ( QueryHelpers::get_players_for_teams( $team_ids ) as $row ) {
+            $data    = (array) $row;
+            $pid     = (int) ( $data['id'] ?? 0 );
+            $team_id = (int) ( $data['team_id'] ?? 0 );
+            if ( $pid <= 0 || ! isset( $by_team[ $team_id ] ) ) continue;
+            $by_team[ $team_id ][ $pid ] = QueryHelpers::player_display_name( $row );
+            $ids[] = $pid;
         }
         $reader->primePlayers( $ids );
 

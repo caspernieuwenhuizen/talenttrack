@@ -52,7 +52,7 @@ final class SubjectStep implements WizardStepInterface {
 
         switch ( (string) ( $state['scope'] ?? '' ) ) {
             case ReportContext::SCOPE_PLAYER:
-                $this->renderPlayer( $teams, ReportSubjectOptions::players( $reader ), (int) ( $state['player_id'] ?? 0 ) );
+                $this->renderPlayer( $teams, ReportSubjectOptions::players( $reader, $teams ), (int) ( $state['player_id'] ?? 0 ) );
                 return;
             case ReportContext::SCOPE_TEAM:
                 $this->renderTeam( $teams, (int) ( $state['team_id'] ?? 0 ) );
@@ -72,7 +72,7 @@ final class SubjectStep implements WizardStepInterface {
             case ReportContext::SCOPE_PLAYER:
                 $pid     = isset( $post['player_id'] ) ? absint( $post['player_id'] ) : 0;
                 $offered = false;
-                foreach ( ReportSubjectOptions::players( $reader ) as $players ) {
+                foreach ( ReportSubjectOptions::players( $reader, $teams ) as $players ) {
                     if ( isset( $players[ $pid ] ) ) $offered = true;
                 }
                 if ( ! $offered ) return new \WP_Error( 'tt_rsw_player', __( 'Choose one of your players.', 'talenttrack' ) );
