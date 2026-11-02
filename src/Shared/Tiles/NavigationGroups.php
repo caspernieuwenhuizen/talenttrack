@@ -9,9 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * A tile names a group by key; the label and the position come from here.
  * Keys and positions are cached for the request because `TileRegistry`
- * validates every registration against them during boot. Labels are not
- * cached: boot can run before the textdomain is loaded, and a label read
- * then would stay English for the whole request.
+ * validates every registration against them during boot. Labels are cached
+ * per locale and textdomain state, so a read made during boot, before the
+ * textdomain loads, does not keep them English for the rest of the request.
  */
 final class NavigationGroups {
 
@@ -21,12 +21,21 @@ final class NavigationGroups {
     /** @var array<string, array{position:int, surface:string}>|null */
     private static ?array $index = null;
 
+    /** @var array<string, list<array{key:string, surface:string, label:string}>> */
+    private static array $all = [];
+
     /**
      * Every group in display order.
      *
      * @return list<array{key:string, surface:string, label:string}>
      */
     public static function all(): array {
+        // Cached per locale and per textdomain state: a read made during
+        // boot, before the textdomain loads, must not pin English labels on
+        // the rest of the request.
+        $cache_key = (string) get_locale() . '|' . ( is_textdomain_loaded( 'talenttrack' ) ? 'loaded' : 'raw' );
+        if ( isset( self::$all[ $cache_key ] ) ) return self::$all[ $cache_key ];
+
         $file = defined( 'TT_PLUGIN_DIR' ) ? TT_PLUGIN_DIR . 'config/navigation_groups.php' : '';
         if ( $file === '' || ! is_readable( $file ) ) return [];
 
@@ -45,7 +54,14 @@ final class NavigationGroups {
                 'label'   => (string) ( $group['label'] ?? $key ),
             ];
         }
+        self::$all[ $cache_key ] = $out;
         return $out;
+    }
+
+    /** The surface a key belongs to, or '' for an unknown key. */
+    public static function surface( string $key ): string {
+        $index = self::index();
+        return isset( $index[ $key ] ) ? $index[ $key ]['surface'] : '';
     }
 
     /** @return list<string> every key, in display order */

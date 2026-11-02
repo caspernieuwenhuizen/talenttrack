@@ -15,6 +15,10 @@ turning into everyday work. Today's tiles are mapped onto the nearest group:
 Tests & measurements and Learning sit under Development, Trials under Intake,
 Planning & tactics is split between Activities & matches and Tactics, and the
 old Administration and About groups are spread over the Configuration
-sections. Media retention and Import history are now setup tiles. No two
+sections. Media retention and Import history are now setup tiles. The
+app-shell sidebar and slide-out menu now list everyday work only; setup
+screens are reached through the Configuration tile, so the menu no longer
+shows two headings with the same name. A refused tile is written to the
+error log once, not on every page load. No two
 tiles in one group share an icon any more, and the gear is kept for the
 Configuration tile alone.

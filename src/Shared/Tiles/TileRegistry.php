@@ -219,18 +219,47 @@ final class TileRegistry {
     }
 
     /**
+     * Signatures (`code|slug`) of refusals already written to the error
+     * log, in one autoloaded option.
+     */
+    public const REFUSALS_OPTION = 'tt_tile_refusals';
+
+    /** Cap on remembered signatures, so a runaway caller cannot grow the option. */
+    private const REFUSALS_MAX = 200;
+
+    /**
      * A registration the registry will not accept as given. Under WP_DEBUG
      * it throws, so the developer who introduced it sees it on the first
      * page load; on a live install it is logged instead of taking the
      * dashboard down with it.
      *
+     * Tiles are registered on every request, so the log entry is written
+     * once per distinct refusal, not once per page load: a warning costs an
+     * insert and a prune on `tt_error_log`, and a flood of one repeated
+     * warning would push the operator's real errors out of the capped log.
+     *
      * @param array<string, string> $context
      */
     private static function refuse( string $code, string $slug, array $context ): void {
         $context = array_merge( [ 'slug' => $slug ], $context );
+        self::logOnce( $code, $slug, $context );
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
             throw new \InvalidArgumentException( $code . ' ' . (string) wp_json_encode( $context ) );
         }
+    }
+
+    /** @param array<string, string> $context */
+    private static function logOnce( string $code, string $slug, array $context ): void {
+        $signature = $code . '|' . $slug;
+        $seen      = get_option( self::REFUSALS_OPTION, [] );
+        if ( ! is_array( $seen ) ) $seen = [];
+        if ( in_array( $signature, $seen, true ) ) return;
+
+        $seen[] = $signature;
+        if ( count( $seen ) > self::REFUSALS_MAX ) {
+            $seen = array_slice( $seen, -self::REFUSALS_MAX );
+        }
+        update_option( self::REFUSALS_OPTION, array_values( $seen ), true );
         \TT\Infrastructure\Logging\Logger::warning( $code, $context );
     }
 

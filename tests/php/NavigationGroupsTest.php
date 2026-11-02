@@ -147,17 +147,67 @@ final class NavigationGroupsTest extends WP_UnitTestCase {
         $grouped = array_column( TileRegistry::tilesForUserGrouped( $user ), 'key' );
         $this->assertSame( [ 'me', 'analytics', 'academy', 'system' ], $grouped );
 
+        // The sidebar keeps the same order and drops the settings groups.
         $nav = array_column( FrontendAppNav::groups( $user ), 'key' );
-        $this->assertSame( $grouped, $nav, 'the sidebar reads the same order as the dashboard' );
+        $this->assertSame( [ 'me', 'analytics' ], $nav );
     }
 
-    public function test_a_group_carries_its_translated_label(): void {
+    public function test_a_group_carries_its_label_not_its_key(): void {
         TileRegistry::clear();
         TileRegistry::register( $this->tile( 'tt-test-intake', 'intake' ) );
         $user = self::factory()->user->create( [ 'role' => 'editor' ] );
 
         $groups = TileRegistry::tilesForUserGrouped( $user );
+        $this->assertSame( 'intake', $groups[0]['key'] ?? null );
+        $this->assertNotSame( 'intake', $groups[0]['label'] ?? 'intake', 'a heading must never show the raw key' );
         $this->assertSame( NavigationGroups::label( 'intake' ), $groups[0]['label'] ?? null );
+    }
+
+    // ---- the sidebar ----
+
+    public function test_the_sidebar_shows_only_dashboard_groups(): void {
+        $this->everyTile();
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        $keys = array_column( FrontendAppNav::groups( $admin ), 'key' );
+        $this->assertNotSame( [], $keys, 'an admin must see a nav, or the test proves nothing' );
+        foreach ( $keys as $key ) {
+            $this->assertSame( NavigationGroups::SURFACE_DASHBOARD, NavigationGroups::surface( (string) $key ), $key . ' is a settings group' );
+        }
+    }
+
+    public function test_an_admins_sidebar_has_no_duplicate_headings(): void {
+        $this->everyTile();
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        $labels = array_column( FrontendAppNav::groups( $admin ), 'label' );
+        $this->assertNotSame( [], $labels );
+        $this->assertSame( array_values( array_unique( $labels ) ), $labels, 'two headings with one name: ' . implode( ', ', $labels ) );
+    }
+
+    // ---- logging ----
+
+    public function test_a_repeated_refusal_is_logged_once(): void {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_error_log';
+        $slug  = 'tt-test-logged-once';
+        delete_option( TileRegistry::REFUSALS_OPTION );
+        $count = static function () use ( $wpdb, $table, $slug ): int {
+            return (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table} WHERE message = %s AND context LIKE %s",
+                'tiles.unknown_group',
+                '%' . $wpdb->esc_like( $slug ) . '%'
+            ) );
+        };
+        $before = $count();
+
+        TileRegistry::clear();
+        // Twice, as every request registers its tiles again.
+        $this->assertRefused( $this->tile( $slug, 'Performance' ), 'first registration' );
+        $this->assertRefused( $this->tile( $slug, 'Performance' ), 'second registration' );
+
+        $this->assertSame( $before + 1, $count(), 'one log row for one distinct refusal' );
+        $this->assertContains( 'tiles.unknown_group|' . $slug, (array) get_option( TileRegistry::REFUSALS_OPTION, [] ) );
     }
 
     // ---- icons ----

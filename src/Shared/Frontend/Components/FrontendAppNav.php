@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend\Components;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Tiles\NavigationGroups;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Icons\IconRenderer;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -19,8 +20,9 @@ use TT\Infrastructure\Query\QueryHelpers;
  * The data is `TileRegistry::tilesForUserGrouped()`, which already applies
  * the capability check, the per-persona label map (including the
  * `__hidden__` marker), module/feature gating and the group order of
- * `config/navigation_groups.php`. There is no second nav registry to keep in sync — that was the
- * point of reading the tile registry rather than declaring a menu.
+ * `config/navigation_groups.php`. There is no second nav registry to keep
+ * in sync — that was the point of reading the tile registry rather than
+ * declaring a menu.
  *
  * `groups()` is deliberately public and separate from `render()`: #2459's
  * mobile bottom bar is a second presentation of the same resolved list and
@@ -33,10 +35,13 @@ final class FrontendAppNav {
      *
      * Shape: `list<array{key: string, label: string, tiles: list<array>}>`,
      * in the order of `config/navigation_groups.php` (#4669) — the same list
-     * the dashboard reads, so the two cannot disagree. A group holds work and
-     * setup tiles alike; the list puts the dashboard groups before the
-     * settings groups. Empty when the user can see nothing, which the
-     * renderer treats as "emit no nav" rather than "emit an empty rail".
+     * the dashboard reads, so the two cannot disagree. Only `dashboard`
+     * surface groups are included: the settings groups are reached through
+     * the Configuration tile and its landing page, and listing them here
+     * as well put two headings with the same name in one nav ("Players &
+     * teams" for work and for settings). Empty when the user can see
+     * nothing, which the renderer treats as "emit no nav" rather than "emit
+     * an empty rail".
      *
      * @return list<array{key: string, label: string, tiles: list<array<string,mixed>>}>
      */
@@ -45,6 +50,7 @@ final class FrontendAppNav {
 
         $out = [];
         foreach ( $grouped as $group ) {
+            if ( NavigationGroups::surface( (string) $group['key'] ) !== NavigationGroups::SURFACE_DASHBOARD ) continue;
             $tiles = [];
             foreach ( $group['tiles'] as $tile ) {
                 $tile['url'] = self::urlFor( $tile );
