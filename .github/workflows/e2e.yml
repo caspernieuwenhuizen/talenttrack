@@ -137,8 +137,14 @@ jobs:
       # `.mo` at release too). The pending fragments are folded into the
       # runner's copy of the catalogue first, with `--keep`, so strings
       # merged since the last release are Dutch as well. Nothing here is
-      # pushed back.
+      # pushed back. The fold runs in the wp-env container, like every other
+      # PHP process in this job; the runner has no PHP toolchain.
+      #
+      # `continue-on-error`: a failed download, apt install or compile must
+      # not turn the required check red. The gate below is reporting-only,
+      # and its Dutch check fails loudly if the switch did not happen.
       - name: Switch the tests instance to Dutch for the mobile gate
+        continue-on-error: true
         run: |
           if ! command -v msgfmt; then
             sudo apt-get update -o Acquire::Retries=3 \
@@ -146,7 +152,7 @@ jobs:
             sudo apt-get install -y gettext -o Acquire::Retries=3 \
               -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
           fi
-          php tools/consolidate-translations.php --keep
+          npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack php tools/consolidate-translations.php --keep
           msgfmt --check -o languages/talenttrack-nl_NL.mo languages/talenttrack-nl_NL.po
           # WordPress refuses a WPLANG it has no core language files for
           # (sanitize_option keeps the old value), so the core pack is
