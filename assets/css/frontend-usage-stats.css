@@ -59,6 +59,15 @@
 .tt-dashboard .tt-usage-chart {
     position: relative;
     height: 240px;
+    min-width: 0;
+}
+/* #4766 — Chart.js writes the canvas width in px when it draws, from the
+   container's width at that moment, and only corrects it when its resize
+   observer next fires. A chart drawn while the page was briefly wider kept
+   that width and pushed a 320px phone sideways. The cap holds it to the
+   container in between; the observer then redraws at the right size. */
+.tt-dashboard .tt-usage-chart canvas {
+    max-width: 100%;
 }
 
 /* inline share bar on the top-features table */
