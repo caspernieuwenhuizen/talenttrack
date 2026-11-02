@@ -122,18 +122,28 @@ test.describe( 'Enter in a wizard goes to the next step (#4709)', () => {
 		await expect( fallback ).toBeEnabled();
 		expect( await next.getAttribute( 'data-loading-label' ) ).not.toBe( await next.innerText() );
 
-		// Names filled, the step POST held: both buttons lock while it runs.
+		// Names filled: while the step posts, both buttons are locked. The
+		// state is read from inside the page just after the guard has run and
+		// kept across the navigation, which the old document doesn't survive.
 		await page.locator( 'input[name="first_name"]' ).fill( 'Enter' );
 		await page.locator( 'input[name="last_name"]' ).fill( 'Twice' );
-		await page.route( '**/admin-post.php*', () => { /* held: never answered */ } );
-		await page.locator( 'input[name="last_name"]' ).focus();
-		await page.keyboard.press( 'Enter' );
-		await expect( next ).toBeDisabled();
-		await expect( fallback ).toBeDisabled();
-		await page.unrouteAll( { behavior: 'ignoreErrors' } );
+		await page.evaluate( () => {
+			const form = /** @type {HTMLFormElement} */ ( document.querySelector( 'form.tt-wizard-form' ) );
+			form.addEventListener( 'submit', () => {
+				setTimeout( () => {
+					const n = /** @type {HTMLButtonElement} */ ( form.querySelector( '[data-tt-wizard-next]' ) );
+					const d = /** @type {HTMLButtonElement} */ ( form.querySelector( '[data-tt-wizard-default]' ) );
+					sessionStorage.setItem( 'tt-e2e-guard', JSON.stringify( { next: n.disabled, fallback: d.disabled, label: n.textContent, loading: n.getAttribute( 'data-loading-label' ) } ) );
+				}, 20 );
+			} );
+		} );
+		await enterOn( page, page.locator( 'input[name="last_name"]' ) );
 
-		await page.goto( '/?tt_view=wizard&slug=new-player&restart=1' );
-		await page.waitForLoadState( 'load', { timeout: 30000 } );
+		const guard = JSON.parse( ( await page.evaluate( () => sessionStorage.getItem( 'tt-e2e-guard' ) ) ) || '{}' );
+		expect( guard.next, 'Next locked while the step posts' ).toBe( true );
+		expect( guard.fallback, 'the default button locked too, so a second Enter cannot post again' ).toBe( true );
+		expect( guard.label, 'Enter shows the loading label' ).toBe( guard.loading );
+
 		await cancelRun( page );
 	} );
 
