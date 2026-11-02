@@ -8,7 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * key the REST controller maps to an HTTP status.
  *
  * Keys: `unknown_exporter` (404), `forbidden` (403),
- * `unsupported_format` (400), `bad_filters` (400), `no_renderer` (500).
+ * `unsupported_format` (400), `bad_filters` (400), `no_period` (422),
+ * `no_renderer` (500).
  */
 final class ExportException extends \RuntimeException {
 

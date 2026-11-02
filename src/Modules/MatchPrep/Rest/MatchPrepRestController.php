@@ -7,6 +7,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Modules\MatchPrep\MatchPrepAccess;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
@@ -119,16 +120,13 @@ class MatchPrepRestController {
      * A refusal here is 403: the capability model said no, not the plan.
      */
     public static function can_edit( \WP_REST_Request $r ): bool {
-        // Reading a prep is a read: the activity read rule, as the screen,
-        // the print page and the PDF export ask it. Every write keeps
-        // `tt_edit_activities` and the write scope.
-        $reads = $r->get_method() === 'GET';
-        if ( ! current_user_can( 'tt_edit_activities' ) && ! ( $reads && current_user_can( 'tt_view_activities' ) ) ) return false;
-        return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
-            get_current_user_id(),
-            absint( $r['activity_id'] ),
-            $r
-        );
+        // Reading a prep is a read and every other method a write, both
+        // asked of `MatchPrepAccess`, as the screen, the print sheet and the
+        // PDF export ask it.
+        $activity_id = absint( $r['activity_id'] );
+        return $r->get_method() === 'GET'
+            ? MatchPrepAccess::canReadActivity( get_current_user_id(), $activity_id )
+            : MatchPrepAccess::canWriteActivity( get_current_user_id(), $activity_id );
     }
 
     /**
@@ -137,14 +135,10 @@ class MatchPrepRestController {
      * behind the prep and ask the same question of it.
      */
     public static function can_edit_role( \WP_REST_Request $r ): bool {
-        if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
+        // Both role routes write (PUT, DELETE).
         $prep = ( new MatchPrepRepository() )->find( absint( $r['prep_id'] ) );
         if ( ! $prep ) return false;
-        return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
-            get_current_user_id(),
-            (int) ( $prep->activity_id ?? 0 ),
-            $r
-        );
+        return MatchPrepAccess::canWriteActivity( get_current_user_id(), (int) ( $prep->activity_id ?? 0 ) );
     }
 
     /**

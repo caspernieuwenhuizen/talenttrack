@@ -96,8 +96,12 @@ final class ScoutingReportPdfExporter implements ExporterInterface {
         $to   = (string) ( $filters['date_to'] ?? '' );
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) || $from > $to ) {
             $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-            $from   = $window['from'];
-            $to     = $window['to'];
+            // #4637 — the season has not started and no window was given.
+            if ( $window === null ) {
+                throw new \TT\Modules\Export\ExportException( 'no_period', \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage() );
+            }
+            $from = $window['from'];
+            $to   = $window['to'];
         }
 
         $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer(

@@ -45,15 +45,24 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
     // ── Read-Only Observer ─────────────────────────────────────────────
 
     /**
+     * Panel entities the observer holds on top of its view capabilities.
+     * They gate whether a dashboard surface opens and carry no data, so each
+     * is a named decision rather than something derived. `activities_panel`
+     * (#4661): the activities list and an activity's page, read-only.
+     */
+    private const PANEL_ENTITIES = [ 'activities_panel' ];
+
+    /**
      * Exactly the eight entities `RolesService::VIEW_CAPS` maps to
-     * through `LegacyCapMapper`, and nothing else.
+     * through `LegacyCapMapper`, plus the named panel entities, and
+     * nothing else.
      *
      * Derived rather than hard-listed: if a ninth view capability is
      * added to the role, this test says so instead of silently passing on
      * a stale list.
      */
     public function test_the_observer_is_seeded_exactly_what_its_view_caps_map_to(): void {
-        $expected = [];
+        $expected = self::PANEL_ENTITIES;
         foreach ( RolesService::VIEW_CAPS as $cap ) {
             $tuple = LegacyCapMapper::tupleFor( $cap );
             $this->assertNotNull( $tuple, "VIEW_CAPS carries {$cap}, which the mapper does not know." );

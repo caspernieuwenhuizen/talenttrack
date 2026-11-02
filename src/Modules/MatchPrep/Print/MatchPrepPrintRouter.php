@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Modules\Export\Exporters\MatchDayTeamSheetPdfExporter;
+use TT\Modules\MatchPrep\MatchPrepAccess;
 
 /**
  * MatchPrepPrintRouter (#1031, #1059, #1475) — isolated print route for
@@ -102,7 +103,7 @@ class MatchPrepPrintRouter {
 
     public static function renderHtml( int $activity_id ): string {
         $club_id   = (int) CurrentClub::id();
-        $body      = MatchPrepPrintableRenderer::bodyHtml( self::scopedActivityId( $activity_id ), $club_id, get_current_user_id() );
+        $body      = MatchPrepPrintableRenderer::bodyHtml( self::readablePrepActivityId( $activity_id ), $club_id, get_current_user_id() );
         $styles    = MatchPrepPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
@@ -155,6 +156,15 @@ class MatchPrepPrintRouter {
      */
     private static function scopedActivityId( int $activity_id ): int {
         return ActivityTeamScope::coversActivity( get_current_user_id(), $activity_id ) ? $activity_id : 0;
+    }
+
+    /**
+     * {@see self::scopedActivityId()} for the match prep sheet, whose rule is
+     * the prep's own (`MatchPrepAccess`), as the prep screen, its REST route
+     * and the PDF export ask it. A refusal reads as a missing activity.
+     */
+    private static function readablePrepActivityId( int $activity_id ): int {
+        return MatchPrepAccess::canReadActivity( get_current_user_id(), $activity_id ) ? $activity_id : 0;
     }
 
     public static function renderTeamSheetHtml( int $activity_id ): string {

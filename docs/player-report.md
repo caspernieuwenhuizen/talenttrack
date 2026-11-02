@@ -30,6 +30,12 @@ The report opens on **the season so far** — from the start of the current seas
 up to today. Use the period control to choose another window: last week, last
 month, this month, the whole season, or any date range.
 
+When the season marked current has not started yet, there is no season so far.
+The report then asks you to **pick a period** under the filter bar instead of
+showing an empty report, and a PDF download without a period is refused with
+the same message. A date range where the start comes after the end shows a
+message asking you to correct it.
+
 ## What goes in it
 
 It opens on the sections a one-to-one conversation needs:
@@ -172,6 +178,14 @@ It is sent on the 1st of every month, over the same period the report had when
 you scheduled it, with its own copy of the sections — changing your saved views
 later does not change what it sends. The report is written as you would see it,
 so send it to staff only.
+
+Every recipient is checked each time it runs. An account receives the PDF only
+when it may read the report about every player in it, the same check as opening
+the report in the plugin. With the standard permissions, parents and players
+never do. A role key reaches its
+members who are part of this academy, and an email address counts only when it
+belongs to an account here. An address with no account here receives nothing.
+Whoever is left out is shown on the schedules screen after the run.
 
 A schedule stops rather than sends when its team or player is archived or
 removed, or when you can no longer read their reports; the schedules screen says

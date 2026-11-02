@@ -122,7 +122,7 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt_view=match-prep', $own, 'precondition: their own match offers prep' );
         $this->assertStringNotContainsString( 'That activity no longer exists.', $other, 'the read seat still reads the detail' );
         $this->assertStringContainsString( 'Obswrite match', $other );
-        $this->assertStringNotContainsString( 'tt_view=match-prep', $other );
+        $this->assertStringNotContainsString( 'tt_view=match-prep', $other, 'no prep yet, so nothing to read' );
 
         $this->assertStringContainsString( 'tt-act-result__form', $own, 'precondition: their own result is editable' );
         $this->assertStringNotContainsString( 'tt-act-result__form', $other, 'the result is read, not offered for editing' );
@@ -130,10 +130,131 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'data-tt-archive-rest-path', $other );
     }
 
+    /**
+     * #4643 — once a prep exists, a reader of the team who may not change
+     * it is offered the read-only view; the team's writer keeps the editor.
+     */
+    public function test_a_reader_is_offered_view_match_prep_once_a_prep_exists(): void {
+        $repo = new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository();
+        $repo->ensureForActivity( $this->own_match );
+        $repo->ensureForActivity( $this->other_match );
+
+        $own = $this->activitiesView( '', $this->own_match );
+        $this->assertStringContainsString( 'tt_view=match-prep', $own );
+        $this->assertStringNotContainsString( 'data-tt-match-prep-read', $own, 'the writer gets the editor entry, not the read entry' );
+
+        $other = $this->activitiesView( '', $this->other_match );
+        $this->assertStringContainsString( 'data-tt-match-prep-read', $other );
+        $this->assertStringContainsString( 'View match prep', $other );
+        $this->assertNoWriteEntries( $other );
+
+        $other_row = (object) [ 'team_id' => $this->teamOf( $this->other_match ) ];
+        $own_row   = (object) [ 'team_id' => $this->teamOf( $this->own_match ) ];
+        $this->assertTrue( \TT\Modules\MatchPrep\MatchPrepAccess::canRead( $this->coach, $other_row ) );
+        $this->assertFalse( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $this->coach, $other_row ) );
+        $this->assertTrue( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $this->coach, $own_row ) );
+
+        // The entry leads to the read-only sheet.
+        $_GET = [ 'tt_view' => 'match-prep', 'activity_id' => (string) $this->other_match ];
+        ob_start();
+        \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView::render( $this->coach, false );
+        $prep = (string) ob_get_clean();
+        $this->assertStringContainsString( 'tt-mp-readonly-note', $prep );
+    }
+
+    /**
+     * The same path through the dashboard's own gates: the coach with the
+     * observer seat passes dispatch for both slugs, the activity page
+     * carries the read entry, and the prep slug renders the read-only sheet.
+     */
+    public function test_the_dashboard_dispatch_reaches_the_read_only_prep(): void {
+        ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );
+
+        $this->assertTrue( \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'activities', $this->coach ) );
+        $this->assertTrue( \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'match-prep', $this->coach ) );
+
+        $_GET = [ 'tt_view' => 'activities', 'id' => (string) $this->other_match ];
+        [ $handled, $page ] = $this->dispatch( 'activities' );
+        $this->assertTrue( $handled );
+        $this->assertStringContainsString( 'data-tt-match-prep-read', $page );
+        $this->assertNoWriteEntries( $page );
+
+        $_GET = [ 'tt_view' => 'match-prep', 'activity_id' => (string) $this->other_match ];
+        [ $handled, $prep ] = $this->dispatch( 'match-prep' );
+        $this->assertTrue( $handled );
+        $this->assertStringContainsString( 'tt-mp-readonly-note', $prep );
+        $this->assertStringNotContainsString( 'tt-match-prep-bootstrap', $prep );
+    }
+
+    /** @return array{0:bool,1:string} */
+    private function dispatch( string $view ): array {
+        $m = new \ReflectionMethod( \TT\Shared\Frontend\DashboardShortcode::class, 'tryDispatch' );
+        $m->setAccessible( true );
+        ob_start();
+        $handled = (bool) $m->invoke( null, $view, $this->coach, current_user_can( 'tt_edit_settings' ), null );
+        return [ $handled, (string) ob_get_clean() ];
+    }
+
+    /**
+     * The view's own answer for a reader with no activity capability. The
+     * dispatch half lives in `ObserverActivitiesPanelTest`.
+     */
+    public function test_the_read_only_observer_alone_is_offered_view_match_prep(): void {
+        ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        wp_set_current_user( $observer );
+        AuthorizationService::flushCache();
+
+        $_GET = [ 'tt_view' => 'activities', 'id' => (string) $this->other_match ];
+        ob_start();
+        FrontendActivitiesManageView::render( $observer, false );
+        $html = (string) ob_get_clean();
+        $this->assertStringContainsString( 'data-tt-match-prep-read', $html );
+        $this->assertNoWriteEntries( $html );
+        $this->assertFalse( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $observer, (object) [ 'team_id' => $this->teamOf( $this->other_match ) ] ) );
+    }
+
+    public function test_a_coach_of_another_team_without_club_wide_read_is_offered_neither(): void {
+        global $wpdb;
+        ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );
+        $coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => (int) CurrentClub::id(), 'first_name' => 'Obswrite', 'last_name' => 'Plaincoach',
+            'role_type' => 'head_coach', 'wp_user_id' => $coach, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $own_team = (int) $wpdb->get_var( $wpdb->prepare( "SELECT team_id FROM {$wpdb->prefix}tt_activities WHERE id = %d", $this->own_match ) );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $own_team,
+        ] );
+        wp_set_current_user( $coach );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        $this->assertFalse( AllTeamsScope::canSeeAllTeamsActivities( $coach ), 'precondition: no club-wide read' );
+
+        $_GET = [ 'tt_view' => 'activities', 'id' => (string) $this->other_match ];
+        ob_start();
+        FrontendActivitiesManageView::render( $coach, false );
+        $html = (string) ob_get_clean();
+        $this->assertStringNotContainsString( 'tt_view=match-prep', $html );
+    }
+
     public function test_a_club_wide_change_grant_still_writes_every_team(): void {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         AuthorizationService::flushCache();
         $this->assertTrue( ActivityTeamScope::coversActivityForWrite( $hod, $this->other_match, false ) );
+    }
+
+    /** The read entry comes alone: no archive, edit or live-match action beside it. */
+    private function assertNoWriteEntries( string $html ): void {
+        $this->assertStringNotContainsString( 'data-tt-archive-rest-path', $html );
+        $this->assertStringNotContainsString( 'action=edit', html_entity_decode( $html, ENT_QUOTES ) );
+        $this->assertStringNotContainsString( 'tt_view=match-execution', $html );
+    }
+
+    private function teamOf( int $activity_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT team_id FROM {$wpdb->prefix}tt_activities WHERE id = %d", $activity_id ) );
     }
 
     private function activitiesView( string $action, int $activity_id ): string {

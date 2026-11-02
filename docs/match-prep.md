@@ -427,7 +427,8 @@ coach this activity's team.* Academy Admin and Head of Development see
 every team, as they do everywhere else.
 
 Someone whose role reads every team's activities without changing them,
-such as the Read-Only Observer, opens the plan as a read-only document:
+such as the Read-Only Observer, opens the plan as a read-only document,
+from **View match prep** on the activity's page once a plan exists:
 the same sheet the print page shows, with a note that it can't be
 changed here, and no fields, buttons or save state. They can print it and
 download the PDF too. The reason a coach typed beside an absent player is

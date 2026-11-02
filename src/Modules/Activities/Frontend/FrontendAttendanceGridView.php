@@ -161,7 +161,7 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         // future-attendance rule use, not the UTC date of the report default.
         $today  = AttendanceDateRule::today();
         $window = $period !== '' ? ReportFilters::periodWindow( $period, $today ) : null;
-        $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] );
+        $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] ?? '' );
         $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $today );
 
         $type_options = self::typeOptions();
@@ -174,6 +174,13 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
 
         self::renderFilterForm( $teams, $team_id, $from, $to, $type_filter, $period, $type_options );
+
+        // #4637 — no season default yet, or a window that runs backwards.
+        $notice = ReportFilters::windowNotice( $from, $to );
+        if ( $notice !== '' ) {
+            echo '<div data-tt-filter-region data-tt-filter-count="0"><p class="tt-notice tt-report-no-period" role="status">' . esc_html( $notice ) . '</p></div>';
+            return;
+        }
 
         $matrix = ( new AttendanceGridQuery() )->matrix( $team_id, $from, $to, $type_filter );
 

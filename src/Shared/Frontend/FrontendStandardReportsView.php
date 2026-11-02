@@ -412,11 +412,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * their rolling 12 months, so no number a coach sees today moves when
      * the filter bar lands). Pass null for the season default.
      *
+     * #4637 — before the current season has started there is no season
+     * default: from and to stay empty and `notice` asks the reader to pick a
+     * period. A typed window that ends before it starts sets `notice` too.
+     * A caller renders its filter bar, then the notice instead of its body.
+     *
      * @param array{from:string,to:string}|null $defaults
-     * @return array{from:string,to:string,period:string}
+     * @return array{from:string,to:string,period:string,notice:string}
      */
     private static function resolveReportWindow( ?array $defaults = null ): array {
-        $defaults = $defaults ?? \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $defaults = $defaults ?? \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultOrOpen();
         $period   = \TT\Modules\Analytics\Reports\ReportFilters::sanitizePeriod(
             isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : ''
         );
@@ -441,7 +446,24 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $from,
             $to
         );
-        return [ 'from' => $from, 'to' => $to, 'period' => $period ];
+        return [
+            'from'   => $from,
+            'to'     => $to,
+            'period' => $period,
+            'notice' => \TT\Modules\Analytics\Reports\ReportFilters::windowNotice( $from, $to ),
+        ];
+    }
+
+    /**
+     * #4637 — the notice a report shows under its filter bar instead of its
+     * body. Returns true when it was shown, so the caller stops there.
+     *
+     * @param array{notice:string} $win
+     */
+    private static function renderWindowNotice( array $win ): bool {
+        if ( $win['notice'] === '' ) return false;
+        echo '<p class="tt-notice tt-report-no-period" role="status">' . esc_html( $win['notice'] ) . '</p>';
+        return true;
     }
 
     /**
@@ -527,6 +549,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             '',
             [ 'player_id' => (string) $player_id ]
         );
+        if ( self::renderWindowNotice( $win ) ) return;
 
         \TT\Modules\Analytics\Frontend\PlayerReportPage::render( $player, $win );
     }
@@ -686,6 +709,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // shared read's (newest recorded figure, `minutes_override` first),
         // not a SUM of `minutes_played` that doubled a duplicate row and
         // ignored a coach's override.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key
                FROM {$wpdb->prefix}tt_attendance att
@@ -698,7 +722,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.activity_type_key IN ('match','game','tournament')
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
@@ -751,6 +775,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'player_id' => $player_id ],
             __( 'Last 12 months', 'talenttrack' )
         );
+        if ( self::renderWindowNotice( $win ) ) return;
         self::renderKpiStrip( [
             [ 'num' => (string) $apps,    'label' => __( 'Appearances', 'talenttrack' ) ],
             [ 'num' => (string) $minutes, 'label' => __( 'Total minutes', 'talenttrack' ) ],
@@ -869,6 +894,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'team_id' => $team_id ],
             __( 'Last 12 months', 'talenttrack' )
         );
+        if ( self::renderWindowNotice( $win ) ) return;
 
         // #3796 — what the window left out. Without this the report is
         // indistinguishable from one drawn over a season the team sat out,
@@ -1047,6 +1073,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 'from'   => $last['from'] ?? gmdate( 'Y-m-01' ),
                 'to'     => $last['to'] ?? gmdate( 'Y-m-d' ),
                 'period' => \TT\Modules\Analytics\Reports\TeamMonthlyReport::DEFAULT_PERIOD,
+                'notice' => '',
             ];
         } else {
             $win = self::resolveReportWindow();
@@ -1059,6 +1086,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $win['period'],
             \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::barParams( $team_id )
         );
+        if ( self::renderWindowNotice( $win ) ) return;
 
         \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::render( $team, $win );
     }
@@ -1147,6 +1175,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // match) by the #4526 rule, so a duplicate row is read once, and the
         // #4053 plan fallback on an old tournament fixture. A SQL aggregate
         // here never asked the resolver, so those fixtures read 0.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             // #2849 — `tt_players` has no `name`; it carries `first_name` and
             // `last_name`. Selecting the column that does not exist made the
@@ -1168,7 +1197,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.archived_at IS NULL
               WHERE att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.activity_type_key IN ('match','game','tournament')
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY p.id, p.first_name, p.last_name, p.jersey_number, att.{$att_fk}",
             $team_id, $club_id, $bd_from, $bd_to
@@ -1229,6 +1258,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'team_id' => $team_id ],
             __( 'Last 12 months', 'talenttrack' )
         );
+        if ( self::renderWindowNotice( $win ) ) return;
         // #2433 — the Matches tile states how many matches were played and how
         // many of them the minutes account for. A gap between the two is the
         // signal that minutes are missing, and it is flagged rather than
@@ -1384,6 +1414,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $explore_url
         );
         self::renderPeriodFilterBar( 'team-squad-evaluation-summary', $from, $to, $period, [ 'team_id' => $team_id ] );
+        if ( self::renderWindowNotice( $win ) ) return;
         // #2356 — the squad KPI opens the team roster (§2185 drill pattern);
         // gated on the destination cap (§7). Player rows below already link to
         // each player detail.
@@ -1460,6 +1491,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ''
         );
         self::renderPeriodFilterBar( 'match-analysis-trends', $from, $to, $period, [ 'team_id' => $team_id ] );
+        if ( self::renderWindowNotice( $win ) ) return;
 
         $ratings = \TT\Modules\MatchAnalysis\MatchAnalysisEnums::ratings();
 
@@ -1559,6 +1591,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $explore_url
         );
         self::renderPeriodFilterBar( 'season-summary', $from, $to, $period );
+        if ( self::renderWindowNotice( $win ) ) return;
         // #2356 — academy-wide KPIs drill to the filtered lists they count
         // (§2185 pattern), each carrying a `tt_back` hint and gated on the
         // destination cap (§7). Point-in-time roster counts open the full
@@ -1700,6 +1733,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $explore_url
         );
         self::renderPeriodFilterBar( 'season-trial-funnel', $from, $to, $period );
+        if ( self::renderWindowNotice( $win ) ) return;
         // #2356 — the Prospects KPI drills to the prospects list (§2185
         // pattern), carrying a `tt_back` hint and gated on `tt_view_prospects`
         // (§7). The scout / decision breakdown tables below already drill.
@@ -1840,6 +1874,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $explore_url
         );
         self::renderPeriodFilterBar( 'scout-report-card', $from, $to, $period, [ 'scout_id' => $scout_id ] );
+        if ( self::renderWindowNotice( $win ) ) return;
         self::renderKpiStrip( [
             [ 'num' => (string) $prospects_logged, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $cases_opened,     'label' => __( 'Trial cases opened', 'talenttrack' ) ],
@@ -1949,6 +1984,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
         echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
         echo '</form>';
+        if ( self::renderWindowNotice( [ 'notice' => \TT\Modules\Analytics\Reports\ReportFilters::windowNotice( $from, $to ) ] ) ) return;
 
         $total_evals  = array_sum( array_column( $rows, 'eval_count' ) );
         $flagged      = count( array_filter( $rows, static fn( array $r ): bool => $r['low_variance'] ) );

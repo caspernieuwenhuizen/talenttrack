@@ -20,9 +20,6 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 final class ReportsRepository {
 
-    /** The most reports one list reads before it is filtered and paged. */
-    public const MAX_LISTED = 2000;
-
     /**
      * Store a new report and its owner's empty draft.
      *
@@ -81,25 +78,36 @@ final class ReportsRepository {
     }
 
     /**
-     * The reports this user owns and the ones published to a persona they
-     * hold, by id (the primary key). A published report a recipient may list
-     * is never an archived one.
+     * One page of the reports this user owns and the ones published to a
+     * persona they hold, by id (the primary key), with the exact total.
      *
-     * Not paged here: the caller still drops published rows whose subject
-     * the reader cannot reach, and pages what is left, so the total is
-     * right. `MAX_LISTED` bounds the read.
+     * A published report a recipient may list is never an archived one, and
+     * is listed only when its subject is one `$subjects` says they read
+     * (`ReportAccess::listedSubjects()`): a player in `players`, a team in
+     * `teams`, a group with one of its teams there, the academy when
+     * `academy` holds. A subject chosen when the report is opened always
+     * passes, as it does when one report is read.
      *
      * @param array{kind:string, scope:string, owner:string, archived:string} $filters
      *        empty strings mean "any"; `owner` is `me` or `published`;
      *        `archived` is `active` or `archived`.
      * @param list<string> $persona_keys the personas the user holds
-     * @return list<Report>
+     * @param array{teams:list<int>|null, players:list<int>, academy:bool} $subjects
+     * @return array{rows:list<Report>, total:int}
      */
-    public function listFor( int $user_id, array $persona_keys, array $filters, bool $ascending ): array {
+    public function listFor( int $user_id, array $persona_keys, array $filters, array $subjects, bool $ascending, int $page, int $per_page ): array {
         global $wpdb;
         $p    = $wpdb->prefix;
         $club = CurrentClub::id();
         $set  = implode( ',', $persona_keys );
+
+        // An empty list still needs one placeholder; no id is 0.
+        $players     = $subjects['players'] !== [] ? $subjects['players'] : [ 0 ];
+        $all_teams   = $subjects['teams'] === null;
+        $teams       = $subjects['teams'] !== null && $subjects['teams'] !== [] ? $subjects['teams'] : [ 0 ];
+        $player_in   = implode( ',', array_fill( 0, count( $players ), '%d' ) );
+        $team_in     = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
+        $cohort_any  = implode( ' OR ', array_fill( 0, count( $teams ), "JSON_CONTAINS( r.cohort_json, %s, '$.team_ids' )" ) );
 
         $where = "r.club_id = %d
               AND r.trashed_at IS NULL
@@ -112,28 +120,71 @@ final class ReportsRepository {
                       AND r.published_version_id IS NOT NULL AND r.archived_at IS NULL
                       AND EXISTS ( SELECT 1 FROM {$p}tt_report_publications pub
                                     WHERE pub.report_id = r.id AND pub.club_id = r.club_id
-                                      AND FIND_IN_SET( pub.persona_key, %s ) ) )
+                                      AND FIND_IN_SET( pub.persona_key, %s ) )
+                      AND (
+                            r.scope = 'me'
+                         OR ( r.scope = 'player' AND ( r.player_id IS NULL OR r.player_id IN ({$player_in}) ) )
+                         OR ( r.scope = 'team' AND ( r.team_id IS NULL OR %d = 1 OR r.team_id IN ({$team_in}) ) )
+                         OR ( r.scope = 'group' AND ( ( %d = 1 AND JSON_LENGTH( r.cohort_json, '$.team_ids' ) > 0 ) OR {$cohort_any} ) )
+                         OR ( r.scope = 'academy' AND %d = 1 )
+                      ) )
               )";
-        $args = [
-            $club,
-            $filters['archived'], $filters['archived'],
-            $filters['kind'], $filters['kind'],
-            $filters['scope'], $filters['scope'],
-            $filters['owner'], $user_id,
-            $filters['owner'], $user_id, $set,
-            self::MAX_LISTED,
-        ];
+        $args = array_merge(
+            [
+                $club,
+                $filters['archived'], $filters['archived'],
+                $filters['kind'], $filters['kind'],
+                $filters['scope'], $filters['scope'],
+                $filters['owner'], $user_id,
+                $filters['owner'], $user_id, $set,
+            ],
+            $players,
+            [ $all_teams ? 1 : 0 ],
+            $teams,
+            [ $all_teams ? 1 : 0 ],
+            array_map( 'strval', $teams ),
+            [ $subjects['academy'] ? 1 : 0 ]
+        );
+
+        $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_reports r WHERE {$where}", ...$args ) );
 
         $sql = $ascending
-            ? "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id ASC LIMIT %d"
-            : "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id DESC LIMIT %d";
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$args ), ARRAY_A );
+            ? "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id ASC LIMIT %d OFFSET %d"
+            : "SELECT r.* FROM {$p}tt_reports r WHERE {$where} ORDER BY r.id DESC LIMIT %d OFFSET %d";
+        $rows = $total > 0
+            ? $wpdb->get_results( $wpdb->prepare( $sql, ...array_merge( $args, [ $per_page, max( 0, $page - 1 ) * $per_page ] ) ), ARRAY_A )
+            : [];
 
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             if ( is_array( $row ) ) $out[] = self::hydrate( $row );
         }
-        return $out;
+        return [ 'rows' => $out, 'total' => $total ];
+    }
+
+    /**
+     * The players that live reports published to these personas are about,
+     * leaving out this user's own reports: the player subjects a list could
+     * show them, for `ReportAccess::listedSubjects()` to read in one go.
+     *
+     * @param list<string> $persona_keys
+     * @return list<int>
+     */
+    public function publishedPlayerSubjects( int $user_id, array $persona_keys ): array {
+        if ( $persona_keys === [] ) return [];
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT r.player_id FROM {$p}tt_reports r
+              WHERE r.club_id = %d AND r.scope = 'player' AND r.player_id IS NOT NULL
+                AND r.trashed_at IS NULL AND r.archived_at IS NULL
+                AND r.published_version_id IS NOT NULL AND r.owner_user_id <> %d
+                AND EXISTS ( SELECT 1 FROM {$p}tt_report_publications pub
+                              WHERE pub.report_id = r.id AND pub.club_id = r.club_id
+                                AND FIND_IN_SET( pub.persona_key, %s ) )",
+            CurrentClub::id(), $user_id, implode( ',', $persona_keys )
+        ) );
+        return array_values( array_filter( array_map( 'intval', $ids ), static fn( int $id ): bool => $id > 0 ) );
     }
 
     /**
@@ -230,13 +281,14 @@ final class ReportsRepository {
      *
      * The next number is MAX + 1; `UNIQUE (report_id, version_no)` refuses a
      * second publish that read the same MAX, and that publish is tried once
-     * more before it gives up. The version, the report's pointer to it and
+     * more before it gives up. A deadlock or lock wait timeout on that insert
+     * counts as the same collision. The version, the report's pointer to it and
      * the publication list are written in one transaction, so a failure
      * leaves the report as it was.
      *
      * @param array<mixed> $definition
      * @param list<string> $persona_keys
-     * @return array{id:int, version_no:int}|null null when the version number stayed taken
+     * @return array{id:int, version_no:int}|null null when the version number stayed taken or locked
      * @throws \RuntimeException on any other database error, after rolling back.
      */
     public function publish( int $report_id, array $definition, string $note, array $persona_keys, int $user_id ): ?array {
@@ -251,10 +303,25 @@ final class ReportsRepository {
             for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
                 // Locking read: a retry after a collision sees the version the
                 // other publish committed, not this transaction's snapshot.
-                $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
+                $suppress = $wpdb->suppress_errors( true );
+                $max      = $wpdb->get_var( $wpdb->prepare(
                     "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d FOR UPDATE",
                     $report_id, $club
                 ) );
+                $wpdb->suppress_errors( $suppress );
+                $error = (string) $wpdb->last_error;
+                if ( $error !== '' ) {
+                    // A failed read is not "no versions yet": numbering from
+                    // it would only be saved by the duplicate-key retry.
+                    if ( ! self::isLockConflict( $error ) ) {
+                        throw new \RuntimeException( 'Reading the report versions failed: ' . $error );
+                    }
+                    Transaction::rollback();
+                    Transaction::begin();
+                    continue;
+                }
+                $next = 1 + (int) $max;
+
                 $suppress = $wpdb->suppress_errors( true );
                 $ok       = $wpdb->insert( $p . 'tt_report_versions', [
                     'uuid'            => wp_generate_uuid4(),
@@ -267,10 +334,17 @@ final class ReportsRepository {
                     'published_at'    => $now,
                 ] );
                 $wpdb->suppress_errors( $suppress );
+                $error = (string) $wpdb->last_error;
                 if ( $ok !== false ) {
                     $version = [ 'id' => (int) $wpdb->insert_id, 'version_no' => $next ];
-                } elseif ( stripos( (string) $wpdb->last_error, 'Duplicate entry' ) === false ) {
-                    throw new \RuntimeException( 'Publishing a report version failed: ' . $wpdb->last_error );
+                } elseif ( self::isLockConflict( $error ) ) {
+                    // #4641 — two first publishes hold only gap locks, so their
+                    // inserts can deadlock. The server has rolled the
+                    // transaction back already; the retry gets a fresh one.
+                    Transaction::rollback();
+                    Transaction::begin();
+                } elseif ( stripos( $error, 'Duplicate entry' ) === false ) {
+                    throw new \RuntimeException( 'Publishing a report version failed: ' . $error );
                 }
             }
             if ( $version === null ) {
@@ -295,6 +369,12 @@ final class ReportsRepository {
         }
         Transaction::commit();
         return $version;
+    }
+
+    /** A deadlock (1213) or a lock wait timeout (1205): another publish won the race. */
+    private static function isLockConflict( string $error ): bool {
+        return stripos( $error, 'Deadlock found' ) !== false
+            || stripos( $error, 'Lock wait timeout exceeded' ) !== false;
     }
 
     /** Throw on a failed write inside the publish transaction. */

@@ -17,7 +17,7 @@ Deze pagina legt uit wat er verstuurd wordt, wie het ontvangt, wat het kan tegen
 
 Vier dingen bepalen of een bericht de deur uitgaat en wat er in staat.
 
-**Een sjabloon.** Elk soort bericht heeft er één — een afgelaste training, een ontwikkelingsplan dat klaar is om te lezen, een uitnodiging om een account aan te maken. Het sjabloon bepaalt de tekst in het Nederlands en het Engels. Een handvol veelgebruikte sjablonen kun je per academie herschrijven zodat de toon past bij hoe je al met gezinnen praat; de rest ligt vast.
+**Een sjabloon.** Elk soort bericht heeft er één — een afgelaste training, een ontwikkelingsplan dat klaar is om te lezen, een uitnodiging om een account aan te maken. Het sjabloon bepaalt de tekst in het Nederlands en het Engels, en een ontvanger bij wiens account een taal is ingesteld, leest die in die taal, in welke taal degene of het proces dat het bericht verstuurde ook werkte. Een handvol veelgebruikte sjablonen kun je per academie herschrijven zodat de toon past bij hoe je al met gezinnen praat; de rest ligt vast.
 
 **Een ontvangersregel.** Je richt een bericht nooit rechtstreeks aan een kind. Je richt het op een *speler*, en de contactregels voor jeugd bepalen wie het daadwerkelijk krijgt: bij de jongste leeftijdsgroepen de ouders, bij de middengroepen allebei, en vanaf O12 de speler zelf. Die regel staat op één plek en elk bericht houdt zich eraan, zodat geen enkele losse functie het fout kan doen.
 

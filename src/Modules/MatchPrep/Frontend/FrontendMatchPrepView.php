@@ -113,14 +113,14 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // viewer works with matches, not whose. Narrow to the teams they may
         // read before a squad is loaded; only a reader the write scope also
         // covers gets the editor.
-        $team_id = (int) ( $activity->team_id ?? 0 );
-        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, $team_id, $is_admin ) ) {
+        // The rule lives in `MatchPrepAccess`, which the activity page's
+        // entry asks too.
+        if ( ! \TT\Modules\MatchPrep\MatchPrepAccess::canRead( $user_id, $activity, $is_admin ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
             echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
             return;
         }
-        $can_edit = current_user_can( 'tt_edit_activities' )
-            && \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, $team_id, $is_admin );
+        $can_edit = \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $user_id, $activity, $is_admin );
 
         // #3105 — `match_prep` is Pro. A plan the club already wrote stays
         // on screen (and printable) with the panel above it; the REST

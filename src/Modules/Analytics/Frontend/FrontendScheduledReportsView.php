@@ -358,6 +358,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<span class="tt-sched-field__label">' . esc_html__( 'Recipients', 'talenttrack' ) . '</span>';
         echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
         echo '</label>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'Each recipient with an account receives only the rows they may read themselves, and nothing if they may read none. An address with no account here receives only a report that holds no player data. Whoever is left out is named on the schedule after the run.', 'talenttrack' ) . '</p>';
 
         // CLAUDE.md §6 — Save + Cancel on a record-creating form. Cancel
         // returns to the schedules list (this same view); a tt_back hint on

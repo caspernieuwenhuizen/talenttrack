@@ -63,6 +63,14 @@ final class PlayerReportDelivery {
             'label'       => '',
         ];
 
+        // #4637 — a schedule on the season default, before the season has
+        // started. Not a reason to stop it: the next run after the start sends.
+        if ( $window['from'] === '' || $window['to'] === '' ) {
+            $plan['stop']  = false;
+            $plan['error'] = __( 'Not sent: the current season has not started yet, so there is no season so far to report on.', 'talenttrack' );
+            return $plan;
+        }
+
         if ( $team_id > 0 ) {
             return self::planTeam( $plan, $team_id );
         }
@@ -166,14 +174,15 @@ final class PlayerReportDelivery {
     }
 
     /**
-     * The plan plus the PDF.
+     * The plan plus the PDF, and the players it is about, so the runner
+     * sends it only to recipients who may read every one of them.
      *
      * @param array<string,mixed> $schedule
-     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string}
+     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string, players:list<int>}
      */
     public static function render( array $schedule, string $today ): array {
         $plan = self::plan( $schedule, $today );
-        $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'] ];
+        $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'], 'players' => $plan['players'] ];
         if ( ! $plan['ok'] ) return $out;
 
         $c = $plan['composition'];

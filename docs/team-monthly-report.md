@@ -210,6 +210,13 @@ report type cannot print a choice, such as test readings on the one-pager, the
 form says so, and the PDF prints the summary instead. The report names players, so send
 it to staff only.
 
+Every recipient is checked each time it runs. An account receives the PDF only
+when it may read this team's reports, the same check as opening the report in
+the plugin. A role key reaches its members who are part of this academy, and an
+email address counts only when it belongs to an account here. An address with no
+account here receives nothing. Whoever is left out is shown on the schedules
+screen after the run.
+
 The schedule keeps **its own copy** of the report. Changing or deleting one of
 your saved views later does not change what it sends. To send something
 different, archive the schedule and set up a new one.

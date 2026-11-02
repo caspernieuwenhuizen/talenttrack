@@ -733,9 +733,11 @@ function tt_rs_callees( string $text ): array {
  *
  * Three ways to pass, all of them deliberate:
  *
- *   1. A name from `config/record_scope_checks.php`. A trailing `*` matches a
- *      family (`ActivityTeamScope::covers*`), because the family members ask
- *      the same question about different arguments.
+ *   1. A name from `config/record_scope_checks.php`, matched as a whole name:
+ *      `TeamChemistryAccess::canReadForTeam` does not admit `canRead`, and
+ *      `canRead` does not admit `canReadForTeam`. Only a trailing `*` matches
+ *      a family (`ActivityTeamScope::covers*`), and only on purpose, because
+ *      a prefix also admits every capability roll-up that shares it.
  *   2. A capability the config names as an admin escape hatch. The recycle
  *      bin's `/permanent` routes are the case: reaching past every per-record
  *      rule is what the capability is for, and it is granted to nobody else.
@@ -747,11 +749,7 @@ function tt_rs_callees( string $text ): array {
  */
 function tt_rs_has_check( string $text, array $config ): bool {
     foreach ( $config['checks'] as $needle ) {
-        if ( substr( $needle, -1 ) === '*' ) {
-            if ( strpos( $text, substr( $needle, 0, -1 ) ) !== false ) return true;
-            continue;
-        }
-        if ( strpos( $text, $needle ) !== false ) return true;
+        if ( tt_rs_names( $text, $needle ) ) return true;
     }
 
     foreach ( $config['capability_gates'] as $cap ) {
@@ -759,6 +757,22 @@ function tt_rs_has_check( string $text, array $config ): bool {
     }
 
     return tt_rs_caller_scoped( $text );
+}
+
+/**
+ * Does `$text` name the check `$needle`, as a whole name?
+ *
+ * Neither side may run on into more of an identifier, so `ReportAccess::canRead`
+ * is not found inside `TeamReportAccess::canRead` or `ReportAccess::canReadSubject`.
+ * A needle ending in `*` drops the right-hand boundary and matches the family.
+ */
+function tt_rs_names( string $text, string $needle ): bool {
+    $family = substr( $needle, -1 ) === '*';
+    $name   = $family ? substr( $needle, 0, -1 ) : $needle;
+    if ( $name === '' || strpos( $text, $name ) === false ) return false;
+
+    $pattern = '/(?<![A-Za-z0-9_])' . preg_quote( $name, '/' ) . ( $family ? '' : '(?![A-Za-z0-9_])' ) . '/';
+    return preg_match( $pattern, $text ) === 1;
 }
 
 /**

@@ -3,7 +3,11 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Modules\Analytics\Cron\ScheduledReportsRunner;
+use TT\Modules\Analytics\Domain\DateTimeColumn;
+use TT\Modules\Analytics\Domain\Fact;
 use TT\Modules\Analytics\Domain\Kpi;
+use TT\Modules\Analytics\Domain\Measure;
+use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
@@ -40,12 +44,24 @@ final class ScheduledReportTempFileTest extends WP_UnitTestCase {
     /** @var array<string,Kpi> */
     private array $kpis_before = [];
 
+    /** @var array<string,Fact> */
+    private array $facts_before = [];
+
     public function set_up(): void {
         parent::set_up();
 
         // The registry is static and shared across the whole run, so the
         // fixture KPI is snapshotted out again rather than left behind.
-        $this->kpis_before = KpiRegistry::all();
+        $this->kpis_before  = KpiRegistry::all();
+        $this->facts_before = FactRegistry::all();
+
+        // #4619 — a plain address only receives a report whose fact holds
+        // no player data, so the fixture fact is a team-level one.
+        FactRegistry::register( new Fact(
+            key: 'tt_test_fact', tableName: 'tt_teams', label: 'Test fact', dimensions: [],
+            measures: [ new Measure( 'tt_test_measure', 'Count', Measure::AGG_COUNT ) ],
+            timeColumn: new DateTimeColumn( 'f.created_at' ), entityScope: 'team', readEntity: 'team'
+        ) );
 
         KpiRegistry::register( new Kpi(
             self::KPI_KEY,
@@ -82,6 +98,10 @@ final class ScheduledReportTempFileTest extends WP_UnitTestCase {
         KpiRegistry::clear();
         foreach ( $this->kpis_before as $kpi ) {
             KpiRegistry::register( $kpi );
+        }
+        FactRegistry::clear();
+        foreach ( $this->facts_before as $fact ) {
+            FactRegistry::register( $fact );
         }
 
         parent::tear_down();

@@ -54,7 +54,10 @@ final class ReportContext {
      * an audience. Never rendered.
      */
     public static function forListing( string $scope, string $audience, int $user_id ): self {
-        $window = ReportFilters::seasonDefaultWindow();
+        // #4637 — a listing reads no data, so before the season starts any
+        // well-formed window will do.
+        $today  = gmdate( 'Y-m-d' );
+        $window = ReportFilters::seasonDefaultWindow() ?? [ 'from' => $today, 'to' => $today ];
         return new self( $scope, 0, 0, [], $window['from'], $window['to'], self::resolveAudience( $audience, $user_id ), $user_id );
     }
 
@@ -105,8 +108,12 @@ final class ReportContext {
         }
 
         $window = ReportFilters::seasonDefaultWindow();
-        $from   = is_string( $in['from'] ?? null ) && $in['from'] !== '' ? (string) $in['from'] : $window['from'];
-        $to     = is_string( $in['to'] ?? null ) && $in['to'] !== '' ? (string) $in['to'] : $window['to'];
+        $from   = is_string( $in['from'] ?? null ) && $in['from'] !== '' ? (string) $in['from'] : ( $window['from'] ?? '' );
+        $to     = is_string( $in['to'] ?? null ) && $in['to'] !== '' ? (string) $in['to'] : ( $window['to'] ?? gmdate( 'Y-m-d' ) );
+        if ( $from === '' || $to === '' ) {
+            // #4637 — the season has not started and no window was given.
+            return new StudioError( 'no_period', ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );
+        }
         if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) {
             return new StudioError( 'bad_date', __( 'The period needs a from and a to date (YYYY-MM-DD), from first.', 'talenttrack' ), 400, [ 'fields' => [ 'from', 'to' ] ] );
         }

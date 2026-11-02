@@ -1,0 +1,3 @@
+# Match prep availability: chips on one line on a tablet (#4664)
+
+On the match prep Availability step, a tablet showed the player's name beside the status chips. That left the chips two thirds of the row, too narrow for five. They wrapped four and one, every player row grew to about 150px, and "Verontschuldigd" ran over the edges of its chip. Now the name sits above the chips below 1024px, the chips sit on one line from 480px however many statuses the academy uses, and a long label breaks inside its chip. On a small phone the chips still wrap, three and two. Each chip keeps its 48px height and the 8px between chips, and the checked state, the focus ring and the reason field are unchanged.

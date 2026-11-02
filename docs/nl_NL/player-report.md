@@ -31,6 +31,12 @@ Het rapport opent op **het seizoen tot nu toe** — vanaf het begin van het huid
 seizoen tot vandaag. Met de periodekeuze kies je een ander venster: vorige week,
 vorige maand, deze maand, het hele seizoen of een eigen periode.
 
+Is het seizoen dat als huidig staat ingesteld nog niet begonnen, dan is er nog
+geen seizoen tot nu toe. Het rapport vraagt je dan onder de filterbalk om **een
+periode te kiezen** in plaats van een leeg rapport te tonen, en een pdf-download
+zonder periode wordt met dezelfde melding geweigerd. Een periode waarvan het
+begin na het einde ligt, geeft een melding dat je die moet corrigeren.
+
 ## Wat erin staat
 
 Het opent op de onderdelen die een één-op-één-gesprek nodig heeft:
@@ -183,6 +189,14 @@ rapport had toen je het inplande, met een eigen kopie van de onderdelen — je
 opgeslagen weergaven later wijzigen verandert niet wat er wordt verstuurd. Het
 rapport wordt opgesteld zoals jij het zou zien, dus stuur het alleen naar de
 staf.
+
+Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt de
+pdf alleen als het het rapport over elke speler erin mag lezen, dezelfde
+controle als bij het openen van het rapport in de plugin. Met de standaardrechten
+ontvangen ouders en spelers het nooit. Een rolsleutel bereikt de leden die bij deze academie
+horen, en een e-mailadres telt alleen als het bij een account hier hoort. Een
+adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de
+verzending op het scherm met planningen.
 
 Een planning stopt in plaats van te versturen als het team of de speler is
 gearchiveerd of verwijderd, of als jij hun rapporten niet meer mag inzien; het

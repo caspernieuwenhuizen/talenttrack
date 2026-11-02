@@ -881,7 +881,12 @@ day. `EvidencePacket::forPlayer()` needs no PDP file.
 them, `period` resolves one (`last_week`, `last_month`, `this_month`,
 `this_season`). With neither, the window is **the season so far** — the current
 season's start through today, falling back to the last 90 days when no season
-is configured; the response's `period` is then `""`. An unknown period is
+is configured; the response's `period` is then `""`. Before the current season
+has started there is no season so far, and the call answers `422 no_period`
+(`details.fields: ["from", "to"]`); `POST /players/{id}/report-snapshots`, the
+attendance, minutes-audit, coach-evaluation-quality and grid reads, the Report
+Studio data and preview reads and the player report and scouting PDF exports
+answer the same way. On those reads a `from` without a `to` runs up to today. An unknown period is
 `400 bad_period`; a `from` or `to` that is sent but is not a date, or a `from`
 after `to`, is `400 bad_window` — never quietly replaced by the default.
 
@@ -1346,9 +1351,8 @@ same; a report that does not exist in the club is `404 not_found`.
 (default) or `asc` on the report id. **An unknown value is `400 bad_filter`**
 with the parameter in `details`. Answers `{ rows, total, page, per_page }`.
 A report published to me is listed only while it is not archived and I can
-read its subject. The list reads at most 2000 reports, then drops the ones
-whose subject I cannot read, then pages; `total` counts what is left within
-that read.
+read its subject. The subject rule is applied in the query, so the list is
+paged there and `total` is the exact count of what I may open.
 
 ### `POST /reports`
 
@@ -1400,7 +1404,9 @@ report made for a role (`sharing: role`); persona keys are staff personas
 only, because a family reads a shared snapshot, never a live report (`400
 invalid_field` with the allowed keys). Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
-version_conflict`, and no duplicate is written. The version, the report's
+version_conflict`, and no duplicate is written. A deadlock or lock wait
+timeout on the locking read or the version insert, which two first publishes
+can hit, counts as the same collision. The version, the report's
 pointer to it and the persona list are written in one transaction; any other
 database error rolls them back and answers `500 db_error`. `201 { version_no,
 persona_keys }`. Publishing is its own action, never a field on the

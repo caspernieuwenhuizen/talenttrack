@@ -286,6 +286,116 @@ final class ReportsRestTest extends WP_UnitTestCase {
         ) ) );
     }
 
+    /**
+     * #4641 — two first publishes hold only gap locks, so their version
+     * inserts can deadlock. That is the same race as a duplicate key: one
+     * retry, then 409, never 500.
+     *
+     * @dataProvider lockConflicts
+     */
+    public function test_a_lock_conflict_on_a_first_publish_is_retried_then_409( int $errno, string $message ): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $attempts = 0;
+        $locked   = static function ( $sql ) use ( &$attempts, $errno, $message ) {
+            if ( ! is_string( $sql ) || stripos( $sql, 'INSERT INTO' ) !== 0 || strpos( $sql, 'tt_report_versions' ) === false ) {
+                return $sql;
+            }
+            $attempts++;
+            return "SIGNAL SQLSTATE '40001' SET MYSQL_ERRNO = {$errno}, MESSAGE_TEXT = '{$message}'";
+        };
+        add_filter( 'query', $locked );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $locked );
+
+        $this->assertSame( 2, $attempts, 'the insert is retried once' );
+        $this->assertSame( 409, $res->get_status() );
+        $this->assertSame( 'version_conflict', $this->code( $res ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id
+        ) ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(published_version_id, 0) FROM {$wpdb->prefix}tt_reports WHERE id = %d", $id
+        ) ), 'the report is still unpublished' );
+    }
+
+    /** @return array<string,array{0:int,1:string}> */
+    public static function lockConflicts(): array {
+        return [
+            'deadlock'          => [ 1213, 'Deadlock found when trying to get lock; try restarting transaction' ],
+            'lock wait timeout' => [ 1205, 'Lock wait timeout exceeded; try restarting transaction' ],
+        ];
+    }
+
+    /**
+     * The locking read can hit the same conflict. A failed read is not "no
+     * versions yet": it is retried once, then 409, and nothing is inserted.
+     *
+     * @dataProvider lockConflicts
+     */
+    public function test_a_lock_conflict_on_the_locking_read_is_retried_then_409( int $errno, string $message ): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $reads   = 0;
+        $inserts = 0;
+        $locked  = static function ( $sql ) use ( &$reads, &$inserts, $errno, $message ) {
+            if ( ! is_string( $sql ) ) return $sql;
+            if ( strpos( $sql, 'MAX(version_no)' ) !== false ) {
+                $reads++;
+                return "SIGNAL SQLSTATE '40001' SET MYSQL_ERRNO = {$errno}, MESSAGE_TEXT = '{$message}'";
+            }
+            if ( stripos( $sql, 'INSERT INTO' ) === 0 && strpos( $sql, 'tt_report_versions' ) !== false ) {
+                $inserts++;
+            }
+            return $sql;
+        };
+        add_filter( 'query', $locked );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $locked );
+
+        $this->assertSame( 2, $reads, 'the read is retried once' );
+        $this->assertSame( 0, $inserts, 'no version is numbered from a failed read' );
+        $this->assertSame( 409, $res->get_status() );
+        $this->assertSame( 'version_conflict', $this->code( $res ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id
+        ) ) );
+    }
+
+    public function test_another_error_on_the_locking_read_is_500(): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $broken = static fn( $sql ) => is_string( $sql ) && strpos( $sql, 'MAX(version_no)' ) !== false
+            ? 'SELECT MAX(version_no) FROM tt_no_such_table_4641'
+            : $sql;
+        add_filter( 'query', $broken );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $broken );
+
+        $this->assertSame( 500, $res->get_status() );
+        $this->assertSame( 'db_error', $this->code( $res ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id
+        ) ), 'nothing is written after a failed read' );
+    }
+
+    public function test_another_error_on_the_version_insert_is_still_500(): void {
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $broken = static fn( $sql ) => is_string( $sql ) && stripos( $sql, 'INSERT INTO' ) === 0 && strpos( $sql, 'tt_report_versions' ) !== false
+            ? 'INSERT INTO tt_no_such_table_4641 (id) VALUES (1)'
+            : $sql;
+        add_filter( 'query', $broken );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $broken );
+
+        $this->assertSame( 500, $res->get_status() );
+        $this->assertSame( 'db_error', $this->code( $res ) );
+    }
+
     public function test_a_failed_publish_rolls_back_every_write(): void {
         global $wpdb;
         wp_set_current_user( $this->hod );
@@ -452,6 +562,85 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertCount( 60, $hod->get_data()['data']['context']['player_ids'], 'a reader who sees everyone gets the first 60' );
     }
 
+    /**
+     * #4639 — the subject rule is applied in the query, so the list is paged
+     * there and `total` is exact; it used to read up to 2000 rows and filter
+     * and page them afterwards.
+     */
+    public function test_the_list_pages_and_counts_what_the_reader_may_open_in_the_query(): void {
+        for ( $i = 0; $i < 12; $i++ ) $this->insertPublished( 'team', null, $this->team_a );
+        for ( $i = 0; $i < 3; $i++ ) $this->insertPublished( 'team', null, $this->team_b );
+        $own_player   = $this->insertPublished( 'player', $this->player_a, null );
+        $other_player = $this->insertPublished( 'player', $this->player_b, null );
+        $mixed_group  = $this->insertPublished( 'group', null, null, [ $this->team_b, $this->team_a ] );
+        $other_group  = $this->insertPublished( 'group', null, null, [ $this->team_b ] );
+        $academy      = $this->insertPublished( 'academy', null, null );
+
+        $queries = [];
+        $capture = static function ( $sql ) use ( &$queries ) {
+            if ( is_string( $sql ) ) $queries[] = $sql;
+            return $sql;
+        };
+        add_filter( 'query', $capture );
+        $page_two = $this->send( 'GET', 'reports', [], [ 'owner' => 'published', 'per_page' => 10, 'page' => 2, 'order' => 'asc' ] );
+        remove_filter( 'query', $capture );
+
+        $this->assertSame( 200, $page_two->get_status() );
+        $data = $page_two->get_data()['data'];
+        $this->assertSame( 14, $data['total'], 'twelve team A reports, the own player and the group with team A' );
+        $this->assertCount( 4, $data['rows'] );
+        $this->assertSame( [ $own_player, $mixed_group ], array_slice( array_column( $data['rows'], 'id' ), 2 ) );
+
+        $listed = array_column( $this->send( 'GET', 'reports', [], [ 'owner' => 'published', 'per_page' => 100 ] )->get_data()['data']['rows'], 'id' );
+        $this->assertCount( 14, $listed );
+        $this->assertNotContains( $other_player, $listed, 'a player on another team' );
+        $this->assertNotContains( $other_group, $listed, 'a group of another team only' );
+        $this->assertNotContains( $academy, $listed, 'the academy needs club-wide analytics' );
+
+        $paged = array_filter( $queries, static fn( string $sql ): bool => strpos( $sql, 'tt_reports r' ) !== false && strpos( $sql, 'SELECT r.*' ) !== false );
+        $this->assertCount( 1, $paged );
+        $this->assertStringContainsString( 'LIMIT 10 OFFSET 10', (string) reset( $paged ), 'the page is cut in the query' );
+
+        wp_set_current_user( $this->scout );
+        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'], 'Edge: a persona the reports are not published to lists none of them' );
+    }
+
+    /** #4639 — the list costs the same number of queries for 2 reports and for 200. */
+    public function test_the_list_costs_the_same_queries_for_2_and_200_reports(): void {
+        $add = function ( int $n ): void {
+            for ( $i = 0; $i < $n; $i++ ) {
+                switch ( $i % 3 ) {
+                    case 0: $this->insertPublished( 'team', null, $this->team_a ); break;
+                    case 1: $this->insertPublished( 'player', $this->player_a, null ); break;
+                    default: $this->insertPublished( 'group', null, null, [ $this->team_a, $this->team_b ] );
+                }
+            }
+        };
+        $count = function (): array {
+            $n       = 0;
+            $counter = static function ( $sql ) use ( &$n ) {
+                $n++;
+                return $sql;
+            };
+            add_filter( 'query', $counter );
+            $res = $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] );
+            remove_filter( 'query', $counter );
+            return [ $n, (int) $res->get_data()['data']['total'] ];
+        };
+
+        $add( 2 );
+        // Warm the caches the request flush leaves alone, so both counts
+        // start from the same state.
+        $count();
+        [ $small, $small_total ] = $count();
+        $add( 198 );
+        [ $large, $large_total ] = $count();
+
+        $this->assertSame( 2, $small_total, 'Precondition: both reports list.' );
+        $this->assertSame( 200, $large_total, 'Precondition: all 200 list.' );
+        $this->assertSame( $small, $large, 'the query count does not grow with the reports' );
+    }
+
     public function test_every_route_answers_402_without_the_plan_feature(): void {
         $id = $this->create( [ 'scope' => 'me' ] );
         LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );
@@ -546,6 +735,38 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
         $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
         wp_set_current_user( $this->coach );
+        return $id;
+    }
+
+    /**
+     * A report by the head of development, published to head coaches,
+     * written straight to the tables so a list of hundreds stays quick.
+     *
+     * @param list<int>|null $cohort_teams
+     */
+    private function insertPublished( string $scope, ?int $player, ?int $team, ?array $cohort_teams = null ): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $now = current_time( 'mysql', true );
+        $wpdb->insert( "{$p}tt_reports", [
+            'uuid'                 => wp_generate_uuid4(),
+            'club_id'              => CurrentClub::id(),
+            'scope'                => $scope,
+            'binding'              => 'fixed',
+            'sharing'              => 'role',
+            'name'                 => 'Listed ' . $scope,
+            'player_id'            => $player,
+            'team_id'              => $team,
+            'cohort_json'          => $cohort_teams !== null ? (string) wp_json_encode( [ 'team_ids' => $cohort_teams, 'age_group' => '', 'position' => '' ] ) : null,
+            'owner_user_id'        => $this->hod,
+            'published_version_id' => 1,
+            'created_at'           => $now,
+            'updated_at'           => $now,
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_report_publications", [
+            'club_id' => CurrentClub::id(), 'report_id' => $id, 'persona_key' => 'head_coach', 'published_by' => $this->hod, 'published_at' => $now,
+        ] );
         return $id;
     }
 

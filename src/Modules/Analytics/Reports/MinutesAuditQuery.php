@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -134,6 +135,7 @@ final class MinutesAuditQuery {
         //    SAME set MinutesQuery counts (match | game | tournament), so
         //    row totals reconcile with the minutes report.
         $in_teams = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, team_id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
@@ -143,7 +145,7 @@ final class MinutesAuditQuery {
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id IN ({$in_teams})
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
@@ -834,12 +836,13 @@ final class MinutesAuditQuery {
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, team_id, title, game_subtype_key, activity_type_key, {$date_col} AS session_date
                FROM {$p}tt_activities
               WHERE id = %d AND club_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )",
+                AND {$is_match_sql}",
             $activity_id, $club_id
         ) );
         if ( ! $activity ) return null;

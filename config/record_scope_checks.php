@@ -13,9 +13,10 @@
  * THIS record". A name that does not — a capability roll-up, an `isEnabled()`,
  * a feature gate — does not belong here however convenient it would be.
  *
- * A trailing `*` matches a family, because the members ask the same question
- * about different arguments: `ActivityTeamScope::coversTeam()` and
- * `coversActivity()` differ only in what they resolve first.
+ * A name matches only itself: `TeamChemistryAccess::canReadForTeam` does not
+ * admit `canRead()`, which asks a capability and no record. A trailing `*`
+ * matches a family, and is only right when every member, present and future,
+ * takes a record; so list the methods by name unless that is certain.
  *
  * @return array{
  *   checks:list<string>,
@@ -74,7 +75,15 @@ return [
         // block detail the gate used to pass one level deep.
         'PdpPlanningService::accessibleTeamIds',
         'AllTeamsScope::canReadTeam',
-        'ActivityTeamScope::covers',
+        // The same question asked about a named entity's grant on the team.
+        'AllTeamsScope::canReadTeamFor',
+        // A team's activities: read or write, asked about the team, an
+        // activity, or the activity a request names.
+        'ActivityTeamScope::coversTeam',
+        'ActivityTeamScope::coversActivity',
+        'ActivityTeamScope::coversTeamForWrite',
+        'ActivityTeamScope::coversActivityForWrite',
+        'ActivityTeamScope::coversActivityForRequest',
         // The write scope on an activity's team: `activities` change at
         // global scope, or at team scope on that team. `writableTeamIds()` is
         // the same answer for a list of teams, which the grid writes narrow to.
@@ -86,7 +95,23 @@ return [
         'ActivityAccess::canTakeRegisterForTeam',
         'ActivityAccess::canTakeRegister',
         'ActivityAccess::registerTeamIds',
-        'TeamChemistryAccess::can',
+        // #4643 — a match's prep: read is an activities capability and the
+        // activity's team in read scope, write is `tt_edit_activities` and the
+        // team in write scope, both through `ActivityTeamScope::covers*`.
+        'MatchPrepAccess::canRead',
+        'MatchPrepAccess::canWrite',
+        // The same two rules asked about an activity id: they resolve the
+        // activity's own team first, so they still check the record.
+        'MatchPrepAccess::canReadActivity',
+        'MatchPrepAccess::canWriteActivity',
+        // The team-taking forms only. `canRead()`, `canManage()` and their
+        // `Chemistry` twins are capability roll-ups that check no team.
+        'TeamChemistryAccess::canReadForTeam',
+        'TeamChemistryAccess::canManageForTeam',
+        'TeamChemistryAccess::canReadChemistryForTeam',
+        'TeamChemistryAccess::canManageChemistryForTeam',
+        // Change authority on `spond_integration` for that exact team.
+        'TeamSpondAccess::canManage',
         'TeamReportAccess::canRead',
         // #4569 — a stored Studio report: edit asks the builder's own scope
         // over the report's subject, read asks that or a persona the report
@@ -103,7 +128,8 @@ return [
         'canViewTournament',
         'canEditTournament',
         'canDeleteTournament',
-        'GoalAccess::may',
+        'GoalAccess::mayRead',
+        'GoalAccess::mayChange',
         'PdpAccess::canSeeFile',
         'TrialCaseAccessPolicy::canOpenCase',
         'MediaVisibilityService::can',
