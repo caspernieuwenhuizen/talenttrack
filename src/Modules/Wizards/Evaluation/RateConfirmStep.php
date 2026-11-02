@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\EmptyRegisterConfirm;
 use TT\Shared\Wizards\WizardEntryPoint;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -30,13 +31,23 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Applies only on the activity path (`_path = 'activity-first'`); the
  * player path never routes through here.
  */
-final class RateConfirmStep implements WizardStepInterface {
+final class RateConfirmStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'rate-confirm'; }
     public function label(): string { return __( 'Rate now?', 'talenttrack' ); }
 
     public function notApplicableFor( array $state ): bool {
         return ( $state['_path'] ?? '' ) !== 'activity-first';
+    }
+
+    /**
+     * #4744 — counted until the mode step picks a branch.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['_path'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

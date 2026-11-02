@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -22,13 +23,23 @@ use TT\Shared\Wizards\WizardStepInterface;
  * + control two-column grid on `≥720px`. Inputs hit the v3.50.0 48px
  * touch-target floor; numeric inputs keep `inputmode="numeric"`.
  */
-final class RateActorsStep implements WizardStepInterface {
+final class RateActorsStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'rate-actors'; }
     public function label(): string { return __( 'Rate players', 'talenttrack' ); }
 
     public function notApplicableFor( array $state ): bool {
         return ( $state['_path'] ?? '' ) !== 'activity-first';
+    }
+
+    /**
+     * #4744 — counted until the mode step picks a branch.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['_path'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

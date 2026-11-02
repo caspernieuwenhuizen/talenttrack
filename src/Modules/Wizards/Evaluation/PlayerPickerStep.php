@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Authorization\MatrixGate;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -14,7 +15,7 @@ use TT\Shared\Wizards\WizardStepInterface;
  * smaller clubs get the dropdown fallback the component already
  * handles.
  */
-final class PlayerPickerStep implements WizardStepInterface {
+final class PlayerPickerStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'player-picker'; }
     public function label(): string { return __( 'Player', 'talenttrack' ); }
@@ -25,6 +26,16 @@ final class PlayerPickerStep implements WizardStepInterface {
         // the rail. The mode step sets `_path` before nav advances, so the
         // picker is still reached on the player branch.
         return ( $state['_path'] ?? '' ) !== 'player-first';
+    }
+
+    /**
+     * #4744 — counted until the mode step picks a branch.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['_path'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

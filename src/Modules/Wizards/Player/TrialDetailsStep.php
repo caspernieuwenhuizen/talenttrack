@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Player;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -15,7 +16,7 @@ use TT\Shared\Wizards\WizardStepInterface;
  * `TrialCasesRepository::create()` after first creating the player
  * record (so the trial case has a real `player_id` to attach to).
  */
-final class TrialDetailsStep implements WizardStepInterface {
+final class TrialDetailsStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string { return 'trial-details'; }
     public function label(): string { return __( 'Trial details', 'talenttrack' ); }
@@ -29,6 +30,16 @@ final class TrialDetailsStep implements WizardStepInterface {
      */
     public function notApplicableFor( array $state ): bool {
         return ( $state['path'] ?? '' ) !== 'trial';
+    }
+
+    /**
+     * #4744 — counted until the path step says roster or trial.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['path'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

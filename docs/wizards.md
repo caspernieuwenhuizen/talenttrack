@@ -22,7 +22,7 @@ The "+ New" buttons on Players, Teams, Evaluations, and Goals can either open th
 
 Each wizard is a small sequence of pages:
 
-- A progress strip shows where you are. In a wizard that branches (for example the evaluation wizard's *Evaluate an activity* vs *Evaluate 1 player* choice), the strip lists **only the steps on the path you picked** — the other branch's steps are not shown.
+- A progress strip shows where you are. In a wizard that branches (for example the evaluation wizard's *Evaluate an activity* vs *Evaluate 1 player* choice), the strip counts the steps of both branches until you pick one, and then lists **only the steps on the path you picked**. So the "Step X of Y" total never goes up while you move forward. It can only go down as your answers rule steps out, or go up when you go back and change an earlier answer.
 - The button at the bottom right advances to the next step. The middle buttons go back a step or save a draft, where the wizard offers one. The link button cancels — and returns you to where you opened the wizard from (the list you came from, otherwise the dashboard), never back into the wizard.
 - Pressing **Enter** in a field or on a choice does the same as the bottom-right button: it checks the step and goes on. It never cancels. In a multi-line text box, Enter starts a new line.
 - Closing the page mid-wizard preserves the answers for an hour, so you can come back to the same view and pick up where you left off (the URL stays the same).
@@ -96,3 +96,14 @@ Same admin page shows, per wizard:
 - **Most-skipped step** — which step in the flow gets skipped most often (often a hint that the step is unnecessary or asking the wrong question).
 
 Counters are kept in `wp_options` and roll forward forever; reset by clearing those options if you need fresh numbers (e.g. after refining a wizard).
+
+## For developers: conditional steps
+
+A step that only runs under some answers implements `Shared\Wizards\ConditionalStepInterface` next to `WizardStepInterface`. It declares two methods:
+
+- `notApplicableFor( $state )` — whether the runner skips the step when it is reached.
+- `applicability( $state )` — what the step counter should assume: `yes` (it runs), `no` (it is known to be skipped) or `unknown` (it hangs on an answer the user has not given yet).
+
+The counter drops only `no`. The rule it keeps: **the total never grows while the user moves forward without changing an answer.** It may grow when the user goes back and changes an earlier answer that brings a step back.
+
+A step whose condition is known from the start (a seeded player, a feature switched off) uses the `ConditionalStep` trait, which answers `no` when `notApplicableFor()` is true and `yes` otherwise. A step whose condition waits on a later answer writes its own `applicability()` and answers `unknown` until that answer is in. Examples: the evaluation wizard's branch steps before the mode is picked, and the report wizard's subject step before the binding is chosen. A step without the interface always counts and is never skipped.

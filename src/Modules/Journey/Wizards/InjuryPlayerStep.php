@@ -4,6 +4,8 @@ namespace TT\Modules\Journey\Wizards;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Wizards\ConditionalStep;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -18,7 +20,9 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Entered from a player's file the wizard arrives with `player_id`
  * already in state and the step is skipped by the wizard runner.
  */
-final class InjuryPlayerStep implements WizardStepInterface {
+final class InjuryPlayerStep implements WizardStepInterface, ConditionalStepInterface {
+
+    use ConditionalStep;
 
     public function slug(): string  { return 'player'; }
     public function label(): string { return __( 'Player', 'talenttrack' ); }

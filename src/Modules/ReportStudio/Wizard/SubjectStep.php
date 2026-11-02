@@ -7,6 +7,7 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -19,7 +20,7 @@ use TT\Shared\Wizards\WizardStepInterface;
  * always asked. Also skipped for a report about me or the academy, and when
  * the wizard was opened from the player's or the team's page.
  */
-final class SubjectStep implements WizardStepInterface {
+final class SubjectStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'subject'; }
     public function label(): string { return __( 'The subject', 'talenttrack' ); }
@@ -29,16 +30,35 @@ final class SubjectStep implements WizardStepInterface {
         $scope = (string) ( $state['scope'] ?? '' );
         if ( $scope === ReportContext::SCOPE_ME || $scope === ReportContext::SCOPE_ACADEMY ) return true;
         if ( $scope === ReportContext::SCOPE_GROUP ) return false;
-        // #4711 — skipped only once the binding is known not to be fixed.
-        // Before the readers step is answered the step still counts, so the
-        // step total can shrink after that choice but never grow.
-        $binding = (string) ( $state['binding'] ?? '' );
-        if ( $binding !== '' && $binding !== ReportStartRules::BINDING_FIXED ) return true;
-        if ( ! empty( $state['subject_from_page'] ) ) {
-            if ( $scope === ReportContext::SCOPE_PLAYER && (int) ( $state['player_id'] ?? 0 ) > 0 ) return true;
-            if ( $scope === ReportContext::SCOPE_TEAM && (int) ( $state['team_id'] ?? 0 ) > 0 ) return true;
-        }
-        return false;
+        if ( (string) ( $state['binding'] ?? '' ) !== ReportStartRules::BINDING_FIXED ) return true;
+        return $this->subjectFromPage( $state );
+    }
+
+    /**
+     * #4711 / #4744 — before the readers step is answered it is not known
+     * whether a player or team report stores a subject, so the step still
+     * counts and the total can only shrink once the binding is chosen.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        $scope = (string) ( $state['scope'] ?? '' );
+        $known = $scope === ReportContext::SCOPE_ME || $scope === ReportContext::SCOPE_ACADEMY
+            || $scope === ReportContext::SCOPE_GROUP || $this->subjectFromPage( $state );
+        if ( ! $known && (string) ( $state['binding'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
+    }
+
+    /**
+     * Opened from the player's or team's own page, with that subject set.
+     *
+     * @param array<string,mixed> $state
+     */
+    private function subjectFromPage( array $state ): bool {
+        if ( empty( $state['subject_from_page'] ) ) return false;
+        $scope = (string) ( $state['scope'] ?? '' );
+        if ( $scope === ReportContext::SCOPE_PLAYER && (int) ( $state['player_id'] ?? 0 ) > 0 ) return true;
+        return $scope === ReportContext::SCOPE_TEAM && (int) ( $state['team_id'] ?? 0 ) > 0;
     }
 
     public function render( array $state ): void {

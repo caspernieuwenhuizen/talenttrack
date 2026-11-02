@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Spond\CredentialsManager;
 use TT\Modules\Spond\SpondClient;
+use TT\Shared\Wizards\ConditionalStep;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -19,7 +21,9 @@ use TT\Shared\Wizards\WizardStepInterface;
  * configured — those clubs can connect Spond later from the admin
  * page and pick a group from the team-edit form.
  */
-final class SpondGroupStep implements WizardStepInterface {
+final class SpondGroupStep implements WizardStepInterface, ConditionalStepInterface {
+
+    use ConditionalStep;
 
     public function slug(): string  { return 'spond-group'; }
     public function label(): string { return __( 'Spond group', 'talenttrack' ); }
