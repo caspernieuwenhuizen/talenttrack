@@ -222,6 +222,7 @@
 	var dataTimer = null;
 	var dataFailed = false;
 	var dataSeq = 0;
+	var reachSeq = 0;
 	function scheduleData() {
 		if (dataTimer) window.clearTimeout(dataTimer);
 		dataTimer = window.setTimeout(loadData, 600);
@@ -829,14 +830,20 @@
 			if (!forRole) return [];
 			return Array.prototype.map.call(roles.querySelectorAll('input:checked'), function (i) { return i.value; });
 		}
+		// Ticking roles quickly sends several counts; only the answer for the
+		// roles ticked last may land.
 		function count() {
+			var seq = ++reachSeq;
 			var k = keys();
 			if (!k.length) { reach.textContent = t.reachMe; return; }
 			reach.textContent = t.counting;
 			api('GET', reportPath('/reach'), null, { persona_keys: k.join(',') }).then(function (r) {
+				if (seq !== reachSeq) return;
 				var names = r.personas.map(function (p) { return p.label; }).join(', ');
 				reach.textContent = fmt(r.count === 1 ? t.reachOne : t.reachMany, r.count, names);
-			})['catch'](function (err) { reach.textContent = err.message; });
+			})['catch'](function (err) {
+				if (seq === reachSeq) reach.textContent = err.message;
+			});
 		}
 		roles.onchange = count;
 		count();
