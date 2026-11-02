@@ -58,7 +58,17 @@ final class StaffStep implements WizardStepInterface {
         $patch = [];
         foreach ( array_keys( self::SLOTS ) as $key ) {
             $field = 'staff_' . $key;
-            $patch[ $field ] = isset( $post[ $field ] ) ? absint( $post[ $field ] ) : 0;
+            $uid   = isset( $post[ $field ] ) ? absint( $post[ $field ] ) : 0;
+            // #4761 — only an account the picker offers; anything else is a
+            // forged post that would make a player or parent team staff.
+            if ( $uid > 0 && ! StaffPickerComponent::offers( $uid ) ) {
+                return new \WP_Error(
+                    'bad_staff_' . $key,
+                    self::slotLabel( $key ) . ': ' . __( 'Choose a staff member from the list.', 'talenttrack' ),
+                    [ 'field' => $field ]
+                );
+            }
+            $patch[ $field ] = $uid;
         }
         return $patch;
     }

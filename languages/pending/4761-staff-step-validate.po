@@ -1,0 +1,3 @@
+#: src/Modules/Wizards/Team/StaffStep.php
+msgid "Choose a staff member from the list."
+msgstr "Kies een stafmedewerker uit de lijst."
