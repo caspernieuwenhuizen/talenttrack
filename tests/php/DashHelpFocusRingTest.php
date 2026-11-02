@@ -43,7 +43,7 @@ final class DashHelpFocusRingTest extends WP_UnitTestCase {
         $ring = implode( ' ', $this->rulesFor( '.tt-dashboard .tt-dash-help:focus-visible', $css ) );
 
         $this->assertStringNotContainsString( 'outline: none', $ring );
-        $this->assertMatchesRegularExpression( '/outline: 2px solid (#fff|var\(--tt-color-on-primary\))/', $ring, 'the header band is --tt-primary, so the ring is the on-primary colour' );
+        $this->assertMatchesRegularExpression( '/outline: 2px solid (#fff|var\(--tt-color-on-primary(, #fff)?\))/', $ring, 'the header band is --tt-primary, so the ring is the on-primary colour' );
     }
 
     public function test_hover_keeps_the_colour_change(): void {

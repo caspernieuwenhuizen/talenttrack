@@ -16,7 +16,7 @@
 .tt-dashboard .tt-dash-header {
     background: var(--tt-primary);
     border-bottom: 3px solid var(--tt-secondary);
-    color: var(--tt-color-on-primary);
+    color: var(--tt-color-on-primary, #fff);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -54,13 +54,13 @@
     text-decoration: underline;
 }
 .tt-dashboard .tt-dash-home:focus-visible {
-    outline: 2px solid var(--tt-color-on-primary);
+    outline: 2px solid var(--tt-color-on-primary, #fff);
     outline-offset: 2px;
     border-radius: var(--tt-radius, 8px);
 }
 
 .tt-dashboard .tt-dash-title {
-    color: var(--tt-color-on-primary);
+    color: var(--tt-color-on-primary, #fff);
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
@@ -101,7 +101,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--tt-color-on-primary);
+    color: var(--tt-color-on-primary, #fff);
     min-width: 0;
     flex-wrap: wrap;
 }
@@ -182,7 +182,7 @@
 }
 /* On the dark band a primary ring would not show; white, as on .tt-dash-home. */
 .tt-dashboard .tt-dash-help:focus-visible {
-    outline: 2px solid var(--tt-color-on-primary);
+    outline: 2px solid var(--tt-color-on-primary, #fff);
     outline-offset: 2px;
 }
 
@@ -228,7 +228,7 @@
         border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.25);
         background: rgba(255, 255, 255, 0.08);
-        color: var(--tt-color-on-primary);
+        color: var(--tt-color-on-primary, #fff);
     }
     .tt-dashboard .tt-dash-search__input::placeholder {
         color: rgba(255, 255, 255, 0.6);
@@ -247,7 +247,7 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
-    color: var(--tt-color-on-primary);
+    color: var(--tt-color-on-primary, #fff);
     cursor: pointer;
     touch-action: manipulation;
 }
@@ -280,7 +280,7 @@
     display: block;
     font-size: 0.82rem;
     font-weight: 700;
-    color: var(--tt-color-on-primary);
+    color: var(--tt-color-on-primary, #fff);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
