@@ -222,11 +222,15 @@
     color: var(--tt-muted); background: transparent;
     transition: color .15s, border-color .15s, background .15s;
 }
-.tt-dash-help:hover, .tt-dash-help:focus {
+.tt-dash-help:hover, .tt-dash-help:focus-visible {
     color: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
     background: #fff;
-    outline: none;
+}
+/* A real focus ring for the keyboard, as on .tt-help-button. */
+.tt-dash-help:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
 }
 
 /* Reusable HelpDrawer button — used anywhere outside the dashboard
