@@ -1,7 +1,0 @@
-#: src/Infrastructure/REST/TournamentsRestController.php
-msgid "A tournament's team can't be changed after it is created."
-msgstr "Het team van een toernooi kan na het aanmaken niet meer worden gewijzigd."
-
-#: src/Infrastructure/REST/TournamentsRestController.php
-msgid "You can't add these players to the squad."
-msgstr "Je kunt deze spelers niet aan de selectie toevoegen."

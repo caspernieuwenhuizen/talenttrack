@@ -69939,6 +69939,761 @@ msgctxt "report studio option"
 msgid "Measure"
 msgstr "Maat"
 
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgid "The conversation took place."
+msgstr "Het gesprek heeft plaatsgevonden."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgid "The conversation has a date but hasn't taken place yet."
+msgstr "Het gesprek heeft een datum, maar heeft nog niet plaatsgevonden."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "You do not build reports."
+msgstr "Je bouwt geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "You do not build reports for any team."
+msgstr "Je bouwt voor geen enkel team rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "Only a builder for every team builds a report about the whole academy."
+msgstr "Alleen wie voor alle teams bouwt, bouwt een rapport over de hele academie."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "This team is not one you build reports for."
+msgstr "Voor dit team bouw je geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportAccess.php
+msgid "This player is not one you build reports for."
+msgstr "Voor deze speler bouw je geen rapporten."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report is not shared with you."
+msgstr "Dit rapport is niet met jou gedeeld."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "A draft is read only by the people who build the report."
+msgstr "Een concept lezen alleen de mensen die het rapport bouwen."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report has not been published yet."
+msgstr "Dit rapport is nog niet gepubliceerd."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This group has no teams."
+msgstr "Deze groep heeft geen teams."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report is about a fixed subject."
+msgstr "Dit rapport gaat over een vast onderwerp."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report covers a set period."
+msgstr "Dit rapport beslaat een vaste periode."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "The definition must be an object."
+msgstr "De opbouw moet een object zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A definition does not accept: %s."
+msgstr "Een opbouw accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "The blocks must be a list."
+msgstr "De blokken moeten een lijst zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A report holds at most %d blocks."
+msgstr "Een rapport bevat hoogstens %d blokken."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Every block must be an object."
+msgstr "Elk blok moet een object zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A block does not accept: %s."
+msgstr "Een blok accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#, php-format
+msgid "A definition may be at most %d bytes."
+msgstr "Een opbouw mag hoogstens %d bytes zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+#, php-format
+msgid "A report name is at most %d characters."
+msgstr "Een rapportnaam is hoogstens %d tekens."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report about the whole academy is for staff only."
+msgstr "Een rapport over de hele academie is alleen voor staf."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A dashboard follows the calendar: its period cannot be fixed."
+msgstr "Een dashboard volgt de kalender: de periode kan niet vastliggen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report that is mailed or shared with the family is laid out in rows."
+msgstr "Een rapport dat wordt gemaild of met het gezin wordt gedeeld, is in rijen opgemaakt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report published for a role is chosen when opened or follows the viewer, so each reader sees their own subject."
+msgstr "Een rapport dat voor een rol is gepubliceerd, wordt bij het openen gekozen of volgt de kijker, zodat elke lezer zijn eigen onderwerp ziet."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "You may build this report for yourself, not publish it for a role."
+msgstr "Je mag dit rapport voor jezelf bouwen, niet voor een rol publiceren."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Only a report about me, a player or a team can follow the viewer."
+msgstr "Alleen een rapport over mij, een speler of een team kan de kijker volgen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Choose which period the report rolls with."
+msgstr "Kies met welke periode het rapport meeschuift."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A fixed period is a from and a to date (YYYY-MM-DD/YYYY-MM-DD), from first."
+msgstr "Een vaste periode is een begin- en een einddatum (JJJJ-MM-DD/JJJJ-MM-DD), het begin eerst."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A group is chosen by team, with an age group or a position if you want one."
+msgstr "Een groep kies je per team, met een leeftijdsgroep of een positie als je dat wilt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Every team in the group must be a team id."
+msgstr "Elk team in de groep moet een team-id zijn."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Choose at least one team for the group."
+msgstr "Kies minstens één team voor de groep."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report is a report or a dashboard."
+msgstr "Een rapport is een rapport of een dashboard."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The subject is fixed, chosen when opened, or follows the viewer."
+msgstr "Het onderwerp ligt vast, wordt bij het openen gekozen of volgt de kijker."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The period is fixed, rolling, or chosen when opened."
+msgstr "De periode ligt vast, schuift mee of wordt bij het openen gekozen."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The layout is rows or grid."
+msgstr "De opmaak is rijen of raster."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Sharing is only me, a role, a scheduled mail, or the family."
+msgstr "Delen is alleen ik, een rol, een geplande mail of het gezin."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "The report could not be saved."
+msgstr "Het rapport kon niet worden opgeslagen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "Send a name or a definition to change."
+msgstr "Stuur een naam of een opbouw om te wijzigen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "The revision is a whole number."
+msgstr "De revisie is een geheel getal."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report is not archived."
+msgstr "Dit rapport is niet gearchiveerd."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "There is no such version of this report."
+msgstr "Deze versie van dit rapport bestaat niet."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "A version note is at most 500 characters."
+msgstr "Een versienotitie is hoogstens 500 tekens."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "A report is published to staff roles only."
+msgstr "Een rapport wordt alleen voor stafrollen gepubliceerd."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "You may publish this report for yourself, not for others."
+msgstr "Je mag dit rapport voor jezelf publiceren, niet voor anderen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report was made to be shared only with you."
+msgstr "Dit rapport is gemaakt om alleen met jou te delen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "Someone published this report at the same moment. Try again."
+msgstr "Iemand publiceerde dit rapport op hetzelfde moment. Probeer het opnieuw."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "You may read this report, not change it."
+msgstr "Je mag dit rapport lezen, niet wijzigen."
+
+#: src/Modules/ReportStudio/Rest/ReportsRestController.php
+msgid "This report was changed elsewhere. Reload it before saving again."
+msgstr "Dit rapport is ergens anders gewijzigd. Laad het opnieuw voordat je weer opslaat."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Report Studio: build reports"
+msgstr "Report Studio: rapporten bouwen"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Report Studio: publish to a role"
+msgstr "Report Studio: voor een rol publiceren"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgctxt "a Report Studio report"
+msgid "Report"
+msgstr "Rapport"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A family report is about one player, and a parent reads it only through a snapshot you share, never live."
+msgstr "Een gezinsrapport gaat over één speler, en een ouder leest het alleen via een momentopname die jij deelt, nooit live."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report for a scout is about one player."
+msgstr "Een rapport voor een scout gaat over één speler."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report for a scout is a report, not a dashboard."
+msgstr "Een rapport voor een scout is een rapport, geen dashboard."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Only someone who publishes reports writes one for a scout."
+msgstr "Alleen iemand die rapporten publiceert, schrijft er een voor een scout."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report about me always follows the viewer."
+msgstr "Een rapport over mij volgt altijd de kijker."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report about the whole academy is always fixed."
+msgstr "Een rapport over de hele academie ligt altijd vast."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A grid is laid out for staff screens; a report for a family or a scout is laid out in rows."
+msgstr "Een raster is opgemaakt voor schermen van de staf; een rapport voor een gezin of een scout is in rijen opgemaakt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A scheduled mail sends a report, not a dashboard."
+msgstr "Een geplande mail stuurt een rapport, geen dashboard."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A scheduled mail is laid out in rows."
+msgstr "Een geplande mail is in rijen opgemaakt."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A scheduled mail needs a period it can choose by itself: fixed or rolling."
+msgstr "Een geplande mail heeft een periode nodig die hij zelf kan kiezen: vast of meeschuivend."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Sharing with the family needs a report for the family."
+msgstr "Delen met het gezin vraagt een rapport voor het gezin."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The family gets a report, not a dashboard."
+msgstr "Het gezin krijgt een rapport, geen dashboard."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report"
+msgstr "Een rapport"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A dashboard"
+msgstr "Een dashboard"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "Me"
+msgstr "Ikzelf"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "One player"
+msgstr "Eén speler"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "One team"
+msgstr "Eén team"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "A group of players"
+msgstr "Een groep spelers"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "The academy"
+msgstr "De academie"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio audience"
+msgid "Staff"
+msgstr "Staf"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio audience"
+msgid "An external scout"
+msgstr "Een externe scout"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio audience"
+msgid "The player and their family"
+msgstr "De speler en het gezin"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio binding"
+msgid "Always the same subject"
+msgstr "Altijd hetzelfde onderwerp"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio binding"
+msgid "Chosen when it is opened"
+msgstr "Gekozen bij het openen"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio binding"
+msgid "Follows whoever opens it"
+msgstr "Volgt wie het opent"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio period"
+msgid "Chosen when it is opened"
+msgstr "Gekozen bij het openen"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio period"
+msgid "Rolling"
+msgstr "Meeschuivend"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio period"
+msgid "Fixed dates"
+msgstr "Vaste datums"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio layout"
+msgid "Rows"
+msgstr "Rijen"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio layout"
+msgid "Grid"
+msgstr "Raster"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio sharing"
+msgid "Only me"
+msgstr "Alleen ik"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio sharing"
+msgid "Published for a role"
+msgstr "Gepubliceerd voor een rol"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio sharing"
+msgid "A scheduled mail"
+msgstr "Een geplande mail"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio sharing"
+msgid "Shared with the family"
+msgstr "Gedeeld met het gezin"
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+#, php-format
+msgid "Changed to the first option that still fits: %s"
+msgstr "Veranderd naar de eerste optie die nog past: %s"
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+msgid "Choose one of the options."
+msgstr "Kies een van de opties."
+
+#: src/Modules/ReportStudio/Wizard/WhatStep.php
+msgid "What and about whom"
+msgstr "Wat en over wie"
+
+#: src/Modules/ReportStudio/Wizard/WhatStep.php
+msgid "What are you making?"
+msgstr "Wat maak je?"
+
+#: src/Modules/ReportStudio/Wizard/WhatStep.php
+msgid "Who is it about?"
+msgstr "Over wie gaat het?"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "The subject"
+msgstr "Het onderwerp"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "There are no teams you build reports for."
+msgstr "Er zijn geen teams waarvoor je rapporten bouwt."
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Choose one of your players."
+msgstr "Kies een van je spelers."
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Choose one of your teams."
+msgstr "Kies een van je teams."
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Which player is the report about?"
+msgstr "Over welke speler gaat het rapport?"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Which team is the report about?"
+msgstr "Over welk team gaat het rapport?"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Which teams make up the group?"
+msgstr "Welke teams vormen de groep?"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Only one age group (optional)"
+msgstr "Alleen één leeftijdsgroep (optioneel)"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Every age group"
+msgstr "Elke leeftijdsgroep"
+
+#: src/Modules/ReportStudio/Wizard/ReadersStep.php
+msgid "Who reads it"
+msgstr "Wie het leest"
+
+#: src/Modules/ReportStudio/Wizard/ReadersStep.php
+msgid "Who is it written for?"
+msgstr "Voor wie is het geschreven?"
+
+#: src/Modules/ReportStudio/Wizard/ReadersStep.php
+msgid "Which subject does it show?"
+msgstr "Welk onderwerp toont het?"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "When and how"
+msgstr "Wanneer en hoe"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "Which period does it cover?"
+msgstr "Welke periode beslaat het?"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "For a rolling period"
+msgstr "Voor een meeschuivende periode"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "Fixed dates: from"
+msgstr "Vaste datums: van"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgctxt "the end of a date range"
+msgid "to"
+msgstr "tot en met"
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "How is it laid out?"
+msgstr "Hoe is het opgemaakt?"
+
+#: src/Modules/ReportStudio/Wizard/SharingStep.php
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Sharing"
+msgstr "Delen"
+
+#: src/Modules/ReportStudio/Wizard/SharingStep.php
+msgid "Who else gets it?"
+msgstr "Wie krijgt het nog meer?"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Name and review"
+msgstr "Naam en controle"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Written for"
+msgstr "Geschreven voor"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+#, php-format
+msgid "%1$s was changed to the first option that still fits: %2$s"
+msgstr "%1$s is veranderd naar de eerste optie die nog past: %2$s"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Give the report a name."
+msgstr "Geef het rapport een naam."
+
+#: src/Modules/ReportStudio/Wizard/NewReportWizard.php
+msgid "Add report"
+msgstr "Rapport toevoegen"
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Whose data it shows"
+msgstr "Wiens gegevens het toont"
+
+#: src/Modules/Analytics/Frontend/MinutesCompletenessLabels.php
+msgid "Minutes from the match plan, not yet confirmed"
+msgstr "Minuten uit het wedstrijdplan, nog niet bevestigd"
+
+#. translators: %s: the word "Planned" as the cell shows it
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "%s: taken from the match plan; confirm the real minutes in the grid"
+msgstr "%s: overgenomen uit het wedstrijdplan; bevestig de echte minuten in het raster"
+
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php
+msgid "Attendance saved"
+msgstr "Aanwezigheid opgeslagen"
+
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php
+msgctxt "mark attendance wizard button"
+msgid "Finish"
+msgstr "Afronden"
+
+#: src/Modules/People/Admin/PeoplePage.php:83
+#, php-format
+msgid "%d staff evaluation rating(s) will be removed."
+msgstr "%d beoordeling(en) van staf-evaluaties wordt/worden verwijderd."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:799
+msgctxt "training plan template"
+msgid "Template"
+msgstr "Sjabloon"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1100
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1151
+msgctxt "PDP conversation template"
+msgid "Template"
+msgstr "Sjabloon"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:182
+msgctxt "VCT cycle template"
+msgid "Template"
+msgstr "Sjabloon"
+
+#. translators: %d: number of player ratings that were not saved
+#: src/Modules/Wizards/Evaluation/ReviewStep.php
+msgid "%d rating was not saved: this player didn't take part, or you can't rate them on this activity."
+msgid_plural "%d ratings were not saved: these players didn't take part, or you can't rate them on this activity."
+msgstr[0] "%d beoordeling is niet opgeslagen: deze speler deed niet mee, of je kunt hem op deze activiteit niet beoordelen."
+msgstr[1] "%d beoordelingen zijn niet opgeslagen: deze spelers deden niet mee, of je kunt ze op deze activiteit niet beoordelen."
+
+#: src/Infrastructure/People/PersonDeletionCascade.php
+msgid "submissions stay; \"reviewed by\" becomes unknown"
+msgstr "inzendingen blijven staan; \"beoordeeld door\" wordt onbekend"
+
+#: src/Modules/People/Admin/PeoplePage.php:86
+#, php-format
+msgid "%d course enrolment(s) will be removed."
+msgstr "%d cursusinschrijving(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:87
+#, php-format
+msgid "%d course lesson progress record(s) will be removed."
+msgstr "%d voortgangsregistratie(s) van cursuslessen wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:88
+#, php-format
+msgid "%d course quiz attempt(s) will be removed."
+msgstr "%d quizpoging(en) van cursussen wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:89
+#, php-format
+msgid "%d course assignment submission(s) will be removed."
+msgstr "%d ingeleverde cursusopdracht(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:90
+#, php-format
+msgid "%d course submission(s) they reviewed will keep the review; reviewer cleared."
+msgstr "%d door deze persoon beoordeelde cursusopdracht(en) behoudt/behouden de beoordeling; de beoordelaar wordt leeggemaakt."
+
+#. translators: 1: number of recipients left out, 2: who they are: role keys with a count, and email addresses
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "Left out %1$d recipient who may not receive this report: %2$s"
+msgid_plural "Left out %1$d recipients who may not receive this report: %2$s"
+msgstr[0] "%1$d ontvanger overgeslagen die dit rapport niet mag ontvangen: %2$s"
+msgstr[1] "%1$d ontvangers overgeslagen die dit rapport niet mogen ontvangen: %2$s"
+
+#. translators: 1: a role key such as tt_parent, 2: how many of its members were left out
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "%1$s (%2$d member)"
+msgid_plural "%1$s (%2$d members)"
+msgstr[0] "%1$s (%2$d lid)"
+msgstr[1] "%1$s (%2$d leden)"
+
+#. translators: 1: a comma-separated list of role keys and addresses, 2: how many more were left out
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "%1$s and %2$d more"
+msgstr "%1$s en nog %2$d"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Each recipient with an account receives only the rows they may read themselves, and nothing if they may read none. An address with no account here receives only a report that holds no player data. Whoever is left out is named on the schedule after the run."
+msgstr "Elke ontvanger met een account krijgt alleen de rijen die hij zelf mag lezen, en niets als hij niets mag lezen. Een adres zonder account hier krijgt alleen een rapport zonder spelersgegevens. Wie wordt overgeslagen, staat na de run bij het schema."
+
+#. translators: %d is the number of cell changes the server skipped.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:67
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:86
+msgid "%d change(s) were not saved: you can't change this team"
+msgstr "%d wijziging(en) niet opgeslagen: je kunt dit team niet wijzigen"
+
+#. translators: %d is the number of score changes the server skipped.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:71
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:73
+msgid "%d change was not saved: the player or category is no longer part of this activity. Reload the grid."
+msgid_plural "%d changes were not saved: the player or category is no longer part of this activity. Reload the grid."
+msgstr[0] "%d wijziging is niet opgeslagen: de speler of categorie hoort niet meer bij deze activiteit. Laad het raster opnieuw."
+msgstr[1] "%d wijzigingen zijn niet opgeslagen: de speler of categorie hoort niet meer bij deze activiteit. Laad het raster opnieuw."
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:424
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:413
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:371
+msgid "You can see this team's grid, but you can't change it."
+msgstr "Je kunt het raster van dit team bekijken, maar niet wijzigen."
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:915
+msgid "You can read this match preparation, but you can't change it."
+msgstr "Je kunt deze wedstrijdvoorbereiding lezen, maar niet wijzigen."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "A tournament's team can't be changed after it is created."
+msgstr "Het team van een toernooi kan na het aanmaken niet meer worden gewijzigd."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "You can't add these players to the squad."
+msgstr "Je kunt deze spelers niet aan de selectie toevoegen."
+
+#: src/Modules/Analytics/Reports/ReportFilters.php
+msgid "Pick a period to see this report."
+msgstr "Kies een periode om dit rapport te zien."
+
+#: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php
+msgid "This report starts when the season starts."
+msgstr "Dit rapport begint wanneer het seizoen begint."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Not sent: the current season has not started yet, so there is no season so far to report on."
+msgstr "Niet verstuurd: het huidige seizoen is nog niet begonnen, dus er is nog geen seizoen tot nu toe om over te rapporteren."
+
+#. translators: 1: activity title, 2: activity date.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:146
+msgid "Ratings for %1$s (%2$s). Rows are players, columns are the categories this activity is rated on."
+msgstr "Beoordelingen van %1$s (%2$s). Rijen zijn spelers, kolommen zijn de categorieën waarop deze activiteit wordt beoordeeld."
+
+#: config/navigation_groups.php:27
+msgctxt "navigation group"
+msgid "Me"
+msgstr "Ik"
+
+#: config/navigation_groups.php:28
+#: config/navigation_groups.php:39
+msgctxt "navigation group"
+msgid "Players & teams"
+msgstr "Spelers & teams"
+
+#: config/navigation_groups.php:29
+#: config/navigation_groups.php:41
+msgctxt "navigation group"
+msgid "Activities & matches"
+msgstr "Activiteiten & wedstrijden"
+
+#: config/navigation_groups.php:30
+msgctxt "navigation group"
+msgid "Development"
+msgstr "Ontwikkeling"
+
+#: config/navigation_groups.php:31
+msgctxt "navigation group"
+msgid "Tactics"
+msgstr "Tactiek"
+
+#: config/navigation_groups.php:32
+msgctxt "navigation group"
+msgid "Analytics & reports"
+msgstr "Analyses & rapporten"
+
+#: config/navigation_groups.php:33
+msgctxt "navigation group"
+msgid "Intake"
+msgstr "Instroom"
+
+#: config/navigation_groups.php:34
+msgctxt "navigation group"
+msgid "Communication"
+msgstr "Communicatie"
+
+#: config/navigation_groups.php:35
+msgctxt "navigation group"
+msgid "Product ideas"
+msgstr "Productideeën"
+
+#: config/navigation_groups.php:36
+msgctxt "navigation group"
+msgid "Settings"
+msgstr "Instellingen"
+
+#: config/navigation_groups.php:38
+msgctxt "navigation group"
+msgid "Academy"
+msgstr "Academie"
+
+#: config/navigation_groups.php:40
+msgctxt "navigation group"
+msgid "Development & evaluations"
+msgstr "Ontwikkeling & evaluaties"
+
+#: config/navigation_groups.php:42
+msgctxt "navigation group"
+msgid "Lookups"
+msgstr "Keuzelijsten"
+
+#: config/navigation_groups.php:43
+msgctxt "navigation group"
+msgid "People & access"
+msgstr "Mensen & toegang"
+
+#: config/navigation_groups.php:44
+msgctxt "navigation group"
+msgid "Messages & tasks"
+msgstr "Berichten & taken"
+
+#: config/navigation_groups.php:45
+msgctxt "navigation group"
+msgid "Data"
+msgstr "Gegevens"
+
+#: config/navigation_groups.php:46
+msgctxt "navigation group"
+msgid "Features & plan"
+msgstr "Functies & pakket"
+
+#: config/navigation_groups.php:47
+msgctxt "navigation group"
+msgid "System"
+msgstr "Systeem"
+
+#: src/Shared/Frontend/Components/MaskedValue.php
+msgctxt "masked field value"
+msgid "Hidden"
+msgstr "Verborgen"
+
+#: src/Shared/Frontend/Components/MaskedValue.php
+msgid "Hidden for your role"
+msgstr "Verborgen voor jouw rol"
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php
+msgid "You can view this, but not change it."
+msgstr "Je kunt dit bekijken, maar niet wijzigen."
+
 #~ msgid "All states"
 #~ msgstr "Alle statussen"
 

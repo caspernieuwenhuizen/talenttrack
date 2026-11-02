@@ -258,15 +258,24 @@
    itself — net cost about 13px, not the full 29. */
 .tt-breadcrumbs { margin: 0 0 4px; font-size: .875rem; color: var(--tt-muted, #5f6368); }
 .tt-breadcrumbs ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
-.tt-breadcrumbs li { display: inline-flex; align-items: center; }
+/* #4655 — a crumb shrinks and truncates inside the chain; it never widens
+   the page. A one-word label ("Aanwezigheidsraster") is wider than the
+   current crumb's 6em floor, and as unbreakable text it overflowed that box
+   and pushed the page sideways on phones. The label is cut with an ellipsis
+   instead; the DOM text, and so the accessible name, stays whole. */
+.tt-breadcrumbs li { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; }
 .tt-breadcrumbs a {
-    display: inline-flex;
-    align-items: center;
-    /* #4231 — a short crumb ("Teams") was 48px tall and 40px wide. */
-    justify-content: center;
+    display: block;
+    /* #4231 — a short crumb ("Teams") was 48px tall and 40px wide. The
+       48px line box is the tap band and centres the text in it. */
     min-height: 48px;
+    line-height: 48px;
     min-width: 48px;
+    text-align: center;
     padding: 0 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: var(--tt-primary, #0b3d2e);
     text-decoration: none;
     touch-action: manipulation;
@@ -276,8 +285,20 @@
    inside it. As a fixed-size flex item a long one ("Voetbalacademie De
    Maasoever U7") dropped to a line of its own and left the chain ending on
    a bare separator. The min-width is the point below which it is better
-   off on its own line after all. */
-.tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; min-height: 48px; flex: 1 1 0; min-width: 6em; }
+   off on its own line after all. #4655 — what does not fit that line is
+   cut with an ellipsis rather than overflowing it. */
+.tt-breadcrumbs li[aria-current="page"] {
+    display: block;
+    color: #1a1d21;
+    font-weight: 500;
+    min-height: 48px;
+    line-height: 48px;
+    flex: 1 1 0;
+    min-width: 6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 /* Keeps adjacent crumbs at least 8px apart now that each anchor is wider. */
 .tt-breadcrumbs__sep { margin: 0 6px; color: var(--tt-line, #d8dcde); }
 

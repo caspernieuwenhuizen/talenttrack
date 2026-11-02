@@ -1057,7 +1057,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         ?>
         <section class="tt-player-facts" aria-label="<?php esc_attr_e( 'Key facts', 'talenttrack' ); ?>">
             <div class="tt-player-facts__cell">
-                <span class="tt-player-facts__label"><?php esc_html_e( 'DOB', 'talenttrack' ); ?></span>
+                <?php // #4702 — short label forms: the three columns are equal width, and a label must not break inside a word on a 360px phone. ?>
+                <span class="tt-player-facts__label"><?php echo esc_html_x( 'DOB', 'player facts label', 'talenttrack' ); ?></span>
                 <p class="tt-player-facts__value"><?php echo esc_html( $dob_value ); ?></p>
                 <?php if ( $dob_hint !== '' ) : ?>
                     <p class="tt-player-facts__hint"><?php echo esc_html( $dob_hint ); ?></p>
@@ -1071,7 +1072,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <?php endif; ?>
             </div>
             <div class="tt-player-facts__cell">
-                <span class="tt-player-facts__label"><?php esc_html_e( 'Joined', 'talenttrack' ); ?></span>
+                <span class="tt-player-facts__label"><?php echo esc_html_x( 'Joined', 'player facts label', 'talenttrack' ); ?></span>
                 <p class="tt-player-facts__value"><?php echo esc_html( $joined_value ); ?></p>
                 <?php if ( $joined_hint !== '' ) : ?>
                     <p class="tt-player-facts__hint"><?php echo esc_html( $joined_hint ); ?></p>
@@ -1103,7 +1104,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // asks, so the tile and the tab always agree.
                 if ( self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'evaluations' ], $base_url ) ); ?>">
-                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Avg rating', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Avg rating', 'player facts label', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
                         <?php echo esc_html( $kpis['avg_rating']['value'] ); ?>
                         <?php if ( $kpis['avg_rating']['scale'] !== '' ) : ?>
@@ -1116,7 +1117,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 </a>
                 <?php endif; ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'activities' ], $base_url ) ); ?>">
-                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Attended', 'player facts label', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
                         <?php echo esc_html( $kpis['attendance']['value'] ); ?>
                         <?php if ( $kpis['attendance']['scale'] !== '' ) : ?>
@@ -1143,7 +1144,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                       // carry both senses on the same strip. Links to Activities,
                       // where the per-match rows show which matches they came in. ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'activities' ], $base_url ) ); ?>">
-                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Goals scored', 'goals scored in matches', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Goals scored', 'player facts label', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
                         <?php echo esc_html( $kpis['scored']['value'] ); ?>
                     </div>
@@ -1158,7 +1159,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // viewer who can't open the underlying timeline (§1 privacy).
                 if ( self::mayReadMeasurements( get_current_user_id(), $player_id ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'measurements' ], $base_url ) ); ?>">
-                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Measurements', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Tests', 'player facts label', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
                         <?php echo esc_html( $kpis['measurements']['value'] ); ?>
                     </div>

@@ -19,14 +19,15 @@ final class ReportSubjectOptions {
     public static function teams( ReportReader $reader ): array {
         $allowed = $reader->builderTeams();
         if ( $allowed === [] ) return [];
-        $rows = $allowed === null ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $reader->userId );
+        // #4684 — the allowed teams by id, so a team granted through a
+        // functional role is offered as well as one the builder coaches.
+        $rows = $allowed === null ? QueryHelpers::get_teams() : QueryHelpers::get_teams_by_ids( $allowed );
 
         $out = [];
         foreach ( $rows as $row ) {
             $team = (array) $row;
             $id   = (int) ( $team['id'] ?? 0 );
             if ( $id <= 0 || isset( $out[ $id ] ) ) continue;
-            if ( $allowed !== null && ! in_array( $id, $allowed, true ) ) continue;
             if ( ! $reader->readsTeam( $id ) ) continue;
             $out[ $id ] = [ 'name' => (string) ( $team['name'] ?? '' ), 'age_group' => (string) ( $team['age_group'] ?? '' ) ];
         }

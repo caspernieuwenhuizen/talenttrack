@@ -202,8 +202,8 @@ Drie regels zijn goed om te weten, want ze bepalen wiens getal beweegt:
   eigen doel schieten is geen aanvallende bijdrage.
 - Een **ongedaan gemaakt** doelpunt telt voor niemand.
 
-Dezelfde getallen staan op de spelerskaart zelf — de tegel **Doelpunten
-gemaakt** in de overzichtsstrook, met de assists op de regel eronder. Let op
+Dezelfde getallen staan op de spelerskaart zelf — de tegel **Gescoord**
+in de overzichtsstrook, met de assists op de regel eronder. Let op
 de bewoording: de tegel ernaast, kortweg **Doelen**, telt de ontwikkeldoelen
 van een speler. Die twee betekenissen worden overal uit elkaar gehouden waar
 ze elkaar tegenkomen.

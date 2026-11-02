@@ -1,3 +1,0 @@
-# Player profile: a long name wraps in the hero heading instead of being cut off (#4701)
-
-The player's name at the top of the profile now wraps onto as many lines as it needs, instead of ending in an ellipsis on one line. On a phone a long name such as "Maximiliaan-Alexander van Oldenbarnevelt-Wijnberghuizen" was cut to "Maximiliaan-Al…" at 320px and was still cut at 480px. Now it is shown in full at every width. A single long word breaks only as a last resort. On a desktop, a name that already fitted looks the same. The team page's heading, which uses the same style, keeps its two-line limit on a phone and one line from 768px. CSS only.

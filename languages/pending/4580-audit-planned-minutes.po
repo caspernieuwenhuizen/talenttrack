@@ -1,8 +1,0 @@
-#: src/Modules/Analytics/Frontend/MinutesCompletenessLabels.php
-msgid "Minutes from the match plan, not yet confirmed"
-msgstr "Minuten uit het wedstrijdplan, nog niet bevestigd"
-
-#. translators: %s: the word "Planned" as the cell shows it
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "%s: taken from the match plan; confirm the real minutes in the grid"
-msgstr "%s: overgenomen uit het wedstrijdplan; bevestig de echte minuten in het raster"

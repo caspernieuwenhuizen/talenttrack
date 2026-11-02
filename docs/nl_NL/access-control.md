@@ -120,6 +120,14 @@ Meldt een trainer dat een wp-adminlijst leeg is, vraag dan aan welke teams die
 persoon is gekoppeld onder **Personen → Functionele rollen**: het bereik komt
 uit die koppelingen, niet uit het recht.
 
+Teamlijsten volgen dezelfde regel als het openen van één team. Een team dat een
+functionele rol geeft, zoals de teamrapporten van een teammanager, staat in de
+rapportenlijst, in het teambereik van de analyses en in de teamkeuze van Report
+Studio, net zoals het direct te openen is. Een lijst toont nooit een team dat
+niet te openen is en laat er nooit een weg dat wel te openen is. Zoals elke
+teamlijst laten ook deze gearchiveerde teams weg, en met de demomodus aan tonen
+ze alleen de demoteams.
+
 ## De vooraf geconfigureerde rollen
 
 | Rol | View | Edit |

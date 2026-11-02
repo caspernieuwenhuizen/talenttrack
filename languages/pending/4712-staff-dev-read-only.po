@@ -1,6 +1,0 @@
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php
-msgid "You can view this, but not change it."
-msgstr "Je kunt dit bekijken, maar niet wijzigen."
