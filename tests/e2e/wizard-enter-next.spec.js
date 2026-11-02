@@ -103,6 +103,40 @@ test.describe( 'Enter in a wizard goes to the next step (#4709)', () => {
 		await cancelRun( page );
 	} );
 
+	test( 'Enter shows the loading state and locks both forward buttons, unless validation stops the post', async ( { page } ) => {
+		test.skip( ! ( await openWizard( page, 'new-player' ) ), 'new-player wizard not available' );
+
+		await page.locator( 'input[name="path"][value="roster"]' ).check();
+		await enterOn( page, page.locator( 'input[name="path"][value="roster"]' ) );
+		await expect( page.locator( 'input[name="first_name"]' ) ).toBeVisible();
+
+		const next = page.locator( '[data-tt-wizard-next]' );
+		const fallback = page.locator( '[data-tt-wizard-default]' );
+
+		// Required names empty: the validation script cancels the post, and
+		// the step must stay usable.
+		await page.locator( 'input[name="first_name"]' ).focus();
+		await page.keyboard.press( 'Enter' );
+		await page.waitForTimeout( 300 );
+		await expect( page.locator( 'input[name="first_name"]' ) ).toBeVisible();
+		await expect( fallback ).toBeEnabled();
+		expect( await next.getAttribute( 'data-loading-label' ) ).not.toBe( await next.innerText() );
+
+		// Names filled, the step POST held: both buttons lock while it runs.
+		await page.locator( 'input[name="first_name"]' ).fill( 'Enter' );
+		await page.locator( 'input[name="last_name"]' ).fill( 'Twice' );
+		await page.route( '**/admin-post.php*', () => { /* held: never answered */ } );
+		await page.locator( 'input[name="last_name"]' ).focus();
+		await page.keyboard.press( 'Enter' );
+		await expect( next ).toBeDisabled();
+		await expect( fallback ).toBeDisabled();
+		await page.unrouteAll( { behavior: 'ignoreErrors' } );
+
+		await page.goto( '/?tt_view=wizard&slug=new-player&restart=1' );
+		await page.waitForLoadState( 'load', { timeout: 30000 } );
+		await cancelRun( page );
+	} );
+
 	test( 'new-report: Enter on a radio moves forward', async ( { page } ) => {
 		test.skip( ! ( await openWizard( page, 'new-report' ) ), 'new-report wizard not available on this install' );
 

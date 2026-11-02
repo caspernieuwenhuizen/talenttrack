@@ -361,13 +361,26 @@ class FrontendWizardView extends FrontendViewBase {
             var form = document.querySelector( '.tt-wizard-form' );
             if ( form ) {
                 var next = form.querySelector( '[data-tt-wizard-next]' );
+                var fallback = form.querySelector( '[data-tt-wizard-default]' );
                 if ( next ) {
                     form.addEventListener( 'submit', function ( e ) {
                         var submitter = e.submitter || document.activeElement;
-                        if ( ! submitter || submitter !== next ) return;
-                        var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
-                        next.disabled = true;
-                        next.textContent = label;
+                        if ( ! submitter ) return;
+                        // #4709 — Enter submits through the hidden default
+                        // button; it moves forward too, so it gets the same
+                        // guard, and both are disabled so a second Enter on
+                        // the last step cannot post Create twice.
+                        if ( submitter !== next && ! submitter.hasAttribute( 'data-tt-wizard-default' ) ) return;
+                        // A tick later, so a required-field check that cancels
+                        // the post (wizard-validation.js) doesn't leave the
+                        // step with its buttons disabled.
+                        setTimeout( function () {
+                            if ( e.defaultPrevented ) return;
+                            var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
+                            next.disabled = true;
+                            next.textContent = label;
+                            if ( fallback ) fallback.disabled = true;
+                        }, 0 );
                     } );
                 }
             }
