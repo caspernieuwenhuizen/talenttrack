@@ -5,6 +5,7 @@ use WP_UnitTestCase;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
 use TT\Modules\ReportStudio\Wizard\SubjectStep;
 use TT\Shared\Frontend\FrontendWizardView;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardInterface;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -18,16 +19,18 @@ use TT\Shared\Wizards\WizardRegistry;
  */
 final class WizardStepTotalTest extends WP_UnitTestCase {
 
+    /** #4744 — the subject step answers `unknown` until the binding is chosen. */
     public function test_the_subject_step_counts_until_the_binding_is_known(): void {
         $step = new SubjectStep();
 
-        $this->assertFalse( $step->notApplicableFor( [] ), 'nothing answered yet: counted' );
-        $this->assertFalse( $step->notApplicableFor( [ 'scope' => 'player' ] ), 'no binding yet: counted' );
-        $this->assertFalse( $step->notApplicableFor( [ 'scope' => 'team', 'binding' => '' ] ), 'no binding yet: counted' );
-        $this->assertTrue( $step->notApplicableFor( [ 'scope' => 'player', 'binding' => 'on_open' ] ) );
-        $this->assertTrue( $step->notApplicableFor( [ 'scope' => 'team', 'binding' => 'viewer' ] ) );
-        $this->assertTrue( $step->notApplicableFor( [ 'scope' => 'me' ] ), 'a known scope without a subject still skips at once' );
-        $this->assertTrue( $step->notApplicableFor( [ 'scope' => 'academy' ] ) );
+        $this->assertSame( ConditionalStepInterface::UNKNOWN, $step->applicability( [] ), 'nothing answered yet: counted' );
+        $this->assertSame( ConditionalStepInterface::UNKNOWN, $step->applicability( [ 'scope' => 'player' ] ), 'no binding yet: counted' );
+        $this->assertSame( ConditionalStepInterface::UNKNOWN, $step->applicability( [ 'scope' => 'team', 'binding' => '' ] ), 'no binding yet: counted' );
+        $this->assertSame( ConditionalStepInterface::SKIPPED, $step->applicability( [ 'scope' => 'player', 'binding' => 'on_open' ] ) );
+        $this->assertSame( ConditionalStepInterface::SKIPPED, $step->applicability( [ 'scope' => 'team', 'binding' => 'viewer' ] ) );
+        $this->assertSame( ConditionalStepInterface::SKIPPED, $step->applicability( [ 'scope' => 'me' ] ), 'a known scope without a subject still skips at once' );
+        $this->assertSame( ConditionalStepInterface::SKIPPED, $step->applicability( [ 'scope' => 'academy' ] ) );
+        $this->assertSame( ConditionalStepInterface::APPLIES, $step->applicability( [ 'scope' => 'team', 'binding' => 'fixed' ] ) );
     }
 
     public function test_new_report_reads_of_6_from_step_1(): void {
@@ -82,7 +85,7 @@ final class WizardStepTotalTest extends WP_UnitTestCase {
             $steps = $wizard->steps();
             if ( count( $steps ) <= 1 ) continue;
             foreach ( $steps as $step ) {
-                if ( method_exists( $step, 'notApplicableFor' ) ) continue 2;
+                if ( $step instanceof ConditionalStepInterface ) continue 2;
             }
             $this->assertSame( [ 1, count( $steps ) ], $this->counter( $wizard, $wizard->firstStepSlug(), [] ), $wizard->slug() );
             $checked++;

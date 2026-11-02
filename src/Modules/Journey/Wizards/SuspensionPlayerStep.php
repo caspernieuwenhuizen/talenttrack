@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Shared\Wizards\ConditionalStep;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -16,7 +18,9 @@ use TT\Shared\Wizards\WizardStepInterface;
  *
  * Skipped when the wizard was opened from a player's profile.
  */
-final class SuspensionPlayerStep implements WizardStepInterface {
+final class SuspensionPlayerStep implements WizardStepInterface, ConditionalStepInterface {
+
+    use ConditionalStep;
 
     public function slug(): string  { return 'player'; }
     public function label(): string { return __( 'Player', 'talenttrack' ); }

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 use TT\Shared\Dates\TTDate;
 
@@ -23,7 +24,7 @@ use TT\Shared\Dates\TTDate;
  * rateable activities, the empty-state guidance renders — never a
  * silent jump to the player path.
  */
-final class ActivityPickerStep implements WizardStepInterface {
+final class ActivityPickerStep implements WizardStepInterface, ConditionalStepInterface {
 
     /**
      * v3.110.4 — bumped from 30 to 90 days. Pilots reported
@@ -58,6 +59,18 @@ final class ActivityPickerStep implements WizardStepInterface {
         }
 
         return false;
+    }
+
+    /**
+     * #4744 — a step of the run until the mode step picks a branch, so the
+     * step total shrinks when the player branch is chosen instead of growing
+     * when the activity branch is.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['_path'] ?? '' ) === '' ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

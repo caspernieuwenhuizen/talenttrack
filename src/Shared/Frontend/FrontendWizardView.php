@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\SupportsCancelAsDraft;
 use TT\Shared\Wizards\WizardAnalytics;
 use TT\Shared\Wizards\WizardInterface;
@@ -187,8 +188,8 @@ class FrontendWizardView extends FrontendViewBase {
         $max_skips = count( $wizard->steps() ) + 1;
         $skip_count = 0;
         while ( $skip_count++ < $max_skips
-                && method_exists( $current, 'notApplicableFor' )
-                && (bool) $current->notApplicableFor( $state ) ) {
+                && $current instanceof ConditionalStepInterface
+                && $current->notApplicableFor( $state ) ) {
             $next_slug = $current->nextStep( $state );
             if ( $next_slug === null ) break;
             WizardState::recordSkip( $user_id, $slug, $current->slug() );
@@ -717,26 +718,23 @@ class FrontendWizardView extends FrontendViewBase {
         $steps = $wizard->steps();
         if ( count( $steps ) <= 1 ) return;
 
-        // Pre-pass: resolve state for each step. #2254 — non-applicable
-        // steps (the other fork of a branched wizard) are filtered OUT of
-        // the rail entirely, not shown greyed, so the rail reflects only
-        // the path the user is on. Displayed numbers + "Step X of Y" are
-        // computed from the applicable steps only.
-        // #4711 — the total may only shrink during a run. An optional step
-        // whose condition hangs on an answer not given yet returns false
-        // from `notApplicableFor()` until that answer says it is skipped; a
-        // total that grows mid-run reads as the wizard moving the goalposts.
-        // The branches of a fork (#2254) are the exception: they stay out
-        // until the branch is picked, since only one of them will run.
+        // Pre-pass: resolve state for each step. #2254 — skipped steps
+        // (the other fork of a branched wizard) are filtered OUT of the
+        // rail entirely, not shown greyed, so the rail reflects only the
+        // path the user is on. Displayed numbers + "Step X of Y" are
+        // computed from the steps that still count.
+        // #4744 — a step drops out only once it is known to be skipped
+        // (`applicability()` answers `no`). One that hangs on an answer not
+        // given yet (`unknown`) still counts, so the total never grows while
+        // the user moves forward; it only shrinks as answers come in.
         $resolved = [];
         $found_current = false;
         $current_pos = 0; // 1-based position of the current step in the rail
         $current_label = '';
         foreach ( $steps as $step ) {
             $is_current     = $step->slug() === $current_slug;
-            $not_applicable = method_exists( $step, 'notApplicableFor' )
-                ? (bool) $step->notApplicableFor( $state )
-                : false;
+            $not_applicable = $step instanceof ConditionalStepInterface
+                && $step->applicability( $state ) === ConditionalStepInterface::SKIPPED;
             // Drop non-applicable steps (keep one only if it is somehow the
             // current step, so the rail never renders empty mid-flow).
             if ( $not_applicable && ! $is_current ) {
@@ -860,6 +858,21 @@ class FrontendWizardView extends FrontendViewBase {
     }
 
     /**
+     * #4747 — the wizard chrome runtime: the forward-button loading guard
+     * and the mobile rail toggle. Its strings come from `TT.i18n`, which
+     * `tt-public` localises, hence the dependency.
+     */
+    private static function enqueueChromeScript(): void {
+        wp_enqueue_script(
+            'tt-wizard',
+            TT_PLUGIN_URL . 'assets/js/wizard.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
+    }
+
+    /**
      * v3.110.190 (#796) — enqueues the live mandatory-field validator
      * that runs alongside the wizard form. Visual + aria layer; the
      * authoritative `validate()` still runs server-side on Next-click.
@@ -867,20 +880,6 @@ class FrontendWizardView extends FrontendViewBase {
      * browser-native popup; this script provides the user-facing
      * layer instead.
      */
-    /**
-     * #4747 — the wizard chrome runtime: the forward-button loading guard
-     * and the mobile rail toggle. Its strings come from `TT.i18n`.
-     */
-    private static function enqueueChromeScript(): void {
-        wp_enqueue_script(
-            'tt-wizard',
-            TT_PLUGIN_URL . 'assets/js/wizard.js',
-            [],
-            TT_VERSION,
-            true
-        );
-    }
-
     private static function enqueueValidationScript(): void {
         wp_enqueue_script(
             'tt-wizard-validation',

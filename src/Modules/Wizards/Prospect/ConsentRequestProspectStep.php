@@ -4,6 +4,8 @@ namespace TT\Modules\Wizards\Prospect;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Domain\ProspectRecord;
+use TT\Shared\Wizards\ConditionalStep;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -12,7 +14,9 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Offers only the prospects this user may log a request for. Skipped when
  * the wizard was opened from a prospect's record page.
  */
-final class ConsentRequestProspectStep implements WizardStepInterface {
+final class ConsentRequestProspectStep implements WizardStepInterface, ConditionalStepInterface {
+
+    use ConditionalStep;
 
     public function slug(): string  { return 'prospect'; }
     public function label(): string { return __( 'Prospect', 'talenttrack' ); }

@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -27,7 +28,7 @@ use TT\Shared\Wizards\WizardStepInterface;
  * skipped, landed on RateConfirmStep's "Attendance is saved." and
  * completed the activity with zero actual rows.
  */
-final class AttendanceStep implements WizardStepInterface {
+final class AttendanceStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'attendance'; }
     public function label(): string { return __( 'Attendance', 'talenttrack' ); }
@@ -42,6 +43,20 @@ final class AttendanceStep implements WizardStepInterface {
         // "skip when already recorded" optimisation.
         if ( ! empty( $state['_attendance_force_render'] ) ) return false;
         return self::hasRecordedAttendance( $aid );
+    }
+
+    /**
+     * #4744 — counted until the branch and the activity are known: before
+     * the mode step, and on the activity branch before the activity is
+     * picked, nothing yet says the step is skipped.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        $path = (string) ( $state['_path'] ?? '' );
+        if ( $path === '' ) return ConditionalStepInterface::UNKNOWN;
+        if ( $path === 'activity-first' && (int) ( $state['activity_id'] ?? 0 ) <= 0 ) return ConditionalStepInterface::UNKNOWN;
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

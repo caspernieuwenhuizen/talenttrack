@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Evaluation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -34,7 +35,7 @@ use TT\Shared\Wizards\WizardStepInterface;
  * so the context-switch tax that stopped coaches recording behaviour is
  * removed.
  */
-final class BehaviourStep implements WizardStepInterface {
+final class BehaviourStep implements WizardStepInterface, ConditionalStepInterface {
 
     public function slug(): string  { return 'behaviour'; }
     public function label(): string { return __( 'Behaviour today', 'talenttrack' ); }
@@ -46,6 +47,21 @@ final class BehaviourStep implements WizardStepInterface {
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'behaviour_rating' ) ) return true;
         if ( ! current_user_can( 'tt_rate_player_behaviour' ) ) return true;
         return false;
+    }
+
+    /**
+     * #4744 — the feature and the capability are known from the start; the
+     * branch is not, so the step counts until the mode step picks one.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function applicability( array $state ): string {
+        if ( (string) ( $state['_path'] ?? '' ) === ''
+            && \TT\Core\FeatureRegistry::isEnabled( 'behaviour_rating' )
+            && current_user_can( 'tt_rate_player_behaviour' ) ) {
+            return ConditionalStepInterface::UNKNOWN;
+        }
+        return $this->notApplicableFor( $state ) ? ConditionalStepInterface::SKIPPED : ConditionalStepInterface::APPLIES;
     }
 
     public function render( array $state ): void {

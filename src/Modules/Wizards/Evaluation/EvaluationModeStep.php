@@ -3,6 +3,8 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Wizards\ConditionalStep;
+use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -31,7 +33,9 @@ use TT\Shared\Wizards\WizardStepInterface;
  * `mark-attendance` alias all deep-link with `mode=activity` +
  * `activity_id`, so they never see this step.
  */
-final class EvaluationModeStep implements WizardStepInterface {
+final class EvaluationModeStep implements WizardStepInterface, ConditionalStepInterface {
+
+    use ConditionalStep;
 
     public function slug(): string  { return 'evaluation-mode'; }
     public function label(): string { return __( 'What are you evaluating?', 'talenttrack' ); }

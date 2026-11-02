@@ -22,7 +22,7 @@ De "+ Nieuw"-knoppen op Spelers, Teams, Evaluaties en Doelen kunnen óf het beke
 
 Elke wizard is een korte serie pagina's:
 
-- Een voortgangsbalk laat zien waar je bent. Bij een wizard die splitst (bijvoorbeeld de keuze *Een activiteit evalueren* versus *1 speler evalueren* in de evaluatiewizard) toont de balk **alleen de stappen van het pad dat je koos** — de stappen van de andere tak worden niet getoond.
+- Een voortgangsbalk laat zien waar je bent. Bij een wizard die splitst (bijvoorbeeld de keuze *Een activiteit evalueren* versus *1 speler evalueren* in de evaluatiewizard) telt de balk de stappen van beide takken tot je kiest, en toont daarna **alleen de stappen van het pad dat je koos**. Het totaal bij "Stap X van Y" gaat dus nooit omhoog terwijl je verdergaat. Het kan alleen omlaag gaan als je antwoorden stappen uitsluiten, of omhoog als je teruggaat en een eerder antwoord wijzigt.
 - De knop rechtsonder gaat naar de volgende stap. Met de middelste knoppen ga je een stap terug of bewaar je een concept, als de wizard dat aanbiedt. De link annuleert — en brengt je terug naar waar je de wizard opende (de lijst waar je vandaan kwam, anders het dashboard), nooit terug in de wizard.
 - Druk je op **Enter** in een veld of op een keuze, dan doet dat hetzelfde als de knop rechtsonder: de stap wordt gecontroleerd en je gaat verder. Enter annuleert nooit. In een tekstvak met meerdere regels begint Enter een nieuwe regel.
 - Sluit je tussentijds af, dan blijven antwoorden een uur bewaard zodat je later op dezelfde URL terug kunt komen.
@@ -86,3 +86,14 @@ Dezelfde beheerpagina toont per wizard:
 - **Meest overgeslagen stap** — welke stap het vaakst wordt overgeslagen (vaak een hint dat die stap overbodig is of de verkeerde vraag stelt).
 
 Tellers staan in `wp_options` en blijven optellen; reset ze door die opties te legen wanneer je een wizard hebt verfijnd.
+
+## Voor ontwikkelaars: voorwaardelijke stappen
+
+Een stap die alleen bij sommige antwoorden wordt doorlopen, implementeert `Shared\Wizards\ConditionalStepInterface` naast `WizardStepInterface`. Die declareert twee methoden:
+
+- `notApplicableFor( $state )` — of de wizard de stap overslaat wanneer die aan de beurt is.
+- `applicability( $state )` — wat de stappenteller moet aannemen: `yes` (de stap wordt doorlopen), `no` (de stap wordt zeker overgeslagen) of `unknown` (de stap hangt af van een antwoord dat de gebruiker nog niet heeft gegeven).
+
+De teller laat alleen `no` weg. De regel die hij bewaakt: **het totaal groeit nooit terwijl de gebruiker verdergaat zonder een antwoord te wijzigen.** Het mag groeien als de gebruiker teruggaat en een eerder antwoord wijzigt waardoor een stap terugkomt.
+
+Een stap waarvan de voorwaarde vanaf het begin bekend is (een vooraf gekozen speler, een uitgeschakelde functie), gebruikt de trait `ConditionalStep`. Die antwoordt `no` als `notApplicableFor()` waar is, en anders `yes`. Een stap waarvan de voorwaarde op een later antwoord wacht, schrijft een eigen `applicability()` en antwoordt `unknown` tot dat antwoord er is. Voorbeelden: de takstappen van de evaluatiewizard voordat de modus is gekozen, en de onderwerpstap van de rapportwizard voordat de binding is gekozen. Een stap zonder de interface telt altijd mee en wordt nooit overgeslagen.
