@@ -75,7 +75,7 @@ final class MinutesQuery {
         //    tournaments via match execution, multi-game days via the
         //    manual per-player minutes entry, #2159), so it joins the set.
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, session_date
+            "SELECT id, game_subtype_key, session_date, match_length_minutes, start_time, end_time
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -91,7 +91,6 @@ final class MinutesQuery {
 
         $exec_repo = new MatchExecutionRepository();
         $prep_repo = new MatchPrepRepository();
-        $length_resolver = new MatchLengthResolver();
 
         // Aggregators keyed by player_id.
         $totals      = []; // total minutes
@@ -106,6 +105,20 @@ final class MinutesQuery {
         // than one read per match.
         $all_minutes = self::minutesForActivities( array_map( static fn( $a ): int => (int) $a->id, $activities ) );
 
+        // #4599 — and everything else the loop reads, for the recorded
+        // matches only, once for the window: the preps and their drawn
+        // line-ups, the executions and their substitutions, and the team's
+        // age-group half length. A season used to cost several statements
+        // per match.
+        $recorded_ids = array_keys( $all_minutes );
+        $preps        = $prep_repo->findByActivities( $recorded_ids );
+        $lineup_rows  = $prep_repo->listDrawnLineupForPreps( $preps, $team_id );
+        $execs        = $exec_repo->findByActivities( $recorded_ids );
+        $all_subs     = $exec_repo->listSubstitutionsForExecutions(
+            array_map( static fn( $e ): int => (int) $e->id, array_values( $execs ) )
+        );
+        $age_half     = self::teamAgeGroupHalf( $team_id );
+
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
             $type_key = (string) ( $a->game_subtype_key ?? '' );
@@ -118,7 +131,7 @@ final class MinutesQuery {
             // what qualify a match to count (see the #2252 gate below).
             $minutes_map = $all_minutes[ $aid ] ?? [];
 
-            $prep = $prep_repo->findByActivity( $aid );
+            $prep = $preps[ $aid ] ?? null;
 
             // #2252 — a match contributes to starts / available_minutes /
             // subs ONLY when it was actually recorded (produced persisted
@@ -140,25 +153,31 @@ final class MinutesQuery {
             // quarters match carries four of them rather than two halves.
             $lineups = [];
             if ( $prep ) {
-                // #4353 — the drawn positions only; the prep row is already
-                // in hand, so it is not read a second time per match.
-                foreach ( $prep_repo->listLineupForPrep( $prep ) as $l ) {
+                // #4353 — the drawn positions only.
+                foreach ( $lineup_rows[ (int) $prep->id ] ?? [] as $l ) {
                     $period = (int) $l->half;
                     $pid    = (int) $l->player_id;
                     if ( $period > 0 && $pid > 0 ) $lineups[ $period ][] = $pid;
                 }
             }
 
-            $exec = $exec_repo->findByActivity( $aid );
-            $exec_id = $exec ? (int) $exec->id : 0;
-            $sub_rows = $exec_id > 0 ? $exec_repo->listSubstitutions( $exec_id ) : [];
+            $exec     = $execs[ $aid ] ?? null;
+            $exec_id  = $exec ? (int) $exec->id : 0;
+            $sub_rows = $exec_id > 0 ? ( $all_subs[ $exec_id ] ?? [] ) : [];
 
             // #4077 — the match's length comes from the same chain the
             // minutes audit and the minutes share read, so "% available"
             // agrees with them. A match with no prep row used to count as
             // 2 × 35 here even when its age group plays 2 × 30.
             $periods      = self::periodCount( $lineups, $sub_rows );
-            $match_length = $length_resolver->playedMatchMinutes( $aid, $prep_period, $periods );
+            $match_length = MatchLengthResolver::resolvePlayedLength(
+                $prep_period,
+                (int) ( $a->match_length_minutes ?? 0 ),
+                $age_half,
+                (string) ( $a->start_time ?? '' ),
+                (string) ( $a->end_time ?? '' ),
+                $periods
+            );
             $half_length  = $prep_period > 0 ? $prep_period : (int) ceil( $match_length / $periods );
             $available_minutes += $match_length;
 
@@ -249,6 +268,21 @@ final class MinutesQuery {
         } );
 
         return $rows;
+    }
+
+    /**
+     * #4599 — the configured half length for the team's age group, 0 when
+     * there is none: step 3 of `MatchLengthResolver::resolvePlayedLength()`,
+     * read once for a team rather than once per match.
+     */
+    private static function teamAgeGroupHalf( int $team_id ): int {
+        global $wpdb;
+        $age_group = trim( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT age_group FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id, CurrentClub::id()
+        ) ) );
+        if ( $age_group === '' ) return 0;
+        return ( new MatchLengthResolver() )->configuredMap()[ $age_group ] ?? 0;
     }
 
     /**

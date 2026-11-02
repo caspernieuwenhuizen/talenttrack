@@ -319,10 +319,53 @@ class MatchPrepRepository {
         if ( $rows === [] ) return [];
 
         $team_id = ( new ActivitiesRepository() )->activityTeamId( (int) ( $prep['activity_id'] ?? 0 ) );
-        $drawn   = [];
-        foreach ( FormationLayoutResolver::layoutFor( (int) ( $prep['formation_template_id'] ?? 0 ), $team_id ) as $slot ) {
+        return self::drawnRows( $rows, self::drawnSlots( (int) ( $prep['formation_template_id'] ?? 0 ), $team_id ) );
+    }
+
+    /**
+     * #4599 — `listLineupForPrep()` for several preps of one team, keyed by
+     * prep id: the line-ups in one query, and the layout read once per
+     * formation rather than once per prep.
+     *
+     * @param array<int, object> $preps
+     * @return array<int, list<object>>
+     */
+    public function listDrawnLineupForPreps( array $preps, int $team_id ): array {
+        $by_prep = [];
+        foreach ( $preps as $prep ) {
+            $prep = (array) $prep;
+            $id   = (int) ( $prep['id'] ?? 0 );
+            if ( $id > 0 ) $by_prep[ $id ] = (int) ( $prep['formation_template_id'] ?? 0 );
+        }
+        if ( $by_prep === [] ) return [];
+
+        $rows    = $this->listLineupForPreps( array_keys( $by_prep ) );
+        $layouts = [];
+        $out     = [];
+        foreach ( $by_prep as $prep_id => $template_id ) {
+            if ( ! isset( $rows[ $prep_id ] ) ) continue;
+            if ( ! isset( $layouts[ $template_id ] ) ) $layouts[ $template_id ] = self::drawnSlots( $template_id, $team_id );
+            $drawn = self::drawnRows( $rows[ $prep_id ], $layouts[ $template_id ] );
+            if ( $drawn !== [] ) $out[ $prep_id ] = $drawn;
+        }
+        return $out;
+    }
+
+    /** @return array<int, true> the slot numbers the formation draws */
+    private static function drawnSlots( int $template_id, int $team_id ): array {
+        $drawn = [];
+        foreach ( FormationLayoutResolver::layoutFor( $template_id, $team_id ) as $slot ) {
             $drawn[ (int) $slot['num'] ] = true;
         }
+        return $drawn;
+    }
+
+    /**
+     * @param array<object>   $rows
+     * @param array<int,true> $drawn
+     * @return list<object>
+     */
+    private static function drawnRows( array $rows, array $drawn ): array {
         $out = [];
         foreach ( $rows as $row ) {
             if ( isset( $drawn[ (int) ( $row->slot_number ?? 0 ) ] ) ) $out[] = $row;

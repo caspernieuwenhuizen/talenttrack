@@ -62,6 +62,54 @@ class MatchExecutionRepository {
     }
 
     /**
+     * #4599 — the executions of several activities in one query, keyed by
+     * activity id. Activities without one are absent.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, object>
+     */
+    public function findByActivities( array $activity_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_exec} WHERE club_id = %d AND activity_id IN ({$placeholders})",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->activity_id ] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * #4599 — `listSubstitutions()` for several executions in one query,
+     * keyed by execution id, each list in the same order.
+     *
+     * @param array<int> $execution_ids
+     * @return array<int, list<object>>
+     */
+    public function listSubstitutionsForExecutions( array $execution_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $execution_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_subs}
+              WHERE club_id = %d AND execution_id IN ({$placeholders}) AND reversed_at IS NULL
+              ORDER BY execution_id ASC, half ASC, minute_in_half ASC, id ASC",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->execution_id ][] = $row;
+        }
+        return $out;
+    }
+
+    /**
      * Does an execution row exist for this activity? Cheap COUNT — no row
      * hydrate. This is the minutes-authority arbiter: when an execution
      * owns an activity, match-execution owns its minutes and the manual
