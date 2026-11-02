@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
 
@@ -72,8 +73,13 @@ final class PlayersActive implements CustomDataSource {
     private const AGE_RANGE_UNDER = [ 'u9' => 9, 'u11' => 11, 'u13' => 13, 'u15' => 15, 'u17' => 17, 'u19' => 19 ];
 
     /**
-     * The WHERE the rows and the aggregate share: club, not archived, and
-     * the declared filters.
+     * The WHERE the rows and the aggregate share: club, active, and the
+     * declared filters.
+     *
+     * #4638 — "active" is the roster rule (`TeamRoster::liveClause()`):
+     * status `active`, not archived, not in the recycle bin. It was
+     * `status <> 'archived'`, which counted released, trial and inactive
+     * players, so the widget disagreed with the players list's active count.
      *
      * #4566 — `age_range` was declared and accepted but never applied. It
      * keeps a player who has not yet reached the option's age today: their
@@ -85,7 +91,7 @@ final class PlayersActive implements CustomDataSource {
      * @return array{0:list<string>, 1:list<int|string>}
      */
     private function whereFor( array $filters, int $user_id ): array {
-        $where  = [ 'p.club_id = %d', "p.status <> 'archived'" ];
+        $where  = [ 'p.club_id = %d', TeamRoster::liveClause( 'p' ) ];
         $params = [ CurrentClub::id() ];
 
         $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;

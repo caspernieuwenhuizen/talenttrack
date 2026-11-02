@@ -206,7 +206,7 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
     private function countOutsideFixture(): float {
         global $wpdb;
         return (float) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$this->p}tt_players WHERE club_id = %d AND status <> 'archived' AND first_name <> 'KPI'",
+            "SELECT COUNT(*) FROM {$this->p}tt_players p WHERE p.club_id = %d AND " . \TT\Infrastructure\Teams\TeamRoster::liveClause( 'p' ) . " AND p.first_name <> 'KPI'",
             $this->club
         ) );
     }
