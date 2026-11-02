@@ -20,7 +20,7 @@ merge. The reviewer ticks the list in the PR with the measurements, not
 
 - [ ] Renders at 360 px with no horizontal scroll; the mobile viewport gate
       reports no new finding for the touched surfaces and no stale baseline
-      entry at 320, 360 or 390 px, the player profile included
+      entry at 320, 360 or 390 px in Dutch, the player profile included
       (`tests/e2e/mobile-viewport.spec.js`).
 - [ ] Every interactive element is at least 48 by 48 CSS px with 8 px between
       neighbours; a link inside a row link that cannot be tapped has
