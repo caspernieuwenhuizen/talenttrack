@@ -690,7 +690,7 @@ De regels tussen de keuzes:
 - Een rapport voor het gezin of een scout gaat over één speler. Een ouder leest een gezinsrapport alleen via een momentopname die je met hem deelt, nooit het live rapport.
 - Een rapport voor een scout is een rapport, geen dashboard, en alleen iemand die rapporten publiceert, schrijft er een.
 - Een rapport over de hele academie is voor staf, en alleen wie voor alle teams bouwt, maakt er een. Het toont altijd de hele academie.
-- Een rapport over jezelf volgt altijd de persoon die het opent. Alleen een rapport over jezelf, een speler of een team kan de kijker volgen.
+- Een rapport over jezelf volgt altijd de persoon die het opent. Alleen een rapport over jezelf, een speler of een team kan volgen wie het opent.
 - Een dashboard volgt de kalender: de periode ligt nooit vast.
 - Een raster is voor een staf-publiek. Een rapport voor het gezin of een scout is in rijen opgemaakt.
 - Een geplande mail stuurt een rapport in rijen, over een periode die hij zelf kan kiezen (vast of meeschuivend).
