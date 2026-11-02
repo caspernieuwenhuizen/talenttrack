@@ -117,7 +117,7 @@ final class MinutesQuery {
         $all_subs     = $exec_repo->listSubstitutionsForExecutions(
             array_map( static fn( $e ): int => (int) $e->id, array_values( $execs ) )
         );
-        $age_half     = self::teamAgeGroupHalf( $team_id );
+        $age_half     = ( new MatchLengthResolver() )->configuredHalfForTeam( $team_id );
 
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
@@ -268,21 +268,6 @@ final class MinutesQuery {
         } );
 
         return $rows;
-    }
-
-    /**
-     * #4599 — the configured half length for the team's age group, 0 when
-     * there is none: step 3 of `MatchLengthResolver::resolvePlayedLength()`,
-     * read once for a team rather than once per match.
-     */
-    private static function teamAgeGroupHalf( int $team_id ): int {
-        global $wpdb;
-        $age_group = trim( (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT age_group FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
-            $team_id, CurrentClub::id()
-        ) ) );
-        if ( $age_group === '' ) return 0;
-        return ( new MatchLengthResolver() )->configuredMap()[ $age_group ] ?? 0;
     }
 
     /**

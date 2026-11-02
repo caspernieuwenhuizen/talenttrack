@@ -200,6 +200,23 @@ class MatchLengthResolver {
     }
 
     /**
+     * #4599 — the configured half length for a team's age group, 0 when
+     * there is none: step 3 of {@see resolvePlayedLength()}, for a caller
+     * that resolves many matches of one team and reads it once.
+     * Club-scoped.
+     */
+    public function configuredHalfForTeam( int $team_id ): int {
+        if ( $team_id <= 0 ) return 0;
+        global $wpdb;
+        $p         = $wpdb->prefix;
+        $age_group = trim( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT age_group FROM {$p}tt_teams WHERE id = %d AND club_id = %d LIMIT 1",
+            $team_id, CurrentClub::id()
+        ) ) );
+        return $age_group !== '' ? $this->lookupHalf( $age_group ) : 0;
+    }
+
+    /**
      * Minutes between two `TIME` values; 0 when either is missing or the
      * end is neither after the start nor a next-day end (#4513, 23:00 to
      * 00:30 is 90).

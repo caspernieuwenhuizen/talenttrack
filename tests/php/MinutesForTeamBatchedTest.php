@@ -4,6 +4,7 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
  * #4599 — `MinutesQuery::forTeam()` reads the preps, line-ups, executions,
@@ -12,7 +13,8 @@ use TT\Modules\Analytics\Reports\MinutesQuery;
  *
  * The golden test pins the result on a window with a league match run
  * through match execution (prep, line-ups, a substitution), a cup match
- * recorded on paper, a tournament fixture recorded through its rotation
+ * recorded on paper, a friendly whose length comes from the age group's
+ * configured half, a tournament fixture recorded through its rotation
  * plan and a match that was planned but never played. The figures are the
  * ones `forTeam()` returned before the reads were batched.
  */
@@ -33,6 +35,9 @@ final class MinutesForTeamBatchedTest extends WP_UnitTestCase {
     }
 
     public function test_the_result_is_unchanged(): void {
+        // The age group's configured half: step 3 of the played-length chain.
+        \TT\Infrastructure\Query\QueryHelpers::set_config( MatchLengthResolver::CONFIG_KEY, (string) wp_json_encode( [ 'U13' => 25 ] ) );
+
         $team = $this->insertTeam( 'Golden', 'U13' );
         [ $a, $b, $c ] = [ $this->insertPlayer( $team, 'Anna', 1 ), $this->insertPlayer( $team, 'Bram', 2 ), $this->insertPlayer( $team, 'Cas', 3 ) ];
 
@@ -54,6 +59,10 @@ final class MinutesForTeamBatchedTest extends WP_UnitTestCase {
         $this->insertMinutes( $cup, $a, 80 );
         $this->insertMinutes( $cup, $b, 40 );
 
+        // Friendly: no prep and no stored length, so the U13 half answers.
+        $friendly = $this->insertMatch( $team, '2026-03-22', 'Friendly' );
+        $this->insertMinutes( $friendly, $c, 50 );
+
         // A tournament fixture completed before minutes were asked for: the
         // plan answers for A, B is on the register with nothing.
         $fixture = $this->insertTournamentFixture( $team, '2026-04-04', [ $a ] );
@@ -72,7 +81,6 @@ final class MinutesForTeamBatchedTest extends WP_UnitTestCase {
             $byName[ $row['first_name'] ] = $row;
         }
 
-        $this->assertSame( [ 'Anna', 'Cas', 'Bram' ], array_keys( $byName ), 'the order: minutes high to low' );
         $this->assertSame( self::golden(), $byName );
     }
 
@@ -115,13 +123,14 @@ final class MinutesForTeamBatchedTest extends WP_UnitTestCase {
             'subs_in'           => $in,
             'subs_off'          => $off,
             'by_type'           => $by_type,
-            // 60 (prep 2 × 30) + 80 (the cup's own length) + 70 (the
-            // tournament fixture: 2 × 35, nothing more specific on it).
-            'available_minutes' => 210,
+            // 60 (prep 2 × 30) + 80 (the cup's own length) + 50 (the
+            // friendly: the U13 half 2 × 25) + 50 (the tournament fixture,
+            // the same U13 half).
+            'available_minutes' => 240,
         ];
         return [
             'Anna' => $row( 'Anna', 1, 154, 3, 1, 0, 1, [ 'League' => 50, 'Cup' => 80, 'unknown' => 24 ] ),
-            'Cas'  => $row( 'Cas', 3, 60, 1, 1, 0, 0, [ 'League' => 60 ] ),
+            'Cas'  => $row( 'Cas', 3, 110, 2, 1, 0, 0, [ 'League' => 60, 'Friendly' => 50 ] ),
             'Bram' => $row( 'Bram', 2, 50, 2, 0, 1, 0, [ 'League' => 10, 'Cup' => 40 ] ),
         ];
     }
