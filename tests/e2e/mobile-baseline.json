@@ -48,24 +48,48 @@
     "One block per width since #4738: the gate walks at 320, 360 and 390px, and",
     "a surface that overflows at 320 is not thereby allowed to at 390. Each entry",
     "is { kinds, reason }; an entry with no reason fails the spec. The 320 and 360",
-    "blocks, and the reasons in the 390 block, are taken from the first CI run",
-    "at those widths. 'players#record' is the player profile of a player the",
-    "spec creates and removes itself."
+    "blocks, and the reasons in the 390 block, were taken from the first CI run",
+    "at those widths (PR #4750). 'players#record' is the player profile of a",
+    "player the spec creates and removes itself; it is clean at every width.",
+    "The reasons name the element that earns each entry. Apart from 'teams',",
+    "each is a defect to fix, not an allowance to keep."
   ],
   "widths": {
-    "320": {},
-    "360": {},
-    "390": {
-      "courses": { "kinds": [ "tap-target" ], "reason": "" },
-      "docs": { "kinds": [ "tap-target" ], "reason": "" },
-      "lost-password": { "kinds": [ "tap-target" ], "reason": "" },
-      "my-settings": { "kinds": [ "tap-target" ], "reason": "" },
-      "my-tasks": { "kinds": [ "tap-target" ], "reason": "" },
-      "potential-overview": { "kinds": [ "tap-target" ], "reason": "" },
-      "reset-password": { "kinds": [ "tap-target" ], "reason": "" },
+    "320": {
+      "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
+      "docs": { "kinds": [ "tap-target" ], "reason": "The 120 help topic links in the index are 29px high." },
+      "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
+      "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+      "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
+      "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
+      "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). At 320px a card is about 191px." },
+      "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Build a training plan by hand instead\" link is 258x17." },
+      "usage-stats": { "kinds": [ "overflow", "tap-target" ], "reason": "The usage chart canvas is 330px wide, 10px past a 320px viewport; the \"admin\" user link is 35x15." }
+    },
+    "360": {
+      "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
+      "docs": { "kinds": [ "tap-target" ], "reason": "The 120 help topic links in the index are 29px high." },
+      "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
+      "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+      "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
+      "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
-      "training-photo": { "kinds": [ "tap-target" ], "reason": "" },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "" }
+      "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Build a training plan by hand instead\" link is 258x17." },
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+    },
+    "390": {
+      "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
+      "docs": { "kinds": [ "tap-target" ], "reason": "The 120 help topic links in the index are 29px high." },
+      "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
+      "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+      "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
+      "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Back to sign in\" link is 88x16." },
+      "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
+      "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Build a training plan by hand instead\" link is 258x17." },
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
     }
   }
 }
