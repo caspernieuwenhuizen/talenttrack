@@ -1,0 +1,3 @@
+# Match prep availability: whole words on a phone, at most two rows of buttons (#4703)
+
+On a large phone the five availability buttons sat in one row, too narrow for short Dutch words: "Aanwezig", "Geblesseerd" and "Geschorst" broke mid-word. Below 768px the buttons now sit in three columns, so five statuses take at most two rows. Their labels are slightly smaller there, with narrower side padding, so every status of up to twelve letters stays whole even on a 360px screen. From 768px the buttons are in one row again, at the desktop label size. A longer word such as "Verontschuldigd" breaks only at a Dutch syllable, with a hyphen. On a phone the selected button keeps its normal weight, since the blue fill already marks it.

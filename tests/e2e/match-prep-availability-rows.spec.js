@@ -87,8 +87,8 @@ test.describe( 'Match prep availability rows (#4703, #4704)', () => {
 		await archiveSeeded( page, created );
 	} );
 
-	for ( const width of [ 480, 768, 1024, 1280 ] ) {
-		test( `the name sits above one line of chips at ${ width }px`, async ( { page } ) => {
+	for ( const width of [ 360, 390, 480, 768, 1024, 1280 ] ) {
+		test( `the name sits above at most two rows of whole-word buttons at ${ width }px`, async ( { page } ) => {
 			test.skip( skipWhy !== '', skipWhy );
 			await page.setViewportSize( { width, height: 900 } );
 			await page.goto( wizardUrl );
@@ -98,14 +98,25 @@ test.describe( 'Match prep availability rows (#4703, #4704)', () => {
 			expect( rows.length, 'one row per seeded player' ).toBe( 2 );
 			expect( rows.filter( ( r ) => r.badge !== null ).length, 'the injured player carries the badge' ).toBe( 1 );
 
+			const overflow = await page.evaluate( () => document.documentElement.scrollWidth - document.documentElement.clientWidth );
+			expect( overflow, 'no horizontal scroll' ).toBeLessThanOrEqual( 0 );
+
 			for ( const row of rows ) {
 				expect( row.nameBottom, 'the name is above the chips' ).toBeLessThanOrEqual( row.segTop + 0.5 );
 				expect( row.gap ).toBe( '8px' );
-				expect( new Set( row.chips.map( ( c ) => c.top ) ).size, 'the chips share one line' ).toBe( 1 );
+				// #4703 — three columns below 768px (3 + 2), one row from 768.
+				const buttonRows = new Set( row.chips.map( ( c ) => c.top ) ).size;
+				if ( width >= 768 ) {
+					expect( buttonRows, 'one row of buttons' ).toBe( 1 );
+				} else {
+					expect( buttonRows, 'at most two rows of buttons' ).toBeLessThanOrEqual( 2 );
+				}
 				for ( const chip of row.chips ) {
 					expect( chip.height, chip.text + ' is a 48px target' ).toBeGreaterThanOrEqual( 47.5 );
-					if ( width >= 768 ) {
-						expect( chip.lines, chip.text + ' fits on one line' ).toBe( 1 );
+					// A word of up to twelve letters never breaks; a longer one
+					// may, at a syllable.
+					if ( chip.text.length <= 12 ) {
+						expect( chip.lines, chip.text + ' stays whole' ).toBe( 1 );
 					}
 				}
 				if ( row.badge ) {
