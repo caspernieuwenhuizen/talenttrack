@@ -10,9 +10,10 @@ use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 /**
  * #4601 — which activity types count as a match is answered once, by
  * `ActivityTypeKey`. The list used to be written out by hand in eighteen
- * places, and three of them compared without `LOWER()`, so a row stored as
- * `Match` counted in the minutes reports and not in the standard minutes
- * report or the match-day start check.
+ * places, and three of them compared without `LOWER()`. The column's
+ * case-insensitive collation hid that, so a row stored as `Match` counted
+ * everywhere anyway; the capital-M test pins that it still does through the
+ * shared clause, whatever collation a future install gives the column.
  */
 final class MatchTypeClauseTest extends WP_UnitTestCase {
 
