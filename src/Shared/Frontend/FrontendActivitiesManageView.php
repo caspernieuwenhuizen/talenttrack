@@ -591,8 +591,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // #4643 — the reader's way in. Only once a prep exists: a
                 // reader cannot start one, and the read-only view of none
                 // would be an empty page.
+                $prep_activity_id = (int) ( ( (array) $session )['id'] ?? 0 );
                 if ( ! $is_archived && $can_view_prep && self::offersFixtureSurfaces( $type_key )
-                    && ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( (int) $session->id )
+                    && ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $prep_activity_id )
                 ) {
                     $detail_actions[] = [
                         'label' => __( 'View match prep', 'talenttrack' ),
@@ -601,7 +602,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'data_attrs' => [ 'tt-match-prep-read' => '1' ],
                         'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo(
                             add_query_arg(
-                                [ 'tt_view' => 'match-prep', 'activity_id' => (int) $session->id ],
+                                [ 'tt_view' => 'match-prep', 'activity_id' => $prep_activity_id ],
                                 \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                             )
                         ),
