@@ -289,7 +289,19 @@ class FrontendWizardView extends FrontendViewBase {
         // can outlive a future plugin registering a new public query
         // var); battle-tested by the WP ecosystem for 15+ years; security
         // plugins / hosting WAFs whitelist admin-post.php out of the box.
+        // v3.85.2 — "Skip step" removed per operator feedback. Steps that
+        // are genuinely optional should declare `notApplicableFor()`
+        // returning true and be auto-skipped by the wizard runner.
+        $is_last = $current->nextStep( $state ) === null;
+        $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
+
         echo '<form method="post" class="tt-wizard-form" novalidate action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        // #4709 — Enter in a field or on a radio submits through the form's
+        // first submit button, which was Cancel and threw the run away. This
+        // copy of Next comes first so Enter goes forward, without JS and
+        // without moving the visible Cancel-then-Next order. Visually hidden
+        // rather than display:none, which would stop it being the default.
+        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-screen-reader-text" tabindex="-1" aria-hidden="true" data-tt-wizard-default>' . esc_html( $label ) . '</button>';
         echo '<input type="hidden" name="action" value="tt_wizard_step">';
         echo '<input type="hidden" name="tt_wizard_slug" value="' . esc_attr( $slug ) . '">';
         echo '<input type="hidden" name="tt_wizard_step" value="' . esc_attr( $current->slug() ) . '">';
@@ -329,11 +341,6 @@ class FrontendWizardView extends FrontendViewBase {
             echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-wizard-btn-text" formnovalidate data-role="back">' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
         echo '</div>';
-        // v3.85.2 — "Skip step" removed per operator feedback. Steps that
-        // are genuinely optional should declare `notApplicableFor()`
-        // returning true and be auto-skipped by the wizard runner.
-        $is_last = $current->nextStep( $state ) === null;
-        $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
         $loading_label = $is_last ? __( 'Creating…', 'talenttrack' ) : __( 'Loading…', 'talenttrack' );
         echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-wizard-btn-primary" data-role="next" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . ' <span class="tt-wizard-btn-chev" aria-hidden="true">›</span></button>';
         echo '</div>';

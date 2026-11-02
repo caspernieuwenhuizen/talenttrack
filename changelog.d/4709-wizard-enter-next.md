@@ -1,0 +1,3 @@
+# Wizards: Enter goes to the next step instead of cancelling the run (#4709)
+
+Pressing Enter in a wizard field or on a radio button used to cancel the run and land on the dashboard, losing what had been entered. A browser sends Enter through a form's first submit button, and in every wizard that was Cancel. Each wizard form now opens with a visually hidden copy of Next, so Enter checks the step and moves on, with no JavaScript involved. The visible buttons keep their order, Cancel then Next, and Cancel still skips validation. In a multi-line text box Enter still starts a new line.
