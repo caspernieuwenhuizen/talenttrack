@@ -824,7 +824,8 @@ Permission: `tt_view_settings`, or the right to open at least one entry (a user
 who may import players reaches that entry and nothing else). Logged out: 401.
 Every entry is checked against its own right, so a caller never receives an
 entry they could not open; the System section and the access matrix are absent
-for a head of development.
+for a head of development. A player or parent account gets 403: settings are a
+staff surface, whatever read rights the account holds on the data behind them.
 
 ```json
 {

@@ -105,7 +105,7 @@ Configuration groups its settings **by the task you have in mind**, not by the m
 The rules that keep it readable:
 
 - **Every setting appears once.** There is one access matrix, and Rating scale and Football form each have a single home. A setup screen is not listed a second time because it is also a tile.
-- **You only see what you may open.** The System section is for academy administrators only, and so is the access matrix; a head of development sees neither.
+- **You only see what you may open.** The System section is for academy administrators only, and so is the access matrix; a head of development sees neither. A player or parent account is offered no settings at all.
 - **A small section folds into the next one.** When fewer than three entries in a section are yours to open, they join the section after it, so nobody sees a section with one card in it.
 - **Switched-off modules stay findable for an administrator.** Their settings are listed under Features & plan, marked *off*, and lead to the Modules page where you turn the module back on. Everyone else does not see them.
 

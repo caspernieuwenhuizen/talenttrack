@@ -43,6 +43,9 @@ final class SettingsRegistry {
     private const OFF_SECTION = 'features_plan';
     private const OFF_CAP     = 'tt_manage_modules';
 
+    /** Personas that never see a settings entry. */
+    private const FAMILY_PERSONAS = [ 'player', 'parent' ];
+
     /** @var list<array<string,mixed>> Entries added from outside the repository. */
     private static array $registered = [];
 
@@ -153,6 +156,7 @@ final class SettingsRegistry {
      * @return list<array{key:string, section:string, label:string, description:string, keywords:string, url:string, module_state:string, external:bool}>
      */
     public static function entriesFor( int $user_id ): array {
+        if ( self::isFamilyOnly( $user_id ) ) return [];
         $setup = self::visibleSetupTiles( $user_id );
         $out   = [];
         $taken = [];
@@ -337,6 +341,18 @@ final class SettingsRegistry {
             'module_state' => $state,
             'external'     => strpos( $url, '/wp-admin/' ) !== false,
         ];
+    }
+
+    /**
+     * A player or parent account configures nothing. Their read rights on
+     * evaluation categories, lookups and the like exist so they can read
+     * their own record, not so a settings screen is offered to them.
+     */
+    private static function isFamilyOnly( int $user_id ): bool {
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) return false;
+        $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id );
+        if ( $personas === [] ) return false;
+        return array_diff( $personas, self::FAMILY_PERSONAS ) === [];
     }
 
     /** @param array<string,mixed> $entry */

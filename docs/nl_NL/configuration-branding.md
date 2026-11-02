@@ -105,7 +105,7 @@ Configuratie groepeert de instellingen **naar de taak die je voor ogen hebt**, n
 De regels die het overzichtelijk houden:
 
 - **Elke instelling staat er één keer.** Er is één toegangsmatrix, en Beoordelingsschaal en Voetbalvorm hebben elk één plek. Een inrichtingsscherm staat er niet nog een keer omdat het ook een tegel is.
-- **Je ziet alleen wat je mag openen.** De sectie Systeem is alleen voor beheerders van de academie, net als de toegangsmatrix; een technisch directeur ziet geen van beide.
+- **Je ziet alleen wat je mag openen.** De sectie Systeem is alleen voor beheerders van de academie, net als de toegangsmatrix; een technisch directeur ziet geen van beide. Een speler- of ouderaccount krijgt helemaal geen instellingen te zien.
 - **Een kleine sectie schuift op naar de volgende.** Als je in een sectie minder dan drie onderdelen mag openen, komen die bij de sectie erna, zodat niemand een sectie met één kaart ziet.
 - **Uitgeschakelde modules blijven vindbaar voor een beheerder.** Hun instellingen staan onder Functies & pakket, gemarkeerd als *uit*, en leiden naar de pagina Modules waar je de module weer aanzet. Anderen zien ze niet.
 
