@@ -100,6 +100,10 @@ return [
         // team in write scope, both through `ActivityTeamScope::covers*`.
         'MatchPrepAccess::canRead',
         'MatchPrepAccess::canWrite',
+        // The same two rules asked about an activity id: they resolve the
+        // activity's own team first, so they still check the record.
+        'MatchPrepAccess::canReadActivity',
+        'MatchPrepAccess::canWriteActivity',
         // The team-taking forms only. `canRead()`, `canManage()` and their
         // `Chemistry` twins are capability roll-ups that check no team.
         'TeamChemistryAccess::canReadForTeam',
