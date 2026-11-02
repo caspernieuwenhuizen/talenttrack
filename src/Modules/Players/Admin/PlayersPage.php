@@ -640,6 +640,13 @@ class PlayersPage {
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
+        // #4689 — a saver who is not staff for the player was shown the
+        // guardian fields empty; writing them back would erase the guardian
+        // on file. Leave the stored values as they are.
+        if ( $id > 0 && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), $id ) ) {
+            unset( $data['guardian_name'], $data['guardian_email'], $data['guardian_phone'] );
+        }
+
         if ( $id ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {

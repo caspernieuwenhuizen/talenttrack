@@ -15,6 +15,9 @@ use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Modules\Players\Admin\PlayersPage;
 use TT\Shared\Frontend\FrontendPlayerDetailView;
 
+/** Thrown from the `wp_redirect` filter so the save handler's `exit` never runs. */
+final class StaffRuleSaveRedirected extends \Exception {}
+
 /**
  * #4689 — "may read every player" is not "works with this player".
  *
@@ -173,6 +176,57 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( '0612345678', $html );
     }
 
+    /**
+     * The form above is empty for a non-staff reader, so its save must not
+     * write those empty fields back. Today every holder of `players.edit`
+     * is staff; the fixture is the case where that stops being true: a
+     * custom role granting `players.edit` on the team and nothing else.
+     */
+    public function test_a_non_staff_saver_leaves_the_guardian_on_file_alone(): void {
+        global $wpdb;
+        $saver = $this->makeEditOnlySaver();
+        $this->assertTrue( AuthorizationService::canEditPlayer( $saver, $this->player ), 'the saver may edit the player' );
+        $this->assertFalse( AuthorizationService::isStaffForPlayer( $saver, $this->player ), 'the saver is not staff for the player' );
+
+        wp_set_current_user( $saver );
+        $_POST = [
+            'tt_nonce'       => wp_create_nonce( 'tt_save_player' ),
+            'id'             => (string) $this->player,
+            'first_name'     => 'Sem',
+            'last_name'      => 'Visser-Bakker',
+            'team_id'        => (string) $this->team_a,
+            'status'         => 'active',
+            'guardian_name'  => '',
+            'guardian_email' => '',
+            'guardian_phone' => '',
+        ];
+        $_REQUEST = $_POST;
+
+        $redirect = static function ( $location ): string {
+            throw new StaffRuleSaveRedirected( (string) $location );
+        };
+        add_filter( 'wp_redirect', $redirect );
+        try {
+            PlayersPage::handle_save();
+            $this->fail( 'the save must end in a redirect' );
+        } catch ( StaffRuleSaveRedirected $e ) {
+            $this->assertStringContainsString( 'tt_msg=saved', $e->getMessage() );
+        } finally {
+            remove_filter( 'wp_redirect', $redirect );
+            $_POST    = [];
+            $_REQUEST = [];
+        }
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT last_name, guardian_name, guardian_email, guardian_phone FROM {$wpdb->prefix}tt_players WHERE id = %d",
+            $this->player
+        ) );
+        $this->assertSame( 'Visser-Bakker', (string) $row->last_name, 'the rest of the form was saved' );
+        $this->assertSame( 'Ger Visser', (string) $row->guardian_name );
+        $this->assertSame( 'ger.visser@example.org', (string) $row->guardian_email );
+        $this->assertSame( '0612345678', (string) $row->guardian_phone );
+    }
+
     public function test_the_squad_list_carries_guardian_contact_for_staff_only(): void {
         $this->assertSame( 'ger.visser@example.org', $this->exportedGuardianEmail( $this->users['admin'] ) );
         $this->assertSame( 'ger.visser@example.org', $this->exportedGuardianEmail( $this->users['hod'] ) );
@@ -284,6 +338,49 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
             AuthorizationService::userHasPermission( $uid, 'players.edit' ),
             'the fixture holds players.view academy-wide, not players.edit'
         );
+        return $uid;
+    }
+
+    /**
+     * An account with no persona (so the matrix grants nothing) and one
+     * custom role scope on team A that grants `players.edit` alone.
+     */
+    private function makeEditOnlySaver(): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'subscriber' ] );
+
+        $wpdb->insert( "{$p}tt_roles", [
+            'club_id'     => $this->club,
+            'role_key'    => 'test_players_edit_only',
+            'label'       => 'Players edit only',
+            'description' => '',
+            'is_system'   => 0,
+        ] );
+        $role_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_role_permissions", [
+            'club_id'    => $this->club,
+            'role_id'    => $role_id,
+            'permission' => 'players.edit',
+        ] );
+
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id'    => $this->club,
+            'first_name' => 'Alleen',
+            'last_name'  => 'Bewerken',
+            'role_type'  => 'staff',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id'    => $this->club,
+            'person_id'  => (int) $wpdb->insert_id,
+            'role_id'    => $role_id,
+            'scope_type' => 'team',
+            'scope_id'   => $this->team_a,
+        ] );
+
+        AuthorizationService::flushCache();
         return $uid;
     }
 
