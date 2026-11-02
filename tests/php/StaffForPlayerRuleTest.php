@@ -12,6 +12,7 @@ use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterRegistry;
 use TT\Modules\Invitations\PlayerParentsRepository;
+use TT\Modules\Players\Admin\PlayersPage;
 use TT\Shared\Frontend\FrontendPlayerDetailView;
 
 /**
@@ -73,6 +74,7 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
         $this->users['assist_a']  = $this->makeTeamStaff( $this->team_a, 'assistant_coach' );
         $this->users['coach_b']   = $this->makeTeamStaff( $this->team_b, 'head_coach' );
         $this->users['observer']  = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        $this->users['hod_scope'] = $this->makeScopedHeadOfDevelopment();
 
         $this->users['parent'] = (int) self::factory()->user->create( [
             'role'         => 'tt_parent',
@@ -100,7 +102,7 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
     public function tear_down(): void {
         global $wp_rest_server;
         $wp_rest_server = null;
-        unset( $_GET['tab'] );
+        unset( $_GET['tab'], $_GET['action'], $_GET['id'] );
         wp_set_current_user( 0 );
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
@@ -111,6 +113,7 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
         $expected = [
             'admin'    => true,
             'hod'      => true,
+            'hod_scope' => true,
             'head_a'   => true,
             'assist_a' => true,
             'coach_b'  => false,
@@ -152,6 +155,22 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Visser', $html, 'the profile renders for the observer' );
         $this->assertStringNotContainsString( 'Marieke Ouder', $html, 'no co-guardian names' );
         $this->assertStringNotContainsString( 'marieke@example.org', $html, 'no co-guardian e-mail' );
+    }
+
+    public function test_a_head_of_development_appointed_by_role_scope_keeps_the_guardians_card(): void {
+        $this->assertStringContainsString( 'Marieke Ouder', $this->renderProfile( $this->users['hod_scope'] ) );
+        $this->assertSame( 'ger.visser@example.org', $this->getPlayer( $this->users['hod_scope'] )['guardian_email'] ?? null );
+    }
+
+    public function test_the_admin_edit_form_fills_the_guardian_on_file_for_staff_only(): void {
+        $this->assertStringContainsString( 'ger.visser@example.org', $this->renderAdminEditForm( $this->users['hod'] ), 'HoD' );
+        $this->assertStringContainsString( 'ger.visser@example.org', $this->renderAdminEditForm( $this->users['head_a'] ), 'team head coach' );
+
+        $html = $this->renderAdminEditForm( $this->users['observer'] );
+        $this->assertStringContainsString( 'name="guardian_email"', $html, 'the observer opens the form' );
+        $this->assertStringNotContainsString( 'ger.visser@example.org', $html );
+        $this->assertStringNotContainsString( 'Ger Visser', $html );
+        $this->assertStringNotContainsString( '0612345678', $html );
     }
 
     public function test_the_squad_list_carries_guardian_contact_for_staff_only(): void {
@@ -225,6 +244,57 @@ final class StaffForPlayerRuleTest extends WP_UnitTestCase {
             }
         }
         $this->fail( 'the player is not in the federation envelope' );
+    }
+
+    /**
+     * A head of development appointed the way `HeadOfDevelopmentLookup`
+     * finds one: a coach account with an academy-wide `head_of_development`
+     * role scope, not the `tt_head_dev` WordPress role.
+     */
+    private function makeScopedHeadOfDevelopment(): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $role_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            'head_of_development',
+            $this->club
+        ) );
+        $this->assertGreaterThan( 0, $role_id, 'the head_of_development auth role must be seeded' );
+
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id'    => $this->club,
+            'first_name' => 'Hoofd',
+            'last_name'  => 'Opleiding',
+            'role_type'  => 'staff',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id'    => $this->club,
+            'person_id'  => (int) $wpdb->insert_id,
+            'role_id'    => $role_id,
+            'scope_type' => 'global',
+        ] );
+
+        AuthorizationService::flushCache();
+        $this->assertFalse( user_can( $uid, 'tt_head_dev' ), 'the fixture must not hold the WordPress HoD role' );
+        $this->assertFalse(
+            AuthorizationService::userHasPermission( $uid, 'players.edit' ),
+            'the fixture holds players.view academy-wide, not players.edit'
+        );
+        return $uid;
+    }
+
+    private function renderAdminEditForm( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $this->player;
+        ob_start();
+        PlayersPage::render_page();
+        return (string) ob_get_clean();
     }
 
     /** A staff member on one team, built the way production builds one (see GuardianContactsAuditTest). */

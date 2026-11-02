@@ -498,9 +498,12 @@ class AuthorizationService {
      *    scope on that team): yes.
      *  - A role that may change players academy-wide (`players` change at
      *    global scope, as the head of development and the admin hold): yes.
-     *  - `players.view` held globally and nothing more, such as the
-     *    read-only observer: no. Reading every player is not working with
-     *    one, so a global read never answers this question on its own.
+     *  - An academy-wide role assigned in `tt_user_role_scopes` that grants
+     *    `players.view` (a head of development appointed through a global
+     *    role scope, an academy-wide scout or physio): yes.
+     *  - `players.view` held globally only through the persona seed, such as
+     *    the read-only observer: no. Reading every player is not working
+     *    with one.
      *  - The player themselves and a linked parent: no. Neither holds a
      *    team-scoped staff grant or a global change right.
      *
@@ -519,7 +522,7 @@ class AuthorizationService {
 
     /**
      * #4260 — {@see self::isStaffForPlayer()} for many players at once, when
-     * the caller already knows each player's team: the global change right
+     * the caller already knows each player's team: the academy-wide half
      * asked once, then the team-scoped staff grant once per distinct team. No
      * player rows are read, so a roster costs the same whatever its size.
      *
@@ -533,7 +536,7 @@ class AuthorizationService {
             return $out;
         }
 
-        $global  = self::changesPlayersAcademyWide( $user_id );
+        $global  = self::staffAcademyWide( $user_id );
         $by_team = [];
         foreach ( $team_by_player as $pid => $team_id ) {
             $pid     = (int) $pid;
@@ -559,7 +562,7 @@ class AuthorizationService {
     }
 
     /**
-     * The global half of the staff rule: `players.edit` on a global scope
+     * `players.edit` on a global scope
      * (which the administrator and head-of-development shortcuts in
      * {@see self::userHasPermission()} answer too), or the matrix's
      * `players` change at global scope.
@@ -573,21 +576,46 @@ class AuthorizationService {
     }
 
     /**
+     * The global half of the staff rule: a role that may change players
+     * academy-wide, or an academy-wide role assigned to this person in
+     * `tt_user_role_scopes` that reads players (a head of development
+     * appointed through a global `head_of_development` scope rather than the
+     * WordPress role holds `players.view`, not `players.edit`). A global
+     * read that comes only from the persona seed, as the read-only
+     * observer's does, is neither.
+     */
+    private static function staffAcademyWide( int $user_id ): bool {
+        return self::changesPlayersAcademyWide( $user_id )
+            || self::roleScopeReadsPlayers( $user_id, 'global', 0 );
+    }
+
+    /**
      * The team half: `players.view` granted on this team itself. Not
      * {@see self::userHasPermission()} with a team target, which also
      * accepts a global grant; that is exactly the read this rule leaves out.
      */
     private static function holdsPlayersOnTeam( int $user_id, int $team_id ): bool {
-        foreach ( self::resolveScopesForUser( $user_id ) as $scope ) {
-            if ( $scope['scope_type'] !== 'team' || (int) $scope['scope_id'] !== $team_id ) continue;
-            foreach ( (array) $scope['permissions'] as $granted ) {
-                if ( is_string( $granted ) && self::permissionMatches( $granted, 'players.view' ) ) return true;
-            }
-        }
+        if ( self::roleScopeReadsPlayers( $user_id, 'team', $team_id ) ) return true;
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
 
         $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
         return $gate::can( $user_id, 'players', $gate::READ, $gate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * Does a resolved role scope of this type grant `players.view`? For a
+     * `team` scope the scope id must be `$scope_id`; a `global` scope has no
+     * target to match.
+     */
+    private static function roleScopeReadsPlayers( int $user_id, string $scope_type, int $scope_id ): bool {
+        foreach ( self::resolveScopesForUser( $user_id ) as $scope ) {
+            if ( $scope['scope_type'] !== $scope_type ) continue;
+            if ( $scope_type !== 'global' && (int) $scope['scope_id'] !== $scope_id ) continue;
+            foreach ( (array) $scope['permissions'] as $granted ) {
+                if ( is_string( $granted ) && self::permissionMatches( $granted, 'players.view' ) ) return true;
+            }
+        }
+        return false;
     }
 
     /**

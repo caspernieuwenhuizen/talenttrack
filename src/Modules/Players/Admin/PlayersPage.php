@@ -271,6 +271,18 @@ class PlayersPage {
         }
         $is_edit = $player !== null && (int) ( $player->id ?? 0 ) > 0;
 
+        // #4689 — the guardian on file follows the staff rule, as on the
+        // profile and the REST record: a reader who may open this player but
+        // does not work with them gets the form with those fields empty.
+        if ( $player !== null && $is_edit
+            && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), (int) ( $player->id ?? 0 ) ) ) {
+            $player = (object) array_merge( get_object_vars( $player ), [
+                'guardian_name'  => '',
+                'guardian_email' => '',
+                'guardian_phone' => '',
+            ] );
+        }
+
         // v2.14.0: Rate Card tab embedded on the edit view. Only available
         // when editing an existing player (no evaluations to rate-card on
         // a new one). Default tab is 'edit' (the existing form).
