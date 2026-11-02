@@ -55,9 +55,10 @@ final class MatchPrepAccessSurfacesTest extends WP_UnitTestCase {
 
     public function test_the_prep_sheet_is_built_from_the_prep_rule(): void {
         $source = self::source( self::SURFACES[2] );
+        // The method alone: from its signature to its closing brace.
         $start  = strpos( $source, 'public static function renderHtml(' );
-        $end    = strpos( $source, 'public static function renderTeamSheetHtml(' );
         $this->assertIsInt( $start );
+        $end    = strpos( $source, "\n    }\n", $start );
         $this->assertIsInt( $end );
         $render = substr( $source, $start, $end - $start );
 
