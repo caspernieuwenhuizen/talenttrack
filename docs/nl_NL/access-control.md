@@ -662,7 +662,7 @@ matrix-entiteit `strava_integration` met `self`-scope (lezen + wijzigen),
 toegekend aan de persona `speler` — net als de `my_profile`-rechten van de
 speler. Een speler beheert altijd alleen zijn **eigen** koppeling; door de
 self-scope kan hij Strava niet koppelen voor een andere speler. De
-Strava-**clubconsole** (Configuratie → Integraties: app-gegevens,
+Strava-**clubconsole** (Configuratie → Activiteiten & wedstrijden → Strava-koppeling: app-gegevens,
 webhook-abonnement, koppelingenoverzicht) is configuratie met een eigen
 entiteit, `strava_operator_console`. Standaard heeft de Academie-beheerder die
 volledig en leest het Hoofd opleiding hem clubbreed. Een Hoofdtrainer leest hem

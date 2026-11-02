@@ -699,8 +699,8 @@ account from their profile. This is gated by the matrix entity
 `strava_integration` at `self` scope (read + change), seeded for the `player`
 persona — mirroring the player's `my_profile` self grant. A player can only
 ever manage their **own** connection; the self scope means they cannot connect
-Strava for any other player. The Strava **club console** (Configuration →
-Integrations: app credentials, webhook subscription, connections overview) is
+Strava for any other player. The Strava **club console** (Configuration → Activities &
+matches → Strava integration: app credentials, webhook subscription, connections overview) is
 configuration with its own entity, `strava_operator_console`. By default the
 Academy admin holds it in full and the Head of development reads it club-wide.
 A Head coach reads it at team scope: the connections list shows only their own

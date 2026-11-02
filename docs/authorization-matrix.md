@@ -535,7 +535,7 @@ config land in the paired migration `0186_recycle_bin_foundation`.
 Strava is gated by two matrix entities. `strava_integration` is a player's
 own Strava connection: the Strava tab on the profile, and connecting or
 disconnecting their own account. `strava_operator_console` is the **club
-console** (Configuration → Integrations, `?tt_view=strava-admin`): the
+console** (Configuration → Activities & matches → Strava integration, `?tt_view=strava-admin`): the
 connections list, the webhook subscription and the app credentials. The
 console is configuration, so it has its own row.
 

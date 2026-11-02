@@ -90,7 +90,7 @@ not hard-erased) so nothing lingers in an authorized state after a disconnect.
 ## Operator setup
 
 Both one-time steps live on the **Strava integration** console, reached from
-**Configuration → Integrations → Strava integration** (or directly at
+**Configuration → Activities & matches → Strava integration** (or directly at
 `?tt_view=strava-admin`):
 
 1. **Register the Strava app credentials.** Create an API application in your

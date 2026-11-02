@@ -534,7 +534,7 @@ retentieconfiguratie landen in de gepaarde migratie
 Strava wordt geregeld door twee matrix-entiteiten. `strava_integration` is
 de eigen Strava-koppeling van een speler: het Strava-tabblad op het profiel,
 en het koppelen of ontkoppelen van het eigen account.
-`strava_operator_console` is de **clubconsole** (Configuratie → Integraties,
+`strava_operator_console` is de **clubconsole** (Configuratie → Activiteiten & wedstrijden → Strava-koppeling,
 `?tt_view=strava-admin`): de lijst met koppelingen, het webhook-abonnement en
 de app-gegevens. De console is configuratie en heeft daarom een eigen rij.
 
