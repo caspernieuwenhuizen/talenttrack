@@ -415,7 +415,17 @@ the one fallback both make: on a completed tournament match whose attendance
 holds no minutes at all (a match completed before the completion step asked for
 them), the rotation plan's minutes are shown, as in the minutes grid and every
 minutes report (the team and player minutes reports, Player · Minutes played,
-Team · Minutes distribution and Team · Minutes share). A minute confirmed on the attendance, 0 included, always wins. The honest-zero
+Team · Minutes distribution and Team · Minutes share). A minute confirmed on the attendance, 0 included, always wins.
+
+The audit shows those plan minutes but does **not** count them as recorded. The
+cell carries the minutes with a **Planned** marker, the same word the player's
+Tournaments tab uses, and the match is not *Complete* while any are left: it
+reads *Incomplete* (or *Not recorded* when every figure is from the plan), with
+the reason *Minutes from the match plan, not yet confirmed*. Tap the figure to
+open the minutes grid on that match, check the minutes, and save: the grid
+writes them to the attendance and the marker goes. A tournament day marks a
+player Planned when any of their fixtures does. The totals still include the
+plan minutes, so the audit keeps reconciling with the minutes reports. The honest-zero
 rules apply here too: a team with games but no recorded minutes shows every game,
 honest *Not recorded* chips, and a clear next-action note — never a misleading
 "0 players" empty state. An empty window (no games at all) says so distinctly.

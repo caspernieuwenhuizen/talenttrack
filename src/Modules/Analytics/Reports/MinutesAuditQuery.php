@@ -9,6 +9,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Teams\FootballFormResolver;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
  * MinutesAuditQuery (#2368) — the games × players auditability matrix for
@@ -72,8 +73,8 @@ use TT\Modules\Teams\FootballFormResolver;
  * @phpstan-type AuditMatrix array{
  *   games: list<array{
  *     activity_id:int, session_date:string, title:string, type_key:string,
- *     minutes:array<int,int>, on_squad:array<int,bool>, selected:array<int,bool>, unavailable:array<int,bool>,
- *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
+ *     minutes:array<int,int>, on_squad:array<int,bool>, selected:array<int,bool>, unavailable:array<int,bool>, planned:array<int,bool>,
+ *     total_minutes:int, available_minutes:int, recorded_count:int, planned_count:int, squad_count:int,
  *     status:string, status_reason:string,
  *     is_rollup:bool, editable:bool, tournament_id:int
  *   }>,
@@ -196,7 +197,9 @@ final class MinutesAuditQuery {
         //    #4500 / #4556 — and on a completed tournament fixture with
         //    nothing on its register, the rotation plan's minutes: the rule
         //    lives once, in `MinutesQuery::playerMatchMinutes()`.
-        $minutes_by_game = MinutesQuery::minutesForActivities( $activity_ids );
+        //    #4580 — a plan figure is shown but is not a recorded one, so
+        //    where each figure came from is kept beside it.
+        [ $minutes_by_game, $planned_by_game ] = self::minutesWithSource( $activity_ids );
 
         // Fold into per-activity maps.
         $squad_by_game   = []; // aid => [pid => true]
@@ -227,6 +230,9 @@ final class MinutesAuditQuery {
             }
             foreach ( $rollup['minutes'] as $pid => $mins ) {
                 $minutes_by_game[ $aid ][ $pid ] = $mins;
+            }
+            foreach ( $rollup['planned'] as $pid => $_planned ) {
+                $planned_by_game[ $aid ][ $pid ] = true;
             }
         }
 
@@ -283,9 +289,30 @@ final class MinutesAuditQuery {
                 $players,
                 static fn( array $pl ): bool => isset( $team_pids[ $tid ][ $pl['player_id'] ] )
             ) );
-            $out[ $tid ] = self::assemble( $team_activities, $team_players, $available, $squad_by_game, $unavail_by_game, $minutes_by_game, $duplicate_pairs );
+            $out[ $tid ] = self::assemble( $team_activities, $team_players, $available, $squad_by_game, $unavail_by_game, $minutes_by_game, $planned_by_game, $duplicate_pairs );
         }
         return $out;
+    }
+
+    /**
+     * #4580 — the minutes above 0 per game and player, from
+     * `MinutesQuery::playerMatchMinutes()`, and which of them the rotation
+     * plan supplied rather than the register.
+     *
+     * @param array<int> $activity_ids
+     * @return array{0: array<int, array<int,int>>, 1: array<int, array<int,bool>>} [ minutes, planned ]
+     */
+    private static function minutesWithSource( array $activity_ids ): array {
+        $minutes = [];
+        $planned = [];
+        foreach ( MinutesQuery::playerMatchMinutes( $activity_ids ) as $aid => $by_player ) {
+            foreach ( $by_player as $pid => $entry ) {
+                if ( $entry['minutes'] === null || $entry['minutes'] <= 0 ) continue;
+                $minutes[ $aid ][ $pid ] = $entry['minutes'];
+                if ( $entry['source'] === TournamentMinutesResolver::SOURCE_PLAN ) $planned[ $aid ][ $pid ] = true;
+            }
+        }
+        return [ $minutes, $planned ];
     }
 
     /** @return AuditMatrix the matrix of a team with no games in the window */
@@ -309,9 +336,10 @@ final class MinutesAuditQuery {
      * @param array<int, array<int, bool>>                 $squad_by_game   activity id => [ player id => true ]
      * @param array<int, array<int, bool>>                 $unavail_by_game activity id => [ player id => true ]
      * @param array<int, array<int, int>>                  $minutes_by_game activity id => [ player id => minutes ]
+     * @param array<int, array<int, bool>>                 $planned_by_game activity id => [ player id => true ], #4580
      * @return AuditMatrix
      */
-    private static function assemble( array $activities, array $players, array $available, array $squad_by_game, array $unavail_by_game, array $minutes_by_game, int $duplicate_pairs ): array {
+    private static function assemble( array $activities, array $players, array $available, array $squad_by_game, array $unavail_by_game, array $minutes_by_game, array $planned_by_game, int $duplicate_pairs ): array {
         if ( $players === [] ) {
             // Games exist, but no player is on any squad and nothing is
             // recorded — an honest "games present, no minutes recorded" state.
@@ -329,9 +357,11 @@ final class MinutesAuditQuery {
                     'on_squad'       => [],
                     'selected'       => [],
                     'unavailable'    => [],
+                    'planned'        => [],
                     'total_minutes'     => 0,
                     'available_minutes' => $available[ (int) $a->id ] ?? 0,
                     'recorded_count'    => 0,
+                    'planned_count'     => 0,
                     'squad_count'       => 0,
                     'status'            => 'none',
                     'status_reason'     => '',
@@ -369,6 +399,7 @@ final class MinutesAuditQuery {
             $squad_map   = $squad_by_game[ $aid ]   ?? [];
             $unavail_map = $unavail_by_game[ $aid ] ?? [];
             $min_map     = $minutes_by_game[ $aid ] ?? [];
+            $plan_map    = $planned_by_game[ $aid ] ?? [];
             $is_rollup   = self::isTournamentRow( $a );
 
             // A player counts as on-squad for the game if they have an
@@ -380,8 +411,10 @@ final class MinutesAuditQuery {
             $selected      = [];
             $unavailable   = [];
             $minutes       = [];
+            $planned       = [];
             $row_total     = 0;
             $recorded      = 0;
+            $planned_count = 0;
             $squad_count   = 0;
             foreach ( $ordered_pids as $pid ) {
                 $is_squad = isset( $squad_map[ $pid ] ) || isset( $min_map[ $pid ] );
@@ -390,9 +423,17 @@ final class MinutesAuditQuery {
                 $selected[ $pid ]    = isset( $squad_map[ $pid ] );
                 $unavailable[ $pid ] = ! $is_squad && isset( $unavail_map[ $pid ] );
                 $minutes[ $pid ]     = $mins;
+                $planned[ $pid ]     = $mins > 0 && isset( $plan_map[ $pid ] );
                 if ( $is_squad ) $squad_count++;
                 if ( $mins > 0 ) {
-                    $recorded++;
+                    // #4580 — a plan figure is shown and counted in the
+                    // totals the minutes reports show, but nobody recorded
+                    // it, so it does not count towards a recorded match.
+                    if ( $planned[ $pid ] ) {
+                        $planned_count++;
+                    } else {
+                        $recorded++;
+                    }
                     $row_total += $mins;
                     // A roll-up shows what its fixtures hold; those fixture
                     // rows already carry the minutes into the totals, so
@@ -408,7 +449,8 @@ final class MinutesAuditQuery {
                 $recorded,
                 $squad_count,
                 $row_total,
-                $is_rollup ? null : $available_minutes
+                $is_rollup ? null : $available_minutes,
+                $planned_count
             );
 
             if ( $is_rollup ) {
@@ -442,12 +484,17 @@ final class MinutesAuditQuery {
                 // match prep or on the register) and no minutes recorded.
                 // The state only: no reason or injury detail leaves here.
                 'unavailable'    => $unavailable,
+                // #4580 — minutes the rotation plan supplied on a completed
+                // tournament fixture whose register holds none: shown, but
+                // not recorded until a coach confirms them.
+                'planned'        => $planned,
                 'total_minutes'     => $row_total,
                 // #4058 — what the match holds, so the verdict can be
                 // explained. 0 on a tournament roll-up, which is not judged
                 // against a match length.
                 'available_minutes' => $available_minutes,
                 'recorded_count'    => $recorded,
+                'planned_count'     => $planned_count,
                 'squad_count'       => $squad_count,
                 'status'            => $status,
                 'status_reason'     => $status_reason,
@@ -488,12 +535,19 @@ final class MinutesAuditQuery {
      * alone cannot. Pass `$available` null for a tournament roll-up, which
      * is judged on its players only: it has no match length of its own.
      *
+     * #4580 — `$planned` counts the players whose minutes the rotation plan
+     * supplied. They have minutes but none recorded, so the match is never
+     * complete while any are left: `minutes_planned` says so, on a `none`
+     * row (plan only) as on a `partial` one, unless players are missing
+     * minutes altogether.
+     *
      * @return array{0:string, 1:string} [ status, reason ]
      */
-    public static function completeness( int $recorded, int $squad_count, int $total_minutes, ?int $available ): array {
-        if ( $recorded === 0 ) return [ 'none', '' ];
+    public static function completeness( int $recorded, int $squad_count, int $total_minutes, ?int $available, int $planned = 0 ): array {
+        if ( $recorded === 0 ) return [ 'none', $planned > 0 ? 'minutes_planned' : '' ];
 
-        if ( $squad_count <= 0 || $recorded < $squad_count ) return [ 'partial', 'players_missing' ];
+        if ( $squad_count <= 0 || $recorded + $planned < $squad_count ) return [ 'partial', 'players_missing' ];
+        if ( $planned > 0 ) return [ 'partial', 'minutes_planned' ];
 
         if ( $available !== null ) {
             if ( $total_minutes < $available ) return [ 'partial', 'minutes_short' ];
@@ -582,7 +636,7 @@ final class MinutesAuditQuery {
      * honestly so: there are no recorded minutes anywhere for it.
      *
      * @param array<int,object> $activities
-     * @return array<int,array{squad:array<int,bool>, unavailable:array<int,bool>, minutes:array<int,int>}>
+     * @return array<int,array{squad:array<int,bool>, unavailable:array<int,bool>, minutes:array<int,int>, planned:array<int,bool>}>
      */
     private function fixtureRollups( array $activities ): array {
         global $wpdb;
@@ -632,15 +686,22 @@ final class MinutesAuditQuery {
         // #4500 / #4556 — the minutes read the fixture's own row takes, the
         // plan fallback included, so the day stays the sum of rows already
         // in the matrix.
-        $squad_marks        = $this->squadMarks( $ids );
-        $minutes_by_fixture = MinutesQuery::minutesForActivities( $ids );
+        $squad_marks = $this->squadMarks( $ids );
+        [ $minutes_by_fixture, $planned_by_fixture ] = self::minutesWithSource( $ids );
 
         $out = [];
         foreach ( $days as $day_id => $tournament_id ) {
             $squad       = [];
             $unavailable = [];
             $minutes     = [];
+            $planned     = [];
             foreach ( $fixtures[ $tournament_id ] ?? [] as $fixture_id ) {
+                // #4580 — a player whose day sums a plan figure from any
+                // fixture is Planned on the day, even when another fixture's
+                // minutes are recorded: the total is not all confirmed.
+                foreach ( $planned_by_fixture[ $fixture_id ] ?? [] as $pid => $_planned ) {
+                    $planned[ (int) $pid ] = true;
+                }
                 foreach ( $squad_marks[ $fixture_id ] ?? [] as $pid => $is_unavailable ) {
                     if ( $is_unavailable ) {
                         $unavailable[ (int) $pid ] = true;
@@ -657,7 +718,7 @@ final class MinutesAuditQuery {
             // another: the player was there for part of the afternoon.
             $unavailable = array_diff_key( $unavailable, $squad );
             if ( $squad === [] && $minutes === [] && $unavailable === [] ) continue;
-            $out[ $day_id ] = [ 'squad' => $squad, 'unavailable' => $unavailable, 'minutes' => $minutes ];
+            $out[ $day_id ] = [ 'squad' => $squad, 'unavailable' => $unavailable, 'minutes' => $minutes, 'planned' => $planned ];
         }
         return $out;
     }

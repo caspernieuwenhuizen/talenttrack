@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
@@ -315,6 +316,18 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             $on_squad = $g['on_squad'];
             /** @var array<int,bool> $unavailable */
             $unavailable = $g['unavailable'];
+            /** @var array<int,bool> $planned */
+            $planned = $g['planned'] ?? [];
+            // #4580 — a planned figure opens the minutes grid on that match,
+            // where saving writes the register and the marker goes.
+            $grid_url = '';
+            if ( ! $rollup && in_array( true, $planned, true ) ) {
+                $aid = (int) $g['activity_id'];
+                ActivityGridLink::primeAnchor( $aid, $team_id, substr( (string) $g['session_date'], 0, 10 ) );
+                if ( ActivityGridLink::canUseMinutes( $aid, get_current_user_id() ) ) {
+                    $grid_url = BackLink::appendTo( ActivityGridLink::minutesUrl( $aid ) );
+                }
+            }
             foreach ( $players as $pl ) {
                 $pid  = (int) $pl['player_id'];
                 $mins = (int) ( $minutes[ $pid ] ?? 0 );
@@ -325,6 +338,13 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
                     echo '<td class="tt-maud-cell tt-maud-cell--unavailable"><span class="tt-maud-cell__label">' . esc_html( PlayerAvailability::label() ) . '</span></td>';
                 } elseif ( ! $sq ) {
                     echo '<td class="tt-maud-cell tt-maud-cell--na" aria-label="' . esc_attr__( 'Not in squad', 'talenttrack' ) . '">&mdash;</td>';
+                } elseif ( $mins > 0 && ! empty( $planned[ $pid ] ) ) {
+                    $inner = esc_html( (string) $mins )
+                        . '<span class="tt-maud-cell__label">' . esc_html( self::plannedLabel() ) . '</span>';
+                    if ( $grid_url !== '' ) {
+                        $inner = '<a class="tt-maud-cell__link" href="' . esc_url( $grid_url ) . '">' . $inner . '</a>';
+                    }
+                    echo '<td class="tt-maud-cell tt-maud-cell--planned">' . $inner . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
                 } elseif ( $mins > 0 ) {
                     echo '<td class="tt-maud-cell tt-maud-cell--min">' . esc_html( (string) $mins ) . '</td>';
                 } else {
@@ -424,12 +444,25 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         echo '</div>';
     }
 
+    /**
+     * #4580 — the word the player's Tournaments tab puts on the same
+     * figure, same msgid and context, so the two screens agree.
+     */
+    private static function plannedLabel(): string {
+        return _x( 'Planned', 'tournament fixture: these minutes are the rotation plan, not a confirmed figure', 'talenttrack' );
+    }
+
     private static function renderLegend(): void {
         echo '<div class="tt-maud-legend">';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--min"></span>' . esc_html__( 'minutes recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--zero"></span>' . esc_html__( 'in squad, 0 recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--unavailable"></span>' . esc_html( PlayerAvailability::label() ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--na"></span>' . esc_html__( 'not in squad', 'talenttrack' ) . '</span>';
+        echo '<span><span class="tt-maud-swatch tt-maud-swatch--planned"></span>' . esc_html( sprintf(
+            /* translators: %s: the word "Planned" as the cell shows it */
+            __( '%s: taken from the match plan; confirm the real minutes in the grid', 'talenttrack' ),
+            self::plannedLabel()
+        ) ) . '</span>';
         echo '<span>' . esc_html__( 'Complete means every player in the squad has minutes and the total adds up to a whole match: players a side times the match length.', 'talenttrack' ) . '</span>';
         echo '<span>' . esc_html__( 'A tournament day is a roll-up of its fixtures: its minutes are recorded in the tournament planner and are already counted in the fixture rows, so it is left out of the column totals.', 'talenttrack' ) . '</span>';
         echo '</div>';

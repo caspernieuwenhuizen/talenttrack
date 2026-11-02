@@ -145,6 +145,25 @@ table.tt-maud-matrix {
     );
 }
 .tt-maud-cell--unavailable { color: var(--tt-warning-ink, #8a3d10); }
+/* minutes the rotation plan supplied on a completed tournament fixture:
+   shown, not recorded, and labelled "Planned" so the state never rests on
+   colour. The figure links to the minutes grid where it is confirmed. */
+.tt-maud-cell--planned,
+.tt-maud-matrix tbody tr:nth-child(odd) td.tt-maud-cell--planned,
+.tt-maud-swatch--planned {
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+.tt-maud-cell--planned { color: var(--tt-warning-ink, #8a3d10); }
+.tt-maud-cell__link {
+    display: block;
+    color: inherit;
+    text-decoration: underline;
+    touch-action: manipulation;
+}
+@media (pointer: coarse) {
+    .tt-maud-cell__link { min-height: var(--tt-tap-min, 3rem); }
+}
+.tt-maud-cell__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .tt-maud-cell__label {
     display: block;
     font-size: 0.6rem;
