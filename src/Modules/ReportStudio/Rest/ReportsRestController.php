@@ -10,6 +10,7 @@ use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportContext;
+use TT\Modules\ReportStudio\Domain\ReportCreation;
 use TT\Modules\ReportStudio\Domain\ReportData;
 use TT\Modules\ReportStudio\Domain\ReportDefinition;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
@@ -75,6 +76,22 @@ final class ReportsRestController extends BaseController {
                 'callback'            => [ __CLASS__, 'create_report' ],
                 'permission_callback' => $build,
                 'args'                => self::createArgs(),
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/start-options', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'start_options' ],
+                'permission_callback' => $build,
+                'args'                => [
+                    'kind'        => [ 'type' => 'string', 'description' => 'report or dashboard.' ],
+                    'scope'       => [ 'type' => 'string', 'description' => 'me (default), player, team, group or academy.' ],
+                    'audience'    => [ 'type' => 'string', 'description' => 'internal, scout or family.' ],
+                    'binding'     => [ 'type' => 'string', 'description' => 'fixed, on_open or viewer.' ],
+                    'period_mode' => [ 'type' => 'string', 'description' => 'on_open, rolling or fixed.' ],
+                    'layout'      => [ 'type' => 'string', 'description' => 'rows or grid.' ],
+                    'sharing'     => [ 'type' => 'string', 'description' => 'me, role, schedule or family.' ],
+                ],
             ],
         ] );
         register_rest_route( self::NS, '/reports/(?P<id>\d+)', [
@@ -248,16 +265,37 @@ final class ReportsRestController extends BaseController {
         if ( $bad ) return $bad;
 
         $user_id = get_current_user_id();
-        $choices = ReportStartRules::validate( self::body( $r ), $user_id );
-        if ( $choices instanceof StudioError ) return self::refuse( $choices );
+        $id      = ReportCreation::create( self::body( $r ), $user_id );
+        if ( $id instanceof StudioError ) return self::refuse( $id );
 
-        $repo = new ReportsRepository();
-        $id   = $repo->create( $choices, $user_id );
-        $report = $id > 0 ? $repo->find( $id ) : null;
+        $report = ( new ReportsRepository() )->find( $id );
         if ( $report === null ) {
             return RestResponse::error( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
         }
         return RestResponse::success( self::full( $report, ReportReader::for( $user_id ) ), 201 );
+    }
+
+    /**
+     * Every starting choice's options, each `ok` or switched off with the
+     * reason, for the choices sent so far. A choice an earlier one rules out
+     * is reported under `moved`. Reads only.
+     */
+    public static function start_options( WP_REST_Request $r ): WP_REST_Response {
+        $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
+        if ( $blocked ) return $blocked;
+
+        $in = [];
+        foreach ( ReportStartRules::FIELDS as $field ) {
+            $value = $r->get_param( $field );
+            if ( $value === null || $value === '' ) continue;
+            if ( ! is_string( $value ) || ! in_array( $value, ReportStartRules::values( $field ), true ) ) return self::badFilter( $field );
+            $in[ $field ] = $value;
+        }
+        if ( ! isset( $in['scope'] ) ) $in['scope'] = ReportContext::SCOPE_ME;
+
+        $answer = ReportStartRules::options( $in, get_current_user_id() );
+        if ( $answer instanceof StudioError ) return self::refuse( $answer );
+        return RestResponse::success( $answer );
     }
 
     public static function get_report( WP_REST_Request $r ): WP_REST_Response {

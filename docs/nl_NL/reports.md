@@ -670,3 +670,31 @@ Een gepland KPI-rapport wordt bij elke run per ontvanger gecontroleerd, zodat ee
 - **Een adres zonder account hier** ontvangt het rapport alleen als het geen spelersgegevens bevat, zoals het activiteitenvolume. Het leest dan met de toegang van degene die het schema heeft aangemaakt. Een rapport over spelers (aanwezigheid, evaluaties, doelen, ontwikkelingslijn-gebeurtenissen, trialbeslissingen, prospects) gaat nooit naar zo'n adres.
 - **Accounts die dezelfde rijen mogen lezen**, delen één CSV, zodat een rol met veel academiebrede lezers één keer wordt opgebouwd en niet per persoon.
 - **Wie wordt overgeslagen**, staat na de run bij het schema in de lijst met schema's. Een rolsleutel staat er met het aantal overgeslagen leden, nooit met hun adressen; adressen die je zelf hebt ingetypt worden genoemd, en als de lijst te lang wordt, wordt de rest geteld ("en nog 3"). De auditregel van de run legt elke overgeslagen ontvanger met de reden vast.
+## Report Studio — een rapport beginnen
+
+In de Report Studio bouw je een eigen rapport of dashboard, uit de cijfers die TalentTrack al heeft. Een hoofdtrainer of assistent-trainer bouwt over de eigen teams en spelers; het hoofd opleiding en de academy-beheerder bouwen over elk team, elke speler en de hele academie. De Studio hoort bij het Pro-abonnement en wordt aangezet bij de instellingen voor modules en functies.
+
+**+ Nieuw rapport** opent een korte wizard. Die vraagt zeven startkeuzes, één of twee per pagina, en die bepalen wat het rapport kan worden. Een optie die niet past bij wat je eerder koos, blijft zichtbaar maar staat uit, met de reden eronder.
+
+1. **Wat en over wie.** Een rapport of een dashboard, en over wie het gaat: jezelf, één speler, één team, een groep spelers of de hele academie.
+2. **Het onderwerp.** Welke speler, welk team, of welke teams de groep vormen (eventueel één leeftijdsgroep). Je krijgt alleen de spelers en teams aangeboden waarover je rapporten bouwt. Deze pagina wordt overgeslagen voor een rapport over jezelf of over de academie, en als je begint vanaf de pagina van een speler of een team.
+3. **Wie het leest.** Staf, een externe scout, of de speler en het gezin; en of het rapport altijd hetzelfde onderwerp toont, de lezer het onderwerp laat kiezen bij het openen, of de persoon volgt die het opent.
+4. **Wanneer en hoe.** De periode: gekozen bij het openen, meeschuivend (vorige week, vorige maand, deze maand, dit seizoen), of vaste datums. En de opmaak: rijen, die af te drukken zijn en op een telefoon werken, of een raster voor schermen.
+5. **Delen.** Alleen jij, gepubliceerd voor een rol, een geplande mail, of gedeeld met het gezin.
+6. **Naam en controle.** Geef het een naam, lees je keuzes terug en maak het aan. Voor deze laatste stap wordt niets opgeslagen.
+
+Ga je terug en verander je een eerder antwoord, dan schuift een latere keuze die niet meer past naar de eerste optie die wel past, en de wizard vertelt je welke keuze verschoof en waarom.
+
+De regels tussen de keuzes:
+
+- Een rapport voor het gezin of een scout gaat over één speler. Een ouder leest een gezinsrapport alleen via een momentopname die je met hem deelt, nooit het live rapport.
+- Een rapport voor een scout is een rapport, geen dashboard, en alleen iemand die rapporten publiceert, schrijft er een.
+- Een rapport over de hele academie is voor staf, en alleen wie voor alle teams bouwt, maakt er een. Het toont altijd de hele academie.
+- Een rapport over jezelf volgt altijd de persoon die het opent. Alleen een rapport over jezelf, een speler of een team kan de kijker volgen.
+- Een dashboard volgt de kalender: de periode ligt nooit vast.
+- Een raster is voor een staf-publiek. Een rapport voor het gezin of een scout is in rijen opgemaakt.
+- Een geplande mail stuurt een rapport in rijen, over een periode die hij zelf kan kiezen (vast of meeschuivend).
+- Delen met het gezin vraagt een rapport dat voor het gezin is geschreven.
+- Publiceren voor een rol vraagt een onderwerp dat elke lezer kiest of volgt (of de academie), en het recht om te publiceren.
+
+Bouwen vraagt de bevoegdheid **Report Studio: rapporten bouwen**; publiceren voor een rol vraagt **Report Studio: voor een rol publiceren**. De wizard is het enige scherm dat een rapport aanmaakt: staat hij uit onder **Beheer → Wizards**, dan is de knop **+ Nieuw rapport** verborgen.

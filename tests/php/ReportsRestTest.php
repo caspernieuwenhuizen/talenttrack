@@ -130,7 +130,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             'audience'    => [ 'scope' => 'team', 'team_id' => $this->team_a, 'audience' => 'family' ],
             'period_mode' => [ 'scope' => 'team', 'team_id' => $this->team_a, 'kind' => 'dashboard', 'period_mode' => 'fixed', 'period_value' => '2020-03-01/2020-03-31' ],
             'layout'      => [ 'scope' => 'player', 'player_id' => $this->player_a, 'audience' => 'family', 'layout' => 'grid' ],
-            'binding'     => [ 'scope' => 'team', 'team_id' => $this->team_a, 'sharing' => 'role' ],
+            'binding'     => [ 'scope' => 'me', 'binding' => 'fixed' ],
             'sharing'     => [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ],
             'period_value' => [ 'scope' => 'me', 'period_mode' => 'rolling', 'period_value' => 'forever' ],
             'kind'        => [ 'scope' => 'me', 'kind' => 'poster' ],
