@@ -201,6 +201,30 @@ The bulk exports gate on the raw view capability, which the matrix bridge answer
 
 A user with neither a matrix row nor a scope row is refused exactly as before, and no exporter's capability was narrowed — the export was the route that happened to agree with the seed.
 
+## Sensitive fields
+
+Some fields on a record a reader may open are still not theirs to see: a reader who may read a player is not automatically someone who may read the guardian's phone number. Those fields are listed in one place, `config/sensitive_fields.php`, with the right that unlocks each one, and hidden in one place, `Infrastructure\Security\RecordRedactor`.
+
+What a reader without the right gets:
+
+- **Over REST**, the field is left out of the answer entirely. It is not sent as `null` and there is no flag saying it was removed. The redactor runs after the controller has built the answer (`rest_post_dispatch`), for every route the registry lists for that entity, so a controller that forgets to ask still cannot hand the field out.
+- **On screen**, the word **Hidden** in a muted style where the value would be, with "Hidden for your role" for a screen reader. Never an empty cell, which would read as "not filled in".
+
+The fields registered so far:
+
+| Entity | Fields | Who may read them |
+| --- | --- | --- |
+| `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `custom_fields` | Staff for the player: a staff role on the player's team, a role that may change players academy-wide, or an academy-wide role assignment that reads players |
+
+### Adding a sensitive field
+
+1. **Register it** in `config/sensitive_fields.php`, under its entity: the field name, and the rule that unlocks it. Give a new entity its `routes` (patterns matched against the REST path) and its `id_key` (the key in a returned row that holds the player id). A module registers its fields there, never with a check of its own in a controller or view.
+2. **Views ask, they do not decide.** Call `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` and render `Components\MaskedValue::render()` in place of the value when it answers yes.
+3. **Lists ask once.** `RecordRedactor::redactRows()` and `RecordRedactor::prime()` resolve the right for every player on a list together, from the rows' own team ids or from one read of the players' teams. A list of 200 players costs the same as a list of 20.
+4. **Test it as the reader who must not see it**, and as one who must. The contract test walks every player route as the Read-only observer and fails if a registered field, or the fixture's guardian contact, is in any answer.
+
+A rule name the redactor does not know hides the field from everybody, so a typo in the registry fails closed.
+
 ## A player's record, and the sections of it
 
 Opening a player's record and reading a section of it are two questions, answered separately.

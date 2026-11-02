@@ -197,6 +197,30 @@ De bulkexports controleren op de ruwe leescapability, die de matrixbrug beantwoo
 
 Een gebruiker zonder matrixrij én zonder scoperij wordt precies zo geweigerd als voorheen, en van geen enkele export is de capability versmald — de export was juist de route die met de seed overeenkwam.
 
+## Gevoelige velden
+
+Sommige velden op een dossier dat iemand mag openen, zijn toch niet voor die lezer bedoeld: wie een speler mag lezen, mag daarmee nog niet het telefoonnummer van de ouder lezen. Die velden staan op één plek, `config/sensitive_fields.php`, met per veld het recht dat het vrijgeeft, en worden op één plek verborgen, `Infrastructure\Security\RecordRedactor`.
+
+Wat een lezer zonder dat recht krijgt:
+
+- **Via REST** ontbreekt het veld helemaal in het antwoord. Het wordt niet als `null` meegestuurd en er is geen vlag die zegt dat het is weggelaten. De redactor draait nadat de controller het antwoord heeft opgebouwd (`rest_post_dispatch`), voor elke route die het register bij die entiteit noemt, dus een controller die vergeet het te vragen kan het veld nog steeds niet meegeven.
+- **Op het scherm** het woord **Verborgen** in een gedempte stijl op de plek van de waarde, met "Verborgen voor jouw rol" voor een schermlezer. Nooit een leeg vak, want dat leest als "niet ingevuld".
+
+De velden die nu geregistreerd zijn:
+
+| Entiteit | Velden | Wie ze mag lezen |
+| --- | --- | --- |
+| `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `custom_fields` | Staf van de speler: een stafrol bij het team van de speler, een rol die academiebreed spelers mag wijzigen, of een academiebrede roltoewijzing die spelers leest |
+
+### Een gevoelig veld toevoegen
+
+1. **Registreer het** in `config/sensitive_fields.php`, onder de entiteit: de veldnaam en de regel die het vrijgeeft. Geef een nieuwe entiteit haar `routes` (patronen die op het REST-pad worden gematcht) en haar `id_key` (de sleutel in een teruggegeven rij die het spelers-id bevat). Een module registreert haar velden daar, nooit met een eigen controle in een controller of weergave.
+2. **Weergaven vragen, ze beslissen niet.** Roep `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` aan en toon `Components\MaskedValue::render()` op de plek van de waarde als het antwoord ja is.
+3. **Lijsten vragen één keer.** `RecordRedactor::redactRows()` en `RecordRedactor::prime()` bepalen het recht voor alle spelers op een lijst tegelijk, uit de team-id's in de rijen zelf of uit één leesactie van de teams van de spelers. Een lijst van 200 spelers kost evenveel als een lijst van 20.
+4. **Test het als de lezer die het niet mag zien**, en als een die het wel mag. De contracttest loopt elke spelersroute af als Alleen-lezen waarnemer en faalt als een geregistreerd veld, of de oudercontactgegevens uit de testdata, in een antwoord staat.
+
+Een regelnaam die de redactor niet kent, verbergt het veld voor iedereen, zodat een tikfout in het register dichtvalt in plaats van open.
+
 ## Het dossier van een speler, en de onderdelen ervan
 
 Het dossier van een speler openen en een onderdeel ervan lezen zijn twee vragen, die apart worden beantwoord.
