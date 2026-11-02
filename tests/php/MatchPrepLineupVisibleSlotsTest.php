@@ -79,6 +79,14 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
 
         $this->assertCount( 6, $this->halfOne( $repo->listLineup( $prep_id ) ), 'readers see the six drawn positions' );
         $this->assertCount( 11, $this->halfOne( $repo->listLineupAll( $prep_id ) ), 'the stored rows stay' );
+
+        // #4599 — the batched read the minutes report uses gives the same
+        // six rows as listLineup().
+        $team_id = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $this->activity );
+        $batched = $repo->listDrawnLineupForPreps( [ $repo->find( $prep_id ) ], $team_id );
+        $ids     = static fn( array $rows ): array => array_map( static fn( $r ): int => (int) $r->id, $rows );
+        $this->assertSame( $ids( $repo->listLineup( $prep_id ) ), $ids( $batched[ $prep_id ] ?? [] ), 'listDrawnLineupForPreps() agrees with listLineup()' );
+        $this->assertCount( 6, $this->halfOne( $batched[ $prep_id ] ?? [] ) );
         $this->assertSame( [ 'bench' => 5, 'start' => 6 ], $this->attendanceRoles(), 'the projection starts six, benches the Present others' );
 
         // The editor still gets every slot, so a switch back restores them.
@@ -155,7 +163,7 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
      */
     public function test_every_reader_takes_the_drawn_positions_and_only_the_editor_takes_all(): void {
         $readers = [
-            'src/Modules/Analytics/Reports/MinutesQuery.php'                         => '->listLineupForPrep(',
+            'src/Modules/Analytics/Reports/MinutesQuery.php'                         => '->listDrawnLineupForPreps(',
             'src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php'   => '->listLineup(',
             'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php'       => '->listLineup(',
             'src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php'     => '->listLineup(',
