@@ -32,8 +32,8 @@ Klik op een cel om door te klikken naar de onderliggende POP-dossiers, gefilterd
 
 ## Rechten
 
-- `tt_view_pdp` — zie het dashboard. Geldt voor coaches en HO.
-- De tegel **POP-planning** is zichtbaar voor elke rol met `tt_view_pdp`; HO's zijn de primaire doelgroep.
+- `tt_view_pdp_planning` — open de planningsmatrix. Dit volgt het leesrecht voor POP-planning in de autorisatiematrix, dat de hoofdcoach en de teammanager hebben voor hun eigen teams, en het hoofd ontwikkeling en de academiebeheerder voor alle teams.
+- De tegel **POP-planning** is zichtbaar voor elke rol met `tt_view_pdp_planning`; HO's zijn de primaire doelgroep. Spelers en ouders zien hun eigen POP, niet deze matrix.
 
 ### Wie ziet welke teams
 
