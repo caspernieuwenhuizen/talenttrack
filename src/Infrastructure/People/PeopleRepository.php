@@ -628,7 +628,7 @@ class PeopleRepository {
             return;
         }
 
-        $wpdb->delete( "{$p}tt_user_role_scopes", [
+        $deleted = $wpdb->delete( "{$p}tt_user_role_scopes", [
             'club_id'    => CurrentClub::id(),
             'person_id'  => $person_id,
             'scope_type' => 'team',
@@ -638,8 +638,11 @@ class PeopleRepository {
         // #4730 — the team scope is gone, so the authorization caches must be
         // flushed, whoever called (unassign, the importer, the demo generator).
         // Same arguments as AuthorizationRepository::revoke(); the mirrored row
-        // carries role_id 0 and its id is not read, so both are 0.
-        do_action( 'tt_role_revoked', 0, $person_id, 0, 'team', $team_id );
+        // carries role_id 0 and its id is not read, so both are 0. Only when a
+        // row went, so the hook keeps meaning "a grant was revoked".
+        if ( is_int( $deleted ) && $deleted > 0 ) {
+            do_action( 'tt_role_revoked', 0, $person_id, 0, 'team', $team_id );
+        }
     }
 
     // Internal helpers

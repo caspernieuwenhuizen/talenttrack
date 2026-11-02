@@ -140,6 +140,28 @@ final class AuthCacheClearPointsTest extends WP_UnitTestCase {
         $this->assertFalse( MatrixGate::canAnyScope( $user, 'tournaments', MatrixGate::CREATE_DELETE ) );
     }
 
+    /** AuthorizationService keeps its own answers on top of the gate's memo. */
+    public function test_switching_a_module_off_is_seen_by_a_cached_section_check(): void {
+        global $wpdb;
+        $user = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [ 'club_id' => 1, 'first_name' => 'Cacheclear', 'last_name' => 'Player' ] );
+        $player = (int) $wpdb->insert_id;
+
+        $this->module = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT module_class FROM {$wpdb->prefix}tt_authorization_matrix
+              WHERE persona = %s AND entity = %s AND activity = %s AND scope_kind = %s LIMIT 1",
+            'head_of_development', 'player_injuries', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL
+        ) );
+        $this->assertNotSame( '', $this->module, 'precondition: a global injuries read row' );
+        $this->assertFalse( ModuleRegistry::isAlwaysOn( $this->module ), 'precondition: the module can be switched off' );
+        ModuleRegistry::setEnabled( $this->module, true );
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $user, $player, 'player_injuries' ), 'precondition: allowed while the module is on' );
+
+        ModuleRegistry::setEnabled( $this->module, false );
+
+        $this->assertFalse( AuthorizationService::canReadPlayerSection( $user, $player, 'player_injuries' ) );
+    }
+
     private function functionalRoleId( string $role_key ): int {
         global $wpdb;
         $id = (int) $wpdb->get_var( $wpdb->prepare(
