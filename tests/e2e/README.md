@@ -91,7 +91,11 @@ no seed data, so the record is the spec's own. A record that cannot be made
 or opened fails the spec rather than being skipped. Add a team or an
 activity the same way.
 
-1. No horizontal overflow (`scrollWidth <= clientWidth`).
+1. No horizontal overflow (`scrollWidth <= clientWidth`). The finding names
+   the widest box that extends the page (`helpers/overflow.js`). A box inside
+   a horizontal scroll strip, such as the player tabs, is never named: the
+   strip scrolls on purpose and cannot widen the page.
+   `overflow-offender.spec.js` holds the fixtures.
 2. No visible interactive element under 48px in either dimension.
 3. No table wider than the viewport, on `native` surfaces only. Elsewhere a
    table scrolling inside its own container is the intended compromise.
