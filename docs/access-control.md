@@ -128,7 +128,8 @@ Team lists follow the same rule as opening one team. A team that a functional
 role grants, such as a team manager's team reports, appears in the report
 list, in the analytics team scope and in Report Studio's team choice, just as
 it opens directly. A list never shows a team that cannot be opened, and never
-leaves out one that can.
+leaves out one that can. Like every team list, these leave out archived teams,
+and with demo mode on they show only the demo teams.
 
 ## The pre-built roles
 

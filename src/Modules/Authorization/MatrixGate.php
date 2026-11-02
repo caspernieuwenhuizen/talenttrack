@@ -333,15 +333,15 @@ class MatrixGate {
 
     /**
      * #4684 — `can( $user_id, $entity, $activity, SCOPE_TEAM, $team )` as a
-     * list: every team of the current club on which it says yes, ascending.
+     * list: every team on which it says yes, ascending, that a team list may
+     * show — the current club's, not archived, inside the demo-mode scope.
      *
      * The team-scoped answer has two sources, and a list built from one of
      * them disagreed with the single-team check: a persona row plus a live
      * team assignment (`tt_user_role_scopes`), and a functional role held
-     * on the team (`FunctionalRoleGrants`). The candidates are both, plus
-     * the teams the user coaches, and each is asked the single-team
-     * question, so the list cannot hold a team `can()` refuses or miss one
-     * it allows.
+     * on the team (`FunctionalRoleGrants`). The candidates are both, and
+     * each is asked the single-team question, so the list cannot hold a
+     * team `can()` refuses or miss a listable one it allows.
      *
      * Team scope only: a caller that also honours a global grant asks
      * `can( …, SCOPE_GLOBAL )` first, as the callers here do.
@@ -358,17 +358,13 @@ class MatrixGate {
         foreach ( self::assignedTeamIds( $user_id ) as $team_id ) {
             $candidates[ $team_id ] = true;
         }
-        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
-            $team_id = (int) ( ( (array) $team )['id'] ?? 0 );
-            if ( $team_id > 0 ) $candidates[ $team_id ] = true;
-        }
 
         $out = [];
         foreach ( array_keys( $candidates ) as $team_id ) {
             if ( self::can( $user_id, $entity, $activity, self::SCOPE_TEAM, $team_id ) ) $out[] = $team_id;
         }
         sort( $out );
-        return self::inCurrentClub( $out );
+        return self::listableTeamIds( $out );
     }
 
     /**
@@ -395,22 +391,21 @@ class MatrixGate {
     }
 
     /**
-     * The ids of `$team_ids` that are teams of the current club.
+     * The ids of `$team_ids` a team list may show: teams of the current
+     * club, not archived, inside the demo-mode scope — the filters every
+     * team list applies (`QueryHelpers::get_teams()`).
      *
      * @param list<int> $team_ids
      * @return list<int>
      */
-    private static function inCurrentClub( array $team_ids ): array {
-        if ( $team_ids === [] ) return [];
-        global $wpdb;
-        $p            = $wpdb->prefix;
-        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_teams WHERE club_id = %d AND id IN ({$placeholders}) ORDER BY id ASC",
-            ...array_merge( [ \TT\Infrastructure\Tenancy\CurrentClub::id() ], $team_ids )
-        ) );
-        return array_values( array_map( 'intval', is_array( $ids ) ? $ids : [] ) );
+    private static function listableTeamIds( array $team_ids ): array {
+        $ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_by_ids( $team_ids ) as $team ) {
+            $id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $id > 0 ) $ids[] = $id;
+        }
+        sort( $ids );
+        return $ids;
     }
 
     /**

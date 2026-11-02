@@ -96,6 +96,63 @@ final class MatrixGateTeamIdsForTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->teams['other'], (array) TeamReportAccess::readableTeamIds( $user ), 'and nothing past the grant' );
     }
 
+    /** An archived team stays out of every list, as it does out of `get_teams()`. */
+    public function test_an_archived_team_is_not_listed(): void {
+        global $wpdb;
+        $user = $this->userWith( 'tt_staff', true );
+        $this->assertContains( $this->teams['functional'], MatrixGate::teamIdsFor( $user, 'reports', MatrixGate::READ ), 'precondition: listed while active' );
+
+        $wpdb->update( "{$this->p}tt_teams", [ 'archived_at' => current_time( 'mysql' ) ], [ 'id' => $this->teams['functional'] ] );
+        $this->flush();
+
+        $this->assertNotContains( $this->teams['functional'], MatrixGate::teamIdsFor( $user, 'reports', MatrixGate::READ ) );
+        $this->assertNotContains( $this->teams['functional'], (array) TeamReportAccess::readableTeamIds( $user ), 'the report list' );
+        [ , $teams ] = FactScope::forUser( $user )->access( 'analytics' );
+        $this->assertNotContains( $this->teams['functional'], $teams, 'analytics team scope' );
+    }
+
+    /** With demo mode on, only demo teams are listed, as everywhere else. */
+    public function test_demo_mode_lists_only_demo_teams(): void {
+        global $wpdb;
+        $user = $this->userWith( 'tt_staff', true );
+        $wpdb->insert( "{$this->p}tt_demo_tags", [
+            'club_id' => $this->club, 'batch_id' => 'teamids', 'entity_type' => 'team', 'entity_id' => $this->teams['assigned'],
+        ] );
+
+        \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::ON );
+        try {
+            $listed = MatrixGate::teamIdsFor( $user, 'reports', MatrixGate::READ );
+        } finally {
+            \TT\Modules\DemoData\DemoMode::clearOverride();
+        }
+        $this->assertNotContains( $this->teams['functional'], $listed, 'a real team is not listed in demo mode' );
+        $this->assertContains( $this->teams['functional'], MatrixGate::teamIdsFor( $user, 'reports', MatrixGate::READ ), 'and is, with demo mode off' );
+    }
+
+    /**
+     * The Report Studio picker offers the teams `builderTeams()` names by id,
+     * not the teams the builder coaches. No functional role grants
+     * `report_studio` today, so the allowed list is set on the reader: a
+     * team the user reads reports for through a functional role, and does
+     * not coach.
+     */
+    public function test_the_studio_picker_offers_the_allowed_teams_by_id(): void {
+        $user   = $this->userWith( 'tt_staff', true );
+        $team   = $this->teams['functional'];
+        $reader = ReportReader::for( $user );
+        $this->assertTrue( $reader->readsTeam( $team ), 'precondition: the team\'s reports are readable' );
+
+        $set = static function ( ReportReader $r, string $prop, $value ): void {
+            $p = new \ReflectionProperty( ReportReader::class, $prop );
+            $p->setAccessible( true );
+            $p->setValue( $r, $value );
+        };
+        $set( $reader, 'teams', [ $team ] );
+        $set( $reader, 'teams_loaded', true );
+
+        $this->assertSame( [ $team ], array_keys( \TT\Modules\ReportStudio\Domain\ReportSubjectOptions::teams( $reader ) ) );
+    }
+
     /** Report Studio's builder teams are the same list for its own entity. */
     public function test_the_builder_teams_are_the_list(): void {
         foreach ( [ 'tt_coach', 'tt_staff', 'tt_head_dev' ] as $role ) {
