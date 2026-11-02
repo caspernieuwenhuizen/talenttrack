@@ -69,12 +69,30 @@ final class PlayerProfileNarrowGridTest extends WP_UnitTestCase {
     }
 
     /**
-     * Without this a shrunken track only moves the overflow from the page
-     * into the tile.
+     * Without the last-resort wrap a shrunken track only moves the overflow
+     * from the page into the tile. Automatic hyphenation stays off: at 360
+     * and 390px, where most coaches' phones are, a label must not break
+     * inside a word, so the labels are short forms instead.
      *
      * @dataProvider labels
      */
-    public function test_a_long_label_breaks_inside_its_tile( string $selector ): void {
-        $this->assertStringContainsString( 'overflow-wrap: anywhere', $this->rule( $selector ) );
+    public function test_a_label_wraps_only_as_a_last_resort( string $selector ): void {
+        $rule = $this->rule( $selector );
+
+        $this->assertStringContainsString( 'overflow-wrap: anywhere', $rule );
+        $this->assertStringContainsString( 'hyphens: manual', $rule );
+        $this->assertStringNotContainsString( 'hyphens: auto', $rule );
+    }
+
+    /**
+     * The short forms have their own context, so the full words used
+     * elsewhere ("Aanwezigheid", "Geboortedatum") keep their translation.
+     */
+    public function test_the_tile_labels_use_their_own_short_forms(): void {
+        $php = (string) file_get_contents( dirname( __DIR__, 2 ) . '/src/Shared/Frontend/FrontendPlayerDetailView.php' );
+
+        foreach ( [ 'DOB', 'Joined', 'Avg rating', 'Attended', 'Goals scored', 'Tests' ] as $msgid ) {
+            $this->assertStringContainsString( "esc_html_x( '" . $msgid . "', 'player facts label', 'talenttrack' )", $php );
+        }
     }
 }
