@@ -235,8 +235,14 @@ final class LegacyCapMapper {
         'tt_post_thread'                       => [ 'thread_messages',         'change' ],
         'tt_view_spond'                        => [ 'spond_integration',       'read' ],
         'tt_edit_spond_credentials'            => [ 'spond_integration',       'change' ],
-        'tt_view_strava'                       => [ 'strava_integration',      'read' ],
-        'tt_edit_strava_credentials'           => [ 'strava_integration',      'change' ],
+        // The Strava club console (connections list, webhook subscription,
+        // app credentials, `?tt_view=strava-admin`) is configuration, so
+        // these two caps ask `strava_operator_console`, not the player's
+        // own `strava_integration` connection entity. Answered at the
+        // scopes in LIMITED_SCOPES below: a player or self row grants
+        // nothing here. The player's own connect flow does not use them.
+        'tt_view_strava'                       => [ 'strava_operator_console', 'read' ],
+        'tt_edit_strava_credentials'           => [ 'strava_operator_console', 'change' ],
         'tt_view_player_timeline'              => [ 'player_timeline',         'read' ],
         'tt_view_authorization_changelog'      => [ 'authorization_changelog', 'read' ],
         'tt_view_player_potential'             => [ 'player_potential',        'read' ],
@@ -487,6 +493,25 @@ final class LegacyCapMapper {
         'tt_manage_recycle_bin'          => [ 'recycle_bin',          'create_delete' ],
     ];
 
+    /**
+     * Caps the matrix answers at the listed scopes only, never through a
+     * player or self row. The Strava club console is read club-wide or for
+     * the teams a coach works with (the roster narrows to those teams);
+     * its credentials and webhook change club-wide only.
+     *
+     * Values name a scope list below rather than spelling an array out,
+     * so this table never reads as a second MAPPING entry for a cap.
+     *
+     * @var array<string, list<string>>
+     */
+    private const LIMITED_SCOPES = [
+        'tt_view_strava'             => self::GLOBAL_OR_TEAM,
+        'tt_edit_strava_credentials' => self::GLOBAL_ONLY,
+    ];
+
+    private const GLOBAL_OR_TEAM = [ MatrixGate::SCOPE_GLOBAL, MatrixGate::SCOPE_TEAM ];
+    private const GLOBAL_ONLY    = [ MatrixGate::SCOPE_GLOBAL ];
+
     public static function isKnown( string $cap ): bool {
         return isset( self::MAPPING[ $cap ] );
     }
@@ -529,6 +554,10 @@ final class LegacyCapMapper {
 
         [ $entity, $activity ] = $tuple;
 
+        if ( isset( self::LIMITED_SCOPES[ $cap ] ) ) {
+            return self::answeredAt( (int) $user->ID, $entity, $activity, self::LIMITED_SCOPES[ $cap ] );
+        }
+
         // #0033 follow-up — answer the cap with `canAnyScope`. The
         // legacy `tt_*` cap vocabulary asks "does this user have this
         // ability anywhere?", which maps to "in any scope where they
@@ -540,6 +569,23 @@ final class LegacyCapMapper {
         // them through. `canAnyScope` keeps the matrix view trustworthy:
         // green ticks at any scope = true, no scope = false.
         return MatrixGate::canAnyScope( (int) $user->ID, $entity, $activity );
+    }
+
+    /**
+     * Does the user hold the tuple at one of these scopes? Team scope
+     * counts only on a team the user is currently assigned to.
+     *
+     * @param list<string> $scopes
+     */
+    private static function answeredAt( int $user_id, string $entity, string $activity, array $scopes ): bool {
+        if ( in_array( MatrixGate::SCOPE_GLOBAL, $scopes, true )
+            && MatrixGate::can( $user_id, $entity, $activity, MatrixGate::SCOPE_GLOBAL ) ) {
+            return true;
+        }
+        if ( in_array( MatrixGate::SCOPE_TEAM, $scopes, true ) ) {
+            return \TT\Infrastructure\Query\QueryHelpers::get_permitted_teams( $user_id, $entity, $activity ) !== [];
+        }
+        return false;
     }
 
     /**

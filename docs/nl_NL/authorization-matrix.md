@@ -531,18 +531,37 @@ retentieconfiguratie landen in de gepaarde migratie
 
 ## Matrix-entiteit `strava_integration` — persoonlijke activiteitskoppeling (#2127, #2153)
 
-De Strava-integratie wordt geregeld door de matrix-entiteit
-`strava_integration`, gekoppeld vanuit twee ruwe capabilities:
+Strava wordt geregeld door twee matrix-entiteiten. `strava_integration` is
+de eigen Strava-koppeling van een speler: het Strava-tabblad op het profiel,
+en het koppelen of ontkoppelen van het eigen account.
+`strava_operator_console` is de **clubconsole** (Configuratie → Integraties,
+`?tt_view=strava-admin`): de lijst met koppelingen, het webhook-abonnement en
+de app-gegevens. De console is configuratie en heeft daarom een eigen rij.
 
 | Ruwe capability | Matrix-tuple |
 | - | - |
-| `tt_view_strava` | `strava_integration` / `read` |
-| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+| `tt_view_strava` | `strava_operator_console` / `read`, globale of teamscope |
+| `tt_edit_strava_credentials` | `strava_operator_console` / `change`, alleen globale scope |
 
-De **operatorconsole** (Configuratie → Integraties: app-credentials,
-webhook-abonnement, koppelingenoverzicht) is geseed voor `head_coach` en
-`academy_admin` met `global`-scope — migratie
-`0191_authorization_seed_topup_strava` vulde die rijen op.
+Wie de clubconsole standaard mag gebruiken:
+
+| Persona | `strava_operator_console` |
+| - | - |
+| `academy_admin` | lezen, wijzigen, aanmaken/verwijderen (globaal) |
+| `head_of_development` | lezen (globaal) |
+| `head_coach` | lezen (team): de lijst met koppelingen toont alleen de spelers van de eigen teams van de trainer; geen status van het webhook-abonnement |
+| alle anderen | geen |
+
+Het lezen van de lijst met koppelingen wordt op globale of teamscope
+beantwoord. Het lezen van de status van het webhook-abonnement, en het
+wijzigen van de app-gegevens of de webhook, alleen op globale scope. Een
+hoofdtrainer leest dus alleen de koppelingen van de eigen spelers en niets
+clubbreeds. Een speler- of self-rij op een van beide entiteiten opent de console
+niet, dus de self-rij `strava_integration` van een speler reikt tot de eigen
+koppeling en niet verder. Bestaande installaties krijgen de consolerijen via migratie
+`0309_authorization_strava_operator_console`. Die schrijft met
+`INSERT IGNORE`, dus een tweede run schrijft niets en een rij die een
+beheerder heeft aangepast blijft staan.
 
 `player` heeft `strava_integration` `rc[self]`: Strava is
 **persoonlijke activiteitsdata**, dus een speler koppelt zijn eigen Strava

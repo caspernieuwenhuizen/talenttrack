@@ -356,7 +356,11 @@ final class ConfigurationSurfaces {
         if ( current_user_can( 'tt_view_strava' ) ) {
             $out[] = [ 'TT\\Modules\\Strava\\StravaModule', [
                 'title' => __( 'Strava integration', 'talenttrack' ),
-                'desc'  => __( 'Register the Strava app credentials, manage the webhook subscription, and see which players have connected their accounts.', 'talenttrack' ),
+                // A team-scope reader (a head coach) opens a page with only
+                // their own players' connections, so the tile says that.
+                'desc'  => \TT\Modules\Strava\StravaConsoleScope::isClubWide( $user_id )
+                    ? __( 'Register the Strava app credentials, manage the webhook subscription, and see which players have connected their accounts.', 'talenttrack' )
+                    : __( 'See which players in your teams have connected their Strava accounts.', 'talenttrack' ),
                 'url'   => $view( 'strava-admin' ),
                 'icon'  => 'sessions',
             ] ];

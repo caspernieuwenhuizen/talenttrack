@@ -3,13 +3,15 @@
  *
  * Drives FrontendStravaAdminView against the talenttrack/v1 REST surface:
  *   POST   /strava/app                   — save app Client ID + secret
- *   GET    /strava/webhook/subscription  — subscription status (first paint)
  *   POST   /strava/webhook/subscription  — create / re-verify subscription
  *   DELETE /strava/webhook/subscription  — delete subscription
  *   GET    /strava/connections           — connected-players roster
  *
- * Compose-only: the view ships the static shell + first-paint config flags;
- * this script mutates state and fills the roster. Vanilla JS, no jQuery; the
+ * Compose-only: the view ships the static shell, with the subscription
+ * status already rendered server-side for a club-wide reader; this script
+ * mutates state and fills the roster. A team-scope reader's page carries
+ * only the roster, and every other control here is looked up and skipped
+ * when absent. Vanilla JS, no jQuery; the
  * secret is sent on save but never read back into the DOM. Strings come from
  * the localised TT_StravaAdmin object — no hard-coded English.
  */

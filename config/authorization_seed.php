@@ -531,6 +531,10 @@ return array_merge(
         'player_suspensions'         => [ 'rc',  'team',   $mod_journey ],
         'spond_integration'          => [ 'rc',  'team',   $mod_spond ],
         'strava_integration'         => [ 'rc',  'team',   $mod_strava ],
+        // The Strava club console, read-only and for the coach's own
+        // teams: the roster narrows to those teams' players. The app
+        // credentials and the webhook stay club-wide (global) only.
+        'strava_operator_console'    => [ 'r',   'team',   $mod_strava ],
         'trial_cases'                => [ 'rc',  'team',   $mod_trials ],
         'trial_inputs'               => [ 'c',   'team',   $mod_trials ],
         'trial_synthesis'            => [ 'r',   'team',   $mod_trials ],
@@ -913,6 +917,10 @@ return array_merge(
         'team_chemistry'                => [ 'r',   'global', $mod_team_dev ],
         'spond_integration'             => [ 'r',   'global', $mod_spond ],
         'strava_integration'            => [ 'r',   'global', $mod_strava ],
+        // The Strava club console (connections list, webhook, app
+        // credentials) is configuration, a separate row from a player's
+        // own connection. Read-only for the HoD.
+        'strava_operator_console'       => [ 'r',   'global', $mod_strava ],
         'persona_templates'             => [ 'r',   'global', $mod_persona_dash ],
         'translations_config'           => [ 'r',   'global', $mod_translations ],
         // narrowed to C only (write but no delete) ↓
@@ -1122,6 +1130,7 @@ return array_merge(
         'my_staff_certifications'      => [ 'rc',  'self',   $mod_staff_dev ],
         'spond_integration'             => [ 'rcd', 'global', $mod_spond ],
         'strava_integration'            => [ 'rcd', 'global', $mod_strava ],
+        'strava_operator_console'       => [ 'rcd', 'global', $mod_strava ],
         'persona_templates'             => [ 'rcd', 'global', $mod_persona_dash ],
         'custom_css'                    => [ 'rcd', 'global', $mod_custom_css ],
         'translations_config'           => [ 'rcd', 'global', $mod_translations ],

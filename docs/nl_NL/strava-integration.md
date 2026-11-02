@@ -133,12 +133,29 @@ secret en de tokens per speler worden nooit door een endpoint teruggegeven.
 
 ### Wie de console kan bereiken
 
-De console is **matrix-afgeschermd**, niet gekoppeld aan de WordPress-rol
-*Beheerder*: bekijken volgt `tt_view_strava` (de *lees*-activiteit van de
-entiteit `strava_integration`) en het wijzigen van gegevens of de webhook volgt
-`tt_edit_strava_credentials` (de *wijzig*-activiteit). Standaard hebben
-academiebeheerders en hoofden opleiding deze rechten; stel ze per persona in via
-de autorisatiematrix.
+De console is clubconfiguratie, niet de eigen Strava-koppeling van een speler.
+Daarom heeft hij een eigen matrix-entiteit, `strava_operator_console`, en is
+hij niet gekoppeld aan de WordPress-rol *Beheerder*. Bekijken volgt
+`tt_view_strava` (de *lees*-activiteit van de entiteit) en het wijzigen van
+gegevens of de webhook volgt `tt_edit_strava_credentials` (de
+*wijzig*-activiteit). Wijzigen wordt alleen op globale scope beantwoord.
+
+Standaard:
+
+- **Academiebeheerders** bekijken de console en wijzigen de gegevens en de
+  webhook.
+- **Hoofden opleiding** bekijken de console, alleen lezen.
+- **Hoofdtrainers** zien alleen de lijst met koppelingen, alleen lezend, met
+  alleen de spelers van hun eigen teams. De onderdelen app-gegevens en webhook
+  krijgen zij niet te zien; zij lezen de status van het webhook-abonnement
+  niet, en kunnen de app-gegevens en de webhook niet wijzigen.
+- **Andere trainers en spelers** bereiken hem niet.
+
+Stel dit per persona in via de autorisatiematrix. Een speler koppelt en
+ontkoppelt zijn **eigen** Strava-account nog steeds via het Strava-tabblad op
+zijn profiel. Dat tabblad volgt de aparte entiteit `strava_integration`, en de
+routes voor koppelen en ontkoppelen laten de speler toe op zijn eigen dossier.
+Geen van beide wordt beïnvloed door het consolerecht.
 
 De OAuth-**callback** (`GET .../strava/callback`) en de **webhook**
 (`GET/POST .../strava/webhook`) zijn noodzakelijkerwijs openbare routes —
