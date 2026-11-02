@@ -70,9 +70,15 @@ test( 'new-evaluation: the guard locks both forward buttons exactly when the pos
 
 	const guard = JSON.parse( ( await page.evaluate( () => sessionStorage.getItem( 'tt-e2e-guard' ) ) ) || '{}' );
 	expect( typeof guard.prevented, 'the submit was seen' ).toBe( 'boolean' );
-	expect( guard.next, 'Next is locked exactly when the post goes ahead' ).toBe( ! guard.prevented );
-	expect( guard.fallback, 'so is the default button' ).toBe( ! guard.prevented );
-	if ( ! guard.prevented ) {
+	if ( guard.prevented ) {
+		// Cancelled by the required-field check. Next may already be
+		// disabled by that check (it disables Next while a required field
+		// is empty); the guard itself must not have run.
+		expect( guard.fallback, 'the default button stays usable' ).toBe( false );
+		expect( guard.label, 'no loading label on a cancelled post' ).not.toBe( guard.loading );
+	} else {
+		expect( guard.next, 'Next is locked while the step posts' ).toBe( true );
+		expect( guard.fallback, 'so is the default button' ).toBe( true );
 		expect( guard.label, 'Next shows its loading label' ).toBe( guard.loading );
 	}
 
