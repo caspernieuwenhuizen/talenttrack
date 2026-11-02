@@ -63,6 +63,34 @@ final class AuthCacheClearPointsTest extends WP_UnitTestCase {
         $this->assertFalse( MatrixGate::canAnyScope( $coach, 'team', MatrixGate::READ ) );
     }
 
+    /** The importer and the demo generator write tt_team_people themselves and then sync. */
+    public function test_a_direct_scope_sync_removal_is_seen_by_the_next_check(): void {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => 1, 'name' => 'Cacheclear Import U15' ] );
+        $team = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => 1, 'first_name' => 'Cacheclear', 'last_name' => 'Imported',
+            'wp_user_id' => $coach, 'role_type' => 'staff', 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_team_people", [
+            'club_id' => 1, 'team_id' => $team, 'person_id' => $person,
+            'functional_role_id' => $this->functionalRoleId( 'head_coach' ),
+            'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+        ] );
+        PeopleRepository::syncTeamScopeRow( $team, $person );
+        AuthorizationService::flushCache();
+        $this->assertTrue( MatrixGate::canAnyScope( $coach, 'team', MatrixGate::READ ), 'precondition: the coach reads their team' );
+
+        $wpdb->delete( "{$p}tt_team_people", [ 'team_id' => $team, 'person_id' => $person ] );
+        PeopleRepository::syncTeamScopeRow( $team, $person );
+
+        $this->assertFalse( MatrixGate::canAnyScope( $coach, 'team', MatrixGate::READ ) );
+    }
+
     public function test_switching_a_module_off_is_seen_by_the_next_check(): void {
         global $wpdb;
         $user = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
