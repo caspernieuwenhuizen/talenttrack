@@ -373,6 +373,7 @@ final class SettingsRegistry {
         $out    = [];
         $groups = (array) apply_filters( 'tt_config_tile_groups', [] );
         foreach ( $groups as $group ) {
+            if ( ! is_array( $group ) ) continue;
             $tiles = is_array( $group['tiles'] ?? null ) ? $group['tiles'] : [];
             foreach ( $tiles as $tile ) {
                 if ( ! is_array( $tile ) ) continue;
