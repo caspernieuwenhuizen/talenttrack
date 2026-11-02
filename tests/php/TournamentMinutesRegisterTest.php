@@ -250,6 +250,123 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( $this->gridColumnTotal( $this->fixtures['legacy_empty']['activity_id'] ), (int) $row['total_minutes'], 'the audit row equals the grid column' );
     }
 
+    /**
+     * #4580 — the audit shows the plan's minutes on the legacy fixture but
+     * does not count them as recorded: nobody entered the real ones, and
+     * the player's Tournaments tab already calls the same figure Planned.
+     */
+    public function test_plan_minutes_are_marked_planned_and_not_recorded(): void {
+        $row = $this->auditRow( $this->fixtures['legacy_empty']['activity_id'] );
+
+        $this->assertSame( 2 * self::PERIOD, (int) $row['minutes'][ $this->player ], 'the plan figure is still shown' );
+        $this->assertTrue( $row['planned'][ $this->player ], 'and marked Planned' );
+        $this->assertSame( 0, $row['recorded_count'] );
+        $this->assertSame( 1, $row['planned_count'] );
+        $this->assertNotSame( 'complete', $row['status'] );
+        $this->assertSame( 'minutes_planned', $row['status_reason'] );
+        $this->assertSame( 2 * self::PERIOD, (int) $row['total_minutes'], 'the total still reconciles with the reports' );
+    }
+
+    public function test_saving_the_grid_turns_the_plan_figure_into_a_recorded_one(): void {
+        $aid = $this->fixtures['legacy_empty']['activity_id'];
+
+        $req = new WP_REST_Request( 'POST', '/talenttrack/v1/minutes/bulk' );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( [ 'changes' => [
+            [ 'activity_id' => $aid, 'player_id' => $this->player, 'minutes' => 2 * self::PERIOD ],
+        ] ] ) );
+        $this->assertSame( 200, rest_do_request( $req )->get_status(), 'the grid save' );
+
+        $row = $this->auditRow( $aid );
+        $this->assertFalse( $row['planned'][ $this->player ], 'the marker goes' );
+        $this->assertSame( 1, $row['recorded_count'] );
+        $this->assertSame( 0, $row['planned_count'] );
+        $this->assertNotSame( 'minutes_planned', $row['status_reason'] );
+    }
+
+    public function test_register_minutes_are_not_marked_planned(): void {
+        $row = $this->auditRow( $this->fixtures['corrected']['activity_id'] );
+
+        $this->assertFalse( $row['planned'][ $this->player ] );
+        $this->assertSame( 1, $row['recorded_count'] );
+        $this->assertSame( 0, $row['planned_count'] );
+        $this->assertNotSame( 'minutes_planned', $row['status_reason'] );
+    }
+
+    /** A day that sums a plan figure from any fixture is Planned for that player. */
+    public function test_a_tournament_day_with_any_plan_figure_marks_the_player_planned(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'             => 1,
+            'team_id'             => self::TEAM,
+            'tournament_id'       => $this->tournament,
+            'title'               => 'Toernooidag',
+            'session_date'        => self::DATE,
+            'activity_type_key'   => 'tournament',
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
+        ] );
+        $day = $this->auditRow( (int) $wpdb->insert_id );
+
+        $this->assertTrue( $day['planned'][ $this->player ], 'recorded 15 plus a planned 20 is not all recorded' );
+        $this->assertSame( 15 + 2 * self::PERIOD, (int) $day['minutes'][ $this->player ] );
+    }
+
+    /** The grid's Minutes row and the audit give one verdict on the same data. */
+    public function test_the_grid_and_the_audit_give_the_same_verdict(): void {
+        $grid = ( new MinutesGridQuery() )->matrix( self::TEAM, '2026-03-01', '2026-03-31' );
+        $checks = [];
+        foreach ( $grid['activities'] as $column ) {
+            $checks[ (int) $column['activity_id'] ] = $column['minutes_check'];
+        }
+
+        foreach ( [ 'corrected', 'confirmed_zero', 'legacy_empty' ] as $key ) {
+            $aid   = $this->fixtures[ $key ]['activity_id'];
+            $audit = $this->auditRow( $aid );
+            $this->assertSame(
+                [ $audit['status'], $audit['status_reason'], $audit['recorded_count'], $audit['planned_count'] ],
+                [ $checks[ $aid ]['status'], $checks[ $aid ]['status_reason'], $checks[ $aid ]['recorded_count'], $checks[ $aid ]['planned_count'] ],
+                $key
+            );
+        }
+
+        $legacy = $this->fixtures['legacy_empty']['activity_id'];
+        $this->assertSame( 'minutes_planned', $checks[ $legacy ]['status_reason'], 'the grid does not call the plan Complete' );
+        $this->assertSame( TournamentMinutesResolver::SOURCE_PLAN, $grid['cells'][ $this->player ][ $legacy ]['source'] );
+    }
+
+    public function test_the_audit_route_carries_the_planned_fields(): void {
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/minutes-audit' );
+        $req->set_param( 'team_id', self::TEAM );
+        $req->set_param( 'from', '2026-03-01' );
+        $req->set_param( 'to', '2026-03-31' );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 200, $res->get_status() );
+        $data    = $res->get_data();
+        $payload = is_array( $data ) && isset( $data['data'] ) ? $data['data'] : $data;
+        $rows    = [];
+        foreach ( $payload['games'] as $g ) {
+            $rows[ (int) $g['activity_id'] ] = $g;
+        }
+
+        $legacy = $rows[ $this->fixtures['legacy_empty']['activity_id'] ];
+        $this->assertTrue( $legacy['planned'][ $this->player ] );
+        $this->assertSame( 1, $legacy['planned_count'] );
+        $this->assertSame( 'minutes_planned', $legacy['status_reason'] );
+
+        $corrected = $rows[ $this->fixtures['corrected']['activity_id'] ];
+        $this->assertFalse( $corrected['planned'][ $this->player ] );
+        $this->assertSame( 0, $corrected['planned_count'] );
+    }
+
+    public function test_the_completeness_verdict_for_plan_minutes(): void {
+        $this->assertSame( [ 'none', 'minutes_planned' ], MinutesAuditQuery::completeness( 0, 2, 40, 40, 2 ), 'every figure from the plan' );
+        $this->assertSame( [ 'partial', 'minutes_planned' ], MinutesAuditQuery::completeness( 1, 2, 40, 40, 1 ), 'one of two from the plan' );
+        $this->assertSame( [ 'partial', 'players_missing' ], MinutesAuditQuery::completeness( 1, 3, 40, 40, 1 ), 'a player with no figure at all says so first' );
+        $this->assertSame( [ 'complete', '' ], MinutesAuditQuery::completeness( 2, 2, 40, 40 ), 'without plan minutes, unchanged' );
+    }
+
     public function test_the_audit_keeps_a_confirmed_zero(): void {
         $row = $this->auditRow( $this->fixtures['confirmed_zero']['activity_id'] );
 

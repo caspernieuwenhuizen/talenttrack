@@ -28,6 +28,8 @@ final class MinutesCompletenessLabels {
                 return sprintf( $templates['minutes_short'], number_format_i18n( max( 0, $available - $total ) ) );
             case 'minutes_over':
                 return sprintf( $templates['minutes_over'], number_format_i18n( max( 0, $total - $available ) ) );
+            case 'minutes_planned':
+                return $templates['minutes_planned'];
         }
         return '';
     }
@@ -35,7 +37,7 @@ final class MinutesCompletenessLabels {
     /**
      * The reason strings, `%s` standing for the number of minutes.
      *
-     * @return array{players_missing:string, minutes_short:string, minutes_over:string}
+     * @return array{players_missing:string, minutes_short:string, minutes_over:string, minutes_planned:string}
      */
     public static function reasonTemplates(): array {
         return [
@@ -44,6 +46,7 @@ final class MinutesCompletenessLabels {
             'minutes_short'   => __( '%s minutes short of a full match', 'talenttrack' ),
             /* translators: %s: number of minutes over */
             'minutes_over'    => __( '%s minutes more than the match holds', 'talenttrack' ),
+            'minutes_planned' => __( 'Minutes from the match plan, not yet confirmed', 'talenttrack' ),
         ];
     }
 

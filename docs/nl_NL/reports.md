@@ -440,6 +440,18 @@ wedstrijd die werd voltooid voordat de afsluitstap erom vroeg), worden de
 minuten uit het rotatieplan getoond, net als in het minutenraster en elk
 minutenrapport (de minutenrapporten van team en speler, Speler · Gespeelde
 minuten, Team · Minutenverdeling en Team · Minutenaandeel). Een op de aanwezigheid bevestigde minuut, ook 0, wint altijd.
+
+De audit toont die minuten uit het plan wel, maar telt ze **niet** als
+geregistreerd. De cel toont de minuten met het label **Gepland**, hetzelfde
+woord als op het tabblad Toernooien van de speler, en de wedstrijd is niet
+*Volledig* zolang er nog zulke minuten zijn: hij staat op *Onvolledig* (of op
+*Niet geregistreerd* als alle minuten uit het plan komen), met als reden
+*Minuten uit het wedstrijdplan, nog niet bevestigd*. Tik op het getal om het
+minutenraster op die wedstrijd te openen, controleer de minuten en sla op: het
+raster schrijft ze naar de aanwezigheid en het label verdwijnt. Op een
+toernooidag krijgt een speler het label Gepland als een van zijn wedstrijden
+het heeft. De totalen tellen de minuten uit het plan nog steeds mee, zodat de
+audit blijft aansluiten op de minutenrapporten.
 De eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder
 geregistreerde minuten toont elke wedstrijd, eerlijke *Niet geregistreerd*-chips
 en een duidelijke vervolgstap — nooit een misleidende "0 spelers"-lege staat. Een
