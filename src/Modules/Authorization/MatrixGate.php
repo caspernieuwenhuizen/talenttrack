@@ -51,6 +51,26 @@ class MatrixGate {
     public const SCOPE_SELF   = 'self';
 
     /**
+     * #4683 — `resolveAnyScope()` answers per request, keyed by user,
+     * entity and activity. Every `user_can( $uid, 'tt_…' )` comes through
+     * here (`LegacyCapMapper`), at about six queries a call, so a list that
+     * checks a capability per row paid it per row.
+     *
+     * @var array<string, bool>
+     */
+    private static array $any_scope = [];
+
+    /**
+     * Forget the per-request answers. `MatrixRepository::clearCache()` and
+     * `AuthorizationService::flushCache()` call this, the second on every
+     * role grant or revoke, guardian link, team assignment, WordPress role
+     * change and login.
+     */
+    public static function clearCache(): void {
+        self::$any_scope = [];
+    }
+
+    /**
      * Can the user perform the activity on the entity in the scope?
      *
      * @param int      $user_id          WP user id (NOT person_id).
@@ -103,6 +123,14 @@ class MatrixGate {
     private static function resolveAnyScope( int $user_id, string $entity, string $activity ): bool {
         if ( $user_id <= 0 ) return false;
 
+        $key = $user_id . '|' . $entity . '|' . $activity;
+        if ( ! isset( self::$any_scope[ $key ] ) ) {
+            self::$any_scope[ $key ] = self::resolveAnyScopeUncached( $user_id, $entity, $activity );
+        }
+        return self::$any_scope[ $key ];
+    }
+
+    private static function resolveAnyScopeUncached( int $user_id, string $entity, string $activity ): bool {
         $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return false;
 
