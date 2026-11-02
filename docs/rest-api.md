@@ -1531,7 +1531,11 @@ row scope. `source` is `draft` (a builder's own, their default) or
   opening. An unknown key is `400 bad_filter`.
 - **Rows about a player** go through the sensitive-field registry
   (`RecordRedactor`, entity `players`): a field the reader may not see about
-  that player is removed before the response leaves the server.
+  that player is removed before the response leaves the server. The block
+  engine does it, so `POST /report-blocks/{key}/preview` answers the same,
+  and a row broken down by player (the player in `key`) is covered too.
+- **`period=this_season`** before the season starts is `422 no_period`, the
+  answer an omitted period gets then.
 - **`page_fit`** is the A4 estimate for the report in rows: `pages`, `fill`
   (percent per page) and `breaks` (the ids of the blocks that start a new
   page). It uses the player report's measured heights, two half blocks side

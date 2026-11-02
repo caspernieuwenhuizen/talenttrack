@@ -179,6 +179,20 @@ final class ReportViewerTest extends WP_UnitTestCase {
         $this->assertSame( 'Bram', $row['name'] ?? null, 'Precondition: the row reaches the reader.' );
         $this->assertArrayNotHasKey( 'guardian_email', $row, 'a family contact the reader may not see is cut on the server' );
 
+        $preview = $this->send( 'POST', 'report-blocks/test_guardian/preview', [ 'context' => [ 'scope' => 'team', 'team_id' => $this->team_a, 'from' => '2020-03-01', 'to' => '2020-03-31' ] ] );
+        $this->assertSame( 200, $preview->get_status() );
+        $preview_row = $preview->get_data()['data']['data']['rows'][0] ?? [];
+        $this->assertSame( 'Bram', $preview_row['name'] ?? null, 'Precondition: the preview carries the row.' );
+        $this->assertArrayNotHasKey( 'guardian_email', $preview_row, 'and on the preview route too' );
+
+        // A breakdown by player names the player in `key`.
+        $by_key = \TT\Modules\ReportStudio\Domain\BlockEngine::masked( [
+            'breakdown' => 'player_id',
+            'rows'      => [ [ 'key' => (string) $this->player_b, 'label' => 'Bram', 'value' => 3.0, 'guardian_email' => 'family-b@example.test' ] ],
+        ], $this->coach );
+        $this->assertArrayNotHasKey( 'guardian_email', $by_key['rows'][0], 'a row keyed by player is masked too' );
+        $this->assertSame( 'Bram', $by_key['rows'][0]['label'] );
+
         wp_set_current_user( $this->hod );
         $this->assertTrue( AuthorizationService::isStaffForPlayer( $this->hod, $this->player_b ), 'Precondition: the head of development is staff for every player.' );
         $hod_row = $this->send( 'GET', "reports/{$id}/data", [ 'team_id' => $this->team_a, 'from' => '2020-03-01', 'to' => '2020-03-31', 'source' => 'published' ] )->get_data()['data']['blocks'][0]['data']['rows'][0] ?? [];

@@ -581,10 +581,13 @@ final class ReportsRestController extends BaseController {
         $to     = $text( $r->get_param( 'to' ) );
         $period = $text( $r->get_param( 'period' ) );
         if ( $period !== '' ) {
-            $window = ReportFilters::sanitizePeriod( $period ) !== ''
-                ? ReportFilters::periodWindow( $period, (string) current_time( 'Y-m-d' ) )
-                : null;
-            if ( $window === null ) return self::badFilter( 'period' );
+            if ( ReportFilters::sanitizePeriod( $period ) === '' ) return self::badFilter( 'period' );
+            $window = ReportFilters::periodWindow( $period, (string) current_time( 'Y-m-d' ) );
+            if ( $window === null || ( $period === 'this_season' && ReportFilters::seasonDefaultWindow() === null ) ) {
+                // A known pill with no window, or this season before it has
+                // started, answers as an omitted period does (#4637).
+                return RestResponse::error( 'no_period', ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );
+            }
             $from = $window['from'];
             $to   = $window['to'];
         }

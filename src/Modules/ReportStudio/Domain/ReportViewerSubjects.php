@@ -60,8 +60,10 @@ final class ReportViewerSubjects {
 
     /** @return list<array{id:int, name:string}> */
     private static function readableTeams( ReportReader $reader ): array {
+        // Every team whose reports the reader reads, the set `/data` accepts,
+        // not only the teams they coach.
         $allowed = $reader->reportTeams();
-        $rows    = $allowed === null ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $reader->userId );
+        $rows    = $allowed === null ? QueryHelpers::get_teams() : QueryHelpers::get_teams_by_ids( $allowed );
         return self::teamList( $rows, $allowed );
     }
 

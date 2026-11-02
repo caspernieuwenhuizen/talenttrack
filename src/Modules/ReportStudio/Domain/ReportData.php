@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
@@ -97,7 +96,7 @@ final class ReportData {
                 }
                 $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'error' => [ 'code' => $read->code, 'message' => $read->message ] ];
             } else {
-                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => is_array( $read['data'] ) ? self::masked( self::stringKeys( $read['data'] ), $user_id ) : $read['data'] ];
+                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
             }
             $blocks[] = $out;
             $layout[] = [ 'id' => $block['id'], 'width' => $block['width'], 'rows' => ReportPageFit::rowsOf( $out ) ];
@@ -191,7 +190,7 @@ final class ReportData {
                 $id = $asked;
             }
         } elseif ( $binding === ReportStartRules::BINDING_VIEWER ) {
-            $id = $is_player ? self::viewersPlayer( $user_id ) : self::viewersTeam( $user_id, $asked );
+            $id = $is_player ? self::viewersPlayer( $user_id ) : self::viewersTeam( $reader, $asked );
         } else {
             $id = $asked;
         }
@@ -244,44 +243,20 @@ final class ReportData {
         return $id > 0 ? $id : null;
     }
 
-    /** The team asked for when it is one the viewer coaches, else their first. */
-    private static function viewersTeam( int $user_id, ?int $asked ): ?int {
-        $ids = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+    /**
+     * The team asked for when it is one the viewer coaches, else their first,
+     * of the ones whose reports they read (#4591): a coached team they may
+     * not report on is never the default.
+     */
+    private static function viewersTeam( ReportReader $reader, ?int $asked ): ?int {
+        $readable = $reader->reportTeams();
+        $ids      = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $reader->userId ) as $team ) {
             $id = (int) ( $team->id ?? 0 );
-            if ( $id > 0 ) $ids[] = $id;
+            if ( $id > 0 && ( $readable === null || in_array( $id, $readable, true ) ) ) $ids[] = $id;
         }
         if ( $asked !== null && in_array( $asked, $ids, true ) ) return $asked;
         return $ids[0] ?? null;
-    }
-
-    /**
-     * #4591 — a block's rows about a player go through the sensitive-field
-     * registry (`RecordRedactor`, entity `players`), so a field this reader
-     * may not see about that player never leaves the server, whichever block
-     * carries it.
-     *
-     * @param array<string,mixed> $data
-     * @return array<string,mixed>
-     */
-    private static function masked( array $data, int $user_id ): array {
-        if ( ! is_array( $data['rows'] ?? null ) || RecordRedactor::fields( 'players' ) === [] ) return $data;
-
-        $teams = [];
-        foreach ( $data['rows'] as $row ) {
-            if ( is_array( $row ) && (int) ( $row['player_id'] ?? 0 ) > 0 ) $teams[ (int) $row['player_id'] ] = null;
-        }
-        if ( $teams === [] ) return $data;
-        RecordRedactor::prime( $user_id, $teams );
-
-        $rows = [];
-        foreach ( $data['rows'] as $row ) {
-            $rows[] = is_array( $row ) && (int) ( $row['player_id'] ?? 0 ) > 0
-                ? RecordRedactor::redact( 'players', self::stringKeys( $row ), $user_id, (int) $row['player_id'] )
-                : $row;
-        }
-        $data['rows'] = $rows;
-        return $data;
     }
 
     private static function missing( string $field, string $message ): StudioError {
