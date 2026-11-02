@@ -43,38 +43,29 @@
     "but the accepted one is gone; then drop continue-on-error.",
     "",
     "Removing an entry is the goal. The spec reports any entry that no longer",
-    "offends, because a stale allowance is where the next real regression hides."
+    "offends, because a stale allowance is where the next real regression hides.",
+    "",
+    "One block per width since #4738: the gate walks at 320, 360 and 390px, and",
+    "a surface that overflows at 320 is not thereby allowed to at 390. Each entry",
+    "is { kinds, reason }; an entry with no reason fails the spec. The 320 and 360",
+    "blocks, and the reasons in the 390 block, are taken from the first CI run",
+    "at those widths. 'players#record' is the player profile of a player the",
+    "spec creates and removes itself."
   ],
-  "surfaces": {
-    "courses": [
-      "tap-target"
-    ],
-    "docs": [
-      "tap-target"
-    ],
-    "lost-password": [
-      "tap-target"
-    ],
-    "my-settings": [
-      "tap-target"
-    ],
-    "my-tasks": [
-      "tap-target"
-    ],
-    "potential-overview": [
-      "tap-target"
-    ],
-    "reset-password": [
-      "tap-target"
-    ],
-    "teams": [
-      "row-height"
-    ],
-    "training-photo": [
-      "tap-target"
-    ],
-    "usage-stats": [
-      "tap-target"
-    ]
+  "widths": {
+    "320": {},
+    "360": {},
+    "390": {
+      "courses": { "kinds": [ "tap-target" ], "reason": "" },
+      "docs": { "kinds": [ "tap-target" ], "reason": "" },
+      "lost-password": { "kinds": [ "tap-target" ], "reason": "" },
+      "my-settings": { "kinds": [ "tap-target" ], "reason": "" },
+      "my-tasks": { "kinds": [ "tap-target" ], "reason": "" },
+      "potential-overview": { "kinds": [ "tap-target" ], "reason": "" },
+      "reset-password": { "kinds": [ "tap-target" ], "reason": "" },
+      "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
+      "training-photo": { "kinds": [ "tap-target" ], "reason": "" },
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "" }
+    }
   }
 }

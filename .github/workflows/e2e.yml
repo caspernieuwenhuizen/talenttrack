@@ -127,7 +127,8 @@ jobs:
         env:
           CI: true
 
-      # #2813 — the mobile viewport gate, at 390x844 with touch enabled.
+      # #2813 — the mobile viewport gate, at 320, 360 and 390px with touch
+      # enabled (#4738), including a player profile the spec makes itself.
       # Walks every phone-reachable surface asserting no horizontal
       # overflow, no sub-48px tap target and no over-wide table on a
       # `native` surface. On `native` list surfaces it also reports rows
