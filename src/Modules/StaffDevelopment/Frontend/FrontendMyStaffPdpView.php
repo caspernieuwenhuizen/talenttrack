@@ -63,6 +63,7 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
         $repo    = new StaffPdpRepository();
         $season  = StaffPersonHelper::currentSeasonId();
         $pdp     = $repo->findForPersonSeason( $person_id, $season );
+        $last_reviewed = ( $pdp && $pdp->last_reviewed_at ) ? (string) $pdp->last_reviewed_at : '';
 
         // The save path refuses a reader without the change right, so the
         // form is only offered where a Save would succeed.
@@ -80,8 +81,8 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
                 echo '<div class="tt-field"><p class="tt-field-label">' . esc_html( $label ) . '</p>';
                 echo '<p>' . ( $value !== '' ? nl2br( esc_html( $value ) ) : '—' ) . '</p></div>';
             }
-            if ( $pdp && $pdp->last_reviewed_at ) {
-                echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
+            if ( $last_reviewed !== '' ) {
+                echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( $last_reviewed ) . '</p>';
             }
             echo '</div>';
             return;
@@ -114,8 +115,8 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
             'label'      => __( 'Save', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
-        if ( $pdp && $pdp->last_reviewed_at ) {
-            echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
+        if ( $last_reviewed !== '' ) {
+            echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( $last_reviewed ) . '</p>';
         }
         echo '</form>';
     }
