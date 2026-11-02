@@ -297,6 +297,13 @@ final class PlayerSurfacesMaskingTest extends WP_UnitTestCase {
         AuthorizationService::flushCache();
         $_GET['action'] = 'edit';
         $_GET['id']     = (string) $this->player;
+        // The slot caches the field list and values for the request; a
+        // test creates its field after an earlier test may have filled it.
+        foreach ( [ 'fields_cache', 'values_cache' ] as $prop ) {
+            $ref = new \ReflectionProperty( \TT\Infrastructure\CustomFields\CustomFieldsSlot::class, $prop );
+            $ref->setAccessible( true );
+            $ref->setValue( null, [] );
+        }
         ob_start();
         \TT\Modules\Players\Admin\PlayersPage::render_page();
         $html = (string) ob_get_clean();
