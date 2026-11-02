@@ -13,6 +13,8 @@ use TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffCertificationsView;
 use TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffEvaluationsView;
 use TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffGoalsView;
 use TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffPdpView;
+use TT\Modules\StaffDevelopment\Frontend\StaffPersonHelper;
+use TT\Modules\StaffDevelopment\Repositories\StaffPdpRepository;
 use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 
 /**
@@ -120,11 +122,9 @@ final class StaffDevelopmentReadOnlyViewTest extends WP_UnitTestCase {
     }
 
     public function test_the_read_only_plan_shows_what_was_written(): void {
-        global $wpdb;
-        $wpdb->insert( "{$wpdb->prefix}tt_staff_pdp", [
-            'club_id' => (int) CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'person_id' => $this->person,
+        ( new StaffPdpRepository() )->upsert( $this->person, StaffPersonHelper::currentSeasonId(), [
             'strengths' => 'Clear session plans.', 'development_areas' => 'Set pieces.',
-        ] );
+        ], $this->uid );
         ( new MatrixRepository() )->removeRow( 'assistant_coach', 'staff_development', MatrixGate::CHANGE, MatrixGate::SCOPE_SELF );
         $this->flush();
 
