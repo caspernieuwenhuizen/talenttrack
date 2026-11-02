@@ -46,12 +46,11 @@ final class MatchPrepPdfExporter implements ExporterInterface {
 
     public function collect( ExportRequest $request ): array {
         $activity_id = (int) ( $request->filters['activity_id'] ?? 0 );
-        // The capability is club-wide on every coach; whose match it is is
-        // the activity's team, asked as the activity brief and the print
-        // router ask it. The admin flag is the requester's, who need not be
-        // the user this request is authenticated as.
+        // The prep's own read rule, as the prep screen, its REST route and
+        // the print sheet ask it. The admin flag is the requester's, who
+        // need not be the user this request is authenticated as.
         $requester = (int) $request->requesterUserId;
-        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversActivity( $requester, $activity_id, user_can( $requester, 'tt_edit_settings' ) ) ) {
+        if ( ! \TT\Modules\MatchPrep\MatchPrepAccess::canReadActivity( $requester, $activity_id, user_can( $requester, 'tt_edit_settings' ) ) ) {
             throw new \TT\Modules\Export\ExportException( 'forbidden', \TT\Modules\Authorization\ActivityTeamScope::refusalMessage() );
         }
         $body        =MatchPrepPrintableRenderer::bodyHtml( $activity_id, (int) $request->clubId, $requester );
