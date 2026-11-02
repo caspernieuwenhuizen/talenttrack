@@ -648,3 +648,13 @@ De dimensieverkenner (de *Verken*-actie bij een KPI) laat je de onderliggende fe
 - **Alleen jouw rijen.** Elk getal, elke groeperingstabel, elke inzoomlijst en elke CSV telt alleen de rijen die jij mag lezen, per soort gegevens bepaald: alle teams als je toegang tot die gegevens academiebreed is, anders de teams waaraan je bent gekoppeld. Trialbeslissingen en prospects hebben geen team om op te beperken, dus die zie je alleen met academiebrede toegang tot trials of prospects, en ontwikkelingslijn-gebeurtenissen zie je alleen op de zichtbaarheidsniveaus die je hebt.
 - **Het team van een evaluatie** is het team van dat moment: het team van de activiteit waarvoor ze is geschreven, anders het team waarin de speler op de evaluatiedatum zat. Een evaluatie zonder een van beide staat als *Geen team*.
 - **De maand van een evaluatie** is de maand van haar evaluatiedatum, niet de dag waarop ze is ingevoerd. Een evaluatie die achteraf is ingevoerd, telt mee in de maand waarin ze plaatsvond, en de grenzen *Datum na* en *Datum voor* lezen dezelfde datum.
+
+## Geplande KPI-rapporten — wie wat ontvangt
+
+Een gepland KPI-rapport wordt bij elke run per ontvanger gecontroleerd, zodat een rapport nooit terechtkomt bij iemand die dezelfde cijfers in de plugin niet zou mogen openen:
+
+- **Een rolsleutel** (bijvoorbeeld `tt_head_dev`) staat voor elk account met die rol, en elk daarvan wordt apart gecontroleerd. Een e-mailadres dat bij een account hier hoort, telt als dat account.
+- **Een account** ontvangt een eigen CSV, opgebouwd uit de rijen die het zelf mag lezen: alle teams bij academiebrede toegang, anders de eigen teams. Een account dat niets van de gegevens van het rapport mag lezen, ontvangt niets. Een schema naar de ouderrol levert ouders bij een rapport over spelers dus niets op.
+- **Een adres zonder account hier** ontvangt het rapport alleen als het geen spelersgegevens bevat, zoals het activiteitenvolume. Het leest dan met de toegang van degene die het schema heeft aangemaakt. Een rapport over spelers (aanwezigheid, evaluaties, doelen, ontwikkelingslijn-gebeurtenissen, trialbeslissingen, prospects) gaat nooit naar zo'n adres.
+- **Accounts die dezelfde rijen mogen lezen**, delen één CSV, zodat een rol met veel academiebrede lezers één keer wordt opgebouwd en niet per persoon.
+- **Wie wordt overgeslagen**, staat na de run bij het schema in de lijst met schema's. Een rolsleutel staat er met het aantal overgeslagen leden, nooit met hun adressen; adressen die je zelf hebt ingetypt worden genoemd, en als de lijst te lang wordt, wordt de rest geteld ("en nog 3"). De auditregel van de run legt elke overgeslagen ontvanger met de reden vast.

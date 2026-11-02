@@ -120,6 +120,25 @@ final class FactScope {
     }
 
     /**
+     * Which rows this reader reads under `$entity`, without who the reader
+     * is: two readers with the same key get the same rows from a fact read
+     * under that entity, so one build can serve both. Pass
+     * `$with_visibilities` for a fact that also narrows by journey
+     * visibility. Not a cache key: `cacheKey()` keeps readers apart on
+     * purpose.
+     */
+    public function rowsKey( string $entity, bool $with_visibilities = false ): string {
+        [ $mode, $ids ] = $this->access( $entity );
+        sort( $ids );
+        $levels = null;
+        if ( $with_visibilities && $this->visibilities !== null ) {
+            $levels = $this->visibilities;
+            sort( $levels );
+        }
+        return md5( (string) wp_json_encode( [ 'm' => $mode, 'i' => $ids, 'v' => $levels ] ) );
+    }
+
+    /**
      * @return array{0:string,1:list<int>}
      */
     private function resolve( string $entity ): array {

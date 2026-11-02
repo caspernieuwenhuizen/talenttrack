@@ -7,6 +7,8 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Export\CsvExporter;
+use TT\Modules\Analytics\FactQuery;
+use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportDelivery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
@@ -37,6 +39,9 @@ use TT\Modules\Comms\Templates\ScheduledReportTemplate;
 final class ScheduledReportsRunner {
 
     public const HOOK = 'tt_scheduled_reports_cron';
+
+    /** The length of the schedule's `last_error` column. */
+    private const NOTE_LIMIT = 255;
 
     public static function init(): void {
         add_action( self::HOOK, [ self::class, 'run' ] );
@@ -74,78 +79,289 @@ final class ScheduledReportsRunner {
             }
 
             $kpi_key = (string) ( $schedule['kpi_key'] ?? '' );
-            if ( $kpi_key === '' || KpiRegistry::find( $kpi_key ) === null ) {
+            $kpi     = $kpi_key !== '' ? KpiRegistry::find( $kpi_key ) : null;
+            if ( $kpi === null ) {
                 $repo->markRun( (int) $schedule['id'], $now );
                 continue;
             }
-            // The schedule reads as the person who set it up: their scope, not the club.
-            $csv = CsvExporter::forKpi( $kpi_key, FactScope::forUser( (int) ( $schedule['created_by'] ?? 0 ) ) );
-            $recipients = self::resolveRecipients( (array) $schedule['recipients'] );
-            if ( empty( $recipients ) ) {
-                $repo->markRun( (int) $schedule['id'], $now );
-                continue;
-            }
+            self::runKpi( $repo, $schedule, $now, $kpi_key, $kpi->label, $kpi->factKey );
+        }
+    }
 
-            $kpi = KpiRegistry::find( $kpi_key );
+    /**
+     * #4619 — one KPI schedule. Every recipient is checked: an account gets
+     * the CSV built with its own scope, and only when it may read the fact
+     * at all; an address with no account here gets the CSV built with the
+     * creator's scope, and only for a fact that holds no player data. Who
+     * was left out, and why, is kept on the schedule and in the audit row.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    private static function runKpi( ScheduledReportsRepository $repo, array $schedule, string $now, string $kpi_key, string $kpi_label, string $fact_key ): void {
+        $id   = (int) ( $schedule['id'] ?? 0 );
+        $plan = self::planKpiDelivery(
+            (array) ( $schedule['recipients'] ?? [] ),
+            $fact_key,
+            (int) ( $schedule['created_by'] ?? 0 )
+        );
 
-            // #3080 — the CSV is staged outside the web root, in a
-            // directory whose name nobody can guess. See `stagingDir()`.
-            $dir = self::stagingDir();
-            if ( $dir === '' ) {
-                self::auditLog( $schedule, count( $recipients ), false );
-                $repo->markRun( (int) $schedule['id'], $now );
-                continue;
-            }
-
-            $filename = 'tt-report-' . sanitize_key( $kpi_key ) . '-' . gmdate( 'Y-m-d' ) . '.csv';
-            $tmp_path = $dir . '/' . $filename;
-
-            try {
-                // A failed write used to pass unnoticed: the adapter drops
-                // an unreadable attachment silently, so the operator got a
-                // "here is your report" email with no report in it. Treat
-                // it as a failed run instead.
-                if ( file_put_contents( $tmp_path, $csv ) === false ) {
-                    Logger::error(
-                        'Scheduled report: could not write the CSV, send skipped.',
-                        [ 'schedule_id' => (int) $schedule['id'], 'kpi_key' => $kpi_key ]
-                    );
-                    self::auditLog( $schedule, count( $recipients ), false );
-                    $repo->markRun( (int) $schedule['id'], $now );
-                    continue;
-                }
-
-                // #2604 — through Comms rather than a direct `wp_mail()`, so
-                // the send is audited and an operator who muted scheduled
-                // reports stops receiving them. The rendered CSV rides along
-                // on the request's attachment paths. #3646 — the type
-                // bypasses quiet hours, because a held message waits in a
-                // queue that never keeps a file and this one is deleted
-                // below as soon as the send returns.
-                $results = CommsDispatcher::dispatchSync(
-                    ScheduledReportTemplate::KEY,
-                    [
-                        'schedule_name' => (string) $schedule['name'],
-                        'kpi_label'     => $kpi ? $kpi->label : $kpi_key,
-                    ],
-                    $recipients,
-                    [
-                        'message_type'   => MessageType::SCHEDULED_REPORT,
-                        'sender_user_id' => 0,
-                        'attachments'    => [ $tmp_path ],
-                    ]
-                );
-
-                self::auditLog( $schedule, count( $recipients ), CommsOutcomeSummary::sentCount( $results ) > 0 );
-                $repo->markRun( (int) $schedule['id'], $now );
-            } finally {
-                // `finally`, not the happy path: a throw anywhere above used
-                // to leave the file behind for good. A leftover nobody is
-                // told about is what turns a short window into a permanent
-                // one, so the failure is logged rather than suppressed.
-                self::discardStagingDir( $dir );
+        $delivered = 0;
+        $sent      = false;
+        foreach ( $plan['deliveries'] as $delivery ) {
+            $delivered += count( $delivery['recipients'] );
+            if ( self::sendKpiCsv( $schedule, $kpi_key, $kpi_label, $delivery['scope'], $delivery['recipients'] ) ) {
+                $sent = true;
             }
         }
+
+        if ( $plan['skipped'] !== [] ) {
+            $repo->recordError( $id, self::skippedNote( $plan['skipped'] ) );
+        } elseif ( $sent ) {
+            $repo->clearError( $id );
+        }
+
+        if ( $plan['deliveries'] !== [] || $plan['skipped'] !== [] ) {
+            self::auditLog( $schedule, $delivered, $sent, $plan['skipped'] );
+        }
+        $repo->markRun( $id, $now );
+    }
+
+    /**
+     * Who receives a KPI schedule, with which scope, and who is left out.
+     *
+     * A role key expands to its users; a plain address that belongs to an
+     * account is that account. An account receives the CSV built with its
+     * own scope, when `FactQuery::canRead()` lets it read the fact; accounts
+     * that read the same rows (`FactScope::rowsKey()`) share one build.
+     * Addresses with no account share one CSV built with the creator's
+     * scope, and only when the fact carries no player data.
+     *
+     * Each skipped entry carries `via`: the role key it was reached through,
+     * or '' for an address the creator typed.
+     *
+     * @param string[] $entries
+     * @return array{
+     *     deliveries: list<array{scope: FactScope, recipients: list<Recipient>}>,
+     *     skipped: list<array{email: string, user_id: int, reason: string, via: string}>
+     * }
+     */
+    public static function planKpiDelivery( array $entries, string $fact_key, int $creator_id ): array {
+        $users     = [];
+        $via       = [];
+        $addresses = [];
+        foreach ( $entries as $entry ) {
+            $entry = trim( (string) $entry );
+            if ( $entry === '' ) continue;
+
+            if ( is_email( $entry ) ) {
+                $account = get_user_by( 'email', $entry );
+                if ( $account instanceof \WP_User && (int) $account->ID > 0 ) {
+                    $user_id = (int) $account->ID;
+                    $users[ $user_id ] = self::userRecipient( $user_id, $entry );
+                    $via[ $user_id ]   = '';
+                } else {
+                    $addresses[ strtolower( $entry ) ] = new Recipient( 0, Recipient::KIND_SYSTEM, null, $entry );
+                }
+                continue;
+            }
+
+            $role_users = get_users( [ 'role' => $entry, 'fields' => [ 'ID' ] ] );
+            foreach ( $role_users as $u ) {
+                $user_id = (int) ( $u->ID ?? 0 );
+                if ( $user_id <= 0 || isset( $users[ $user_id ] ) ) continue;
+                $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
+                if ( $email === '' || ! is_email( $email ) ) continue;
+                $users[ $user_id ] = self::userRecipient( $user_id, $email );
+                $via[ $user_id ]   = $entry;
+            }
+        }
+
+        $fact          = FactRegistry::find( $fact_key );
+        $entity        = $fact !== null ? $fact->readEntity : '';
+        $by_visibility = $fact !== null && $fact->visibilityColumn !== null;
+        $groups        = [];
+        $skipped       = [];
+        $taken         = [];
+        foreach ( $users as $user_id => $recipient ) {
+            $taken[ strtolower( $recipient->emailAddress ) ] = true;
+            $scope = FactScope::forUser( $user_id );
+            if ( ! FactQuery::canRead( $fact_key, $scope ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access', 'via' => $via[ $user_id ] ?? '' ];
+                continue;
+            }
+            $key = $scope->rowsKey( $entity, $by_visibility );
+            if ( ! isset( $groups[ $key ] ) ) $groups[ $key ] = [ 'scope' => $scope, 'recipients' => [] ];
+            $groups[ $key ]['recipients'][] = $recipient;
+        }
+        $deliveries = array_values( $groups );
+
+        $outside = [];
+        foreach ( $addresses as $key => $recipient ) {
+            if ( isset( $taken[ $key ] ) ) continue;
+            if ( self::factCarriesPlayerData( $fact_key ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => 0, 'reason' => 'player_data_to_address', 'via' => '' ];
+                continue;
+            }
+            $outside[] = $recipient;
+        }
+        if ( $outside !== [] ) {
+            // No account to scope by: the schedule reads as the person who set it up.
+            $deliveries[] = [ 'scope' => FactScope::forUser( $creator_id ), 'recipients' => $outside ];
+        }
+
+        return [ 'deliveries' => $deliveries, 'skipped' => $skipped ];
+    }
+
+    /**
+     * Does this fact hold data about individual players? True when its rows
+     * belong to a player, it can be broken down by player, or it is
+     * unknown: an unknown fact fails closed.
+     */
+    public static function factCarriesPlayerData( string $fact_key ): bool {
+        $fact = FactRegistry::find( $fact_key );
+        if ( $fact === null ) return true;
+        if ( $fact->entityScope === 'player' ) return true;
+        foreach ( $fact->dimensions as $dimension ) {
+            if ( $dimension->foreignTable === 'tt_players' ) return true;
+        }
+        return false;
+    }
+
+    private static function userRecipient( int $user_id, string $email ): Recipient {
+        return new Recipient(
+            $user_id,
+            Recipient::KIND_COACH,
+            null,
+            $email,
+            '',
+            (string) get_user_meta( $user_id, 'locale', true )
+        );
+    }
+
+    /**
+     * Build the CSV with `$scope`, stage it, and send it to `$recipients`.
+     *
+     * @param array<string,mixed> $schedule
+     * @param list<Recipient>     $recipients
+     */
+    private static function sendKpiCsv( array $schedule, string $kpi_key, string $kpi_label, FactScope $scope, array $recipients ): bool {
+        $csv = CsvExporter::forKpi( $kpi_key, $scope );
+
+        // #3080 — the CSV is staged outside the web root, in a
+        // directory whose name nobody can guess. See `stagingDir()`.
+        $dir = self::stagingDir();
+        if ( $dir === '' ) return false;
+
+        $tmp_path = $dir . '/tt-report-' . sanitize_key( $kpi_key ) . '-' . gmdate( 'Y-m-d' ) . '.csv';
+
+        try {
+            // A failed write used to pass unnoticed: the adapter drops
+            // an unreadable attachment silently, so the operator got a
+            // "here is your report" email with no report in it. Treat
+            // it as a failed run instead.
+            if ( file_put_contents( $tmp_path, $csv ) === false ) {
+                Logger::error(
+                    'Scheduled report: could not write the CSV, send skipped.',
+                    [ 'schedule_id' => (int) ( $schedule['id'] ?? 0 ), 'kpi_key' => $kpi_key ]
+                );
+                return false;
+            }
+
+            // #2604 — through Comms rather than a direct `wp_mail()`, so
+            // the send is audited and an operator who muted scheduled
+            // reports stops receiving them. The rendered CSV rides along
+            // on the request's attachment paths. #3646 — the type
+            // bypasses quiet hours, because a held message waits in a
+            // queue that never keeps a file and this one is deleted
+            // below as soon as the send returns.
+            $results = CommsDispatcher::dispatchSync(
+                ScheduledReportTemplate::KEY,
+                [
+                    'schedule_name' => (string) ( $schedule['name'] ?? '' ),
+                    'kpi_label'     => $kpi_label,
+                ],
+                $recipients,
+                [
+                    'message_type'   => MessageType::SCHEDULED_REPORT,
+                    'sender_user_id' => 0,
+                    'attachments'    => [ $tmp_path ],
+                ]
+            );
+
+            return CommsOutcomeSummary::sentCount( $results ) > 0;
+        } finally {
+            // `finally`, not the happy path: a throw anywhere above used
+            // to leave the file behind for good. A leftover nobody is
+            // told about is what turns a short window into a permanent
+            // one, so the failure is logged rather than suppressed.
+            self::discardStagingDir( $dir );
+        }
+    }
+
+    /**
+     * The line the schedules screen shows for recipients left out of a run.
+     *
+     * A recipient reached through a role key is counted under that key, never
+     * named: the creator typed the role, not the addresses of its members.
+     * Typed addresses are named until the note would pass the `last_error`
+     * column's length, and the rest are counted. The audit row keeps the
+     * full list.
+     *
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
+     */
+    private static function skippedNote( array $skipped ): string {
+        $per_role = [];
+        $typed    = [];
+        foreach ( $skipped as $s ) {
+            if ( $s['via'] !== '' ) {
+                $per_role[ $s['via'] ] = ( $per_role[ $s['via'] ] ?? 0 ) + 1;
+            } else {
+                $typed[] = $s['email'];
+            }
+        }
+
+        $parts = [];
+        foreach ( $per_role as $role => $n ) {
+            $parts[] = sprintf(
+                /* translators: 1: a role key such as tt_parent, 2: how many of its members were left out */
+                _n( '%1$s (%2$d member)', '%1$s (%2$d members)', $n, 'talenttrack' ),
+                $role,
+                $n
+            );
+        }
+        $parts = array_merge( $parts, $typed );
+
+        $shown = [];
+        foreach ( $parts as $part ) {
+            $candidate = array_merge( $shown, [ $part ] );
+            if ( mb_strlen( self::noteText( count( $skipped ), $candidate, count( $parts ) - count( $candidate ) ) ) > self::NOTE_LIMIT ) break;
+            $shown = $candidate;
+        }
+        if ( $shown === [] && $parts !== [] ) $shown = [ $parts[0] ];
+
+        return self::noteText( count( $skipped ), $shown, count( $parts ) - count( $shown ) );
+    }
+
+    /**
+     * @param list<string> $shown
+     */
+    private static function noteText( int $total, array $shown, int $more ): string {
+        $who = implode( ', ', $shown );
+        if ( $more > 0 ) {
+            /* translators: 1: a comma-separated list of role keys and addresses, 2: how many more were left out */
+            $who = sprintf( __( '%1$s and %2$d more', 'talenttrack' ), $who, $more );
+        }
+        return sprintf(
+            /* translators: 1: number of recipients left out, 2: who they are: role keys with a count, and email addresses */
+            _n(
+                'Left out %1$d recipient who may not receive this report: %2$s',
+                'Left out %1$d recipients who may not receive this report: %2$s',
+                $total,
+                'talenttrack'
+            ),
+            $total,
+            $who
+        );
     }
 
     /**
@@ -364,9 +580,10 @@ final class ScheduledReportsRunner {
     }
 
     /**
-     * @param array<string,mixed> $schedule
+     * @param array<string,mixed>                                                    $schedule
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
      */
-    private static function auditLog( array $schedule, int $recipient_count, bool $ok ): void {
+    private static function auditLog( array $schedule, int $recipient_count, bool $ok, array $skipped = [] ): void {
         if ( ! class_exists( '\\TT\\Infrastructure\\Audit\\AuditService' ) ) return;
         ( new \TT\Infrastructure\Audit\AuditService() )->record(
             'scheduled_report.run',
@@ -378,6 +595,7 @@ final class ScheduledReportsRunner {
                 'kpi_key'          => (string) ( $schedule['kpi_key'] ?? '' ),
                 'recipients_count' => $recipient_count,
                 'ok'               => $ok,
+                'skipped'          => $skipped,
             ]
         );
     }
