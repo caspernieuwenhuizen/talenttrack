@@ -1931,8 +1931,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * meta when present).
      */
     /**
-     * #2107 — is the current viewer STAFF for this player (global
-     * `players.view`, or team-scoped `players.view` on the player's team)?
+     * #2107 — is the current viewer STAFF for this player: a staff role on
+     * the player's team, or a role that may change players academy-wide
+     * ({@see \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer()})?
      * Now that a player / parent lands on this same unified profile, the
      * staff-only Profile-tab cards (Parents · Guardians, Discovery) gate on
      * this so a player never sees co-guardian contacts or who scouted them.

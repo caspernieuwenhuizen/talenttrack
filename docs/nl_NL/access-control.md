@@ -168,7 +168,7 @@ Gebruiksgevallen:
 | Wat ze mogen lezen | Wat niet |
 | --- | --- |
 | **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
-| **Spelers** — het dossier en profiel van elke speler, inclusief de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
+| **Spelers** — het dossier en profiel van elke speler, zonder de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
 | **Personen** — de stafgids | Een stafdossier bewerken |
 | **Evaluaties** — de beoordelingen die trainers vastleggen | Een evaluatie schrijven of delen |
 | **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
@@ -178,7 +178,7 @@ Gebruiksgevallen:
 
 **En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen metingen en testresultaten, geen gedragsbeoordelingen, geen potentieelinschaling, niet de ontwikkelreis van een speler, niet hoe de academie een speler heeft ontdekt, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd opleiding en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
 
-De contactgegevens van de ouders van een speler zijn **wel** zichtbaar voor een waarnemer: ze horen bij het spelersdossier, en dat leest de rol.
+De contactgegevens van de ouders van een speler zijn **niet** zichtbaar voor een waarnemer. Elke speler mogen lezen is iets anders dan met een speler werken, en de gegevens van een gezin blijven bij de mensen rond hun kind. Iemand werkt met een speler als hij een van drie dingen heeft: een stafrol bij het team van de speler; een rol die academiebreed spelers mag wijzigen (Hoofd opleiding en Academie-admin); of een academiebrede roltoewijzing die spelers leest, aan de persoon gegeven onder Rollen (een Hoofd opleiding, scout of fysio die voor de hele academie is aangesteld in plaats van per team). Het academiebrede leesrecht van de waarnemer komt uit de rol zelf, niet uit zo'n toewijzing, dus dat telt niet. Een waarnemer krijgt het spelersdossier zonder naam, e-mail en telefoon van de ouders (ook het spelersformulier in wp-admin toont die velden leeg), ziet het blok Ouders · Voogden op het profiel niet, en krijgt de wedstrijdselectie (basis, bank, niet geselecteerd) niet bij de verwachte aanwezigheid van een activiteit.
 
 Omdat een waarnemer geen blessures ziet, krijgt een waarnemer ook niet de markeringen **Niet beschikbaar** of **Beschikbaarheid controleren** naast een naam bij de verwachte aanwezigheid van een activiteit of in een wedstrijdvoorbereiding, en ziet hij niet de reden die een trainer bij een afwezige speler in een wedstrijdvoorbereiding of de afdruk daarvan heeft getypt: bij een training kan dat alleen een blessure betekenen. De status die de trainer heeft gezet (aanwezig, afwezig enzovoort) blijft zichtbaar. De markeringen en redenen gaan naar wie dat team mag plannen, en naar wie de blessures van die speler mag lezen.
 

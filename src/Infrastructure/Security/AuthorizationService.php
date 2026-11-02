@@ -492,17 +492,25 @@ class AuthorizationService {
     }
 
     /**
-     * Is this user STAFF for the player — global `players.view`, or
-     * team-scoped `players.view` on the player's team? (#3715)
+     * Does this user work with the player? (#3715, #4689)
      *
-     * Deliberately narrower than {@see self::canViewPlayer()}, which also
-     * says yes to the player themselves and to a linked parent. The
-     * surfaces that ask this question are the ones a family must not see:
-     * co-guardian contacts, who scouted a child, the academy's own
-     * judgement of how far that child will go.
+     *  - A staff role on the player's team (`players.view` held at team
+     *    scope on that team): yes.
+     *  - A role that may change players academy-wide (`players` change at
+     *    global scope, as the head of development and the admin hold): yes.
+     *  - An academy-wide role assigned in `tt_user_role_scopes` that grants
+     *    `players.view` (a head of development appointed through a global
+     *    role scope, an academy-wide scout or physio): yes.
+     *  - `players.view` held globally only through the persona seed, such as
+     *    the read-only observer: no. Reading every player is not working
+     *    with one.
+     *  - The player themselves and a linked parent: no. Neither holds a
+     *    team-scoped staff grant or a global change right.
      *
-     * It lives here rather than in a view because two views now ask it, and
-     * a second copy of an access rule is how two answers drift apart.
+     * Deliberately narrower than {@see self::canViewPlayer()}. The surfaces
+     * that ask this are the ones only the people around a player may see:
+     * guardian contact, who scouted a child, the match-day squad before it
+     * is announced, the academy's judgement of how far a child will go.
      */
     public static function isStaffForPlayer( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
@@ -514,8 +522,8 @@ class AuthorizationService {
 
     /**
      * #4260 — {@see self::isStaffForPlayer()} for many players at once, when
-     * the caller already knows each player's team: global `players.view`
-     * asked once, then team-scoped `players.view` once per distinct team. No
+     * the caller already knows each player's team: the academy-wide half
+     * asked once, then the team-scoped staff grant once per distinct team. No
      * player rows are read, so a roster costs the same whatever its size.
      *
      * @param array<int, int> $team_by_player player id => team id (0 = none).
@@ -528,7 +536,7 @@ class AuthorizationService {
             return $out;
         }
 
-        $global  = self::userHasPermission( $user_id, 'players.view' );
+        $global  = self::staffAcademyWide( $user_id );
         $by_team = [];
         foreach ( $team_by_player as $pid => $team_id ) {
             $pid     = (int) $pid;
@@ -546,11 +554,68 @@ class AuthorizationService {
                 continue;
             }
             if ( ! isset( $by_team[ $team_id ] ) ) {
-                $by_team[ $team_id ] = self::userHasPermission( $user_id, 'players.view', 'team', $team_id );
+                $by_team[ $team_id ] = self::holdsPlayersOnTeam( $user_id, $team_id );
             }
             $out[ $pid ] = $by_team[ $team_id ];
         }
         return $out;
+    }
+
+    /**
+     * `players.edit` on a global scope
+     * (which the administrator and head-of-development shortcuts in
+     * {@see self::userHasPermission()} answer too), or the matrix's
+     * `players` change at global scope.
+     */
+    private static function changesPlayersAcademyWide( int $user_id ): bool {
+        if ( self::userHasPermission( $user_id, 'players.edit' ) ) return true;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+        return $gate::can( $user_id, 'players', $gate::CHANGE, $gate::SCOPE_GLOBAL );
+    }
+
+    /**
+     * The global half of the staff rule: a role that may change players
+     * academy-wide, or an academy-wide role assigned to this person in
+     * `tt_user_role_scopes` that reads players (a head of development
+     * appointed through a global `head_of_development` scope rather than the
+     * WordPress role holds `players.view`, not `players.edit`). A global
+     * read that comes only from the persona seed, as the read-only
+     * observer's does, is neither.
+     */
+    private static function staffAcademyWide( int $user_id ): bool {
+        return self::changesPlayersAcademyWide( $user_id )
+            || self::roleScopeReadsPlayers( $user_id, 'global', 0 );
+    }
+
+    /**
+     * The team half: `players.view` granted on this team itself. Not
+     * {@see self::userHasPermission()} with a team target, which also
+     * accepts a global grant; that is exactly the read this rule leaves out.
+     */
+    private static function holdsPlayersOnTeam( int $user_id, int $team_id ): bool {
+        if ( self::roleScopeReadsPlayers( $user_id, 'team', $team_id ) ) return true;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+        return $gate::can( $user_id, 'players', $gate::READ, $gate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * Does a resolved role scope of this type grant `players.view`? For a
+     * `team` scope the scope id must be `$scope_id`; a `global` scope has no
+     * target to match.
+     */
+    private static function roleScopeReadsPlayers( int $user_id, string $scope_type, int $scope_id ): bool {
+        foreach ( self::resolveScopesForUser( $user_id ) as $scope ) {
+            if ( $scope['scope_type'] !== $scope_type ) continue;
+            if ( $scope_type !== 'global' && (int) $scope['scope_id'] !== $scope_id ) continue;
+            foreach ( (array) $scope['permissions'] as $granted ) {
+                if ( is_string( $granted ) && self::permissionMatches( $granted, 'players.view' ) ) return true;
+            }
+        }
+        return false;
     }
 
     /**
