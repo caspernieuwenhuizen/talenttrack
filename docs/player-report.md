@@ -30,6 +30,12 @@ The report opens on **the season so far** — from the start of the current seas
 up to today. Use the period control to choose another window: last week, last
 month, this month, the whole season, or any date range.
 
+When the season marked current has not started yet, there is no season so far.
+The report then asks you to **pick a period** under the filter bar instead of
+showing an empty report, and a PDF download without a period is refused with
+the same message. A date range where the start comes after the end shows a
+message asking you to correct it.
+
 ## What goes in it
 
 It opens on the sections a one-to-one conversation needs:

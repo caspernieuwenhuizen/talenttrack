@@ -175,6 +175,10 @@ final class PlayerReportComposition {
      * month" saved in August means September when it runs in October, and the
      * default means this season so far whenever it is opened.
      *
+     * #4637 — before the current season has started the default has no
+     * window: from and to come back empty, and the caller asks for a period
+     * (`ReportFilters::noPeriodMessage()`) instead of composing one.
+     *
      * @param Composition $composition
      * @return array{from:string, to:string, period:string}
      */
@@ -189,7 +193,7 @@ final class PlayerReportComposition {
             }
         }
         $default = ReportFilters::seasonDefaultWindow();
-        return [ 'from' => $default['from'], 'to' => $default['to'], 'period' => self::DEFAULT_PERIOD ];
+        return [ 'from' => $default['from'] ?? '', 'to' => $default['to'] ?? '', 'period' => self::DEFAULT_PERIOD ];
     }
 
     /**

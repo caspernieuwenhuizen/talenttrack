@@ -170,8 +170,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
         $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
         $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
-        $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] );
-        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] );
+        $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] ?? '' );
+        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] ?? gmdate( 'Y-m-d' ) );
 
         // #3293 — the bar shows the period the QUERY ran on. A manual
         // From/To wins above, so handing the raw param on left the pill
@@ -179,6 +179,13 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
 
         self::renderFilterForm( $teams, $team_id, $from, $to, $period );
+
+        // #4637 — no season default yet, or a window that runs backwards.
+        $notice = ReportFilters::windowNotice( $from, $to );
+        if ( $notice !== '' ) {
+            echo '<div data-tt-filter-region data-tt-filter-count="0"><p class="tt-notice tt-report-no-period" role="status">' . esc_html( $notice ) . '</p></div>';
+            return;
+        }
 
         $matrix = ( new MinutesGridQuery() )->matrix( $team_id, $from, $to );
 

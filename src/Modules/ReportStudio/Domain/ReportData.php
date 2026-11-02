@@ -214,6 +214,10 @@ final class ReportData {
         // Chosen when opened, and opened without a choice: the season so
         // far, the same default a block preview takes.
         $window = ReportFilters::seasonDefaultWindow();
+        if ( $window === null ) {
+            // #4637 — the season has not started: the reader picks a period.
+            return new StudioError( 'no_period', ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );
+        }
         return [ 'from' => $window['from'], 'to' => $window['to'] ];
     }
 
