@@ -177,9 +177,16 @@ final class PlayerSurfacesMaskingTest extends WP_UnitTestCase {
         ] );
         $staff_person = (int) $wpdb->insert_id;
 
-        foreach ( [ 'head coach' => $this->coach, 'HoD' => $this->hod, 'the guardian' => $this->parent ] as $label => $uid ) {
-            $this->assertStringContainsString( self::GUARDIAN, $this->personBody( $uid, $guardian ), $label );
+        $this->assertStringContainsString( self::GUARDIAN, $this->personBody( $this->hod, $guardian ), 'HoD over REST' );
+        // The head coach of the child's team and the guardian themselves keep
+        // it too; asked of the rule, because the people route is not theirs.
+        foreach ( [ 'head coach' => $this->coach, 'the guardian' => $this->parent ] as $label => $uid ) {
+            AuthorizationService::flushCache();
+            $this->assertFalse( RecordRedactor::isMasked( 'people', 'email', $uid, $guardian ), $label );
         }
+        $other_coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        AuthorizationService::flushCache();
+        $this->assertTrue( RecordRedactor::isMasked( 'people', 'email', $other_coach, $guardian ), 'a coach of no linked child' );
 
         $observer = $this->personBody( $this->observer, $guardian );
         $this->assertStringContainsString( 'Ouder', $observer, 'the observer gets the person' );
