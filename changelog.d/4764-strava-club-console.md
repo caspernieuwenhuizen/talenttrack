@@ -1,4 +1,4 @@
-# Strava club console gets its own matrix entity
+# Strava club console gets its own matrix entity (#4764)
 
 The Strava club console (the connections list, the webhook subscription,
 the app credentials and the Strava configuration screen) is configuration,
