@@ -9,8 +9,8 @@ use WP_UnitTestCase;
  * From 480px the name moved beside the chips and left them two thirds of the
  * row, too narrow for five: they wrapped four and one, every row grew to
  * about 150px, and "Verontschuldigd" ran over the edges of its chip. The name
- * now stays above the chips until 1024px, the chips sit on one line from
- * 480px, and a long label breaks inside its chip.
+ * now stays above the chips at every width (#4703), the chips sit on one
+ * line from 480px, and a long label breaks inside its chip.
  *
  * A stylesheet assertion guards this, as in `TapTargetFloorTest`: the defect
  * is where a declaration sits, and the browser-level proof is the Playwright
@@ -64,9 +64,28 @@ final class MatchPrepAvailabilityChipsTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'repeat(5', $block );
     }
 
-    public function test_the_name_stays_above_the_chips_until_desktop(): void {
+    /**
+     * #4703 / #4704 — the name stays above the chips at every width. Beside
+     * them, inside the wizard frame, each chip got about 67px and the
+     * injury badge ran under the first chip.
+     */
+    public function test_the_name_stays_above_the_chips_at_every_width(): void {
         $this->assertStringNotContainsString( '.tt-avail-row', $this->mediaBlock( 480 ) );
-        $this->assertStringContainsString( '.tt-avail-row { display: grid;', $this->mediaBlock( 1024 ) );
+        $this->assertStringNotContainsString( '@media (min-width: 1024px)', $this->css() );
+
+        $this->assertSame(
+            0,
+            preg_match( '/@media[^{]*\{[^@]*\.tt-avail-row\s*\{/', $this->css() ),
+            'no breakpoint lays the row out beside the name'
+        );
+    }
+
+    /** #4703 — a label breaks only when the word cannot fit at all. */
+    public function test_labels_are_not_hyphenated_automatically(): void {
+        $rule = $this->baseRule( '.tt-avail-seg label' );
+
+        $this->assertStringContainsString( 'hyphens: manual;', $rule );
+        $this->assertStringNotContainsString( 'hyphens: auto;', $rule );
     }
 
     public function test_the_base_still_wraps_on_a_small_phone(): void {

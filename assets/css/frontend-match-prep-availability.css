@@ -21,6 +21,10 @@
     gap: 8px;
 }
 
+/* #4703 — the name stays above the chips at every width, never beside them.
+   The wizard frame caps the list at about 590px, so a name column beside the
+   chips left each about 67px and broke short Dutch labels mid-word, and ran
+   the injury badge under the first chip (#4704). */
 .tt-avail-row {
     border: 1px solid var(--tt-line, #e5e7ea);
     border-radius: 10px;
@@ -90,7 +94,8 @@
     justify-content: center;
     min-height: 48px;
     /* #4664 — a long translated label ("Verontschuldigd") breaks inside its
-       chip instead of running over its edges. */
+       chip instead of running over its edges. #4703 — only as a last resort:
+       no automatic hyphenation, so a word breaks only when it cannot fit. */
     min-width: 0;
     padding: 6px 8px;
     border: 1px solid var(--tt-line, #d6dadd);
@@ -101,7 +106,7 @@
     line-height: 1.2;
     text-align: center;
     overflow-wrap: anywhere;
-    hyphens: auto;
+    hyphens: manual;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -156,18 +161,4 @@
         grid-auto-flow: column;
         grid-auto-columns: minmax(0, 1fr);
     }
-}
-
-/* #4664 — the name sits beside the control only on desktop. From 480px it
-   squeezed the chips into two thirds of a tablet row, too narrow for five,
-   so they wrapped and every row grew to about 150px. */
-@media (min-width: 1024px) {
-    .tt-avail-row {
-        display: grid;
-        grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
-        align-items: center;
-        gap: 4px 16px;
-    }
-    .tt-avail-name { margin-bottom: 0; }
-    .tt-avail-reason { grid-column: 1 / -1; margin-top: 4px; }
 }
