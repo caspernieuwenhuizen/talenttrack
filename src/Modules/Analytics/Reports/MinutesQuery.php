@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
@@ -74,12 +75,13 @@ final class MinutesQuery {
         //    'tournament' is a minutes-bearing type too (single-game
         //    tournaments via match execution, multi-game days via the
         //    manual per-player minutes entry, #2159), so it joins the set.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, game_subtype_key, session_date
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND session_date BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
@@ -660,6 +662,7 @@ final class MinutesQuery {
         // whether a match has minutes is `minutesForActivities()`' answer, so
         // an old tournament fixture recorded through its plan (#4053) counts
         // as recorded here, as its minutes do in the rows beneath.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT att.activity_id, att.player_id
                FROM {$p}tt_attendance att
@@ -667,7 +670,7 @@ final class MinutesQuery {
                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
               WHERE a.club_id = %d
                 AND a.team_id = %d
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND a.archived_at IS NULL
                 AND a.trashed_at IS NULL
@@ -692,12 +695,13 @@ final class MinutesQuery {
         // match nobody had kicked off yet. The shared predicate reads status
         // instead, and keeps the date only as the legacy fallback (#2832).
         $played_sql = self::playedMatchSql( 'a' );
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $played = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_activities a
               WHERE a.club_id = %d
                 AND a.team_id = %d
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND {$played_sql}
                 AND a.archived_at IS NULL
@@ -748,13 +752,14 @@ final class MinutesQuery {
         // newest-figure rule plus the #4053 plan fallback), so the intake
         // sheet reads an old tournament fixture the way the minutes report
         // beside it does.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $activity_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT att.activity_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE a.club_id = %d
                 AND att.player_id = %d
-                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND a.archived_at IS NULL
                 AND a.trashed_at IS NULL
@@ -815,12 +820,13 @@ final class MinutesQuery {
         if ( $team_id <= 0 || $player_id <= 0 ) return [];
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, game_subtype_key, {$date_col} AS session_date, title
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
