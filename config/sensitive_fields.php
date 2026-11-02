@@ -9,11 +9,15 @@
  *
  * Shape, per entity:
  *
- *   'routes' — patterns matched against the REST request path. A response
- *              from a matching route is redacted below the serializer, so a
- *              controller cannot forget to.
+ *   'routes' — the registered route patterns, exactly as passed to
+ *              `register_rest_route()` with the namespace in front
+ *              (`WP_REST_Response::get_matched_route()`). A response from one
+ *              of them is redacted again after the controller, as the HTTP
+ *              safety net behind the controller's own `redactRows()`.
  *   'id_key' — the key in a returned row that holds the player id the
- *              right is asked against.
+ *              right is asked against. Every row on a listed route that
+ *              carries this key and a registered field is treated as a row
+ *              of this entity, so list only routes whose rows are.
  *   'fields' — field => rule. A reader the rule refuses gets the row without
  *              the field: left out of the REST answer, "Hidden" on screen.
  *
@@ -37,7 +41,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 return [
     'players' => [
         'routes' => [
-            '#^/talenttrack/v1/players(?:/\d+)?$#',
+            '/talenttrack/v1/players',
+            '/talenttrack/v1/players/(?P<id>\d+)',
         ],
         'id_key' => 'id',
         'fields' => [

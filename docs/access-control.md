@@ -207,7 +207,7 @@ Some fields on a record a reader may open are still not theirs to see: a reader 
 
 What a reader without the right gets:
 
-- **Over REST**, the field is left out of the answer entirely. It is not sent as `null` and there is no flag saying it was removed. The redactor runs after the controller has built the answer (`rest_post_dispatch`), for every route the registry lists for that entity, so a controller that forgets to ask still cannot hand the field out.
+- **Over REST**, the field is left out of the answer entirely. It is not sent as `null` and there is no flag saying it was removed. The controller redacts what it returns with `RecordRedactor::redactRows()` (or `redact()` for one record). Behind it, for every route pattern the registry lists, the redactor runs once more after the controller (`rest_post_dispatch`) as the HTTP safety net. It walks arrays, objects and `JsonSerializable` values and keeps each one's JSON shape.
 - **On screen**, the word **Hidden** in a muted style where the value would be, with "Hidden for your role" for a screen reader. Never an empty cell, which would read as "not filled in".
 
 The fields registered so far:
@@ -218,10 +218,10 @@ The fields registered so far:
 
 ### Adding a sensitive field
 
-1. **Register it** in `config/sensitive_fields.php`, under its entity: the field name, and the rule that unlocks it. Give a new entity its `routes` (patterns matched against the REST path) and its `id_key` (the key in a returned row that holds the player id). A module registers its fields there, never with a check of its own in a controller or view.
-2. **Views ask, they do not decide.** Call `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` and render `Components\MaskedValue::render()` in place of the value when it answers yes.
+1. **Register it** in `config/sensitive_fields.php`, under its entity: the field name, and the rule that unlocks it. Give a new entity its `routes` and its `id_key`. The routes are the registered route patterns, exactly as passed to `register_rest_route()` with the namespace in front (for example `/talenttrack/v1/players/(?P<id>\d+)`), because the safety net keys on the pattern WordPress matched, not on the request path. The `id_key` is the key in a returned row that holds the player id; every row on a listed route that carries it and a registered field is read as a row of this entity, so list only routes whose rows are. A module registers its fields there, never with a check of its own in a controller or view.
+2. **Controllers redact, views ask.** A controller passes what it returns through `RecordRedactor::redactRows()` or `redact()`. A view calls `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` and renders `Components\MaskedValue::render()` in place of the value when it answers yes. Neither decides the rule itself.
 3. **Lists ask once.** `RecordRedactor::redactRows()` and `RecordRedactor::prime()` resolve the right for every player on a list together, from the rows' own team ids or from one read of the players' teams. A list of 200 players costs the same as a list of 20.
-4. **Test it as the reader who must not see it**, and as one who must. The contract test walks every player route as the Read-only observer and fails if a registered field, or the fixture's guardian contact, is in any answer.
+4. **Test it as the reader who must not see it**, and as one who must. The contract test walks every player route as the Read-only observer, the way the server answers a real request (with `rest_post_dispatch`), and fails if a registered field, or the fixture's guardian contact, is in any answer.
 
 A rule name the redactor does not know hides the field from everybody, so a typo in the registry fails closed.
 

@@ -10,10 +10,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * fields of a player-linked record a reader may see.
  *
  * The fields and the right that unlocks each live in
- * `config/sensitive_fields.php`. A REST answer from a registered route is
- * redacted after the controller has built it (`filterResponse()` on
- * `rest_post_dispatch`), and a view asks `isMasked()` and renders
- * `Components\MaskedValue` in place of the value.
+ * `config/sensitive_fields.php`. A controller redacts what it returns
+ * (`redact()` / `redactRows()`), a view asks `isMasked()` and renders
+ * `Components\MaskedValue` in place of the value, and `filterResponse()` on
+ * `rest_post_dispatch` is the HTTP safety net behind both for the routes the
+ * registry lists.
  *
  * Rights are resolved once per request per reader and player, and a list is
  * resolved in one pass: the players' teams come from the rows, or from one
@@ -133,8 +134,9 @@ final class RecordRedactor {
 
     /**
      * `rest_post_dispatch`: strip every registered field the reader may not
-     * read from a response of a registered route, wherever in the payload a
-     * row of that entity sits.
+     * read from a response whose matched route pattern the registry lists,
+     * wherever in the payload a row of that entity sits, in arrays, objects
+     * and `JsonSerializable` values alike.
      *
      * @param mixed $result
      * @param mixed $server
@@ -142,17 +144,18 @@ final class RecordRedactor {
      * @return mixed
      */
     public static function filterResponse( $result, $server, $request ) {
-        if ( ! $result instanceof \WP_REST_Response || ! $request instanceof \WP_REST_Request ) return $result;
+        if ( ! $result instanceof \WP_REST_Response ) return $result;
 
-        $path = (string) $request->get_route();
-        if ( strpos( $path, '/talenttrack/' ) !== 0 ) return $result;
+        // The pattern the server dispatched to, not the request path: WordPress
+        // matches routes case-insensitively, so a path is not a safe key.
+        $route = (string) $result->get_matched_route();
+        if ( $route === '' ) return $result;
 
         $user_id = get_current_user_id();
         foreach ( self::registry() as $entity => $spec ) {
-            if ( ! self::routeMatches( $spec['routes'], $path ) ) continue;
+            if ( ! in_array( $route, $spec['routes'], true ) ) continue;
 
             $data = $result->get_data();
-            if ( ! is_array( $data ) ) continue;
 
             $rows = [];
             self::collectRows( $data, $spec['id_key'], array_keys( $spec['fields'] ), $rows );
@@ -165,7 +168,7 @@ final class RecordRedactor {
             }
             self::prime( $user_id, $team_by_player );
 
-            $result->set_data( self::redactTree( $entity, $data, $spec['id_key'], $user_id ) );
+            $result->set_data( self::redactNode( $entity, $data, $spec['id_key'], $user_id ) );
         }
         return $result;
     }
@@ -198,44 +201,88 @@ final class RecordRedactor {
         return isset( self::$memo[ $user_id . '|staff_for_player|' . $player_id ] );
     }
 
-    /** @param list<string> $patterns */
-    private static function routeMatches( array $patterns, string $path ): bool {
-        foreach ( $patterns as $pattern ) {
-            if ( preg_match( $pattern, $path ) === 1 ) return true;
+    /**
+     * The node as an array to read, or null when it holds nothing to walk:
+     * an array as it is, a `stdClass` by its properties, a `JsonSerializable`
+     * by what it serializes to.
+     *
+     * @param mixed $node
+     * @return array<mixed>|null
+     */
+    private static function view( $node ): ?array {
+        if ( is_array( $node ) ) return $node;
+        if ( $node instanceof \stdClass ) return get_object_vars( $node );
+        if ( $node instanceof \JsonSerializable ) {
+            $raw = $node->jsonSerialize();
+            if ( is_array( $raw ) ) return $raw;
+            if ( $raw instanceof \stdClass ) return get_object_vars( $raw );
         }
-        return false;
+        return null;
     }
 
     /**
-     * A row is an array with a positive player id under `$id_key` and at
+     * A row is a node with a positive player id under `$id_key` and at
      * least one registered field.
      *
-     * @param array<mixed>               $node
+     * @param mixed                      $node
      * @param list<string>               $fields
      * @param list<array<string, mixed>> $rows
      */
-    private static function collectRows( array $node, string $id_key, array $fields, array &$rows ): void {
-        if ( self::isRow( $node, $id_key, $fields ) ) {
-            /** @var array<string, mixed> $node */
-            $rows[] = $node;
+    private static function collectRows( $node, string $id_key, array $fields, array &$rows ): void {
+        $view = self::view( $node );
+        if ( $view === null ) return;
+        if ( self::isRow( $view, $id_key, $fields ) ) {
+            /** @var array<string, mixed> $view */
+            $rows[] = $view;
         }
-        foreach ( $node as $child ) {
-            if ( is_array( $child ) ) self::collectRows( $child, $id_key, $fields, $rows );
+        foreach ( $view as $child ) {
+            self::collectRows( $child, $id_key, $fields, $rows );
         }
+    }
+
+    /**
+     * The node with every row in it redacted, of the same JSON shape: an
+     * array stays an array, an object stays an object (so an empty `{}`
+     * stays `{}`), and a `JsonSerializable` that needed no change is
+     * returned as it came.
+     *
+     * @param mixed $node
+     * @return mixed
+     */
+    private static function redactNode( string $entity, $node, string $id_key, int $user_id ) {
+        if ( is_array( $node ) ) return self::redactArray( $entity, $node, $id_key, $user_id );
+        if ( $node instanceof \stdClass ) {
+            return (object) self::redactArray( $entity, get_object_vars( $node ), $id_key, $user_id );
+        }
+        if ( $node instanceof \JsonSerializable ) {
+            $raw = $node->jsonSerialize();
+            if ( ! is_array( $raw ) && ! $raw instanceof \stdClass ) return $node;
+
+            $redacted = self::redactNode( $entity, $raw, $id_key, $user_id );
+            if ( wp_json_encode( $redacted ) === wp_json_encode( $raw ) ) return $node;
+
+            // An associative array encodes as an object; keep it one even
+            // when redaction leaves it empty.
+            if ( is_array( $raw ) && is_array( $redacted ) && ( $raw === [] || array_keys( $raw ) !== range( 0, count( $raw ) - 1 ) ) ) {
+                return (object) $redacted;
+            }
+            return $redacted;
+        }
+        return $node;
     }
 
     /**
      * @param array<mixed> $node
      * @return array<mixed>
      */
-    private static function redactTree( string $entity, array $node, string $id_key, int $user_id ): array {
+    private static function redactArray( string $entity, array $node, string $id_key, int $user_id ): array {
         $fields = array_keys( self::fields( $entity ) );
         if ( self::isRow( $node, $id_key, $fields ) ) {
             /** @var array<string, mixed> $node */
             $node = self::redact( $entity, $node, $user_id, (int) $node[ $id_key ] );
         }
         foreach ( $node as $key => $child ) {
-            if ( is_array( $child ) ) $node[ $key ] = self::redactTree( $entity, $child, $id_key, $user_id );
+            $node[ $key ] = self::redactNode( $entity, $child, $id_key, $user_id );
         }
         return $node;
     }

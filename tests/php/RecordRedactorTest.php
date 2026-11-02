@@ -29,6 +29,8 @@ final class RecordRedactorTest extends WP_UnitTestCase {
     private const EMAIL = 'ger.visser.4690@example.org';
     private const PHONE = '0619283746';
 
+    private const RECORD_ROUTE = '/talenttrack/v1/players/(?P<id>\d+)';
+
     private int $club     = 0;
     private int $team     = 0;
     private int $player   = 0;
@@ -125,23 +127,88 @@ final class RecordRedactorTest extends WP_UnitTestCase {
         $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player );
 
         wp_set_current_user( $this->observer );
-        $leaked = new WP_REST_Response( [ 'success' => true, 'data' => $this->row(), 'errors' => [] ] );
-        $data   = (array) RecordRedactor::filterResponse( $leaked, rest_get_server(), $request )->get_data();
+        $data = (array) RecordRedactor::filterResponse( $this->response( $this->row(), self::RECORD_ROUTE ), rest_get_server(), $request )->get_data();
         $this->assertArrayNotHasKey( 'guardian_email', (array) $data['data'] );
         $this->assertSame( 'Sem', ( (array) $data['data'] )['first_name'] );
 
         wp_set_current_user( $this->hod );
-        $kept = new WP_REST_Response( [ 'success' => true, 'data' => $this->row(), 'errors' => [] ] );
-        $data = (array) RecordRedactor::filterResponse( $kept, rest_get_server(), $request )->get_data();
+        $data = (array) RecordRedactor::filterResponse( $this->response( $this->row(), self::RECORD_ROUTE ), rest_get_server(), $request )->get_data();
         $this->assertSame( self::EMAIL, ( (array) $data['data'] )['guardian_email'] );
     }
 
     public function test_a_route_outside_the_registry_is_not_touched(): void {
         wp_set_current_user( $this->observer );
         $request  = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/evaluations' );
-        $response = new WP_REST_Response( [ 'data' => $this->row() ] );
+        $response = $this->response( $this->row(), '/talenttrack/v1/players/(?P<id>\d+)/evaluations' );
         $data     = (array) RecordRedactor::filterResponse( $response, rest_get_server(), $request )->get_data();
         $this->assertSame( self::EMAIL, ( (array) $data['data'] )['guardian_email'] );
+    }
+
+    /**
+     * The server matches routes case-insensitively, so `/Players/12` reaches
+     * the record route. The filter keys on the pattern the server matched,
+     * which a path in another case cannot step around. A controller that
+     * leaked is simulated by putting the fields back after the callback.
+     */
+    public function test_a_case_variant_path_is_still_redacted(): void {
+        $record_path = '/talenttrack/v1/players/' . $this->player;
+        $leak        = static function ( $response, $handler, $request ) use ( $record_path ) {
+            if ( $response instanceof WP_REST_Response
+                && $request instanceof WP_REST_Request
+                && strtolower( $request->get_route() ) === $record_path ) {
+                $data = (array) $response->get_data();
+                $data['data'] = array_merge( (array) ( $data['data'] ?? [] ), [ 'guardian_email' => self::EMAIL ] );
+                $response->set_data( $data );
+            }
+            return $response;
+        };
+        add_filter( 'rest_request_after_callbacks', $leak, 10, 3 );
+
+        try {
+            wp_set_current_user( $this->observer );
+            $response = $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/Players/' . $this->player ) );
+            $this->assertSame( 200, $response->get_status(), 'the case-variant path reaches the record route' );
+            $this->assertSame( self::RECORD_ROUTE, $response->get_matched_route() );
+            $this->assertStringNotContainsString( self::EMAIL, (string) wp_json_encode( $response->get_data() ) );
+
+            wp_set_current_user( $this->hod );
+            $response = $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/Players/' . $this->player ) );
+            $this->assertStringContainsString( self::EMAIL, (string) wp_json_encode( $response->get_data() ) );
+        } finally {
+            remove_filter( 'rest_request_after_callbacks', $leak, 10 );
+        }
+    }
+
+    /**
+     * Rows also arrive as `stdClass` and `JsonSerializable` values. Both are
+     * redacted, and the JSON keeps its shape: an object stays an object, so
+     * an empty `custom_fields` is still `{}` and not `[]`.
+     */
+    public function test_object_rows_are_redacted_and_keep_their_shape(): void {
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player );
+        $object  = (object) array_merge( $this->row(), [ 'custom_fields' => new \stdClass() ] );
+        $json    = new class( $this->row() ) implements \JsonSerializable {
+            /** @var array<string, mixed> */
+            private array $row;
+            /** @param array<string, mixed> $row */
+            public function __construct( array $row ) { $this->row = $row; }
+            /** @return array<string, mixed> */
+            public function jsonSerialize(): array { return $this->row; }
+        };
+        $payload = [ 'object' => $object, 'json' => $json, 'empty' => new \stdClass() ];
+
+        wp_set_current_user( $this->observer );
+        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::RECORD_ROUTE ), rest_get_server(), $request )->get_data() );
+        $this->assertStringNotContainsString( self::EMAIL, $body, 'neither the stdClass nor the JsonSerializable row keeps the e-mail' );
+        $decoded = (array) json_decode( $body, true );
+        $this->assertSame( 'Sem', $decoded['data']['object']['first_name'] );
+        $this->assertSame( 'Sem', $decoded['data']['json']['first_name'] );
+        $this->assertStringContainsString( '"empty":{}', $body, 'an empty object stays an object' );
+
+        wp_set_current_user( $this->hod );
+        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::RECORD_ROUTE ), rest_get_server(), $request )->get_data() );
+        $this->assertStringContainsString( '"custom_fields":{}', $body, 'an empty custom_fields stays {} for a reader who keeps it' );
+        $this->assertSame( 2, substr_count( $body, self::EMAIL ), 'HoD keeps both' );
     }
 
     /**
@@ -162,14 +229,14 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             if ( ! $this->answersGet( (array) $handlers ) ) continue;
 
             AuthorizationService::flushCache();
-            $response = rest_do_request( new WP_REST_Request( 'GET', $path ) );
+            $response = $this->serve( new WP_REST_Request( 'GET', $path ) );
             $body     = (string) wp_json_encode( $response->get_data() );
             $checked++;
 
             foreach ( [ self::NAME, self::EMAIL, self::PHONE ] as $value ) {
                 $this->assertStringNotContainsString( $value, $body, "{$path} hands the observer guardian contact" );
             }
-            if ( preg_match( '#^/talenttrack/v1/players(?:/\d+)?$#', $path ) === 1 ) {
+            if ( in_array( $response->get_matched_route(), [ '/talenttrack/v1/players', self::RECORD_ROUTE ], true ) ) {
                 foreach ( $fields as $field ) {
                     $this->assertStringNotContainsString( '"' . $field . '":', $body, "{$path} carries {$field}" );
                 }
@@ -184,7 +251,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
 
         wp_set_current_user( $this->hod );
         AuthorizationService::flushCache();
-        $body = (string) wp_json_encode( rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player ) )->get_data() );
+        $body = (string) wp_json_encode( $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player ) )->get_data() );
         $this->assertStringContainsString( self::EMAIL, $body, 'HoD still gets the guardian on the record' );
     }
 
@@ -229,6 +296,26 @@ final class RecordRedactorTest extends WP_UnitTestCase {
     }
 
     // ---- fixtures ------------------------------------------------------
+
+    /**
+     * A request the way `WP_REST_Server::serve_request()` answers it:
+     * `rest_do_request()` dispatches but skips `rest_post_dispatch`, which
+     * is where the response filter runs.
+     */
+    private function serve( WP_REST_Request $request ): WP_REST_Response {
+        $server   = rest_get_server();
+        $response = rest_ensure_response( $server->dispatch( $request ) );
+        $response = apply_filters( 'rest_post_dispatch', $response, $server, $request );
+        $this->assertInstanceOf( WP_REST_Response::class, $response );
+        return $response;
+    }
+
+    /** @param mixed $data */
+    private function response( $data, string $route ): WP_REST_Response {
+        $response = new WP_REST_Response( [ 'success' => true, 'data' => $data, 'errors' => [] ] );
+        $response->set_matched_route( $route );
+        return $response;
+    }
 
     /** @return array<string, mixed> */
     private function row(): array {

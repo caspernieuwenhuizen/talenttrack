@@ -203,7 +203,7 @@ Sommige velden op een dossier dat iemand mag openen, zijn toch niet voor die lez
 
 Wat een lezer zonder dat recht krijgt:
 
-- **Via REST** ontbreekt het veld helemaal in het antwoord. Het wordt niet als `null` meegestuurd en er is geen vlag die zegt dat het is weggelaten. De redactor draait nadat de controller het antwoord heeft opgebouwd (`rest_post_dispatch`), voor elke route die het register bij die entiteit noemt, dus een controller die vergeet het te vragen kan het veld nog steeds niet meegeven.
+- **Via REST** ontbreekt het veld helemaal in het antwoord. Het wordt niet als `null` meegestuurd en er is geen vlag die zegt dat het is weggelaten. De controller haalt het weg uit wat hij teruggeeft met `RecordRedactor::redactRows()` (of `redact()` voor één dossier). Daarachter draait de redactor, voor elk routepatroon dat het register noemt, nog een keer na de controller (`rest_post_dispatch`) als vangnet op HTTP-niveau. Hij loopt arrays, objecten en `JsonSerializable`-waarden af en houdt van elk de JSON-vorm aan.
 - **Op het scherm** het woord **Verborgen** in een gedempte stijl op de plek van de waarde, met "Verborgen voor jouw rol" voor een schermlezer. Nooit een leeg vak, want dat leest als "niet ingevuld".
 
 De velden die nu geregistreerd zijn:
@@ -214,10 +214,10 @@ De velden die nu geregistreerd zijn:
 
 ### Een gevoelig veld toevoegen
 
-1. **Registreer het** in `config/sensitive_fields.php`, onder de entiteit: de veldnaam en de regel die het vrijgeeft. Geef een nieuwe entiteit haar `routes` (patronen die op het REST-pad worden gematcht) en haar `id_key` (de sleutel in een teruggegeven rij die het spelers-id bevat). Een module registreert haar velden daar, nooit met een eigen controle in een controller of weergave.
-2. **Weergaven vragen, ze beslissen niet.** Roep `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` aan en toon `Components\MaskedValue::render()` op de plek van de waarde als het antwoord ja is.
+1. **Registreer het** in `config/sensitive_fields.php`, onder de entiteit: de veldnaam en de regel die het vrijgeeft. Geef een nieuwe entiteit haar `routes` en haar `id_key`. De routes zijn de geregistreerde routepatronen, precies zoals ze aan `register_rest_route()` worden meegegeven met de namespace ervoor (bijvoorbeeld `/talenttrack/v1/players/(?P<id>\d+)`), omdat het vangnet sleutelt op het patroon dat WordPress heeft gematcht, niet op het pad van het verzoek. De `id_key` is de sleutel in een teruggegeven rij die het spelers-id bevat; elke rij op een genoemde route die die sleutel en een geregistreerd veld heeft, wordt gelezen als een rij van deze entiteit, dus noem alleen routes waarvan de rijen dat zijn. Een module registreert haar velden daar, nooit met een eigen controle in een controller of weergave.
+2. **Controllers redigeren, weergaven vragen.** Een controller haalt wat hij teruggeeft door `RecordRedactor::redactRows()` of `redact()`. Een weergave roept `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` aan en toont `Components\MaskedValue::render()` op de plek van de waarde als het antwoord ja is. Geen van beide bepaalt de regel zelf.
 3. **Lijsten vragen één keer.** `RecordRedactor::redactRows()` en `RecordRedactor::prime()` bepalen het recht voor alle spelers op een lijst tegelijk, uit de team-id's in de rijen zelf of uit één leesactie van de teams van de spelers. Een lijst van 200 spelers kost evenveel als een lijst van 20.
-4. **Test het als de lezer die het niet mag zien**, en als een die het wel mag. De contracttest loopt elke spelersroute af als Alleen-lezen waarnemer en faalt als een geregistreerd veld, of de oudercontactgegevens uit de testdata, in een antwoord staat.
+4. **Test het als de lezer die het niet mag zien**, en als een die het wel mag. De contracttest loopt elke spelersroute af als Alleen-lezen waarnemer, zoals de server een echt verzoek beantwoordt (met `rest_post_dispatch`), en faalt als een geregistreerd veld, of de oudercontactgegevens uit de testdata, in een antwoord staat.
 
 Een regelnaam die de redactor niet kent, verbergt het veld voor iedereen, zodat een tikfout in het register dichtvalt in plaats van open.
 
