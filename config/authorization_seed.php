@@ -1229,15 +1229,23 @@ return array_merge(
     // READ ONLY. No `c`, no `d`, anywhere, ever — that is the whole
     // value of the seat, and `ObserverAndStaffPersonaTest` asserts it
     // rather than trusting review to notice a stray letter.
+    //
+    // #4661 — one row beyond the eight: `activities_panel`, the tile and
+    // dispatch entity of `?tt_view=activities`. It holds no data; it only
+    // decides whether the activities list and an activity's page open,
+    // and without it the `activities` read above led nowhere on the
+    // dashboard. The page renders read-only for this seat because every
+    // edit, archive, status and rating action asks a change right.
     $expand( 'readonly_observer', [
-        'team'        => [ 'r', 'global', $mod_teams ],
-        'players'     => [ 'r', 'global', $mod_players ],
-        'people'      => [ 'r', 'global', $mod_people ],
-        'evaluations' => [ 'r', 'global', $mod_evals ],
-        'activities'  => [ 'r', 'global', $mod_activities ],
-        'goals'       => [ 'r', 'global', $mod_goals ],
-        'reports'     => [ 'r', 'global', $mod_reports ],
-        'settings'    => [ 'r', 'global', $mod_configuration ],
+        'team'             => [ 'r', 'global', $mod_teams ],
+        'players'          => [ 'r', 'global', $mod_players ],
+        'people'           => [ 'r', 'global', $mod_people ],
+        'evaluations'      => [ 'r', 'global', $mod_evals ],
+        'activities'       => [ 'r', 'global', $mod_activities ],
+        'activities_panel' => [ 'r', 'global', $mod_activities ],
+        'goals'            => [ 'r', 'global', $mod_goals ],
+        'reports'          => [ 'r', 'global', $mod_reports ],
+        'settings'         => [ 'r', 'global', $mod_configuration ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────
