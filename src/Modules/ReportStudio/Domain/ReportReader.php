@@ -35,6 +35,10 @@ final class ReportReader {
     /** @var array<int,bool> team id => reads a report about it */
     private array $team_reads = [];
 
+    private ?bool $builds = null;
+
+    private ?bool $publishes = null;
+
     private bool $report_teams_loaded = false;
 
     /** @var list<int>|null */
@@ -70,6 +74,19 @@ final class ReportReader {
             }
         }
         return $this->teams = array_values( $teams );
+    }
+
+    /**
+     * `tt_build_reports`, asked once: the matrix answers a capability with
+     * queries, and a list asks it for every row.
+     */
+    public function buildsReports(): bool {
+        return $this->builds ??= $this->userId > 0 && user_can( $this->userId, 'tt_build_reports' );
+    }
+
+    /** `tt_publish_reports`, asked once. */
+    public function publishesReports(): bool {
+        return $this->publishes ??= $this->userId > 0 && user_can( $this->userId, 'tt_publish_reports' );
     }
 
     /** @return list<string> */

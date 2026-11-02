@@ -43,7 +43,7 @@ final class ReportAccess {
      */
     public static function buildRefusal( ReportReader $reader, string $scope, ?int $player_id, ?int $team_id, array $cohort_team_ids ): ?StudioError {
         $uid = $reader->userId;
-        if ( ! user_can( $uid, 'tt_build_reports' ) ) return self::forbidden( 'forbidden', __( 'You do not build reports.', 'talenttrack' ) );
+        if ( ! $reader->buildsReports() ) return self::forbidden( 'forbidden', __( 'You do not build reports.', 'talenttrack' ) );
 
         $teams  = $reader->builderTeams();
         $covers = static fn( int $team ): bool => $teams === null || in_array( $team, $teams, true );
@@ -89,7 +89,7 @@ final class ReportAccess {
      */
     public static function canEdit( ReportReader $reader, array $report ): bool {
         $uid = $reader->userId;
-        if ( $uid <= 0 || ! user_can( $uid, 'tt_build_reports' ) ) return false;
+        if ( $uid <= 0 || ! $reader->buildsReports() ) return false;
         if ( $report['owner_user_id'] !== $uid ) {
             if ( $report['sharing'] === ReportStartRules::SHARING_ME ) return false;
             if ( $reader->builderTeams() !== null ) return false;
@@ -114,7 +114,7 @@ final class ReportAccess {
     public static function canPublish( ReportReader $reader, array $report, array $persona_keys ): bool {
         if ( ! self::canEdit( $reader, $report ) ) return false;
         if ( $persona_keys === [] ) return true;
-        return user_can( $reader->userId, 'tt_publish_reports' );
+        return $reader->publishesReports();
     }
 
     /**
@@ -203,7 +203,7 @@ final class ReportAccess {
         $edit = self::canEdit( $reader, $report );
         return [
             'can_edit'    => $edit,
-            'can_publish' => $edit && user_can( $reader->userId, 'tt_publish_reports' ),
+            'can_publish' => $edit && $reader->publishesReports(),
         ];
     }
 
