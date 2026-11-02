@@ -15,7 +15,7 @@ The **PDP planning** tile shows the head of development a per-team-per-block mat
 
 ## How it works
 
-Each PDP cycle block (start / mid / end, depending on the cycle size) carries a **planning window**. By default the window is `scheduled_at ± 10 days` (a 21-day total span); admins can adjust the window length via the `pdp_planning_window_days` config. The window is clamped to the season's bounds.
+Each PDP cycle block (start / mid / end, depending on the cycle size) carries a **planning window**. By default the window runs from 10 days before to 10 days after the planned date. Admins can adjust the window length via the `pdp_planning_window_days` config. The window is clamped to the season's bounds.
 
 Coaches plan a conversation date inside its window from the file detail. The HoD's planning dashboard at **PDP planning** (`?tt_view=pdp-planning`) shows the matrix:
 

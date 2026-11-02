@@ -15,7 +15,7 @@ De tegel **POP-planning** toont het hoofd opleidingen een matrix per team per bl
 
 ## Hoe het werkt
 
-Elk blok van de POP-cyclus (start / midden / eind, afhankelijk van de cyclusgrootte) heeft een **planningsvenster**. Standaard is dat `scheduled_at ± 10 dagen` (21 dagen totaal); beheerders kunnen de lengte aanpassen via de instelling `pdp_planning_window_days`. Het venster wordt afgekapt op de seizoensgrenzen.
+Elk blok van de POP-cyclus (start / midden / eind, afhankelijk van de cyclusgrootte) heeft een **planningsvenster**. Standaard loopt het venster van 10 dagen vóór tot 10 dagen na de geplande datum. Beheerders kunnen de lengte aanpassen via de instelling `pdp_planning_window_days`. Het venster wordt afgekapt op de seizoensgrenzen.
 
 Coaches plannen een gespreksdatum binnen het venster vanuit het dossierdetail. Het planningsdashboard van de HO bij **POP-planning** (`?tt_view=pdp-planning`) toont de matrix:
 
