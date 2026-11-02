@@ -195,11 +195,11 @@ Rules, all enforced by `php tools/consolidate-translations.php --check`:
 - One file per issue, named `<issue>-<slug>.po`. For a locale other than Dutch, `<issue>-<slug>.<locale>.po`, or a `"Language: de_DE\n"` header inside the fragment.
 - Every entry carries a non-empty `msgstr`. A fragment exists to hold the translation.
 - No obsolete `#~` entries — retiring a string is the catalogue regeneration's job.
-- No duplicate `(msgctxt, msgid)` pair, in the fragment or against the catalogue.
+- No duplicate `(msgctxt, msgid)` pair within the fragment, and no entry for a string the catalogue carries only as an obsolete `#~` entry.
 
 A one-word label still needs `_x()` with a context, carried through into the fragment as a `msgctxt`: a short `msgid` inherits the wrong sense from whatever the translator saw first, which is how `"Pass"` became `"Geslaagd"` on a football screen.
 
-**Editing an existing translation** is a catalogue edit — make it in `languages/talenttrack-nl_NL.po` directly. Fragments are for strings the PR introduces.
+**Editing an existing translation** in a content PR goes in the fragment too: copy the entry with the catalogue's `msgctxt` and `msgid` and give it the new `msgstr`. At release the fragment wins over the catalogue and is reported as retranslated; two fragments that disagree stop the release. Only a broad sweep that runs solo, last, edits `languages/talenttrack-nl_NL.po` directly. See `languages/pending/README.md`.
 
 **The release folds them in**, once, for the whole batch: `tools/release.ps1` calls `tools/consolidate-translations.php` next to the `changelog.d` step, and `languages/pending/` is empty again afterwards. Run it by hand to see what it would do:
 
