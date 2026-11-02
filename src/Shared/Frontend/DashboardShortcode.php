@@ -291,6 +291,9 @@ class DashboardShortcode {
                 'peek_loading'            => __( 'Loading…', 'talenttrack' ),
                 'peek_open'               => __( 'Open', 'talenttrack' ),
                 'peek_close'              => __( 'Close', 'talenttrack' ),
+                // #4747 — the wizard's Next loading label when the button
+                // carries none of its own.
+                'wizard_loading'          => __( 'Loading…', 'talenttrack' ),
                 'saving'               => __( 'Saving...', 'talenttrack' ),
                 'saved'                => __( 'Saved.', 'talenttrack' ),
                 'error_generic'        => __( 'Error.', 'talenttrack' ),

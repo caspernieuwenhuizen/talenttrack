@@ -72,6 +72,7 @@ class FrontendWizardView extends FrontendViewBase {
         self::enqueueWizardStyles();
         // v3.110.190 (#796) — live mandatory-field validation.
         self::enqueueValidationScript();
+        self::enqueueChromeScript();
         // v3.110.84 — autosave runtime removed. The periodic POSTs were
         // racing with `WizardState::clear()`: a Cancel or Submit would
         // clear the transient + the `tt_wizard_drafts` row, then an
@@ -348,57 +349,8 @@ class FrontendWizardView extends FrontendViewBase {
         echo '<input type="hidden" name="_cancel_url" value="' . esc_attr( $cancel_url ) . '">';
         echo '</form>';
         echo '</div>'; // #1036 — close .tt-wizard-layout
-
-        // v3.110.156 — visible click feedback on Next. When the
-        // operator clicks, the button disables and swaps label to
-        // "Loading…" so the click registers visually even if the
-        // POST takes a moment (or fails silently). Cancel / Back /
-        // Save-as-draft don't need this; their behaviour is
-        // immediate (no validate + persist round-trip).
-        ?>
-        <script>
-        (function () {
-            var form = document.querySelector( '.tt-wizard-form' );
-            if ( form ) {
-                var next = form.querySelector( '[data-tt-wizard-next]' );
-                var fallback = form.querySelector( '[data-tt-wizard-default]' );
-                if ( next ) {
-                    form.addEventListener( 'submit', function ( e ) {
-                        var submitter = e.submitter || document.activeElement;
-                        if ( ! submitter ) return;
-                        // #4709 — Enter submits through the hidden default
-                        // button; it moves forward too, so it gets the same
-                        // guard, and both are disabled so a second Enter on
-                        // the last step cannot post Create twice.
-                        if ( submitter !== next && ! submitter.hasAttribute( 'data-tt-wizard-default' ) ) return;
-                        // A tick later, so a required-field check that cancels
-                        // the post (wizard-validation.js) doesn't leave the
-                        // step with its buttons disabled.
-                        setTimeout( function () {
-                            if ( e.defaultPrevented ) return;
-                            var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
-                            next.disabled = true;
-                            next.textContent = label;
-                            if ( fallback ) fallback.disabled = true;
-                        }, 0 );
-                    } );
-                }
-            }
-
-            // #1036 — mobile rail toggle. Flip data-rail-open on the
-            // wizard layout container + aria-expanded on the button.
-            var layout = document.querySelector( '.tt-wizard-layout' );
-            var toggle = layout && layout.querySelector( '[data-tt-wizard-rail-toggle]' );
-            if ( layout && toggle ) {
-                toggle.addEventListener( 'click', function () {
-                    var open = layout.getAttribute( 'data-rail-open' ) === 'true';
-                    layout.setAttribute( 'data-rail-open', open ? 'false' : 'true' );
-                    toggle.setAttribute( 'aria-expanded', open ? 'false' : 'true' );
-                } );
-            }
-        })();
-        </script>
-        <?php
+        // The Next loading guard and the mobile rail toggle live in
+        // assets/js/wizard.js (enqueueChromeScript()).
     }
 
     /**
@@ -915,6 +867,20 @@ class FrontendWizardView extends FrontendViewBase {
      * browser-native popup; this script provides the user-facing
      * layer instead.
      */
+    /**
+     * #4747 — the wizard chrome runtime: the forward-button loading guard
+     * and the mobile rail toggle. Its strings come from `TT.i18n`.
+     */
+    private static function enqueueChromeScript(): void {
+        wp_enqueue_script(
+            'tt-wizard',
+            TT_PLUGIN_URL . 'assets/js/wizard.js',
+            [],
+            TT_VERSION,
+            true
+        );
+    }
+
     private static function enqueueValidationScript(): void {
         wp_enqueue_script(
             'tt-wizard-validation',
