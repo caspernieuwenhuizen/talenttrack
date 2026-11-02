@@ -258,6 +258,42 @@ final class ParentChildResolver {
     }
 
     /**
+     * #4691 — {@see self::children()} for many guardian accounts at once, in
+     * one statement and under the same status and lifecycle rules: guardian
+     * account id => the linked children's player id and team id. An account
+     * with no live link is absent.
+     *
+     * @param list<int> $parent_user_ids
+     * @return array<int, array<int, int>> parent user id => [ player id => team id ]
+     */
+    public static function childTeamsForParents( array $parent_user_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $parent_user_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $table   = $wpdb->prefix . 'tt_player_parents';
+        $players = $wpdb->prefix . 'tt_players';
+        $lifecycle = ArchiveRepository::filterClause( 'active', 'p' );
+        $in      = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pp.parent_user_id, p.id AS player_id, p.team_id FROM {$table} pp
+               INNER JOIN {$players} p ON p.id = pp.player_id
+              WHERE pp.parent_user_id IN ({$in})
+                AND pp.club_id = %d
+                AND p.status IN ( %s, %s, %s )
+                AND {$lifecycle}",
+            ...array_merge( $ids, [ CurrentClub::id(), self::LINKED_STATUSES[0], self::LINKED_STATUSES[1], self::LINKED_STATUSES[2] ] )
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) ( $r->parent_user_id ?? 0 ) ][ (int) ( $r->player_id ?? 0 ) ] = (int) ( $r->team_id ?? 0 );
+        }
+        return $out;
+    }
+
+    /**
      * The default child subject for a parent who supplied no explicit
      * `?player_id` — the most-recently linked child, or null when
      * the parent has no linked child. Single-child parents resolve to

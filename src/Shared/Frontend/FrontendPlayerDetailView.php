@@ -1946,6 +1946,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         return number_format_i18n( $rating, $decimals );
     }
 
+    /** #4691 — is the full date of birth hidden from the current viewer? */
+    private static function dobMasked( int $player_id ): bool {
+        return \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), $player_id );
+    }
+
     /**
      * Parents · Guardians card. Surfaces linked WP users from
      * `tt_player_parents`; relation / contact info is read from the
@@ -1962,11 +1967,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * A viewer who reached this player only via own-record / parent-of-child
      * is not staff and gets `false`.
      */
-    /** #4691 — is the full date of birth hidden from the current viewer? */
-    private static function dobMasked( int $player_id ): bool {
-        return \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), $player_id );
-    }
-
     private static function viewerIsStaffForPlayer( int $player_id ): bool {
         // #3715 — the rule moved to AuthorizationService so the capture
         // screen this view links to can ask the same question and get the

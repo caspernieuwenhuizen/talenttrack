@@ -859,6 +859,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
     }
 
     private static function renderCustomFieldsBlock( int $player_id ): void {
+        // #4691 — the club's own fields follow the sensitive-field registry,
+        // as on the REST record and the wp-admin record view.
+        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $player_id ) ) return;
+
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         if ( empty( $fields ) ) return;
         $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $player_id );

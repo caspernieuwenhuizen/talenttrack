@@ -63,20 +63,24 @@ class PlayersPage {
         self::render_list();
     }
 
-    /**
-     * #3158 — the same gate `GET /players/{id}` uses. Covers the player
-     * themselves, a global read, a team-scoped coach and a linked parent, so
-     * wp-admin and REST cannot answer differently.
-     */
+    /** The player-record columns this form renders and saves. */
+    private const FORM_FIELDS = [
+        'first_name', 'last_name', 'date_of_birth', 'sex', 'nationality', 'height_cm', 'weight_kg',
+        'preferred_foot', 'preferred_positions', 'jersey_number', 'team_id', 'date_joined', 'photo_url',
+        'guardian_name', 'guardian_email', 'guardian_phone', 'wp_user_id', 'status',
+    ];
+
     /**
      * #4691 — the form fields of a player record that the sensitive-field
      * registry hides from this user: rendered empty, and never written back.
+     * Read from the registry, so a field registered later is covered here.
      *
      * @return list<string>
      */
     private static function hiddenFormFields( int $user_id, int $player_id ): array {
         $hidden = [];
-        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'date_of_birth' ] as $field ) {
+        foreach ( array_keys( RecordRedactor::fields( 'players' ) ) as $field ) {
+            if ( ! in_array( $field, self::FORM_FIELDS, true ) ) continue;
             if ( RecordRedactor::isMasked( 'players', $field, $user_id, $player_id ) ) $hidden[] = $field;
         }
         return $hidden;
@@ -91,6 +95,11 @@ class PlayersPage {
             : $dob;
     }
 
+    /**
+     * #3158 — the same gate `GET /players/{id}` uses. Covers the player
+     * themselves, a global read, a team-scoped coach and a linked parent, so
+     * wp-admin and REST cannot answer differently.
+     */
     private static function canSeePlayer( int $player_id ): bool {
         return $player_id > 0
             && AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );

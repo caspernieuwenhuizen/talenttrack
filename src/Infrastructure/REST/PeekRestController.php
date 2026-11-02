@@ -121,6 +121,23 @@ final class PeekRestController extends BaseController {
         ], 200 );
     }
 
+    /**
+     * #4691 / #4736 — the full date of birth for a reader the sensitive-field
+     * registry lets read it, the birth year for everyone else.
+     *
+     * @return array{label: string, value: string}
+     */
+    private static function birthFact( object $player, int $player_id ): array {
+        $dob = \TT\Infrastructure\Players\PlayerDates::forOutput( $player->date_of_birth ?? null );
+        if ( $dob === null ) return [ 'label' => __( 'Date of birth', 'talenttrack' ), 'value' => '' ];
+
+        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), $player_id ) ) {
+            $year = \TT\Infrastructure\Players\PlayerDates::birthYear( $dob );
+            return [ 'label' => __( 'Birth year', 'talenttrack' ), 'value' => $year !== null ? (string) $year : '' ];
+        }
+        return [ 'label' => __( 'Date of birth', 'talenttrack' ), 'value' => \TT\Shared\Dates\TTDate::date( $dob ) ];
+    }
+
     public static function player( WP_REST_Request $request ): WP_REST_Response {
         $id     = (int) $request['id'];
         $player = QueryHelpers::get_player( $id );
@@ -145,10 +162,7 @@ final class PeekRestController extends BaseController {
                     'label' => __( 'Jersey number', 'talenttrack' ),
                     'value' => ! empty( $player->jersey_number ) ? (string) (int) $player->jersey_number : '',
                 ],
-                [
-                    'label' => __( 'Date of birth', 'talenttrack' ),
-                    'value' => ! empty( $player->birth_date ) ? \TT\Shared\Dates\TTDate::date( (string) $player->birth_date ) : '',
-                ],
+                self::birthFact( $player, $id ),
             ]
         );
     }

@@ -52,7 +52,7 @@ use TT\Modules\Players\Services\PotentialTrajectory;
  *
  * @phpstan-type PotentialRow array{
  *     player_id:int, player_name:string, team_id:int, team_name:string,
- *     age_group:string, date_of_birth:string, eligible:bool,
+ *     age_group:string, date_of_birth:string, birth_year:int|null, eligible:bool,
  *     recorded:bool, band:string, band_label:string, band_rank:int,
  *     set_at:string, set_by:int, set_by_name:string, notes:string,
  *     direction:string, previous_band:string, previous_band_label:string,
@@ -221,6 +221,9 @@ final class PotentialOverviewQuery {
             'team_name'           => $team_name,
             'age_group'           => $age_group,
             'date_of_birth'       => $player['date_of_birth'],
+            // #4691 — stays for every reader; the full date is redacted per
+            // reader by the REST route through the sensitive-field registry.
+            'birth_year'          => \TT\Infrastructure\Players\PlayerDates::birthYear( $player['date_of_birth'] ),
             // #3981 — no age floor any more, so every player is asked. The
             // field stays in the v1 response shape for one release.
             'eligible'            => true,

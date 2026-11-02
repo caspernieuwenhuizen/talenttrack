@@ -278,7 +278,8 @@ final class ReportsRestController extends BaseController {
             'bands'     => $bands,
             'teams'     => $query->teamsInScope( $user_id, $scope, $team_id, $age_group ),
             'summary'   => \TT\Modules\Analytics\Reports\PotentialOverviewQuery::summarise( $all ),
-            'rows'      => $rows,
+            // #4691 — the date of birth follows the sensitive-field registry.
+            'rows'      => \TT\Infrastructure\Security\RecordRedactor::redactRows( 'players', $rows, $user_id, 'player_id' ),
         ] );
     }
 

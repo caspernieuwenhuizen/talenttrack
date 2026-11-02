@@ -9,19 +9,21 @@
  *
  * Shape, per entity:
  *
- *   'routes' — registered route pattern => where this entity's rows sit in
- *              that route's response. The pattern is exactly as passed to
- *              `register_rest_route()` with the namespace in front
- *              (`WP_REST_Response::get_matched_route()`). The row path is
- *              dot-separated from the top of the response, `*` standing for
- *              every element: `data` for a single record in the standard
- *              envelope, `data.rows.*` for a list. A response from a listed
- *              route is redacted again after the controller, as the HTTP
- *              safety net behind the controller's own `redactRows()`, and
- *              only at that path, so a nested record of another kind is
- *              never read as this one.
- *   'id_key' — the key in a row that holds the player id the right is asked
- *              against.
+ *   'routes' — registered route pattern => [ 'rows' => path, 'id_key' => key ].
+ *              The pattern is exactly as passed to `register_rest_route()`
+ *              with the namespace in front
+ *              (`WP_REST_Response::get_matched_route()`). `rows` is where
+ *              this entity's rows sit in that route's response, dot-separated
+ *              from the top, `*` standing for every element: `data` for a
+ *              single record in the standard envelope, `data.rows.*` for a
+ *              list. `id_key` is the key in those rows that holds the id the
+ *              rule is asked against; leave it out to use the entity's. A
+ *              response from a listed route is redacted again after the
+ *              controller, as the HTTP safety net behind the controller's own
+ *              `redactRows()`, and only at that path, so a nested record of
+ *              another kind is never read as this one.
+ *   'id_key' — the entity's default row key: the player id for a player
+ *              rule, the person id for `guardian_contact`.
  *   'fields' — field => rule. A reader the rule refuses gets the row without
  *              the field: left out of the REST answer, "Hidden" on screen.
  *
@@ -33,6 +35,9 @@
  *                        assignment that reads players.
  *   'staff_or_family'  — staff for the player, the player themselves, or a
  *                        guardian linked to them.
+ *   'guardian_contact' — on a person row: the contact of a guardian of a live
+ *                        linked child goes to the person themselves and to
+ *                        staff for at least one of those children.
  *
  * The owner's list (2 November 2026) is wider than what is registered here:
  * absence reasons, evaluation comments, and the contact details and
@@ -46,8 +51,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 return [
     'players' => [
         'routes' => [
-            '/talenttrack/v1/players'              => 'data.rows.*',
-            '/talenttrack/v1/players/(?P<id>\d+)' => 'data',
+            '/talenttrack/v1/players'                     => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/players/(?P<id>\d+)'        => [ 'rows' => 'data' ],
+            '/talenttrack/v1/reports/potential-overview' => [ 'rows' => 'data.rows.*', 'id_key' => 'player_id' ],
         ],
         'id_key' => 'id',
         'fields' => [
@@ -63,6 +69,21 @@ return [
             // The full date. `birth_year` and the team's age group stay
             // on the record for every reader.
             'date_of_birth'    => 'staff_or_family',
+        ],
+    ],
+
+    // A guardian is a person record too: their e-mail and phone are the
+    // family's contact, whichever list the person appears on.
+    'people' => [
+        'routes' => [
+            '/talenttrack/v1/people'              => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/people/(?P<id>\d+)' => [ 'rows' => 'data' ],
+        ],
+        'id_key' => 'id',
+        'fields' => [
+            'email'           => 'guardian_contact',
+            'email_link_html' => 'guardian_contact',
+            'phone'           => 'guardian_contact',
         ],
     ],
 ];
