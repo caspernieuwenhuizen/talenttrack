@@ -79,10 +79,12 @@ academies use TalentTrack in Dutch, and Dutch labels are often much longer
 than English ones ("Geboortedatum" for "DOB"). A 320px overflow caused by a
 Dutch label cannot fail an English walk. In CI, after the desktop suite, the
 step *Switch the tests instance to Dutch for the mobile gate* in `e2e.yml`
-does three things:
+does three things, and is `continue-on-error` so a failed download or compile
+cannot turn the required check red (the gate's Dutch check then fails instead):
 
-1. Folds the pending fragments into the runner's copy of the catalogue
-   (`php tools/consolidate-translations.php --keep`).
+1. Folds the pending fragments into the checkout's copy of the catalogue
+   (`php tools/consolidate-translations.php --keep`, run in the wp-env
+   container like every PHP process in the job).
 2. Compiles `languages/talenttrack-nl_NL.mo` with `msgfmt`. It is never
    committed.
 3. Installs and activates the nl_NL core language pack (WordPress refuses a
