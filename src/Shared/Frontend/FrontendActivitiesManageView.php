@@ -166,7 +166,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // entirely and the grid they are allowed to open had no way
             // in from the activity it belongs to.
             $can_take_register = AuthorizationService::canRecordAttendance( $current_uid );
-            if ( $session && ( $can_edit_acts || $can_delete_acts || $can_take_register ) ) {
+            // #4643 — a reader of the team who may not change it reads the
+            // match prep read-only (#4632). The same read rule the prep view
+            // asks; a writer gets the editor entry below instead.
+            $can_view_prep = $session && ! $can_edit_acts && $session_team > 0
+                && ( current_user_can( 'tt_view_activities' ) || current_user_can( 'tt_edit_activities' ) )
+                && \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $current_uid, $session_team );
+            if ( $session && ( $can_edit_acts || $can_delete_acts || $can_take_register || $can_view_prep ) ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 // #2183 — an archived activity is read-only until restored:
                 // the mutating header actions (Edit / match prep / live match /
@@ -581,6 +587,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 }
 
                 } // end ! $is_archived && $can_edit_acts (active-only edit actions)
+
+                // #4643 — the reader's way in. Only once a prep exists: a
+                // reader cannot start one, and the read-only view of none
+                // would be an empty page.
+                if ( ! $is_archived && $can_view_prep && self::offersFixtureSurfaces( $type_key )
+                    && ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( (int) $session->id )
+                ) {
+                    $detail_actions[] = [
+                        'label' => __( 'View match prep', 'talenttrack' ),
+                        // A stable hook for the read entry, which shares its
+                        // label with the editor's on a played match.
+                        'data_attrs' => [ 'tt-match-prep-read' => '1' ],
+                        'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo(
+                            add_query_arg(
+                                [ 'tt_view' => 'match-prep', 'activity_id' => (int) $session->id ],
+                                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                            )
+                        ),
+                    ];
+                }
 
                 // #2386 (epic #2381) — jump into the desktop grids for this
                 // team, pre-filtered to this activity's date (one column), so a
