@@ -93,8 +93,11 @@ class ScoutDelivery {
         $to   = $config->filters['date_to'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) || $from > $to ) {
             $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-            $from   = $window['from'];
-            $to     = $window['to'];
+            // #4637 — the season has not started and the sender gave no
+            // window: there is nothing to compose.
+            if ( $window === null ) return '';
+            $from = $window['from'];
+            $to   = $window['to'];
         }
 
         // The config's sections, in the old vocabulary, mapped onto the new

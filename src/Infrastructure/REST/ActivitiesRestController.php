@@ -537,6 +537,16 @@ class ActivitiesRestController {
         ] );
     }
 
+    /** #4637 — no window given and no season default to fall back on. */
+    private static function noPeriod(): \WP_REST_Response {
+        return RestResponse::error(
+            'no_period',
+            \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage(),
+            422,
+            [ 'fields' => [ 'from', 'to' ] ]
+        );
+    }
+
     /**
      * #2382 — the caller's team scope for the grid. Null = academy-wide
      * (sees every team). Otherwise the list of team ids the coach coaches.
@@ -667,8 +677,9 @@ class ActivitiesRestController {
         // #3586 — the window ends today in site time, not the UTC date the
         // shared report default carries.
         $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
+        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : ( $defaults['from'] ?? '' );
         $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : AttendanceDateRule::today();
+        if ( $from === '' ) return self::noPeriod();
         $type = (string) ( $r['type'] ?? 'all' );
         if ( ! in_array( $type, [ 'all', 'training', 'match' ], true ) ) $type = 'all';
 
@@ -787,8 +798,9 @@ class ActivitiesRestController {
         }
 
         $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
-        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : $defaults['to'];
+        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : ( $defaults['from'] ?? '' );
+        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : ( $defaults['to'] ?? '' );
+        if ( $from === '' || $to === '' ) return self::noPeriod();
 
         // #3748 — `matrix()` returns the window it applied alongside the
         // data, so a caller who sent nothing can see the season default that

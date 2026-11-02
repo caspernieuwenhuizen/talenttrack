@@ -19,7 +19,8 @@ use TT\Modules\Export\ScopeGatedExporter;
  * URL:
  *   `GET /wp-json/talenttrack/v1/exports/player_report_pdf?format=pdf
  *        &player_id=42&layout=A&blocks=status,talking_points,ratings`
- *   `period`, or `from` + `to` (Y-m-d); neither means the season so far.
+ *   `period`, or `from` + `to` (Y-m-d); neither means the season so far, and
+ *   `422 no_period` before the current season has started.
  *
  * The page count the panel shows is the page count this prints: both read
  * `PlayerReportLayout::fit()`, and the shortening it chose is applied here
@@ -57,7 +58,10 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
      * Forgiving like the panel it prints: unknown sections drop and a missing
      * window is the season so far. A document that refuses to print because a
      * saved view names a section that was renamed is worse than one without it.
+     * Before the current season has started there is no season so far, and a
+     * missing window is refused with `no_period` (422).
      *
+     * @throws ExportException `no_period` when there is no window to print.
      * @param array<string,mixed> $raw
      * @return array<string,mixed>|null
      */
@@ -79,6 +83,10 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             'options'   => $raw['options'] ?? null,
         ] );
         $window = PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
+        // #4637 — the season has not started and no window was given.
+        if ( $window['from'] === '' || $window['to'] === '' ) {
+            throw new ExportException( 'no_period', \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage() );
+        }
 
         $layout = strtoupper( isset( $raw['layout'] ) ? (string) $raw['layout'] : '' );
         if ( ! PlayerReportLayout::isValid( $layout ) ) $layout = PlayerReportLayout::DEFAULT;

@@ -118,10 +118,10 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
         $from = $has_manual_from
             ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) )
-            : ( $window['from'] ?? $defaults['from'] );
+            : ( $window['from'] ?? $defaults['from'] ?? '' );
         $to = $has_manual_to
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
-            : ( $window['to'] ?? $defaults['to'] );
+            : ( $window['to'] ?? $defaults['to'] ?? '' );
 
         // #3293 — the bar shows the period the query ran on, not the param.
         $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
@@ -136,6 +136,13 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         if ( ! in_array( $gap, [ 'all', 'complete', 'partial', 'none' ], true ) ) $gap = 'all';
 
         self::renderFilterForm( $teams, $team_id, $from, $to, $type_filter, $period, $type_options );
+
+        // #4637 — no season default yet, or a window that runs backwards.
+        $notice = ReportFilters::windowNotice( $from, $to );
+        if ( $notice !== '' ) {
+            echo '<div data-tt-filter-region data-tt-filter-count="0"><p class="tt-notice tt-report-no-period" role="status">' . esc_html( $notice ) . '</p></div>';
+            return;
+        }
 
         $matrix = ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type_filter );
 

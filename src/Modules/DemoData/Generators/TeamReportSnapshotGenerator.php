@@ -185,7 +185,8 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
         if ( $player_id <= 0 ) return 0;
 
         $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-        $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], [], $author );
+        if ( $window === null ) return 0; // #4637 — no season so far to freeze.
+        $report =( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], [], $author );
         if ( $report === null ) return 0;
 
         $copy        = self::PLAYER_SNAPSHOT_BY_LANGUAGE[ $language ] ?? self::PLAYER_SNAPSHOT_BY_LANGUAGE['en_US'];

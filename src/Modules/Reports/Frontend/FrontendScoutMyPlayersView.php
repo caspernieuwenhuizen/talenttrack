@@ -117,6 +117,11 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         // allowlist whatever is asked for: scores without the coach's notes,
         // tests at the public level, nothing a scout may not receive.
         $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        // #4637 — the current season has not started: no season so far.
+        if ( $window === null ) {
+            echo '<p class="tt-notice tt-report-no-period" role="status">' . esc_html( \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage() ) . '</p>';
+            return;
+        }
 
         // The record of what was viewed, stored with the audit row.
         $config = new ReportConfig(

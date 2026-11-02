@@ -31,6 +31,12 @@ Het rapport opent op **het seizoen tot nu toe** — vanaf het begin van het huid
 seizoen tot vandaag. Met de periodekeuze kies je een ander venster: vorige week,
 vorige maand, deze maand, het hele seizoen of een eigen periode.
 
+Is het seizoen dat als huidig staat ingesteld nog niet begonnen, dan is er nog
+geen seizoen tot nu toe. Het rapport vraagt je dan onder de filterbalk om **een
+periode te kiezen** in plaats van een leeg rapport te tonen, en een pdf-download
+zonder periode wordt met dezelfde melding geweigerd. Een periode waarvan het
+begin na het einde ligt, geeft een melding dat je die moet corrigeren.
+
 ## Wat erin staat
 
 Het opent op de onderdelen die een één-op-één-gesprek nodig heeft:

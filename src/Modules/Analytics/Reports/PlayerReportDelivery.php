@@ -63,6 +63,14 @@ final class PlayerReportDelivery {
             'label'       => '',
         ];
 
+        // #4637 — a schedule on the season default, before the season has
+        // started. Not a reason to stop it: the next run after the start sends.
+        if ( $window['from'] === '' || $window['to'] === '' ) {
+            $plan['stop']  = false;
+            $plan['error'] = __( 'Not sent: the current season has not started yet, so there is no season so far to report on.', 'talenttrack' );
+            return $plan;
+        }
+
         if ( $team_id > 0 ) {
             return self::planTeam( $plan, $team_id );
         }

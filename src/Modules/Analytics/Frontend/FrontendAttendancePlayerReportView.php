@@ -122,6 +122,13 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
 
         self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $effective_period, $type_key );
 
+        // #4637 — no season default yet, or a window that runs backwards.
+        $notice = ReportFilters::windowNotice( $from, $to );
+        if ( $notice !== '' ) {
+            echo '<div data-tt-filter-region data-tt-filter-count="0"><p class="tt-notice tt-report-no-period" role="status">' . esc_html( $notice ) . '</p></div>';
+            return;
+        }
+
         // #1488 — ranking, the missed count, and the at-risk flag all
         // come from the shared AttendanceRankingQuery so the report, the
         // leaderboard, the REST surface, and the Comms cron can never
@@ -370,9 +377,13 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             . '</span>';
     }
 
-    /** @return array{from:string,to:string} */
+    /**
+     * Empty bounds when the current season has not started (#4637).
+     *
+     * @return array{from:string,to:string}
+     */
     private static function defaultWindow(): array {
-        return ReportFilters::seasonDefaultWindow();
+        return ReportFilters::seasonDefaultWindow() ?? [ 'from' => '', 'to' => '' ];
     }
 
 

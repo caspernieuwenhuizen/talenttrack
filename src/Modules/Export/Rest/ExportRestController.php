@@ -198,6 +198,7 @@ final class ExportRestController {
             'forbidden'          => 403,
             'unsupported_format' => 400,
             'bad_filters'        => 400,
+            'no_period'          => 422,
             'no_renderer'        => 500,
         ][ $errorKey ] ?? 500;
     }

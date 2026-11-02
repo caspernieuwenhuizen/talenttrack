@@ -351,6 +351,7 @@ final class ReportsRestController extends BaseController {
 
         $team_id = $team['team_id'];
         [ $from, $to ] = self::resolveWindow( $read['values']['from'], $read['values']['to'] );
+        if ( $from === '' || $to === '' ) return self::noPeriod();
         $type = $read['values']['type'];
         if ( ! in_array( $type, [ 'League', 'Cup', 'Friendly' ], true ) ) $type = 'all';
 
@@ -503,13 +504,26 @@ final class ReportsRestController extends BaseController {
      * private copy of this; one helper now, so the two reports cannot drift
      * into answering for different periods.
      *
+     * #4637 — before the current season has started there is no default, and
+     * a missing bound stays empty; the caller answers `noPeriod()`.
+     *
      * @return array{0:string,1:string}
      */
     private static function resolveWindow( string $from, string $to ): array {
         $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'] ?? '';
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? '';
         return [ $from, $to ];
+    }
+
+    /** #4637 — no window given and no season default to fall back on. */
+    private static function noPeriod(): \WP_REST_Response {
+        return RestResponse::error(
+            'no_period',
+            \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage(),
+            422,
+            [ 'fields' => [ 'from', 'to' ] ]
+        );
     }
 
     /**
@@ -535,6 +549,7 @@ final class ReportsRestController extends BaseController {
         // read, so the caller can see which period they got. An unknown
         // activity type narrows to nothing, which is also not a widening.
         [ $window_from, $window_to ] = self::resolveWindow( $read['values']['from'], $read['values']['to'] );
+        if ( $window_from === '' || $window_to === '' ) return self::attendanceRefusal( self::noPeriod() );
 
         return [
             'team_id'           => $team['team_id'],
@@ -819,6 +834,7 @@ final class ReportsRestController extends BaseController {
             'from'    => $from,
             'to'      => $to,
         ] );
+        if ( $report['from'] === '' || $report['to'] === '' ) return self::noPeriod();
         return RestResponse::success( [
             'rows'                   => $report['rows'],
             // #3809 — the window the rows describe, season fallback

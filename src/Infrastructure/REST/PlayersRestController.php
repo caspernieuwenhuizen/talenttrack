@@ -749,6 +749,10 @@ class PlayersRestController {
             'options'   => $r['options'] ?? null,
         ] );
         $window = \TT\Modules\Analytics\Reports\PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
+        if ( $window['from'] === '' || $window['to'] === '' ) {
+            // #4637 — the season has not started and no window was given.
+            return RestResponse::error( 'no_period', \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );
+        }
 
         try {
             $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer(

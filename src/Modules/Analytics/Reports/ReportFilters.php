@@ -184,8 +184,8 @@ final class ReportFilters {
             // filtered` on these surfaces, which is why the bar could not
             // derive a range chip and `customRangeChip()` had to be called by
             // hand; this is the same knowledge, handed over.
-            'default_from'  => $seeded['from'],
-            'default_to'    => $seeded['to'],
+            'default_from'  => $seeded['from'] ?? '',
+            'default_to'    => $seeded['to'] ?? '',
             'custom_active' => $range_chip !== null,
         ];
     }
@@ -193,10 +193,8 @@ final class ReportFilters {
     public static function customRangeChip( string $effective_period, string $from, string $to ): ?string {
         if ( $effective_period !== '' ) return null;
 
-        // `seasonDefaultWindow()` is typed `array{from:string,to:string}`, so
-        // both keys are guaranteed — a `?? ''` here is dead code at level 8.
         $defaults = self::seasonDefaultWindow();
-        if ( $from === $defaults['from'] && $to === $defaults['to'] ) {
+        if ( $defaults !== null && $from === $defaults['from'] && $to === $defaults['to'] ) {
             // The untouched season default is not a filter the reader chose.
             return null;
         }
@@ -279,17 +277,44 @@ final class ReportFilters {
      * exists, or its start date is empty, so a report never fatals or
      * renders empty just because no season is configured.
      *
-     * @return array{from:string,to:string}
+     * #4637 — null when the season marked current has not started yet: its
+     * "season so far" runs backwards, from a future start to today. There is
+     * no default then, and a report asks the reader to pick a period
+     * (`noPeriodMessage()`) rather than query a window that cannot hold
+     * anything.
+     *
+     * @return array{from:string,to:string}|null
      */
-    public static function seasonDefaultWindow(): array {
+    public static function seasonDefaultWindow(): ?array {
         $to = gmdate( 'Y-m-d' );
         if ( class_exists( '\\TT\\Modules\\Pdp\\Repositories\\SeasonsRepository' ) ) {
             $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
             if ( $season && ! empty( $season->start_date ) ) {
-                return [ 'from' => (string) $season->start_date, 'to' => $to ];
+                $from = (string) $season->start_date;
+                return $from > $to ? null : [ 'from' => $from, 'to' => $to ];
             }
         }
         return [ 'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ), 'to' => $to ]; // fallback
+    }
+
+    /** #4637 — what a report says when it has no window to show. */
+    public static function noPeriodMessage(): string {
+        return __( 'Pick a period to see this report.', 'talenttrack' );
+    }
+
+    /** #4637 — what a report says when a typed window ends before it starts. */
+    public static function invertedPeriodMessage(): string {
+        return __( 'The start date must be on or before the end date.', 'talenttrack' );
+    }
+
+    /**
+     * #4637 — the notice a report shows instead of its body, or '' when the
+     * window can be queried: no window at all, or one that runs backwards.
+     */
+    public static function windowNotice( string $from, string $to ): string {
+        if ( $from === '' || $to === '' ) return self::noPeriodMessage();
+        if ( $from > $to ) return self::invertedPeriodMessage();
+        return '';
     }
 
     /**
