@@ -1400,7 +1400,9 @@ report made for a role (`sharing: role`); persona keys are staff personas
 only, because a family reads a shared snapshot, never a live report (`400
 invalid_field` with the allowed keys). Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
-version_conflict`, and no duplicate is written. The version, the report's
+version_conflict`, and no duplicate is written. A deadlock or lock wait
+timeout on the locking read or the version insert, which two first publishes
+can hit, counts as the same collision. The version, the report's
 pointer to it and the persona list are written in one transaction; any other
 database error rolls them back and answers `500 db_error`. `201 { version_no,
 persona_keys }`. Publishing is its own action, never a field on the

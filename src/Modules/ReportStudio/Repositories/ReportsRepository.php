@@ -230,13 +230,14 @@ final class ReportsRepository {
      *
      * The next number is MAX + 1; `UNIQUE (report_id, version_no)` refuses a
      * second publish that read the same MAX, and that publish is tried once
-     * more before it gives up. The version, the report's pointer to it and
+     * more before it gives up. A deadlock or lock wait timeout on that insert
+     * counts as the same collision. The version, the report's pointer to it and
      * the publication list are written in one transaction, so a failure
      * leaves the report as it was.
      *
      * @param array<mixed> $definition
      * @param list<string> $persona_keys
-     * @return array{id:int, version_no:int}|null null when the version number stayed taken
+     * @return array{id:int, version_no:int}|null null when the version number stayed taken or locked
      * @throws \RuntimeException on any other database error, after rolling back.
      */
     public function publish( int $report_id, array $definition, string $note, array $persona_keys, int $user_id ): ?array {
@@ -251,10 +252,25 @@ final class ReportsRepository {
             for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
                 // Locking read: a retry after a collision sees the version the
                 // other publish committed, not this transaction's snapshot.
-                $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
+                $suppress = $wpdb->suppress_errors( true );
+                $max      = $wpdb->get_var( $wpdb->prepare(
                     "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d FOR UPDATE",
                     $report_id, $club
                 ) );
+                $wpdb->suppress_errors( $suppress );
+                $error = (string) $wpdb->last_error;
+                if ( $error !== '' ) {
+                    // A failed read is not "no versions yet": numbering from
+                    // it would only be saved by the duplicate-key retry.
+                    if ( ! self::isLockConflict( $error ) ) {
+                        throw new \RuntimeException( 'Reading the report versions failed: ' . $error );
+                    }
+                    Transaction::rollback();
+                    Transaction::begin();
+                    continue;
+                }
+                $next = 1 + (int) $max;
+
                 $suppress = $wpdb->suppress_errors( true );
                 $ok       = $wpdb->insert( $p . 'tt_report_versions', [
                     'uuid'            => wp_generate_uuid4(),
@@ -267,10 +283,17 @@ final class ReportsRepository {
                     'published_at'    => $now,
                 ] );
                 $wpdb->suppress_errors( $suppress );
+                $error = (string) $wpdb->last_error;
                 if ( $ok !== false ) {
                     $version = [ 'id' => (int) $wpdb->insert_id, 'version_no' => $next ];
-                } elseif ( stripos( (string) $wpdb->last_error, 'Duplicate entry' ) === false ) {
-                    throw new \RuntimeException( 'Publishing a report version failed: ' . $wpdb->last_error );
+                } elseif ( self::isLockConflict( $error ) ) {
+                    // #4641 — two first publishes hold only gap locks, so their
+                    // inserts can deadlock. The server has rolled the
+                    // transaction back already; the retry gets a fresh one.
+                    Transaction::rollback();
+                    Transaction::begin();
+                } elseif ( stripos( $error, 'Duplicate entry' ) === false ) {
+                    throw new \RuntimeException( 'Publishing a report version failed: ' . $error );
                 }
             }
             if ( $version === null ) {
@@ -295,6 +318,12 @@ final class ReportsRepository {
         }
         Transaction::commit();
         return $version;
+    }
+
+    /** A deadlock (1213) or a lock wait timeout (1205): another publish won the race. */
+    private static function isLockConflict( string $error ): bool {
+        return stripos( $error, 'Deadlock found' ) !== false
+            || stripos( $error, 'Lock wait timeout exceeded' ) !== false;
     }
 
     /** Throw on a failed write inside the publish transaction. */
