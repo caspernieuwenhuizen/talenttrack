@@ -396,7 +396,7 @@
     border-bottom: 1px solid var(--tt-line-soft);
     padding: var(--tt-gap-lg);
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     border-radius: var(--tt-radius);
     margin: var(--tt-gap) 0 0;
@@ -414,6 +414,8 @@
     color: var(--tt-ink-soft);
     font-weight: 600;
     display: block;
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-facts__value {
     font-size: 15px;
@@ -458,7 +460,7 @@
    tile 6px past a 320px viewport. */
 .tt-player-glance__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 .tt-player-kpi {
@@ -480,6 +482,8 @@
     letter-spacing: 0.4px;
     font-weight: 600;
     color: var(--tt-ink-soft);
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-kpi__num {
     font-size: 20px;
