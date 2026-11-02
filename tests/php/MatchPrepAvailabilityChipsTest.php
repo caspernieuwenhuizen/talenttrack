@@ -99,6 +99,20 @@ final class MatchPrepAvailabilityChipsTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4703 — the selected button carries a real 2px border (forced-colours
+     * mode keeps a border and drops a shadow), and gives the extra pixel
+     * back from its padding so its size and text room stay the same.
+     */
+    public function test_the_selected_button_has_a_2px_border_and_keeps_its_size(): void {
+        $checked = $this->baseRule( '.tt-avail-radio:checked + label' );
+        $this->assertStringContainsString( 'border-width: 2px;', $checked );
+        $this->assertStringContainsString( 'padding: 0.3125rem 0.1875rem;', $checked, '1px less than the 0.375rem 0.25rem base' );
+        $this->assertStringNotContainsString( 'box-shadow', $checked );
+
+        $this->assertStringContainsString( 'padding: 0.3125rem 0.4375rem;', $this->mediaBlock( 768 ), '1px less than the 0.375rem 0.5rem desktop padding' );
+    }
+
+    /**
      * #4703 — below 768px a third of a 360px row must hold "Geblesseerd":
      * narrow side padding, a 0.75rem label, and no bold on the selected one.
      * The desktop size and the bold return from 768px.

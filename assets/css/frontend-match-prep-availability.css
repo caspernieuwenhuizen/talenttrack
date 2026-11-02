@@ -125,6 +125,11 @@
     background: var(--tt-primary, #2271b1);
     border-color: var(--tt-primary, #2271b1);
     color: #fff;
+    /* A real 2px border, not an inset shadow: forced-colours mode keeps a
+       border and drops a shadow. The padding gives back the extra pixel, so
+       the button keeps its size and the text its room. */
+    border-width: 2px;
+    padding: 0.3125rem 0.1875rem;
 }
 
 .tt-avail-radio:focus-visible + label {
@@ -173,6 +178,7 @@
         font-size: 0.8125rem;
     }
     .tt-avail-radio:checked + label {
+        padding: 0.3125rem 0.4375rem;
         font-weight: 600;
     }
 }
