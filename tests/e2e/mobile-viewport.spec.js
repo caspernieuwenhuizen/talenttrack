@@ -35,6 +35,14 @@
  * before the view renders and lands on the prompt page, so measuring them
  * would be measuring that one page eighty times.
  *
+ * Record pages are walked too (`RECORD_SURFACES`): the spec makes the record
+ * over REST, opens it by id and removes it afterwards (#4738).
+ *
+ * WHICH WIDTHS
+ *
+ * The same walk runs once per phone project in `playwright.config.js`: 320,
+ * 360 and 390px. Each width has its own block in the baseline.
+ *
  * BASELINE, NOT BIG-BANG
  *
  * A gate that fails on 2,213 known rows is a gate somebody turns off. The
@@ -50,6 +58,8 @@
 const { test, expect } = require( '@playwright/test' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const { uniqueName } = require( './helpers/admin' );
+const { rest } = require( './helpers/match-prep' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
@@ -120,14 +130,63 @@ function phoneReachableSurfaces() {
 	return out;
 }
 
-/** @returns {Record<string, string[]>} slug => list of allowed finding kinds */
-function loadBaseline() {
+/**
+ * The baseline block for one viewport width (#4738).
+ *
+ * `mobile-baseline.json` keeps one block per width under `widths`, each
+ * entry `{ kinds: [...], reason: '...' }`. A surface that overflows at 320
+ * and not at 390 is a different allowance at each width, so one shared list
+ * would hide a regression at whichever width it did not describe.
+ *
+ * @param {number} width
+ * @returns {Record<string, { kinds: string[], reason: string }>}
+ */
+function loadBaseline( width ) {
 	try {
-		return JSON.parse( fs.readFileSync( BASELINE_FILE, 'utf8' ) ).surfaces || {};
+		const widths = JSON.parse( fs.readFileSync( BASELINE_FILE, 'utf8' ) ).widths || {};
+		return widths[ String( width ) ] || {};
 	} catch ( e ) {
 		return {};
 	}
 }
+
+/**
+ * Record pages the walk opens by id (#4738). The slug list alone only
+ * reaches lists and landing pages; a record such as the player profile is
+ * where #4702's sideways scroll was, and the gate never saw it.
+ *
+ * Each record is made over REST before the walk and removed after it, so
+ * the walk does not depend on another spec's leftovers or on seed data,
+ * which the CI instance does not have. `key` is the record's name in the
+ * baseline; `slug` is the surface whose mobile class it shares. Add a team
+ * or an activity the same way.
+ *
+ * @type {{ key: string, slug: string, create: (page: import('@playwright/test').Page, created: string[]) => Promise<number|string>, url: (id: number) => string }[]}
+ */
+const RECORD_SURFACES = [
+	{
+		key: 'players#record',
+		slug: 'players',
+		// A long name and every fact filled in, so the hero, the facts
+		// strip and the KPI tiles carry the content that broke them at
+		// 320 rather than a row of dashes.
+		create: async ( page, created ) => {
+			const res = await rest( page, 'POST', 'players', {
+				first_name: 'Maximiliaan-Alexander',
+				last_name: uniqueName( 'van Oldenbarnevelt-Wijnberghuizen' ),
+				date_of_birth: '2009-03-31',
+				date_joined: '2025-08-01',
+				preferred_foot: 'both',
+				status: 'active',
+			} );
+			const id = res.json && res.json.data ? Number( res.json.data.id ) : 0;
+			if ( ! id ) return 'player create refused: HTTP ' + res.status;
+			created.push( 'players/' + id );
+			return id;
+		},
+		url: ( id ) => `/?tt_view=players&id=${ id }`,
+	},
+];
 
 /**
  * WordPress's own admin bar declares `min-width: 600px`, which fakes
@@ -364,20 +423,68 @@ async function measureDensity( page ) {
 }
 
 const SURFACES = phoneReachableSurfaces();
-const baseline = loadBaseline();
 
-test.describe( 'mobile viewport at 390x844', () => {
+/** @type {Record<string, number|string>} record key => id, or why it could not be made */
+const recordIds = {};
+/** @type {string[]} REST paths of the records made for this run */
+const created = [];
+
+/**
+ * A logged-in desktop page for the REST calls around the walk. The calls
+ * need the dashboard's nonce (`window.TT`), which any dashboard page
+ * carries; the phone settings play no part in them.
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {import('@playwright/test').TestInfo} testInfo
+ */
+async function restPage( browser, testInfo ) {
+	const context = await browser.newContext( {
+		storageState: 'tests/e2e/.auth/admin.json',
+		baseURL: testInfo.project.use.baseURL,
+	} );
+	const page = await context.newPage();
+	await page.goto( '/?tt_view=players' );
+	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	const ready = await page.evaluate( () => !! ( window.TT && window.TT.rest_url && window.TT.rest_nonce ) );
+	return { context, page, ready };
+}
+
+test.describe( 'mobile viewport gate', () => {
 	// 78-odd page loads. Generous but bounded; the issue's budget is five
 	// minutes and a cold wp-env first paint is the slow part. Every surface
 	// with a list adds a wait for its rows, bounded by
 	// LIST_HYDRATION_TIMEOUT, so the ceiling sits above the worst case.
 	test.setTimeout( 8 * 60 * 1000 );
 
+	test.beforeAll( async ( { browser }, testInfo ) => {
+		const { context, page, ready } = await restPage( browser, testInfo );
+		for ( const record of RECORD_SURFACES ) {
+			recordIds[ record.key ] = ready
+				? await record.create( page, created )
+				: 'the dashboard shell carried no REST config';
+		}
+		await context.close();
+	} );
+
+	test.afterAll( async ( { browser }, testInfo ) => {
+		if ( ! created.length ) return;
+		const { context, page } = await restPage( browser, testInfo );
+		for ( const restPath of created.slice().reverse() ) {
+			await rest( page, 'DELETE', restPath, {} );
+		}
+		created.length = 0;
+		await context.close();
+	} );
+
 	test( 'no surface regresses beyond the recorded baseline', async ( { page } ) => {
 		expect(
 			SURFACES.length,
 			'parsed no surfaces out of config/mobile_surfaces.php — the manifest shape changed and this spec is blind'
 		).toBeGreaterThan( 50 );
+
+		const viewport = page.viewportSize();
+		const width = viewport ? viewport.width : 0;
+		const baseline = loadBaseline( width );
 
 		/** @type {Record<string, {kind: string, detail: string}[]>} */
 		const found = {};
@@ -391,8 +498,16 @@ test.describe( 'mobile viewport at 390x844', () => {
 		const withRows = [];
 		let measured = 0;
 
-		for ( const { slug, cls } of SURFACES ) {
-			const response = await page.goto( `/?tt_view=${ slug }`, {
+		/**
+		 * Load one surface and measure it. Returns why it was skipped, or
+		 * an empty string when it was measured.
+		 *
+		 * @param {string} key   the name in the baseline
+		 * @param {string} cls   the surface's mobile class
+		 * @param {string} url
+		 */
+		const visit = async ( key, cls, url ) => {
+			const response = await page.goto( url, {
 				waitUntil: 'domcontentloaded',
 			} );
 
@@ -402,17 +517,14 @@ test.describe( 'mobile viewport at 390x844', () => {
 			// are viewport defects, and failing on them would make the
 			// gate a test of the seed data instead of the CSS.
 			if ( response && response.status() >= 400 ) {
-				skipped.push( `${ slug } (HTTP ${ response.status() })` );
-				continue;
+				return `HTTP ${ response.status() }`;
 			}
 			if ( page.url().includes( 'tt_view=mfa-prompt' ) ) {
-				skipped.push( `${ slug } (redirected to the MFA prompt)` );
-				continue;
+				return 'redirected to the MFA prompt';
 			}
 			if ( ( await page.locator( '.tt-dashboard' ).count() ) === 0 ) {
-				skipped.push( `${ slug } (no .tt-dashboard rendered)` );
-				unrendered.push( slug );
-				continue;
+				unrendered.push( key );
+				return 'no .tt-dashboard rendered';
 			}
 
 			await hideAdminBar( page );
@@ -428,21 +540,45 @@ test.describe( 'mobile viewport at 390x844', () => {
 			if ( cls === 'native' ) {
 				const density = await measureDensity( page );
 				if ( density.rows ) {
-					withRows.push( `${ slug } (${ density.rows })` );
+					withRows.push( `${ key } (${ density.rows })` );
 				}
 				findings.push( ...density.findings );
 			}
 
-			if ( ! findings.length ) continue;
+			if ( ! findings.length ) return '';
 
-			found[ slug ] = findings;
+			found[ key ] = findings;
 
-			const allowed = baseline[ slug ] || [];
+			const allowed = baseline[ key ] ? baseline[ key ].kinds : [];
 			for ( const f of findings ) {
 				if ( ! allowed.includes( f.kind ) ) {
-					regressions.push( `${ slug } [${ cls }] ${ f.kind }: ${ f.detail }` );
+					regressions.push( `${ key } [${ cls }] ${ f.kind }: ${ f.detail }` );
 				}
 			}
+			return '';
+		};
+
+		for ( const { slug, cls } of SURFACES ) {
+			const why = await visit( slug, cls, `/?tt_view=${ slug }` );
+			if ( why ) skipped.push( `${ slug } (${ why })` );
+		}
+
+		// A record page is never a legitimate skip. The spec made the
+		// record itself, so a record it cannot open means the walk is blind
+		// to it, which is the gap this was added to close.
+		for ( const record of RECORD_SURFACES ) {
+			const id = recordIds[ record.key ];
+			const surface = SURFACES.find( ( s ) => s.slug === record.slug );
+			if ( typeof id !== 'number' ) {
+				regressions.push( `${ record.key }: not walked, ${ id || 'no record was made' }` );
+				continue;
+			}
+			if ( ! surface ) {
+				regressions.push( `${ record.key }: '${ record.slug }' is not a phone-reachable surface in config/mobile_surfaces.php` );
+				continue;
+			}
+			const why = await visit( record.key, surface.cls, record.url( id ) );
+			if ( why ) regressions.push( `${ record.key }: not measured, ${ why }` );
 		}
 
 		// A baseline entry that no longer offends is the line to delete.
@@ -450,12 +586,19 @@ test.describe( 'mobile viewport at 390x844', () => {
 		// earned its way out, and the next real regression hides behind it.
 		/** @type {string[]} */
 		const stale = [];
-		for ( const [ slug, kinds ] of Object.entries( baseline ) ) {
-			const still = ( found[ slug ] || [] ).map( ( f ) => f.kind );
-			for ( const kind of kinds ) {
+		/** @type {string[]} */
+		const unexplained = [];
+		for ( const [ key, entry ] of Object.entries( baseline ) ) {
+			const still = ( found[ key ] || [] ).map( ( f ) => f.kind );
+			for ( const kind of entry.kinds || [] ) {
 				if ( ! still.includes( kind ) ) {
-					stale.push( `${ slug }: ${ kind }` );
+					stale.push( `${ key }: ${ kind }` );
 				}
+			}
+			// An allowance nobody can explain is one nobody can argue
+			// with, so every entry carries its reason (#4738).
+			if ( ! entry.reason || ! String( entry.reason ).trim() ) {
+				unexplained.push( key );
 			}
 		}
 
@@ -470,12 +613,18 @@ test.describe( 'mobile viewport at 390x844', () => {
 		// Emit the current state in the baseline's own shape, so adopting
 		// it after a wave of fixes is a copy-paste rather than an exercise
 		// in transcribing 80 lines of console output by hand.
+		// A reason already written for an entry is carried over; a new
+		// entry gets an empty one, which the spec refuses until somebody
+		// fills it in from the detail lines below.
 		const shape = {};
-		for ( const [ slug, findings ] of Object.entries( found ) ) {
-			shape[ slug ] = findings.map( ( f ) => f.kind ).sort();
+		for ( const [ key, findings ] of Object.entries( found ) ) {
+			shape[ key ] = {
+				kinds: findings.map( ( f ) => f.kind ).sort(),
+				reason: baseline[ key ] ? baseline[ key ].reason : '',
+			};
 		}
 		console.log(
-			`\nCurrent offenders, in mobile-baseline.json shape:\n${ JSON.stringify( { surfaces: shape }, null, 2 ) }`
+			`\nCurrent offenders at ${ width }px, in mobile-baseline.json shape:\n${ JSON.stringify( { widths: { [ String( width ) ]: shape } }, null, 2 ) }`
 		);
 
 		// What each finding is, baselined or not. A baseline entry only
@@ -493,7 +642,7 @@ test.describe( 'mobile viewport at 390x844', () => {
 			console.log( `\nFindings in detail:\n  ${ details.join( '\n  ' ) }` );
 		}
 
-		console.log( `\nMeasured ${ measured } of ${ SURFACES.length } phone-reachable surface(s).` );
+		console.log( `\nMeasured ${ measured } of ${ SURFACES.length + RECORD_SURFACES.length } surface(s) at ${ width }px, ${ RECORD_SURFACES.length } of them record page(s).` );
 
 		// Density can only be judged where a list actually has rows. Saying
 		// which surfaces those were keeps "no density findings" honest: on
@@ -515,8 +664,13 @@ test.describe( 'mobile viewport at 390x844', () => {
 		).toBeGreaterThanOrEqual( Math.ceil( SURFACES.length * MIN_MEASURED_SHARE ) );
 
 		expect(
+			unexplained,
+			`${ unexplained.length } baseline entry(ies) at ${ width }px have no reason: ${ unexplained.join( ', ' ) }`
+		).toEqual( [] );
+
+		expect(
 			regressions,
-			`New mobile viewport defects on ${ regressions.length } surface(s) not in tests/e2e/mobile-baseline.json:\n  ${ regressions.join( '\n  ' ) }`
+			`New mobile viewport defects at ${ width }px on ${ regressions.length } surface(s) not in tests/e2e/mobile-baseline.json:\n  ${ regressions.join( '\n  ' ) }`
 		).toEqual( [] );
 	} );
 } );
