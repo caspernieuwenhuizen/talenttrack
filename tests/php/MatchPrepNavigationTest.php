@@ -71,14 +71,15 @@ final class MatchPrepNavigationTest extends WP_UnitTestCase {
 
     /**
      * The locked branch for an existing prep adds the panel after the full
-     * chain and draws no chain of its own.
+     * chain and draws no chain of its own. The full chain is `crumbs()`,
+     * which the editor and the read-only sheet both call.
      */
     public function test_the_locked_branch_adds_no_second_chain(): void {
         $src = (string) file_get_contents( TT_PLUGIN_DIR . 'src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php' );
 
         $empty_state = strpos( $src, "'Start match prep'" );
-        $full_chain  = strpos( $src, "FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) )" );
-        $panel       = strpos( $src, "UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] )" );
+        $full_chain  = strpos( $src, 'self::crumbs( $activity, $activity_id );', (int) $empty_state );
+        $panel       = strpos( $src, "UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] )", (int) $empty_state );
 
         $this->assertNotFalse( $empty_state );
         $this->assertNotFalse( $full_chain );
@@ -87,9 +88,15 @@ final class MatchPrepNavigationTest extends WP_UnitTestCase {
 
         $between = substr( $src, (int) $empty_state, (int) $full_chain - (int) $empty_state );
         $this->assertSame(
-            1,
+            0,
             substr_count( $between, 'FrontendBreadcrumbs::fromDashboard(' ),
             'after the empty-prep branch, only the full chain is drawn'
         );
+
+        $method = (int) strpos( $src, 'private static function crumbs(' );
+        $this->assertGreaterThan( 0, $method );
+        $body = substr( $src, $method, (int) strpos( $src, "\n    }", $method ) - $method );
+        $this->assertSame( 1, substr_count( $body, 'FrontendBreadcrumbs::fromDashboard(' ) );
+        $this->assertStringContainsString( "FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) )", $body, 'the chain runs through Activities and the match' );
     }
 }

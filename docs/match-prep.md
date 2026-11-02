@@ -426,6 +426,14 @@ URL of a match belonging to a team you do not coach answers *You do not
 coach this activity's team.* Academy Admin and Head of Development see
 every team, as they do everywhere else.
 
+Someone whose role reads every team's activities without changing them,
+such as the Read-Only Observer, opens the plan as a read-only document:
+the same sheet the print page shows, with a note that it can't be
+changed here, and no fields, buttons or save state. They can print it and
+download the PDF too. The reason a coach typed beside an absent player is
+left out for them, as it is on every surface for anyone who neither plans
+the team nor reads its injuries.
+
 The same rule holds for the share link and the role assignments: both
 are decided by the plan's own team, not by holding a coaching role
 somewhere in the academy.

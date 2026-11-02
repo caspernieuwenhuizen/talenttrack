@@ -65,11 +65,10 @@ class MatchPrepPrintRouter {
         if ( ! is_user_logged_in() ) {
             wp_die( esc_html__( 'Log in to print this match sheet.', 'talenttrack' ) );
         }
-        // Match prep editing is gated by tt_edit_activities; the team
-        // sheet (view-only artefact) by tt_view_activities — mirrors the
-        // caps the on-screen surfaces + the DomPDF exporter enforce.
-        $cap = $mode === 'team_sheet' ? 'tt_view_activities' : 'tt_edit_activities';
-        if ( ! current_user_can( $cap ) ) {
+        // Both sheets are reads: the activity read rule, as the match prep
+        // screen, `GET match-prep/{id}` and the PDF exporter ask it. Whose
+        // match it is is asked below, per activity.
+        if ( ! current_user_can( 'tt_view_activities' ) && ! current_user_can( 'tt_edit_activities' ) ) {
             wp_die( esc_html__( 'You do not have access to print this match sheet.', 'talenttrack' ) );
         }
 

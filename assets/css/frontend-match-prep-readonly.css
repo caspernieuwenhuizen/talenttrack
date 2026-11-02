@@ -1,0 +1,9 @@
+/* Match prep, read-only sheet: the printable document shown to a reader
+   who may not change the prep. The document is a landscape sheet, so on a
+   phone it scrolls inside its wrapper rather than widening the page. The
+   document's own look comes from the renderer's printable CSS, attached
+   to this handle and scoped to the wrapper. */
+.tt-mp--readonly {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
