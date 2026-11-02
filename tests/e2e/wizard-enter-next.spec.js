@@ -54,6 +54,10 @@ async function cancelRun( page ) {
 
 test.describe( 'Enter in a wizard goes to the next step (#4709)', () => {
 
+	// Each step is a POST and a redirect; three of them plus Cancel run past
+	// the default 30s on the CI install.
+	test.describe.configure( { timeout: 120000 } );
+
 	test( 'the first submit in the form is a hidden Next; Cancel still comes first of the visible buttons', async ( { page } ) => {
 		test.skip( ! ( await openWizard( page, 'new-player' ) ), 'new-player wizard not available' );
 
