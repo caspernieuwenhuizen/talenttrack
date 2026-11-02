@@ -145,6 +145,32 @@ final class ReportAccess {
     }
 
     /**
+     * `canReadSubject()` as values a list query applies in SQL: the teams the
+     * user reads reports about (null for every team), the players among
+     * `$player_ids` whose report they read, and whether they read the
+     * academy. A group reads when one of its teams is in `teams`.
+     *
+     * The player rule has no team-only form: it also asks
+     * `AuthorizationService::canViewPlayer()`. So the caller passes the
+     * player subjects that could be listed and they are read in one go.
+     *
+     * @param list<int> $player_ids
+     * @return array{teams:list<int>|null, players:list<int>, academy:bool}
+     */
+    public static function listedSubjects( ReportReader $reader, array $player_ids ): array {
+        $reader->primePlayers( $player_ids );
+        $players = [];
+        foreach ( $player_ids as $id ) {
+            if ( $reader->readsPlayer( $id ) ) $players[] = $id;
+        }
+        return [
+            'teams'   => $reader->reportTeams(),
+            'players' => $players,
+            'academy' => self::readsAcademy( $reader->userId ),
+        ];
+    }
+
+    /**
      * Is the report published to a persona this user holds, about a subject
      * they can read.
      *
