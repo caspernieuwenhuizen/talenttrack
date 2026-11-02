@@ -2,9 +2,13 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Core\FeatureRegistry;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\License\FeatureMap;
+use TT\Modules\License\LicenseGate;
+use TT\Modules\License\LicenseMode;
 use TT\Shared\Frontend\FrontendWizardView;
 use TT\Shared\Wizards\WizardState;
 
@@ -18,7 +22,8 @@ use TT\Shared\Wizards\WizardState;
  */
 final class WizardEnterGoesNextTest extends WP_UnitTestCase {
 
-    private int $admin = 0;
+    /** The user the wizard renders for. */
+    private int $user = 0;
 
     /** @var array<string, mixed> */
     private array $get_backup = [];
@@ -30,13 +35,16 @@ final class WizardEnterGoesNextTest extends WP_UnitTestCase {
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
 
-        $this->admin = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
-        wp_set_current_user( $this->admin );
+        $this->user = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $this->user );
         $this->get_backup = $_GET;
     }
 
     public function tear_down(): void {
-        WizardState::clear( $this->admin, 'new-player' );
+        WizardState::clear( $this->user, 'new-player' );
+        WizardState::clear( $this->user, 'new-report' );
+        LicenseMode::overrideForTests( null );
+        LicenseGate::overrideTierForTests( null );
         $_GET = $this->get_backup;
         wp_set_current_user( 0 );
         MatrixRepository::clearCache();
@@ -56,6 +64,19 @@ final class WizardEnterGoesNextTest extends WP_UnitTestCase {
         $opening = $this->firstElementChild( $form );
         $this->assertNotNull( $opening );
         $this->assertTrue( $first->isSameNode( $opening ), 'the default button opens the form' );
+    }
+
+    public function test_the_report_start_wizard_gets_the_same_default(): void {
+        FeatureRegistry::setEnabled( 'report_studio', true );
+        LicenseMode::overrideForTests( true );
+        LicenseGate::overrideTierForTests( FeatureMap::TIER_PRO );
+        $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        wp_set_current_user( $hod );
+        $this->user = $hod;
+
+        $first = $this->submits( $this->wizardForm( 'new-report' ) )[0];
+        $this->assertSame( 'next', $first->getAttribute( 'value' ) );
+        $this->assertSame( '-1', $first->getAttribute( 'tabindex' ) );
     }
 
     public function test_it_sends_what_the_visible_next_sends(): void {
@@ -91,7 +112,7 @@ final class WizardEnterGoesNextTest extends WP_UnitTestCase {
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         ob_start();
-        FrontendWizardView::render( $this->admin, true );
+        FrontendWizardView::render( $this->user, true );
         $html = (string) ob_get_clean();
 
         $doc = new \DOMDocument();
