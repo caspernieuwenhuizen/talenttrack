@@ -299,6 +299,10 @@ final class SettingsRegistry {
         } else {
             $label = (string) ( $entry['label'] ?? '' );
             $desc  = (string) ( $entry['description'] ?? '' );
+            $narrow = (string) ( $entry['narrow_check'] ?? '' );
+            if ( $narrow !== '' && ! self::passes( $narrow, $user_id ) ) {
+                $desc = (string) ( $entry['narrow_description'] ?? $desc );
+            }
         }
         if ( $label === '' ) return null;
 
@@ -352,11 +356,19 @@ final class SettingsRegistry {
         if ( $cap !== '' ) return user_can( $user_id, $cap );
         $matrix_cap = (string) ( $entry['matrix_cap'] ?? '' );
         if ( $matrix_cap !== '' ) return AuthorizationService::userCanOrMatrix( $user_id, $matrix_cap );
-        switch ( (string) ( $entry['check'] ?? '' ) ) {
+        $check = (string) ( $entry['check'] ?? '' );
+        // No rule is no access: an entry must say who may open it.
+        return $check !== '' && self::passes( $check, $user_id );
+    }
+
+    /** A named rule from `config/settings_entries.php`; an unknown name fails. */
+    private static function passes( string $check, int $user_id ): bool {
+        switch ( $check ) {
             case 'can_create_player':
                 return AuthorizationService::canCreatePlayer( $user_id );
+            case 'strava_club_wide':
+                return \TT\Modules\Strava\StravaConsoleScope::isClubWide( $user_id );
         }
-        // No rule is no access: an entry must say who may open it.
         return false;
     }
 

@@ -1,3 +1,0 @@
-# Record-scope gate matches check names exactly (#4663)
-
-The record-scope CI gate now matches each listed check by its whole name, and only a trailing `*` matches a family. Before, every entry worked as a prefix, so `TeamChemistryAccess::can` also admitted `canRead()` and `canManage()`, capability roll-ups that check no team. The list now names the record-taking methods themselves. The one surface that had only passed through a roll-up, the `player-journey` dispatch, now asks `canViewPlayer` before it loads the player, so a player you may not view answers as "Player not found", the same as one that does not exist.

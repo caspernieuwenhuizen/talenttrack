@@ -21,6 +21,8 @@
  * authorization matrix) or `check` (a named rule in SettingsRegistry), and
  * optionally a `feature` key that hides the entry while it is off. A `sub`
  * entry also needs `tt_view_settings`, which the Configuration page asks.
+ * `narrow_description` replaces the description for a viewer who fails the
+ * named `narrow_check`, when the screen shows them less than everything.
  * `keywords` are the extra words the filter and search match on; the Dutch
  * translation carries Dutch and English words alike.
  *
@@ -229,6 +231,10 @@ return [
             'module'      => 'TT\\Modules\\Strava\\StravaModule',
             'label'       => __( 'Strava integration', 'talenttrack' ),
             'description' => __( 'Register the Strava app credentials, manage the webhook subscription, and see which players have connected their accounts.', 'talenttrack' ),
+            // A team-scope reader (a head coach) opens a page with only their
+            // own players' connections, so the entry says that.
+            'narrow_check'       => 'strava_club_wide',
+            'narrow_description' => __( 'See which players in your teams have connected their Strava accounts.', 'talenttrack' ),
             'keywords'    => _x( 'strava, running, integration', 'settings search keywords', 'talenttrack' ),
         ],
 

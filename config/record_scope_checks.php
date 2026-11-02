@@ -134,6 +134,12 @@ return [
         'TrialCaseAccessPolicy::canOpenCase',
         'MediaVisibilityService::can',
         'ScoutingVisitsAccess::canReadVisit',
+        // A staff member's development record: their own, or every record for
+        // a global grant. `canManageAll()` is that global grant itself, the
+        // only answer for the routes that name a goal or certification by id.
+        'StaffDevelopmentAccess::canRead',
+        'StaffDevelopmentAccess::canWrite',
+        'StaffDevelopmentAccess::canManageAll',
     ],
 
     /**

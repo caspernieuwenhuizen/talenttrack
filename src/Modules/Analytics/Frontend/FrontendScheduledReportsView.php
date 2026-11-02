@@ -201,6 +201,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
         echo '</label>';
         echo '<p class="tt-sched-intro">' . esc_html__( 'The report names players and describes their development. Send it to staff only.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'Each recipient is checked every time the report is sent. An account receives it only when it may read this team\'s reports. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run.', 'talenttrack' ) . '</p>';
 
         $back       = BackLink::resolve();
         $cancel_url = $back !== null
@@ -312,6 +313,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
         echo '</label>';
         echo '<p class="tt-sched-intro">' . esc_html__( 'The report describes a minor\'s development. Send it to staff only.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'Each recipient is checked every time the report is sent. An account receives it only when it may read the report about every player in it, so parents and players do not receive it with the standard permissions. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run.', 'talenttrack' ) . '</p>';
 
         $back       = BackLink::resolve();
         $cancel_url = $back !== null

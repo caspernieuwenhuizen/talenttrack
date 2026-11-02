@@ -90,7 +90,7 @@ PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcem
 | Reports — attendance leaderboard boards (#4194) | `GET /reports/attendance-leaderboard` with `board=bottom` or `board=top` (also `filter[board]`; `n` is also taken as `filter[n]`) answers one board as a page in the standard envelope: `{ board, rows, total, ranked_players, page, per_page, from, to }`. `total` is the board's length, `ranked_players` the number of ranked players in the window. Each row carries `rank` (the place on the whole board, from 1), `player_id`, `player_name`, `team_name`, `activities`, `present_pct`, `missed`, `flagged` (bottom board only), `detail_url` and the escaped cells `player_html`, `team_html`, `present_html`. `orderby` (`player_name`, `team_name`, `activities`, `present_pct`) re-sorts the rows and leaves each `rank` as it was. Without `board` the route answers `{ top, bottom, total, from, to }` as before. Same gate and team scope as the rest of the attendance readers: the matrix's `attendance` read, at global scope for every team or at team scope for the teams it reaches (#4579). | `ReportsRestController.php` |
 | Measurement definitions (#2120) | `GET /measurement-definitions` (the test catalogue — `?include_inactive=1` to include deactivated tests), `GET /measurement-definitions/{id}` (one test with its per-age-group target bands), `POST /measurement-definitions` (create — same field surface the "+ New test" wizard persists: `category_id`, `name`, `value_type` numeric\|scale\|passfail, `unit`, `scale_min`/`scale_max`, `frequency`, `direction` higher\|lower\|neutral, `is_active`, `sort_order`), `PUT /measurement-definitions/{id}` (edit — partial; only the keys present are written), `POST /measurement-definitions/{id}/targets` (upsert one age-group band — body `{ age_group, green_min, green_max, amber_min, amber_max }`, unique per (definition, age_group)), `DELETE /measurement-definitions/{id}` (soft-archive — stamps `archived_at`/`archived_by`), `DELETE /measurement-definitions/{id}/permanent` (hard-delete, **gated on `tt_manage_recycle_bin`** so no purge path is weaker than the bin's own). The CRUD routes are **matrix-gated** on the `measurement_definitions` entity: `read` for GET, `change` for PUT + target upsert, `create_delete` for POST-create + soft-archive. Thin controller — every read/write delegates to `MeasurementDefinitionsRepository` / `MeasurementTargetsRepository`; soft-archive + purge run through `ArchiveRepository`. | `src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php` |
 | Spond integration (#0031, extended #1936, #2286, #2388, #2399, #4182) | `POST /teams/{id}/spond/sync` (sync one team; the summary carries `archived_count` — removed in Spond, archived — and `kept_count` — removed in Spond but kept because the activity has recorded data; only activities dated inside the fetch window are considered, the preview's `counts.archive` / `counts.keep` and `archive` / `keep` lists apply the same rule), `POST /spond/credentials` (save email + password; blank password keeps the stored one), `DELETE /spond/credentials` (disconnect / clear), `POST /spond/test` (live login check via `SpondClient`), `POST /spond/base-url` (override / revert the Spond API base URL). Per-team account override (#2286): `POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`. Per-team group selection (#2399): `GET /teams/{id}/spond/group` (groups the team's effective account can see — each carrying `used_by`, the other team already linked to it, `''` when none; pass `refresh=1` to bypass the 5-minute cache) and `POST /teams/{id}/spond/group` (`{ group_id }`; `''` unlinks; the response echoes `used_by` so the client can warn). Both gate on `TeamSpondAccess::canManage()`, so a head coach finishes their own team's setup without `tt_edit_teams`; a shared group is warned about, never blocked. The four club credential / base-url routes gate on `tt_edit_spond_credentials`. **The per-team credential, test and sync/preview routes gate on `TeamSpondAccess::canManage()` (#2388)** — change authority on the `spond_integration` matrix entity for that exact team (an academy admin globally, a head coach for their own team), so a head coach can connect their own team but not another's (`tt_edit_teams` still admits admins to the per-team sync/preview). The password is accepted on save/test and stored encrypted via `CredentialsManager`, but is **never** returned in any response; test only reports ok / a non-sensitive error message. | `SpondRestController.php`, `TeamSpondAccess.php` |
-| Strava integration (#2056, epic #2002) | `POST /players/{id}/strava/connect` (mint a signed authorize URL the browser navigates to — returns `{ authorize_url }`, does not store it), `DELETE /players/{id}/strava/connect` (disconnect — revoke at Strava + clear the encrypted tokens), `GET /players/{id}/strava/status` (connection status — `connected` / `status` / `last_sync_at`, **no tokens**), `GET /players/{id}/strava/activities` (the player's imported activities — distance/duration/pace/elevation, **no HR**; gated on `canViewPlayer`), `GET /strava/callback` (the OAuth redirect target — **public** `permission_callback`, authenticates by verifying the signed `state`, exchanges the `code` for tokens server-side, then redirects the browser back to the player profile), `POST /strava/app` (operator — register the Strava developer-app `client_id` + `client_secret`; the secret is write-only), `GET /strava/connections` (operator — the console roster: every club connection with player name, status, imported-activity count, last activity + last sync; **no tokens, no secret**), `GET /strava/webhook` (**public** — Strava's subscription-validation handshake; echoes `hub.challenge` as raw JSON after the verify token matches), `POST /strava/webhook` (**public** — the event push feed; resolves the athlete to a connection, pins its club, then routes activity create/update → ingest, delete → archive, athlete deauthorize → disconnect + archive), `GET/POST/DELETE /strava/webhook/subscription` (operator — view / create / delete the single club-wide push subscription; `GET` reconciles the stored id against Strava's real state via Strava's `GET push_subscriptions`, and `POST` adopts an existing subscription rather than failing on the one-per-app rule). The three per-player routes gate on **self-or-edit**: the player on their own record, or a caller with `canEditPlayer`. The operator routes (`app`, `connections`, `webhook/subscription`) are **matrix-gated, not `manage_options`** (#2127): reads (`GET connections` + `GET subscription`) on `tt_view_strava` (→ `strava_integration:read`), writes (`POST app`, `POST/DELETE subscription`) on `tt_edit_strava_credentials` (→ `…:change`). Per-player access + rotating refresh tokens are stored encrypted via `ConnectionRepository` and **never** returned. Activities are imported with non-HR metrics only (Gate 1). | `StravaRestController.php` |
+| Strava integration (#2056, epic #2002) | `POST /players/{id}/strava/connect` (mint a signed authorize URL the browser navigates to — returns `{ authorize_url }`, does not store it), `DELETE /players/{id}/strava/connect` (disconnect — revoke at Strava + clear the encrypted tokens), `GET /players/{id}/strava/status` (connection status — `connected` / `status` / `last_sync_at`, **no tokens**), `GET /players/{id}/strava/activities` (the player's imported activities — distance/duration/pace/elevation, **no HR**; gated on `canViewPlayer`), `GET /strava/callback` (the OAuth redirect target — **public** `permission_callback`, authenticates by verifying the signed `state`, exchanges the `code` for tokens server-side, then redirects the browser back to the player profile), `POST /strava/app` (operator — register the Strava developer-app `client_id` + `client_secret`; the secret is write-only), `GET /strava/connections` (operator — the console roster: every club connection with player name, status, imported-activity count, last activity + last sync; **no tokens, no secret**), `GET /strava/webhook` (**public** — Strava's subscription-validation handshake; echoes `hub.challenge` as raw JSON after the verify token matches), `POST /strava/webhook` (**public** — the event push feed; resolves the athlete to a connection, pins its club, then routes activity create/update → ingest, delete → archive, athlete deauthorize → disconnect + archive), `GET/POST/DELETE /strava/webhook/subscription` (operator — view / create / delete the single club-wide push subscription; `GET` reconciles the stored id against Strava's real state via Strava's `GET push_subscriptions`, and `POST` adopts an existing subscription rather than failing on the one-per-app rule). The three per-player routes gate on **self-or-edit**: the player on their own record, or a caller with `canEditPlayer`. The operator routes (`app`, `connections`, `webhook/subscription`) are **matrix-gated, not `manage_options`** (#2127): reads on `tt_view_strava`: `GET connections` (→ `strava_operator_console:read` at global or team scope; a team-scope reader such as a head coach gets only the live roster of their own teams, and the payload carries `subscription_id` only for a club-wide reader), and `GET subscription` only for a club-wide reader, writes (`POST app`, `POST/DELETE subscription`) on `tt_edit_strava_credentials` (→ `strava_operator_console:change`, global scope only). Per-player access + rotating refresh tokens are stored encrypted via `ConnectionRepository` and **never** returned. Activities are imported with non-HR metrics only (Gate 1). | `StravaRestController.php` |
 | Onboarding / Setup flow (#1938) | `POST /onboarding/advance` (leave the welcome step for academy), `POST /onboarding/academy` (save academy basics, advance), `POST /onboarding/first-team` (create the first team — or pass `skip:1` to skip — advance), `POST /onboarding/first-admin` (create the first-admin staff record + optional Club Admin grant, advance), `POST /onboarding/messaging` (#3140 — record which message templates the academy sends, or `skip:1` to send nothing; delegates to `OnboardingHandlers::applyMessaging()` / `skipMessaging()`, which invert against the registered switchable set rather than the request body so a template cannot be enabled by omission), `POST /onboarding/profile` (#3259 — apply an install profile named by `profile`, or `skip:1` for the full academy; delegates to `OnboardingHandlers::applyProfile()` / `skipProfile()`, and returns 409 `profile_not_applicable` when the slug is unknown or the install has already been configured by hand), `POST /onboarding/import` (#3260 — the only multipart route here: send the workbook as `roster_file`, with `commit:1` to write and without it to report only, or `skip:1`; delegates to `OnboardingHandlers::applyImport()`, which calls the same `ImportService` the wp-admin step does, so there is exactly one importer. A preview deliberately does not advance the step, and a workbook with blockers never reaches the commit pass. Always 200 with the step payload — the refusals are things about the *workbook*, which the step renders as a report rather than a failed request), `POST /onboarding/dashboard-page` (create / reuse the frontend dashboard page + set homepage — or `skip:1` — finish), `POST /onboarding/reset` (reset state, re-enter at welcome). Every route gates its `permission_callback` on `tt_edit_settings` (matches `OnboardingPage::CAP`). Thin controller — every persistence, team / staff creation, role grant, page creation, and state advance lives in `OnboardingHandlers` / `OnboardingState`, the same domain layer the wp-admin wizard uses. Each response reports the post-mutation `{ step, completed, payload }` so the frontend re-renders the right step. | `OnboardingRestController.php` |
 | Backups + data migration (#1937) | `GET /backups` (list stored local backups — each row carries a `download_url`, a full URL not a server-relative path per SaaS §4), `POST /backups/settings` (save preset / custom tables / schedule / retention / local + email destinations, reconcile the cron), `POST /backups/run` (run a backup now), `DELETE /backups/{id}` (delete a stored backup file), `GET /backups/{id}/preview` (restore preview — per-table row counts + source metadata), `POST /backups/{id}/restore` (**DESTRUCTIVE** full restore — requires `confirm_text:RESTORE`), `POST /backups/migration/preview` (multipart `.ttmig` upload — read-only validation + summary + stable-key conflict analysis; stages the archive, size-guarded to `MigrationImporter::MAX_UPLOAD_BYTES`), `POST /backups/migration/dry-run` (dry-run the staged import, no writes), `POST /backups/migration/commit` (**DESTRUCTIVE** import write — requires `confirm_text:IMPORT`). Every route gates its `permission_callback` on `tt_manage_backups` (matches `BackupSettingsPage::CAP`) — restore + import gate identically. The two destructive writes additionally refuse to run while impersonating (`ImpersonationContext::denyIfImpersonating`), preserve the typed-confirmation gate, and are audit-logged (`backup.restored` / `migration.imported`). Binary downloads + the `.ttmig` export are not JSON routes — they stream from the wp-admin admin-post handler; the list response returns a download URL pointing at that stream (object-storage-ready). Thin controller — serialization, the restore engine, and the migration engine live in the Backup module services. | `BackupRestController.php` |
 
@@ -456,7 +456,7 @@ Same body shape. The handler **only wipes `is_guest = 0` rows** before re-insert
 
 The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each planned row's `player_id`, `is_guest`, `name`, `plan_status` (`expected` / `not_coming` / `maybe`), `notes`, `availability` and `availability_check`, alongside `activity_id` and `count`. **`availability` (#4005)** is `available` | `unavailable`, derived per request by `PlayerAvailability` from the injuries the player was carrying **on the activity's `session_date`**, and **read-only**: it sits beside `plan_status` rather than becoming a fourth plan state, because a coach may deliberately expect an injured player (light session, rehab minutes, travelling with the squad) and folding the two would overwrite that choice. An injury counts on day D when it is neither archived nor trashed, `started_on <= D`, and either `actual_return > D` or, with no `actual_return`, `expected_return >= D`, or, with no `expected_return` either, the record is younger than the club's incomplete threshold on D (`injury_incomplete_after_days` in `tt_config`, 14 when unset) — a stale un-closed record from last season must not flag every future squad, and a current injury must not flag a match played before it started. **`availability_check` (#4246, #4269)** is a boolean beside it: `true` for an `available` player with an un-closed, unarchived record that is overdue (`expected_return < D`) or incomplete (no `expected_return`, open for at least the threshold) on D. The client shows a neutral "Check availability" marker; it is never a third `availability` value, so the published enum stays two-valued, and it is never `true` for an `unavailable` player. Rule: `InjuryStatus::needsCheckOnDay()` / `needsCheckSql()`. The activity detail page asks the same question for the same date, so both answer alike for one activity. **#4103 — a suspension counts too:** a player whom a recorded suspension covers for this match is `unavailable`, through `PlayerAvailability::unavailableForActivity()`. A suspension covers matches only, never a training, so the same player can be `available` on Tuesday's training and `unavailable` on Saturday's match. The flag carries the state and **nothing else**: no injury type, body part, note, date or id, so a role without injury access can plan around it without reading a child's medical record. **Who receives it:** a caller who may write the activity's team (`ActivityAccess::canWriteTeam()`), or who reads that player's injuries (`player_injuries` read for the player); on a training the flag can only mean an injury. For every other caller, the Read-Only Observer among them, `availability` is `null` and `availability_check` is `false` on that row (`PlayerAvailability::readableFlagSet()`); the activity detail page applies the same rule. The stored `attendance_status` encoding above is **not** part of the response, so a planned row can never be read as a recorded mark — an activity nobody has registered yet returns no attendance statuses at all. Recorded attendance lives on the activity read payload's `register` instead. Read on the terms of the activity: the whole roster for a caller with global activities read and for the staff of the activity's own team; a player, a parent or a linked scout who may read the activity gets only the rows of the players they may read; anyone else gets `403 forbidden_team`.
 
-**`match_squad` (#4260)** on each planned row is the match-day squad the coach picked in match prep: `start` (a half-1 slot on a position the prep's formation draws), `bench` (marked `Present` without one) or `out` (any other status the coach set). It is `null` when the activity has no match prep, and `null` for a player the prep has no row for — someone added to the plan after the prep was last saved was never left out, so the field does not say they were. It reads the same rule the attendance projection writes `lineup_role` from (`MatchPrepState::matchSquadForActivity()`, one prep lookup per request). **Read-only**, beside `plan_status` rather than rewriting it, for the reason `availability` is: the plan made at creation stays the coach's. It carries the squad position and nothing else — never the prep's availability status or reason, which can name a medical cause. **Who receives it:** only staff for the row's player (`AuthorizationService::isStaffForPlayer()`: `players.view` globally or on the player's team), such as the team's coach or a team manager arranging kit and transport (`AuthorizationService::staffForPlayers()`, asked once for the roster). Every other caller, a parent or player included, gets `match_squad: null` on every row, because match prep saves as the coach composes it and a family would otherwise learn "bench" or "out" before the coach has decided or told them.
+**`match_squad` (#4260)** on each planned row is the match-day squad the coach picked in match prep: `start` (a half-1 slot on a position the prep's formation draws), `bench` (marked `Present` without one) or `out` (any other status the coach set). It is `null` when the activity has no match prep, and `null` for a player the prep has no row for — someone added to the plan after the prep was last saved was never left out, so the field does not say they were. It reads the same rule the attendance projection writes `lineup_role` from (`MatchPrepState::matchSquadForActivity()`, one prep lookup per request). **Read-only**, beside `plan_status` rather than rewriting it, for the reason `availability` is: the plan made at creation stays the coach's. It carries the squad position and nothing else — never the prep's availability status or reason, which can name a medical cause. **Who receives it:** only staff for the row's player (`AuthorizationService::isStaffForPlayer()`: a staff role on the player's team, `players` change at global scope, or a global role scope in `tt_user_role_scopes` granting `players.view`; a global read from the persona seed alone, such as the read-only observer's, is not staff), such as the team's coach or a team manager arranging kit and transport (`AuthorizationService::staffForPlayers()`, asked once for the roster). Every other caller, a parent or player included, gets `match_squad: null` on every row, because match prep saves as the coach composes it and a family would otherwise learn "bench" or "out" before the coach has decided or told them.
 
 ### `register` on the activity read payload (#3447)
 
@@ -1282,13 +1282,22 @@ for. The payload carries capabilities and keys, never role names.
         "choices": [ { "value": "attendance", "label": "Attendance" } ] },
       { "key": "measure", "type": "measure", "label": "Measure", "required": true, "depends_on": "fact",
         "choices": { "attendance": [ { "value": "attendance_pct", "label": "Attendance %" } ] } }
-    ] }
-] }
+    ],
+    "source": "The data and the measure you pick, …",
+    "family": "A family may see this block, without other players' figures." }
+],
+  "unavailable": [
+    { "key": "playing_time", "label": "Playing time per player",
+      "reason": "This block does not fit what the report is about." } ] }
 ```
 
 Option types are `enum`, `bool`, `int`, `measure` and `breakdown`. A
 `depends_on` option's `choices` are grouped by the value of the option it
-names.
+names. `source` and `family` say, in plain words, where a block's figures
+come from and whether a family may see it. `unavailable` lists every other
+registered block with the translated reason it cannot be placed (the first
+scope asked for when several are listed), so a library shows it switched off
+rather than leaving it out.
 
 ### `POST /report-blocks/{key}/preview`
 
@@ -1388,6 +1397,9 @@ answered `403 forbidden` on a report that was not published to scouts.
 | `GET /reports/{id}/versions` | `tt_build_reports` | The versions, newest first, without their definitions. |
 | `POST /reports/{id}/versions` | `tt_build_reports` | Publish my draft as the next version. |
 | `GET /reports/{id}/data` | `tt_view_reports` | Every block's data, for me. |
+| `GET /reports/{id}/reach` | `tt_build_reports` | How many people publishing to personas reaches. |
+| `GET /reports/subject-options` | `tt_build_reports` | The teams and players I build reports about. |
+| `GET /reports/{id}/subjects` | `tt_view_reports` | The subjects I may switch a report I read to. |
 
 An editor-only route answers a recipient `403 forbidden` and anyone else the
 same; a report that does not exist in the club is `404 not_found`.
@@ -1415,39 +1427,76 @@ The body is the seven starting choices: `kind` (`report`), `scope`,
 `name` and the subject: `player_id`, `team_id`, or for a group a `cohort` of
 `team_ids` with an optional `age_group` and `position`, never player ids.
 
-`ReportStartRules` validates them and answers the first rule broken as `400
-invalid_field` with `details.field` and the reason:
+`ReportStartRules` decides them in order — `kind`, `scope`, `audience`,
+`binding`, `period_mode`, `layout`, `sharing` — each against the ones
+before it. A choice left out takes the first option still allowed. A choice
+sent that an earlier one rules out is **never moved**: it is answered `400
+invalid_field` with `details.field` naming that later field and the same
+translated reason the start wizard shows under the switched-off option:
 
-- a family or scout audience is about one player;
-- the academy scope is a staff reading;
+- a family or scout audience is about one player; a scout report is a
+  report, written only with `tt_publish_reports`; a parent reads a family
+  report only through a shared snapshot, never live;
+- a report about me always follows the viewer (`binding: viewer`), one about
+  the academy is always `fixed`, and only me, a player or a team can follow
+  the viewer;
 - a dashboard's period is never fixed;
-- a report that is mailed or shared with the family is laid out in rows;
-- publishing for a role needs a binding that is not fixed, and
-  `tt_publish_reports` (`sharing`);
-- following the viewer works for me, a player or a team;
+- a grid needs the `internal` audience;
+- a scheduled mail needs a report, `rows` and a period that is not `on_open`;
+- sharing with the family needs the `family` audience and a report;
+- publishing for a role needs a binding that is not fixed (or the academy
+  scope) and `tt_publish_reports`;
 - a fixed binding names its subject.
 
-The subject must be one the caller builds for: `403 forbidden_team`,
-`forbidden_player`, or `forbidden_scope` for the academy from a team builder.
-`201` with the report.
+The scope must be one the caller builds for, and so must the subject:
+`403 forbidden_scope` for the academy from a team builder, `403
+forbidden_team` / `forbidden_player` for a team or player outside their
+scope. `201` with the report. The start wizard creates reports through the
+same path.
+
+### `GET /reports/start-options?kind=&scope=&audience=&binding=&period_mode=&layout=&sharing=`
+
+The start rules' answer for every option, given the choices sent so far, so
+a front end can show what the wizard shows. Needs `tt_build_reports`. Reads
+only. `scope` defaults to `me`. An unknown value is `400 bad_filter`.
+
+```json
+{ "choices": { "kind": "dashboard", "scope": "team", "audience": "internal", "binding": "fixed",
+               "period_mode": "on_open", "layout": "rows", "sharing": "me" },
+  "moved": { },
+  "options": {
+    "period_mode": [
+      { "value": "on_open", "label": "Chosen when it is opened", "ok": true, "reason": null },
+      { "value": "rolling", "label": "Rolling", "ok": true, "reason": null },
+      { "value": "fixed", "label": "Fixed dates", "ok": false,
+        "reason": "A dashboard follows the calendar: its period cannot be fixed." } ] } }
+```
+
+`choices` is the normalised set; `moved` names each choice an earlier one
+ruled out, moved to the first option still allowed, with the reason.
 
 ### `PATCH /reports/{id}`
 
 Writes the **caller's** draft, never another builder's: `definition` (`{
-"blocks": [ { "id", "key", "options" } ] }`, at most 60 registered blocks and
-65536 bytes) and `name`. **An omitted field keeps its value; a field sent
-empty clears it.** A body with neither is `400 no_writable_field`. The draft
-row is made on first use from the published version, or the owner's draft.
+"blocks": [ { "id", "key", "options", "width" } ] }`, at most 40 registered
+blocks and 65536 bytes; `width` is `full`, the default, or `half`) and
+`name`. **An omitted field keeps its value; a field sent empty clears it.** A
+body with neither is `400 no_writable_field`. The draft row is made on first
+use from the published version, or the owner's draft.
 
-`revision` is optional. When sent it must be the draft's current revision,
-and a stale one is **`409 stale_revision`** with `details.current_revision`,
-so two tabs of one builder never overwrite each other silently; the canvas
-reloads the draft. Every definition write raises the revision by one.
+`revision` is optional, in the body or as a query parameter
+(`PATCH /reports/{id}?revision=4`). When sent it must be the draft's current
+revision, and a stale one is **`409 stale_revision`** with
+`details.current_revision`, so two tabs of one builder never overwrite each
+other silently; the canvas reloads the draft. Every definition write raises
+the revision by one.
 
 ### `POST /reports/{id}/versions`
 
 `{ "note": "…", "persona_keys": [ … ] }`. Publishes the caller's draft as the
-next version and replaces the list of personas it reaches. An empty list
+next version and replaces the list of personas it reaches. The note says
+what changed and is required: an empty or blank one is `400 missing_fields`
+with `details.field = "note"`. An empty list
 publishes the report for its builder only, which `tt_build_reports` allows.
 Reaching a persona needs `tt_publish_reports` (`403 forbidden_publish`) and a
 report made for a role (`sharing: role`); persona keys are staff personas
@@ -1466,10 +1515,39 @@ autosaving draft.
 
 `{ "from_version": 2 }` replaces the caller's draft with that version's
 definition; the next publish makes it live. `404 not_found` for an unknown
-version. It is deliberately not called `restore`, which on this API means
+version. `revision` is optional and works as on `PATCH`: a stale one is `409
+stale_revision`, so a restore never writes over a draft another tab moved on. It is deliberately not called `restore`, which on this API means
 un-archiving.
 
-### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=`
+### `GET /reports/{id}/reach?persona_keys=`
+
+How many people publishing to these personas (comma-separated, or as a
+list) would reach: the accounts holding one of them, through any WordPress
+role the persona comes from, that can read the report's subject, including
+through a functional role. These are the two questions a recipient is asked
+when they open it.
+Editors only. `{ "count": 7, "personas": [ { "key": "head_coach", "label":
+"Head coach" } ] }`. A persona that cannot be published to is `400
+bad_filter`. The Studio's publish confirm shows this number.
+
+### `GET /reports/{id}/subjects`
+
+The subjects a reader may switch the report to, by its binding: none for a
+fixed subject; for one chosen when opened, the teams whose reports they read
+or the players on them whose report they read; for one that follows the
+viewer, their own teams (a player follows their own record). `{ "teams": [ {
+"id", "name" } ], "players": [ { "id", "name", "team_id" } ] }`. Needs
+`tt_view_reports` and the right to open the report (`403` otherwise). The
+list only offers: `/data` checks the subject again on every call.
+
+### `GET /reports/subject-options`
+
+The teams and players the caller builds reports about, for the Studio's
+subject switch: `{ "teams": [ { "id", "name", "age_group" } ], "players": [ {
+"id", "name", "team_id" } ] }`. A coach gets their own squads; a builder for
+every team gets every squad. Needs `tt_build_reports`.
+
+### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=&period=&audience=`
 
 Every block of the definition, read through `POST
 /report-blocks/{key}/preview`'s engine, so each block checks its capability,
@@ -1492,14 +1570,35 @@ row scope. `source` is `draft` (a builder's own, their default) or
   out of scope is `403 forbidden_team` / `forbidden_player` /
   `forbidden_scope` for the whole report. A block that cannot be read for
   this subject carries an `error` in its own slot and the others still read.
+- **`audience`** (`internal`, `scout`, `family`) lets an editor preview the
+  report as that audience gets it: every block is cut on the server, so a
+  staff-only block comes back as an `error` and no breakdown by player is
+  sent. A recipient asking for another audience than the report's is `403
+  fixed_audience`.
+- **`period`** (`last_week`, `last_month`, `this_month`, `this_season`) is a
+  period pill, computed today, in place of `from` / `to`, and follows the
+  same rule: a recipient may send it only when the period is chosen on
+  opening. An unknown key is `400 bad_filter`.
+- **Rows about a player** go through the sensitive-field registry
+  (`RecordRedactor`, entity `players`): a field the reader may not see about
+  that player is removed before the response leaves the server. The block
+  engine does it, so `POST /report-blocks/{key}/preview` answers the same,
+  and a row broken down by player (the player in `key`) is covered too.
+- **`period=this_season`** before the season starts is `422 no_period`, the
+  answer an omitted period gets then.
+- **`page_fit`** is the A4 estimate for the report in rows: `pages`, `fill`
+  (percent per page) and `breaks` (the ids of the blocks that start a new
+  page). It uses the player report's measured heights, two half blocks side
+  by side making one row.
 
 ```json
 { "report_id": 7, "uuid": "…", "source": "published", "version_no": 2,
   "context": { "scope": "team", "player_id": null, "team_id": 12, "player_ids": [],
                "from": "2026-09-01", "to": "2026-09-30", "audience": "internal" },
   "blocks": [
-    { "id": "b1", "key": "attendance_per_week", "options": {}, "data": { "breakdown": "week", "rows": [ … ], "truncated": false } },
-    { "id": "b2", "key": "playing_time", "error": { "code": "invalid_field", "message": "…" } } ] }
+    { "id": "b1", "key": "attendance_per_week", "width": "full", "options": {}, "data": { "breakdown": "week", "rows": [ … ], "truncated": false } },
+    { "id": "b2", "key": "playing_time", "width": "half", "error": { "code": "invalid_field", "message": "…" } } ],
+  "page_fit": { "pages": 1, "fill": [ 46 ], "breaks": [] } }
 ```
 
 ### Payload

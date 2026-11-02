@@ -57,15 +57,22 @@ runs upload screenshots + videos + traces as artifacts.
 
 ## Projects
 
-Two, and they do not overlap:
+Four. The desktop project and the phone projects do not overlap:
 
 | project | viewport | runs | blocking |
 | --- | --- | --- | --- |
 | `chromium` | Desktop Chrome | every spec except `mobile-viewport.spec.js` | yes |
+| `phone-320` | 320x844, touch on | `mobile-viewport.spec.js` only | not yet |
+| `phone-360` | 360x800, touch on | `mobile-viewport.spec.js` only | not yet |
 | `iphone-13` | 390x844, touch on | `mobile-viewport.spec.js` only | not yet |
 
+The three phone projects share every setting but the viewport
+(`phoneProject()` in `playwright.config.js`). 360 is the base width the CSS
+is written for, 390 the common iPhone, and 320 the narrowest phone still in
+use.
+
 Locally: `npm run test:e2e` for the desktop suite, `npm run test:e2e:mobile`
-for the viewport gate.
+for the viewport gate at all three widths.
 
 ### The mobile viewport gate (#2813)
 
@@ -73,6 +80,16 @@ for the viewport gate.
 read from `config/mobile_surfaces.php`, skipping `desktop_only`, since a
 phone visitor is intercepted before those render — and asserts three things
 per surface, plus two more on `native` list surfaces:
+
+**Record pages.** A slug alone reaches lists and landing pages, never a
+record. `RECORD_SURFACES` in the spec lists record pages the walk opens by
+id. Today that is the player profile: in `beforeAll` the spec creates a player
+over REST (a long name, every key fact filled in), walks
+`?tt_view=players&id=<id>` at each width under the baseline key
+`players#record`, and deletes the player in `afterAll`. The CI instance has
+no seed data, so the record is the spec's own. A record that cannot be made
+or opened fails the spec rather than being skipped. Add a team or an
+activity the same way.
 
 1. No horizontal overflow (`scrollWidth <= clientWidth`).
 2. No visible interactive element under 48px in either dimension.
@@ -133,7 +150,9 @@ would otherwise fake ~210px of overflow on every surface in every run.
 
 **Baseline.** The audit found 2,213 defect rows; a gate that fails on all of
 them is a gate somebody turns off. `mobile-baseline.json` lists allowed
-finding kinds per surface — anything not listed fails. It is seeded from
+finding kinds per surface, in one block per width (`widths.320`,
+`widths.360`, `widths.390`), each entry `{ kinds, reason }` — anything not
+listed fails, and so does an entry with no reason. It is seeded from
 CI's own output, not from the audit (which measured a seeded local install
 rather than wp-env). Every run prints the current offender list in that
 file's exact shape; paste it in to recalibrate. Below it the run prints each

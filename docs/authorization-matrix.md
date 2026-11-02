@@ -439,6 +439,7 @@ Workflow templates declare this for themselves, via `TaskTemplateInterface::requ
 Access-preserving bridges (the matrix grantees match the prior raw grant):
 
 - **`tt_manage_staff_development` → `staff_development:create_delete`.** Seeded to Head of Development + Academy Admin globally, matching the raw grant. (Bridged to `create_delete`, **not** `change` — `change` is held by every coach at self/team scope, which would widen the management surface.)
+  - `staff_development` read is own record, or global scope; team scope does not widen it.
 - **`tt_manage_modules` → `module_management:create_delete`** (re-pointed in #2187; was `feature_toggles:change` under #1941). Seeded to Academy Admin only. Module management now has a **dedicated** matrix entity, distinct from the read-mostly `feature_toggles` config entity and the `module_state` status view — so the matrix governs "enable/disable a whole module" independently of "edit a config feature-toggle". Head of Development holds `feature_toggles [read]` but **no** `module_management` row, so it gains nothing; module management stays admin-only. The re-point was driven by the Modules admin page (`ModulesPage` / `FrontendModulesView`) previously gating on a `current_user_can('administrator')` role-string compare — replaced with `current_user_can('tt_manage_modules')` so the matrix, not a WP role name, decides access. Migration 0194 top-ups existing installs with the `module_management` grant so no operator loses the Modules page on upgrade.
 - **`tt_view_scout_assignments` → `scout_my_players:read`.** Seeded to the Scout persona only, matching the scout-only raw grant. (The cap only opens the "My players" surface; the assignment list lives in user meta.)
 - **`tt_manage_invitations` → `settings:create_delete`.** The administrative invitation list / bulk-manage endpoints. Bridged to the admin-level `settings` entity (seeded to Academy Admin only; Head of Development has no `settings` row), so only the Academy Admin (and WP administrators, who bypass) manage invitations. Deliberately **not** `invitations:create_delete` — that tuple is seeded down to coaches/parents (so they can *send* an invite) and is far too broad for the management surface. The per-invite send caps keep their `invitations` tuple.
@@ -531,18 +532,37 @@ config land in the paired migration `0186_recycle_bin_foundation`.
 
 ## Matrix entity `strava_integration` — personal activity connection (#2127, #2153)
 
-The Strava integration is gated by the matrix entity `strava_integration`,
-bridged from two raw caps:
+Strava is gated by two matrix entities. `strava_integration` is a player's
+own Strava connection: the Strava tab on the profile, and connecting or
+disconnecting their own account. `strava_operator_console` is the **club
+console** (Configuration → Integrations, `?tt_view=strava-admin`): the
+connections list, the webhook subscription and the app credentials. The
+console is configuration, so it has its own row.
 
 | Raw cap | Matrix tuple |
 | - | - |
-| `tt_view_strava` | `strava_integration` / `read` |
-| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+| `tt_view_strava` | `strava_operator_console` / `read`, global or team scope |
+| `tt_edit_strava_credentials` | `strava_operator_console` / `change`, global scope only |
 
-The **operator console** (Configuration → Integrations: app credentials,
-webhook subscription, connection overview) is seeded for `head_coach` and
-`academy_admin` at `global` scope — migration
-`0191_authorization_seed_topup_strava` backfilled those rows.
+Who may use the club console by default:
+
+| Persona | `strava_operator_console` |
+| - | - |
+| `academy_admin` | read, change, create_delete (global) |
+| `head_of_development` | read (global) |
+| `head_coach` | read (team): the connections list shows only the players of the coach's own teams; no webhook subscription status |
+| everyone else | none |
+
+Reading the connections list is answered at global or team scope. Reading
+the webhook subscription status, and changing the app credentials or the
+webhook, are answered at global scope only, so a head coach reads their own
+players' connections and nothing club-wide. A player or self row
+on either entity does not open the console, so a player's self-scope
+`strava_integration` row reaches their own connection and nothing more.
+Existing installs get the console rows through migration
+`0309_authorization_strava_operator_console`. It writes with
+`INSERT IGNORE`, so a second run writes nothing and a row an admin has
+edited is left alone.
 
 `player` holds `strava_integration` `rc[self]`: Strava is **personal
 activity data**, so a player connects their own Strava from their profile and

@@ -1,3 +1,0 @@
-# Messages are written in the recipient's language (#4531)
-
-A message's shipped wording now translates in the recipient's language instead of the language of the request that sends it. An English-speaking parent on a Dutch academy's site gets English, and a Dutch recipient on an English site gets Dutch. The template switches to the recipient's language only while it builds the copy and switches back afterwards, also when building the copy fails, so the rest of the request is unaffected. Wording an academy has reworded per language is unchanged: it was already picked by the recipient's language.

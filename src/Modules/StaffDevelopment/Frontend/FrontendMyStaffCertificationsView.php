@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\StaffDevelopment\Repositories\StaffCertificationsRepository;
+use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
@@ -39,12 +40,6 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My certifications', 'talenttrack' );
 
-        if ( ! current_user_can( 'tt_view_staff_development' ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( $title );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         $person = StaffPersonHelper::personForUser( $user_id );
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
@@ -52,14 +47,21 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
         $repo  = new StaffCertificationsRepository();
-        $rows  = $repo->listForPerson( (int) $person->id );
+        $rows  = $repo->listForPerson( $person_id );
         $types = QueryHelpers::get_lookups( 'cert_type' );
         $type_by_id = [];
         foreach ( $types as $t ) { $type_by_id[ (int) $t->id ] = (string) $t->name; }
@@ -101,6 +103,13 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
                 echo '</li>';
             }
             echo '</ul>';
+        }
+
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, $person_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            return;
         }
 
         echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Add a certification', 'talenttrack' ) . '</h3>';
@@ -163,6 +172,7 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
     private static function handlePost( int $person_id ): void {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
         if ( ! isset( $_POST['tt_staff_cert_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_staff_cert_nonce'] ) ), 'tt_staff_cert_save' ) ) return;
+        if ( ! StaffDevelopmentAccess::canWrite( get_current_user_id(), $person_id ) ) return;
 
         $type_id = (int) ( $_POST['cert_type_lookup_id'] ?? 0 );
         if ( $type_id <= 0 ) return;

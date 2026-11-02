@@ -34,6 +34,7 @@ maken** en **Wijzigingen terugdraaien**.
 | [POP-gesprek](pdp-cycle.md) | Tot het is ondertekend |
 | [POP-voorbereiding](pdp-cycle.md) | De antwoorden van de trainer, tot het gesprek is ondertekend |
 | [POP-zelfreflectie](pdp-cycle.md) | Zolang het reflectievenster open staat |
+| [Report Studio](reports.md#report-studio--een-rapport-bouwen) | Het concept van een rapport; **Publiceren** maakt er een versie van |
 
 **Waarom juist deze.** Het zijn allemaal plekken waar je *schrijft* — zinnen
 over een speler, verspreid over minuten, vaak op een telefoon, vaak staand op
@@ -73,9 +74,19 @@ Geen van beide is versiehistorie, en geen van beide probeert dat te zijn. Er
 zijn geen momentopnamen op de server, geen historie per veld en geen herstel
 naar een datum.
 
+**Eén uitzondering: de Report Studio.** Op het canvas van de Studio gaat
+Ongedaan maken stap voor stap terug, tot 50 stappen, door elke verplaatsing,
+toevoeging, verwijdering, breedtewijziging, instelling en naamswijziging in
+deze sessie. Een rapport bouwen is een reeks kleine handelingen, en alleen de
+laatste terugnemen zou een bouwer die drie blokken verkeerd sleepte geen andere
+weg terug laten dan met de hand. Elke stap terug wordt opgeslagen zoals elke
+andere wijziging, en de historie eindigt met de sessie, net als Terugdraaien.
+De gepubliceerde versies staan op de server: met **Versies** zet je een eerdere
+terug in je concept. Elk ander scherm dat zichzelf opslaat houdt één stap.
+
 ### Publiceren is geen opslaan
 
-Twee schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
+Deze schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
 
 - **Markeren als definitief** op een wedstrijdanalyse. Tot je erop drukt meldt
   de stafdeellink dat de analyse nog niet af is; daarna toont de link het
@@ -87,6 +98,10 @@ Twee schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
   dus het staat naast Ondertekenen, met een eigen bevestiging en een
   verplichte reden. Het is alleen ongedaan te maken tot een later gesprek
   verder is.
+- **Publiceren** in de Report Studio. Het concept slaat zichzelf op;
+  publiceren maakt er een versie van die de mensen voor wie het gepubliceerd
+  is lezen. De bevestiging noemt de rollen en hoeveel mensen het bereikt, en
+  vraagt wat er veranderd is.
 
 Ze zijn in de praktijk onomkeerbaar, en dat is precies waarom geen van hen
 een vinkje is op een scherm dat zichzelf opslaat.
@@ -201,7 +216,9 @@ Vraag wat het scherm ís, niet wat handig is:
    in plaats van wordt ingevuld. → **Automatisch opslaan.** Gebruik
    `\TT\Shared\Frontend\Components\FormAutosave` en
    `\TT\Shared\Frontend\Components\SaveState`; de statusregel, ongedaan maken
-   en terugdraaien komen mee. Bouw geen eigen debounce.
+   en terugdraaien komen mee. Bouw geen eigen debounce. Een scherm dat geen
+   formulier is gebruikt `TT.Autosave` met `SaveState`, zoals het canvas van
+   de Report Studio.
 2. **Is een half afgemaakte vastlegging erger dan een verloren vastlegging?**
    Een reeks waarden die alleen samen betekenis hebben, in één keer ingevoerd,
    mogelijk op een slechte verbinding. → **Uitdrukkelijk opslaan**, met een

@@ -127,9 +127,9 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // `r[team]` grant on the seed. Asked of `$user_id` only: the
         // notification fan-out evaluates recipients inside the author's
         // request, so the current user must not change the answer.
-        if ( ! user_can( $user_id, 'tt_view_settings' )
-             && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
-        ) {
+        // Viewing the settings widens nothing here (#4717): the academy-
+        // wide rung is the global `player_notes` grant.
+        if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );
         }
 
@@ -144,9 +144,7 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
 
-        if ( ! user_can( $user_id, 'tt_view_settings' )
-             && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
-        ) {
+        if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );
         }
 

@@ -289,7 +289,19 @@ class FrontendWizardView extends FrontendViewBase {
         // can outlive a future plugin registering a new public query
         // var); battle-tested by the WP ecosystem for 15+ years; security
         // plugins / hosting WAFs whitelist admin-post.php out of the box.
+        // v3.85.2 — "Skip step" removed per operator feedback. Steps that
+        // are genuinely optional should declare `notApplicableFor()`
+        // returning true and be auto-skipped by the wizard runner.
+        $is_last = $current->nextStep( $state ) === null;
+        $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
+
         echo '<form method="post" class="tt-wizard-form" novalidate action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        // #4709 — Enter in a field or on a radio submits through the form's
+        // first submit button, which was Cancel and threw the run away. This
+        // copy of Next comes first so Enter goes forward, without JS and
+        // without moving the visible Cancel-then-Next order. Visually hidden
+        // rather than display:none, which would stop it being the default.
+        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-screen-reader-text" tabindex="-1" aria-hidden="true" data-tt-wizard-default>' . esc_html( $label ) . '</button>';
         echo '<input type="hidden" name="action" value="tt_wizard_step">';
         echo '<input type="hidden" name="tt_wizard_slug" value="' . esc_attr( $slug ) . '">';
         echo '<input type="hidden" name="tt_wizard_step" value="' . esc_attr( $current->slug() ) . '">';
@@ -329,11 +341,6 @@ class FrontendWizardView extends FrontendViewBase {
             echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-wizard-btn-text" formnovalidate data-role="back">' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
         echo '</div>';
-        // v3.85.2 — "Skip step" removed per operator feedback. Steps that
-        // are genuinely optional should declare `notApplicableFor()`
-        // returning true and be auto-skipped by the wizard runner.
-        $is_last = $current->nextStep( $state ) === null;
-        $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
         $loading_label = $is_last ? __( 'Creating…', 'talenttrack' ) : __( 'Loading…', 'talenttrack' );
         echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-wizard-btn-primary" data-role="next" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . ' <span class="tt-wizard-btn-chev" aria-hidden="true">›</span></button>';
         echo '</div>';
@@ -354,13 +361,26 @@ class FrontendWizardView extends FrontendViewBase {
             var form = document.querySelector( '.tt-wizard-form' );
             if ( form ) {
                 var next = form.querySelector( '[data-tt-wizard-next]' );
+                var fallback = form.querySelector( '[data-tt-wizard-default]' );
                 if ( next ) {
                     form.addEventListener( 'submit', function ( e ) {
                         var submitter = e.submitter || document.activeElement;
-                        if ( ! submitter || submitter !== next ) return;
-                        var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
-                        next.disabled = true;
-                        next.textContent = label;
+                        if ( ! submitter ) return;
+                        // #4709 — Enter submits through the hidden default
+                        // button; it moves forward too, so it gets the same
+                        // guard, and both are disabled so a second Enter on
+                        // the last step cannot post Create twice.
+                        if ( submitter !== next && ! submitter.hasAttribute( 'data-tt-wizard-default' ) ) return;
+                        // A tick later, so a required-field check that cancels
+                        // the post (wizard-validation.js) doesn't leave the
+                        // step with its buttons disabled.
+                        setTimeout( function () {
+                            if ( e.defaultPrevented ) return;
+                            var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
+                            next.disabled = true;
+                            next.textContent = label;
+                            if ( fallback ) fallback.disabled = true;
+                        }, 0 );
                     } );
                 }
             }
@@ -750,6 +770,12 @@ class FrontendWizardView extends FrontendViewBase {
         // the rail entirely, not shown greyed, so the rail reflects only
         // the path the user is on. Displayed numbers + "Step X of Y" are
         // computed from the applicable steps only.
+        // #4711 — the total may only shrink during a run. An optional step
+        // whose condition hangs on an answer not given yet returns false
+        // from `notApplicableFor()` until that answer says it is skipped; a
+        // total that grows mid-run reads as the wizard moving the goalposts.
+        // The branches of a fork (#2254) are the exception: they stay out
+        // until the branch is picked, since only one of them will run.
         $resolved = [];
         $found_current = false;
         $current_pos = 0; // 1-based position of the current step in the rail
@@ -845,6 +871,7 @@ class FrontendWizardView extends FrontendViewBase {
             case 'new-evaluation': return 'evaluations';
             case 'new-goal':       return 'goals';
             case 'new-activity':   return 'activities';
+            case 'new-report':     return 'reports';
         }
         return null;
     }

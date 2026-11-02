@@ -4,6 +4,7 @@ namespace TT\Modules\StaffDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\StaffDevelopment\Repositories\StaffPdpRepository;
+use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -39,12 +40,6 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My PDP', 'talenttrack' );
 
-        if ( ! current_user_can( 'tt_view_staff_development' ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( $title );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         $person = StaffPersonHelper::personForUser( $user_id );
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
@@ -52,15 +47,46 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
         $repo    = new StaffPdpRepository();
         $season  = StaffPersonHelper::currentSeasonId();
-        $pdp     = $repo->findForPersonSeason( (int) $person->id, $season );
+        $pdp     = $repo->findForPersonSeason( $person_id, $season );
+        $last_reviewed = ( $pdp && $pdp->last_reviewed_at ) ? (string) $pdp->last_reviewed_at : '';
+
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, $person_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-staff-pdp-form tt-staff-pdp-readonly">';
+            $fields = [
+                'strengths'            => __( 'Strengths', 'talenttrack' ),
+                'development_areas'    => __( 'Development areas', 'talenttrack' ),
+                'actions_next_quarter' => __( 'Actions next quarter', 'talenttrack' ),
+                'narrative'            => __( 'Narrative (optional)', 'talenttrack' ),
+            ];
+            foreach ( $fields as $key => $label ) {
+                $value = $pdp ? (string) ( $pdp->$key ?? '' ) : '';
+                echo '<div class="tt-field"><p class="tt-field-label">' . esc_html( $label ) . '</p>';
+                echo '<p>' . ( $value !== '' ? nl2br( esc_html( $value ) ) : '—' ) . '</p></div>';
+            }
+            if ( $last_reviewed !== '' ) {
+                echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( $last_reviewed ) . '</p>';
+            }
+            echo '</div>';
+            return;
+        }
 
         echo '<form method="post" class="tt-form tt-staff-pdp-form">';
         wp_nonce_field( 'tt_staff_pdp_save', 'tt_staff_pdp_nonce' );
@@ -89,8 +115,8 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
             'label'      => __( 'Save', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
-        if ( $pdp && $pdp->last_reviewed_at ) {
-            echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
+        if ( $last_reviewed !== '' ) {
+            echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( $last_reviewed ) . '</p>';
         }
         echo '</form>';
     }
@@ -98,6 +124,7 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
     private static function handlePost( int $person_id ): void {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
         if ( ! isset( $_POST['tt_staff_pdp_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_staff_pdp_nonce'] ) ), 'tt_staff_pdp_save' ) ) return;
+        if ( ! StaffDevelopmentAccess::canWrite( get_current_user_id(), $person_id ) ) return;
 
         $repo = new StaffPdpRepository();
         $season = isset( $_POST['season_id'] ) && (string) $_POST['season_id'] !== '' ? (int) $_POST['season_id'] : null;

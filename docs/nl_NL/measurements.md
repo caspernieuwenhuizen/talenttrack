@@ -283,7 +283,7 @@ niet onder elke categorie — dat herhalen per kaart was juist een van de
 dingen die dit scherm onleesbaar maakten.
 
 Het **In één oogopslag**-paneel van de speler bevat ook een signaal
-**Metingen** naast Gem. beoordeling, Aanwezigheid en Doelen: het aantal
+**Metingen** naast Gem. cijfer, Aanwezig en Doelen: het aantal
 tests waarvoor de speler nu een waarde heeft, met een hint hoeveel daarvan
 *onder de norm* vallen (oranje of rood ten opzichte van de leeftijdsband)
 — of *op schema* als dat er geen zijn. Het verwijst rechtstreeks naar het

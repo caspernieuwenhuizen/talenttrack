@@ -268,8 +268,8 @@ What *no target* means is explained once at the bottom of the tab, not
 under every category — repeating it per card was one of the things that
 made this screen hard to read in the first place.
 
-The player's **At a glance** panel also carries a **Measurements** signal
-beside Avg rating, Attendance and Goals: the number of tests the player
+The player's **At a glance** panel also carries a **Tests** signal
+beside Avg rating, Attended and Goals: the number of tests the player
 currently has a value for, with a hint of how many sit *below target*
 (amber or red against the age-group band) — or *on target* when none do.
 It links straight into the Measurements tab for the full per-test

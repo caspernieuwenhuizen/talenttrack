@@ -137,6 +137,24 @@ final class FunctionalRoleGrants {
     }
 
     /**
+     * #4684 — every team on which a functional role the user holds grants
+     * `(entity, activity)`: `grantsOnTeam()` as a list, ascending.
+     *
+     * @return list<int>
+     */
+    public static function teamsGranting( int $user_id, string $entity, string $activity ): array {
+        if ( ! self::anyRoleMentions( $entity ) ) return [];
+
+        $out = [];
+        foreach ( self::assignmentsFor( $user_id ) as $assignment ) {
+            if ( ! $assignment['live'] ) continue;
+            if ( self::roleGrants( $assignment['role_key'], $entity, $activity ) ) $out[ $assignment['team_id'] ] = $assignment['team_id'];
+        }
+        ksort( $out );
+        return array_values( $out );
+    }
+
+    /**
      * The functional role key that grants `(entity, activity)`, on
      * `$team_id` when given or on any team otherwise. Null when none
      * does. Used by `describeAccess()` so the admin comparison page can

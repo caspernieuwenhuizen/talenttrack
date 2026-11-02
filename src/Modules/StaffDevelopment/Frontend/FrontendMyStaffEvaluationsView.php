@@ -4,6 +4,7 @@ namespace TT\Modules\StaffDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\StaffDevelopment\Repositories\StaffEvaluationsRepository;
+use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
@@ -42,12 +43,6 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My staff evaluations', 'talenttrack' );
 
-        if ( ! current_user_can( 'tt_view_staff_development' ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         $person = StaffPersonHelper::personForUser( $user_id );
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
@@ -55,14 +50,21 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
 
         $repo  = new StaffEvaluationsRepository();
-        $rows  = $repo->listForPerson( (int) $person->id );
+        $rows  = $repo->listForPerson( $person_id );
 
         // KPI strip — counts derived from the already-fetched list (no new
         // query).
@@ -101,7 +103,14 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
             echo '</ul>';
         }
 
-        $can_top_down = current_user_can( 'tt_manage_staff_development' );
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, $person_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $can_top_down = StaffDevelopmentAccess::canManageAll( $user_id );
         echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Record a new evaluation', 'talenttrack' ) . '</h3>';
         echo '<form method="post" class="tt-form tt-sdev-form">';
         wp_nonce_field( 'tt_staff_eval_save', 'tt_staff_eval_nonce' );
@@ -139,9 +148,10 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
     private static function handlePost( int $person_id ): void {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
         if ( ! isset( $_POST['tt_staff_eval_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_staff_eval_nonce'] ) ), 'tt_staff_eval_save' ) ) return;
+        if ( ! StaffDevelopmentAccess::canWrite( get_current_user_id(), $person_id ) ) return;
 
         $kind = sanitize_key( (string) ( $_POST['review_kind'] ?? 'self' ) );
-        if ( $kind === 'top_down' && ! current_user_can( 'tt_manage_staff_development' ) ) {
+        if ( $kind === 'top_down' && ! StaffDevelopmentAccess::canManageAll( get_current_user_id() ) ) {
             $kind = 'self';
         }
 

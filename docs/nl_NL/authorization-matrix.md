@@ -435,6 +435,7 @@ Workflow-sjablonen geven dit zelf aan, via `TaskTemplateInterface::requiredCapab
 Toegangsbehoudende bruggen (de matrix-begunstigden komen overeen met de eerdere ruwe toekenning):
 
 - **`tt_manage_staff_development` → `staff_development:create_delete`.** Geseed aan Head of Development + Academy Admin globaal, overeenkomend met de ruwe toekenning. (Gebrugd naar `create_delete`, **niet** `change` — `change` heeft elke coach op self/team-scope, wat het beheeroppervlak zou verbreden.)
+  - `staff_development` lezen is het eigen dossier, of globale scope; teamscope verbreedt dat niet.
 - **`tt_manage_modules` → `module_management:create_delete`** (omgezet in #2187; was `feature_toggles:change` onder #1941). Geseed aan alleen Academy Admin. Modulebeheer heeft nu een **eigen** matrix-entiteit, los van de vooral-lezen `feature_toggles` configuratie-entiteit en de `module_state` statusweergave — zodat de matrix "een hele module aan/uit zetten" apart bestuurt van "een configuratie-feature-toggle bewerken". Head of Development heeft `feature_toggles [read]` maar **geen** `module_management`-rij, dus wint niets; modulebeheer blijft alleen-admin. De omzetting kwam voort uit de Modules-beheerpagina (`ModulesPage` / `FrontendModulesView`) die eerder toegang bepaalde via een `current_user_can('administrator')` rolnaam-vergelijking — vervangen door `current_user_can('tt_manage_modules')` zodat de matrix, niet een WP-rolnaam, de toegang beslist. Migratie 0194 vult bestaande installaties aan met de `module_management`-grant zodat geen enkele beheerder de Modules-pagina verliest bij een upgrade.
 - **`tt_view_scout_assignments` → `scout_my_players:read`.** Geseed aan alleen de Scout-persona, overeenkomend met de scout-only ruwe toekenning. (De capability opent alleen het "Mijn spelers"-oppervlak; de toewijzingslijst staat in user meta.)
 - **`tt_manage_invitations` → `settings:create_delete`.** De administratieve uitnodigingslijst / bulkbeheer-endpoints. Gebrugd naar de admin-niveau-entiteit `settings` (geseed aan alleen Academy Admin; Head of Development heeft geen `settings`-rij), zodat alleen de Academy Admin (en WP-beheerders, die omzeilen) uitnodigingen beheert. Bewust **niet** `invitations:create_delete` — dat tupel is doorgeseed naar coaches/ouders (zodat zij een uitnodiging kunnen *versturen*) en is veel te breed voor het beheeroppervlak. De per-uitnodiging-verstuurcapabilities houden hun `invitations`-tupel.
@@ -530,18 +531,37 @@ retentieconfiguratie landen in de gepaarde migratie
 
 ## Matrix-entiteit `strava_integration` — persoonlijke activiteitskoppeling (#2127, #2153)
 
-De Strava-integratie wordt geregeld door de matrix-entiteit
-`strava_integration`, gekoppeld vanuit twee ruwe capabilities:
+Strava wordt geregeld door twee matrix-entiteiten. `strava_integration` is
+de eigen Strava-koppeling van een speler: het Strava-tabblad op het profiel,
+en het koppelen of ontkoppelen van het eigen account.
+`strava_operator_console` is de **clubconsole** (Configuratie → Integraties,
+`?tt_view=strava-admin`): de lijst met koppelingen, het webhook-abonnement en
+de app-gegevens. De console is configuratie en heeft daarom een eigen rij.
 
 | Ruwe capability | Matrix-tuple |
 | - | - |
-| `tt_view_strava` | `strava_integration` / `read` |
-| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+| `tt_view_strava` | `strava_operator_console` / `read`, globale of teamscope |
+| `tt_edit_strava_credentials` | `strava_operator_console` / `change`, alleen globale scope |
 
-De **operatorconsole** (Configuratie → Integraties: app-credentials,
-webhook-abonnement, koppelingenoverzicht) is geseed voor `head_coach` en
-`academy_admin` met `global`-scope — migratie
-`0191_authorization_seed_topup_strava` vulde die rijen op.
+Wie de clubconsole standaard mag gebruiken:
+
+| Persona | `strava_operator_console` |
+| - | - |
+| `academy_admin` | lezen, wijzigen, aanmaken/verwijderen (globaal) |
+| `head_of_development` | lezen (globaal) |
+| `head_coach` | lezen (team): de lijst met koppelingen toont alleen de spelers van de eigen teams van de trainer; geen status van het webhook-abonnement |
+| alle anderen | geen |
+
+Het lezen van de lijst met koppelingen wordt op globale of teamscope
+beantwoord. Het lezen van de status van het webhook-abonnement, en het
+wijzigen van de app-gegevens of de webhook, alleen op globale scope. Een
+hoofdtrainer leest dus alleen de koppelingen van de eigen spelers en niets
+clubbreeds. Een speler- of self-rij op een van beide entiteiten opent de console
+niet, dus de self-rij `strava_integration` van een speler reikt tot de eigen
+koppeling en niet verder. Bestaande installaties krijgen de consolerijen via migratie
+`0309_authorization_strava_operator_console`. Die schrijft met
+`INSERT IGNORE`, dus een tweede run schrijft niets en een rij die een
+beheerder heeft aangepast blijft staan.
 
 `player` heeft `strava_integration` `rc[self]`: Strava is
 **persoonlijke activiteitsdata**, dus een speler koppelt zijn eigen Strava

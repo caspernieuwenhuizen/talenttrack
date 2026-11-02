@@ -601,7 +601,10 @@ release-plumbing files:
   the *only* ones every PR would otherwise touch, which is exactly why
   parallel merges collide on them. The Dutch still lands per-PR:
   `i18n-pr-check.yml` fails a PR whose new strings have no entry in its
-  fragment.
+  fragment. Changing the Dutch of a string that already ships goes in the
+  fragment too, with the catalogue's `msgctxt` and `msgid`: at release the
+  fragment wins and is reported as retranslated (see
+  `languages/pending/README.md`).
 - **The release agent owns all plumbing, once, for the whole batch.**
   After the content branches merge, it runs `tools/release.ps1 <version>`
   — consolidates the `changelog.d/` snippets into `CHANGES.md` +

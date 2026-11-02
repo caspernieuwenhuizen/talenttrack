@@ -61,8 +61,18 @@ Four rules, all enforced by `tools/consolidate-translations.php --check`
 3. **No obsolete `#~` entries.** A fragment states what this PR adds.
    Retiring a string is the catalogue regeneration's job, at release
    time.
-4. **No duplicate `(msgctxt, msgid)` pair**, within the fragment or
-   against the catalogue. That pair is the key gettext itself uses.
+4. **No duplicate `(msgctxt, msgid)` pair within the fragment, and no
+   entry for a string the catalogue carries only as an obsolete `#~`
+   entry.** That pair is the key gettext itself uses. An obsolete entry
+   is not inert: `msgmerge` promotes it back to live when the string
+   reappears, so a live copy added now becomes two live copies later.
+   Delete the `#~` block in the catalogue first. A pair the catalogue
+   already carries live is allowed: that is a retranslation (see
+   below).
+
+Two more checks run across fragments and the result: two fragments that
+translate the same string differently fail, and so does a consolidated
+catalogue that would carry a duplicate msgid.
 
 Keep a blank line between entries.
 
@@ -81,13 +91,25 @@ msgstr "Pass"
 
 Then read the rendered Dutch on the screen, not only the `.po`.
 
+## Changing a translation that already ships
+
+In a content PR this goes in the fragment too. Copy the entry with its
+`msgctxt` and `msgid` exactly as the catalogue has them, and give it the
+new `msgstr`. The catalogue stays out of the PR, for the same reason as
+for a new string.
+
+At release the fragment wins over the catalogue. The release output lists
+each such entry as `retranslated (fragment wins over the catalogue)`, so
+the change is visible in the release diff. Two fragments that translate
+the same string differently stop the release: agree on one wording and
+keep it in one fragment.
+
+A broad sweep that rewrites much of the catalogue is the exception. It
+edits `languages/talenttrack-nl_NL.po` directly, runs solo and lands last,
+after the content batches have merged (`CLAUDE.md` §7).
+
 ## What does not go here
 
-- **Edits to an existing translation.** Changing the Dutch for a string
-  that already ships is a catalogue edit; make it in
-  `languages/talenttrack-nl_NL.po` directly. A fragment whose translation
-  disagrees with the catalogue's is consolidated (the fragment wins) and
-  reported, but that is a safety net, not the route.
 - **`.pot` changes.** The template is generated from the PHP source; no
   PR writes it by hand.
 - **`.mo` files.** CI compiles those at release time. Never commit one.
@@ -105,7 +127,9 @@ php tools/consolidate-translations.php --dry-run  # report, write nothing
 
 It keys entries on `(msgctxt, msgid)` with wrapped literals joined by
 content, fills in a translation for a msgid the catalogue already carries
-untranslated, appends the rest above the obsolete `#~` block, and refuses
+untranslated, replaces the translation of one it carries with different
+wording (and reports it as retranslated), appends the rest above the
+obsolete `#~` block, and refuses
 to write at all if the result would contain a duplicate msgid or collide
 with an obsolete entry. After a successful run this folder holds nothing
 but this README.

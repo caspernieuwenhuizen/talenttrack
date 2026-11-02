@@ -1929,6 +1929,16 @@ class DashboardShortcode {
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutMyPlayersView::render( $user_id );
                 return true;
+            case 'report-studio':
+                // #4571 — the Report Studio canvas; the view checks the
+                // capability, the plan and the report itself.
+                \TT\Modules\ReportStudio\Frontend\FrontendReportStudioView::render( $user_id, $is_admin );
+                return true;
+            case 'report':
+                // #4591 — a published Studio report, read only; the view
+                // checks the plan, the reader and the report itself.
+                \TT\Modules\ReportStudio\Frontend\FrontendReportView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

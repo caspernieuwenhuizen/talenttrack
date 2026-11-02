@@ -120,6 +120,14 @@ Meldt een trainer dat een wp-adminlijst leeg is, vraag dan aan welke teams die
 persoon is gekoppeld onder **Personen → Functionele rollen**: het bereik komt
 uit die koppelingen, niet uit het recht.
 
+Teamlijsten volgen dezelfde regel als het openen van één team. Een team dat een
+functionele rol geeft, zoals de teamrapporten van een teammanager, staat in de
+rapportenlijst, in het teambereik van de analyses en in de teamkeuze van Report
+Studio, net zoals het direct te openen is. Een lijst toont nooit een team dat
+niet te openen is en laat er nooit een weg dat wel te openen is. Zoals elke
+teamlijst laten ook deze gearchiveerde teams weg, en met de demomodus aan tonen
+ze alleen de demoteams.
+
 ## De vooraf geconfigureerde rollen
 
 | Rol | View | Edit |
@@ -168,7 +176,7 @@ Gebruiksgevallen:
 | Wat ze mogen lezen | Wat niet |
 | --- | --- |
 | **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
-| **Spelers** — het dossier en profiel van elke speler, inclusief de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
+| **Spelers** — het dossier en profiel van elke speler, zonder de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
 | **Personen** — de stafgids | Een stafdossier bewerken |
 | **Evaluaties** — de beoordelingen die trainers vastleggen | Een evaluatie schrijven of delen |
 | **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
@@ -178,7 +186,7 @@ Gebruiksgevallen:
 
 **En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen metingen en testresultaten, geen gedragsbeoordelingen, geen potentieelinschaling, niet de ontwikkelreis van een speler, niet hoe de academie een speler heeft ontdekt, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd opleiding en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
 
-De contactgegevens van de ouders van een speler zijn **wel** zichtbaar voor een waarnemer: ze horen bij het spelersdossier, en dat leest de rol.
+De contactgegevens van de ouders van een speler zijn **niet** zichtbaar voor een waarnemer. Elke speler mogen lezen is iets anders dan met een speler werken, en de gegevens van een gezin blijven bij de mensen rond hun kind. Iemand werkt met een speler als hij een van drie dingen heeft: een stafrol bij het team van de speler; een rol die academiebreed spelers mag wijzigen (Hoofd opleiding en Academie-admin); of een academiebrede roltoewijzing die spelers leest, aan de persoon gegeven onder Rollen (een Hoofd opleiding, scout of fysio die voor de hele academie is aangesteld in plaats van per team). Het academiebrede leesrecht van de waarnemer komt uit de rol zelf, niet uit zo'n toewijzing, dus dat telt niet. Een waarnemer krijgt het spelersdossier zonder naam, e-mail en telefoon van de ouders (ook het spelersformulier in wp-admin toont die velden leeg), ziet het blok Ouders · Voogden op het profiel niet, en krijgt de wedstrijdselectie (basis, bank, niet geselecteerd) niet bij de verwachte aanwezigheid van een activiteit.
 
 Omdat een waarnemer geen blessures ziet, krijgt een waarnemer ook niet de markeringen **Niet beschikbaar** of **Beschikbaarheid controleren** naast een naam bij de verwachte aanwezigheid van een activiteit of in een wedstrijdvoorbereiding, en ziet hij niet de reden die een trainer bij een afwezige speler in een wedstrijdvoorbereiding of de afdruk daarvan heeft getypt: bij een training kan dat alleen een blessure betekenen. De status die de trainer heeft gezet (aanwezig, afwezig enzovoort) blijft zichtbaar. De markeringen en redenen gaan naar wie dat team mag plannen, en naar wie de blessures van die speler mag lezen.
 
@@ -196,6 +204,30 @@ De bulkexports controleren op de ruwe leescapability, die de matrixbrug beantwoo
 - **Bewust alleen lezen.** `change` en `create_delete` worden niet overbrugd. Dit ging over een geweigerde leesactie; een schrijfrecht overbruggen verruimt de toegang aan de kant waar een fout in het dossier van een kind terechtkomt, en is een eigen beslissing.
 
 Een gebruiker zonder matrixrij én zonder scoperij wordt precies zo geweigerd als voorheen, en van geen enkele export is de capability versmald — de export was juist de route die met de seed overeenkwam.
+
+## Gevoelige velden
+
+Sommige velden op een dossier dat iemand mag openen, zijn toch niet voor die lezer bedoeld: wie een speler mag lezen, mag daarmee nog niet het telefoonnummer van de ouder lezen. Die velden staan op één plek, `config/sensitive_fields.php`, met per veld het recht dat het vrijgeeft, en worden op één plek verborgen, `Infrastructure\Security\RecordRedactor`.
+
+Wat een lezer zonder dat recht krijgt:
+
+- **Via REST** ontbreekt het veld helemaal in het antwoord. Het wordt niet als `null` meegestuurd en er is geen vlag die zegt dat het is weggelaten. De controller haalt het weg uit wat hij teruggeeft met `RecordRedactor::redactRows()` (of `redact()` voor één dossier). Daarachter draait de redactor, voor elk routepatroon dat het register noemt, nog een keer na de controller (`rest_post_dispatch`) als vangnet op HTTP-niveau. Hij loopt arrays, objecten en `JsonSerializable`-waarden af en houdt van elk de JSON-vorm aan.
+- **Op het scherm** het woord **Verborgen** in een gedempte stijl op de plek van de waarde, met "Verborgen voor jouw rol" voor een schermlezer. Nooit een leeg vak, want dat leest als "niet ingevuld".
+
+De velden die nu geregistreerd zijn:
+
+| Entiteit | Velden | Wie ze mag lezen |
+| --- | --- | --- |
+| `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `custom_fields` | Staf van de speler: een stafrol bij het team van de speler, een rol die academiebreed spelers mag wijzigen, of een academiebrede roltoewijzing die spelers leest |
+
+### Een gevoelig veld toevoegen
+
+1. **Registreer het** in `config/sensitive_fields.php`, onder de entiteit: de veldnaam en de regel die het vrijgeeft. Geef een nieuwe entiteit haar `routes` en haar `id_key`. De routes zijn de geregistreerde routepatronen, precies zoals ze aan `register_rest_route()` worden meegegeven met de namespace ervoor (bijvoorbeeld `/talenttrack/v1/players/(?P<id>\d+)`), omdat het vangnet sleutelt op het patroon dat WordPress heeft gematcht, niet op het pad van het verzoek. De `id_key` is de sleutel in een teruggegeven rij die het spelers-id bevat; elke rij op een genoemde route die die sleutel en een geregistreerd veld heeft, wordt gelezen als een rij van deze entiteit, dus noem alleen routes waarvan de rijen dat zijn. Een module registreert haar velden daar, nooit met een eigen controle in een controller of weergave.
+2. **Controllers redigeren, weergaven vragen.** Een controller haalt wat hij teruggeeft door `RecordRedactor::redactRows()` of `redact()`. Een weergave roept `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` aan en toont `Components\MaskedValue::render()` op de plek van de waarde als het antwoord ja is. Geen van beide bepaalt de regel zelf.
+3. **Lijsten vragen één keer.** `RecordRedactor::redactRows()` en `RecordRedactor::prime()` bepalen het recht voor alle spelers op een lijst tegelijk, uit de team-id's in de rijen zelf of uit één leesactie van de teams van de spelers. Een lijst van 200 spelers kost evenveel als een lijst van 20.
+4. **Test het als de lezer die het niet mag zien**, en als een die het wel mag. De contracttest loopt elke spelersroute af als Alleen-lezen waarnemer, zoals de server een echt verzoek beantwoordt (met `rest_post_dispatch`), en faalt als een geregistreerd veld, of de oudercontactgegevens uit de testdata, in een antwoord staat.
+
+Een regelnaam die de redactor niet kent, verbergt het veld voor iedereen, zodat een tikfout in het register dichtvalt in plaats van open.
 
 ## Het dossier van een speler, en de onderdelen ervan
 
@@ -630,10 +662,14 @@ matrix-entiteit `strava_integration` met `self`-scope (lezen + wijzigen),
 toegekend aan de persona `speler` — net als de `my_profile`-rechten van de
 speler. Een speler beheert altijd alleen zijn **eigen** koppeling; door de
 self-scope kan hij Strava niet koppelen voor een andere speler. De
-Strava-**operatorconsole** (Configuratie → Integraties: app-credentials,
-webhook-abonnement, koppelingenoverzicht) is een aparte `global`-scope die
-Hoofdtrainer en Academie-beheerder hebben en wordt niet beïnvloed door het
-spelerrecht. Zie de
+Strava-**clubconsole** (Configuratie → Integraties: app-gegevens,
+webhook-abonnement, koppelingenoverzicht) is configuratie met een eigen
+entiteit, `strava_operator_console`. Standaard heeft de Academie-beheerder die
+volledig en leest het Hoofd opleiding hem clubbreed. Een Hoofdtrainer leest hem
+op teamscope: de lijst met koppelingen toont alleen de spelers van de eigen
+teams, de status van het webhook-abonnement leest hij niet, en de
+app-gegevens of de webhook wijzigen kan hij niet. Een speler
+bereikt hem niet, en het spelerrecht opent hem niet. Zie de
 [autorisatiematrix](authorization-matrix.md).
 
 ## Wanneer een rechtenwijziging van kracht wordt

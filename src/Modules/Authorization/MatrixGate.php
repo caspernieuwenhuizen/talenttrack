@@ -51,6 +51,26 @@ class MatrixGate {
     public const SCOPE_SELF   = 'self';
 
     /**
+     * #4683 — `resolveAnyScope()` answers per request, keyed by user,
+     * entity and activity. Every `user_can( $uid, 'tt_…' )` comes through
+     * here (`LegacyCapMapper`), at about six queries a call, so a list that
+     * checks a capability per row paid it per row.
+     *
+     * @var array<string, bool>
+     */
+    private static array $any_scope = [];
+
+    /**
+     * Forget the per-request answers. `MatrixRepository::clearCache()` and
+     * `AuthorizationService::flushCache()` call this, the second on every
+     * role grant or revoke, guardian link, team assignment, WordPress role
+     * change and login.
+     */
+    public static function clearCache(): void {
+        self::$any_scope = [];
+    }
+
+    /**
      * Can the user perform the activity on the entity in the scope?
      *
      * @param int      $user_id          WP user id (NOT person_id).
@@ -103,6 +123,14 @@ class MatrixGate {
     private static function resolveAnyScope( int $user_id, string $entity, string $activity ): bool {
         if ( $user_id <= 0 ) return false;
 
+        $key = $user_id . '|' . $entity . '|' . $activity;
+        if ( ! isset( self::$any_scope[ $key ] ) ) {
+            self::$any_scope[ $key ] = self::resolveAnyScopeUncached( $user_id, $entity, $activity );
+        }
+        return self::$any_scope[ $key ];
+    }
+
+    private static function resolveAnyScopeUncached( int $user_id, string $entity, string $activity ): bool {
         $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return false;
 
@@ -301,6 +329,83 @@ class MatrixGate {
         if ( self::featureDenies( $entity ) ) return false;
 
         return self::resolveScoped( $user_id, $entity, $activity, $scope_kind, $scope_target_id );
+    }
+
+    /**
+     * #4684 — `can( $user_id, $entity, $activity, SCOPE_TEAM, $team )` as a
+     * list: every team on which it says yes, ascending, that a team list may
+     * show — the current club's, not archived, inside the demo-mode scope.
+     *
+     * The team-scoped answer has two sources, and a list built from one of
+     * them disagreed with the single-team check: a persona row plus a live
+     * team assignment (`tt_user_role_scopes`), and a functional role held
+     * on the team (`FunctionalRoleGrants`). The candidates are both, and
+     * each is asked the single-team question, so the list cannot hold a
+     * team `can()` refuses or miss a listable one it allows.
+     *
+     * Team scope only: a caller that also honours a global grant asks
+     * `can( …, SCOPE_GLOBAL )` first, as the callers here do.
+     *
+     * @return list<int>
+     */
+    public static function teamIdsFor( int $user_id, string $entity, string $activity ): array {
+        if ( $user_id <= 0 ) return [];
+
+        $candidates = [];
+        foreach ( FunctionalRoleGrants::teamsGranting( $user_id, $entity, $activity ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+        foreach ( self::assignedTeamIds( $user_id ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+
+        $out = [];
+        foreach ( array_keys( $candidates ) as $team_id ) {
+            if ( self::can( $user_id, $entity, $activity, self::SCOPE_TEAM, $team_id ) ) $out[] = $team_id;
+        }
+        sort( $out );
+        return self::listableTeamIds( $out );
+    }
+
+    /**
+     * The teams the user holds a live team assignment on, the rows
+     * `userHasScope()` reads.
+     *
+     * @return list<int>
+     */
+    private static function assignedTeamIds( int $user_id ): array {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $today = current_time( 'Y-m-d' );
+        $ids   = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT s.scope_id
+               FROM {$p}tt_user_role_scopes s
+               JOIN {$p}tt_people pe ON pe.id = s.person_id
+              WHERE pe.wp_user_id = %d
+                AND s.scope_type = 'team'
+                AND ( s.start_date IS NULL OR s.start_date <= %s )
+                AND ( s.end_date   IS NULL OR s.end_date   >= %s )",
+            $user_id, $today, $today
+        ) );
+        return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ), static fn( int $v ): bool => $v > 0 ) );
+    }
+
+    /**
+     * The ids of `$team_ids` a team list may show: teams of the current
+     * club, not archived, inside the demo-mode scope — the filters every
+     * team list applies (`QueryHelpers::get_teams()`).
+     *
+     * @param list<int> $team_ids
+     * @return list<int>
+     */
+    private static function listableTeamIds( array $team_ids ): array {
+        $ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_by_ids( $team_ids ) as $team ) {
+            $id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $id > 0 ) $ids[] = $id;
+        }
+        sort( $ids );
+        return $ids;
     }
 
     /**

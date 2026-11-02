@@ -123,12 +123,29 @@ secret and per-player tokens are never returned by any endpoint.
 
 ### Who can reach the console
 
-The console is **matrix-gated**, not tied to the WordPress *Administrator*
-role: viewing follows `tt_view_strava` (the `strava_integration` entity's
+The console is club configuration, not a player's own Strava connection, so it
+has its own matrix entity, `strava_operator_console`, and is not tied to the
+WordPress *Administrator* role. Viewing follows `tt_view_strava` (the entity's
 *read* activity) and changing credentials or the webhook follows
-`tt_edit_strava_credentials` (its *change* activity). By default academy admins
-and heads of development hold these; tune them per persona in the authorization
-matrix.
+`tt_edit_strava_credentials` (its *change* activity). Changing is answered at
+global scope only.
+
+By default:
+
+- **Academy admins** view the console and change the credentials and the
+  webhook.
+- **Heads of development** view the console, read-only.
+- **Head coaches** see only the connections list, read-only, with only the
+  players of their own teams. The app credentials and webhook sections are not
+  shown to them; they do not read the webhook subscription status, and cannot
+  change the app credentials or the webhook.
+- **Other coaches and players** do not reach it.
+
+Tune this per persona in the authorization matrix. A player still connects and
+disconnects their **own** Strava account from the Strava tab on their profile.
+That tab follows the separate `strava_integration` entity, and the connect and
+disconnect routes accept the player on their own record. Neither is affected by
+the console grant.
 
 The OAuth **callback** (`GET .../strava/callback`) and the **webhook**
 (`GET/POST .../strava/webhook`) are public routes by necessity — Strava calls

@@ -113,6 +113,10 @@ class Kernel {
         // from admin-post.php flows) correctly invalidates the cache.
         AuthorizationService::registerCacheInvalidators();
 
+        // #4690 — registered sensitive fields leave a REST answer only for a
+        // reader who may read them, whichever controller built the answer.
+        \TT\Infrastructure\Security\RecordRedactor::register();
+
         $this->loadModules();
         $this->registry->registerAll();
         $this->registry->bootAll();

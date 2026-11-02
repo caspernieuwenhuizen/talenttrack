@@ -15,7 +15,7 @@ De tegel **POP-planning** toont het hoofd opleidingen een matrix per team per bl
 
 ## Hoe het werkt
 
-Elk blok van de POP-cyclus (start / midden / eind, afhankelijk van de cyclusgrootte) heeft een **planningsvenster**. Standaard is dat `scheduled_at ± 10 dagen` (21 dagen totaal); beheerders kunnen de lengte aanpassen via de instelling `pdp_planning_window_days`. Het venster wordt afgekapt op de seizoensgrenzen.
+Elk blok van de POP-cyclus (start / midden / eind, afhankelijk van de cyclusgrootte) heeft een **planningsvenster**. Standaard loopt het venster van 10 dagen vóór tot 10 dagen na de geplande datum. Beheerders kunnen de lengte aanpassen via de instelling `pdp_planning_window_days`. Het venster wordt afgekapt op de seizoensgrenzen.
 
 Coaches plannen een gespreksdatum binnen het venster vanuit het dossierdetail. Het planningsdashboard van de HO bij **POP-planning** (`?tt_view=pdp-planning`) toont de matrix:
 
@@ -32,8 +32,8 @@ Klik op een cel om door te klikken naar de onderliggende POP-dossiers, gefilterd
 
 ## Rechten
 
-- `tt_view_pdp` — zie het dashboard. Geldt voor coaches en HO.
-- De tegel **POP-planning** is zichtbaar voor elke rol met `tt_view_pdp`; HO's zijn de primaire doelgroep.
+- `tt_view_pdp_planning` — open de planningsmatrix. Dit volgt het leesrecht voor POP-planning in de autorisatiematrix, dat de hoofdcoach en de teammanager hebben voor hun eigen teams, en het hoofd ontwikkeling en de academiebeheerder voor alle teams.
+- De tegel **POP-planning** is zichtbaar voor elke rol met `tt_view_pdp_planning`; HO's zijn de primaire doelgroep. Spelers en ouders zien hun eigen POP, niet deze matrix.
 
 ### Wie ziet welke teams
 

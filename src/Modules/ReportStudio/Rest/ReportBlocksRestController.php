@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\BlockEngine;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
+use TT\Modules\ReportStudio\Domain\BlockSources;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\StudioError;
@@ -101,7 +102,34 @@ final class ReportBlocksRestController extends BaseController {
             }
         }
 
-        return RestResponse::success( [ 'blocks' => array_values( $out ) ] );
+        // #4571 — the blocks that do not fit, each with the reason, so the
+        // Studio's library shows them switched off instead of leaving them out.
+        $unavailable = [];
+        $first       = ReportContext::forListing( $scopes[0], $audience, $user_id );
+        foreach ( BlockRegistry::all() as $key => $block ) {
+            if ( isset( $out[ $key ] ) ) continue;
+            $unavailable[] = [
+                'key'    => $block->key(),
+                'label'  => $block->label(),
+                'reason' => self::unavailableReason( $block, $first ),
+            ];
+        }
+
+        return RestResponse::success( [ 'blocks' => array_values( $out ), 'unavailable' => $unavailable ] );
+    }
+
+    /** Why a block cannot be placed here, in the words the library shows. */
+    private static function unavailableReason( ReportBlock $block, ReportContext $context ): string {
+        if ( ! in_array( $context->scope, $block->scopes(), true ) ) {
+            return __( 'This block does not fit what the report is about.', 'talenttrack' );
+        }
+        if ( ! in_array( $context->audience, $block->audiences(), true ) ) {
+            return __( 'This block is for staff only.', 'talenttrack' );
+        }
+        if ( ! user_can( $context->userId, $block->capability() ) ) {
+            return __( 'You do not have access to this block.', 'talenttrack' );
+        }
+        return __( 'There is no data for this block yet.', 'talenttrack' );
     }
 
     public static function preview( WP_REST_Request $r ): WP_REST_Response {
@@ -148,6 +176,8 @@ final class ReportBlocksRestController extends BaseController {
             'audiences'  => $block->audiences(),
             'capability' => $block->capability(),
             'options'    => array_map( static fn( $o ) => $o->toArray(), $block->options( $context ) ),
+            'source'     => BlockSources::source( $block ),
+            'family'     => BlockSources::familyVisibility( $block ),
         ];
     }
 

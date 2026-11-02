@@ -129,14 +129,16 @@
 }
 
 .tt-player-hero__main { min-width: 0; padding-bottom: 4px; }
+/* #4701 — the name wraps and is never cut. It is the one place on the
+   profile that carries the player's name in full: the current breadcrumb
+   is cut to one line. `anywhere` breaks a single long word as a last
+   resort, so a double-barrelled surname cannot push the hero sideways. */
 .tt-player-hero__name {
     margin: 0;
     font-size: 22px;
     font-weight: 800;
     line-height: 1.1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 .tt-player-hero__sub {
     margin: 4px 0 0;
@@ -174,12 +176,15 @@
 }
 /* #4215 — a team name is longer than a player's ("Voetbalacademie De
    Maasoever U7") and was cut to "Voetbalacademie De …" at 390px. Two lines
-   on a phone; one line with an ellipsis from 768px, as before. */
+   on a phone; one line with an ellipsis from 768px, as before. The clip
+   and the ellipsis are set here: the player name no longer has them. */
 .tt-team-hero .tt-player-hero__name {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: normal;
     overflow-wrap: anywhere;
 }
@@ -380,12 +385,18 @@
 
 /* ---------- Key facts strip ---------- */
 
+/* #4702 — a bare 1fr track has a min-content floor, so one unbreakable
+   label ("GEBOORTEDATUM") widened its column and the strip ran 1px past a
+   320px viewport. minmax(0, 1fr) tracks, as the team tiles have (#4213).
+   The labels are short forms that fit an equal column from 360px without
+   hyphenating; `overflow-wrap` is only the last resort for a long
+   translation or a 320px phone. */
 .tt-player-facts {
     background: var(--tt-paper);
     border-bottom: 1px solid var(--tt-line-soft);
     padding: var(--tt-gap-lg);
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     border-radius: var(--tt-radius);
     margin: var(--tt-gap) 0 0;
@@ -403,6 +414,8 @@
     color: var(--tt-ink-soft);
     font-weight: 600;
     display: block;
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-facts__value {
     font-size: 15px;
@@ -443,9 +456,11 @@
     color: var(--tt-ink-soft);
     margin: 0 0 8px;
 }
+/* #4702 — same min-content floor as the facts strip: "AANWEZIGHEID" put a
+   tile 6px past a 320px viewport. */
 .tt-player-glance__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 .tt-player-kpi {
@@ -467,6 +482,8 @@
     letter-spacing: 0.4px;
     font-weight: 600;
     color: var(--tt-ink-soft);
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-kpi__num {
     font-size: 20px;

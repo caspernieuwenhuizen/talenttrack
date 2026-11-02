@@ -130,6 +130,8 @@ return [
     'prospect-edit'                 => [ 'viewable', 'Correcting a parent’s contact details or the consent date on one prospect (#2838). Four fields on one record, so none of the first three questions fires — but it is a correction made at a desk after the fact, not capture at the moment of seeing a player, which is what keeps it out of native.' ],
     'prospect'                      => [ 'viewable', 'One prospect’s record: stage, consent requests and scouting visits. Read on the phone between matches, written through the consent wizard and the contact form (#4257).' ],
     'prospects-overview'            => [ 'viewable', 'A list view over the funnel.' ],
+    'report'                        => [ 'viewable', 'A published Studio report, read where the coach is: its rows stack on a phone, and nothing on it is edited (#4591).' ],
+    'report-studio'                 => [ 'viewable', 'Building a report or dashboard from blocks. Built to work on a tablet and a phone: the library and settings become bottom sheets and reordering uses the arrows (#4571). Not desktop_only, because the printed copy is a separate PDF, not this screen.' ],
     'scout-history'                 => [ 'viewable', 'A scout’s own past activity.' ],
     'scout-my-players'              => [ 'viewable', 'A scout’s portfolio list.' ],
     'scout-player-card'             => [ 'viewable', 'Eight facts about one squad player, read on a touchline.' ],

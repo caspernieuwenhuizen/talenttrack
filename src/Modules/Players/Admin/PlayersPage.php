@@ -271,6 +271,18 @@ class PlayersPage {
         }
         $is_edit = $player !== null && (int) ( $player->id ?? 0 ) > 0;
 
+        // #4689 — the guardian on file follows the staff rule, as on the
+        // profile and the REST record: a reader who may open this player but
+        // does not work with them gets the form with those fields empty.
+        if ( $player !== null && $is_edit
+            && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), (int) ( $player->id ?? 0 ) ) ) {
+            $player = (object) array_merge( get_object_vars( $player ), [
+                'guardian_name'  => '',
+                'guardian_email' => '',
+                'guardian_phone' => '',
+            ] );
+        }
+
         // v2.14.0: Rate Card tab embedded on the edit view. Only available
         // when editing an existing player (no evaluations to rate-card on
         // a new one). Default tab is 'edit' (the existing form).
@@ -627,6 +639,13 @@ class PlayersPage {
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : PlayerStatus::ACTIVE,
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+
+        // #4689 — a saver who is not staff for the player was shown the
+        // guardian fields empty; writing them back would erase the guardian
+        // on file. Leave the stored values as they are.
+        if ( $id > 0 && ! AuthorizationService::isStaffForPlayer( get_current_user_id(), $id ) ) {
+            unset( $data['guardian_name'], $data['guardian_email'], $data['guardian_phone'] );
+        }
 
         if ( $id ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );

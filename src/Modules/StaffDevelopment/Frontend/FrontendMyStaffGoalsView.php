@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\StaffDevelopment\Repositories\StaffGoalsRepository;
+use TT\Modules\StaffDevelopment\StaffDevelopmentAccess;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
@@ -39,12 +40,6 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My staff goals', 'talenttrack' );
 
-        if ( ! current_user_can( 'tt_view_staff_development' ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( __( 'My goals', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         $person = StaffPersonHelper::personForUser( $user_id );
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
@@ -52,14 +47,21 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( __( 'My goals', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( __( 'My goals', 'talenttrack' ) );
 
         $repo  = new StaffGoalsRepository();
-        $goals = $repo->listForPerson( (int) $person->id );
+        $goals = $repo->listForPerson( $person_id );
         $cert_types = QueryHelpers::get_lookups( 'cert_type' );
         $cert_by_id = [];
         foreach ( $cert_types as $c ) { $cert_by_id[ (int) $c->id ] = (string) $c->name; }
@@ -77,8 +79,14 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
         echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Completed', 'talenttrack' ), 'value' => (string) ( $total - $open ) ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
         echo '</div>';
 
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        $can_write = StaffDevelopmentAccess::canWrite( $user_id, $person_id );
+
         if ( ! $goals ) {
-            echo '<p class="tt-sdev-empty">' . esc_html__( 'No goals yet. Add one below.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sdev-empty">' . ( $can_write
+                ? esc_html__( 'No goals yet. Add one below.', 'talenttrack' )
+                : esc_html__( 'No goals yet.', 'talenttrack' ) ) . '</p>';
         } else {
             echo '<ul class="tt-sdev-list">';
             foreach ( $goals as $g ) {
@@ -102,6 +110,11 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
                 echo '</li>';
             }
             echo '</ul>';
+        }
+
+        if ( ! $can_write ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            return;
         }
 
         echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Add a goal', 'talenttrack' ) . '</h3>';
@@ -151,6 +164,7 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
     private static function handlePost( int $person_id ): void {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
         if ( ! isset( $_POST['tt_staff_goal_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_staff_goal_nonce'] ) ), 'tt_staff_goal_save' ) ) return;
+        if ( ! StaffDevelopmentAccess::canWrite( get_current_user_id(), $person_id ) ) return;
 
         $title = sanitize_text_field( wp_unslash( (string) ( $_POST['title'] ?? '' ) ) );
         if ( $title === '' ) return;

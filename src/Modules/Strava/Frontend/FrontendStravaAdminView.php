@@ -4,6 +4,7 @@ namespace TT\Modules\Strava\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Strava\StravaConfig;
+use TT\Modules\Strava\StravaConsoleScope;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -29,7 +30,9 @@ use TT\Shared\Frontend\FrontendViewBase;
  *
  * Matrix-gated (NOT manage_options): view on `tt_view_strava`, credential +
  * webhook edits on `tt_edit_strava_credentials`. The REST routes re-check the
- * same caps, so this gate is the affordance, not the enforcement.
+ * same caps, so this gate is the affordance, not the enforcement. A reader at
+ * team scope sees only the connected-players roster, narrowed to their teams;
+ * the credentials and webhook sections are for club-wide readers.
  */
 final class FrontendStravaAdminView extends FrontendViewBase {
 
@@ -48,6 +51,9 @@ final class FrontendStravaAdminView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Strava', 'talenttrack' ) );
         self::renderHeader( __( 'Strava integration', 'talenttrack' ) );
 
+        // A team-scope reader (a head coach) sees only the connections
+        // table; the setup, credentials and webhook are club-wide.
+        $club_wide       = StravaConsoleScope::isClubWide( $user_id );
         $can_edit        = current_user_can( self::EDIT_CAP );
         $client_id       = StravaConfig::clientId();
         $configured      = StravaConfig::hasCredentials();
@@ -63,6 +69,7 @@ final class FrontendStravaAdminView extends FrontendViewBase {
         );
         ?>
         <div class="tt-strava-admin" data-tt-strava-admin>
+            <?php if ( $club_wide ) : ?>
             <p class="tt-strava-admin__intro">
                 <?php esc_html_e( 'Register your academy\'s Strava developer app and webhook here, then players connect their own accounts from their profile. Distance, duration, pace and elevation are imported — never heart-rate data.', 'talenttrack' ); ?>
             </p>
@@ -84,9 +91,11 @@ final class FrontendStravaAdminView extends FrontendViewBase {
                     <li><?php esc_html_e( 'Paste the Client ID and secret below, then save and verify.', 'talenttrack' ); ?></li>
                 </ol>
             </details>
+            <?php endif; ?>
 
             <div class="tt-strava-admin__msg" data-tt-strava-admin-msg role="status" aria-live="polite"></div>
 
+            <?php if ( $club_wide ) : ?>
             <section class="tt-strava-admin__section">
                 <h2><?php esc_html_e( 'App credentials', 'talenttrack' ); ?></h2>
                 <p class="tt-strava-admin__hint">
@@ -170,6 +179,7 @@ final class FrontendStravaAdminView extends FrontendViewBase {
                     </div>
                 <?php endif; ?>
             </section>
+            <?php endif; ?>
 
             <section class="tt-strava-admin__section">
                 <h2><?php esc_html_e( 'Connected players', 'talenttrack' ); ?></h2>

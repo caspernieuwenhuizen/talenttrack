@@ -1,0 +1,28 @@
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgctxt "report studio scope"
+msgid "Me"
+msgstr "Mezelf"
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report about me always follows the viewer."
+msgstr "Een rapport over mezelf volgt altijd wie het opent."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "Only a report about me, a player or a team can follow the viewer."
+msgstr "Alleen een rapport over mezelf, een speler of een team kan volgen wie het opent."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "A report published for a role is chosen when opened or follows the viewer, so each reader sees their own subject."
+msgstr "Een rapport dat voor een rol is gepubliceerd, wordt bij het openen gekozen of volgt wie het opent, zodat elke lezer zijn eigen onderwerp ziet."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+msgid "The subject is fixed, chosen when opened, or follows the viewer."
+msgstr "Het onderwerp ligt vast, wordt bij het openen gekozen of volgt wie het opent."
+
+#: src/Modules/ReportStudio/Wizard/WhenStep.php
+msgid "Which period does it cover?"
+msgstr "Over welke periode gaat het?"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "— Pick a team —"
+msgstr "— Kies een team —"

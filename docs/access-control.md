@@ -124,6 +124,13 @@ If a coach reports that a wp-admin list has gone empty, the question to ask is
 which teams they are assigned to under **People → Functional roles**: the
 scope comes from those assignments, not from the capability.
 
+Team lists follow the same rule as opening one team. A team that a functional
+role grants, such as a team manager's team reports, appears in the report
+list, in the analytics team scope and in Report Studio's team choice, just as
+it opens directly. A list never shows a team that cannot be opened, and never
+leaves out one that can. Like every team list, these leave out archived teams,
+and with demo mode on they show only the demo teams.
+
 ## The pre-built roles
 
 | Role | View | Edit |
@@ -172,7 +179,7 @@ Use cases:
 | They can read | They cannot |
 | --- | --- |
 | **Teams** — every squad, its roster and its details | Change anything about a team |
-| **Players** — every player's record and profile, including the guardian contact on it | Add, edit or remove a player |
+| **Players** — every player's record and profile, without the guardian contact on it | Add, edit or remove a player |
 | **People** — the staff directory | Edit a staff record |
 | **Evaluations** — the assessments coaches record | Write or share an evaluation |
 | **Activities** — the training and match calendar | Plan, edit or cancel anything |
@@ -182,7 +189,7 @@ Use cases:
 
 **And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of development and Academy admin alone, and several are deliberately withheld even from head coaches.
 
-Each player's guardian contact **is** visible to an observer: it is part of the player record, which the role reads.
+Each player's guardian contact is **not** visible to an observer. Reading every player is not the same as working with one, and a family's details stay with the people around their child. Someone counts as working with a player when they hold one of three things: a staff role on the player's team; a role that may change players academy-wide (the Head of development and the Academy admin); or an academy-wide role assignment that reads players, given to the person under Roles (a Head of development, scout or physio appointed for the whole academy rather than per team). The observer's academy-wide read comes from the role itself, not from such an assignment, so it does not count. An observer gets the player record without the guardian name, e-mail and phone (the wp-admin player form shows those fields empty too), does not see the profile's Parents · Guardians card, and does not get the match-day squad (start, bench, out) on an activity's expected attendance.
 
 Because an observer does not see injuries, an observer also does not get the **Unavailable** or **Check availability** markers beside a name on an activity's expected attendance or in a match preparation, and does not see the reason a coach typed beside an absent player in a match preparation or its printout: on a training those can only mean an injury. The status the coach set (present, absent and so on) stays visible. The markers and reasons go to whoever may plan that team, and to whoever may read that player's injuries.
 
@@ -200,6 +207,30 @@ The bulk exports gate on the raw view capability, which the matrix bridge answer
 - **Read only, deliberately.** `change` and `create_delete` are not bridged. This was a read being refused; bridging a write would widen access on the side where a mistake writes to a child's record, and belongs to its own decision.
 
 A user with neither a matrix row nor a scope row is refused exactly as before, and no exporter's capability was narrowed — the export was the route that happened to agree with the seed.
+
+## Sensitive fields
+
+Some fields on a record a reader may open are still not theirs to see: a reader who may read a player is not automatically someone who may read the guardian's phone number. Those fields are listed in one place, `config/sensitive_fields.php`, with the right that unlocks each one, and hidden in one place, `Infrastructure\Security\RecordRedactor`.
+
+What a reader without the right gets:
+
+- **Over REST**, the field is left out of the answer entirely. It is not sent as `null` and there is no flag saying it was removed. The controller redacts what it returns with `RecordRedactor::redactRows()` (or `redact()` for one record). Behind it, for every route pattern the registry lists, the redactor runs once more after the controller (`rest_post_dispatch`) as the HTTP safety net. It walks arrays, objects and `JsonSerializable` values and keeps each one's JSON shape.
+- **On screen**, the word **Hidden** in a muted style where the value would be, with "Hidden for your role" for a screen reader. Never an empty cell, which would read as "not filled in".
+
+The fields registered so far:
+
+| Entity | Fields | Who may read them |
+| --- | --- | --- |
+| `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `custom_fields` | Staff for the player: a staff role on the player's team, a role that may change players academy-wide, or an academy-wide role assignment that reads players |
+
+### Adding a sensitive field
+
+1. **Register it** in `config/sensitive_fields.php`, under its entity: the field name, and the rule that unlocks it. Give a new entity its `routes` and its `id_key`. The routes are the registered route patterns, exactly as passed to `register_rest_route()` with the namespace in front (for example `/talenttrack/v1/players/(?P<id>\d+)`), because the safety net keys on the pattern WordPress matched, not on the request path. The `id_key` is the key in a returned row that holds the player id; every row on a listed route that carries it and a registered field is read as a row of this entity, so list only routes whose rows are. A module registers its fields there, never with a check of its own in a controller or view.
+2. **Controllers redact, views ask.** A controller passes what it returns through `RecordRedactor::redactRows()` or `redact()`. A view calls `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` and renders `Components\MaskedValue::render()` in place of the value when it answers yes. Neither decides the rule itself.
+3. **Lists ask once.** `RecordRedactor::redactRows()` and `RecordRedactor::prime()` resolve the right for every player on a list together, from the rows' own team ids or from one read of the players' teams. A list of 200 players costs the same as a list of 20.
+4. **Test it as the reader who must not see it**, and as one who must. The contract test walks every player route as the Read-only observer, the way the server answers a real request (with `rest_post_dispatch`), and fails if a registered field, or the fixture's guardian contact, is in any answer.
+
+A rule name the redactor does not know hides the field from everybody, so a typo in the registry fails closed.
 
 ## A player's record, and the sections of it
 
@@ -668,10 +699,14 @@ account from their profile. This is gated by the matrix entity
 `strava_integration` at `self` scope (read + change), seeded for the `player`
 persona — mirroring the player's `my_profile` self grant. A player can only
 ever manage their **own** connection; the self scope means they cannot connect
-Strava for any other player. The Strava **operator console** (Configuration →
-Integrations: app credentials, webhook subscription, connections overview) is a
-separate `global`-scoped grant held by Head coach and Academy admin, and is
-unaffected by the player grant. See
+Strava for any other player. The Strava **club console** (Configuration →
+Integrations: app credentials, webhook subscription, connections overview) is
+configuration with its own entity, `strava_operator_console`. By default the
+Academy admin holds it in full and the Head of development reads it club-wide.
+A Head coach reads it at team scope: the connections list shows only their own
+teams' players, they do not read the webhook subscription status, and they
+cannot change the app credentials or the webhook. A
+player does not reach it, and the player grant does not open it. See
 [authorization matrix](authorization-matrix.md#matrix-entity-strava_integration--personal-activity-connection-2127-2153).
 
 ## When a capability change takes effect

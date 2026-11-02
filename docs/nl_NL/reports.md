@@ -3,7 +3,7 @@ title: Rapporten
 group: analytics
 summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -202,8 +202,8 @@ Drie regels zijn goed om te weten, want ze bepalen wiens getal beweegt:
   eigen doel schieten is geen aanvallende bijdrage.
 - Een **ongedaan gemaakt** doelpunt telt voor niemand.
 
-Dezelfde getallen staan op de spelerskaart zelf — de tegel **Doelpunten
-gemaakt** in de overzichtsstrook, met de assists op de regel eronder. Let op
+Dezelfde getallen staan op de spelerskaart zelf — de tegel **Gescoord**
+in de overzichtsstrook, met de assists op de regel eronder. Let op
 de bewoording: de tegel ernaast, kortweg **Doelen**, telt de ontwikkeldoelen
 van een speler. Die twee betekenissen worden overal uit elkaar gehouden waar
 ze elkaar tegenkomen.
@@ -670,3 +670,59 @@ Een gepland KPI-rapport wordt bij elke run per ontvanger gecontroleerd, zodat ee
 - **Een adres zonder account hier** ontvangt het rapport alleen als het geen spelersgegevens bevat, zoals het activiteitenvolume. Het leest dan met de toegang van degene die het schema heeft aangemaakt. Een rapport over spelers (aanwezigheid, evaluaties, doelen, ontwikkelingslijn-gebeurtenissen, trialbeslissingen, prospects) gaat nooit naar zo'n adres.
 - **Accounts die dezelfde rijen mogen lezen**, delen één CSV, zodat een rol met veel academiebrede lezers één keer wordt opgebouwd en niet per persoon.
 - **Wie wordt overgeslagen**, staat na de run bij het schema in de lijst met schema's. Een rolsleutel staat er met het aantal overgeslagen leden, nooit met hun adressen; adressen die je zelf hebt ingetypt worden genoemd, en als de lijst te lang wordt, wordt de rest geteld ("en nog 3"). De auditregel van de run legt elke overgeslagen ontvanger met de reden vast.
+## Report Studio — een rapport beginnen
+
+In de Report Studio bouw je een eigen rapport of dashboard, uit de cijfers die TalentTrack al heeft. Een hoofdtrainer of assistent-trainer bouwt over de eigen teams en spelers; het hoofd opleiding en de academy-beheerder bouwen over elk team, elke speler en de hele academie. De Studio hoort bij het Pro-abonnement en wordt aangezet bij de instellingen voor modules en functies.
+
+**Rapport toevoegen** opent een korte wizard. Die vraagt zeven startkeuzes, één of twee per pagina, en die bepalen wat het rapport kan worden. Een optie die niet past bij wat je eerder koos, blijft zichtbaar maar staat uit, met de reden eronder.
+
+1. **Wat en over wie.** Een rapport of een dashboard, en over wie het gaat: jezelf, één speler, één team, een groep spelers of de hele academie.
+2. **Wie het leest.** Staf, een externe scout, of de speler en het gezin; en of het rapport altijd hetzelfde onderwerp toont, de lezer het onderwerp laat kiezen bij het openen, of de persoon volgt die het opent.
+3. **Het onderwerp.** Welke speler, welk team, of welke teams de groep vormen (eventueel één leeftijdsgroep). Je krijgt alleen de spelers en teams aangeboden waarover je rapporten bouwt. Een speler of team wordt alleen gevraagd als het rapport altijd dezelfde toont; een groep wordt altijd gevraagd. Deze pagina wordt overgeslagen voor een rapport over jezelf of over de academie, en als je begint vanaf de pagina van een speler of een team.
+4. **Wanneer en hoe.** De periode: gekozen bij het openen, meeschuivend (vorige week, vorige maand, deze maand, dit seizoen), of vaste datums. En de opmaak: rijen, die af te drukken zijn en op een telefoon werken, of een raster voor schermen.
+5. **Delen.** Alleen jij, gepubliceerd voor een rol, een geplande mail, of gedeeld met het gezin.
+6. **Naam en controle.** Geef het een naam, lees je keuzes terug en maak het aan. Voor deze laatste stap wordt niets opgeslagen.
+
+Ga je terug en verander je een eerder antwoord, dan schuift een latere keuze die niet meer past naar de eerste optie die wel past, en de wizard vertelt je welke keuze verschoof en waarom.
+
+De regels tussen de keuzes:
+
+- Een rapport voor het gezin of een scout gaat over één speler. Een ouder leest een gezinsrapport alleen via een momentopname die je met hem deelt, nooit het live rapport.
+- Een rapport voor een scout is een rapport, geen dashboard, en alleen iemand die rapporten publiceert, schrijft er een.
+- Een rapport over de hele academie is voor staf, en alleen wie voor alle teams bouwt, maakt er een. Het toont altijd de hele academie.
+- Een rapport over jezelf volgt altijd de persoon die het opent. Alleen een rapport over jezelf, een speler of een team kan volgen wie het opent.
+- Een dashboard volgt de kalender: de periode ligt nooit vast.
+- Een raster is voor een staf-publiek. Een rapport voor het gezin of een scout is in rijen opgemaakt.
+- Een geplande mail stuurt een rapport in rijen, over een periode die hij zelf kan kiezen (vast of meeschuivend).
+- Delen met het gezin vraagt een rapport dat voor het gezin is geschreven.
+- Publiceren voor een rol vraagt een onderwerp dat elke lezer kiest of volgt (of de academie), en het recht om te publiceren.
+
+Bouwen vraagt de bevoegdheid **Report Studio: rapporten bouwen**; publiceren voor een rol vraagt **Report Studio: voor een rol publiceren**. De wizard is het enige scherm dat een rapport aanmaakt: staat hij uit onder **Beheer → Wizards**, dan is de knop **Rapport toevoegen** verborgen.
+
+## Report Studio — een rapport bouwen
+
+De tegel **Report Studio** onder Rapporten toont de rapporten die jij gemaakt hebt, met de knop **Rapport toevoegen** erboven. Open er een, of rond de wizard af, en je staat op het canvas: het rapport, opgebouwd uit blokken, die elk echte cijfers tonen voor het onderwerp en de periode, nooit plaatshouders.
+
+- **Bovenaan**: de naam van het rapport (typ om hem te wijzigen), de opslagstatus, **Ongedaan maken**, **Versies** en **Publiceren**. **Delen en plannen** en **PDF maken** komen in een latere release.
+- **Boven het canvas**: over wie het rapport gaat en de periode. Je kunt wisselen naar een andere speler of een ander team van jou, of een andere periode, om te zien hoe het rapport voor hen leest; dat wordt niet opgeslagen. **Lezen als** toont het rapport zoals staf, een scout of het gezin het krijgt, berekend door de server, zodat een blok dat een gezin nooit ziet dat zegt in plaats van zijn cijfers te tonen. **Scherm**, **A4** en **Telefoon** tonen het canvas zoals het op elk past: A4 toont de pagina-einden en hoe vol de pagina's zijn, Telefoon zet halve blokken onder elkaar.
+- **Blokken**: tik op een blok om het achteraan toe te voegen, of sleep het aan zijn greep naar het canvas. Een blok dat niet bij dit rapport past blijft in de lijst staan, uitgeschakeld, met de reden. Op een telefoon of tablet opent de lijst met **Blok toevoegen**.
+- **Op elk blok**: verplaats het omhoog of omlaag met de pijlen of sleep het aan zijn greep, maak het volle of halve breedte, dupliceer het, verwijder het, of open de instellingen. Met het toetsenbord: Tab naar een blok, Enter opent de instellingen en Delete verwijdert het.
+- **Instellingen**: de keuzes van het blok in gewone woorden, of een gezin het mag zien, en waar de cijfers vandaan komen.
+
+Een rapport bevat hooguit 40 blokken.
+
+**Opslaan.** Het canvas slaat zichzelf op terwijl je werkt; er is geen Opslaan-knop. **Ongedaan maken** gaat stap voor stap terug, tot 50 stappen in deze sessie, en **Wijzigingen terugdraaien** zet het rapport terug zoals het was toen je het opende. Heb je hetzelfde rapport in een tweede tabblad open, dan laadt het tabblad met de oudere kopie de nieuwste in plaats van eroverheen te schrijven. Zie [Hoe opslaan werkt](save-model.md).
+
+**Versies en publiceren.** **Publiceren** maakt van je concept een versie. Het vraagt wat er veranderd is, en bij een rapport voor een rol vraagt het voor welke rollen je het publiceert en zegt het hoeveel mensen dat bereikt. **Versies** toont de gepubliceerde versies; **Deze versie gebruiken** zet er een terug in je concept, en de volgende publicatie maakt hem weer live.
+
+## Report Studio — een gedeeld rapport lezen
+
+Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.
+
+- **Je leest de gepubliceerde versie**, nooit het concept van de bouwer, onder de naam waarmee het is gepubliceerd.
+- **Over wie het gaat** hangt af van hoe het is gemaakt. Een rapport over een vast team of een vaste speler toont dat team of die speler. Een rapport dat bij het openen wordt gekozen, laat je een van je eigen teams of spelers kiezen. Een rapport dat volgt wie het opent, toont je eigen team.
+- **De periode** is die waarvoor het rapport is gemaakt. Wordt hij bij het openen gekozen, kies dan een van de periodes: vorige week, vorige maand, deze maand of dit seizoen.
+- **Een blok dat je niet mag zien** meldt "Niet beschikbaar voor jou." en toont geen cijfers. Contactgegevens van een gezin waar je niet mee werkt, worden nooit getoond.
+- Op een telefoon staan de blokken onder elkaar.
+
+Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.
