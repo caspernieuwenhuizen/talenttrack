@@ -75,15 +75,15 @@ final class WeekContext {
      * The viewer may change this team's activities: the edit capability,
      * and `activities` change at global scope or on this team. Asked per
      * team, so a user whose second role widens the week to every team gets
-     * no button on a team they cannot edit.
+     * no button on a team they cannot edit. The capability and the global
+     * right are the viewer's, so they are asked once for the week; only the
+     * team-scope right is asked per team.
      */
     public function canEditTeam( int $team_id ): bool {
-        return (bool) $this->once( 'edit_team:' . $team_id, function () use ( $team_id ): bool {
-            if ( ! $this->canSeeTeam( $team_id ) ) return false;
-            if ( ! AuthorizationService::userCanOrMatrix( $this->userId, 'tt_edit_activities' ) ) return false;
-            if ( MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return true;
-            return MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
-        } );
+        if ( ! $this->canSeeTeam( $team_id ) ) return false;
+        if ( ! $this->once( 'edit_activities_user', fn(): bool => AuthorizationService::userCanOrMatrix( $this->userId, 'tt_edit_activities' ) ) ) return false;
+        if ( $this->once( 'edit_activities_global', fn(): bool => MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) ) return true;
+        return (bool) $this->once( 'edit_team:' . $team_id, fn(): bool => MatrixGate::can( $this->userId, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id ) );
     }
 
     /**

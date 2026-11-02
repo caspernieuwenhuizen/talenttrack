@@ -184,6 +184,59 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertFalse( $week->canEditTeam( $this->otherTeam ) );
     }
 
+    public function test_a_global_editor_is_asked_the_user_level_checks_once_per_week_not_per_team(): void {
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        $this->assertTrue(
+            \TT\Modules\Authorization\MatrixGate::can( $admin, 'activities', \TT\Modules\Authorization\MatrixGate::CHANGE, \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL ),
+            'precondition: the admin changes activities club-wide'
+        );
+
+        $teams = [];
+        for ( $i = 1; $i <= 10; $i++ ) $teams[ $this->team( 'Week team ' . $i ) ] = 'Week team ' . $i;
+        $context = static fn(): \TT\Modules\Activities\CoachWeek\WeekContext => new \TT\Modules\Activities\CoachWeek\WeekContext( $admin, 'academy_admin', '2026-11-04', '2026-11-02', '2026-11-08', $teams, [], [] );
+
+        $asked = 0;
+        $spy   = static function ( array $allcaps, array $caps, array $args ) use ( &$asked ): array {
+            if ( ( $args[0] ?? '' ) === 'tt_edit_activities' ) $asked++;
+            return $allcaps;
+        };
+        add_filter( 'user_has_cap', $spy, PHP_INT_MAX, 3 );
+        try {
+            // What one team costs, then what ten cost on a fresh week.
+            $context()->canEditTeam( (int) array_key_first( $teams ) );
+            $for_one = $asked;
+            $asked   = 0;
+            $week    = $context();
+            foreach ( array_keys( $teams ) as $team_id ) {
+                $this->assertTrue( $week->canEditTeam( $team_id ), "team {$team_id}" );
+            }
+        } finally {
+            remove_filter( 'user_has_cap', $spy, PHP_INT_MAX );
+        }
+
+        $this->assertGreaterThan( 0, $for_one, 'precondition: the spy sees the capability check' );
+        $this->assertSame( $for_one, $asked, 'the edit capability was asked once per team instead of once per week' );
+        foreach ( array_keys( $teams ) as $team_id ) {
+            $this->assertSame(
+                'not asked',
+                $week->once( 'edit_team:' . $team_id, static fn(): string => 'not asked' ),
+                'a global editor needs no per-team check'
+            );
+        }
+    }
+
+    public function test_a_team_scoped_coach_edits_their_own_team_and_not_another(): void {
+        $week = new \TT\Modules\Activities\CoachWeek\WeekContext(
+            $this->coach, 'head_coach', '2026-11-04', '2026-11-02', '2026-11-08',
+            [ $this->team => 'JO13-1', $this->otherTeam => 'JO15-1' ], [], []
+        );
+
+        $this->assertTrue( $week->canEditTeam( $this->team ), 'their own team' );
+        $this->assertFalse( $week->canEditTeam( $this->otherTeam ), 'a team they can see but not edit' );
+        $this->assertFalse( $week->canEditTeam( 0 ) );
+    }
+
     // Availability for scouts and observers is opt-in
 
     public function test_scouts_and_observers_get_availability_only_when_switched_on(): void {
