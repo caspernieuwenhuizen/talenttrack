@@ -1228,11 +1228,12 @@ return array_merge(
     // #4688 — owner decision, 2 November 2026 (epic #4687): the observer
     // reads everything that is not sensitive, and sensitive fields are
     // masked through `RecordRedactor` (`config/sensitive_fields.php`).
-    // The second block below is the non-sensitive set: development data
-    // (measurements, tournaments, VCT, training plans, media) and the
-    // academy's own reference data (methodology, seasons, evaluation
-    // categories, the rating scale). Existing installs get it through
-    // migration 0310, which leaves a cell an academy changed alone.
+    // The second block below is the non-sensitive set: each player's
+    // tournament record, the VCT library and workload, the exercise
+    // library, and the academy's own reference data (methodology, seasons,
+    // evaluation categories, the rating scale, holidays, the help pages).
+    // Existing installs get it through migration 0310, which leaves a cell
+    // an academy changed alone.
     //
     // Not granted, by decision rather than by omission:
     //   - closed by the owner: `player_injuries`, `safeguarding_notes`,
@@ -1248,6 +1249,11 @@ return array_merge(
     //     `player_potential` (#4694), `custom_field_values` (#4716),
     //     `people_directory_panel` (#4715), `team_roster_panel`,
     //     `coach_player_list_panel`, `compare` (#4691, date of birth);
+    //   - held for their own review: `vct` (load-restriction reasons per
+    //     player), `training_plan` and `training_exposure` (coach notes and
+    //     ratings on observations), `tournaments` (free-text squad,
+    //     tournament and match notes), `media` (an open owner question),
+    //     `measurements`, `measurement_sessions`, `measurement_definitions`;
     //   - `player_timeline` and `cohort_transitions`: the journey carries
     //     the PDP verdict entry, and PDP stays closed;
     //   - `player_behaviour_ratings`: free-text notes on a child's
@@ -1285,21 +1291,13 @@ return array_merge(
 
         // #4688 — the non-sensitive set. Keep this list and
         // `0310_authorization_observer_reads_non_sensitive::ENTITIES` equal.
-        'measurements'            => [ 'r', 'global', $mod_measurements ],
-        'measurement_sessions'    => [ 'r', 'global', $mod_measurements ],
-        'measurement_definitions' => [ 'r', 'global', $mod_measurements ],
         'player_tournaments'      => [ 'r', 'global', $mod_tournaments ],
-        'tournaments'             => [ 'r', 'global', $mod_tournaments ],
         'seasons'                 => [ 'r', 'global', $mod_pdp ],
         'methodology'             => [ 'r', 'global', $mod_methodology ],
         'football_actions'        => [ 'r', 'global', $mod_methodology ],
-        'vct'                     => [ 'r', 'global', $mod_vct ],
         'vct_library'             => [ 'r', 'global', $mod_vct ],
         'vct_workload'            => [ 'r', 'global', $mod_vct ],
-        'training_plan'           => [ 'r', 'global', $mod_training ],
-        'training_exposure'       => [ 'r', 'global', $mod_training ],
         'exercises'               => [ 'r', 'global', $mod_exercises ],
-        'media'                   => [ 'r', 'global', $mod_media ],
         'evaluation_categories'   => [ 'r', 'global', $mod_evals ],
         'category_weights'        => [ 'r', 'global', $mod_evals ],
         'rating_scale'            => [ 'r', 'global', $mod_configuration ],

@@ -140,6 +140,7 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
             'player_behaviour_ratings',
             'player_potential',
             'parent_accounts',
+            'media',
             'staff_only_notes',
             'pdp_file',
             'pdp_conversations',

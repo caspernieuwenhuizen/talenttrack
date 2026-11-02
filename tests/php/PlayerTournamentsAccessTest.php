@@ -60,15 +60,13 @@ final class PlayerTournamentsAccessTest extends WP_UnitTestCase {
             $tournaments[ (string) $row['persona'] ][] = (string) $row['activity'];
         }
 
-        foreach ( [ 'player', 'parent', 'staff' ] as $never ) {
+        foreach ( [ 'player', 'parent', 'readonly_observer', 'staff' ] as $never ) {
             $this->assertArrayNotHasKey(
                 $never,
                 $tournaments,
-                'the planner must not reach a family — that is why player_tournaments exists'
+                'the planner must not reach a family or an observer — that is why player_tournaments exists'
             );
         }
-        // #4688 — the observer reads every squad's board, and writes none of it.
-        $this->assertSame( [ 'read' ], $tournaments['readonly_observer'] ?? null );
         $this->assertArrayHasKey( 'head_coach', $tournaments );
         $this->assertArrayHasKey( 'academy_admin', $tournaments );
     }

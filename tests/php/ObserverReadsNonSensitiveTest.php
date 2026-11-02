@@ -43,24 +43,32 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         'report_studio', 'report_publishing',
     ];
 
-    /** Granted together with their masking, in the issue named beside each. */
+    /** Not granted here: each follows with its masking or its own review. */
     private const WITH_THEIR_MASKING = [
-        'attendance'              => 4692,
-        'evaluations_panel'       => 4693,
-        'player_status'           => 4694,
-        'player_status_breakdown' => 4694,
-        'player_potential'        => 4694,
-        'prospects'               => 4694,
-        'test_trainings'          => 4694,
-        'trial_cases'             => 4694,
-        'trial_decisions'         => 4694,
-        'scout_history'           => 4694,
-        'scouting_visits_panel'   => 4694,
-        'custom_field_values'     => 4716,
-        'people_directory_panel'  => 4715,
-        'team_roster_panel'       => 4691,
-        'coach_player_list_panel' => 4691,
-        'compare'                 => 4691,
+        'attendance'              => 'its masking (#4692)',
+        'evaluations_panel'       => 'its masking (#4693)',
+        'player_status'           => 'its masking (#4694)',
+        'player_status_breakdown' => 'its masking (#4694)',
+        'player_potential'        => 'its masking (#4694)',
+        'prospects'               => 'its masking (#4694)',
+        'test_trainings'          => 'its masking (#4694)',
+        'trial_cases'             => 'its masking (#4694)',
+        'trial_decisions'         => 'its masking (#4694)',
+        'scout_history'           => 'its masking (#4694)',
+        'scouting_visits_panel'   => 'its masking (#4694)',
+        'custom_field_values'     => 'its masking (#4716)',
+        'people_directory_panel'  => 'its masking (#4715)',
+        'team_roster_panel'       => 'its masking (#4691)',
+        'coach_player_list_panel' => 'its masking (#4691)',
+        'compare'                 => 'its masking (#4691)',
+        'vct'                     => 'its own review',
+        'training_plan'           => 'its own review',
+        'training_exposure'       => 'its own review',
+        'tournaments'             => 'its own review',
+        'media'                   => 'its own review',
+        'measurements'            => 'its own review',
+        'measurement_sessions'    => 'its own review',
+        'measurement_definitions' => 'its own review',
     ];
 
     private string $matrix_was = '';
@@ -173,7 +181,7 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         foreach ( self::WITH_THEIR_MASKING as $entity => $issue ) {
             $this->assertFalse(
                 MatrixGate::can( $this->observer, $entity, MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ),
-                "{$entity} is granted with its masking in #{$issue}, not before"
+                "{$entity} follows with {$issue}, not before"
             );
         }
     }
@@ -242,13 +250,13 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         $p     = $wpdb->prefix;
         $table = "{$p}tt_authorization_matrix";
         $log   = "{$p}tt_authorization_changelog";
-        foreach ( [ 'measurements', 'media', 'vct' ] as $entity ) {
+        foreach ( [ 'methodology', 'seasons', 'exercises' ] as $entity ) {
             $wpdb->delete( $table, [ 'persona' => 'readonly_observer', 'entity' => $entity ] );
         }
 
         // Edited, then wiped by a reset to the defaults: the edit no longer stands.
         $wpdb->insert( $log, [
-            'persona' => 'readonly_observer', 'entity' => 'vct', 'activity' => 'read',
+            'persona' => 'readonly_observer', 'entity' => 'exercises', 'activity' => 'read',
             'scope_kind' => 'global', 'change_type' => 'revoke', 'actor_user_id' => 1,
             'created_at' => current_time( 'mysql' ),
         ] );
@@ -258,14 +266,14 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         ] );
         // Narrowed to team scope through the matrix admin.
         $wpdb->insert( $table, [
-            'persona' => 'readonly_observer', 'entity' => 'measurements', 'activity' => 'read',
+            'persona' => 'readonly_observer', 'entity' => 'methodology', 'activity' => 'read',
             'scope_kind' => 'team', 'module_class' => 'x', 'is_default' => 0,
         ] );
         // Granted and then revoked after the reset: no row left, the
         // changelog remembers.
         foreach ( [ 'grant', 'revoke' ] as $type ) {
             $wpdb->insert( $log, [
-                'persona' => 'readonly_observer', 'entity' => 'media', 'activity' => 'read',
+                'persona' => 'readonly_observer', 'entity' => 'seasons', 'activity' => 'read',
                 'scope_kind' => 'global', 'change_type' => $type, 'actor_user_id' => 1,
                 'created_at' => current_time( 'mysql' ),
             ] );
@@ -276,16 +284,16 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
 
         $this->assertSame(
             [ [ 'scope_kind' => 'team', 'is_default' => '0' ] ],
-            $wpdb->get_results( "SELECT scope_kind, is_default FROM {$table} WHERE persona = 'readonly_observer' AND entity = 'measurements'", ARRAY_A ),
+            $wpdb->get_results( "SELECT scope_kind, is_default FROM {$table} WHERE persona = 'readonly_observer' AND entity = 'methodology'", ARRAY_A ),
             'the narrowed cell stays narrowed'
         );
         $this->assertSame(
             0,
-            (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE persona = 'readonly_observer' AND entity = 'media'" ),
+            (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE persona = 'readonly_observer' AND entity = 'seasons'" ),
             'the revoked cell stays revoked'
         );
         $this->assertTrue(
-            MatrixGate::can( $this->observer, 'vct', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ),
+            MatrixGate::can( $this->observer, 'exercises', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ),
             'a change wiped by a reset does not hold the row back'
         );
     }
@@ -335,6 +343,142 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         $this->assertFalse( (bool) get_role( 'tt_readonly_observer' )->has_cap( 'tt_view_pdp' ) );
         $this->assertFalse( $fresh->has_cap( 'tt_view_pdp' ) );
         $this->assertTrue( (bool) get_role( 'tt_coach' )->has_cap( 'tt_view_pdp' ), 'coaches keep it' );
+    }
+
+    /**
+     * A read grant opens no write. Asked with the observer holding global
+     * read on both entities behind the VCT configuration and the training
+     * planner, as an academy that widens the seat would leave it.
+     */
+    public function test_every_bridged_write_gate_refuses_a_reader(): void {
+        global $wpdb;
+        foreach ( [ 'vct_library', 'training_plan' ] as $entity ) {
+            $wpdb->query( $wpdb->prepare(
+                "INSERT IGNORE INTO {$wpdb->prefix}tt_authorization_matrix
+                   (persona, entity, activity, scope_kind, module_class, is_default)
+                 VALUES (%s, %s, 'read', 'global', 'x', 0)",
+                'readonly_observer',
+                $entity
+            ) );
+        }
+        $this->flush();
+        $this->assertTrue( MatrixGate::can( $this->observer, 'training_plan', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ), 'precondition: the reader reads plans' );
+
+        foreach ( [ 'tt_vct_admin_config', 'tt_vct_admin_library', 'tt_training_plan' ] as $cap ) {
+            $this->assertFalse( AuthorizationService::userCanOrMatrix( $this->observer, $cap ), $cap );
+        }
+        wp_set_current_user( $this->observer );
+
+        ob_start();
+        \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $this->observer, false );
+        $this->assertStringContainsString( 'You do not have permission to view training plans.', (string) ob_get_clean(), 'the planner' );
+        ob_start();
+        \TT\Modules\Training\Frontend\FrontendTrainingPhotoView::render( $this->observer, false );
+        $this->assertStringContainsString( 'You do not have permission to build training plans.', (string) ob_get_clean(), 'photo to plan' );
+        $writes = [
+            [ 'POST',   '/talenttrack/v1/vct/age-profiles' ],
+            [ 'PATCH',  '/talenttrack/v1/vct/age-profiles/1' ],
+            [ 'DELETE', '/talenttrack/v1/vct/age-profiles/1' ],
+            [ 'PUT',    '/talenttrack/v1/vct/macro-blocks' ],
+            [ 'PUT',    '/talenttrack/v1/vct/team-cycles' ],
+            [ 'DELETE', '/talenttrack/v1/vct/team-cycles' ],
+            [ 'PUT',    '/talenttrack/v1/vct/cycle-weeks' ],
+            [ 'POST',   '/talenttrack/v1/training/plans' ],
+            [ 'PATCH',  '/talenttrack/v1/training/plans/1' ],
+            [ 'DELETE', '/talenttrack/v1/training/plans/1' ],
+            [ 'POST',   '/talenttrack/v1/training/plans/generate' ],
+            [ 'POST',   '/talenttrack/v1/training/plans/1/duplicate' ],
+            [ 'POST',   '/talenttrack/v1/training/plans/1/publish' ],
+            [ 'POST',   '/talenttrack/v1/training/runs' ],
+            [ 'PATCH',  '/talenttrack/v1/training/runs/1' ],
+            [ 'DELETE', '/talenttrack/v1/training/runs/1' ],
+            [ 'POST',   '/talenttrack/v1/training/runs/1/observations' ],
+            [ 'DELETE', '/talenttrack/v1/training/observations/1' ],
+        ];
+        foreach ( $writes as [ $method, $route ] ) {
+            $status = (int) rest_do_request( new WP_REST_Request( $method, $route ) )->get_status();
+            $this->assertSame( 403, $status, "{$method} {$route}" );
+        }
+    }
+
+    /**
+     * Opening the record is not reading its plan: a staff member on the
+     * player's own team reads the player and holds no PDP row.
+     */
+    public function test_a_staff_member_on_the_team_gets_no_family_pdp_projection(): void {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $club  = (int) CurrentClub::id();
+        $staff = self::factory()->user->create( [ 'role' => 'tt_staff' ] );
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => $club, 'first_name' => 'Obsread', 'last_name' => 'Staffx',
+            'role_type' => 'staff', 'wp_user_id' => $staff, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_team_people", [
+            'club_id' => $club, 'team_id' => $this->team, 'person_id' => $person,
+            'role_in_team' => 'staff', 'is_head_coach' => 0,
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        $this->flush();
+
+        $this->assertTrue( AuthorizationService::canViewPlayer( $staff, $this->player ), 'precondition: staff opens the record' );
+        wp_set_current_user( $staff );
+        $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->player}/pdp" ) );
+    }
+
+    /**
+     * Removing an observation asks what writing one asks: its author, or
+     * someone who may evaluate that player. The head coach's own run, a
+     * guest from another squad on it, a note written by someone else.
+     */
+    public function test_deleting_an_observation_asks_the_author_or_the_player(): void {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = (int) CurrentClub::id();
+
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => $club, 'name' => 'Obsread Guest U15', 'age_group' => 'U15' ] );
+        $other_team = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_players", [
+            'club_id' => $club, 'team_id' => $other_team,
+            'first_name' => 'Obsread', 'last_name' => 'Guestx', 'status' => 'active',
+        ] );
+        $guest = (int) $wpdb->insert_id;
+
+        $plan = ( new \TT\Modules\Training\Repositories\TrainingPlansRepository() )->create( [
+            'club_id' => $club, 'team_id' => $this->team, 'title' => 'Obsread plan',
+        ] );
+        $wpdb->insert( "{$p}tt_activities", [
+            'club_id' => $club, 'team_id' => $this->team,
+            'session_date' => '2026-08-23', 'activity_type_key' => 'training',
+        ] );
+        $run = ( new \TT\Modules\Training\Repositories\TrainingPlanRunsRepository() )->attach(
+            (int) $plan, (int) $wpdb->insert_id, $this->team, '2026-08-23'
+        );
+        $this->assertGreaterThan( 0, $run, 'fixture: the run was attached' );
+
+        $author = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $repo   = new \TT\Modules\Training\Repositories\TrainingObservationsRepository();
+        wp_set_current_user( $author );
+        $on_guest = $repo->create( [ 'run_id' => $run, 'player_id' => $guest, 'note' => 'Obsread guest note.' ] );
+        $on_own   = $repo->create( [ 'run_id' => $run, 'player_id' => $this->player, 'note' => 'Obsread own note.' ] );
+        $this->assertGreaterThan( 0, $on_guest, 'fixture: the guest observation was written' );
+        $this->assertGreaterThan( 0, $on_own, 'fixture: the squad observation was written' );
+
+        wp_set_current_user( $this->coach );
+        $this->assertFalse( AuthorizationService::canEvaluatePlayer( $this->coach, $guest ), 'precondition: the guest is not the coach\'s player' );
+        $this->assertSame( 404, $this->deleteStatus( $on_guest ), 'somebody else\'s note on another squad\'s child' );
+        $this->assertSame( 200, $this->deleteStatus( $on_own ), 'a note on the coach\'s own player' );
+
+        wp_set_current_user( $this->coach );
+        $mine = $repo->create( [ 'run_id' => $run, 'player_id' => $guest, 'note' => 'Obsread my note.' ] );
+        $this->assertSame( 200, $this->deleteStatus( $mine ), 'the author removes their own note' );
+    }
+
+    private function deleteStatus( int $observation_id ): int {
+        return (int) rest_do_request( new WP_REST_Request( 'DELETE', "/talenttrack/v1/training/observations/{$observation_id}" ) )->get_status();
     }
 
     /** @return list<string> */

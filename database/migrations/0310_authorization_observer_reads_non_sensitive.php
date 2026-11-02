@@ -33,21 +33,13 @@ return new class extends Migration {
 
     /** Keep equal to the second observer block in `config/authorization_seed.php`. */
     public const ENTITIES = [
-        'measurements',
-        'measurement_sessions',
-        'measurement_definitions',
         'player_tournaments',
-        'tournaments',
         'seasons',
         'methodology',
         'football_actions',
-        'vct',
         'vct_library',
         'vct_workload',
-        'training_plan',
-        'training_exposure',
         'exercises',
-        'media',
         'evaluation_categories',
         'category_weights',
         'rating_scale',

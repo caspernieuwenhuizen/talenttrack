@@ -335,8 +335,6 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
             'head_coach'          => [ 'team'   => [ 'change', 'create_delete', 'read' ] ],
             'head_of_development' => [ 'global' => [ 'change', 'create_delete', 'read' ] ],
             'academy_admin'       => [ 'global' => [ 'change', 'create_delete', 'read' ] ],
-            // #4688 — the read-only observer reads the non-sensitive set.
-            'readonly_observer'   => [ 'global' => [ 'read' ] ],
         ];
 
         $have_personas = array_keys( $media );
@@ -346,7 +344,7 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
         $this->assertSame(
             $want_personas,
             $have_personas,
-            'exactly these nine personas hold a media grant — no more, no fewer'
+            'exactly these eight personas hold a media grant — no more, no fewer'
         );
 
         foreach ( $expected as $persona => $scopes ) {

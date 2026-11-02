@@ -493,6 +493,17 @@ final class TrainingRunsRestController {
             return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
         }
 
+        // An observation is an evaluation of a named child, so removing one
+        // asks what writing one asks: its author, or someone who may
+        // evaluate that player.
+        $user_id = get_current_user_id();
+        $author  = (int) ( $observation->author_user_id ?? 0 );
+        if ( ( $author <= 0 || $author !== $user_id )
+            && ! \TT\Infrastructure\Security\AuthorizationService::canEvaluatePlayer( $user_id, (int) ( $observation->player_id ?? 0 ) )
+        ) {
+            return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
+        }
+
         $ok = $repo->delete( $observation_id );
         if ( ! $ok ) {
             return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );

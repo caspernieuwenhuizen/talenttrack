@@ -155,7 +155,6 @@ De functie heeft een matrix-entiteit: `tournaments`. `LegacyCapMapper` overbrugt
 | `team_manager` | `rcd`, team |
 | `head_of_development` | `rcd`, globaal |
 | `academy_admin` | `rcd`, globaal |
-| `readonly_observer` | `read`, globaal |
 
 v1 leverde de module alleen voor beheerders en zei in de seed met zoveel woorden dat de coach-uitbreiding "een aparte, bewuste toekomstige wijziging" was. #3703 is die wijziging: op een toernooidag zijn het de trainers en de teammanager die de selectie kiezen en de speeltijd verdelen, en hen buitensluiten betekende dat ze de dag als gewone activiteit vastlegden, waardoor de wedstrijden en minuten de module nooit bereikten.
 
@@ -186,7 +185,7 @@ Een eerdere schets in dit document beschreef een andere verdeling — lezen voor
 
 Twee opmerkingen over de vorm:
 
-- **De planner blijft dicht voor gezinnen.** Geen gezinspersona heeft `tournaments`. Een test legt dat vast, want de planner later verbreden "zodat het gezin de dag kan zien" is precies de wijziging die deze entiteit overbodig maakt. De alleen-lezen waarnemer leest beide entiteiten academiebreed, als deel van alles wat niet gevoelig is (zie "De alleen-lezen waarnemer" hieronder), en schrijft in geen van beide.
+- **De planner blijft ongemoeid.** Geen wijziging aan `tt_view_tournaments`, aan de entiteit `tournaments` of aan wie die heeft. Een test legt dat vast, want de planner later verbreden "zodat het gezin de dag kan zien" is precies de wijziging die deze entiteit overbodig maakt. De alleen-lezen waarnemer leest `player_tournaments` academiebreed, als deel van alles wat niet gevoelig is (zie "De alleen-lezen waarnemer" hieronder), en de planner niet.
 - **Het hoofd opleiding staat op global, niet op team.** De vormgeving van de epic zette die persona naast de coaches op teamscope; elke andere rij van het hoofd opleiding in de seed staat op global, en een hoofd opleiding heeft geen eigen teamtoewijzing, dus een teamgebonden rij zou voor precies de persona wier werk de hele academie is, als geen toegang hebben gelezen.
 
 Een ouder passeert twee poorten, geen één: deze entiteit laat hen toe tot hun eigen kind, en daarna vraagt `AuthorizationService::parentCanViewSection( …, 'tournaments' )` of het kind het onderdeel open heeft gelaten. Dat onderdeel is nieuw in `PlayerParentVisibilityRepository::SECTIONS` en staat standaard op gedeeld, dus geen enkel gezin verliest iets bij het uitrollen, en er is geen migratie voor nodig — een ontbrekende voorkeursrij betekent gedeeld.
@@ -252,7 +251,6 @@ Geseede rechten:
 | head_coach | rcd | team |
 | head_of_development | rcd | global |
 | academy_admin | rcd | global |
-| readonly_observer | r | global |
 
 Drie daarvan zijn keuzes en geen vanzelfsprekendheden:
 
@@ -621,10 +619,8 @@ De regel: de alleen-lezen waarnemer leest alles in de academie wat niet gevoelig
 
 | Gebied | Entiteiten |
 | --- | --- |
-| Metingen | `measurements`, `measurement_sessions`, `measurement_definitions` |
-| Toernooien | `tournaments`, `player_tournaments` |
-| Training en VCT | `training_plan`, `training_exposure`, `exercises`, `vct`, `vct_library`, `vct_workload` |
-| Media | `media` |
+| Toernooien | `player_tournaments` (de eigen toernooihistorie van elke speler) |
+| Training en VCT | `exercises`, `vct_library`, `vct_workload` |
 | Referentiegegevens | `seasons`, `methodology`, `football_actions`, `evaluation_categories`, `category_weights`, `rating_scale`, `holidays`, `documentation` |
 | Panelen | `goals_panel` |
 
@@ -642,11 +638,15 @@ De regel: de alleen-lezen waarnemer leest alles in de academie wat niet gevoelig
 | `people_directory_panel` | contactgegevens van ouders en verzorgers in de personenlijst |
 | `team_roster_panel`, `coach_player_list_panel`, `compare` | geboortedatum |
 
+**Wat volgt na een eigen beoordeling:** `vct` (redenen van een belastingsbeperking per speler), `training_plan` en `training_exposure` (opmerkingen en beoordelingen van trainers bij observaties), `tournaments` (vrije tekst bij selectie, toernooi en wedstrijd), `media`, en `measurements`, `measurement_sessions`, `measurement_definitions`.
+
 **Wat ook niet wordt toegekend:** `player_timeline` en `cohort_transitions` (het spelerspad bevat het POP-besluit, en het POP blijft dicht); `player_behaviour_ratings` (vrije tekst over het gedrag van een kind); `team_chemistry` en het paneel ervan, `analytics`, `lookups`, `player_suspensions`, `rate_cards`, `podium_panel`, `holidays_panel` en de entiteiten voor stafontwikkeling; alles waarmee de installatie wordt beheerd (back-ups, migraties, de matrix zelf, koppelingen, meekijken als een andere gebruiker, gebruiksstatistieken, workflowsjablonen); en de `my_*`-rijen, die het eigen record van de lezer beschrijven en op globale scope niets betekenen.
 
 **Nergens schrijven.** De waarnemer heeft geen `change`- en geen `create_delete`-rij. Een test legt dat vast, over de seed en over een bijgewerkte matrix.
 
-**POP op elke route.** De waarnemer heeft geen POP-rij, en de rol draagt het kale recht `tt_view_pdp` niet meer (het wordt bij de update ingetrokken, zodat een installatie met een slapende matrix hetzelfde antwoordt). `GET /players/{id}/pdp` vraagt leesrecht op `pdp_file` voor deze speler, zoals de routes voor het spelerspad en de status naar hun eigen onderdeel vragen. Wie elk spelersrecord mag openen maar geen POP-recht heeft, krijgt dus `403`. De POP-tegels, het POP-tabblad op het spelersprofiel en de `pdp-files`-routes weigeren de waarnemer ook.
+**Schrijfrechten vragen het wijzigniveau.** Een recht dat een schrijfactie afschermt, hoort in `LegacyCapMapper` bij `change` (of `create_delete`), nooit bij `read`, zodat leesrecht op een entiteit geen schrijfactie daarachter opent. De rechten voor de VCT-configuratie (`tt_vct_admin_config` en de alias `tt_vct_admin_library`, voor de leeftijdsprofielen, macroblokken, teamcycli en cyclusweken) horen bij `vct_library: change`, en `tt_training_plan` (de planner, het schrijven van plannen en trainingen, en observaties) hoort bij `training_plan: change`. Elke persona die op die entiteiten is geseed, heeft `change` naast het leesrecht, dus niemand die daar schrijft verliest dat. Een observatie bij een training verwijderen vraagt wat er schrijven vraagt: de auteur, of iemand die die speler mag beoordelen.
+
+**POP op elke route.** De waarnemer heeft geen POP-rij, en de rol draagt het kale recht `tt_view_pdp` niet meer (het wordt bij de update ingetrokken, zodat een installatie met een slapende matrix hetzelfde antwoordt). `GET /players/{id}/pdp` vraagt leesrecht op `pdp_file` voor deze speler, zoals de routes voor het spelerspad en de status naar hun eigen onderdeel vragen. Wie het spelersrecord mag openen maar geen POP-recht heeft, krijgt dus `403`: de alleen-lezen waarnemer, en net zo goed een scout bij een gekoppelde speler, een stafmedewerker, of een teammanager buiten het eigen team. De POP-tegels, het POP-tabblad op het spelersprofiel en de `pdp-files`-routes weigeren de waarnemer ook.
 
 **Bestaande installaties** krijgen de rijen via migratie `0310_authorization_observer_reads_non_sensitive`. Een cel die je academie al heeft aangepast, houdt haar waarde: de migratie slaat een entiteit over als de matrix al een waarnemersrij voor die entiteit heeft, op welke scope ook, of als het wijzigingslogboek sinds de laatste reset of import een wijziging ervan vastlegt. Ze voegt rijen toe met `INSERT IGNORE`, dus een tweede run schrijft niets, en ze verwijdert niets.
 
