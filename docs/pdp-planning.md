@@ -15,7 +15,7 @@ The **PDP planning** tile shows the head of development a per-team-per-block mat
 
 ## How it works
 
-Each PDP cycle block (start / mid / end, depending on the cycle size) carries a **planning window**. By default the window is `scheduled_at ± 10 days` (a 21-day total span); admins can adjust the window length via the `pdp_planning_window_days` config. The window is clamped to the season's bounds.
+Each PDP cycle block (start / mid / end, depending on the cycle size) carries a **planning window**. By default the window runs from 10 days before to 10 days after the planned date. Admins can adjust the window length via the `pdp_planning_window_days` config. The window is clamped to the season's bounds.
 
 Coaches plan a conversation date inside its window from the file detail. The HoD's planning dashboard at **PDP planning** (`?tt_view=pdp-planning`) shows the matrix:
 
@@ -32,8 +32,8 @@ Click any cell to drill into the underlying PDP files filtered by team + block.
 
 ## Capabilities
 
-- `tt_view_pdp` — see the dashboard. Granted to coaches and HoD.
-- The **PDP planning** tile shows for any role with `tt_view_pdp`; HoDs are the primary audience.
+- `tt_view_pdp_planning` — open the planning matrix. It follows the PDP planning read right in the authorization matrix, which is granted to the head coach and the team manager for their own teams, and to the head of development and the academy admin for every team.
+- The **PDP planning** tile shows for any role with `tt_view_pdp_planning`; HoDs are the primary audience. Players and parents see their own PDP, not this matrix.
 
 ### Who sees which teams
 
