@@ -1,0 +1,3 @@
+# Conversations: administering them is its own right (#4717)
+
+Reading every staff-only note, marking a note staff-only on any conversation and deleting somebody else's message are administering conversations. They now follow the academy-wide thread right in the authorization matrix (or WordPress `manage_options`), and viewing the settings is no longer part of that answer. The player notes thread applies the same rule to its academy-wide rung, which is the global player notes grant. Admins, the head of development, team staff, players and parents keep what they had; a read-only observer reads the public side of a goal conversation only.

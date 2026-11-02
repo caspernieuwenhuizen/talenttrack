@@ -53,6 +53,7 @@ Admins can disable notification fan-out entirely by setting `threads.notify_on_p
 
 - You can **edit** your own message for **5 minutes** after posting it. After that, the edit window closes — soft-delete is the only option.
 - You can **soft-delete** your own message at any time. The bubble stays in the thread but the body is replaced with "Message deleted." Admins can soft-delete any message; the original body is preserved in the audit log so it's recoverable if needed.
+- Deleting somebody else's message, and reading every Coaches-only message, belong to administering conversations: the academy-wide thread right in the authorization matrix. Being allowed to view the settings does not include it, so a read-only observer reads the public side of a goal conversation and nothing more.
 - System messages are immutable.
 
 ## System messages
