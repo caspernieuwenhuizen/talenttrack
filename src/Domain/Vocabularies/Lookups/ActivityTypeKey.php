@@ -11,7 +11,8 @@
  *
  *     if ( $activity->activity_type_key === ActivityTypeKey::GAME ) { ... }
  *
- * In SQL, use `MATCH_LIKE_SQL` rather than writing the values out again.
+ * In SQL, use `matchTypeClause()` (or `MATCH_LIKE_SQL` for a bare value
+ * list) rather than writing the values out again; in PHP, `isMatchType()`.
  * Four separate queries had drifted onto a `'match'` literal that this
  * vocabulary has never contained, and so matched nothing.
  *
@@ -73,6 +74,27 @@ final class ActivityTypeKey {
 
     public static function isMatchLike( string $value ): bool {
         return in_array( $value, self::MATCH_LIKE, true );
+    }
+
+    /**
+     * Is a stored activity type a match type, ignoring case and spacing?
+     * A row keyed `Match` is a match like `match`, as `matchTypeClause()`
+     * reads it in SQL.
+     */
+    public static function isMatchType( string $key ): bool {
+        return in_array( strtolower( trim( $key ) ), self::MATCH_LIKE, true );
+    }
+
+    /**
+     * The one SQL test for "this activity is a match": `MATCH_LIKE`
+     * against the lowercased column, so a row keyed `Match` counts the same
+     * as `match` on every read. `$column` is a column reference the caller
+     * writes (`activity_type_key`, `a.activity_type_key`); anything but
+     * letters, digits, `_` and `.` is dropped.
+     */
+    public static function matchTypeClause( string $column ): string {
+        $column = preg_replace( '/[^A-Za-z0-9_.]/', '', $column ) ?: 'activity_type_key';
+        return 'LOWER(' . $column . ') IN (' . self::MATCH_LIKE_SQL . ')';
     }
 
     /**

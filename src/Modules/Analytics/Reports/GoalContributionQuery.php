@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -35,9 +36,6 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * same screen always describe the same matches.
  */
 final class GoalContributionQuery {
-
-    /** Activity types that can carry a match scoreline. Mirrors MinutesQuery. */
-    private const MATCH_TYPES = [ 'match', 'game', 'tournament' ];
 
     /**
      * One player's contribution over a window.
@@ -211,13 +209,15 @@ final class GoalContributionQuery {
         $to   = isset( $filters['to'] ) ? (string) $filters['to'] : '';
         $team = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
 
-        $types = implode( ',', array_fill( 0, count( self::MATCH_TYPES ), '%s' ) );
-        $params = array_merge( [ $club_id, $club_id ], self::MATCH_TYPES );
+        // The match types MinutesQuery counts, so goals and minutes describe
+        // the same matches.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
+        $params = [ $club_id, $club_id ];
 
         $where = "ge.club_id = %d
                     AND ge.reversed_at IS NULL
                     AND a.club_id = %d
-                    AND LOWER(a.activity_type_key) IN ({$types})
+                    AND {$is_match_sql}
                     AND a.archived_at IS NULL
                     AND a.trashed_at IS NULL
                     AND " . ActivityLifecycle::notCancelledClause( 'a' );

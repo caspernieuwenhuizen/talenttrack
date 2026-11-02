@@ -3,6 +3,7 @@ namespace TT\Modules\Activities\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
@@ -77,6 +78,7 @@ final class MinutesGridQuery {
 
         // 1. Match activities for the team in the window (columns) — the same
         //    set the Minutes-audit matrix uses, so the two reconcile.
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, game_subtype_key, activity_type_key, activity_source_key,
@@ -85,7 +87,7 @@ final class MinutesGridQuery {
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$is_match_sql}
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL

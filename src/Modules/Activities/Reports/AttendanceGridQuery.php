@@ -3,6 +3,7 @@ namespace TT\Modules\Activities\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\AttendanceDateRule;
@@ -135,13 +136,13 @@ final class AttendanceGridQuery {
         // Activity-type narrowing. 'match' folds the three game-ish types the
         // minutes surfaces use; 'training' is the single training type; 'all'
         // keeps both families (the two the entry grid is for).
-        $match_types = "'match','game','tournament'";
+        $match_types = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         if ( $type_filter === 'match' ) {
-            $where_type = " AND LOWER(activity_type_key) IN ($match_types)";
+            $where_type = " AND {$match_types}";
         } elseif ( $type_filter === 'training' ) {
             $where_type = " AND LOWER(activity_type_key) = 'training'";
         } else {
-            $where_type = " AND LOWER(activity_type_key) IN ($match_types, 'training')";
+            $where_type = " AND ( {$match_types} OR LOWER(activity_type_key) = 'training' )";
         }
 
         // 1. Activities for the team in the window (columns), oldest first so
@@ -196,7 +197,7 @@ final class AttendanceGridQuery {
                 'session_date' => (string) $a->session_date,
                 'title'        => (string) ( $a->title ?? '' ),
                 'type_key'     => $type,
-                'is_match'     => in_array( $type, [ 'match', 'game', 'tournament' ], true ),
+                'is_match'     => ActivityTypeKey::isMatchType( $type ),
                 'status_key'   => $status,
                 'completes'    => $status !== 'completed' && $status !== 'cancelled' && (int) ( $a->is_past ?? 0 ) === 1,
             ];
