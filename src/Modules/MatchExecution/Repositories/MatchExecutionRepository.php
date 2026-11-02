@@ -66,20 +66,23 @@ class MatchExecutionRepository {
      * activity id. Activities without one are absent.
      *
      * @param array<int> $activity_ids
-     * @return array<int, object>
+     * @return array<int, \stdClass>
      */
     public function findByActivities( array $activity_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
         if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->t_exec} WHERE club_id = %d AND activity_id IN ({$placeholders})",
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_match_execution WHERE club_id = %d AND activity_id IN ({$placeholders})",
             ...array_merge( [ CurrentClub::id() ], $ids )
         ) );
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row->activity_id ] = $row;
+            $row = (object) (array) $row;
+            $out[ (int) ( $row->activity_id ?? 0 ) ] = $row;
         }
         return $out;
     }
@@ -89,22 +92,25 @@ class MatchExecutionRepository {
      * keyed by execution id, each list in the same order.
      *
      * @param array<int> $execution_ids
-     * @return array<int, list<object>>
+     * @return array<int, list<\stdClass>>
      */
     public function listSubstitutionsForExecutions( array $execution_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $execution_ids ), static fn( int $v ): bool => $v > 0 ) ) );
         if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->t_subs}
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_match_execution_substitutions
               WHERE club_id = %d AND execution_id IN ({$placeholders}) AND reversed_at IS NULL
               ORDER BY execution_id ASC, half ASC, minute_in_half ASC, id ASC",
             ...array_merge( [ CurrentClub::id() ], $ids )
         ) );
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row->execution_id ][] = $row;
+            $row = (object) (array) $row;
+            $out[ (int) ( $row->execution_id ?? 0 ) ][] = $row;
         }
         return $out;
     }
