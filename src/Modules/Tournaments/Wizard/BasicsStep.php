@@ -4,6 +4,7 @@ namespace TT\Modules\Tournaments\Wizard;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Tournaments\TournamentAccess;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -25,11 +26,9 @@ final class BasicsStep implements WizardStepInterface {
     public function render( array $state ): void {
         WizardAssets::enqueue();
 
-        global $wpdb;
-        $teams = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$wpdb->prefix}tt_teams WHERE club_id = %d AND archived_at IS NULL ORDER BY name ASC LIMIT 200",
-            CurrentClub::id()
-        ) );
+        // Only the teams the planner may create a tournament for, the
+        // question `POST /tournaments` asks.
+        $teams = self::creatableTeams( get_current_user_id() );
 
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'The headline information about the tournament. Anchor team is the club team that is playing — all other matches are vs. opponents.', 'talenttrack' ) . '</p>';
@@ -84,6 +83,10 @@ final class BasicsStep implements WizardStepInterface {
         if ( $team_id <= 0 ) {
             return new \WP_Error( 'team_required', __( 'Pick an anchor team.', 'talenttrack' ) );
         }
+        // Also refuses an archived, unknown or other club's team.
+        if ( ! TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+            return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
+        }
         $start = isset( $post['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $post['start_date'] ) ) : '';
         if ( $start === '' ) {
             return new \WP_Error( 'start_date_required', __( 'Start date is required.', 'talenttrack' ) );
@@ -102,4 +105,28 @@ final class BasicsStep implements WizardStepInterface {
 
     public function nextStep( array $state ): ?string { return 'formation'; }
     public function submit( array $state ) { return null; }
+
+    /**
+     * The club's active teams this user may create a tournament for,
+     * narrowed in the query.
+     *
+     * @return list<\stdClass>
+     */
+    private static function creatableTeams( int $user_id ): array {
+        global $wpdb;
+        $ids = TournamentAccess::creatableTeamIds( $user_id );
+        if ( $ids === [] ) return [];
+
+        $sql    = "SELECT id, name FROM {$wpdb->prefix}tt_teams WHERE club_id = %d AND archived_at IS NULL";
+        $params = [ CurrentClub::id() ];
+        if ( $ids !== null ) {
+            $sql   .= ' AND id IN ( ' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ' )';
+            $params = array_merge( $params, $ids );
+        }
+        $sql .= ' ORDER BY name ASC LIMIT 200';
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return array_values( array_map( static fn( $row ): \stdClass => (object) (array) $row, $rows ) );
+    }
 }

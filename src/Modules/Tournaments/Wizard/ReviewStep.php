@@ -29,7 +29,19 @@ final class ReviewStep implements WizardStepInterface {
 
         $name       = (string) ( $state['name'] ?? '' );
         $team_id    = (int) ( $state['team_id'] ?? 0 );
+        // The summary names the squad, so it is shown on the terms the
+        // squad step lists it: a team the planner may create for.
+        if ( $team_id > 0 && ! \TT\Modules\Tournaments\TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+            echo '<div class="tt-tournament-wizard"><p class="tt-notice">' . esc_html__( 'That team is not in your scope.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         $team_label = self::teamLabel( $team_id );
+        // Only players the planner may add are named, as only they are saved.
+        $uid   = get_current_user_id();
+        $squad = array_values( array_filter(
+            $squad,
+            static fn( $sq ): bool => is_array( $sq ) && \TT\Modules\Tournaments\TournamentAccess::canAddToSquad( $uid, (int) ( $sq['player_id'] ?? 0 ) )
+        ) );
         $start      = (string) ( $state['start_date'] ?? '' );
         $end        = (string) ( $state['end_date'] ?? '' );
         $formation  = (string) ( $state['default_formation'] ?? '' );
@@ -139,7 +151,11 @@ final class ReviewStep implements WizardStepInterface {
         if ( ! $matches ) {
             return new \WP_Error( 'matches_empty', __( 'Add at least one match before creating the tournament.', 'talenttrack' ) );
         }
-
+        // Asked at the commit, not trusted from the state: the team was
+        // picked steps ago, and the squad may hold any posted id.
+        if ( ! \TT\Modules\Tournaments\TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+            return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
+        }
         global $wpdb; $p = $wpdb->prefix;
 
         $row = [
@@ -160,7 +176,7 @@ final class ReviewStep implements WizardStepInterface {
 
         foreach ( $squad as $sq ) {
             $pid = (int) ( $sq['player_id'] ?? 0 );
-            if ( $pid <= 0 ) continue;
+            if ( $pid <= 0 || ! \TT\Modules\Tournaments\TournamentAccess::canAddToSquad( get_current_user_id(), $pid ) ) continue;
             $positions = is_array( $sq['eligible_positions'] ?? null ) ? $sq['eligible_positions'] : [];
             $wpdb->insert( "{$p}tt_tournament_squad", [
                 'tournament_id'      => $tournament_id,

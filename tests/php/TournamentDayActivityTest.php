@@ -23,7 +23,8 @@ use TT\Modules\Tournaments\Services\TournamentDayActivity;
  */
 final class TournamentDayActivityTest extends WP_UnitTestCase {
 
-    private const TEAM_ID = 4031;
+    /** A real team of the club: a tournament is anchored on one that exists. */
+    private int $team_id = 0;
 
     public function set_up(): void {
         parent::set_up();
@@ -31,6 +32,9 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
 
         global $wpdb, $wp_rest_server;
         $wpdb->hide_errors();
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'Autumn cup team', 'age_group' => 'U11' ] );
+        $this->team_id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $this->team_id, 'fixture: the team row was written' );
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
@@ -58,7 +62,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
     private function createTournament( string $start = '2026-10-17' ): array {
         $res = $this->dispatch( 'POST', '/talenttrack/v1/tournaments', [
             'name'       => 'Autumn cup',
-            'team_id'    => self::TEAM_ID,
+            'team_id'    => $this->team_id,
             'start_date' => $start,
             'matches'    => [
                 [ 'opponent_name' => 'De Treffers', 'duration_min' => 20, 'scheduled_at' => $start . ' 09:30:00' ],
@@ -84,7 +88,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
         global $wpdb;
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE team_id = %d",
-            self::TEAM_ID
+            $this->team_id
         ) );
     }
 
@@ -93,7 +97,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
         $days       = $this->dayActivities( (int) $tournament['id'] );
 
         $this->assertCount( 1, $days, 'the day, once' );
-        $this->assertSame( self::TEAM_ID, (int) $days[0]->team_id );
+        $this->assertSame( $this->team_id, (int) $days[0]->team_id );
         $this->assertSame( '2026-10-17', substr( (string) $days[0]->session_date, 0, 10 ) );
         $this->assertSame( 'Autumn cup', (string) $days[0]->title );
         $this->assertSame( 'planned', (string) $days[0]->activity_status_key );
@@ -162,7 +166,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
 
         $res = $this->dispatch( 'PUT', '/talenttrack/v1/tournaments/' . $id, [
             'name'       => 'Autumn cup — rescheduled',
-            'team_id'    => self::TEAM_ID,
+            'team_id'    => $this->team_id,
             'start_date' => '2026-10-24',
         ] );
         $this->assertSame( 200, $res->get_status() );
@@ -180,7 +184,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
     public function test_a_tournament_created_before_this_gets_its_day_when_a_fixture_is_added(): void {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_tournaments', [
-            'club_id' => 1, 'team_id' => self::TEAM_ID, 'name' => 'Legacy cup', 'start_date' => '2026-11-07',
+            'club_id' => 1, 'team_id' => $this->team_id, 'name' => 'Legacy cup', 'start_date' => '2026-11-07',
         ] );
         $id = (int) $wpdb->insert_id;
 
@@ -198,7 +202,7 @@ final class TournamentDayActivityTest extends WP_UnitTestCase {
     public function test_a_tournament_needs_a_start_date(): void {
         $res = $this->dispatch( 'POST', '/talenttrack/v1/tournaments', [
             'name'    => 'Dateless',
-            'team_id' => self::TEAM_ID,
+            'team_id' => $this->team_id,
         ] );
 
         $this->assertSame( 422, $res->get_status() );

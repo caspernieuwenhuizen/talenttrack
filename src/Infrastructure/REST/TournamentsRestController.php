@@ -527,6 +527,11 @@ class TournamentsRestController {
         $bad_positions = self::rejectUnknownPositionsInSquad( $r['squad'] ?? null );
         if ( $bad_positions !== null ) return $bad_positions;
 
+        // Every squad player is one the caller may add, asked before the
+        // row is written.
+        $squad_refused = self::refuseSquadPlayers( is_array( $r['squad'] ?? null ) ? $r['squad'] : [], [] );
+        if ( $squad_refused !== null ) return $squad_refused;
+
         // #3559 — the nested fixtures are checked before the tournament
         // row is written, so a bad level refuses the request rather than
         // leaving a tournament behind with some of its matches missing.
@@ -600,6 +605,21 @@ class TournamentsRestController {
         $payload = self::extractTournament( $r );
         // Don't allow club_id / uuid / created_by mutation through the update path.
         unset( $payload['club_id'], $payload['uuid'], $payload['created_by'] );
+
+        // The anchor team is fixed once the tournament exists; only an
+        // academy-wide planner moves it. A body without a team keeps it.
+        $existing_team = (int) ( ( (array) $existing )['team_id'] ?? 0 );
+        if ( $r->get_param( 'team_id' ) === null || $payload['team_id'] <= 0 ) {
+            unset( $payload['team_id'] );
+        } elseif ( $payload['team_id'] !== $existing_team ) {
+            if ( ! TournamentAccess::hasGlobal( get_current_user_id(), MatrixGate::CREATE_DELETE ) ) {
+                return RestResponse::error( 'forbidden_team', __( "A tournament's team can't be changed after it is created.", 'talenttrack' ), 403 );
+            }
+            // An academy-wide planner moves it only onto a team the club has.
+            if ( ! TournamentAccess::canCreateForTeam( get_current_user_id(), $payload['team_id'] ) ) {
+                return RestResponse::error( 'team_invalid', __( 'Pick an anchor team.', 'talenttrack' ), 422 );
+            }
+        }
 
         if ( $payload['name'] === '' ) {
             return RestResponse::error( 'name_required', __( 'Tournament name is required.', 'talenttrack' ), 422 );
@@ -1654,6 +1674,15 @@ class TournamentsRestController {
         $bad_positions = self::rejectUnknownPositionsInSquad( $squad );
         if ( $bad_positions !== null ) return $bad_positions;
 
+        // A player already in the squad stays; a new one is one the caller
+        // may add. Asked before the wipe.
+        $current = array_values( array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
+            "SELECT player_id FROM {$p}tt_tournament_squad WHERE tournament_id = %d AND club_id = %d",
+            $tournament_id, CurrentClub::id()
+        ) ) ) );
+        $squad_refused = self::refuseSquadPlayers( $squad, $current );
+        if ( $squad_refused !== null ) return $squad_refused;
+
         // Wipe assignments for every match in the tournament — squad
         // changes invalidate the existing plan.
         $wpdb->query( $wpdb->prepare(
@@ -1679,6 +1708,7 @@ class TournamentsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $player_id     = (int) $r['player_id'];
+        if ( ! self::fetchTournamentRow( $tournament_id ) ) return RestResponse::notFound( 'tournament_not_found' );
 
         // #4020 — a code the planner has no slot for is refused, not dropped.
         $bad_positions = self::rejectUnknownPositions(
@@ -1690,6 +1720,12 @@ class TournamentsRestController {
             "SELECT * FROM {$p}tt_tournament_squad WHERE tournament_id = %d AND player_id = %d AND club_id = %d",
             $tournament_id, $player_id, CurrentClub::id()
         ) );
+        // Adding a player asks whether the caller may; editing one already
+        // in the squad does not.
+        if ( ! $existing ) {
+            $squad_refused = self::refuseSquadPlayers( [ [ 'player_id' => $player_id ] ], [] );
+            if ( $squad_refused !== null ) return $squad_refused;
+        }
 
         $payload = [
             'eligible_positions' => self::normalisePositionsJson( $r['eligible_positions'] ?? null ),
@@ -2462,6 +2498,30 @@ class TournamentsRestController {
                 'rejected'  => $split['rejected'],
                 'allowed'   => self::POSITION_CODES,
             ]
+        );
+    }
+
+    /**
+     * A 403 naming the squad players the caller may not add
+     * (`TournamentAccess::canAddToSquad()`), or null. A player already in
+     * the squad (`$already`) is not asked about again.
+     *
+     * @param array<int|string, mixed> $squad
+     * @param list<int>                $already
+     */
+    private static function refuseSquadPlayers( array $squad, array $already ): ?\WP_REST_Response {
+        $ids = [];
+        foreach ( $squad as $sq ) {
+            $pid = absint( ( (array) $sq )['player_id'] ?? 0 );
+            if ( $pid > 0 && ! in_array( $pid, $already, true ) ) $ids[] = $pid;
+        }
+        $refused = TournamentAccess::squadRefusals( get_current_user_id(), $ids );
+        if ( $refused === [] ) return null;
+        return RestResponse::error(
+            'forbidden_player',
+            __( 'That team is not in your scope.', 'talenttrack' ),
+            403,
+            [ 'player_ids' => $refused ]
         );
     }
 
