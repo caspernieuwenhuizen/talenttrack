@@ -252,10 +252,25 @@ final class ReportsRepository {
             for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
                 // Locking read: a retry after a collision sees the version the
                 // other publish committed, not this transaction's snapshot.
-                $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
+                $suppress = $wpdb->suppress_errors( true );
+                $max      = $wpdb->get_var( $wpdb->prepare(
                     "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d FOR UPDATE",
                     $report_id, $club
                 ) );
+                $wpdb->suppress_errors( $suppress );
+                $error = (string) $wpdb->last_error;
+                if ( $error !== '' ) {
+                    // A failed read is not "no versions yet": numbering from
+                    // it would only be saved by the duplicate-key retry.
+                    if ( ! self::isLockConflict( $error ) ) {
+                        throw new \RuntimeException( 'Reading the report versions failed: ' . $error );
+                    }
+                    Transaction::rollback();
+                    Transaction::begin();
+                    continue;
+                }
+                $next = 1 + (int) $max;
+
                 $suppress = $wpdb->suppress_errors( true );
                 $ok       = $wpdb->insert( $p . 'tt_report_versions', [
                     'uuid'            => wp_generate_uuid4(),

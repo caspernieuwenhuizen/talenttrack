@@ -328,6 +328,60 @@ final class ReportsRestTest extends WP_UnitTestCase {
         ];
     }
 
+    /**
+     * The locking read can hit the same conflict. A failed read is not "no
+     * versions yet": it is retried once, then 409, and nothing is inserted.
+     *
+     * @dataProvider lockConflicts
+     */
+    public function test_a_lock_conflict_on_the_locking_read_is_retried_then_409( int $errno, string $message ): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $reads   = 0;
+        $inserts = 0;
+        $locked  = static function ( $sql ) use ( &$reads, &$inserts, $errno, $message ) {
+            if ( ! is_string( $sql ) ) return $sql;
+            if ( strpos( $sql, 'MAX(version_no)' ) !== false ) {
+                $reads++;
+                return "SIGNAL SQLSTATE '40001' SET MYSQL_ERRNO = {$errno}, MESSAGE_TEXT = '{$message}'";
+            }
+            if ( stripos( $sql, 'INSERT INTO' ) === 0 && strpos( $sql, 'tt_report_versions' ) !== false ) {
+                $inserts++;
+            }
+            return $sql;
+        };
+        add_filter( 'query', $locked );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $locked );
+
+        $this->assertSame( 2, $reads, 'the read is retried once' );
+        $this->assertSame( 0, $inserts, 'no version is numbered from a failed read' );
+        $this->assertSame( 409, $res->get_status() );
+        $this->assertSame( 'version_conflict', $this->code( $res ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id
+        ) ) );
+    }
+
+    public function test_another_error_on_the_locking_read_is_500(): void {
+        global $wpdb;
+        $id = $this->create( [ 'scope' => 'me' ] );
+
+        $broken = static fn( $sql ) => is_string( $sql ) && strpos( $sql, 'MAX(version_no)' ) !== false
+            ? 'SELECT MAX(version_no) FROM tt_no_such_table_4641'
+            : $sql;
+        add_filter( 'query', $broken );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        remove_filter( 'query', $broken );
+
+        $this->assertSame( 500, $res->get_status() );
+        $this->assertSame( 'db_error', $this->code( $res ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id
+        ) ), 'nothing is written after a failed read' );
+    }
+
     public function test_another_error_on_the_version_insert_is_still_500(): void {
         $id = $this->create( [ 'scope' => 'me' ] );
 
