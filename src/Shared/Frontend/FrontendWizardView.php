@@ -858,6 +858,21 @@ class FrontendWizardView extends FrontendViewBase {
     }
 
     /**
+     * #4747 — the wizard chrome runtime: the forward-button loading guard
+     * and the mobile rail toggle. Its strings come from `TT.i18n`, which
+     * `tt-public` localises, hence the dependency.
+     */
+    private static function enqueueChromeScript(): void {
+        wp_enqueue_script(
+            'tt-wizard',
+            TT_PLUGIN_URL . 'assets/js/wizard.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
+    }
+
+    /**
      * v3.110.190 (#796) — enqueues the live mandatory-field validator
      * that runs alongside the wizard form. Visual + aria layer; the
      * authoritative `validate()` still runs server-side on Next-click.
@@ -865,20 +880,6 @@ class FrontendWizardView extends FrontendViewBase {
      * browser-native popup; this script provides the user-facing
      * layer instead.
      */
-    /**
-     * #4747 — the wizard chrome runtime: the forward-button loading guard
-     * and the mobile rail toggle. Its strings come from `TT.i18n`.
-     */
-    private static function enqueueChromeScript(): void {
-        wp_enqueue_script(
-            'tt-wizard',
-            TT_PLUGIN_URL . 'assets/js/wizard.js',
-            [],
-            TT_VERSION,
-            true
-        );
-    }
-
     private static function enqueueValidationScript(): void {
         wp_enqueue_script(
             'tt-wizard-validation',
