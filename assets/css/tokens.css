@@ -34,6 +34,12 @@
     --tt-line:       #e3e6e1;
     --tt-line-soft:  #eef0ec;
 
+    /* Content on the primary band (#4756): text, icons and focus rings
+     * drawn on --tt-primary, such as the shell header. A surface colour
+     * (--tt-paper) is the wrong token for that role. A theme whose band is
+     * not dark sets its own value. */
+    --tt-color-on-primary: #ffffff;
+
     /* Status */
     --tt-success:    #2f9e5e;
     --tt-danger:     #d8453b;
