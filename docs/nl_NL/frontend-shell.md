@@ -109,7 +109,9 @@ tegeloverzicht bouwt, dus:
   van Configuratie in: Academie, Spelers & teams, Ontwikkeling & evaluaties,
   Activiteiten & wedstrijden, Keuzelijsten, Mensen & toegang, Berichten &
   taken, Gegevens, Functies & pakket en Systeem. Het tegeloverzicht toont ze
-  nog steeds onder *Setup & beheer*, in die volgorde.
+  nog steeds onder *Setup & beheer*, in die volgorde. Een technisch directeur
+  heeft geen tegel Configuratie, dus diens instellingsschermen staan in het
+  tegeloverzicht onder *Setup & beheer*.
 - Onderaan staan je naam en de rol waarin je werkt: de rol die je in de
   rolwisselaar hebt gekozen, of anders je eerste rol. Dat is dezelfde rol
   waarvoor je startpagina wordt opgebouwd.

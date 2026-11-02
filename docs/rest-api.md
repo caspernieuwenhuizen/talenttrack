@@ -806,6 +806,53 @@ times and no location still peeks cleanly, as a date and a type.
 editing inside a panel means a second save path and a stale-parent problem, on a
 surface whose job is orientation rather than data entry.
 
+## Settings entries (#4670, epic #4668)
+
+### `GET /settings-entries`
+
+The settings the caller may open, from `\TT\Shared\Configuration\SettingsRegistry` —
+the same list, in the same order, as the Configuration landing.
+
+| Param | Type | Notes |
+| --- | --- | --- |
+| `q` | string, optional | Keeps the entries whose label, description, keywords or section name contain it, ignoring case and accents. The rule the landing's filter box applies. |
+
+Permission: `tt_view_settings`, or the right to open at least one entry (a user
+who may import players reaches that entry and nothing else). Logged out: 401.
+Every entry is checked against its own right, so a caller never receives an
+entry they could not open; the System section and the access matrix are absent
+for a head of development.
+
+```json
+{
+  "success": true,
+  "data": {
+    "entries": [
+      {
+        "key": "appearance",
+        "section": "academy",
+        "section_label": "Academy",
+        "label": "Appearance",
+        "description": "Academy name, logo, all brand colours, fonts and theme inheritance — in one place.",
+        "keywords": "logo, colours, colors, branding, theme, fonts, crest, academy name",
+        "url": "https://club.example/dashboard/?tt_view=configuration&config_sub=appearance",
+        "module_state": ""
+      }
+    ]
+  },
+  "errors": []
+}
+```
+
+- `section` is a settings key from `config/navigation_groups.php`; `section_label`
+  is its name in the caller's locale. The ten keys and their order are stable.
+- `label`, `description` and `keywords` are in the caller's locale.
+- `module_state` is `""` for a setting that belongs to no module, `"on"`, or
+  `"off"`. An `"off"` entry is returned only to a caller who may switch modules
+  (`tt_manage_modules`), filed under `features_plan`, with `url` leading to the
+  Modules page.
+- `url` is absolute; an entry that opens wp-admin has a `/wp-admin/` URL.
+
 ## Team match statistics (#3520, epic #3519)
 
 ### `GET /teams/{id}/stats?from=&to=`

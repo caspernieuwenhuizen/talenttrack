@@ -87,18 +87,33 @@ The canvas only takes over the page that hosts the `[talenttrack_dashboard]` sho
 
 ## Frontend Configuration sections
 
-Configuration groups its entries **by the module they belong to**. Look for the module — Trials, Workflow, Evaluations, Spond — and its settings are together under that heading, whatever kind of screen each one is.
+Configuration groups its settings **by the task you have in mind**, not by the module that happens to own them. There are ten sections, always in this order, and each opens with the question it answers:
 
-The first section is **Academy-wide**: the settings that belong to the whole install rather than to any one module — Appearance, General (date notation, first day of the week, timezone, locale), Lookups, Seasons, Backups, the audit log, wp-admin menus, the configuration export and the recycle bin. After it come the module sections, ordered the way the Modules page orders them.
+| Section | The question | What is in it |
+| --- | --- | --- |
+| Academy | What is the academy called, how does it look, and how does the season run? | General, Appearance, Custom CSS, Seasons, Holidays, Season rollover, Default dashboard, Dashboard layouts, Custom widgets, Setup |
+| Players & teams | What do we record for each player and team? | Custom fields, Profile cards, Player status methodology, Functional roles, Trial tracks, Letter templates, Players CSV import |
+| Development & evaluations | How do we assess and develop players? | Evaluation categories, Category weights, Rating scale, PDP cycle blocks, PDP preparation questions, Manage tests, Chemistry settings, Methodology vocabulary |
+| Activities & matches | How do we plan and record training and matches? | Match minutes, VCT configuration, Spond, Strava |
+| Lookups | Which values appear in the lists? | All lookups, Attendance statuses, Football form, Lookup canonical-language review |
+| People & access | Who may see and do what? | Accounts & access, Invitations, Access control matrix, Require two-step verification |
+| Messages & tasks | What do we send to whom, and which tasks run automatically? | Messages, Workflow templates, Translations |
+| Data | How do we bring data in and keep it safe? | Backups, Export configuration, Recycle bin, Import history, Media retention |
+| Features & plan | What is switched on, and what is in our plan? | Modules, Features, Wizards, Plan and restrictions |
+| System | For the administrator: logs and technical tools. | Audit log, Message log, Data browser, Migrations, wp-admin menus, Open wp-admin |
 
-Two rules keep this from drifting back into a filing decision:
+The rules that keep it readable:
 
-- **A module's settings live under that module.** Trial tracks and trial letter templates are Trials settings, so they sit under Trials — not next to the operational Trial cases list. Workflow templates sit under Workflow.
-- **Setup screens belong here, working screens belong on the dashboard.** Every screen a module registers as a setup screen appears in Configuration automatically; the dashboard keeps the screens you use to do the day's work. Nothing needs to be filed by hand, so a new module's settings show up here on their own.
+- **Every setting appears once.** There is one access matrix, and Rating scale and Football form each have a single home. A setup screen is not listed a second time because it is also a tile.
+- **You only see what you may open.** The System section is for academy administrators only, and so is the access matrix; a head of development sees neither.
+- **A small section folds into the next one.** When fewer than three entries in a section are yours to open, they join the section after it, so nobody sees a section with one card in it.
+- **Switched-off modules stay findable for an administrator.** Their settings are listed under Features & plan, marked *off*, and lead to the Modules page where you turn the module back on. Everyone else does not see them.
 
-Switching a module off takes its Configuration section with it, exactly as it takes its dashboard tiles. A section with no entries you are permitted to open renders no heading at all, so what you see is what you can use.
+The **Find a setting** box at the top filters as you type. It matches the name, the description and a list of extra words for each setting, without regard to capitals or accents. *logo* finds Appearance, *weighting* (*weging*) finds Category weights, *spond* finds Spond and *2fa* finds the two-step requirement. When nothing matches, the page says so. Escape clears the box.
 
 Entries that open in wp-admin carry an external-link marker so the context switch is expected; frontend entries do not.
+
+*Developers:* the entries live in `config/settings_entries.php` and are read by `\TT\Shared\Configuration\SettingsRegistry`, which the landing, `GET /talenttrack/v1/settings-entries` (see the REST API reference) and search all use. A module adds its own with `SettingsRegistry::register()`. Entries contributed through the `tt_config_tile_groups` filter still appear, under Academy, unless an entry already leads to the same screen; the filter is deprecated. `tools/check-settings-entries.php` fails the build when a `?config_sub=` form, a setup tile in a settings section or a settings screen the Configuration module owns has no entry, unless `not_entries` says why.
 
 ## Tabs
 

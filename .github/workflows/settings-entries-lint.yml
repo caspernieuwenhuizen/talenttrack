@@ -1,0 +1,45 @@
+name: Settings entries lint
+
+# #4670 — every settings screen has a door on the Configuration landing.
+# A `?config_sub=` form, a setup tile in a settings section, or a settings
+# view the Configuration module owns, with no entry in
+# config/settings_entries.php, is a screen an administrator cannot find.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'config/settings_entries.php'
+      - 'config/navigation_groups.php'
+      - 'tools/check-settings-entries.php'
+      - 'tools/lib/settings-entries.php'
+      - '.github/workflows/settings-entries-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'config/settings_entries.php'
+      - 'config/navigation_groups.php'
+      - 'tools/check-settings-entries.php'
+      - 'tools/lib/settings-entries.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every settings screen has an entry
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check settings entries
+        run: php tools/check-settings-entries.php
