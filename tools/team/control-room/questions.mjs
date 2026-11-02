@@ -41,21 +41,33 @@ export const QUESTIONS_JS = `
     var db = r[0], user = r[1];
     if (!db) return;
     var isOwner = false;
-    try { isOwner = user ? !!user.isOwner() : false; } catch (e) {}
+    if (user) {
+      Promise.all([user.isOwner(), user.canEdit()]).then(function(v){ isOwner = !!(v[0] || v[1]); if (haveSnap) render(lastOpen, lastDone); }).catch(function(){});
+    }
     var timer = setTimeout(function(){ if (note) note.textContent = 'Live questions could not be reached yet; showing the last generated list.'; }, 10000);
     var picks = {};
     var notes = {};
     var busy = {};
+    var errs = {};
+    var haveSnap = false;
     db.collection('questions').onSnapshot(function(snap){
       if (!snap.metadata.fromCache) { clearTimeout(timer); if (note) note.textContent = ''; }
       var open = [], done = [];
-      snap.docs.forEach(function(d){ var q = d.data(); if (!q) return; q._id = d.id; if (q.state === 'answered') done.push(q); else open.push(q); });
+      snap.docs.forEach(function(d){
+        var q = d.data(); if (!q) return;
+        q = Object.assign({}, q); q._id = d.id;
+        q._saving = !!(d.metadata && d.metadata.hasPendingWrites);
+        if (q.state === 'answered' && !q._saving) done.push(q); else open.push(q);
+      });
       open.sort(function(a,b){ return String(a.asked||'') < String(b.asked||'') ? -1 : 1; });
       done.sort(function(a,b){ return String(b.answeredAt||'') < String(a.answeredAt||'') ? -1 : 1; });
       if (snap.empty) return;
+      haveSnap = true;
       render(open, done);
     }, function(err){ clearTimeout(timer); if (note) note.textContent = 'Live questions are not available in this view.'; });
+    var lastOpen = [], lastDone = [];
     function render(open, done){
+      lastOpen = open; lastDone = done;
       var focusId = document.activeElement && box.contains(document.activeElement) ? document.activeElement.id : '';
       var h = document.getElementById('tt-q-count');
       if (h) h.textContent = String(open.length);
@@ -85,15 +97,24 @@ export const QUESTIONS_JS = `
         ta.value = notes[q._id] || '';
         ta.addEventListener('input', function(){ notes[q._id] = ta.value; });
         card.appendChild(ta);
-        var send = el('button', 'qsend', busy[q._id] ? 'Sending...' : 'Send answer'); send.type = 'button';
-        send.disabled = !isOwner || !!busy[q._id];
-        var st = el('div', 'qstatus', isOwner ? '' : 'Only the owner answers here.');
+        var pending = !!busy[q._id] || q._saving;
+        var send = el('button', 'qsend', pending ? 'Saving...' : 'Send answer'); send.type = 'button';
+        send.disabled = !isOwner || pending;
+        var msg = !isOwner ? 'Only the owner answers here.' : (errs[q._id] ? 'Not saved: ' + errs[q._id] + '. Try again, or tell the lead.' : (pending ? 'Saving your answer...' : ''));
+        var st = el('div', 'qstatus', msg); st.setAttribute('role', 'status');
         send.addEventListener('click', function(){
           var pick = picks[q._id] || '';
-          var txt = (ta.value || '').trim();
+          var txt = (notes[q._id] || '').trim();
           if (!pick && !txt) { st.textContent = 'Pick an option or write a note first.'; return; }
-          busy[q._id] = true; send.disabled = true; send.textContent = 'Sending...';
-          db.doc('questions/' + q._id).update({ state: 'answered', answer: pick || 'Other', note: txt, answeredAt: new Date().toISOString() }).then(function(){ busy[q._id] = false; }).catch(function(e){ busy[q._id] = false; send.disabled = false; send.textContent = 'Send answer'; st.textContent = 'Not saved (' + (e && e.code ? e.code : 'error') + '). Try again.'; });
+          busy[q._id] = true; delete errs[q._id];
+          render(lastOpen, lastDone);
+          db.doc('questions/' + q._id).update({ state: 'answered', answer: pick || 'Other', note: txt, answeredAt: new Date().toISOString() }).then(function(){
+            busy[q._id] = false; render(lastOpen, lastDone);
+          }).catch(function(e){
+            busy[q._id] = false; errs[q._id] = (e && e.code) ? e.code : 'error';
+            if (window.console) console.warn('questions: answer not saved', e);
+            render(lastOpen, lastDone);
+          });
         });
         card.appendChild(send); card.appendChild(st);
         box.appendChild(card);
