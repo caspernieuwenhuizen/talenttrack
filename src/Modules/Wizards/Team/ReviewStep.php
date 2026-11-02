@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Team;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
+use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Teams\Services\TeamStaffPrompt;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -72,7 +73,8 @@ final class ReviewStep implements WizardStepInterface {
         $team_id = (int) $wpdb->insert_id;
 
         // Map staff slots to tt_team_people via functional roles.
-        $repo = new FunctionalRolesRepository();
+        $repo   = new FunctionalRolesRepository();
+        $people = new PeopleRepository();
         $slot_to_role_key = [
             'head_coach'      => 'head_coach',
             'assistant_coach' => 'assistant_coach',
@@ -93,16 +95,10 @@ final class ReviewStep implements WizardStepInterface {
                 $team_id, $person_id, (int) $role->id, CurrentClub::id()
             ) );
             if ( $exists ) continue;
-            $wpdb->insert( $wpdb->prefix . 'tt_team_people', [
-                'club_id'             => CurrentClub::id(),
-                'team_id'             => $team_id,
-                'person_id'           => $person_id,
-                'functional_role_id'  => (int) $role->id,
-                // #1314 — mirror the PeopleRepository::assignToTeam
-                // fix: derive is_head_coach from the slot so the new
-                // head coach lands on the head_coach persona dashboard.
-                'is_head_coach'       => $slot === 'head_coach' ? 1 : 0,
-            ] );
+            // #4729 — through the repository, so the coach gets the team
+            // scope row and the authorization caches are flushed; a raw
+            // insert left the new team out of every team-scoped check.
+            $people->assignToTeam( $team_id, $person_id, (int) $role->id );
         }
 
         // #0063 — Roster step: bulk-update tt_players.team_id for the
