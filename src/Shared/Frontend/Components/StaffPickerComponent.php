@@ -38,6 +38,23 @@ use TT\Infrastructure\People\StaffDirectory;
  */
 class StaffPickerComponent {
 
+    /** The roles offered when the caller names none. */
+    public const DEFAULT_ROLES = [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ];
+
+    /**
+     * #4761 — is this account one the picker offers for these roles? A form
+     * that posts the picker's value checks it here, so the server accepts
+     * exactly the set the picker lists.
+     *
+     * @param array<int,string> $roles
+     */
+    public static function offers( int $user_id, array $roles = self::DEFAULT_ROLES ): bool {
+        if ( $user_id <= 0 ) return false;
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return false;
+        return array_intersect( $roles, (array) $user->roles ) !== [];
+    }
+
     /**
      * @param array{
      *   name?:string,
@@ -55,7 +72,7 @@ class StaffPickerComponent {
         $required    = ! empty( $args['required'] );
         $placeholder = (string) ( $args['placeholder'] ?? __( 'Type a name to search…', 'talenttrack' ) );
         $selected    = (int) ( $args['selected'] ?? 0 );
-        $roles       = (array) ( $args['roles'] ?? [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ] );
+        $roles       = (array) ( $args['roles'] ?? self::DEFAULT_ROLES );
 
         // #4043 — `'source' => 'directory'` offers the staff `GET /staff`
         // finds, so the trial panel picker and the REST lookup agree on who
