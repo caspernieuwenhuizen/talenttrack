@@ -78,7 +78,9 @@ test.describe( 'Match prep availability rows (#4703, #4704)', () => {
 		}
 		created.push( 'player-injuries/' + injuryId );
 		skipWhy = '';
-		wizardUrl = '/?tt_view=wizard&slug=match-prep&activity_id=' + seeded.activityId;
+		// `restart` starts a fresh run, so the seed reads this test's match
+		// and not the one a previous test left in the wizard state.
+		wizardUrl = '/?tt_view=wizard&slug=match-prep&restart=1&activity_id=' + seeded.activityId;
 	} );
 
 	test.afterEach( async ( { page } ) => {
