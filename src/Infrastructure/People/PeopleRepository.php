@@ -561,6 +561,13 @@ class PeopleRepository {
         // unassigned.
         if ( $row !== null ) {
             self::syncTeamScopeRow( (int) $row->team_id, (int) $row->person_id );
+
+            // #4730 — the team scope may be gone, so the authorization caches
+            // must be flushed. Same arguments as AuthorizationRepository::revoke();
+            // the row id is 0 because no single scope row is revoked here (the
+            // mirrored team row is role_id 0 and survives while another
+            // assignment for the pair remains).
+            do_action( 'tt_role_revoked', 0, (int) $row->person_id, 0, 'team', (int) $row->team_id );
         }
 
         return true;

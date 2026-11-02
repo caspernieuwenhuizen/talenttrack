@@ -135,6 +135,11 @@ class ModuleRegistry {
             $wpdb->insert( $table, $row );
         }
         self::$stateCache = null;
+        // #4730 — the matrix gate's per-request answers skip a disabled
+        // module's rows, so they rest on the state just changed.
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            \TT\Modules\Authorization\MatrixGate::clearCache();
+        }
     }
 
     /**
