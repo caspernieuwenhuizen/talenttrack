@@ -240,11 +240,20 @@
     text-decoration: none; font-size: .875rem;
     transition: color .15s, border-color .15s, background .15s;
 }
-.tt-help-button:hover, .tt-help-button:focus {
+/* #4710 — the 48px floor under a finger; a mouse keeps the 36px above. */
+@media (pointer: coarse) {
+    .tt-help-button { min-height: var(--tt-tap-min, 48px); }
+}
+.tt-help-button:hover, .tt-help-button:focus-visible {
     color: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
     background: #fff;
-    outline: none;
+}
+/* #4710 — a real focus ring for the keyboard; the colour change alone
+   was the only cue once the outline was removed. */
+.tt-help-button:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
 }
 .tt-help-button .tt-help-button-label { line-height: 1; }
 
