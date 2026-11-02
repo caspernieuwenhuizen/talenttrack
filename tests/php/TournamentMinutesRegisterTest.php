@@ -312,6 +312,54 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( 15 + 2 * self::PERIOD, (int) $day['minutes'][ $this->player ] );
     }
 
+    /** The grid's Minutes row and the audit give one verdict on the same data. */
+    public function test_the_grid_and_the_audit_give_the_same_verdict(): void {
+        $grid = ( new MinutesGridQuery() )->matrix( self::TEAM, '2026-03-01', '2026-03-31' );
+        $checks = [];
+        foreach ( $grid['activities'] as $column ) {
+            $checks[ (int) $column['activity_id'] ] = $column['minutes_check'];
+        }
+
+        foreach ( [ 'corrected', 'confirmed_zero', 'legacy_empty' ] as $key ) {
+            $aid   = $this->fixtures[ $key ]['activity_id'];
+            $audit = $this->auditRow( $aid );
+            $this->assertSame(
+                [ $audit['status'], $audit['status_reason'], $audit['recorded_count'], $audit['planned_count'] ],
+                [ $checks[ $aid ]['status'], $checks[ $aid ]['status_reason'], $checks[ $aid ]['recorded_count'], $checks[ $aid ]['planned_count'] ],
+                $key
+            );
+        }
+
+        $legacy = $this->fixtures['legacy_empty']['activity_id'];
+        $this->assertSame( 'minutes_planned', $checks[ $legacy ]['status_reason'], 'the grid does not call the plan Complete' );
+        $this->assertSame( TournamentMinutesResolver::SOURCE_PLAN, $grid['cells'][ $this->player ][ $legacy ]['source'] );
+    }
+
+    public function test_the_audit_route_carries_the_planned_fields(): void {
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/minutes-audit' );
+        $req->set_param( 'team_id', self::TEAM );
+        $req->set_param( 'from', '2026-03-01' );
+        $req->set_param( 'to', '2026-03-31' );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 200, $res->get_status() );
+        $data    = $res->get_data();
+        $payload = is_array( $data ) && isset( $data['data'] ) ? $data['data'] : $data;
+        $rows    = [];
+        foreach ( $payload['games'] as $g ) {
+            $rows[ (int) $g['activity_id'] ] = $g;
+        }
+
+        $legacy = $rows[ $this->fixtures['legacy_empty']['activity_id'] ];
+        $this->assertTrue( $legacy['planned'][ $this->player ] );
+        $this->assertSame( 1, $legacy['planned_count'] );
+        $this->assertSame( 'minutes_planned', $legacy['status_reason'] );
+
+        $corrected = $rows[ $this->fixtures['corrected']['activity_id'] ];
+        $this->assertFalse( $corrected['planned'][ $this->player ] );
+        $this->assertSame( 0, $corrected['planned_count'] );
+    }
+
     public function test_the_completeness_verdict_for_plan_minutes(): void {
         $this->assertSame( [ 'none', 'minutes_planned' ], MinutesAuditQuery::completeness( 0, 2, 40, 40, 2 ), 'every figure from the plan' );
         $this->assertSame( [ 'partial', 'minutes_planned' ], MinutesAuditQuery::completeness( 1, 2, 40, 40, 1 ), 'one of two from the plan' );

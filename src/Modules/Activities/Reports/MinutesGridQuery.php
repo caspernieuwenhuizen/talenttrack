@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
  * MinutesGridQuery (#2386, epic #2381) — the players × matches minutes-entry
@@ -277,6 +278,9 @@ final class MinutesGridQuery {
                     // A player with a register row and nothing on it either way
                     // is 0, as before: the cell is the box a coach types into.
                     'minutes'  => (int) ( $entries[ $aid ][ $pid ]['minutes'] ?? 0 ),
+                    // #4580 — where the figure came from: a plan figure is
+                    // shown in the box but is not recorded, as in the audit.
+                    'source'   => $entries[ $aid ][ $pid ]['source'] ?? null,
                     'squad'    => true,
                     'goals'    => (int) ( $contributions[ $aid ][ $pid ]['goals'] ?? 0 ),
                     'assists'  => (int) ( $contributions[ $aid ][ $pid ]['assists'] ?? 0 ),
@@ -297,6 +301,7 @@ final class MinutesGridQuery {
                 if ( isset( $cells[ $pid ][ $aid ] ) ) continue;
                 $cells[ $pid ][ $aid ] = [
                     'minutes'  => 0,
+                    'source'   => null,
                     'squad'    => false,
                     'goals'    => (int) $counts['goals'],
                     'assists'  => (int) $counts['assists'],
@@ -421,7 +426,13 @@ final class MinutesGridQuery {
      * @param array<string, mixed>                         $activity   A column from `matrix()`.
      * @param array<int, array<int, array<string, mixed>>> $cells      `matrix()['cells']`.
      * @param list<int>|null                               $roster_ids The players the grid shows a row for.
-     * @return array{total_minutes:int, recorded_count:int, offgrid_minutes:int, offgrid_recorded:int, offgrid_squad:?int, available_minutes:?int, squad_count:?int, status:string, status_reason:string}
+     * `planned_count` (#4580) counts the cells holding a rotation-plan figure:
+     * in the total, not in `recorded_count`, and passed to `completeness()`
+     * so the column is never Complete while one is left. The script's
+     * recount while typing does not tell them apart; Save writes them to
+     * the register, and the rendered verdict is the audit's again.
+     *
+     * @return array{total_minutes:int, recorded_count:int, planned_count:int, offgrid_minutes:int, offgrid_recorded:int, offgrid_squad:?int, available_minutes:?int, squad_count:?int, status:string, status_reason:string}
      */
     public static function minutesCheck( array $activity, array $cells, ?array $roster_ids = null ): array {
         $aid       = (int) ( $activity['activity_id'] ?? 0 );
@@ -429,6 +440,7 @@ final class MinutesGridQuery {
         $has_boxes = ( $activity['register_recorded'] ?? true ) !== false;
         $total     = 0;
         $recorded  = 0;
+        $planned   = 0;
         $off_total = 0;
         $off_count = 0;
         $box_squad = 0;
@@ -440,7 +452,13 @@ final class MinutesGridQuery {
 
             if ( $is_box && ( ! empty( $cell['selected'] ) || $minutes > 0 ) ) $box_squad++;
             if ( $minutes <= 0 ) continue;
-            $recorded++;
+            // #4580 — a plan figure counts in the total but is not recorded,
+            // the audit's rule, so the two give the same verdict.
+            if ( ( $cell['source'] ?? null ) === TournamentMinutesResolver::SOURCE_PLAN ) {
+                $planned++;
+            } else {
+                $recorded++;
+            }
             $total += $minutes;
             if ( ! $is_box ) {
                 $off_count++;
@@ -454,6 +472,7 @@ final class MinutesGridQuery {
         $out = [
             'total_minutes'     => $total,
             'recorded_count'    => $recorded,
+            'planned_count'     => $planned,
             'offgrid_minutes'   => $off_total,
             'offgrid_recorded'  => $off_count,
             'offgrid_squad'     => $squad !== null ? max( 0, $squad - $box_squad ) : null,
@@ -477,7 +496,7 @@ final class MinutesGridQuery {
         }
         if ( $squad === null ) return $out;
 
-        [ $out['status'], $out['status_reason'] ] = MinutesAuditQuery::completeness( $recorded, $squad, $total, $available );
+        [ $out['status'], $out['status_reason'] ] = MinutesAuditQuery::completeness( $recorded, $squad, $total, $available, $planned );
         return $out;
     }
 
