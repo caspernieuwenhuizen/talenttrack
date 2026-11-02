@@ -85,7 +85,9 @@ does three things:
    (`php tools/consolidate-translations.php --keep`).
 2. Compiles `languages/talenttrack-nl_NL.mo` with `msgfmt`. It is never
    committed.
-3. Sets `WPLANG` and the admin's locale to `nl_NL`.
+3. Installs and activates the nl_NL core language pack (WordPress refuses a
+   `WPLANG` it has no language files for) and sets the admin's locale to
+   `nl_NL`.
 
 To run the gate locally, do the same before `npm run test:e2e:mobile`, then
 delete the `.mo` and restore the `.po` afterwards

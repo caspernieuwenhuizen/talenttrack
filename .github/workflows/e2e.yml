@@ -148,8 +148,12 @@ jobs:
           fi
           php tools/consolidate-translations.php --keep
           msgfmt --check -o languages/talenttrack-nl_NL.mo languages/talenttrack-nl_NL.po
-          npx wp-env run tests-cli wp option update WPLANG nl_NL
+          # WordPress refuses a WPLANG it has no core language files for
+          # (sanitize_option keeps the old value), so the core pack is
+          # installed and activated rather than the option written.
+          npx wp-env run tests-cli wp language core install nl_NL --activate
           npx wp-env run tests-cli wp user meta update admin locale nl_NL
+          npx wp-env run tests-cli wp option get WPLANG
 
       # #2813 — the mobile viewport gate, at 320, 360 and 390px with touch
       # enabled (#4738), in Dutch (#4770), including a player profile the
