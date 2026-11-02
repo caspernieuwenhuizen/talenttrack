@@ -41,26 +41,27 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
         $title = __( 'My certifications', 'talenttrack' );
 
         $person = StaffPersonHelper::personForUser( $user_id );
-        if ( $person && ! StaffDevelopmentAccess::canRead( $user_id, (int) $person->id ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( $title );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
             self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
         $repo  = new StaffCertificationsRepository();
-        $rows  = $repo->listForPerson( (int) $person->id );
+        $rows  = $repo->listForPerson( $person_id );
         $types = QueryHelpers::get_lookups( 'cert_type' );
         $type_by_id = [];
         foreach ( $types as $t ) { $type_by_id[ (int) $t->id ] = (string) $t->name; }

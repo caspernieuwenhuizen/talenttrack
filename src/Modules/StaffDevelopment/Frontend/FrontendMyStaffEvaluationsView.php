@@ -44,26 +44,27 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
         $title = __( 'My staff evaluations', 'talenttrack' );
 
         $person = StaffPersonHelper::personForUser( $user_id );
-        if ( $person && ! StaffDevelopmentAccess::canRead( $user_id, (int) $person->id ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
-            return;
-        }
         if ( ! $person ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
             self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
+        $person_id = (int) $person->id;
+        if ( ! StaffDevelopmentAccess::canRead( $user_id, $person_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         self::enqueueAssets();
-        self::handlePost( (int) $person->id );
+        self::handlePost( $person_id );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
 
         $repo  = new StaffEvaluationsRepository();
-        $rows  = $repo->listForPerson( (int) $person->id );
+        $rows  = $repo->listForPerson( $person_id );
 
         // KPI strip — counts derived from the already-fetched list (no new
         // query).
