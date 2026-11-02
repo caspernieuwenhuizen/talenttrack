@@ -1,3 +1,10 @@
 #: src/Modules/Wizards/Team/StaffStep.php
 msgid "Choose a staff member from the list."
 msgstr "Kies een stafmedewerker uit de lijst."
+
+#. translators: 1: the staff slot, e.g. "Head coach"; 2: what is wrong with its value.
+#: src/Modules/Wizards/Team/StaffStep.php
+#, php-format
+msgctxt "wizard field error"
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"

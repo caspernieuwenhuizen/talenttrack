@@ -64,7 +64,12 @@ final class StaffStep implements WizardStepInterface {
             if ( $uid > 0 && ! StaffPickerComponent::offers( $uid ) ) {
                 return new \WP_Error(
                     'bad_staff_' . $key,
-                    self::slotLabel( $key ) . ': ' . __( 'Choose a staff member from the list.', 'talenttrack' ),
+                    sprintf(
+                        /* translators: 1: the staff slot, e.g. "Head coach"; 2: what is wrong with its value. */
+                        _x( '%1$s: %2$s', 'wizard field error', 'talenttrack' ),
+                        self::slotLabel( $key ),
+                        __( 'Choose a staff member from the list.', 'talenttrack' )
+                    ),
                     [ 'field' => $field ]
                 );
             }
