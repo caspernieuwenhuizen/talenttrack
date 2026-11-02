@@ -86,6 +86,10 @@ return [
         'ActivityAccess::canTakeRegisterForTeam',
         'ActivityAccess::canTakeRegister',
         'ActivityAccess::registerTeamIds',
+        // #4643 — a match's prep: read is an activities capability and the
+        // activity's team in read scope, write is `tt_edit_activities` and the
+        // team in write scope, both through `ActivityTeamScope::covers*`.
+        'MatchPrepAccess::can',
         'TeamChemistryAccess::can',
         'TeamReportAccess::canRead',
         // #4569 — a stored Studio report: edit asks the builder's own scope

@@ -169,9 +169,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // #4643 — a reader of the team who may not change it reads the
             // match prep read-only (#4632). The same read rule the prep view
             // asks; a writer gets the editor entry below instead.
-            $can_view_prep = $session && ! $can_edit_acts && $session_team > 0
-                && ( current_user_can( 'tt_view_activities' ) || current_user_can( 'tt_edit_activities' ) )
-                && \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $current_uid, $session_team );
+            $can_view_prep = $session && ! $can_edit_acts
+                && \TT\Modules\MatchPrep\MatchPrepAccess::canRead( $current_uid, $session )
+                && ! \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $current_uid, $session );
             if ( $session && ( $can_edit_acts || $can_delete_acts || $can_take_register || $can_view_prep ) ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 // #2183 — an archived activity is read-only until restored:

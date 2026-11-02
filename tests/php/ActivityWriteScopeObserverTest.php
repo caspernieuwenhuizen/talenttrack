@@ -146,6 +146,13 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $other = $this->activitiesView( '', $this->other_match );
         $this->assertStringContainsString( 'data-tt-match-prep-read', $other );
         $this->assertStringContainsString( 'View match prep', $other );
+        $this->assertNoWriteEntries( $other );
+
+        $other_row = (object) [ 'team_id' => $this->teamOf( $this->other_match ) ];
+        $own_row   = (object) [ 'team_id' => $this->teamOf( $this->own_match ) ];
+        $this->assertTrue( \TT\Modules\MatchPrep\MatchPrepAccess::canRead( $this->coach, $other_row ) );
+        $this->assertFalse( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $this->coach, $other_row ) );
+        $this->assertTrue( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $this->coach, $own_row ) );
 
         // The entry leads to the read-only sheet.
         $_GET = [ 'tt_view' => 'match-prep', 'activity_id' => (string) $this->other_match ];
@@ -166,6 +173,8 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         FrontendActivitiesManageView::render( $observer, false );
         $html = (string) ob_get_clean();
         $this->assertStringContainsString( 'data-tt-match-prep-read', $html );
+        $this->assertNoWriteEntries( $html );
+        $this->assertFalse( \TT\Modules\MatchPrep\MatchPrepAccess::canWrite( $observer, (object) [ 'team_id' => $this->teamOf( $this->other_match ) ] ) );
     }
 
     public function test_a_coach_of_another_team_without_club_wide_read_is_offered_neither(): void {
@@ -197,6 +206,18 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         AuthorizationService::flushCache();
         $this->assertTrue( ActivityTeamScope::coversActivityForWrite( $hod, $this->other_match, false ) );
+    }
+
+    /** The read entry comes alone: no archive, edit or live-match action beside it. */
+    private function assertNoWriteEntries( string $html ): void {
+        $this->assertStringNotContainsString( 'data-tt-archive-rest-path', $html );
+        $this->assertStringNotContainsString( 'action=edit', html_entity_decode( $html, ENT_QUOTES ) );
+        $this->assertStringNotContainsString( 'tt_view=match-execution', $html );
+    }
+
+    private function teamOf( int $activity_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT team_id FROM {$wpdb->prefix}tt_activities WHERE id = %d", $activity_id ) );
     }
 
     private function activitiesView( string $action, int $activity_id ): string {
