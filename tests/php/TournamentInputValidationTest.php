@@ -20,8 +20,8 @@ use TT\Infrastructure\Security\RolesService;
  */
 final class TournamentInputValidationTest extends WP_UnitTestCase {
 
-    private const TEAM_ID = 4020;
-
+    /** A real team of the club: a tournament is anchored on one that exists. */
+    private int $team_id       = 0;
     private int $tournament_id = 0;
     private int $match_id      = 0;
     private int $player_id     = 0;
@@ -35,13 +35,17 @@ final class TournamentInputValidationTest extends WP_UnitTestCase {
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Validation team', 'age_group' => 'U13' ] );
+        $this->team_id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $this->team_id, 'fixture: the team row was written' );
+
         $wpdb->insert( $wpdb->prefix . 'tt_players', [
-            'club_id' => 1, 'team_id' => self::TEAM_ID, 'first_name' => 'Sem', 'last_name' => 'de Vries',
+            'club_id' => 1, 'team_id' => $this->team_id, 'first_name' => 'Sem', 'last_name' => 'de Vries',
         ] );
         $this->player_id = (int) $wpdb->insert_id;
 
         $wpdb->insert( $wpdb->prefix . 'tt_tournaments', [
-            'club_id' => 1, 'team_id' => self::TEAM_ID, 'name' => 'Validation cup', 'start_date' => '2026-10-03',
+            'club_id' => 1, 'team_id' => $this->team_id, 'name' => 'Validation cup', 'start_date' => '2026-10-03',
         ] );
         $this->tournament_id = (int) $wpdb->insert_id;
 
@@ -106,7 +110,7 @@ final class TournamentInputValidationTest extends WP_UnitTestCase {
     public function test_creating_a_tournament_with_an_unknown_position_is_refused(): void {
         $res = $this->dispatch( 'POST', '/talenttrack/v1/tournaments', [
             'name'       => 'Silent drop',
-            'team_id'    => self::TEAM_ID,
+            'team_id'    => $this->team_id,
             'start_date' => '2026-10-10',
             'squad'      => [
                 [ 'player_id' => $this->player_id, 'eligible_positions' => [ 'DF' ] ],
@@ -175,7 +179,7 @@ final class TournamentInputValidationTest extends WP_UnitTestCase {
     public function test_creating_a_tournament_with_an_unknown_formation_is_refused(): void {
         $res = $this->dispatch( 'POST', '/talenttrack/v1/tournaments', [
             'name'              => 'Six a side',
-            'team_id'           => self::TEAM_ID,
+            'team_id'           => $this->team_id,
             'start_date'        => '2026-10-10',
             'default_formation' => '1-2-2-1',
         ] );
