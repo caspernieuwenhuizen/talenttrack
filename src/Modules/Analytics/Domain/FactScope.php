@@ -151,12 +151,9 @@ final class FactScope {
             return [ self::ALL, [] ];
         }
 
-        $teams = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $uid ) as $team ) {
-            $id = (int) ( $team->id ?? 0 );
-            if ( $id > 0 && MatrixGate::can( $uid, $entity, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $id ) ) $teams[ $id ] = $id;
-        }
-        $teams = array_values( $teams );
+        // #4684 — every team the single-team check admits, functional-role
+        // grants included.
+        $teams = MatrixGate::teamIdsFor( $uid, $entity, MatrixGate::READ );
         if ( $teams !== [] ) {
             if ( $this->narrowTeams !== null ) $teams = array_values( array_intersect( $teams, $this->narrowTeams ) );
             return $teams === [] ? [ self::NONE, [] ] : [ self::TEAMS, $teams ];

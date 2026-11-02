@@ -3,7 +3,6 @@ namespace TT\Modules\ReportStudio\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\PlayerReportAccess;
 use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Authorization\MatrixGate;
@@ -66,14 +65,8 @@ final class ReportReader {
             || MatrixGate::can( $uid, 'report_studio', MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_GLOBAL ) ) {
             return $this->teams = null;
         }
-        $teams = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $uid ) as $team ) {
-            $id = (int) ( $team->id ?? 0 );
-            if ( $id > 0 && MatrixGate::can( $uid, 'report_studio', MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_TEAM, $id ) ) {
-                $teams[ $id ] = $id;
-            }
-        }
-        return $this->teams = array_values( $teams );
+        // #4684 — functional-role grants included, as the single-team check.
+        return $this->teams = MatrixGate::teamIdsFor( $uid, 'report_studio', MatrixGate::CREATE_DELETE );
     }
 
     /**

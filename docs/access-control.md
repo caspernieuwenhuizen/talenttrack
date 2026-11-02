@@ -124,6 +124,12 @@ If a coach reports that a wp-admin list has gone empty, the question to ask is
 which teams they are assigned to under **People → Functional roles**: the
 scope comes from those assignments, not from the capability.
 
+Team lists follow the same rule as opening one team. A team that a functional
+role grants, such as a team manager's team reports, appears in the report
+list, in the analytics team scope and in Report Studio's team choice, just as
+it opens directly. A list never shows a team that cannot be opened, and never
+leaves out one that can.
+
 ## The pre-built roles
 
 | Role | View | Edit |

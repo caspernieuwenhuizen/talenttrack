@@ -304,6 +304,88 @@ class MatrixGate {
     }
 
     /**
+     * #4684 — `can( $user_id, $entity, $activity, SCOPE_TEAM, $team )` as a
+     * list: every team of the current club on which it says yes, ascending.
+     *
+     * The team-scoped answer has two sources, and a list built from one of
+     * them disagreed with the single-team check: a persona row plus a live
+     * team assignment (`tt_user_role_scopes`), and a functional role held
+     * on the team (`FunctionalRoleGrants`). The candidates are both, plus
+     * the teams the user coaches, and each is asked the single-team
+     * question, so the list cannot hold a team `can()` refuses or miss one
+     * it allows.
+     *
+     * Team scope only: a caller that also honours a global grant asks
+     * `can( …, SCOPE_GLOBAL )` first, as the callers here do.
+     *
+     * @return list<int>
+     */
+    public static function teamIdsFor( int $user_id, string $entity, string $activity ): array {
+        if ( $user_id <= 0 ) return [];
+
+        $candidates = [];
+        foreach ( FunctionalRoleGrants::teamsGranting( $user_id, $entity, $activity ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+        foreach ( self::assignedTeamIds( $user_id ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $team_id > 0 ) $candidates[ $team_id ] = true;
+        }
+
+        $out = [];
+        foreach ( array_keys( $candidates ) as $team_id ) {
+            if ( self::can( $user_id, $entity, $activity, self::SCOPE_TEAM, $team_id ) ) $out[] = $team_id;
+        }
+        sort( $out );
+        return self::inCurrentClub( $out );
+    }
+
+    /**
+     * The teams the user holds a live team assignment on, the rows
+     * `userHasScope()` reads.
+     *
+     * @return list<int>
+     */
+    private static function assignedTeamIds( int $user_id ): array {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $today = current_time( 'Y-m-d' );
+        $ids   = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT s.scope_id
+               FROM {$p}tt_user_role_scopes s
+               JOIN {$p}tt_people pe ON pe.id = s.person_id
+              WHERE pe.wp_user_id = %d
+                AND s.scope_type = 'team'
+                AND ( s.start_date IS NULL OR s.start_date <= %s )
+                AND ( s.end_date   IS NULL OR s.end_date   >= %s )",
+            $user_id, $today, $today
+        ) );
+        return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ), static fn( int $v ): bool => $v > 0 ) );
+    }
+
+    /**
+     * The ids of `$team_ids` that are teams of the current club.
+     *
+     * @param list<int> $team_ids
+     * @return list<int>
+     */
+    private static function inCurrentClub( array $team_ids ): array {
+        if ( $team_ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
+        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_teams WHERE club_id = %d AND id IN ({$placeholders}) ORDER BY id ASC",
+            ...array_merge( [ \TT\Infrastructure\Tenancy\CurrentClub::id() ], $team_ids )
+        ) );
+        return array_values( array_map( 'intval', is_array( $ids ) ? $ids : [] ) );
+    }
+
+    /**
      * #3181 — the scoped sibling of `hasAuthorityAnyScope()`: persona and
      * runtime-scope authority for one specific target, IGNORING the
      * sub-feature toggle (#1485).
