@@ -1,0 +1,10 @@
+#. translators: 1: number of recipients left out, 2: their email addresses, comma-separated
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "Left out %1$d recipient who may not receive this report: %2$s"
+msgid_plural "Left out %1$d recipients who may not receive this report: %2$s"
+msgstr[0] "%1$d ontvanger overgeslagen die dit rapport niet mag ontvangen: %2$s"
+msgstr[1] "%1$d ontvangers overgeslagen die dit rapport niet mogen ontvangen: %2$s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Each recipient with an account receives only the rows they may read themselves, and nothing if they may read none. An address with no account here receives only a report that holds no player data. Whoever is left out is named on the schedule after the run."
+msgstr "Elke ontvanger met een account krijgt alleen de rijen die hij zelf mag lezen, en niets als hij niets mag lezen. Een adres zonder account hier krijgt alleen een rapport zonder spelersgegevens. Wie wordt overgeslagen, staat na de run bij het schema."

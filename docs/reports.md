@@ -610,3 +610,12 @@ The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric
 - **Your rows only.** Every figure, group-by table, drill-down and CSV counts only the rows you may read, decided per kind of data: all teams where your access to that data is academy-wide, otherwise the teams you are assigned to. Trial decisions and prospects have no team to narrow to, so they show only with academy-wide access to trial cases or prospects, and journey events show only at the visibility levels you hold.
 - **The team of an evaluation** is the team at the time: the team of the activity it was written for, otherwise the team the player was in on the evaluation date. An evaluation with neither shows as *No team*.
 - **The month of an evaluation** is the month on its evaluation date, not the day it was entered. A backdated evaluation counts in the month it took place, and the *Date after* / *Date before* bounds read the same date.
+
+## Scheduled KPI reports — who receives what
+
+A scheduled KPI report is checked per recipient every time it runs, so a report never reaches someone who could not open the same figures in the plugin:
+
+- **A role key** (for example `tt_head_dev`) stands for every account holding that role, and each of them is checked separately. An email address that belongs to an account here is treated as that account.
+- **An account** receives its own CSV, built from the rows it may read itself: all teams with academy-wide access, otherwise its own teams. An account that may read none of the report's data receives nothing. A schedule sent to the parent role therefore delivers nothing to parents for a report about players.
+- **An address with no account here** receives the report only when it holds no player data, such as activity volume. It then reads with the access of the person who set up the schedule. A report about players (attendance, evaluations, goals, journey events, trial decisions, prospects) is never sent to such an address.
+- **Whoever is left out** is named on the schedule in the schedules list after the run, and the run's audit entry records each skipped recipient with the reason.

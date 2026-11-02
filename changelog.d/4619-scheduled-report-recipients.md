@@ -1,0 +1,3 @@
+# Scheduled reports reach only recipients who may read their data (#4619)
+
+A scheduled KPI report is now checked per recipient on every run. A role key expands to its accounts and each is checked on its own; an account receives a CSV built with its own scope, and nothing when it may not read the report's data, so a schedule sent to the parent role no longer delivers club attendance or evaluations to parents. An address with no account receives only a report that holds no player data, read with the creator's access. Everyone left out is named on the schedule after the run and recorded, with the reason, in the run's audit entry. The schedule form says so under the recipients field.
