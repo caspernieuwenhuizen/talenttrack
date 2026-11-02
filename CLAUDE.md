@@ -163,7 +163,8 @@ follow the rules below.
   One exception: CSS owned by a shared renderer that must look the same
   on screen, in print and in the PDF (the match prep and monthly report
   printables) may be attached with `wp_add_inline_style()` to an
-  enqueued handle. CSS a view writes itself still goes in `assets/css/`.
+  enqueued handle, scoped to its wrapper when it renders inside a page
+  with other content. CSS a view writes itself still goes in `assets/css/`.
 - Prefix every CSS class and JS global with `tt-` / `TT.` — assume the
   active theme is hostile.
 - Don't apply global resets — only inside scoped wrappers (`.tt-dashboard`).
