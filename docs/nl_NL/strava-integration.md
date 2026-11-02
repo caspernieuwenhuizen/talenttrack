@@ -98,7 +98,7 @@ geautoriseerde staat achterblijft.
 ## Instellen door de beheerder
 
 Beide eenmalige stappen staan op de console **Strava-koppeling**, te bereiken
-via **Configuratie → Koppelingen → Strava-koppeling** (of rechtstreeks via
+via **Configuratie → Activiteiten & wedstrijden → Strava-koppeling** (of rechtstreeks via
 `?tt_view=strava-admin`):
 
 1. **Registreer de Strava-appgegevens.** Maak een API-applicatie aan in je

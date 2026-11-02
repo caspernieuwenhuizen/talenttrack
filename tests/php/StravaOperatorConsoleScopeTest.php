@@ -391,12 +391,10 @@ final class StravaOperatorConsoleScopeTest extends WP_UnitTestCase {
     private function stravaTileDesc( int $uid ): string {
         wp_set_current_user( $uid );
         AuthorizationService::flushCache();
-        $groups = \TT\Shared\Configuration\ConfigurationSurfaces::groups( $uid, home_url( '/?config_sub=' ), home_url( '/?tt_view=' ) );
-        foreach ( $groups as $group ) {
-            foreach ( $group['tiles'] as $tile ) {
-                if ( str_contains( (string) ( $tile['url'] ?? '' ), 'strava-admin' ) ) {
-                    return (string) ( $tile['desc'] ?? '' );
-                }
+        // #4670 — the Configuration landing reads SettingsRegistry.
+        foreach ( \TT\Shared\Configuration\SettingsRegistry::entriesFor( $uid ) as $entry ) {
+            if ( str_contains( $entry['url'], 'strava-admin' ) ) {
+                return $entry['description'];
             }
         }
         $this->fail( 'the Strava tile is listed for this reader' );

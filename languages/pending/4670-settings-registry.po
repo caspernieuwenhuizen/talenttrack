@@ -1,0 +1,363 @@
+#: src/Shared/Frontend/FrontendConfigurationView.php:1586
+msgid "Find a setting"
+msgstr "Zoek een instelling"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1588
+msgid "For example logo, weighting or Spond"
+msgstr "Bijvoorbeeld logo, weging of Spond"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1592
+msgid "No setting matches. Try another word, such as \"colour\" or \"rights\"."
+msgstr "Geen instelling gevonden. Probeer een ander woord, zoals \"kleur\" of \"rechten\"."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1596
+msgid "There are no settings you can change."
+msgstr "Er zijn geen instellingen die jij kunt wijzigen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1618
+msgid "(opens wp-admin)"
+msgstr "(opent wp-admin)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1626
+msgctxt "switched-off module"
+msgid "off"
+msgstr "uit"
+
+#: config/settings_entries.php:36
+msgid "What is the academy called, how does it look, and how does the season run?"
+msgstr "Hoe heet de academie, hoe ziet ze eruit en hoe loopt het seizoen?"
+
+#: config/settings_entries.php:37
+msgid "What do we record for each player and team?"
+msgstr "Welke gegevens houden we bij per speler en team?"
+
+#: config/settings_entries.php:38
+msgid "How do we assess and develop players?"
+msgstr "Hoe beoordelen en ontwikkelen we spelers?"
+
+#: config/settings_entries.php:39
+msgid "How do we plan and record training and matches?"
+msgstr "Hoe plannen en registreren we trainingen en wedstrijden?"
+
+#: config/settings_entries.php:40
+msgid "Which values appear in the lists?"
+msgstr "Welke waarden staan in de lijsten?"
+
+#: config/settings_entries.php:41
+msgid "Who may see and do what?"
+msgstr "Wie mag wat zien en doen?"
+
+#: config/settings_entries.php:42
+msgid "What do we send to whom, and which tasks run automatically?"
+msgstr "Wat sturen we naar wie, en welke taken lopen automatisch?"
+
+#: config/settings_entries.php:43
+msgid "How do we bring data in and keep it safe?"
+msgstr "Hoe halen we gegevens binnen en houden we ze veilig?"
+
+#: config/settings_entries.php:44
+msgid "What is switched on, and what is in our plan?"
+msgstr "Wat staat aan, en wat zit in ons pakket?"
+
+#: config/settings_entries.php:45
+msgid "For the administrator: logs and technical tools."
+msgstr "Voor de beheerder: logboeken en techniek."
+
+#: config/settings_entries.php
+msgid "Extra fields on player and team records, for what your academy tracks beyond the standard ones."
+msgstr "Extra velden op speler- en teamdossiers, voor wat jouw academie bijhoudt naast de standaardvelden."
+
+#: config/settings_entries.php
+msgid "The criteria coaches rate in an evaluation, and their subcategories."
+msgstr "De criteria die trainers in een evaluatie beoordelen, en hun subcategorieën."
+
+#: config/settings_entries.php
+msgid "How much each evaluation category counts toward the overall rating, per age group."
+msgstr "Hoe zwaar elke evaluatiecategorie meetelt in het totaalcijfer, per leeftijdsgroep."
+
+#: config/settings_entries.php
+msgid "Lookup values whose internal key drifted from English. Review each suggestion and accept the rewrite, or skip."
+msgstr "Keuzelijstwaarden waarvan de interne sleutel van het Engels is afgeweken. Bekijk elk voorstel en neem de aanpassing over, of sla die over."
+
+#: config/settings_entries.php
+msgid "Require two-step verification"
+msgstr "Tweestapsverificatie verplichten"
+
+#: config/settings_entries.php
+msgid "Which roles must sign in with a second factor."
+msgstr "Welke rollen met een tweede factor moeten inloggen."
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "language, locale, timezone, date, week, navigation layout"
+msgstr "taal, locale, tijdzone, datum, week, navigatie-indeling, language, timezone"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "logo, colours, colors, branding, theme, fonts, crest, academy name"
+msgstr "logo, kleuren, huisstijl, thema, lettertypen, embleem, naam academie, colours, branding, theme"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "css, styling, stylesheet, branding"
+msgstr "css, opmaak, stijl, huisstijl, styling, branding"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "season, year, period, current season"
+msgstr "seizoen, jaar, periode, huidig seizoen, season"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "holidays, break, closed, calendar, team planner"
+msgstr "vakantie, vrij, gesloten, kalender, teamplanner, holidays"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "rollover, new season, move up, promote, age group"
+msgstr "overgang, nieuw seizoen, doorschuiven, leeftijdsgroep, rollover"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "dashboard, landing page, start page, home, tiles"
+msgstr "dashboard, startpagina, home, tegels, landing page"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "dashboard, layout, widgets, persona, editor"
+msgstr "dashboard, indeling, widgets, persona, editor, layout"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "widget, chart, kpi, dashboard"
+msgstr "widget, grafiek, kpi, dashboard, chart"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "onboarding, first run, getting started, wizard"
+msgstr "installatie, eerste keer, aan de slag, wizard, onboarding"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "custom fields, extra fields, player record, team record"
+msgstr "eigen velden, extra velden, spelerdossier, teamdossier, custom fields"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "profile, cards, player page"
+msgstr "profiel, kaarten, profielkaart, spelerpagina, profile, cards"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "status, traffic light, thresholds, methodology"
+msgstr "status, stoplicht, drempels, methodiek, traffic light"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "roles, coach, assistant, team manager, staff"
+msgstr "rollen, trainer, assistent, teammanager, staf, roles"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "trial, tracks, steps"
+msgstr "stage, proeftraining, trajecten, stappen, trial"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "trial, letters, templates"
+msgstr "stage, proeftraining, brieven, sjablonen, trial, letters"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "import, csv, spreadsheet, bulk, players"
+msgstr "importeren, csv, spreadsheet, bulk, spelers, import"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "evaluation, categories, criteria"
+msgstr "evaluatie, categorieën, criteria, evaluation"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "weighting, weights, overall rating, age group"
+msgstr "weging, gewicht, totaalcijfer, leeftijdsgroep, weighting, weights"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "rating, scale, scores, marks"
+msgstr "beoordeling, schaal, cijfers, scores, rating, scale"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "pdp, cycle, blocks, conversations"
+msgstr "pop, pdp, cyclus, blokken, gesprekken"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "pdp, preparation, questions, conversation"
+msgstr "pop, pdp, voorbereiding, vragen, gesprek"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "tests, measurements, target bands"
+msgstr "tests, metingen, streefbanden, measurements"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "chemistry, team, combinations"
+msgstr "chemie, team, samenwerking, combinaties, chemistry"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "methodology, vocabulary, principles, terms"
+msgstr "methodiek, vocabulaire, principes, begrippen, methodology"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "minutes, playing time, match length, halves"
+msgstr "minuten, speeltijd, wedstrijdduur, helften, minutes"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "vct, periodisation, workload, training days"
+msgstr "vct, periodisering, belasting, trainingsdagen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "spond, calendar, sync, integration"
+msgstr "spond, agenda, kalender, koppeling, synchronisatie"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "strava, running, integration"
+msgstr "strava, hardlopen, koppeling"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "lookups, dropdowns, lists, values, vocabulary"
+msgstr "keuzelijsten, lijsten, waarden, vocabulaire, lookups"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "availability, attendance, present, absent, injured, excused"
+msgstr "beschikbaarheid, aanwezigheid, aanwezig, afwezig, geblesseerd, afgemeld, availability"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "football form, a side, 11v11, 8v8, 6v6"
+msgstr "voetbalvorm, speelvorm, 11 tegen 11, 11v11, 8v8, 6v6"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "language, translation, review, lookups"
+msgstr "taal, vertaling, controle, keuzelijsten, taalcontrole"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "accounts, logins, users, parents, link"
+msgstr "accounts, inloggen, gebruikers, ouders, koppelen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "invitations, invite, email text"
+msgstr "uitnodigingen, uitnodigen, e-mailtekst, invite"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "permissions, rights, authorization, roles, access, matrix"
+msgstr "rechten, autorisatie, rollen, toegang, matrix, permissions"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "2fa, two-factor, two-step, mfa, security, login"
+msgstr "2fa, tweestaps, tweestapsverificatie, mfa, beveiliging, inloggen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "email, notifications, sender, push, messages"
+msgstr "e-mail, mail, meldingen, afzender, push, berichten, notificaties"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "workflow, tasks, reminders, templates"
+msgstr "workflow, taken, herinneringen, sjablonen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "translation, deepl, google, language"
+msgstr "vertaling, vertalen, deepl, google, taal"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "backup, restore, migration"
+msgstr "back-up, backup, herstellen, terugzetten, migratie"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "export, json, configuration, snapshot"
+msgstr "export, exporteren, json, configuratie, momentopname"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "recycle bin, trash, deleted, restore"
+msgstr "prullenbak, verwijderd, herstellen, trash"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "import, history, undo"
+msgstr "import, geschiedenis, ongedaan maken"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "media, photos, videos, retention"
+msgstr "media, foto's, video's, bewaren, bewaartermijn"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "modules, features, switch on, switch off"
+msgstr "modules, functies, aanzetten, uitzetten"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "features, status, what is on"
+msgstr "functies, status, wat staat aan, features"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wizards, step by step, new record"
+msgstr "wizards, stap voor stap, nieuw dossier"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "plan, licence, subscription, restrictions, tier"
+msgstr "pakket, licentie, abonnement, beperkingen, plan"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "audit, log, changes, history"
+msgstr "audit, log, wijzigingen, geschiedenis"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "messages, log, sent, email"
+msgstr "berichten, logboek, verzonden, e-mail"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "data, browser, tables, raw"
+msgstr "gegevens, data, browser, tabellen, ruw"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "migrations, database, schema"
+msgstr "migraties, database, schema"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wp-admin, menus, wordpress"
+msgstr "wp-admin, menu's, wordpress"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wordpress, wp-admin"
+msgstr "wordpress, wp-admin"

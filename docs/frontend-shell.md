@@ -106,7 +106,9 @@ builds the tile overview, so:
   the Configuration sections: Academy, Players & teams, Development &
   evaluations, Activities & matches, Lookups, People & access, Messages &
   tasks, Data, Features & plan and System. The tile overview still shows them
-  under *Setup & administration*, in that order.
+  under *Setup & administration*, in that order. A head of development has no
+  Configuration tile, so their setup screens are on the tile overview under
+  *Setup & administration*.
 - At the foot sit your name and the role you are working as: the one you
   picked in the role switcher, or otherwise your first role. It is the same
   role your landing page is built for.

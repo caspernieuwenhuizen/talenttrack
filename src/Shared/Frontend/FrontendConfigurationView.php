@@ -170,7 +170,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
 
         self::renderHeader( __( 'Configuration', 'talenttrack' ) );
-        self::renderTileGrid();
+        self::renderSettingsLanding();
     }
 
     /**
@@ -1540,7 +1540,7 @@ class FrontendConfigurationView extends FrontendViewBase {
          * `--tt-tile-*` custom properties (TileGridStandard), so size +
          * layout match every other tile surface and respond to the
          * academy-wide Tile appearance preset. The `.tt-cfg-tile-grid`
-         * markup wrapper sets the variables (see renderTileGrid /
+         * markup wrapper sets the variables (see renderLookupsIndex /
          * tileGridStyles emitting TileGridStandard::openWrap). */
         .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tt-tile-min-width, 220px), 1fr)); gap: var(--tt-tile-gap, 10px); }
         .tt-cfg-tile { display: block; background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: var(--tt-tile-radius, 8px); padding: var(--tt-tile-padding, 14px); text-decoration: none; color: #1a1d21; min-height: var(--tt-tile-min-height, 76px); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)), box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease), border-color var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease); }
@@ -1552,79 +1552,79 @@ class FrontendConfigurationView extends FrontendViewBase {
         .tt-cfg-tile-icon { margin-bottom: 8px; line-height: 0; }
         .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
         .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
-        /* #1087 VCT-12 — accent variant + count line for the two VCT
-         * Configuration tiles (macro-blocks + age-profiles). Pattern
-         * lifted from the PDP-blocks tile; accent + "NEW" pill mirror
-         * the `.local-mockups/vct-config-tiles/` design-of-record. */
-        .tt-cfg-tile--vct { border-color: #1d7874; position: relative; }
-        .tt-cfg-tile--vct:hover, .tt-cfg-tile--vct:focus { border-color: #145955; }
-        .tt-cfg-tile-badge { position: absolute; top: 8px; right: 8px; background: #1d7874; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
-        .tt-cfg-tile-count { margin-top: 8px; font-size: 11px; color: #1d7874; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
         </style>
         <?php
         echo \TT\Shared\Frontend\Components\TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
     }
 
     /**
-     * #3046 — the Configuration landing grid, grouped by module.
+     * #4670 — the Configuration landing: ten sections grouped by task, each
+     * headed by the question it answers, with a filter box above them.
      *
-     * Which entries exist, which module each belongs to and whether the
-     * viewer may open it are all decided in
-     * {@see \TT\Shared\Configuration\ConfigurationSurfaces}; this method
-     * resolves the two base URLs from the current request and paints.
+     * Which entries exist, where each is filed and whether the viewer may
+     * open it are all decided in
+     * {@see \TT\Shared\Configuration\SettingsRegistry}; this method paints.
+     * The filter matches on the folded text the registry computes, so the
+     * box and `GET /settings-entries` apply the same rule.
      */
-    private static function renderTileGrid(): void {
-        $sections = \TT\Shared\Configuration\ConfigurationSurfaces::groups(
-            get_current_user_id(),
-            (string) remove_query_arg( [ 'config_sub' ] ),
-            (string) remove_query_arg( [ 'tt_view', 'config_sub' ] )
-        );
+    private static function renderSettingsLanding(): void {
+        $sections = \TT\Shared\Configuration\SettingsRegistry::sectionsFor( get_current_user_id() );
 
-        self::tileGridStyles();
-        \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::render(
-            $sections,
-            [ 'grid_inline' => false, 'tile_renderer' => [ self::class, 'renderConfigTile' ] ]
-        );
-    }
+        wp_enqueue_style( 'tt-frontend-settings', TT_PLUGIN_URL . 'assets/css/frontend-settings.css', [], TT_VERSION );
+        wp_enqueue_script( 'tt-frontend-settings-filter', TT_PLUGIN_URL . 'assets/js/frontend-settings-filter.js', [], TT_VERSION, true );
 
-    /**
-     * #1532 — unified renderer for one Configuration tile, used by every
-     * section. Handles an IconRenderer slug or an emoji icon, the
-     * "opens in wp-admin" marker, and the VCT accent variant (badge +
-     * count line).
-     *
-     * @param array<string,mixed> $tile
-     */
-    public static function renderConfigTile( array $tile ): void {
-        $title    = (string) ( $tile['title'] ?? '' );
-        $desc     = (string) ( $tile['desc'] ?? '' );
-        $url      = (string) ( $tile['url'] ?? '' );
-        $icon     = (string) ( $tile['icon'] ?? '' );
-        $emoji    = ! empty( $tile['emoji'] );
-        $external = ! empty( $tile['external'] );
-        $is_vct   = ! empty( $tile['vct'] );
+        echo '<div class="tt-settings" data-tt-settings>';
+        echo '<div class="tt-settings__filter" role="search">';
+        echo '<label class="tt-settings__filter-label" for="tt-settings-filter">' . esc_html__( 'Find a setting', 'talenttrack' ) . '</label>';
+        echo '<input type="search" id="tt-settings-filter" class="tt-settings__filter-input" inputmode="search" autocomplete="off" spellcheck="false"'
+            . ' placeholder="' . esc_attr__( 'For example logo, weighting or Spond', 'talenttrack' ) . '" data-tt-settings-filter />';
+        echo '</div>';
 
-        echo '<a class="tt-cfg-tile' . ( $is_vct ? ' tt-cfg-tile--vct' : '' ) . '" href="' . esc_url( $url ) . '">';
-        if ( $is_vct ) {
-            echo '<span class="tt-cfg-tile-badge">' . esc_html__( 'NEW', 'talenttrack' ) . '</span>';
+        echo '<p class="tt-settings__empty" data-tt-settings-empty role="status" hidden>'
+            . esc_html__( 'No setting matches. Try another word, such as "colour" or "rights".', 'talenttrack' )
+            . '</p>';
+
+        if ( $sections === [] ) {
+            echo '<p class="tt-settings__none">' . esc_html__( 'There are no settings you can change.', 'talenttrack' ) . '</p>';
         }
-        if ( $icon !== '' ) {
-            if ( $emoji ) {
-                echo '<div class="tt-cfg-tile-icon" style="font-size:22px; line-height:1;">' . esc_html( $icon ) . '</div>';
-            } else {
-                echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Frontend\Components\TileIconChip::render( $icon, '#0b3d2e' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
+
+        echo '<div class="tt-settings__sections">';
+        foreach ( $sections as $section ) {
+            $heading_id = 'tt-settings-' . sanitize_html_class( $section['key'] );
+            echo '<section class="tt-settings__section tt-settings__section--' . esc_attr( sanitize_html_class( $section['key'] ) ) . '" data-tt-settings-section aria-labelledby="' . esc_attr( $heading_id ) . '">';
+            echo '<header class="tt-settings__head">';
+            echo '<h2 class="tt-settings__title" id="' . esc_attr( $heading_id ) . '">' . esc_html( $section['label'] ) . '</h2>';
+            if ( $section['question'] !== '' ) {
+                echo '<p class="tt-settings__question">' . esc_html( $section['question'] ) . '</p>';
             }
-        }
-        echo '<div class="tt-cfg-tile-title">' . esc_html( $title );
-        if ( $external ) {
-            echo ' ' . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            echo '</header>';
+            echo '<ul class="tt-settings__list">';
+            foreach ( $section['entries'] as $entry ) {
+                $off = ( $entry['module_state'] ?? '' ) === \TT\Shared\Configuration\SettingsRegistry::STATE_OFF;
+                echo '<li class="tt-settings__item" data-tt-settings-entry data-tt-search="' . esc_attr( \TT\Shared\Configuration\SettingsRegistry::haystack( $entry ) ) . '">';
+                echo '<a class="tt-settings__link" href="' . esc_url( (string) $entry['url'] ) . '">';
+                echo '<span class="tt-settings__text">';
+                echo '<span class="tt-settings__label">' . esc_html( (string) $entry['label'] );
+                if ( ! empty( $entry['external'] ) ) {
+                    echo ' <span class="tt-settings__external">' . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 12, 'height' => 12 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                        . '<span class="tt-screen-reader-text">' . esc_html__( '(opens wp-admin)', 'talenttrack' ) . '</span></span>';
+                }
+                echo '</span>';
+                if ( (string) $entry['description'] !== '' ) {
+                    echo '<span class="tt-settings__desc">' . esc_html( (string) $entry['description'] ) . '</span>';
+                }
+                echo '</span>';
+                if ( $off ) {
+                    echo '<span class="tt-settings__pill tt-settings__pill--off">' . esc_html_x( 'off', 'switched-off module', 'talenttrack' ) . '</span>';
+                }
+                echo '</a>';
+                echo '</li>';
+            }
+            echo '</ul>';
+            echo '</section>';
         }
         echo '</div>';
-        echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
-        if ( ! empty( $tile['count'] ) ) {
-            echo '<div class="tt-cfg-tile-count">' . esc_html( (string) $tile['count'] ) . '</div>';
-        }
-        echo '</a>';
+        echo '</div>';
     }
 
     /**

@@ -163,6 +163,9 @@ class Kernel {
         // activities, so neither belongs to one module's boot.
         \TT\Infrastructure\REST\SearchRestController::init();
         \TT\Infrastructure\REST\PeekRestController::init();
+        // #4670 — the settings entries the caller may open, from the one
+        // registry the Configuration landing reads.
+        \TT\Infrastructure\REST\SettingsEntriesRestController::init();
         // #3478 — a player's evaluations in the player-facing shape, and the
         // per-row breakdown "My evaluations" now fetches on open.
         \TT\Infrastructure\REST\PlayerEvaluationsRestController::init();

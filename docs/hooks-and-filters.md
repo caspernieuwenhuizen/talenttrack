@@ -57,6 +57,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_register_alerts`                  | The alert definitions the engine runs; append your own                   | `array $alerts`                                     |
 | `tt_alert_invalidation_map`           | Domain event => extractor naming what that event touched, so a fixed alert clears on save instead of on the hourly sweep | `array<string,callable> $map` |
 | `tt_parent_account_eligible_args`     | The `get_users()` arguments for accounts that may be linked as a parent. WordPress users are site-wide, so a multi-tenant install scopes the candidates to one club here | `array $args`, `int $club_id` |
+| `tt_config_tile_groups`               | **Deprecated for the frontend Configuration landing.** Groups of `{label, description, url, cap, icon}` tiles. On the landing each tile becomes an entry under Academy, unless a settings entry already leads to the same screen (matched on `config_sub`, `tt_view` or wp-admin `page`). Still live for the wp-admin Configuration page. Replaced by `SettingsRegistry::register()` | `array $groups` |
 
 ### `tt_alert_invalidation_map`
 

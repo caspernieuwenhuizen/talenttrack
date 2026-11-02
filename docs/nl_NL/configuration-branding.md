@@ -87,18 +87,33 @@ Het canvas neemt alleen de pagina over waarop de shortcode `[talenttrack_dashboa
 
 ## Configuratiesecties in de frontend
 
-Configuratie groepeert de onderdelen **per module waar ze bij horen**. Zoek de module — Proeftrainingen, Workflow, Beoordelingen, Spond — en alle instellingen ervan staan bij elkaar onder die kop, wat voor scherm het ook is.
+Configuratie groepeert de instellingen **naar de taak die je voor ogen hebt**, niet naar de module die ze toevallig beheert. Er zijn tien secties, altijd in deze volgorde, en elke sectie begint met de vraag die ze beantwoordt:
 
-De eerste sectie is **Academiebreed**: de instellingen die bij de hele installatie horen in plaats van bij één module — Vormgeving, Algemeen (datumnotatie, eerste dag van de week, tijdzone, taal), Lookups, Seizoenen, Back-ups, het auditlog, de wp-admin-menu's, de configuratie-export en de prullenbak. Daarna volgen de modulesecties, in dezelfde volgorde als op de Modules-pagina.
+| Sectie | De vraag | Wat erin staat |
+| --- | --- | --- |
+| Academie | Hoe heet de academie, hoe ziet ze eruit en hoe loopt het seizoen? | Algemeen, Uiterlijk, Eigen CSS, Seizoenen, Vakanties, Seizoensovergang, Standaarddashboard, Dashboardindelingen, Eigen widgets, Installatie |
+| Spelers & teams | Welke gegevens houden we bij per speler en team? | Eigen velden, Profielkaarten, Methodiek spelersstatus, Functionele rollen, Stagetrajecten, Briefsjablonen, Spelers importeren (CSV) |
+| Ontwikkeling & evaluaties | Hoe beoordelen en ontwikkelen we spelers? | Evaluatiecategorieën, Categoriegewichten, Beoordelingsschaal, POP-cyclusblokken, POP-voorbereidingsvragen, Tests beheren, Chemie-instellingen, Methodiek-vocabulaire |
+| Activiteiten & wedstrijden | Hoe plannen en registreren we trainingen en wedstrijden? | Wedstrijdminuten, VCT-configuratie, Spond, Strava |
+| Keuzelijsten | Welke waarden staan in de lijsten? | Alle keuzelijsten, Aanwezigheidsstatussen, Voetbalvorm, Taalcontrole keuzelijsten |
+| Mensen & toegang | Wie mag wat zien en doen? | Accounts & toegang, Uitnodigingen, Toegangsmatrix, Tweestapsverificatie verplichten |
+| Berichten & taken | Wat sturen we naar wie, en welke taken lopen automatisch? | Berichten, Workflow-sjablonen, Vertalingen |
+| Gegevens | Hoe halen we gegevens binnen en houden we ze veilig? | Back-ups, Configuratie exporteren, Prullenbak, Importgeschiedenis, Mediabewaring |
+| Functies & pakket | Wat staat aan, en wat zit in ons pakket? | Modules, Functies, Wizards, Pakket en beperkingen |
+| Systeem | Voor de beheerder: logboeken en techniek. | Auditlog, Berichtenlogboek, Databrowser, Migraties, wp-admin-menu's, wp-admin openen |
 
-Twee regels houden dit weg van een archiveringskeuze:
+De regels die het overzichtelijk houden:
 
-- **De instellingen van een module staan onder die module.** Proeftrainingstrajecten en brieftemplates zijn instellingen van Proeftrainingen en staan dus onder Proeftrainingen — niet naast de operationele lijst met proeftrainingsdossiers. Workflow-templates staan onder Workflow.
-- **Inrichtingsschermen horen hier, werkschermen op het dashboard.** Elk scherm dat een module als inrichtingsscherm registreert verschijnt hier automatisch; het dashboard houdt de schermen waarmee je het werk van de dag doet. Er hoeft niets met de hand ingedeeld te worden, dus de instellingen van een nieuwe module verschijnen hier vanzelf.
+- **Elke instelling staat er één keer.** Er is één toegangsmatrix, en Beoordelingsschaal en Voetbalvorm hebben elk één plek. Een inrichtingsscherm staat er niet nog een keer omdat het ook een tegel is.
+- **Je ziet alleen wat je mag openen.** De sectie Systeem is alleen voor beheerders van de academie, net als de toegangsmatrix; een technisch directeur ziet geen van beide.
+- **Een kleine sectie schuift op naar de volgende.** Als je in een sectie minder dan drie onderdelen mag openen, komen die bij de sectie erna, zodat niemand een sectie met één kaart ziet.
+- **Uitgeschakelde modules blijven vindbaar voor een beheerder.** Hun instellingen staan onder Functies & pakket, gemarkeerd als *uit*, en leiden naar de pagina Modules waar je de module weer aanzet. Anderen zien ze niet.
 
-Een module uitzetten neemt de bijbehorende Configuratiesectie mee, precies zoals dat met de dashboardtegels gebeurt. Een sectie zonder onderdelen die jij mag openen toont helemaal geen kop, dus wat je ziet is wat je kunt gebruiken.
+Het vak **Zoek een instelling** bovenaan filtert terwijl je typt. Het zoekt in de naam, de beschrijving en een lijst extra woorden per instelling, zonder op hoofdletters of accenten te letten. *logo* vindt Uiterlijk, *weging* (*weighting*) vindt Categoriegewichten, *spond* vindt Spond en *2fa* vindt de verplichte tweestapsverificatie. Als niets overeenkomt, staat dat op de pagina. Escape maakt het vak leeg.
 
 Onderdelen die in wp-admin openen hebben een externe-link-markering zodat de contextwissel verwacht is; frontend-onderdelen niet.
+
+*Ontwikkelaars:* de onderdelen staan in `config/settings_entries.php` en worden gelezen door `\TT\Shared\Configuration\SettingsRegistry`, dat de startpagina, `GET /talenttrack/v1/settings-entries` (zie de REST API-referentie) en zoeken allemaal gebruiken. Elk onderdeel voor een scherm in deze repository staat in dat bestand, omdat `tools/check-settings-entries.php` alleen het bestand leest; `SettingsRegistry::register()` is voor code buiten deze repository, zoals een add-on-plugin. Onderdelen die via de filter `tt_config_tile_groups` worden aangeleverd verschijnen nog steeds, onder Academie, tenzij een onderdeel al naar hetzelfde scherm leidt; de filter is verouderd. `tools/check-settings-entries.php` laat de build falen als een `?config_sub=`-formulier, een inrichtingstegel in een instellingssectie of een instellingsscherm van de module Configuratie geen onderdeel heeft, tenzij `not_entries` uitlegt waarom.
 
 ## Tabbladen
 

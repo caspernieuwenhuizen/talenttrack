@@ -1,0 +1,193 @@
+/*
+ * TalentTrack — the Configuration landing (#4670): ten task sections with a
+ * filter box. Mobile-first: one column at 360px, every row a 48px target,
+ * two columns from 768px and three from 1024px.
+ */
+
+.tt-settings {
+	display: grid;
+	gap: var(--tt-sp-4);
+	min-width: 0;
+}
+
+/* ---- Filter ---- */
+
+.tt-settings__filter {
+	display: grid;
+	gap: var(--tt-sp-1);
+	max-width: 32rem;
+}
+
+.tt-settings__filter-label {
+	font-size: var(--tt-fs-sm);
+	font-weight: 600;
+	color: var(--tt-ink);
+}
+
+.tt-settings__filter-input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: var(--tt-tap-min);
+	padding: var(--tt-sp-2) var(--tt-sp-3);
+	font-size: 1rem; /* 16px floor: no iOS zoom on focus. */
+	color: var(--tt-ink);
+	background: var(--tt-paper);
+	border: 1px solid var(--tt-line);
+	border-radius: var(--tt-radius);
+	touch-action: manipulation;
+}
+
+.tt-settings__filter-input:focus-visible {
+	outline: 2px solid var(--tt-link);
+	outline-offset: 2px;
+}
+
+.tt-settings__empty,
+.tt-settings__none {
+	margin: 0;
+	padding: var(--tt-sp-4);
+	color: var(--tt-muted);
+	background: var(--tt-bg-soft);
+	border-radius: var(--tt-radius);
+}
+
+/* ---- Sections ---- */
+
+.tt-settings__sections {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--tt-sp-4);
+	align-items: start;
+}
+
+.tt-settings__section {
+	min-width: 0;
+	background: var(--tt-paper);
+	border: 1px solid var(--tt-line);
+	border-radius: var(--tt-radius-lg);
+	overflow: hidden;
+}
+
+.tt-settings__section--system {
+	border-style: dashed;
+}
+
+.tt-settings__head {
+	padding: var(--tt-sp-3) var(--tt-sp-4) var(--tt-sp-2);
+}
+
+.tt-settings__title {
+	margin: 0;
+	font-size: var(--tt-fs-h3);
+	line-height: 1.2;
+	color: var(--tt-ink);
+}
+
+.tt-settings__question {
+	margin: var(--tt-sp-1) 0 0;
+	font-size: var(--tt-fs-sm);
+	line-height: 1.35;
+	color: var(--tt-muted);
+}
+
+.tt-settings__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.tt-settings__item {
+	border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-settings__link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tt-sp-2);
+	min-height: var(--tt-tap-min);
+	padding: var(--tt-sp-2) var(--tt-sp-4);
+	color: var(--tt-ink);
+	text-decoration: none;
+	touch-action: manipulation;
+}
+
+.tt-settings__link:hover,
+.tt-settings__link:active {
+	background: var(--tt-bg-soft);
+}
+
+.tt-settings__link:focus-visible {
+	outline: 2px solid var(--tt-link);
+	outline-offset: -2px;
+}
+
+.tt-settings__text {
+	display: grid;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.tt-settings__label {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.tt-settings__desc {
+	font-size: var(--tt-fs-sm);
+	line-height: 1.35;
+	color: var(--tt-muted);
+	overflow-wrap: anywhere;
+}
+
+.tt-settings__external {
+	color: var(--tt-muted);
+}
+
+.tt-settings .tt-screen-reader-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.tt-settings__pill {
+	flex: none;
+	padding: 0.125rem var(--tt-sp-2);
+	font-size: var(--tt-fs-sm);
+	font-weight: 600;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.tt-settings__pill--off {
+	color: var(--tt-danger-ink);
+	background: var(--tt-danger-subtle);
+}
+
+.tt-settings [hidden] {
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.tt-settings__sections {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1024px) {
+	.tt-settings__sections {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tt-settings__link {
+		transition: none;
+	}
+}
