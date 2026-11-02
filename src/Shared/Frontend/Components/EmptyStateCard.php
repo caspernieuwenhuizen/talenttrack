@@ -3,14 +3,18 @@ namespace TT\Shared\Frontend\Components;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
+
 /**
  * EmptyStateCard — reusable empty-state block.
  *
  * Renders an icon + headline + explainer + optional CTA button when
  * a list / tab / panel has no content yet. Permission-aware: when
- * `cta_cap` is set and the current user lacks it, the CTA is dropped
- * but the headline + explainer still render so a read-only viewer
- * sees the framing without a button that would just bounce.
+ * `cta_cap` is set and the current user holds it neither as a capability
+ * nor through the authorization matrix (`userCanOrMatrix()`), the CTA is
+ * dropped but the headline + explainer still render so a read-only viewer
+ * sees the framing without a button that would just bounce. Callers pass
+ * the capability name and leave the decision to the card.
  *
  * Markup is mobile-first; styles live in the consuming view's CSS.
  * The component emits `.tt-empty-state` (block) + `.tt-empty-state__*`
@@ -38,7 +42,7 @@ final class EmptyStateCard {
         $cta_cap   = (string) ( $args['cta_cap'] ?? '' );
 
         $show_cta = $cta_label !== '' && $cta_url !== ''
-            && ( $cta_cap === '' || current_user_can( $cta_cap ) );
+            && ( $cta_cap === '' || AuthorizationService::userCanOrMatrix( get_current_user_id(), $cta_cap ) );
 
         ?>
         <div class="tt-empty-state" role="status">
