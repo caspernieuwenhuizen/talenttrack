@@ -159,9 +159,14 @@ final class ThreadAccess {
     }
 
     /**
-     * Does the user hold `thread_messages/<activity>/global` in the matrix?
-     * Falls back to WP `manage_options` for matrix-dormant installs, then
-     * to the v3.0 umbrella capability for back-compat.
+     * Does the user administer conversations academy-wide: hold
+     * `thread_messages/<activity>/global` in the matrix, or WP
+     * `manage_options`?
+     *
+     * Administering conversations is its own right. Viewing the settings
+     * is not part of it: a seat that may read the configuration does not
+     * read staff-only notes, mark notes staff-only or delete other
+     * people's messages on that account (#4717).
      *
      * @param string $activity 'read' | 'change'
      */
@@ -173,7 +178,6 @@ final class ThreadAccess {
                 return true;
             }
         }
-        if ( user_can( $user_id, 'manage_options' ) ) return true;
-        return user_can( $user_id, 'tt_view_settings' );
+        return user_can( $user_id, 'manage_options' );
     }
 }

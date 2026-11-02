@@ -53,6 +53,7 @@ Beheerders kunnen de meldingsuitwaaier helemaal uitzetten door `threads.notify_o
 
 - Je kunt je eigen bericht **5 minuten** na plaatsing **bewerken**. Na dat venster sluit het — soft-delete is de enige optie.
 - Je kunt je eigen bericht op elk moment **soft-deleten**. De bubbel blijft staan in de thread, maar de inhoud wordt vervangen door "Bericht verwijderd." Beheerders kunnen elk bericht soft-deleten; de oorspronkelijke tekst blijft bewaard in de audit-log zodat hij herstelbaar is.
+- Het bericht van iemand anders verwijderen, en elk "Alleen trainers"-bericht lezen, horen bij het beheren van gesprekken: het academiebrede gespreksrecht in de autorisatiematrix. Wie de instellingen mag bekijken, heeft dat recht daarmee niet. Een alleen-lezen-waarnemer leest dus het publieke deel van een doelgesprek en verder niets.
 - Systeemberichten zijn niet bewerkbaar.
 
 ## Systeemberichten
