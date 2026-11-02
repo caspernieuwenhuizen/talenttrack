@@ -30,7 +30,7 @@ De academiebrede overzichtstegel is verplaatst naar de groep **Mensen**:
 
 ## Functionele rol: Mentor
 
-De migratie voegt een **Mentor**-rol toe aan de bestaande lijst (Hoofdcoach / Assistent-coach / Manager / Fysio / Anders). Mentors worden aan een mentee gekoppeld via de tabel `tt_staff_mentorships` — toewijzen door de admin via de Mensen-pagina, zelfde flow als andere functionele rollen. Mentors krijgen beheerrechten op de stafontwikkelings-records van hun mentee (POP / doelen / evaluaties / certificeringen). Ze krijgen geen rechten op de hele staf.
+De migratie voegt een **Mentor**-rol toe aan de bestaande lijst (Hoofdcoach / Assistent-coach / Manager / Fysio / Anders). Mentors worden aan een mentee gekoppeld via de tabel `tt_staff_mentorships` — toewijzen door de admin via de Mensen-pagina, zelfde flow als andere functionele rollen. Mentor zijn geeft geen toegang tot de stafontwikkelings-records van de mentee.
 
 ## Workflow-templates
 
@@ -56,10 +56,10 @@ Alle vier gebruiken voorlopig de gedeelde placeholder `StaffStubForm` — de taa
 | Rechten-key | Toegewezen aan | Wat het toestaat |
 | --- | --- | --- |
 | `tt_view_staff_development` | Administrator, Hoofd Ontwikkeling, Clubbeheerder, Coach, Scout, Staf | Eigen stafontwikkelings-records zien op het dashboard. |
-| `tt_manage_staff_development` | Administrator, Hoofd Ontwikkeling, Clubbeheerder | Records van iedere stafmedewerker bewerken. Mentors krijgen dit gescopet op hun mentee(s) via `tt_staff_mentorships`. |
+| `tt_manage_staff_development` | Administrator, Hoofd Ontwikkeling, Clubbeheerder | Records van iedere stafmedewerker bewerken. |
 | `tt_view_staff_certifications_expiry` | Administrator, Hoofd Ontwikkeling, Clubbeheerder | De club-brede roll-up van verlopende certificeringen zien. |
 
-De auth-matrix legt nog een laag toe: een gewone gebruiker kan alleen schrijven naar records op zijn eigen `tt_people`-rij (afgedwongen in `StaffDevelopmentRestController::can_manage_target`).
+De autorisatiematrix bepaalt wiens records je bereikt. Je leest je eigen dossier, of het dossier van iedere stafmedewerker als je academiebrede toegang tot stafontwikkeling hebt. Een teamtoekenning reikt niet tot het dossier van een collega. Schrijven in je eigen dossier vraagt het wijzigrecht voor stafontwikkeling. De schermen en de REST-API geven hetzelfde antwoord.
 
 ## REST-eindpunten
 

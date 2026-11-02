@@ -1,0 +1,18 @@
+/**
+ * frontend-masked-value.css — the "Hidden" marker a view prints where a
+ * sensitive field is hidden from the reader (#4690).
+ *
+ * Mobile-first per CLAUDE.md §2: the base rule is the 360px layout and
+ * nothing here needs to scale up. Tokens only, no raw hex.
+ *
+ * Neutral on purpose: a muted word in the run of the text, not a badge, a
+ * colour or an icon. Hidden data is not a warning and must not read as one.
+ * The marker sits inline in a value cell, so it never widens its row: it may
+ * wrap with the text around it and has no fixed width.
+ */
+
+.tt-masked-value {
+  color: var(--tt-muted);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}

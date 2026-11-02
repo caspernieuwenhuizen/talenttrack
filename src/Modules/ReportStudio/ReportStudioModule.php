@@ -11,6 +11,8 @@ use TT\Modules\ReportStudio\Blocks\PlayingTimeBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
+use TT\Modules\ReportStudio\Wizard\NewReportWizard;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * ReportStudioModule (#4568, epic #4564) — one builder for reports and
@@ -30,5 +32,20 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new OwnQuestionBlock() );
         ReportBlocksRestController::init();
         ReportsRestController::init();
+
+        // #4570 — the start wizard. Registered on `init` so the registry is
+        // populated before a request resolves `?tt_view=wizard&slug=new-report`.
+        // No `view_slugs` entry claims it: every wizard runs under the shared
+        // `wizard` slug, and the wizard checks the feature itself.
+        $register = static function (): void {
+            if ( class_exists( WizardRegistry::class ) ) {
+                WizardRegistry::register( new NewReportWizard() );
+            }
+        };
+        if ( did_action( 'init' ) ) {
+            $register();
+        } else {
+            add_action( 'init', $register, 20 );
+        }
     }
 }

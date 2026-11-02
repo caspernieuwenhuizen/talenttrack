@@ -73,7 +73,9 @@ Only the first draft goes through the wizard. Re-opening an analysis you already
 
 Site admins go to **Administration → Wizards**. Each registered wizard is shown as a tickbox card with its label and slug; the **Enable all wizards** master toggle at the top ticks or unticks the lot. Save the changes with the button at the bottom — there's nothing to type.
 
-Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`, `log-consent-request`.
+Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`, `log-consent-request`, `new-report`.
+
+The `new-report` wizard starts a [Report Studio](reports.md) report or dashboard: what and about whom → who reads it → the subject (asked for a group, and for a player or team only when the report always shows the same one; skipped for a report about you or the academy, and when you start from a player's or team's page) → when and how → sharing → name and review, which creates it and opens it in the Studio. It is the only screen that creates a report, so switching it off hides the **Add report** button; integrations create reports through the API instead. It is offered only where the Report Studio is switched on and in the plan.
 
 The `log-consent-request` wizard records that the academy asked a child's own club to pass a consent request on to the family: pick the prospect (skipped when you start from the prospect's page) → the date you asked, the club or coordinator you asked and optional notes → confirm. The request is logged as waiting for an answer. See [the onboarding pipeline](onboarding-pipeline.md).
 

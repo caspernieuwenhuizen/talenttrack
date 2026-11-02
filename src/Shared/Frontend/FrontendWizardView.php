@@ -845,6 +845,7 @@ class FrontendWizardView extends FrontendViewBase {
             case 'new-evaluation': return 'evaluations';
             case 'new-goal':       return 'goals';
             case 'new-activity':   return 'activities';
+            case 'new-report':     return 'reports';
         }
         return null;
     }

@@ -1,0 +1,8 @@
+#: src/Shared/Frontend/Components/MaskedValue.php
+msgctxt "masked field value"
+msgid "Hidden"
+msgstr "Verborgen"
+
+#: src/Shared/Frontend/Components/MaskedValue.php
+msgid "Hidden for your role"
+msgstr "Verborgen voor jouw rol"

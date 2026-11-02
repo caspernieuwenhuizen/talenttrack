@@ -1365,21 +1365,53 @@ The body is the seven starting choices: `kind` (`report`), `scope`,
 `name` and the subject: `player_id`, `team_id`, or for a group a `cohort` of
 `team_ids` with an optional `age_group` and `position`, never player ids.
 
-`ReportStartRules` validates them and answers the first rule broken as `400
-invalid_field` with `details.field` and the reason:
+`ReportStartRules` decides them in order — `kind`, `scope`, `audience`,
+`binding`, `period_mode`, `layout`, `sharing` — each against the ones
+before it. A choice left out takes the first option still allowed. A choice
+sent that an earlier one rules out is **never moved**: it is answered `400
+invalid_field` with `details.field` naming that later field and the same
+translated reason the start wizard shows under the switched-off option:
 
-- a family or scout audience is about one player;
-- the academy scope is a staff reading;
+- a family or scout audience is about one player; a scout report is a
+  report, written only with `tt_publish_reports`; a parent reads a family
+  report only through a shared snapshot, never live;
+- a report about me always follows the viewer (`binding: viewer`), one about
+  the academy is always `fixed`, and only me, a player or a team can follow
+  the viewer;
 - a dashboard's period is never fixed;
-- a report that is mailed or shared with the family is laid out in rows;
-- publishing for a role needs a binding that is not fixed, and
-  `tt_publish_reports` (`sharing`);
-- following the viewer works for me, a player or a team;
+- a grid needs the `internal` audience;
+- a scheduled mail needs a report, `rows` and a period that is not `on_open`;
+- sharing with the family needs the `family` audience and a report;
+- publishing for a role needs a binding that is not fixed (or the academy
+  scope) and `tt_publish_reports`;
 - a fixed binding names its subject.
 
-The subject must be one the caller builds for: `403 forbidden_team`,
-`forbidden_player`, or `forbidden_scope` for the academy from a team builder.
-`201` with the report.
+The scope must be one the caller builds for, and so must the subject:
+`403 forbidden_scope` for the academy from a team builder, `403
+forbidden_team` / `forbidden_player` for a team or player outside their
+scope. `201` with the report. The start wizard creates reports through the
+same path.
+
+### `GET /reports/start-options?kind=&scope=&audience=&binding=&period_mode=&layout=&sharing=`
+
+The start rules' answer for every option, given the choices sent so far, so
+a front end can show what the wizard shows. Needs `tt_build_reports`. Reads
+only. `scope` defaults to `me`. An unknown value is `400 bad_filter`.
+
+```json
+{ "choices": { "kind": "dashboard", "scope": "team", "audience": "internal", "binding": "fixed",
+               "period_mode": "on_open", "layout": "rows", "sharing": "me" },
+  "moved": { },
+  "options": {
+    "period_mode": [
+      { "value": "on_open", "label": "Chosen when it is opened", "ok": true, "reason": null },
+      { "value": "rolling", "label": "Rolling", "ok": true, "reason": null },
+      { "value": "fixed", "label": "Fixed dates", "ok": false,
+        "reason": "A dashboard follows the calendar: its period cannot be fixed." } ] } }
+```
+
+`choices` is the normalised set; `moved` names each choice an earlier one
+ruled out, moved to the first option still allowed, with the reason.
 
 ### `PATCH /reports/{id}`
 

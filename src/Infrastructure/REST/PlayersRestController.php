@@ -14,6 +14,7 @@ use TT\Infrastructure\Players\PlayerVisibility;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\PlayerCsvImporter;
 use TT\Modules\Players\Services\ScoutPlayerCard;
@@ -1462,11 +1463,12 @@ class PlayersRestController {
 
         // Guardian contact and the club's own fields are family data of a
         // minor. The route gate admits more than staff (linked parent, the
-        // player, a linked scout), so the fields ride along only for staff
-        // of this player, the same rule the profile's guardians card uses.
-        // Each disclosure is audit-logged.
+        // player, a linked scout), so the fields ride along only for a reader
+        // the sensitive-field registry lets read them (#4690); the response
+        // filter strips them again for anyone else. Asked here as well so a
+        // read that discloses nothing is not audit-logged as one.
         $player_id = (int) $pl->id;
-        if ( ! AuthorizationService::isStaffForPlayer( get_current_user_id(), $player_id ) ) {
+        if ( RecordRedactor::isMasked( 'players', 'guardian_email', get_current_user_id(), $player_id ) ) {
             return $out;
         }
 
