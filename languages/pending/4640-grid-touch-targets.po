@@ -1,0 +1,4 @@
+#. translators: 1: activity title, 2: activity date.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:146
+msgid "Ratings for %1$s (%2$s). Rows are players, columns are the categories this activity is rated on."
+msgstr "Beoordelingen van %1$s (%2$s). Rijen zijn spelers, kolommen zijn de categorieën waarop deze activiteit wordt beoordeeld."

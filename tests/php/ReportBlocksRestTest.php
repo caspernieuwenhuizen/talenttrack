@@ -130,6 +130,24 @@ final class ReportBlocksRestTest extends WP_UnitTestCase {
         $this->assertSame( 'attendance_per_week', $own->get_data()['data']['block'] );
     }
 
+    /** #4637 — before the current season has started, no window is a 422, not a backwards window. */
+    public function test_a_preview_without_a_window_before_the_season_is_422(): void {
+        global $wpdb;
+        $wpdb->update( "{$wpdb->prefix}tt_seasons", [ 'is_current' => 0 ], [ 'club_id' => CurrentClub::id() ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_seasons", [
+            'club_id' => CurrentClub::id(), 'name' => 'Not yet',
+            'start_date' => gmdate( 'Y-m-d', (int) strtotime( '+30 days' ) ),
+            'end_date' => gmdate( 'Y-m-d', (int) strtotime( '+330 days' ) ), 'is_current' => 1,
+        ] );
+
+        $res = $this->preview( 'attendance_per_week', [ 'context' => [ 'scope' => 'team', 'team_id' => $this->team_a ] ] );
+        $this->assertSame( 422, $res->get_status() );
+        $this->assertSame( 'no_period', $res->get_data()['errors'][0]['code'] );
+
+        $picked = $this->preview( 'attendance_per_week', [ 'context' => [ 'scope' => 'team', 'team_id' => $this->team_a, 'from' => '2020-03-01', 'to' => '2020-03-31' ] ] );
+        $this->assertSame( 200, $picked->get_status() );
+    }
+
     public function test_an_unknown_block_is_404(): void {
         $res = $this->preview( 'no_such_block', [ 'context' => [ 'scope' => 'team', 'team_id' => $this->team_a ] ] );
         $this->assertSame( 404, $res->get_status() );

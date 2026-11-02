@@ -97,6 +97,8 @@ final class PlayerReportSnapshots {
 
         $composition = PlayerReportComposition::normalise( [ 'player_id' => $player_id ] + $raw );
         $window      = PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
+        // #4637 — no window and no season so far: nothing to freeze.
+        if ( $window['from'] === '' || $window['to'] === '' ) return '';
 
         $blocks = $composition['blocks'];
         if ( $audience === PlayerReportAudience::FAMILY ) {

@@ -84,12 +84,18 @@ final class CoachEvalQualityQuery {
     public function report( array $filters = [] ): array {
         $team_id = (int) ( $filters['team_id'] ?? 0 );
         [ $from, $to ] = self::window( $filters );
+        // #4637 — no window to report on (the season has not started and
+        // none was picked), or one that runs backwards: nothing to count.
+        if ( ReportFilters::windowNotice( $from, $to ) !== '' ) {
+            return [ 'from' => $from, 'to' => $to, 'rows' => [] ];
+        }
+        // Before the season starts nobody has been evaluated in it yet.
         $season = ReportFilters::seasonDefaultWindow();
 
         $stats  = $this->evaluationStats( $team_id, $from, $to );
         $mode   = $this->modalRatings( $team_id, $from, $to );
         $latest = $this->lastEvaluationPerCoach( $team_id );
-        $squads = $this->squadStats( $team_id, $from, $to, $season['from'], $season['to'] );
+        $squads = $this->squadStats( $team_id, $from, $to, $season['from'] ?? '', $season['to'] ?? '' );
         $teams  = $this->coverage->headCoaches();
 
         // The coaches to report on: everyone holding a team, plus anyone
@@ -184,8 +190,8 @@ final class CoachEvalQualityQuery {
         $to      = (string) ( $filters['to'] ?? '' );
         if ( $from === '' ) $from = (string) ( $filters['date_from'] ?? '' );
         if ( $to === '' )   $to   = (string) ( $filters['date_to'] ?? '' );
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'] ?? '';
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? gmdate( 'Y-m-d' );
         return [ $from, $to ];
     }
 

@@ -278,3 +278,21 @@
 .tt-agrid-mincheck__reason:empty {
   display: none;
 }
+
+/* Touch: the minutes, goals and assists boxes reach the 48px floor (§2);
+   the 4px cell padding from the attendance sheet leaves 8px between
+   neighbours. The column switches' tap target is the whole chip: the
+   checkbox inside lets the tap through to its label and keeps its focus
+   and its state for the keyboard. A mouse keeps the density above. */
+@media (pointer: coarse) {
+  .tt-agrid-min-in,
+  .tt-agrid-stat-in {
+    min-width: var(--tt-tap-min, 48px);
+    min-height: var(--tt-tap-min, 48px);
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+  .tt-agrid-stat-in { width: var(--tt-tap-min, 48px); }
+  .tt-agrid-statchip { min-width: var(--tt-tap-min, 48px); }
+  .tt-agrid-statchip input { pointer-events: none; }
+}

@@ -131,9 +131,19 @@ final class FrontendRatingsGridView extends FrontendViewBase {
         self::crumbs( (string) $activity->title, $activity_id );
         self::renderHeader( __( 'Ratings grid', 'talenttrack' ) );
 
+        // Opening the grid is a read; writing it is `POST .../ratings/bulk`,
+        // which asks the change grant. A club-wide reader sees the scores
+        // without a box that the save would refuse, and a lead that does
+        // not tell them to type and Save.
+        $writable      = \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id );
+        $team_writable = $writable === null || in_array( $team_id, $writable, true );
+
         echo '<p class="tt-rgrid-lead">' . esc_html( sprintf(
-            /* translators: 1: activity title, 2: activity date. */
-            __( 'Rating %1$s (%2$s). Rows are players, columns are the categories this activity is rated on. Type a score per cell and Save.', 'talenttrack' ),
+            $team_writable
+                /* translators: 1: activity title, 2: activity date. */
+                ? __( 'Rating %1$s (%2$s). Rows are players, columns are the categories this activity is rated on. Type a score per cell and Save.', 'talenttrack' )
+                /* translators: 1: activity title, 2: activity date. */
+                : __( 'Ratings for %1$s (%2$s). Rows are players, columns are the categories this activity is rated on.', 'talenttrack' ),
             (string) $activity->title,
             \TT\Shared\Dates\TTDate::dateWithDay( (string) $activity->session_date )
         ) ) . '</p>';
@@ -149,12 +159,6 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This activity has no team roster, so there are no players to rate.', 'talenttrack' ) . '</p>';
             return;
         }
-
-        // Opening the grid is a read; writing it is `POST .../ratings/bulk`,
-        // which asks the change grant. A club-wide reader sees the scores
-        // without a box that the save would refuse.
-        $writable      = \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id );
-        $team_writable = $writable === null || in_array( $team_id, $writable, true );
 
         self::renderGrid( $activity_id, $data['groups'], $categories, $players, $data['values'], $data['scale'], $team_writable );
     }

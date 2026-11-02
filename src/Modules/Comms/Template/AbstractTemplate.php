@@ -43,7 +43,16 @@ abstract class AbstractTemplate implements TemplateInterface {
             $copy = self::loadOverride( $this->key(), $channelKey, $resolved_locale );
         }
         if ( $copy === null ) {
-            $copy = $this->defaultCopy( $channelKey, $resolved_locale );
+            // The shipped copy goes through `__()`, which translates in the
+            // request's locale; the recipient's is the one that counts.
+            $switched = $resolved_locale !== ''
+                && $resolved_locale !== determine_locale()
+                && switch_to_locale( $resolved_locale );
+            try {
+                $copy = $this->defaultCopy( $channelKey, $resolved_locale );
+            } finally {
+                if ( $switched ) restore_previous_locale();
+            }
         }
 
         $payload = $request->payload + self::recipientTokens( $recipient );
