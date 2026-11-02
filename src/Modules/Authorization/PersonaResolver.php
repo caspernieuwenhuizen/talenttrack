@@ -86,6 +86,22 @@ class PersonaResolver {
     }
 
     /**
+     * Every WordPress role a persona can come from: `defaultWpRoleFor()`
+     * names one, and `academy_admin` comes from two. For a caller that
+     * finds the holders of a persona (#4571), so none is missed.
+     *
+     * @return list<string>
+     */
+    public static function wpRolesFor( string $persona ): array {
+        if ( $persona === 'head_coach' || $persona === 'assistant_coach' ) return [ 'tt_coach' ];
+        $out = [];
+        foreach ( self::WP_ROLE_TO_PERSONA as $wp_role => $mapped_persona ) {
+            if ( $mapped_persona === $persona ) $out[] = $wp_role;
+        }
+        return $out;
+    }
+
+    /**
      * Personas the user holds. Multi-persona users get multiple entries.
      *
      * #0033 Sprint 7: a `tt_coach` user is split into `head_coach` (when

@@ -35,12 +35,13 @@ final class ReportSubjectOptions {
     }
 
     /**
+     * @param array<int, array{name:string, age_group:string}>|null $teams `teams()`, when the caller already has it
      * @return array<int, array<int,string>> team id => player id => name
      */
-    public static function players( ReportReader $reader ): array {
+    public static function players( ReportReader $reader, ?array $teams = null ): array {
         $by_team = [];
         $ids     = [];
-        foreach ( array_keys( self::teams( $reader ) ) as $team_id ) {
+        foreach ( array_keys( $teams ?? self::teams( $reader ) ) as $team_id ) {
             foreach ( QueryHelpers::get_players( $team_id ) as $row ) {
                 $pid = (int) ( ( (array) $row )['id'] ?? 0 );
                 if ( $pid <= 0 ) continue;

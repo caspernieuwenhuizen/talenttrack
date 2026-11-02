@@ -3,7 +3,7 @@ title: Rapporten
 group: analytics
 summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -698,3 +698,19 @@ De regels tussen de keuzes:
 - Publiceren voor een rol vraagt een onderwerp dat elke lezer kiest of volgt (of de academie), en het recht om te publiceren.
 
 Bouwen vraagt de bevoegdheid **Report Studio: rapporten bouwen**; publiceren voor een rol vraagt **Report Studio: voor een rol publiceren**. De wizard is het enige scherm dat een rapport aanmaakt: staat hij uit onder **Beheer → Wizards**, dan is de knop **Rapport toevoegen** verborgen.
+
+## Report Studio — een rapport bouwen
+
+De tegel **Report Studio** onder Rapporten toont de rapporten die jij gemaakt hebt, met de knop **Rapport toevoegen** erboven. Open er een, of rond de wizard af, en je staat op het canvas: het rapport, opgebouwd uit blokken, die elk echte cijfers tonen voor het onderwerp en de periode, nooit plaatshouders.
+
+- **Bovenaan**: de naam van het rapport (typ om hem te wijzigen), de opslagstatus, **Ongedaan maken**, **Versies** en **Publiceren**. **Delen en plannen** en **PDF maken** komen in een latere release.
+- **Boven het canvas**: over wie het rapport gaat en de periode. Je kunt wisselen naar een andere speler of een ander team van jou, of een andere periode, om te zien hoe het rapport voor hen leest; dat wordt niet opgeslagen. **Lezen als** toont het rapport zoals staf, een scout of het gezin het krijgt, berekend door de server, zodat een blok dat een gezin nooit ziet dat zegt in plaats van zijn cijfers te tonen. **Scherm**, **A4** en **Telefoon** tonen het canvas zoals het op elk past: A4 toont de pagina-einden en hoe vol de pagina's zijn, Telefoon zet halve blokken onder elkaar.
+- **Blokken**: tik op een blok om het achteraan toe te voegen, of sleep het aan zijn greep naar het canvas. Een blok dat niet bij dit rapport past blijft in de lijst staan, uitgeschakeld, met de reden. Op een telefoon of tablet opent de lijst met **Blok toevoegen**.
+- **Op elk blok**: verplaats het omhoog of omlaag met de pijlen of sleep het aan zijn greep, maak het volle of halve breedte, dupliceer het, verwijder het, of open de instellingen. Met het toetsenbord: Tab naar een blok, Enter opent de instellingen en Delete verwijdert het.
+- **Instellingen**: de keuzes van het blok in gewone woorden, of een gezin het mag zien, en waar de cijfers vandaan komen.
+
+Een rapport bevat hooguit 40 blokken.
+
+**Opslaan.** Het canvas slaat zichzelf op terwijl je werkt; er is geen Opslaan-knop. **Ongedaan maken** gaat stap voor stap terug, tot 50 stappen in deze sessie, en **Wijzigingen terugdraaien** zet het rapport terug zoals het was toen je het opende. Heb je hetzelfde rapport in een tweede tabblad open, dan laadt het tabblad met de oudere kopie de nieuwste in plaats van eroverheen te schrijven. Zie [Hoe opslaan werkt](save-model.md).
+
+**Versies en publiceren.** **Publiceren** maakt van je concept een versie. Het vraagt wat er veranderd is, en bij een rapport voor een rol vraagt het voor welke rollen je het publiceert en zegt het hoeveel mensen dat bereikt. **Versies** toont de gepubliceerde versies; **Deze versie gebruiken** zet er een terug in je concept, en de volgende publicatie maakt hem weer live.

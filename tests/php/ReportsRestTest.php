@@ -259,24 +259,24 @@ final class ReportsRestTest extends WP_UnitTestCase {
 
     public function test_a_coach_cannot_publish_to_a_persona(): void {
         $id  = $this->create( [ 'scope' => 'me' ] );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'head_coach' ] ] );
         $this->assertSame( 403, $res->get_status() );
         $this->assertSame( 'forbidden_publish', $this->code( $res ) );
 
-        $parent = $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'parent' ] ] );
+        $parent = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'parent' ] ] );
         $this->assertSame( 400, $parent->get_status(), 'families read snapshots, never a live report' );
     }
 
     public function test_a_concurrent_publish_is_409_and_writes_no_duplicate(): void {
         global $wpdb;
         $id = $this->create( [ 'scope' => 'me' ] );
-        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [] )->get_status() );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] )->get_status() );
 
         // Every MAX read now sees the state before version 1, as a second
         // request racing the first would.
         $stale = static fn( $sql ) => is_string( $sql ) && strpos( $sql, 'MAX(version_no)' ) !== false ? 'SELECT 0' : $sql;
         add_filter( 'query', $stale );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] );
         remove_filter( 'query', $stale );
 
         $this->assertSame( 409, $res->get_status() );
@@ -306,7 +306,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             return "SIGNAL SQLSTATE '40001' SET MYSQL_ERRNO = {$errno}, MESSAGE_TEXT = '{$message}'";
         };
         add_filter( 'query', $locked );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] );
         remove_filter( 'query', $locked );
 
         $this->assertSame( 2, $attempts, 'the insert is retried once' );
@@ -352,7 +352,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             return $sql;
         };
         add_filter( 'query', $locked );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] );
         remove_filter( 'query', $locked );
 
         $this->assertSame( 2, $reads, 'the read is retried once' );
@@ -372,7 +372,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             ? 'SELECT MAX(version_no) FROM tt_no_such_table_4641'
             : $sql;
         add_filter( 'query', $broken );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] );
         remove_filter( 'query', $broken );
 
         $this->assertSame( 500, $res->get_status() );
@@ -389,7 +389,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             ? 'INSERT INTO tt_no_such_table_4641 (id) VALUES (1)'
             : $sql;
         add_filter( 'query', $broken );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] );
         remove_filter( 'query', $broken );
 
         $this->assertSame( 500, $res->get_status() );
@@ -400,7 +400,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         global $wpdb;
         wp_set_current_user( $this->hod );
         $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
-        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
         $before = (int) $wpdb->get_var( $wpdb->prepare( "SELECT published_version_id FROM {$wpdb->prefix}tt_reports WHERE id = %d", $id ) );
         $this->assertGreaterThan( 0, $before );
 
@@ -409,7 +409,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             ? 'INSERT INTO tt_no_such_table_4569 (id) VALUES (1)'
             : $sql;
         add_filter( 'query', $broken );
-        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'assistant_coach' ] ] );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'assistant_coach' ] ] );
         remove_filter( 'query', $broken );
 
         $this->assertSame( 500, $res->get_status() );
@@ -436,7 +436,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         wp_set_current_user( $this->hod );
         $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role', 'name' => 'Team pack' ] );
         $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
-        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
 
         wp_set_current_user( $this->coach );
         $get = $this->send( 'GET', "reports/{$id}" );
@@ -509,7 +509,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
     public function test_an_archived_report_drops_off_its_recipients_list(): void {
         wp_set_current_user( $this->hod );
         $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
-        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
 
         wp_set_current_user( $this->coach );
         $this->assertSame( 1, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'] );
@@ -532,7 +532,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->send( 'GET', "reports/{$id}" )->get_status(), 'a builder for every team does not open it' );
         $this->assertSame( 403, $this->send( 'PATCH', "reports/{$id}", [ 'name' => 'Mine now' ] )->get_status() );
         $this->assertSame( 403, $this->send( 'DELETE', "reports/{$id}" )->get_status() );
-        $this->assertSame( 403, $this->send( 'POST', "reports/{$id}/versions", [] )->get_status() );
+        $this->assertSame( 403, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published' ] )->get_status() );
         $this->assertSame( 403, $this->send( 'GET', "reports/{$id}/data", [], [ 'source' => 'draft' ] )->get_status() );
         $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_drafts WHERE report_id = %d AND user_id = %d", $id, $this->hod
@@ -733,7 +733,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         wp_set_current_user( $this->hod );
         $id = $this->create( [ 'scope' => 'group', 'binding' => 'on_open', 'sharing' => 'role', 'name' => 'Group pack', 'cohort' => [ 'team_ids' => $teams ] ] );
         $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ] ] ] ] );
-        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'Published', 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
         wp_set_current_user( $this->coach );
         return $id;
     }

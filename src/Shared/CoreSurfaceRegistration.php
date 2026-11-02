@@ -455,6 +455,9 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'minutes-audit',            self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'potential-overview',       self::M_ANALYTICS );
 
+        // #4571 — the Report Studio canvas; its tile is the module's own.
+        TileRegistry::registerSlugOwnership( 'report-studio', 'TT\\Modules\\ReportStudio\\ReportStudioModule' );
+
         TileRegistry::registerSlugOwnership( 'custom-css', self::M_CUSTOM_CSS );
 
         TileRegistry::registerSlugOwnership( 'ideas-refine', self::M_DEVELOPMENT );

@@ -178,9 +178,23 @@ final class ReportAccess {
      */
     public static function isRecipient( ReportReader $reader, array $report ): bool {
         if ( $reader->userId <= 0 || $report['published_version_id'] === null || $report['archived_at'] !== null ) return false;
+        return self::readsAs( $reader, $report, ( new ReportsRepository() )->personaKeys( $report['id'] ) );
+    }
+
+    /**
+     * The recipient rule for a set of persona keys, whether or not the
+     * report is published to them yet: this user holds one of them and can
+     * read the subject. `isRecipient()` asks it for the keys the report is
+     * published to; the publish confirm's count (`ReportReach`) asks it for
+     * the keys about to be published to.
+     *
+     * @param Report       $report
+     * @param list<string> $persona_keys
+     */
+    public static function readsAs( ReportReader $reader, array $report, array $persona_keys ): bool {
+        if ( $reader->userId <= 0 ) return false;
         $held = $reader->personas();
-        if ( $held === [] ) return false;
-        if ( array_intersect( $held, ( new ReportsRepository() )->personaKeys( $report['id'] ) ) === [] ) return false;
+        if ( $held === [] || array_intersect( $held, $persona_keys ) === [] ) return false;
         return self::canReadSubject( $reader, $report );
     }
 

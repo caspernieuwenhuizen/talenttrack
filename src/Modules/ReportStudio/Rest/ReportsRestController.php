@@ -6,8 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportReach;
+use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportCreation;
@@ -32,6 +36,8 @@ use WP_REST_Response;
  *   GET    /reports/{id}/versions      the published versions
  *   POST   /reports/{id}/versions      publish my draft
  *   GET    /reports/{id}/data          every block's data, for me
+ *   GET    /reports/{id}/reach         how many people publishing to personas reaches
+ *   GET    /reports/subject-options    the teams and players I build reports about
  *
  * Every route answers 402 without the `report_studio` plan feature. The
  * capabilities are club-wide, so each by-id route asks `ReportAccess` about
@@ -159,7 +165,25 @@ final class ReportsRestController extends BaseController {
                     'team_id'   => [ 'type' => 'integer', 'description' => 'The team, for a report about a team chosen when opened, or one of the viewer\'s teams.' ],
                     'from'      => [ 'type' => 'string', 'description' => 'Y-m-d. Only for a period chosen when opened, or by a builder.' ],
                     'to'        => [ 'type' => 'string', 'description' => 'Y-m-d. As from.' ],
+                    'audience'  => [ 'type' => 'string', 'description' => 'internal, scout or family: a builder previews the report as that audience gets it. A recipient reads the report\'s own audience.' ],
                 ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/(?P<id>\d+)/reach', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_reach' ],
+                'permission_callback' => $build,
+                'args'                => [
+                    'persona_keys' => [ 'description' => 'The personas the report would be published to.' ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/subject-options', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'subject_options' ],
+                'permission_callback' => $build,
             ],
         ] );
     }
@@ -195,13 +219,14 @@ final class ReportsRestController extends BaseController {
     private static function draftArgs(): array {
         return [
             'from_version' => [ 'type' => 'integer', 'description' => 'The version number whose definition replaces my draft.' ],
+            'revision'     => [ 'type' => 'integer', 'description' => 'The draft revision this was asked on. A stale one is refused with 409, as on PATCH.' ],
         ];
     }
 
     /** @return array<string, array<string, mixed>> */
     private static function publishArgs(): array {
         return [
-            'note'         => [ 'type' => 'string', 'description' => 'What changed, for the version list. At most 500 characters.' ],
+            'note'         => [ 'type' => 'string', 'description' => 'What changed, for the version list. Required; at most 500 characters.' ],
             'persona_keys' => [ 'type' => 'array', 'description' => 'The personas the report is published to. Empty publishes it for me only.' ],
         ];
     }
@@ -330,6 +355,13 @@ final class ReportsRestController extends BaseController {
             return RestResponse::error( 'no_writable_field', __( 'Send a name or a definition to change.', 'talenttrack' ), 400, [ 'allowed' => [ 'name', 'definition' ] ] );
         }
 
+        // #4571 — `revision` may also travel in the query string, so an
+        // autosaving client's body holds only what the builder edited.
+        $query = $r->get_query_params();
+        if ( ! array_key_exists( 'revision', $body ) && array_key_exists( 'revision', $query ) ) {
+            $body['revision'] = $query['revision'];
+        }
+
         $revision = null;
         if ( array_key_exists( 'revision', $body ) ) {
             if ( ! is_int( $body['revision'] ) && ! ( is_string( $body['revision'] ) && ctype_digit( $body['revision'] ) ) ) {
@@ -425,8 +457,20 @@ final class ReportsRestController extends BaseController {
         $version = $repo->version( $report['id'], (int) $no );
         if ( $version === null ) return RestResponse::notFound( 'not_found', __( 'There is no such version of this report.', 'talenttrack' ) );
 
-        $repo->ensureDraft( $report, $user_id );
-        $repo->saveDraft( $report['id'], $user_id, $version['definition'], null );
+        $revision = null;
+        if ( array_key_exists( 'revision', $body ) ) {
+            if ( ! is_int( $body['revision'] ) && ! ( is_string( $body['revision'] ) && ctype_digit( $body['revision'] ) ) ) {
+                return RestResponse::error( 'invalid_field', __( 'The revision is a whole number.', 'talenttrack' ), 400, [ 'field' => 'revision' ] );
+            }
+            $revision = (int) $body['revision'];
+        }
+
+        $draft = $repo->ensureDraft( $report, $user_id );
+        if ( $revision !== null && $revision !== $draft['revision'] ) return self::stale( $draft['revision'] );
+        if ( $repo->saveDraft( $report['id'], $user_id, $version['definition'], $revision ) === null ) {
+            $current = $repo->draft( $report['id'], $user_id );
+            return self::stale( $current !== null ? $current['revision'] : 0 );
+        }
 
         return RestResponse::success( [ 'from_version' => $version['version_no'], 'draft' => $repo->draft( $report['id'], $user_id ) ] );
     }
@@ -455,7 +499,15 @@ final class ReportsRestController extends BaseController {
         $user_id = $reader->userId;
 
         $body = self::body( $r );
-        $note = is_string( $body['note'] ?? null ) ? sanitize_textarea_field( (string) $body['note'] ) : '';
+        $note = is_string( $body['note'] ?? null ) ? trim( sanitize_textarea_field( (string) $body['note'] ) ) : '';
+        if ( $note === '' ) {
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Say what changed in this version.', 'talenttrack' ),
+                400,
+                [ 'field' => 'note', 'fields' => [ 'note' ] ]
+            );
+        }
         if ( mb_strlen( $note ) > 500 ) {
             return RestResponse::error( 'invalid_field', __( 'A version note is at most 500 characters.', 'talenttrack' ), 400, [ 'field' => 'note' ] );
         }
@@ -508,16 +560,70 @@ final class ReportsRestController extends BaseController {
         };
         $text = static fn( mixed $value ): string => is_string( $value ) ? trim( $value ) : '';
 
+        $audience = $text( $r->get_param( 'audience' ) );
+        if ( $audience !== '' && ! PlayerReportAudience::isValid( $audience ) ) return self::badFilter( 'audience' );
+
         $data = ReportData::compose( $report, [
             'source'    => $source,
             'player_id' => $id_param( $r->get_param( 'player_id' ) ),
             'team_id'   => $id_param( $r->get_param( 'team_id' ) ),
             'from'      => $text( $r->get_param( 'from' ) ),
             'to'        => $text( $r->get_param( 'to' ) ),
+            'audience'  => $audience,
         ], $reader );
         if ( $data instanceof StudioError ) return self::refuse( $data );
 
         return RestResponse::success( $data );
+    }
+
+    /**
+     * #4571 — how many people publishing to these personas reaches, for the
+     * publish confirm: the people who hold one and can read the subject.
+     */
+    public static function get_reach( WP_REST_Request $r ): WP_REST_Response {
+        $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
+        if ( $blocked ) return $blocked;
+
+        $loaded = self::editable( (int) $r['id'] );
+        if ( $loaded instanceof WP_REST_Response ) return $loaded;
+        [ $report ] = $loaded;
+
+        $raw  = $r->get_param( 'persona_keys' );
+        $raw  = is_string( $raw ) ? explode( ',', $raw ) : ( is_array( $raw ) ? $raw : [] );
+        $keys = [];
+        foreach ( $raw as $key ) {
+            $key = is_string( $key ) ? trim( $key ) : '';
+            if ( $key === '' ) continue;
+            if ( ! in_array( $key, ReportAccess::PUBLISHABLE_PERSONAS, true ) ) return self::badFilter( 'persona_keys' );
+            $keys[ $key ] = $key;
+        }
+        $keys = array_values( $keys );
+
+        $personas = [];
+        foreach ( $keys as $key ) $personas[] = [ 'key' => $key, 'label' => PersonaLabels::label( $key ) ];
+
+        return RestResponse::success( [ 'count' => ReportReach::count( $report, $keys ), 'personas' => $personas ] );
+    }
+
+    /**
+     * #4571 — the teams and players this builder may build a report about,
+     * for the Studio's subject switch. A coach gets their own squads.
+     */
+    public static function subject_options( WP_REST_Request $r ): WP_REST_Response {
+        $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
+        if ( $blocked ) return $blocked;
+
+        $reader  = ReportReader::for( get_current_user_id() );
+        $offered = ReportSubjectOptions::teams( $reader );
+        $teams   = [];
+        foreach ( $offered as $id => $team ) {
+            $teams[] = [ 'id' => $id, 'name' => $team['name'], 'age_group' => $team['age_group'] ];
+        }
+        $players = [];
+        foreach ( ReportSubjectOptions::players( $reader, $offered ) as $team_id => $list ) {
+            foreach ( $list as $pid => $name ) $players[] = [ 'id' => $pid, 'name' => $name, 'team_id' => $team_id ];
+        }
+        return RestResponse::success( [ 'teams' => $teams, 'players' => $players ] );
     }
 
     // ---- helpers ----------------------------------------------------------
