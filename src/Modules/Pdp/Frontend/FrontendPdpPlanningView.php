@@ -276,13 +276,13 @@ final class FrontendPdpPlanningView {
                 'key'      => 'conducted',
                 'label'    => __( 'Conducted', 'talenttrack' ),
                 'modifier' => 'tt-pdp-block-col--ok',
-                'help'     => __( 'Conversation has a recorded conducted_at — the talk happened.', 'talenttrack' ),
+                'help'     => __( 'The conversation took place.', 'talenttrack' ),
             ],
             [
                 'key'      => 'planned',
                 'label'    => __( 'Planned', 'talenttrack' ),
                 'modifier' => 'tt-pdp-block-col--warn',
-                'help'     => __( 'Conversation is on the calendar (scheduled_at set) but no conducted_at yet.', 'talenttrack' ),
+                'help'     => __( 'The conversation has a date but hasn\'t taken place yet.', 'talenttrack' ),
             ],
             [
                 'key'      => 'not_held',

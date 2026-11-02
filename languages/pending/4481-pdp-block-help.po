@@ -1,0 +1,7 @@
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgid "The conversation took place."
+msgstr "Het gesprek heeft plaatsgevonden."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgid "The conversation has a date but hasn't taken place yet."
+msgstr "Het gesprek heeft een datum, maar heeft nog niet plaatsgevonden."
