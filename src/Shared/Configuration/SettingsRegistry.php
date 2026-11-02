@@ -174,13 +174,16 @@ final class SettingsRegistry {
             $out[] = $section;
         }
         if ( $carry !== [] ) {
-            if ( $out === [] ) {
-                $last            = $sections[ count( $sections ) - 1 ];
+            // The tail had too few to stand alone: it joins the section
+            // before it, or keeps the last heading when nothing came first.
+            $last = array_pop( $out );
+            if ( $last === null ) {
+                $last = $sections[ count( $sections ) - 1 ];
                 $last['entries'] = $carry;
-                $out[]           = $last;
             } else {
-                $out[ count( $out ) - 1 ]['entries'] = array_merge( $out[ count( $out ) - 1 ]['entries'], $carry );
+                $last['entries'] = array_merge( $last['entries'], $carry );
             }
+            $out[] = $last;
         }
         return $out;
     }
