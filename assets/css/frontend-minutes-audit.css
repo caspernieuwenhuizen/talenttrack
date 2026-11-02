@@ -161,7 +161,10 @@ table.tt-maud-matrix {
     touch-action: manipulation;
 }
 @media (pointer: coarse) {
-    .tt-maud-cell__link { min-height: var(--tt-tap-min, 3rem); }
+    .tt-maud-cell__link {
+        min-height: var(--tt-tap-min, 3rem);
+        min-width: var(--tt-tap-min, 3rem);
+    }
 }
 .tt-maud-cell__link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .tt-maud-cell__label {
@@ -170,7 +173,6 @@ table.tt-maud-matrix {
     font-weight: 600;
     line-height: 1.1;
     white-space: normal;
-    overflow-wrap: anywhere;
 }
 .tt-maud-cell--tot {
     background: var(--tt-line-soft, #eef0ec);
