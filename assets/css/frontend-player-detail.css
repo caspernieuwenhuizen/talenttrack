@@ -397,7 +397,6 @@
     padding: var(--tt-gap-lg);
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    min-width: 20rem;
     gap: 8px;
     border-radius: var(--tt-radius);
     margin: var(--tt-gap) 0 0;
