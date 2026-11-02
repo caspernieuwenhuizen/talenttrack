@@ -55,13 +55,15 @@ final class MatchPrepAvailabilityChipsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'min-height: 48px;', $rule, 'the chip keeps its tap height' );
     }
 
-    public function test_every_status_sits_on_one_line_from_480px(): void {
-        $block = $this->mediaBlock( 480 );
+    /** #4703 — one row from 768px, one equal column per status. */
+    public function test_every_status_sits_on_one_line_from_768px(): void {
+        $block = $this->mediaBlock( 768 );
 
         $this->assertStringContainsString( 'grid-auto-flow: column;', $block );
         $this->assertStringContainsString( 'grid-auto-columns: minmax(0, 1fr);', $block );
         // One column per status, not a fixed five: the lookup is editable.
         $this->assertStringNotContainsString( 'repeat(5', $block );
+        $this->assertStringNotContainsString( '@media (min-width: 480px)', $this->css(), 'five across at 480 broke short words' );
     }
 
     /**
@@ -70,7 +72,7 @@ final class MatchPrepAvailabilityChipsTest extends WP_UnitTestCase {
      * injury badge ran under the first chip.
      */
     public function test_the_name_stays_above_the_chips_at_every_width(): void {
-        $this->assertStringNotContainsString( '.tt-avail-row', $this->mediaBlock( 480 ) );
+        $this->assertStringNotContainsString( '.tt-avail-row', $this->mediaBlock( 768 ) );
         $this->assertStringNotContainsString( '@media (min-width: 1024px)', $this->css() );
 
         $this->assertSame(
@@ -80,18 +82,35 @@ final class MatchPrepAvailabilityChipsTest extends WP_UnitTestCase {
         );
     }
 
-    /** #4703 — a label breaks only when the word cannot fit at all. */
-    public function test_labels_are_not_hyphenated_automatically(): void {
+    /** #4703 — a longer word breaks at a syllable; anywhere is the last resort. */
+    public function test_a_long_word_is_hyphenated_at_a_syllable(): void {
         $rule = $this->baseRule( '.tt-avail-seg label' );
 
-        $this->assertStringContainsString( 'hyphens: manual;', $rule );
-        $this->assertStringNotContainsString( 'hyphens: auto;', $rule );
+        $this->assertStringContainsString( 'hyphens: auto;', $rule );
+        $this->assertStringContainsString( 'overflow-wrap: anywhere;', $rule );
     }
 
-    public function test_the_base_still_wraps_on_a_small_phone(): void {
+    /** #4703 — three columns below 768px: at most two rows for five statuses. */
+    public function test_a_phone_gets_three_columns(): void {
         $this->assertStringContainsString(
-            'grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));',
+            'grid-template-columns: repeat(3, minmax(0, 1fr));',
             $this->baseRule( '.tt-avail-seg' )
         );
+    }
+
+    /**
+     * #4703 — below 768px a third of a 360px row must hold "Geblesseerd":
+     * narrow side padding, a 0.75rem label, and no bold on the selected one.
+     * The desktop size and the bold return from 768px.
+     */
+    public function test_the_phone_label_is_compact_and_desktop_keeps_its_size(): void {
+        $base = $this->baseRule( '.tt-avail-seg label' );
+        $this->assertStringContainsString( 'padding: 0.375rem 0.25rem;', $base );
+        $this->assertStringContainsString( 'font-size: 0.75rem;', $base );
+        $this->assertStringNotContainsString( 'font-weight', $this->baseRule( '.tt-avail-radio:checked + label' ) );
+
+        $block = $this->mediaBlock( 768 );
+        $this->assertStringContainsString( 'font-size: 0.8125rem;', $block );
+        $this->assertStringContainsString( 'font-weight: 600;', $block );
     }
 }

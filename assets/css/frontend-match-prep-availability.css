@@ -72,10 +72,12 @@
     white-space: nowrap;
 }
 
+/* #4703 — three columns below 768px, so a squad row is never more than two
+   rows of buttons (3 + 2 for five statuses). */
 .tt-avail-seg {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 
@@ -93,31 +95,36 @@
     align-items: center;
     justify-content: center;
     min-height: 48px;
-    /* #4664 — a long translated label ("Verontschuldigd") breaks inside its
-       chip instead of running over its edges. #4703 — only as a last resort:
-       no automatic hyphenation, so a word breaks only when it cannot fit. */
     min-width: 0;
-    padding: 6px 8px;
+    /* #4703 — narrow side padding and a 0.75rem label below 768px, so every
+       status of up to twelve letters ("Geblesseerd") fits whole in a third of
+       a 360px row. */
+    padding: 0.375rem 0.25rem;
     border: 1px solid var(--tt-line, #d6dadd);
     border-radius: 8px;
     background: var(--tt-bg-soft, #f7f9fa);
     color: var(--tt-ink, #36424a);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     line-height: 1.2;
     text-align: center;
+    /* A longer word ("Verontschuldigd") breaks only at a syllable of the
+       page's language; breaking anywhere is the last resort for a custom
+       label that cannot be hyphenated. */
+    hyphens: auto;
     overflow-wrap: anywhere;
-    hyphens: manual;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: background-color 0.12s, border-color 0.12s, color 0.12s;
 }
 
+/* #4703 — the fill marks the choice. Below 768px the label keeps its weight:
+   bold, "Geblesseerd" no longer fits a third of a 360px row in Arial or
+   Open Sans. */
 .tt-avail-radio:checked + label {
     background: var(--tt-primary, #2271b1);
     border-color: var(--tt-primary, #2271b1);
     color: #fff;
-    font-weight: 600;
 }
 
 .tt-avail-radio:focus-visible + label {
@@ -152,13 +159,20 @@
     .tt-avail-seg label { transition: none; }
 }
 
-/* #4664 — every status on one line once a phone is large enough, however
-   many the attendance_status lookup holds: one equal column per chip. Below
-   480px the base auto-fit wraps them (3 + 2 for five). */
-@media (min-width: 480px) {
+/* #4664 / #4703 — one row from 768px, however many statuses the editable
+   attendance_status lookup holds: one equal column per button. Inside the
+   wizard frame each is then about 106px, room for the desktop label size. */
+@media (min-width: 768px) {
     .tt-avail-seg {
         grid-template-columns: none;
         grid-auto-flow: column;
         grid-auto-columns: minmax(0, 1fr);
+    }
+    .tt-avail-seg label {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+    .tt-avail-radio:checked + label {
+        font-weight: 600;
     }
 }
