@@ -385,12 +385,18 @@
 
 /* ---------- Key facts strip ---------- */
 
+/* #4702 — a bare 1fr track has a min-content floor, so one unbreakable
+   label ("GEBOORTEDATUM") widened its column and the strip ran 1px past a
+   320px viewport. minmax(0, 1fr) tracks, as the team tiles have (#4213).
+   The labels are short forms that fit an equal column from 360px without
+   hyphenating; `overflow-wrap` is only the last resort for a long
+   translation or a 320px phone. */
 .tt-player-facts {
     background: var(--tt-paper);
     border-bottom: 1px solid var(--tt-line-soft);
     padding: var(--tt-gap-lg);
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     border-radius: var(--tt-radius);
     margin: var(--tt-gap) 0 0;
@@ -408,6 +414,8 @@
     color: var(--tt-ink-soft);
     font-weight: 600;
     display: block;
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-facts__value {
     font-size: 15px;
@@ -448,9 +456,11 @@
     color: var(--tt-ink-soft);
     margin: 0 0 8px;
 }
+/* #4702 — same min-content floor as the facts strip: "AANWEZIGHEID" put a
+   tile 6px past a 320px viewport. */
 .tt-player-glance__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 .tt-player-kpi {
@@ -472,6 +482,8 @@
     letter-spacing: 0.4px;
     font-weight: 600;
     color: var(--tt-ink-soft);
+    overflow-wrap: anywhere;
+    hyphens: manual;
 }
 .tt-player-kpi__num {
     font-size: 20px;
