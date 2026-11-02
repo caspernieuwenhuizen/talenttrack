@@ -360,6 +360,23 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             static fn( array $t ): bool => empty( $t['can'] ) || $t['can']( $user_id )
         ) );
 
+        // #4591 — "Shared with me": the Report Studio reports published to a
+        // persona this reader holds, about a subject they read. The list is
+        // the one `GET /reports?owner=published` answers.
+        $shared = [];
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'report_studio' ) && \TT\Modules\License\LicenseGate::allows( 'report_studio' ) ) {
+            foreach ( \TT\Modules\ReportStudio\Domain\SharedWithMe::forReader( \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id ) ) as $report ) {
+                $slug     = 'studio-report-' . $report['id'];
+                $shared[] = $slug;
+                $tiles[]  = [
+                    'slug'  => $slug,
+                    'label' => $report['name'] !== '' ? $report['name'] : __( 'Untitled report', 'talenttrack' ),
+                    'desc'  => \TT\Modules\ReportStudio\Domain\ReportStartRules::label( 'kind', $report['kind'] ) . ' · ' . \TT\Modules\ReportStudio\Domain\ReportStartRules::label( 'scope', $report['scope'] ),
+                    'url'   => \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'report', $report['id'] ), /* tt-xview-ok — listed only for a recipient (ReportAccess), and the view checks again */
+                ];
+            }
+        }
+
         // #2357 — honest empty state. When every tile has been filtered
         // away — no report is enabled for this academy, or the viewer's
         // scope caps hide them all — render a clear notice instead of a
@@ -383,6 +400,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // by a group falls through to a trailing "Other reports" section
         // so a future addition is never silently dropped.
         $groups = [
+            [ 'label' => __( 'Shared with me', 'talenttrack' ),            'slugs' => $shared ],
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'team-monthly', 'player-report', 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
             [ 'label' => __( 'Tests & measurements', 'talenttrack' ),      'slugs' => [ 'test-trends', 'player-bmi' ] ],
             [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-share', 'minutes-report-team', 'minutes-audit' ] ],

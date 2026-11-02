@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
@@ -96,7 +97,7 @@ final class ReportData {
                 }
                 $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'error' => [ 'code' => $read->code, 'message' => $read->message ] ];
             } else {
-                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
+                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => is_array( $read['data'] ) ? self::masked( self::stringKeys( $read['data'] ), $user_id ) : $read['data'] ];
             }
             $blocks[] = $out;
             $layout[] = [ 'id' => $block['id'], 'width' => $block['width'], 'rows' => ReportPageFit::rowsOf( $out ) ];
@@ -252,6 +253,35 @@ final class ReportData {
         }
         if ( $asked !== null && in_array( $asked, $ids, true ) ) return $asked;
         return $ids[0] ?? null;
+    }
+
+    /**
+     * #4591 — a block's rows about a player go through the sensitive-field
+     * registry (`RecordRedactor`, entity `players`), so a field this reader
+     * may not see about that player never leaves the server, whichever block
+     * carries it.
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
+    private static function masked( array $data, int $user_id ): array {
+        if ( ! is_array( $data['rows'] ?? null ) || RecordRedactor::fields( 'players' ) === [] ) return $data;
+
+        $teams = [];
+        foreach ( $data['rows'] as $row ) {
+            if ( is_array( $row ) && (int) ( $row['player_id'] ?? 0 ) > 0 ) $teams[ (int) $row['player_id'] ] = null;
+        }
+        if ( $teams === [] ) return $data;
+        RecordRedactor::prime( $user_id, $teams );
+
+        $rows = [];
+        foreach ( $data['rows'] as $row ) {
+            $rows[] = is_array( $row ) && (int) ( $row['player_id'] ?? 0 ) > 0
+                ? RecordRedactor::redact( 'players', self::stringKeys( $row ), $user_id, (int) $row['player_id'] )
+                : $row;
+        }
+        $data['rows'] = $rows;
+        return $data;
     }
 
     private static function missing( string $field, string $message ): StudioError {

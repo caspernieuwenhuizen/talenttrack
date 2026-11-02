@@ -463,9 +463,17 @@ paths:
     get:
       tags: [report-studio]
       summary: Every block's data for the caller
-      description: 'Query — source (draft | published), player_id / team_id for a subject chosen when opened, from / to for a period chosen when opened, audience (internal | scout | family) for an editor''s preview, cut on the server. A recipient cannot change a fixed subject, period or audience. Each block is read through the block engine, which checks the subject on every call. `page_fit` is the A4 estimate: pages, fill, breaks.'
+      description: 'Query — source (draft | published), player_id / team_id for a subject chosen when opened, from / to or period (last_week | last_month | this_month | this_season) for a period chosen when opened, audience (internal | scout | family) for an editor''s preview, cut on the server. A recipient cannot change a fixed subject, period or audience. Each block is read through the block engine, which checks the subject on every call. `page_fit` is the A4 estimate: pages, fill, breaks.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '400': { description: 'invalid_field, bad_date or bad_filter' }, '403': { description: 'forbidden, forbidden_team, forbidden_player, forbidden_scope, fixed_subject, fixed_period or fixed_audience' }, '404': { description: not_published } }
+
+  /reports/{id}/subjects:
+    get:
+      tags: [report-studio]
+      summary: The subjects a reader may switch a report they read to
+      description: 'Cap required: `tt_view_reports`, and the caller reads the report. None for a fixed subject; the teams or players the reader reads for one chosen when opened; the reader''s own teams for one that follows the viewer.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: 'OK — teams, players' }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found } }
 
   /reports/{id}/reach:
     get:

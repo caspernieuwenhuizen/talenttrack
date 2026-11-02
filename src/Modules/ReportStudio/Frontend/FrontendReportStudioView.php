@@ -240,7 +240,8 @@ final class FrontendReportStudioView extends FrontendViewBase {
     private static function enqueue( int $id, string $scope ): void {
         self::enqueueStyle();
         SaveState::enqueue();
-        wp_enqueue_script( 'tt-report-studio', TT_PLUGIN_URL . 'assets/js/frontend-report-studio.js', [ 'tt-autosave' ], TT_VERSION, true );
+        wp_enqueue_script( 'tt-report-blocks', TT_PLUGIN_URL . 'assets/js/tt-report-blocks.js', [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-report-studio', TT_PLUGIN_URL . 'assets/js/frontend-report-studio.js', [ 'tt-autosave', 'tt-report-blocks' ], TT_VERSION, true );
         wp_localize_script( 'tt-report-studio', 'TTReportStudio', [
             'id'         => $id,
             'rest'       => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
@@ -257,7 +258,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
      *
      * @return array<string,string>
      */
-    private static function columns(): array {
+    public static function columns(): array {
         return [
             'week'              => _x( 'Week', 'report studio column', 'talenttrack' ),
             'attendance_pct'    => _x( 'Attendance %', 'report studio column', 'talenttrack' ),

@@ -12,6 +12,8 @@ use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportReach;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
+use TT\Modules\ReportStudio\Domain\ReportViewerSubjects;
+use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportCreation;
@@ -38,6 +40,7 @@ use WP_REST_Response;
  *   GET    /reports/{id}/data          every block's data, for me
  *   GET    /reports/{id}/reach         how many people publishing to personas reaches
  *   GET    /reports/subject-options    the teams and players I build reports about
+ *   GET    /reports/{id}/subjects      the subjects I may switch a report I read to
  *
  * Every route answers 402 without the `report_studio` plan feature. The
  * capabilities are club-wide, so each by-id route asks `ReportAccess` about
@@ -166,7 +169,15 @@ final class ReportsRestController extends BaseController {
                     'from'      => [ 'type' => 'string', 'description' => 'Y-m-d. Only for a period chosen when opened, or by a builder.' ],
                     'to'        => [ 'type' => 'string', 'description' => 'Y-m-d. As from.' ],
                     'audience'  => [ 'type' => 'string', 'description' => 'internal, scout or family: a builder previews the report as that audience gets it. A recipient reads the report\'s own audience.' ],
+                    'period'    => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season, computed today, instead of from and to. Same rule as from and to.' ],
                 ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/(?P<id>\d+)/subjects', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_subjects' ],
+                'permission_callback' => $view,
             ],
         ] );
         register_rest_route( self::NS, '/reports/(?P<id>\d+)/reach', [
@@ -563,17 +574,49 @@ final class ReportsRestController extends BaseController {
         $audience = $text( $r->get_param( 'audience' ) );
         if ( $audience !== '' && ! PlayerReportAudience::isValid( $audience ) ) return self::badFilter( 'audience' );
 
+        // #4591 — a period pill, computed today; it then counts as asked
+        // from / to, so a recipient may send it only when the report leaves
+        // the period open.
+        $from   = $text( $r->get_param( 'from' ) );
+        $to     = $text( $r->get_param( 'to' ) );
+        $period = $text( $r->get_param( 'period' ) );
+        if ( $period !== '' ) {
+            $window = ReportFilters::sanitizePeriod( $period ) !== ''
+                ? ReportFilters::periodWindow( $period, (string) current_time( 'Y-m-d' ) )
+                : null;
+            if ( $window === null ) return self::badFilter( 'period' );
+            $from = $window['from'];
+            $to   = $window['to'];
+        }
+
         $data = ReportData::compose( $report, [
             'source'    => $source,
             'player_id' => $id_param( $r->get_param( 'player_id' ) ),
             'team_id'   => $id_param( $r->get_param( 'team_id' ) ),
-            'from'      => $text( $r->get_param( 'from' ) ),
-            'to'        => $text( $r->get_param( 'to' ) ),
+            'from'      => $from,
+            'to'        => $to,
             'audience'  => $audience,
         ], $reader );
         if ( $data instanceof StudioError ) return self::refuse( $data );
 
         return RestResponse::success( $data );
+    }
+
+    /**
+     * #4591 — the subjects this reader may switch the report to, by its
+     * binding: none for a fixed subject, the teams or players they read for
+     * one chosen when opened, their own teams for one that follows them.
+     */
+    public static function get_subjects( WP_REST_Request $r ): WP_REST_Response {
+        $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
+        if ( $blocked ) return $blocked;
+
+        $report = ( new ReportsRepository() )->find( (int) $r['id'] );
+        if ( $report === null ) return RestResponse::notFound();
+        $reader = ReportReader::for( get_current_user_id() );
+        if ( ! ReportAccess::canRead( $reader, $report ) ) return self::notShared();
+
+        return RestResponse::success( ReportViewerSubjects::for( $reader, $report ) );
     }
 
     /**
