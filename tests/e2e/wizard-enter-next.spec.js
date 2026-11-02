@@ -49,8 +49,11 @@ async function enterOn( page, field ) {
 async function cancelRun( page ) {
 	const cancel = page.locator( '.tt-wizard-actions [data-role="cancel"]' );
 	if ( ( await cancel.count() ) === 0 ) return;
-	// Submitted through the form, not clicked: where the action bar sits on a
-	// long step is not this spec's subject.
+	// Submitted through the form, not clicked. After a step POST the page
+	// arrives through a cross-document view transition (`@view-transition`
+	// in frontend-canvas.css), and a click() then waits forever in
+	// Playwright's "stable" check: the trace shows it stuck there with a
+	// "Transition was skipped" page error. Cancel itself works.
 	await Promise.all( [
 		page.waitForNavigation( { timeout: 30000 } ),
 		cancel.evaluate( ( b ) => { const btn = /** @type {HTMLButtonElement} */ ( b ); if ( btn.form ) btn.form.requestSubmit( btn ); } ),
