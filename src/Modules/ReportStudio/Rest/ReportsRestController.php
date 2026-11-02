@@ -215,25 +215,27 @@ final class ReportsRestController extends BaseController {
         if ( ! in_array( $per_page, self::PER_PAGE, true ) ) return self::badFilter( 'per_page' );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) return self::badFilter( 'order' );
 
-        $reader = ReportReader::for( get_current_user_id() );
-        $rows   = ( new ReportsRepository() )->listFor(
+        // A report published to me is listed only while I can read what it
+        // is about; the query applies that, so it pages and counts exactly.
+        $reader   = ReportReader::for( get_current_user_id() );
+        $repo     = new ReportsRepository();
+        $subjects = ReportAccess::listedSubjects( $reader, $repo->publishedPlayerSubjects( $reader->userId, $reader->personas() ) );
+        $list     = $repo->listFor(
             $reader->userId,
             $reader->personas(),
             [ 'kind' => $values['kind'], 'scope' => $values['scope'], 'owner' => $values['owner'], 'archived' => $values['archived'] ],
-            $order === 'asc'
+            $subjects,
+            $order === 'asc',
+            $page,
+            $per_page
         );
 
-        // Every player subject on the list in one read, then a report
-        // published to me stays only while I can reach what it is about.
-        $reader->primePlayers( array_values( array_filter( array_map( static fn( array $row ): int => (int) $row['player_id'], $rows ) ) ) );
-        $rows = array_values( array_filter(
-            $rows,
-            static fn( array $row ): bool => $row['owner_user_id'] === $reader->userId || ReportAccess::canReadSubject( $reader, $row )
-        ) );
+        // The page's own player subjects in one read, for its permissions.
+        $reader->primePlayers( array_values( array_filter( array_map( static fn( array $row ): int => (int) $row['player_id'], $list['rows'] ) ) ) );
 
         return RestResponse::success( [
-            'rows'     => array_map( static fn( array $report ): array => self::payload( $report, $reader ), array_slice( $rows, ( $page - 1 ) * $per_page, $per_page ) ),
-            'total'    => count( $rows ),
+            'rows'     => array_map( static fn( array $report ): array => self::payload( $report, $reader ), $list['rows'] ),
+            'total'    => $list['total'],
             'page'     => $page,
             'per_page' => $per_page,
         ] );

@@ -57,10 +57,11 @@ final class PlayerReportAccess {
         if ( $ids === [] ) return $out;
 
         global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, team_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND FIND_IN_SET( id, %s )",
+            "SELECT id, team_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
             (int) CurrentClub::id(),
-            implode( ',', $ids )
+            ...$ids
         ) );
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             if ( is_object( $row ) ) $out['teams'][ (int) ( $row->id ?? 0 ) ] = (int) ( $row->team_id ?? 0 );

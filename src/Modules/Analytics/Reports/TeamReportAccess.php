@@ -31,4 +31,31 @@ final class TeamReportAccess {
 
         return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'read', 'team', $team_id );
     }
+
+    /**
+     * `canRead()` as a list, for a query: null for every team, otherwise the
+     * teams the user is assigned to on which the matrix grants `reports`
+     * read. An empty list means none.
+     *
+     * @return list<int>|null
+     */
+    public static function readableTeamIds( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return user_can( $user_id, 'tt_view_reports' ) ? null : [];
+        }
+
+        if ( \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'read', 'global' ) ) {
+            return null;
+        }
+
+        $out = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $id = (int) ( $team->id ?? 0 );
+            if ( $id > 0 && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'read', 'team', $id ) ) {
+                $out[ $id ] = $id;
+            }
+        }
+        return array_values( $out );
+    }
 }
