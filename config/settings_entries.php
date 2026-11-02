@@ -18,7 +18,9 @@
  *                   opening wp-admin.
  * Non-tile entries carry `label`, `description`, an optional `module` and
  * one access rule: `cap` (user_can), `matrix_cap` (user_can or the
- * authorization matrix) or `check` (a named rule in SettingsRegistry).
+ * authorization matrix) or `check` (a named rule in SettingsRegistry), and
+ * optionally a `feature` key that hides the entry while it is off. A `sub`
+ * entry also needs `tt_view_settings`, which the Configuration page asks.
  * `keywords` are the extra words the filter and search match on; the Dutch
  * translation carries Dutch and English words alike.
  *
@@ -89,6 +91,7 @@ return [
         ],
         [
             'key' => 'persona-templates', 'section' => 'academy', 'view' => 'persona-templates', 'cap' => 'tt_edit_persona_templates',
+            'feature'     => 'persona_dashboard_editor',
             'module'      => 'TT\\Modules\\PersonaDashboard\\PersonaDashboardModule',
             'label'       => __( 'Dashboard layouts', 'talenttrack' ),
             'description' => __( 'Drag-and-drop editor — tune what each persona sees on their landing page.', 'talenttrack' ),

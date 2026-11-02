@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
+use TT\Core\FeatureRegistry;
 use TT\Core\ModuleRegistry;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
@@ -30,6 +31,9 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
 
     private int $admin = 0;
 
+    /** @var array<string,bool> module class => enabled before this test */
+    private array $modules_were = [];
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
@@ -38,10 +42,20 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
         SettingsRegistry::clear();
         AuthorizationService::flushCache();
         $this->admin = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        // Pin every module an entry depends on to on, so the section counts
+        // do not move with whatever an earlier test left switched off.
+        foreach ( $this->entryModules() as $module ) {
+            $this->modules_were[ $module ] = ModuleRegistry::isEnabled( $module );
+            ModuleRegistry::setEnabled( $module, true );
+        }
     }
 
     public function tear_down(): void {
-        ModuleRegistry::setEnabled( self::SPOND, true );
+        foreach ( $this->modules_were as $module => $enabled ) {
+            ModuleRegistry::setEnabled( $module, $enabled );
+        }
+        $this->modules_were = [];
         SettingsRegistry::clear();
         TileRegistry::clear();
         foreach ( $this->tiles_were as $tile ) {
@@ -49,6 +63,25 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
         }
         wp_set_current_user( 0 );
         parent::tear_down();
+    }
+
+    /** @return list<string> every module an entry or its tile belongs to */
+    private function entryModules(): array {
+        $modules = [];
+        foreach ( SettingsRegistry::declared() as $entry ) {
+            $module = (string) ( $entry['module'] ?? '' );
+            $tile   = (string) ( $entry['tile'] ?? '' );
+            if ( $tile !== '' ) {
+                foreach ( TileRegistry::allRegistered() as $registered ) {
+                    if ( (string) ( $registered['slug'] ?? '' ) === $tile ) {
+                        $module = (string) ( $registered['module_class'] ?? '' );
+                        break;
+                    }
+                }
+            }
+            if ( $module !== '' ) $modules[ ltrim( $module, '\\' ) ] = true;
+        }
+        return array_keys( $modules );
     }
 
     /** @return list<string> */
@@ -71,10 +104,8 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
 
         $this->assertNotSame( [], $keys );
         $order = NavigationGroups::keysFor( NavigationGroups::SURFACE_SETTINGS );
-        $this->assertSame( array_values( array_intersect( $order, $keys ) ), $keys, 'sections follow config/navigation_groups.php' );
-        // Folding may merge a section an install has switched off modules
-        // in, so the admin sees most of the ten, never fewer than eight.
-        $this->assertGreaterThanOrEqual( 8, count( $keys ) );
+        $this->assertCount( 10, $order );
+        $this->assertSame( $order, $keys, 'an admin sees all ten sections, in order' );
 
         foreach ( $sections as $section ) {
             $this->assertSame( NavigationGroups::label( $section['key'] ), $section['label'] );
@@ -155,6 +186,56 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
         $this->assertContains( $expected, $found );
     }
 
+    public function test_the_filter_matches_the_english_keywords_in_another_language(): void {
+        // Stand-in for a Dutch catalogue: every keyword string translated
+        // to something that shares no word with the English.
+        $translate = static function ( $translation, $text, $context ) {
+            return $context === 'settings search keywords' ? 'vertaald' : $translation;
+        };
+        add_filter( 'gettext_with_context', $translate, 10, 3 );
+        SettingsRegistry::clear();
+
+        $entries = $this->byKey( $this->admin );
+        $weights = $entries['eval-category-weights'];
+
+        $this->assertSame( 'vertaald', $weights['keywords'], 'keywords are returned in the viewer\'s language' );
+        $this->assertTrue( SettingsRegistry::matches( $weights, 'weighting' ), 'and still match in English' );
+        $this->assertTrue( SettingsRegistry::matches( $weights, 'vertaald' ) );
+
+        remove_filter( 'gettext_with_context', $translate, 10 );
+        SettingsRegistry::clear();
+    }
+
+    public function test_the_filter_finds_weging_with_the_dutch_keywords(): void {
+        // The Dutch msgstr from languages/pending/4670-settings-registry.po,
+        // served as the catalogue would.
+        $dutch = static function ( $translation, $text, $context ) {
+            return ( $context === 'settings search keywords' && $text === 'weighting, weights, overall rating, age group' )
+                ? 'weging, gewicht, totaalcijfer, leeftijdsgroep, weighting, weights'
+                : $translation;
+        };
+        add_filter( 'gettext_with_context', $dutch, 10, 3 );
+        SettingsRegistry::clear();
+
+        $found = array_column(
+            array_filter( SettingsRegistry::entriesFor( $this->admin ), static fn ( array $e ): bool => SettingsRegistry::matches( $e, 'weging' ) ),
+            'key'
+        );
+
+        remove_filter( 'gettext_with_context', $dutch, 10 );
+        SettingsRegistry::clear();
+        $this->assertContains( 'eval-category-weights', $found );
+    }
+
+    public function test_accent_folding_works_for_an_entry_a_coach_can_see(): void {
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        AuthorizationService::flushCache();
+
+        $entries = $this->byKey( $coach );
+        $this->assertArrayHasKey( 'features', $entries, 'precondition: a coach sees the Features screen' );
+        $this->assertTrue( SettingsRegistry::matches( $entries['features'], 'FÉATÚRES' ) );
+    }
+
     public function test_the_filter_finds_nothing_for_nonsense(): void {
         $found = array_filter( SettingsRegistry::entriesFor( $this->admin ), static fn ( array $e ): bool => SettingsRegistry::matches( $e, 'qqxzzv' ) );
         $this->assertSame( [], $found );
@@ -182,6 +263,48 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt_view=modules', $entries['spond']['url'], 'the link leads to where it is turned on' );
 
         $this->assertNotContains( 'spond', $this->keysFor( $hod ), 'hidden from anyone who cannot switch it on' );
+    }
+
+    public function test_a_config_sub_entry_also_needs_the_configuration_page(): void {
+        // `read` is held by everyone; the form still renders inside the
+        // Configuration page, which a coach may not open.
+        SettingsRegistry::register( [
+            'key' => 'tt-test-sub', 'section' => 'academy', 'sub' => 'general', 'cap' => 'read',
+            'label' => 'Test form', 'description' => '',
+        ] );
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        AuthorizationService::flushCache();
+
+        $this->assertNotContains( 'tt-test-sub', $this->keysFor( $coach ) );
+        $this->assertContains( 'tt-test-sub', $this->keysFor( $this->admin ) );
+    }
+
+    public function test_dashboard_layouts_hide_while_the_editor_feature_is_off(): void {
+        $was = FeatureRegistry::isEnabled( 'persona_dashboard_editor' );
+        FeatureRegistry::setEnabled( 'persona_dashboard_editor', false );
+        $off = $this->keysFor( $this->admin );
+        FeatureRegistry::setEnabled( 'persona_dashboard_editor', true );
+        $on = $this->keysFor( $this->admin );
+        FeatureRegistry::setEnabled( 'persona_dashboard_editor', $was );
+
+        $this->assertNotContains( 'persona-templates', $off );
+        $this->assertContains( 'persona-templates', $on );
+    }
+
+    public function test_a_switched_off_module_does_not_open_an_entry_beyond_its_own_right(): void {
+        ModuleRegistry::setEnabled( self::SPOND, false );
+        // tt_manage_modules without Spond's own tt_edit_teams.
+        $grant = static function ( array $allcaps ): array {
+            $allcaps['tt_manage_modules'] = true;
+            $allcaps['tt_edit_teams']     = false;
+            return $allcaps;
+        };
+        $editor = (int) self::factory()->user->create( [ 'role' => 'editor' ] );
+        add_filter( 'user_has_cap', $grant, PHP_INT_MAX );
+        $keys = $this->keysFor( $editor );
+        remove_filter( 'user_has_cap', $grant, PHP_INT_MAX );
+
+        $this->assertNotContains( 'spond', $keys );
     }
 
     public function test_an_entry_with_a_module_that_is_on_says_so(): void {
@@ -260,15 +383,32 @@ final class SettingsRegistryTest extends WP_UnitTestCase {
         [ $status, $entries ] = $this->rest( $coach );
         $keys = array_column( $entries, 'key' );
 
-        if ( $status === 403 ) {
-            $this->assertSame( [], $this->keysFor( $coach ), 'refused only when there is nothing to open' );
-            return;
-        }
+        // A coach has no tt_view_settings, but may open the Features and
+        // Plan screens every staff member sees, so the route answers 200
+        // with those and nothing an administrator holds.
         $this->assertSame( 200, $status );
         $this->assertSame( $this->keysFor( $coach ), $keys );
+        $this->assertContains( 'features', $keys );
         foreach ( [ 'matrix', 'general', 'appearance', 'backups', 'modules' ] as $admin_only ) {
             $this->assertNotContains( $admin_only, $keys );
         }
+    }
+
+    /** @return array<string, array{0:string}> */
+    public static function familyRoles(): array {
+        return [ 'player' => [ 'tt_player' ], 'parent' => [ 'tt_parent' ] ];
+    }
+
+    /** @dataProvider familyRoles */
+    public function test_rest_refuses_a_player_and_a_parent( string $role ): void {
+        $uid = (int) self::factory()->user->create( [ 'role' => $role ] );
+        AuthorizationService::flushCache();
+
+        [ $status, $entries ] = $this->rest( $uid );
+
+        $this->assertSame( 403, $status );
+        $this->assertSame( [], $entries );
+        $this->assertSame( [], $this->keysFor( $uid ) );
     }
 
     public function test_rest_refuses_a_visitor(): void {

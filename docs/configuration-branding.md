@@ -113,7 +113,7 @@ The **Find a setting** box at the top filters as you type. It matches the name, 
 
 Entries that open in wp-admin carry an external-link marker so the context switch is expected; frontend entries do not.
 
-*Developers:* the entries live in `config/settings_entries.php` and are read by `\TT\Shared\Configuration\SettingsRegistry`, which the landing, `GET /talenttrack/v1/settings-entries` (see the REST API reference) and search all use. A module adds its own with `SettingsRegistry::register()`. Entries contributed through the `tt_config_tile_groups` filter still appear, under Academy, unless an entry already leads to the same screen; the filter is deprecated. `tools/check-settings-entries.php` fails the build when a `?config_sub=` form, a setup tile in a settings section or a settings screen the Configuration module owns has no entry, unless `not_entries` says why.
+*Developers:* the entries live in `config/settings_entries.php` and are read by `\TT\Shared\Configuration\SettingsRegistry`, which the landing, `GET /talenttrack/v1/settings-entries` (see the REST API reference) and search all use. Every entry for a screen in this repository goes in that file, because `tools/check-settings-entries.php` reads only the file; `SettingsRegistry::register()` is for code outside this repository, such as an add-on plugin. Entries contributed through the `tt_config_tile_groups` filter still appear, under Academy, unless an entry already leads to the same screen; the filter is deprecated. `tools/check-settings-entries.php` fails the build when a `?config_sub=` form, a setup tile in a settings section or a settings screen the Configuration module owns has no entry, unless `not_entries` says why.
 
 ## Tabs
 

@@ -815,7 +815,10 @@ the same list, in the same order, as the Configuration landing.
 
 | Param | Type | Notes |
 | --- | --- | --- |
-| `q` | string, optional | Keeps the entries whose label, description, keywords or section name contain it, ignoring case and accents. The rule the landing's filter box applies. |
+| `q` | string, optional | A search term, not a structured query: keeps the entries whose label, description, keywords (in the caller's locale or in English) or section name contain it, ignoring case and accents. The rule the landing's filter box applies. |
+
+Unpaginated by design: the list is bounded by the settings that exist (a few
+dozen), and a caller filtering or searching wants all of them at once.
 
 Permission: `tt_view_settings`, or the right to open at least one entry (a user
 who may import players reaches that entry and nothing else). Logged out: 401.

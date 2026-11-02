@@ -1552,14 +1552,6 @@ class FrontendConfigurationView extends FrontendViewBase {
         .tt-cfg-tile-icon { margin-bottom: 8px; line-height: 0; }
         .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
         .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
-        /* #1087 VCT-12 — accent variant + count line for the two VCT
-         * Configuration tiles (macro-blocks + age-profiles). Pattern
-         * lifted from the PDP-blocks tile; accent + "NEW" pill mirror
-         * the `.local-mockups/vct-config-tiles/` design-of-record. */
-        .tt-cfg-tile--vct { border-color: #1d7874; position: relative; }
-        .tt-cfg-tile--vct:hover, .tt-cfg-tile--vct:focus { border-color: #145955; }
-        .tt-cfg-tile-badge { position: absolute; top: 8px; right: 8px; background: #1d7874; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
-        .tt-cfg-tile-count { margin-top: 8px; font-size: 11px; color: #1d7874; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
         </style>
         <?php
         echo \TT\Shared\Frontend\Components\TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
@@ -1633,46 +1625,6 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
         echo '</div>';
         echo '</div>';
-    }
-
-    /**
-     * #1532 — unified renderer for one Configuration tile, used by every
-     * section. Handles an IconRenderer slug or an emoji icon, the
-     * "opens in wp-admin" marker, and the VCT accent variant (badge +
-     * count line).
-     *
-     * @param array<string,mixed> $tile
-     */
-    public static function renderConfigTile( array $tile ): void {
-        $title    = (string) ( $tile['title'] ?? '' );
-        $desc     = (string) ( $tile['desc'] ?? '' );
-        $url      = (string) ( $tile['url'] ?? '' );
-        $icon     = (string) ( $tile['icon'] ?? '' );
-        $emoji    = ! empty( $tile['emoji'] );
-        $external = ! empty( $tile['external'] );
-        $is_vct   = ! empty( $tile['vct'] );
-
-        echo '<a class="tt-cfg-tile' . ( $is_vct ? ' tt-cfg-tile--vct' : '' ) . '" href="' . esc_url( $url ) . '">';
-        if ( $is_vct ) {
-            echo '<span class="tt-cfg-tile-badge">' . esc_html__( 'NEW', 'talenttrack' ) . '</span>';
-        }
-        if ( $icon !== '' ) {
-            if ( $emoji ) {
-                echo '<div class="tt-cfg-tile-icon" style="font-size:22px; line-height:1;">' . esc_html( $icon ) . '</div>';
-            } else {
-                echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Frontend\Components\TileIconChip::render( $icon, '#0b3d2e' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
-            }
-        }
-        echo '<div class="tt-cfg-tile-title">' . esc_html( $title );
-        if ( $external ) {
-            echo ' ' . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
-        }
-        echo '</div>';
-        echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
-        if ( ! empty( $tile['count'] ) ) {
-            echo '<div class="tt-cfg-tile-count">' . esc_html( (string) $tile['count'] ) . '</div>';
-        }
-        echo '</a>';
     }
 
     /**

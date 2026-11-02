@@ -91,13 +91,13 @@ Configuratie groepeert de instellingen **naar de taak die je voor ogen hebt**, n
 
 | Sectie | De vraag | Wat erin staat |
 | --- | --- | --- |
-| Academie | Hoe heet en oogt de academie, en hoe loopt het seizoen? | Algemeen, Uiterlijk, Eigen CSS, Seizoenen, Vakanties, Seizoensovergang, Standaarddashboard, Dashboardindelingen, Eigen widgets, Installatie |
+| Academie | Hoe heet de academie, hoe ziet ze eruit en hoe loopt het seizoen? | Algemeen, Uiterlijk, Eigen CSS, Seizoenen, Vakanties, Seizoensovergang, Standaarddashboard, Dashboardindelingen, Eigen widgets, Installatie |
 | Spelers & teams | Welke gegevens houden we bij per speler en team? | Eigen velden, Profielkaarten, Methodiek spelersstatus, Functionele rollen, Stagetrajecten, Briefsjablonen, Spelers importeren (CSV) |
 | Ontwikkeling & evaluaties | Hoe beoordelen en ontwikkelen we spelers? | Evaluatiecategorieën, Categoriegewichten, Beoordelingsschaal, POP-cyclusblokken, POP-voorbereidingsvragen, Tests beheren, Chemie-instellingen, Methodiek-vocabulaire |
 | Activiteiten & wedstrijden | Hoe plannen en registreren we trainingen en wedstrijden? | Wedstrijdminuten, VCT-configuratie, Spond, Strava |
 | Keuzelijsten | Welke waarden staan in de lijsten? | Alle keuzelijsten, Aanwezigheidsstatussen, Voetbalvorm, Taalcontrole keuzelijsten |
 | Mensen & toegang | Wie mag wat zien en doen? | Accounts & toegang, Uitnodigingen, Toegangsmatrix, Tweestapsverificatie verplichten |
-| Berichten & taken | Wat sturen we wie, en welke taken lopen automatisch? | Berichten, Workflow-sjablonen, Vertalingen |
+| Berichten & taken | Wat sturen we naar wie, en welke taken lopen automatisch? | Berichten, Workflow-sjablonen, Vertalingen |
 | Gegevens | Hoe halen we gegevens binnen en houden we ze veilig? | Back-ups, Configuratie exporteren, Prullenbak, Importgeschiedenis, Mediabewaring |
 | Functies & pakket | Wat staat aan, en wat zit in ons pakket? | Modules, Functies, Wizards, Pakket en beperkingen |
 | Systeem | Voor de beheerder: logboeken en techniek. | Auditlog, Berichtenlogboek, Databrowser, Migraties, wp-admin-menu's, wp-admin openen |
@@ -113,7 +113,7 @@ Het vak **Zoek een instelling** bovenaan filtert terwijl je typt. Het zoekt in d
 
 Onderdelen die in wp-admin openen hebben een externe-link-markering zodat de contextwissel verwacht is; frontend-onderdelen niet.
 
-*Ontwikkelaars:* de onderdelen staan in `config/settings_entries.php` en worden gelezen door `\TT\Shared\Configuration\SettingsRegistry`, dat de startpagina, `GET /talenttrack/v1/settings-entries` (zie de REST API-referentie) en zoeken allemaal gebruiken. Een module voegt de eigen onderdelen toe met `SettingsRegistry::register()`. Onderdelen die via de filter `tt_config_tile_groups` worden aangeleverd verschijnen nog steeds, onder Academie, tenzij een onderdeel al naar hetzelfde scherm leidt; de filter is verouderd. `tools/check-settings-entries.php` laat de build falen als een `?config_sub=`-formulier, een inrichtingstegel in een instellingssectie of een instellingsscherm van de module Configuratie geen onderdeel heeft, tenzij `not_entries` uitlegt waarom.
+*Ontwikkelaars:* de onderdelen staan in `config/settings_entries.php` en worden gelezen door `\TT\Shared\Configuration\SettingsRegistry`, dat de startpagina, `GET /talenttrack/v1/settings-entries` (zie de REST API-referentie) en zoeken allemaal gebruiken. Elk onderdeel voor een scherm in deze repository staat in dat bestand, omdat `tools/check-settings-entries.php` alleen het bestand leest; `SettingsRegistry::register()` is voor code buiten deze repository, zoals een add-on-plugin. Onderdelen die via de filter `tt_config_tile_groups` worden aangeleverd verschijnen nog steeds, onder Academie, tenzij een onderdeel al naar hetzelfde scherm leidt; de filter is verouderd. `tools/check-settings-entries.php` laat de build falen als een `?config_sub=`-formulier, een inrichtingstegel in een instellingssectie of een instellingsscherm van de module Configuratie geen onderdeel heeft, tenzij `not_entries` uitlegt waarom.
 
 ## Tabbladen
 

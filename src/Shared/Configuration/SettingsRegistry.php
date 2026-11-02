@@ -15,8 +15,10 @@ use TT\Shared\Tiles\TileRegistry;
  *
  * The Configuration landing, its filter box, `GET /settings-entries` and the
  * global search all read it, so a setting is found in the same place by all
- * of them. The core entries live in `config/settings_entries.php`; a module
- * may add its own with {@see register()}. Entries contributed through the
+ * of them. Every entry for a screen in this repository lives in
+ * `config/settings_entries.php`, which is what `tools/check-settings-entries.php`
+ * reads; {@see register()} is for code outside the repository, such as an
+ * add-on plugin, which that gate cannot see. Entries contributed through the
  * deprecated `tt_config_tile_groups` filter are adapted into the `academy`
  * section, unless an entry already leads to the same screen.
  *
@@ -41,13 +43,17 @@ final class SettingsRegistry {
     private const OFF_SECTION = 'features_plan';
     private const OFF_CAP     = 'tt_manage_modules';
 
-    /** @var list<array<string,mixed>> Entries added by modules. */
+    /** @var list<array<string,mixed>> Entries added from outside the repository. */
     private static array $registered = [];
 
+    /** @var array<string, array<string,mixed>> Parsed config, per locale and translation state. */
+    private static array $config = [];
+
     /**
-     * Add an entry. Same shape as an entry in `config/settings_entries.php`.
-     * A key already taken, or a section that is not a settings section, is
-     * ignored: a setting has one home.
+     * Add an entry from code outside this repository. Same shape as an entry
+     * in `config/settings_entries.php`, which is where every in-repository
+     * entry belongs. A key already taken, or a section that is not a
+     * settings section, is ignored: a setting has one home.
      *
      * @param array<string,mixed> $entry
      */
@@ -61,18 +67,60 @@ final class SettingsRegistry {
         self::$registered[] = $entry;
     }
 
-    /** Drop module-registered entries. Tests use this between scenarios. */
+    /** Drop registered entries and the parsed config. Tests use this between scenarios. */
     public static function clear(): void {
         self::$registered = [];
+        self::$config     = [];
     }
 
-    /** @return array<string,mixed> The parsed `config/settings_entries.php`. */
-    public static function config(): array {
+    /**
+     * The parsed `config/settings_entries.php`, memoised per request and
+     * locale. With `$untranslated` the strings are read as written, in
+     * English, so the filter can match the English keywords whatever the
+     * viewer's language.
+     *
+     * @return array<string,mixed>
+     */
+    public static function config( bool $untranslated = false ): array {
+        $cache_key = $untranslated
+            ? 'en'
+            : (string) get_locale() . '|' . ( is_textdomain_loaded( 'talenttrack' ) ? 'loaded' : 'raw' );
+        if ( isset( self::$config[ $cache_key ] ) ) return self::$config[ $cache_key ];
+
         $file = defined( 'TT_PLUGIN_DIR' ) ? TT_PLUGIN_DIR . 'config/settings_entries.php' : '';
         if ( $file === '' || ! is_readable( $file ) ) return [];
+
+        $raw         = static fn ( $translation, $text ) => $text;
+        $raw_context = static fn ( $translation, $text, $context ) => $text;
+        if ( $untranslated ) {
+            add_filter( 'gettext', $raw, PHP_INT_MAX, 2 );
+            add_filter( 'gettext_with_context', $raw_context, PHP_INT_MAX, 3 );
+        }
         /** @var mixed $declared */
         $declared = require $file;
-        return is_array( $declared ) ? $declared : [];
+        if ( $untranslated ) {
+            remove_filter( 'gettext', $raw, PHP_INT_MAX );
+            remove_filter( 'gettext_with_context', $raw_context, PHP_INT_MAX );
+        }
+
+        self::$config[ $cache_key ] = is_array( $declared ) ? $declared : [];
+        return self::$config[ $cache_key ];
+    }
+
+    /**
+     * English keywords per entry key, for matching in any locale.
+     *
+     * @return array<string,string>
+     */
+    private static function englishKeywords(): array {
+        $config  = self::config( true );
+        $entries = is_array( $config['entries'] ?? null ) ? $config['entries'] : [];
+        $out     = [];
+        foreach ( $entries as $entry ) {
+            if ( ! is_array( $entry ) ) continue;
+            $out[ (string) ( $entry['key'] ?? '' ) ] = (string) ( $entry['keywords'] ?? '' );
+        }
+        return $out;
     }
 
     /**
@@ -207,10 +255,12 @@ final class SettingsRegistry {
      * @param array<string,mixed> $entry
      */
     public static function haystack( array $entry ): string {
+        $english = self::englishKeywords();
         return self::foldText( implode( ' ', [
             (string) ( $entry['label'] ?? '' ),
             (string) ( $entry['description'] ?? '' ),
             (string) ( $entry['keywords'] ?? '' ),
+            (string) ( $english[ (string) ( $entry['key'] ?? '' ) ] ?? '' ),
             NavigationGroups::label( (string) ( $entry['section'] ?? '' ) ),
         ] ) );
     }
@@ -256,6 +306,9 @@ final class SettingsRegistry {
             // A switched-off module's settings stay findable for whoever can
             // switch it back on, and for nobody else.
             if ( ! user_can( $user_id, self::OFF_CAP ) ) return null;
+            // Being allowed to switch modules does not open a setting the
+            // viewer could not open with the module on.
+            if ( $tile === null && ! self::allowed( $entry, $user_id ) ) return null;
             $section = self::OFF_SECTION;
             $url     = self::viewUrl( 'modules' );
         } else {
@@ -289,6 +342,12 @@ final class SettingsRegistry {
     /** @param array<string,mixed> $entry */
     private static function allowed( array $entry, int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
+        // A `?config_sub=` form renders inside the Configuration page, which
+        // refuses anyone without tt_view_settings before it reaches the form.
+        if ( (string) ( $entry['sub'] ?? '' ) !== '' && ! user_can( $user_id, 'tt_view_settings' ) ) return false;
+        // A sub-feature that is off hides its entry, as it hides its tile.
+        $feature = (string) ( $entry['feature'] ?? '' );
+        if ( $feature !== '' && ! \TT\Core\FeatureRegistry::isEnabled( $feature ) ) return false;
         $cap = (string) ( $entry['cap'] ?? '' );
         if ( $cap !== '' ) return user_can( $user_id, $cap );
         $matrix_cap = (string) ( $entry['matrix_cap'] ?? '' );
@@ -381,13 +440,16 @@ final class SettingsRegistry {
             foreach ( $tiles as $tile ) {
                 if ( ! is_array( $tile ) ) continue;
                 $url = (string) ( $tile['url'] ?? '' );
-                if ( $url === '' || isset( $covered[ self::screenOf( $url ) ] ) ) continue;
+                $screen = self::screenOf( $url );
+                if ( $url === '' || isset( $covered[ $screen ] ) ) continue;
                 $cap = (string) ( $tile['cap'] ?? 'tt_view_settings' );
                 if ( ! user_can( $user_id, $cap ) ) continue;
                 $label = (string) ( $tile['label'] ?? '' );
                 if ( $label === '' ) continue;
                 $out[] = [
-                    'key'          => 'contributed-' . sanitize_key( $label ),
+                    // Keyed on the screen, not the translated label, so the
+                    // key is the same in every locale.
+                    'key'          => 'contributed-' . sanitize_key( $screen ),
                     'section'      => 'academy',
                     'label'        => $label,
                     'description'  => (string) ( $tile['description'] ?? '' ),
@@ -396,6 +458,7 @@ final class SettingsRegistry {
                     'module_state' => self::STATE_NONE,
                     'external'     => strpos( $url, '/wp-admin/' ) !== false,
                 ];
+                $covered[ $screen ] = true;
             }
         }
         return $out;
