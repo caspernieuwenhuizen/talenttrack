@@ -18,8 +18,8 @@ use TT\Infrastructure\Query\QueryHelpers;
  *
  * The data is `TileRegistry::tilesForUserGrouped()`, which already applies
  * the capability check, the per-persona label map (including the
- * `__hidden__` marker), module/feature gating and the `groupOrder()`
- * sequence. There is no second nav registry to keep in sync — that was the
+ * `__hidden__` marker), module/feature gating and the group order of
+ * `config/navigation_groups.php`. There is no second nav registry to keep in sync — that was the
  * point of reading the tile registry rather than declaring a menu.
  *
  * `groups()` is deliberately public and separate from `render()`: #2459's
@@ -31,12 +31,14 @@ final class FrontendAppNav {
     /**
      * Resolved navigation groups for a user.
      *
-     * Shape: `list<array{label: string, tiles: list<array>}>`, work tiles
-     * first in `groupOrder()` sequence, then setup tiles under their own
-     * groups. Empty when the user can see nothing, which the renderer
-     * treats as "emit no nav" rather than "emit an empty rail".
+     * Shape: `list<array{key: string, label: string, tiles: list<array>}>`,
+     * in the order of `config/navigation_groups.php` (#4669) — the same list
+     * the dashboard reads, so the two cannot disagree. A group holds work and
+     * setup tiles alike; the list puts the dashboard groups before the
+     * settings groups. Empty when the user can see nothing, which the
+     * renderer treats as "emit no nav" rather than "emit an empty rail".
      *
-     * @return list<array{label: string, tiles: list<array<string,mixed>>}>
+     * @return list<array{key: string, label: string, tiles: list<array<string,mixed>>}>
      */
     public static function groups( int $user_id ): array {
         $grouped = TileRegistry::tilesForUserGrouped( $user_id );
@@ -44,13 +46,14 @@ final class FrontendAppNav {
         $out = [];
         foreach ( $grouped as $group ) {
             $tiles = [];
-            foreach ( $group['tiles'] ?? [] as $tile ) {
+            foreach ( $group['tiles'] as $tile ) {
                 $tile['url'] = self::urlFor( $tile );
                 if ( empty( $tile['label'] ) || $tile['url'] === '' ) continue;
                 $tiles[] = $tile;
             }
             if ( $tiles === [] ) continue;
             $out[] = [
+                'key'   => (string) $group['key'],
                 'label' => $group['label'],
                 'tiles' => $tiles,
             ];

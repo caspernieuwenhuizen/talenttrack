@@ -99,8 +99,15 @@ tegeloverzicht bouwt, dus:
 - Je ziet alleen de secties waar jouw rol toegang toe heeft.
 - Sectienamen volgen je rol — dezelfde bestemming kan voor een trainer anders
   heten dan voor een ouder, precies zoals op de tegels.
-- Groepen staan in de vaste volgorde: Prestatie, Mensen, Planning & tactiek,
-  Ontwikkeling, Naslag.
+- Groepen staan in één vaste volgorde, dezelfde in het tegeloverzicht, in de
+  zijbalk en in het uitschuifmenu. Het dagelijkse werk komt eerst: Ik, Spelers
+  & teams, Activiteiten & wedstrijden, Ontwikkeling, Tactiek, Analyses &
+  rapporten, Instroom, Communicatie, Productideeën en Instellingen. De
+  instellingsschermen volgen onder de secties van Configuratie: Academie,
+  Spelers & teams, Ontwikkeling & evaluaties, Activiteiten & wedstrijden,
+  Keuzelijsten, Mensen & toegang, Berichten & taken, Gegevens, Functies &
+  pakket en Systeem. Tests en metingen staan onder Ontwikkeling. Een groep
+  waarin je niets hebt, wordt weggelaten.
 - Onderaan staan je naam en de rol waarin je werkt: de rol die je in de
   rolwisselaar hebt gekozen, of anders je eerste rol. Dat is dezelfde rol
   waarvoor je startpagina wordt opgebouwd.
@@ -205,8 +212,35 @@ gebruiker laat aankomen.
 `\TT\Shared\Frontend\Components\FrontendAppNav` rendert haar en leest
 `TileRegistry::tilesForUserGrouped()` — dat past al de capability-controle toe,
 de per-persona labelmap (inclusief de `__hidden__`-markering), module- en
-feature-gating, en de `groupOrder()`-volgorde. **Er is geen tweede
+feature-gating, en de groepsvolgorde. **Er is geen tweede
 navigatieregister.** Een tegel toevoegen voegt een navigatie-ingang toe.
+
+### Navigatiegroepen
+
+`config/navigation_groups.php` noemt elke groep in weergavevolgorde, elk met een
+vaste `key`, een `surface` (`dashboard` of `settings`) en een Engels label met de
+context `navigation group`. `\TT\Shared\Tiles\NavigationGroups` leest de lijst;
+`TileRegistry::groupOrder()` geeft de keys terug. Een tegel noemt een key in
+`group`:
+
+```php
+TileRegistry::register( [
+    'view_slug' => 'injuries',
+    'group'     => 'people_teams',
+    'kind'      => 'work',
+    // ...
+] );
+```
+
+`TileRegistry::register()` weigert een tegel waarvan `group` geen key uit de
+lijst is of waarvan `kind` niet `work` of `setup` is, en een tegel die een
+icoon neemt dat een andere tegel in dezelfde groep al gebruikt. Het tandwiel
+(`settings`) is voorbehouden aan de tegel Configuratie. Onder `WP_DEBUG` gooit
+een weigering een exception; op een live installatie wordt ze gelogd, en bij een
+onbekende groep of soort komt de tegel niet in het register, in plaats van dat
+er een kop voor wordt verzonnen. De opstartvolgorde van modules speelt geen rol
+in de volgorde: `tilesForUserGrouped()` loopt de lijst af, en elke groep die het
+teruggeeft draagt zijn `key` naast het vertaalde `label`.
 
 `FrontendAppNav::groups()` is bewust publiek en losgetrokken van `render()`,
 zodat een tweede presentatie dezelfde opgeloste lijst ongewijzigd kan gebruiken.

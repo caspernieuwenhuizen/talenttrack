@@ -16,6 +16,12 @@ use TT\Modules\Authorization\PersonaResolver;
  *
  * Each tile carries:
  *   - `kind` ('work' | 'setup')           — drives the dashboard split.
+ *                                            Anything else is refused.
+ *   - `group`                             — a key from
+ *                                            `config/navigation_groups.php`
+ *                                            (#4669); an unknown key is
+ *                                            refused. No two tiles in one
+ *                                            group share an icon.
  *   - `entity`                            — matrix entity for cap check.
  *   - `labels` map keyed by persona       — '*' is the fallback;
  *                                            '__hidden__' suppresses
@@ -72,32 +78,28 @@ final class TileRegistry {
     /** Hidden marker for the labels map. */
     public const HIDDEN = '__hidden__';
 
+    /** The kinds a tile may declare. */
+    public const KINDS = [ 'work', 'setup' ];
+
     /**
-     * #1603 — explicit daily-use group order for the dashboard.
+     * Icons only the Configuration tile may carry. The gear is how a user
+     * finds the settings; on any other tile it points the wrong way.
+     */
+    private const RESERVED_ICONS = [ 'settings', 'gear' ];
+    private const RESERVED_ICON_SLUG = 'configuration';
+
+    /**
+     * Group keys in display order (#4669), from `config/navigation_groups.php`.
      *
-     * The grouped render previously fell back on declaration order
-     * ("first registration wins"), which is brittle: re-ordering a
-     * module's `register()` calls silently re-ordered the dashboard.
-     * This is the single, one-line-editable source of truth for the
-     * left-column work-group order. Groups not listed here keep their
-     * relative declaration order and fall to the end (stable sort).
-     *
-     * Entries are matched against each group's resolved (translated)
-     * label, so they MUST use the same `__()` source strings registered
-     * in `CoreSurfaceRegistration`. They are resolved lazily (inside the
-     * method) so the call happens after the textdomain is loaded.
+     * The dashboard, the shell nav and the bottom bar order their groups by
+     * this list and by nothing else. Before it existed, any group missing
+     * from a hard-coded list of six fell back to the order its module
+     * happened to boot in.
      *
      * @return list<string>
      */
     public static function groupOrder(): array {
-        return [
-            __( 'Performance', 'talenttrack' ),
-            __( 'People', 'talenttrack' ),
-            __( 'Planning & tactics', 'talenttrack' ),
-            __( 'Development', 'talenttrack' ),
-            __( 'Tests & measurements', 'talenttrack' ),
-            __( 'Reference', 'talenttrack' ),
-        ];
+        return NavigationGroups::keys();
     }
 
     /**
@@ -175,10 +177,61 @@ final class TileRegistry {
         if ( empty( $tile['slug'] ) || empty( $tile['kind'] ) || empty( $tile['labels'] ) ) {
             return;
         }
-        if ( ! in_array( $tile['kind'], [ 'work', 'setup' ], true ) ) {
-            $tile['kind'] = 'work';
+        $slug = (string) $tile['slug'];
+        // #4669 — an unknown kind used to become 'work' and an unknown group
+        // used to become a new heading wherever its module loaded. Both are
+        // now refused, so a typo cannot quietly reshape the dashboard.
+        if ( ! in_array( $tile['kind'], self::KINDS, true ) ) {
+            self::refuse( 'tiles.unknown_kind', $slug, [ 'kind' => (string) $tile['kind'] ] );
+            return;
+        }
+        $group = (string) ( $tile['group'] ?? '' );
+        if ( ! NavigationGroups::exists( $group ) ) {
+            self::refuse( 'tiles.unknown_group', $slug, [ 'group' => $group ] );
+            return;
+        }
+        $icon = (string) $tile['icon'];
+        if ( $icon !== '' ) {
+            if ( in_array( $icon, self::RESERVED_ICONS, true ) && $slug !== self::RESERVED_ICON_SLUG ) {
+                self::refuse( 'tiles.reserved_icon', $slug, [ 'icon' => $icon ] );
+            }
+            $taken = self::iconHolder( $group, $icon, $slug );
+            if ( $taken !== null ) {
+                self::refuse( 'tiles.duplicate_icon', $slug, [ 'group' => $group, 'icon' => $icon, 'also_on' => $taken ] );
+            }
         }
         self::$tiles[] = $tile;
+    }
+
+    /**
+     * The slug of another tile in `$group` that already uses `$icon`, or
+     * null. A second registration of the same slug is not a clash: the
+     * core seed is registered again by tests and by re-entrant boots.
+     */
+    private static function iconHolder( string $group, string $icon, string $slug ): ?string {
+        foreach ( self::$tiles as $existing ) {
+            if ( (string) ( $existing['group'] ?? '' ) !== $group ) continue;
+            if ( (string) ( $existing['icon'] ?? '' ) !== $icon ) continue;
+            if ( (string) ( $existing['slug'] ?? '' ) === $slug ) continue;
+            return (string) ( $existing['slug'] ?? '' );
+        }
+        return null;
+    }
+
+    /**
+     * A registration the registry will not accept as given. Under WP_DEBUG
+     * it throws, so the developer who introduced it sees it on the first
+     * page load; on a live install it is logged instead of taking the
+     * dashboard down with it.
+     *
+     * @param array<string, string> $context
+     */
+    private static function refuse( string $code, string $slug, array $context ): void {
+        $context = array_merge( [ 'slug' => $slug ], $context );
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            throw new \InvalidArgumentException( $code . ' ' . (string) wp_json_encode( $context ) );
+        }
+        \TT\Infrastructure\Logging\Logger::warning( $code, $context );
     }
 
     /** Drop all registered tiles. Tests use this between scenarios. */
@@ -240,10 +293,10 @@ final class TileRegistry {
             $kind = ( $tile['kind'] ?? 'work' ) === 'setup' ? 'setup' : 'work';
             $out[ $kind ][] = $rendered;
         }
-        // Sort each bucket: by group then order then label.
+        // Sort each bucket: by group position then order then label.
         foreach ( [ 'work', 'setup' ] as $k ) {
             usort( $out[ $k ], static function ( $a, $b ) {
-                $g = strcmp( (string) $a['group'], (string) $b['group'] );
+                $g = NavigationGroups::position( (string) $a['group'] ) <=> NavigationGroups::position( (string) $b['group'] );
                 if ( $g !== 0 ) return $g;
                 $o = ( (int) $a['order'] ) <=> ( (int) $b['order'] );
                 if ( $o !== 0 ) return $o;
@@ -254,31 +307,28 @@ final class TileRegistry {
     }
 
     /**
-     * #0033 finalisation — return tiles grouped by their `group` label,
-     * preserving registration order within each group. Used by the
-     * frontend dashboard renderer (FrontendTileGrid).
+     * Visible tiles grouped by their group key, groups in the order of
+     * `config/navigation_groups.php`. Used by the dashboard, the shell nav
+     * and the bottom bar.
      *
-     * Each group is `[ 'label' => string, 'tiles' => list<array> ]`.
-     * Tiles inherit all registered fields plus a resolved `label` and
-     * `desc` (mapped from `description`).
+     * Each group is `[ 'key' => string, 'label' => string, 'tiles' => list<array> ]`,
+     * the label translated from the config. Tiles inherit all registered
+     * fields plus a resolved `label` and `desc` (mapped from `description`).
      *
-     * @return list<array{label: string, tiles: list<array>}>
+     * @return list<array{key: string, label: string, tiles: list<array>}>
      */
     public static function tilesForUserGrouped( int $user_id ): array {
         $persona = self::resolveActivePersona( $user_id );
 
-        // Preserve declaration order of groups (first registration wins).
-        $group_order = [];
         $by_group = [];
         foreach ( self::$tiles as $tile ) {
             if ( ! self::tileVisibleFor( $tile, $user_id ) ) continue;
             $label = self::resolveLabel( $tile['labels'], $persona );
             if ( $label === self::HIDDEN ) continue;
 
-            $group_label = (string) ( $tile['group'] ?? '' );
-            if ( ! isset( $by_group[ $group_label ] ) ) {
-                $group_order[]              = $group_label;
-                $by_group[ $group_label ]   = [];
+            $group_key = (string) ( $tile['group'] ?? '' );
+            if ( ! isset( $by_group[ $group_key ] ) ) {
+                $by_group[ $group_key ] = [];
             }
             $rendered                   = $tile;
             // Resolve dynamic decorators that depend on the current user.
@@ -294,31 +344,26 @@ final class TileRegistry {
             }
             $rendered['label']          = $label;
             $rendered['desc']           = (string) ( $tile['description'] ?? '' );
-            $by_group[ $group_label ][] = $rendered;
+            $by_group[ $group_key ][]   = $rendered;
         }
 
-        // #1603 — order the groups by the explicit daily-use group order
-        // first, then by their declaration order for anything not listed
-        // (stable). Replaces the old reliance on pure declaration order.
-        $explicit = array_flip( self::groupOrder() );
-        $decl_pos = array_flip( $group_order );
-        $big      = count( $group_order ) + count( $explicit ) + 1;
-        usort( $group_order, static function ( $a, $b ) use ( $explicit, $decl_pos, $big ) {
-            $ra = $explicit[ $a ] ?? ( $big + ( $decl_pos[ $a ] ?? 0 ) );
-            $rb = $explicit[ $b ] ?? ( $big + ( $decl_pos[ $b ] ?? 0 ) );
-            return $ra <=> $rb;
-        } );
-
-        // Sort each group by `order` then label.
-        $out = [];
-        foreach ( $group_order as $g ) {
-            $tiles = $by_group[ $g ];
+        // #4669 — the config list is the only order. Registration order,
+        // and therefore module boot order, no longer plays any part.
+        $labels = NavigationGroups::labels();
+        $out    = [];
+        foreach ( self::groupOrder() as $key ) {
+            if ( ! isset( $by_group[ $key ] ) ) continue;
+            $tiles = $by_group[ $key ];
             usort( $tiles, static function ( $a, $b ) {
                 $o = ( (int) $a['order'] ) <=> ( (int) $b['order'] );
                 if ( $o !== 0 ) return $o;
                 return strcmp( (string) $a['label'], (string) $b['label'] );
             } );
-            $out[] = [ 'label' => $g, 'tiles' => self::disambiguate( $tiles ) ];
+            $out[] = [
+                'key'   => $key,
+                'label' => (string) ( $labels[ $key ] ?? $key ),
+                'tiles' => self::disambiguate( $tiles ),
+            ];
         }
         return $out;
     }

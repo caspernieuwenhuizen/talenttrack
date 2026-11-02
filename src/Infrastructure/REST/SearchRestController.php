@@ -147,7 +147,7 @@ final class SearchRestController extends BaseController {
                     'type'     => 'view',
                     'id'       => 0,
                     'label'    => $label,
-                    'sublabel' => (string) ( $group['label'] ?? '' ),
+                    'sublabel' => $group['label'],
                     'url'      => (string) ( $tile['url'] ?? '' ),
                 ];
             }

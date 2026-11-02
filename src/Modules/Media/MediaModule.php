@@ -129,8 +129,8 @@ class MediaModule implements ModuleInterface {
         TileRegistry::register( [
             'module_class' => self::class,
             'view_slug'    => 'media-retention',
-            'group'        => __( 'Administration', 'talenttrack' ),
-            'kind'         => 'admin',
+            'group'        => 'data',
+            'kind'         => 'setup',
             'order'        => 70,
             'label'        => __( 'Media retention', 'talenttrack' ),
             'description'  => __( 'Photos and video of players who have left, waiting for a decision. Nothing is deleted without one.', 'talenttrack' ),

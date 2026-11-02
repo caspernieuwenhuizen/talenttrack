@@ -543,7 +543,7 @@ final class CoreSurfaceRegistration {
         // groups; those tiles are matrix-only post-#0079.
 
         // ── Me group — visible only when user has a player record. ──
-        $me_group = __( 'Me', 'talenttrack' );
+        $me_group = 'me';
         // #1850 — the development home: one overview-led anchor composing
         // the My-X surfaces (Phase 2 of #1846). First in the group for the
         // player + parent personas; the deep-view tiles below remain as
@@ -564,7 +564,7 @@ final class CoreSurfaceRegistration {
             // entry drops the possessive rather than claiming it.
             'labels'       => [ 'parent' => _x( 'Development', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your development at a glance: talks, goals, form and journey.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'layers',
             'color'        => '#0b3d2e',
             'cap_callback' => $is_player_or_parent_cb,
         ]);
@@ -670,7 +670,7 @@ final class CoreSurfaceRegistration {
             'label'        => __( 'My PDP', 'talenttrack' ),
             'labels'       => [ 'parent' => _x( 'Development plan', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your plan: talks, reflections, season verdict.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'pdp',
             'color'        => '#1d7874',
         ]);
         // v3.62.0 — "My profile" tile retired. The four sections that
@@ -691,7 +691,7 @@ final class CoreSurfaceRegistration {
             'label'        => __( 'My journey', 'talenttrack' ),
             'labels'       => [ 'parent' => _x( 'Journey', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your academy story: milestones and progress.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'track',
             'color'        => '#0d9488',
             'cap_callback' => $is_player_or_parent_cb,
         ]);
@@ -711,7 +711,7 @@ final class CoreSurfaceRegistration {
             'order'        => 65,
             'label'        => __( 'My messages', 'talenttrack' ),
             'description'  => __( 'Messages the academy sent you.', 'talenttrack' ),
-            'icon'         => 'inbox',
+            'icon'         => 'comment',
             'color'        => '#5b6e75',
             'cap_callback' => static fn ( int $user_id ): bool => $user_id > 0,
             'badge_callback' => static function ( int $user_id ): int {
@@ -720,8 +720,8 @@ final class CoreSurfaceRegistration {
             },
         ]);
 
-        // ── Tasks group — workflow inbox + dashboards. ──
-        $tasks_group = __( 'Tasks', 'talenttrack' );
+        // ── Tasks — workflow inbox + dashboards, under Me. ──
+        $tasks_group = 'me';
         TileRegistry::register([
             'module_class' => self::M_WORKFLOW,
             'view_slug'    => 'my-tasks',
@@ -769,7 +769,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_WORKFLOW,
             'view_slug'    => 'workflow-config',
             'entity'       => 'workflow_templates',
-            'group'        => $tasks_group,
+            'group'        => 'messages_tasks',
             'kind'         => 'setup',
             'order'        => 30,
             'label'        => __( 'Workflow templates', 'talenttrack' ),
@@ -781,7 +781,7 @@ final class CoreSurfaceRegistration {
         ]);
 
         // ── People group ──
-        $people_group = __( 'People', 'talenttrack' );
+        $people_group = 'people_teams';
         // #0079 — `team_roster_panel` is the tile-visibility entity, distinct
         // from the underlying data entity `team` (which gates REST + repo
         // reads). Scout legitimately reads team data globally for scouting
@@ -842,7 +842,7 @@ final class CoreSurfaceRegistration {
             'order'             => 25,
             'label'             => __( 'Dossier completeness', 'talenttrack' ),
             'description'       => __( 'Per team: whose guardian contact, parent account or photo consent is still missing.', 'talenttrack' ),
-            'icon'              => 'players',
+            'icon'              => 'check',
             'color'             => '#1d7874',
             'hide_for_personas' => [ 'player', 'parent' ],
             'cap_callback'      => static function ( int $uid ): bool {
@@ -857,7 +857,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'season-rollover',
-            'group'        => $people_group,
+            'group'        => 'academy',
             'kind'         => 'setup',
             'order'        => 35,
             'label'        => __( 'Season rollover', 'talenttrack' ),
@@ -872,7 +872,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'view_slug'    => 'functional-roles',
             'entity'       => 'functional_role_assignments',
-            'group'        => $people_group,
+            'group'        => 'players_teams',
             'kind'         => 'setup',
             'order'        => 40,
             'label'        => __( 'Functional roles', 'talenttrack' ),
@@ -887,20 +887,13 @@ final class CoreSurfaceRegistration {
             'hide_for_personas' => [ 'head_of_development' ],
         ]);
 
-        // ── Performance group ──
-        $performance_group = __( 'Performance', 'talenttrack' );
-        // #0069 — PDP work moves out of Performance into its own
-        // Development group so player-development surfaces don't sit
-        // alongside the activity / evaluation / podium tiles.
-        $development_group = __( 'Development', 'talenttrack' );
-        // #1548 — split the Performance grab-bag: the planning + tactics
-        // tools (team planner, VCT designer, team blueprint, team chemistry)
-        // move to their own group, leaving Performance as the core coach
-        // work (Evaluations, Activities, Goals). The group lands right after
-        // Performance because its first registered tile (Team planner) is
-        // registered between Activities and Goals — and TileRegistry orders
-        // groups by first-registration.
-        $planning_tactics_group = __( 'Planning & tactics', 'talenttrack' );
+        // Group keys come from config/navigation_groups.php (#4669), which
+        // also fixes their order. Evaluations and goals sit with the PDP
+        // under Development; Activities, the team planner and training sit
+        // under Activities & matches; the tactical tools under Tactics.
+        $performance_group      = 'development';
+        $development_group      = 'development';
+        $planning_tactics_group = 'tactics';
         // #0079 — coach-side panels declare tile-visibility entities. The
         // underlying data entities (`evaluations`, `activities`, `goals`,
         // `pdp_file`) keep their REST/repo gating role; the *_panel
@@ -921,7 +914,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_ACTIVITIES,
             'view_slug'    => 'activities',
             'entity'       => 'activities_panel',
-            'group'        => $performance_group,
+            'group'        => 'activities',
             'kind'         => 'work',
             'order'        => 20,
             'label'        => __( 'Activities', 'talenttrack' ),
@@ -960,12 +953,12 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_PLANNING,
             'view_slug'    => 'team-planner',
             'entity'       => 'activities_panel',
-            'group'        => $planning_tactics_group, // #1548
+            'group'        => 'activities',
             'kind'         => 'work',
             'order'        => 10,
             'label'        => __( 'Team planner', 'talenttrack' ),
             'description'  => __( 'Plan training week by week with principles.', 'talenttrack' ),
-            'icon'         => 'kanban',
+            'icon'         => 'calendar',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_plan',
             // #1538 — gated by the planning_calendar_view feature (default on);
@@ -1018,7 +1011,7 @@ final class CoreSurfaceRegistration {
             'order'        => 40,
             'label'        => __( 'PDP', 'talenttrack' ),
             'description'  => __( 'Per-season files: talks, goals, verdict.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'pdp',
             'color'        => '#1d7874',
         ]);
         TileRegistry::register([
@@ -1030,7 +1023,7 @@ final class CoreSurfaceRegistration {
             'order'        => 41,
             'label'        => __( 'PDP planning', 'talenttrack' ),
             'description'  => __( 'Planned vs held talks, per team and block.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'calendar',
             'color'        => '#1d7874',
             // Players + parents hold tt_view_pdp for their own self-scope per
             // #0033, so this cannot gate on that cap — the planning matrix is
@@ -1073,7 +1066,7 @@ final class CoreSurfaceRegistration {
             'order'        => 30,
             'label'        => __( 'Team blueprint', 'talenttrack' ),
             'description'  => __( 'Drag-and-drop lineups with live chemistry.', 'talenttrack' ),
-            'icon'         => 'teams',
+            'icon'         => 'layers',
             'color'        => '#1d6cb1',
         ]);
         // #1548 — Podium (rankings / top performers) is analytics, not
@@ -1084,7 +1077,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_METHODOLOGY,
             'view_slug'    => 'methodology',
             'entity'       => 'methodology',
-            'group'        => __( 'Reference', 'talenttrack' ),
+            'group'        => 'tactics',
             'kind'         => 'work',
             'order'        => 10,
             'label'        => __( 'Methodology', 'talenttrack' ),
@@ -1108,7 +1101,7 @@ final class CoreSurfaceRegistration {
             // the coaches and the scout read `methodology`, so a tile on
             // that entity showed them an editor they are refused at.
             'entity'       => 'methodology_vocabulary_panel',
-            'group'        => __( 'Reference', 'talenttrack' ),
+            'group'        => 'development_evaluations',
             'kind'         => 'setup',
             'order'        => 20,
             'label'        => __( 'Methodology vocabulary', 'talenttrack' ),
@@ -1119,7 +1112,7 @@ final class CoreSurfaceRegistration {
         ]);
 
         // ── Trials group (#0017) ──
-        $trials_group = __( 'Trials', 'talenttrack' );
+        $trials_group = 'intake';
         TileRegistry::register([
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trials',
@@ -1184,7 +1177,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trial-tracks-editor',
             'entity'       => 'trial_tracks',
-            'group'        => $trials_group,
+            'group'        => 'players_teams',
             'kind'         => 'setup',
             'order'        => 20,
             'label'        => __( 'Trial tracks', 'talenttrack' ),
@@ -1197,7 +1190,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trial-letter-templates-editor',
             'entity'       => 'trial_letter_templates',
-            'group'        => $trials_group,
+            'group'        => 'players_teams',
             'kind'         => 'setup',
             'order'        => 30,
             'label'        => __( 'Letter templates', 'talenttrack' ),
@@ -1213,7 +1206,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'trial-parent-meeting', self::M_TRIALS );
 
         // ── Analytics group ──
-        $analytics_group = __( 'Analytics', 'talenttrack' );
+        $analytics_group = 'analytics';
         // v3.110.108 — central Analytics tile pointing at the
         // FrontendAnalyticsView (#0083 Child 5).
         // #1484 — the ad-hoc Analytics Explorer is a feature switch
@@ -1230,7 +1223,7 @@ final class CoreSurfaceRegistration {
                 'order'        => 5,
                 'label'        => __( 'Analytics', 'talenttrack' ),
                 'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
-                'icon'         => 'reports',
+                'icon'         => 'dashboard',
                 'color'        => '#7c3aed',
                 'cap'          => 'tt_view_analytics',
             ]);
@@ -1286,7 +1279,7 @@ final class CoreSurfaceRegistration {
             'order'        => 26,
             'label'        => __( 'Evaluation coverage', 'talenttrack' ),
             'description'  => __( 'Which players are unevaluated this window, and which coach owns the gap.', 'talenttrack' ),
-            'icon'         => 'reports',
+            'icon'         => 'evaluations',
             'color'        => '#0ea5e9',
             'cap'          => 'tt_view_analytics',
             // #2128 — per-tile feature toggle (default off). Hides the tile
@@ -1309,7 +1302,7 @@ final class CoreSurfaceRegistration {
             'order'        => 27,
             'label'        => __( 'Potential overview', 'talenttrack' ),
             'description'  => __( 'Every player in a team or age group with their potential band, how it has moved, and who set it.', 'talenttrack' ),
-            'icon'         => 'reports',
+            'icon'         => 'trend-up',
             'color'        => '#7c3aed',
             'cap'          => 'tt_view_analytics',
             'feature'      => 'analytics_potential_overview',
@@ -1327,7 +1320,7 @@ final class CoreSurfaceRegistration {
             'order'        => 28,
             'label'        => __( 'Cohort decision board', 'talenttrack' ),
             'description'  => __( 'End-of-season decisions: rating, trend, attendance, verdict per player.', 'talenttrack' ),
-            'icon'         => 'reports',
+            'icon'         => 'categories',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_analytics',
             // #2128 — per-tile feature toggle (default off). Hides the tile
@@ -1346,7 +1339,7 @@ final class CoreSurfaceRegistration {
             'view_slug'         => 'test-results',
             'entity'            => 'measurements',
             // #4155 — with recording and coverage, in the order a coach works.
-            'group'             => __( 'Tests & measurements', 'talenttrack' ),
+            'group'             => 'development',
             'kind'              => 'work',
             'order'             => 30,
             'label'             => __( 'Test results', 'talenttrack' ),
@@ -1435,15 +1428,10 @@ final class CoreSurfaceRegistration {
         // module-disabled gate works for direct URLs.
         TileRegistry::registerSlugOwnership( 'player-journey', self::M_JOURNEY );
 
-        // ── Idea pipeline group ──
-        // v3.92.0 — was "Development" but collided with the player-
-        // development group above (`$development_group`) which holds the
-        // PDP tiles. Both groups rendered under one heading and
-        // `FrontendTileGrid::splitByKind` couldn't tell them apart by
-        // label. Renamed to disambiguate; the tiles inside (Submit idea
-        // / Development board / Approval queue / Development tracks)
-        // are all about plugin-improvement ideas, not player development.
-        $dev_group = __( 'Idea pipeline', 'talenttrack' );
+        // ── Product ideas group ──
+        // Plugin-improvement ideas (Submit idea / Development board /
+        // Approval queue / Development tracks), not player development.
+        $dev_group = 'product_ideas';
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'submit-idea',
@@ -1497,13 +1485,16 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_view_dev_board',
         ]);
 
-        // ── Administration group ──
-        $admin_group = __( 'Administration', 'talenttrack' );
+        // ── Administration tiles ──
+        // The old Administration group is split over the settings keys of
+        // config/navigation_groups.php; `system` is the default here and
+        // tiles that belong elsewhere name their own key.
+        $admin_group = 'system';
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
             'view_slug'    => 'configuration',
             'entity'       => 'settings',
-            'group'        => $admin_group,
+            'group'        => 'settings',
             'kind'         => 'setup',
             'order'        => 10,
             'label'        => __( 'Configuration', 'talenttrack' ),
@@ -1536,7 +1527,7 @@ final class CoreSurfaceRegistration {
             'module_class' => 'TT\\Modules\\Holidays\\HolidaysModule',
             'view_slug'    => 'holidays',
             'entity'       => 'holidays_panel',
-            'group'        => $admin_group,
+            'group'        => 'academy',
             'kind'         => 'setup',
             'order'        => 15,
             'label'        => __( 'Holidays', 'talenttrack' ),
@@ -1565,12 +1556,12 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_WIZARDS,
             'view_slug'    => 'wizards-admin',
             'entity'       => 'setup_wizard',
-            'group'        => $admin_group,
+            'group'        => 'features_plan',
             'kind'         => 'setup',
             'order'        => 25,
             'label'        => __( 'Wizards', 'talenttrack' ),
             'description'  => __( 'Toggle record wizards; see completion stats.', 'talenttrack' ),
-            'icon'         => 'lightbulb',
+            'icon'         => 'layers',
             'color'        => '#5b6e75',
             'cap'          => 'tt_edit_settings',
             'desktop_preferred' => true,
@@ -1606,7 +1597,7 @@ final class CoreSurfaceRegistration {
             'order'        => 31,
             'label'        => __( 'Message log', 'talenttrack' ),
             'description'  => __( 'Every message the academy sent, who received it and whether it arrived.', 'talenttrack' ),
-            'icon'         => 'audit-log',
+            'icon'         => 'comment',
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_audit_log',
         ]);
@@ -1618,12 +1609,12 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_COMMS,
             'view_slug'    => 'safeguarding-broadcast',
-            'group'        => $admin_group,
+            'group'        => 'communication',
             'kind'         => 'setup',
             'order'        => 32,
             'label'        => __( 'Safeguarding broadcast', 'talenttrack' ),
             'description'  => __( 'Send a safeguarding message every family receives and nobody can switch off.', 'talenttrack' ),
-            'icon'         => 'audit-log',
+            'icon'         => 'warning',
             'color'        => '#8a2c1c',
             'cap'          => 'tt_send_safeguarding_broadcast',
         ]);
@@ -1640,12 +1631,12 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_COMMS,
             'view_slug'    => 'team-announcement',
-            'group'        => $admin_group,
+            'group'        => 'communication',
             'kind'         => 'work',
             'order'        => 33,
             'label'        => __( 'Announcement', 'talenttrack' ),
             'description'  => __( 'Tell a team, an age group or the academy something, inside the record.', 'talenttrack' ),
-            'icon'         => 'audit-log',
+            'icon'         => 'bell',
             'color'        => '#2271b1',
             // `cap_callback` alone, no `cap`: the two rungs are AND-ed, so
             // naming the team cap here would hide the tile from an
@@ -1681,7 +1672,7 @@ final class CoreSurfaceRegistration {
             'order'        => 35,
             'label'        => __( 'Data Browser', 'talenttrack' ),
             'description'  => __( 'Browse the raw data behind TalentTrack, read-only.', 'talenttrack' ),
-            'icon'         => 'audit-log',
+            'icon'         => 'docs',
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_data_browser',
             'desktop_preferred' => true,
@@ -1693,7 +1684,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'accounts',
             'entity'       => 'parent_accounts',
-            'group'        => $admin_group,
+            'group'        => 'people_access',
             'kind'         => 'setup',
             'order'        => 39,
             'label'        => __( 'Accounts & access', 'talenttrack' ),
@@ -1706,7 +1697,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_INVITATIONS,
             'view_slug'    => 'invitations-config',
             'entity'       => 'invitations_config',
-            'group'        => $admin_group,
+            'group'        => 'people_access',
             'kind'         => 'setup',
             'order'        => 40,
             'label'        => __( 'Invitations', 'talenttrack' ),
@@ -1757,7 +1748,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your personal development plan.', 'talenttrack' ),
             // v3.72.5 — `methodology` icon (no pdp.svg exists); distinct
             // from the player PDP's `goals` icon.
-            'icon'         => 'methodology',
+            'icon'         => 'note',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_staff_development',
             // #2506 — only applied when the same label also appears in this
@@ -1773,7 +1764,7 @@ final class CoreSurfaceRegistration {
             'order'        => 80,
             'label'        => __( 'My goals', 'talenttrack' ),
             'description'  => __( 'Personal goals, optionally linked to a badge.', 'talenttrack' ),
-            'icon'         => 'goals',
+            'icon'         => 'check',
             'color'        => '#1d7874',
             'cap'          => 'tt_view_staff_development',
             // #2506 — only applied when the same label also appears in this
@@ -1789,7 +1780,7 @@ final class CoreSurfaceRegistration {
             'order'        => 90,
             'label'        => __( 'My evaluations', 'talenttrack' ),
             'description'  => __( 'Self and top-down staff evaluations.', 'talenttrack' ),
-            'icon'         => 'evaluations',
+            'icon'         => 'profile',
             'color'        => '#7c3a9e',
             'cap'          => 'tt_view_staff_development',
             // #2506 — only applied when the same label also appears in this
@@ -1805,7 +1796,7 @@ final class CoreSurfaceRegistration {
             'order'        => 100,
             'label'        => __( 'My certifications', 'talenttrack' ),
             'description'  => __( 'Coaching badges and certs with expiry tracking.', 'talenttrack' ),
-            'icon'         => 'rate-card',
+            'icon'         => 'approval',
             'color'        => '#c9962a',
             'cap'          => 'tt_view_staff_development',
             // #2506 — only applied when the same label also appears in this
@@ -1850,12 +1841,10 @@ final class CoreSurfaceRegistration {
             'feature'      => 'knowledge_courses',
         ]);
 
-        // #2646 — the library is its own group rather than joining
-        // "Development", which holds player-development surfaces (PDP,
-        // goals). Coach education and player development are different
-        // subjects, and a coach looking for a course should not have to
-        // read past a player's PDP to find it.
-        $learning_group = __( 'Learning', 'talenttrack' );
+        // #2646 gave the library a group of its own. The keyed list
+        // (#4669) has no learning group, so it sits under Development
+        // until #4674 decides where the dashboard keeps it.
+        $learning_group = 'development';
 
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
@@ -1891,7 +1880,7 @@ final class CoreSurfaceRegistration {
             'order'         => 20,
             'label'         => __( 'Assignments to review', 'talenttrack' ),
             'description'   => __( 'Coursework your coaches have handed in and are waiting on.', 'talenttrack' ),
-            'icon'          => 'evaluations',
+            'icon'          => 'approval',
             'color'         => '#1b5c6b',
             'cap'           => 'tt_view_knowledge',
             'cap_callback'  => static function ( int $uid ): bool {
@@ -1912,7 +1901,7 @@ final class CoreSurfaceRegistration {
             'view_slug'    => 'staff-overview',
             'entity'       => 'staff_overview',
             'group'        => $people_group,
-            'kind'         => 'admin',
+            'kind'         => 'work',
             'order'        => 50,
             'label'        => __( 'Staff overview', 'talenttrack' ),
             'description'  => __( 'Open goals, overdue reviews, expiring certs.', 'talenttrack' ),
@@ -1931,7 +1920,7 @@ final class CoreSurfaceRegistration {
         // "Setup & administration" section appear on their dashboard. It
         // carries no `entity`, so the matrix never gates it — `hide_for_personas`
         // is the right scoping lever here.
-        $about_group = __( 'About', 'talenttrack' );
+        $about_group = 'features_plan';
         TileRegistry::register([
             'view_slug'   => 'features',
             'group'       => $about_group,
@@ -1939,7 +1928,7 @@ final class CoreSurfaceRegistration {
             'order'       => 10,
             'label'       => __( 'Features', 'talenttrack' ),
             'description' => __( 'See which parts of TalentTrack are switched on.', 'talenttrack' ),
-            'icon'        => 'settings',
+            'icon'        => 'sliders',
             'color'       => '#5b6e75',
             'hide_for_personas' => [ 'player', 'parent' ],
         ]);
@@ -1960,7 +1949,7 @@ final class CoreSurfaceRegistration {
             'order'        => 20,
             'label'        => __( 'Plan and restrictions', 'talenttrack' ),
             'description'  => __( 'The plan this academy is on, and what it locks.', 'talenttrack' ),
-            'icon'         => 'settings',
+            'icon'         => 'card',
             'color'        => '#5b6e75',
             'hide_for_personas' => [ 'player', 'parent' ],
         ]);
@@ -1970,12 +1959,12 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_MFA,
             'view_slug'    => 'two-factor',
-            'group'        => $about_group,
+            'group'        => 'people_access',
             'kind'         => 'setup',
             'order'        => 30,
             'label'        => __( 'Two-factor authentication', 'talenttrack' ),
             'description'  => __( 'Add a second step to your own sign-in.', 'talenttrack' ),
-            'icon'         => 'settings',
+            'icon'         => 'lock',
             'color'        => '#5b6e75',
         ]);
     }

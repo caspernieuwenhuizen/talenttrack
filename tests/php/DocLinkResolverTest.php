@@ -38,11 +38,11 @@ final class DocLinkResolverTest extends WP_UnitTestCase {
 
         // One tile the coach may see, one they may not.
         TileRegistry::register( [
-            'slug' => 'players', 'kind' => 'work', 'group' => 'Squad',
+            'slug' => 'players', 'kind' => 'work', 'group' => 'people_teams',
             'label' => 'Players', 'view_slug' => 'players', 'cap' => 'read',
         ] );
         TileRegistry::register( [
-            'slug' => 'configuration', 'kind' => 'setup', 'group' => 'System',
+            'slug' => 'configuration', 'kind' => 'setup', 'group' => 'system',
             'label' => 'Configuration', 'view_slug' => 'configuration', 'cap' => 'manage_options',
         ] );
     }

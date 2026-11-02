@@ -31,13 +31,13 @@ class AppBottomBarSlotsTest extends WP_UnitTestCase {
         ( new \TT\Infrastructure\Config\ConfigService() )->set( FrontendAppBottomBar::CONFIG_KEY, '' );
 
         // Six work tiles across two groups, plus one setup tile.
-        $this->registerTile( 'players',     'Players',     'work', 'Performance', 10 );
-        $this->registerTile( 'evaluations', 'Evaluations', 'work', 'Performance', 20 );
-        $this->registerTile( 'teams',       'Teams',       'work', 'People',      10 );
-        $this->registerTile( 'staff',       'Staff',       'work', 'People',      20 );
-        $this->registerTile( 'activities',  'Activities',  'work', 'People',      30 );
-        $this->registerTile( 'reports',     'Reports',     'work', 'People',      40 );
-        $this->registerTile( 'configuration', 'Configuration', 'setup', 'Reference', 10 );
+        $this->registerTile( 'players',     'Players',     'work', 'people_teams', 10 );
+        $this->registerTile( 'evaluations', 'Evaluations', 'work', 'people_teams', 20 );
+        $this->registerTile( 'teams',       'Teams',       'work', 'activities',  10 );
+        $this->registerTile( 'staff',       'Staff',       'work', 'activities',  20 );
+        $this->registerTile( 'activities',  'Activities',  'work', 'activities',  30 );
+        $this->registerTile( 'reports',     'Reports',     'work', 'activities',  40 );
+        $this->registerTile( 'configuration', 'Configuration', 'setup', 'settings', 10 );
     }
 
     public function tear_down(): void {
@@ -122,7 +122,7 @@ class AppBottomBarSlotsTest extends WP_UnitTestCase {
 
     public function test_fewer_visible_tiles_than_slots_yields_a_shorter_bar_not_an_error(): void {
         TileRegistry::clear();
-        $this->registerTile( 'players', 'Players', 'work', 'Performance', 10 );
+        $this->registerTile( 'players', 'Players', 'work', 'people_teams', 10 );
 
         $this->assertSame( [ 'players' ], $this->slugs() );
     }
