@@ -1,0 +1,3 @@
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Strava club console"
+msgstr "Strava-clubconsole"

@@ -662,10 +662,14 @@ matrix-entiteit `strava_integration` met `self`-scope (lezen + wijzigen),
 toegekend aan de persona `speler` — net als de `my_profile`-rechten van de
 speler. Een speler beheert altijd alleen zijn **eigen** koppeling; door de
 self-scope kan hij Strava niet koppelen voor een andere speler. De
-Strava-**operatorconsole** (Configuratie → Integraties: app-credentials,
-webhook-abonnement, koppelingenoverzicht) is een aparte `global`-scope die
-Hoofdtrainer en Academie-beheerder hebben en wordt niet beïnvloed door het
-spelerrecht. Zie de
+Strava-**clubconsole** (Configuratie → Integraties: app-gegevens,
+webhook-abonnement, koppelingenoverzicht) is configuratie met een eigen
+entiteit, `strava_operator_console`. Standaard heeft de Academie-beheerder die
+volledig en leest het Hoofd opleiding hem clubbreed. Een Hoofdtrainer leest hem
+op teamscope: de lijst met koppelingen toont alleen de spelers van de eigen
+teams, de status van het webhook-abonnement leest hij niet, en de
+app-gegevens of de webhook wijzigen kan hij niet. Een speler
+bereikt hem niet, en het spelerrecht opent hem niet. Zie de
 [autorisatiematrix](authorization-matrix.md).
 
 ## Wanneer een rechtenwijziging van kracht wordt

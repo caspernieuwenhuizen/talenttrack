@@ -11,6 +11,7 @@ use TT\Modules\Strava\ActivityRepository;
 use TT\Modules\Strava\ConnectionRepository;
 use TT\Modules\Strava\StravaClient;
 use TT\Modules\Strava\StravaConfig;
+use TT\Modules\Strava\StravaConsoleScope;
 use TT\Modules\Strava\StravaOAuth;
 use TT\Modules\Strava\WebhookService;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -120,13 +121,14 @@ final class StravaRestController {
         ] );
 
         // Operator: manage the single club-wide push subscription. Reading
-        // the status follows the integration read cap; mutating it follows
+        // the status is a club-wide read (a team-scope reader does not see
+        // it, and reading it can re-sync the stored id); mutating it follows
         // the credential change cap (matrix-gated, #2127).
         register_rest_route( self::NS, '/strava/webhook/subscription', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'subscriptionStatus' ],
-                'permission_callback' => [ __CLASS__, 'canViewIntegration' ],
+                'permission_callback' => [ __CLASS__, 'canViewClubConsole' ],
             ],
             [
                 'methods'             => 'POST',
@@ -164,7 +166,8 @@ final class StravaRestController {
 
     /**
      * Operator console read gate (#2127). Matrix cap, bridged to
-     * `strava_integration:read` — never a `manage_options` role compare,
+     * `strava_operator_console:read` at global scope (the club console is
+     * configuration, not a player's own connection) — never a `manage_options` role compare,
      * so a second tenant on the install is scoped correctly (CLAUDE.md §4).
      */
     public static function canViewIntegration(): bool {
@@ -172,8 +175,19 @@ final class StravaRestController {
     }
 
     /**
+     * Club-wide console read: the console read cap, held for the whole
+     * club rather than for a coach's own teams. The webhook subscription
+     * status asks this.
+     */
+    public static function canViewClubConsole(): bool {
+        return current_user_can( 'tt_view_strava' )
+            && StravaConsoleScope::isClubWide( get_current_user_id() );
+    }
+
+    /**
      * Operator console write gate (#2127) — app credentials + webhook
-     * subscription mutations. Matrix cap, bridged to `strava_integration:change`.
+     * subscription mutations. Matrix cap, bridged to
+     * `strava_operator_console:change` at global scope.
      */
     public static function canEditCredentials(): bool {
         return current_user_can( 'tt_edit_strava_credentials' );
@@ -450,7 +464,10 @@ final class StravaRestController {
      * data from `ConnectionRepository::listForClub()`.
      */
     public static function connections( \WP_REST_Request $r ): \WP_REST_Response {
-        $rows  = ( new ConnectionRepository() )->listForClub();
+        // A team-scope reader (a head coach) sees their own teams' players.
+        $rows  = ( new ConnectionRepository() )->listForClub(
+            StravaConsoleScope::teamIdsFor( get_current_user_id() )
+        );
         $items = [];
         foreach ( $rows as $row ) {
             $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );

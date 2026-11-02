@@ -85,7 +85,8 @@ final class MatrixEntityCatalog {
         'custom_widgets',              // custom-widget builder admin
         'football_actions',            // football-actions vocabulary admin
         'spond_integration',           // Spond admin uses tt_edit_teams
-        'strava_integration',          // Strava operator console (tt_view_strava / tt_edit_strava_credentials)
+        'strava_integration',          // a player's own Strava connection (the profile tab)
+        'strava_operator_console',     // Strava club console (tt_view_strava / tt_edit_strava_credentials)
         'thread_messages',             // threads admin (the read path)
         // #3858 — the staff-only flag on a thread message. Gated inside
         // the thread composer rather than by a tile's `cap` string, so the
@@ -155,6 +156,7 @@ final class MatrixEntityCatalog {
             'staff_only_notes'              => __( 'Staff-only notes', 'talenttrack' ),
             'spond_integration'             => __( 'Spond integration', 'talenttrack' ),
             'strava_integration'            => __( 'Strava integration', 'talenttrack' ),
+            'strava_operator_console'       => __( 'Strava club console', 'talenttrack' ),
             'player_timeline'               => __( 'Player timeline', 'talenttrack' ),
             'player_potential'              => __( 'Player potential', 'talenttrack' ),
             // #3703 — the tournament planner, team-scoped.

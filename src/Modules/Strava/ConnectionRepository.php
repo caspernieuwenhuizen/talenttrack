@@ -212,12 +212,23 @@ final class ConnectionRepository {
      * player name. NEVER selects the encrypted token columns — this feeds a
      * read-only console and the payload must never carry secrets.
      *
+     * `$team_ids` narrows the list to players on those teams; null lists
+     * the whole club and an empty list lists nothing.
+     *
+     * @param list<int>|null $team_ids
      * @return object[]
      */
-    public function listForClub(): array {
+    public function listForClub( ?array $team_ids = null ): array {
         global $wpdb;
         $players    = $wpdb->prefix . 'tt_players';
         $activities = $wpdb->prefix . 'tt_player_activities';
+
+        $team_clause = '';
+        if ( $team_ids !== null ) {
+            $ids = array_values( array_filter( array_map( 'intval', $team_ids ), static fn( int $id ): bool => $id > 0 ) );
+            if ( $ids === [] ) return [];
+            $team_clause = ' AND p.team_id IN (' . implode( ',', $ids ) . ')';
+        }
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT c.player_id, c.strava_athlete_id, c.status, c.connected_at,
@@ -231,7 +242,7 @@ final class ConnectionRepository {
                          AND a.source = 'strava' AND a.archived_at IS NULL ) AS last_activity_at
                FROM {$this->table()} c
                LEFT JOIN {$players} p ON p.id = c.player_id
-              WHERE c.club_id = %d
+              WHERE c.club_id = %d{$team_clause}
               ORDER BY ( c.status = 'connected' ) DESC, p.last_name ASC, p.first_name ASC",
             CurrentClub::id()
         ) );

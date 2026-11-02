@@ -280,6 +280,8 @@ final class StravaRestControllerTest extends WP_UnitTestCase {
             'expires_at'    => time() + 3600,
         ] );
 
+        // A club-wide reader; a team-scope reader sees only their teams.
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $data = StravaRestController::connections( new WP_REST_Request( 'GET' ) )->get_data();
 
         $this->assertTrue( $data['success'] );

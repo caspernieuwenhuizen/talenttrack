@@ -532,18 +532,37 @@ config land in the paired migration `0186_recycle_bin_foundation`.
 
 ## Matrix entity `strava_integration` — personal activity connection (#2127, #2153)
 
-The Strava integration is gated by the matrix entity `strava_integration`,
-bridged from two raw caps:
+Strava is gated by two matrix entities. `strava_integration` is a player's
+own Strava connection: the Strava tab on the profile, and connecting or
+disconnecting their own account. `strava_operator_console` is the **club
+console** (Configuration → Integrations, `?tt_view=strava-admin`): the
+connections list, the webhook subscription and the app credentials. The
+console is configuration, so it has its own row.
 
 | Raw cap | Matrix tuple |
 | - | - |
-| `tt_view_strava` | `strava_integration` / `read` |
-| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+| `tt_view_strava` | `strava_operator_console` / `read`, global or team scope |
+| `tt_edit_strava_credentials` | `strava_operator_console` / `change`, global scope only |
 
-The **operator console** (Configuration → Integrations: app credentials,
-webhook subscription, connection overview) is seeded for `head_coach` and
-`academy_admin` at `global` scope — migration
-`0191_authorization_seed_topup_strava` backfilled those rows.
+Who may use the club console by default:
+
+| Persona | `strava_operator_console` |
+| - | - |
+| `academy_admin` | read, change, create_delete (global) |
+| `head_of_development` | read (global) |
+| `head_coach` | read (team): the connections list shows only the players of the coach's own teams; no webhook subscription status |
+| everyone else | none |
+
+Reading the connections list is answered at global or team scope. Reading
+the webhook subscription status, and changing the app credentials or the
+webhook, are answered at global scope only, so a head coach reads their own
+players' connections and nothing club-wide. A player or self row
+on either entity does not open the console, so a player's self-scope
+`strava_integration` row reaches their own connection and nothing more.
+Existing installs get the console rows through migration
+`0309_authorization_strava_operator_console`. It writes with
+`INSERT IGNORE`, so a second run writes nothing and a row an admin has
+edited is left alone.
 
 `player` holds `strava_integration` `rc[self]`: Strava is **personal
 activity data**, so a player connects their own Strava from their profile and
