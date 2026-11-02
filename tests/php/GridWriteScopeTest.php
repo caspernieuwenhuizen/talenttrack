@@ -115,6 +115,8 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-rgrid-locked', $other );
         $this->assertStringNotContainsString( 'tt-rgrid-input', $other );
         $this->assertStringNotContainsString( 'tt-save-btn', $other );
+        $this->assertStringNotContainsString( 'Type a score per cell and Save.', $other, 'the lead does not ask a reader to type and Save' );
+        $this->assertStringContainsString( 'Type a score per cell and Save.', $own );
     }
 
     public function test_a_coach_without_club_wide_read_is_refused_another_teams_ratings_grid(): void {
