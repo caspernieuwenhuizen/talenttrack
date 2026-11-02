@@ -43,6 +43,11 @@ final class PlayerReportScheduleTest extends WP_UnitTestCase {
         $this->owner = (int) self::factory()->user->create( [ 'role' => 'tt_club_admin' ] );
 
         global $wpdb;
+        // #4662 — a recipient is an account in this club; the owner receives.
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => CurrentClub::id(), 'first_name' => 'Round', 'last_name' => 'Owner',
+            'role_type' => 'staff', 'wp_user_id' => $this->owner, 'status' => 'active',
+        ] );
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => CurrentClub::id(), 'name' => 'JO15-2' ] );
         $this->team = (int) $wpdb->insert_id;
         $this->repo = new ScheduledReportsRepository();
@@ -179,7 +184,7 @@ final class PlayerReportScheduleTest extends WP_UnitTestCase {
             'report_key'  => ScheduledReportsRepository::REPORT_PLAYER,
             'composition' => $composition,
             'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
-            'recipients'  => [ 'staff@example.test' ],
+            'recipients'  => [ (string) get_userdata( $this->owner )->user_email ],
             'format'      => 'pdf',
             'created_by'  => $this->owner,
         ];

@@ -245,12 +245,18 @@ final class TeamMonthlyReportScheduleTest extends WP_UnitTestCase {
 
     /** @return array<string,mixed> a hydrated team-monthly schedule for `$owner`. */
     private function schedule( int $owner ): array {
+        // #4662 — a recipient is an account in this club; the owner receives.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => 1, 'first_name' => 'Monthly', 'last_name' => 'Owner',
+            'role_type' => 'staff', 'wp_user_id' => $owner, 'status' => 'active',
+        ] );
         $id = $this->repo->create( [
             'name'        => 'Monthly report JO13-1',
             'report_key'  => ScheduledReportsRepository::REPORT_TEAM_MONTHLY,
             'composition' => TeamMonthlyReportComposition::normalise( [ 'team_id' => $this->team_id, 'period' => 'last_month', 'layout' => 'B' ] ),
             'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
-            'recipients'  => [ 'staff@example.test' ],
+            'recipients'  => [ (string) get_userdata( $owner )->user_email ],
             'format'      => 'pdf',
         ], $owner );
         $this->assertGreaterThan( 0, $id );

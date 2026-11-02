@@ -173,6 +173,14 @@ you scheduled it, with its own copy of the sections — changing your saved view
 later does not change what it sends. The report is written as you would see it,
 so send it to staff only.
 
+Every recipient is checked each time it runs. An account receives the PDF only
+when it may read the report about every player in it, the same check as opening
+the report in the plugin. With the standard permissions, parents and players
+never do. A role key reaches its
+members who are part of this academy, and an email address counts only when it
+belongs to an account here. An address with no account here receives nothing.
+Whoever is left out is shown on the schedules screen after the run.
+
 A schedule stops rather than sends when its team or player is archived or
 removed, or when you can no longer read their reports; the schedules screen says
 why. In a team round, a single player you can no longer read is left out, and
