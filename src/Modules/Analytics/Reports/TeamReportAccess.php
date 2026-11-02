@@ -34,8 +34,8 @@ final class TeamReportAccess {
 
     /**
      * `canRead()` as a list, for a query: null for every team, otherwise the
-     * teams the user is assigned to on which the matrix grants `reports`
-     * read. An empty list means none.
+     * teams on which the matrix grants `reports` read. An empty list means
+     * none.
      *
      * @return list<int>|null
      */
@@ -49,13 +49,8 @@ final class TeamReportAccess {
             return null;
         }
 
-        $out = [];
-        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
-            $id = (int) ( $team->id ?? 0 );
-            if ( $id > 0 && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'read', 'team', $id ) ) {
-                $out[ $id ] = $id;
-            }
-        }
-        return array_values( $out );
+        // #4684 — the teams `canRead()` admits, functional-role grants
+        // included, not only the teams the user coaches.
+        return \TT\Modules\Authorization\MatrixGate::teamIdsFor( $user_id, 'reports', 'read' );
     }
 }

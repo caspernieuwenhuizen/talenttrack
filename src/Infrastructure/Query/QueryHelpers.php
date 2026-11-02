@@ -334,6 +334,33 @@ class QueryHelpers {
     }
 
     /**
+     * #4684 — `get_teams()` narrowed to the given ids: the current club's
+     * teams, active unless asked otherwise, inside the demo-mode scope, by
+     * name. An id that is not such a team is left out.
+     *
+     * @param array<int> $team_ids
+     * @return array<int, object>
+     */
+    public static function get_teams_by_ids( array $team_ids, bool $include_archived = false ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $scope        = self::apply_demo_scope( 't', 'team' );
+        $lifecycle    = $include_archived
+            ? ''
+            : ' AND ' . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+              WHERE t.club_id = %d AND t.id IN ({$placeholders}) {$lifecycle} {$scope}
+              ORDER BY t.name ASC",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
      * #2866 — the teams a viewer may choose from, resolved from their actual
      * scope rather than from a coach assignment.
      *

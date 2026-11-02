@@ -332,6 +332,83 @@ class MatrixGate {
     }
 
     /**
+     * #4684 — `can( $user_id, $entity, $activity, SCOPE_TEAM, $team )` as a
+     * list: every team on which it says yes, ascending, that a team list may
+     * show — the current club's, not archived, inside the demo-mode scope.
+     *
+     * The team-scoped answer has two sources, and a list built from one of
+     * them disagreed with the single-team check: a persona row plus a live
+     * team assignment (`tt_user_role_scopes`), and a functional role held
+     * on the team (`FunctionalRoleGrants`). The candidates are both, and
+     * each is asked the single-team question, so the list cannot hold a
+     * team `can()` refuses or miss a listable one it allows.
+     *
+     * Team scope only: a caller that also honours a global grant asks
+     * `can( …, SCOPE_GLOBAL )` first, as the callers here do.
+     *
+     * @return list<int>
+     */
+    public static function teamIdsFor( int $user_id, string $entity, string $activity ): array {
+        if ( $user_id <= 0 ) return [];
+
+        $candidates = [];
+        foreach ( FunctionalRoleGrants::teamsGranting( $user_id, $entity, $activity ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+        foreach ( self::assignedTeamIds( $user_id ) as $team_id ) {
+            $candidates[ $team_id ] = true;
+        }
+
+        $out = [];
+        foreach ( array_keys( $candidates ) as $team_id ) {
+            if ( self::can( $user_id, $entity, $activity, self::SCOPE_TEAM, $team_id ) ) $out[] = $team_id;
+        }
+        sort( $out );
+        return self::listableTeamIds( $out );
+    }
+
+    /**
+     * The teams the user holds a live team assignment on, the rows
+     * `userHasScope()` reads.
+     *
+     * @return list<int>
+     */
+    private static function assignedTeamIds( int $user_id ): array {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $today = current_time( 'Y-m-d' );
+        $ids   = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT s.scope_id
+               FROM {$p}tt_user_role_scopes s
+               JOIN {$p}tt_people pe ON pe.id = s.person_id
+              WHERE pe.wp_user_id = %d
+                AND s.scope_type = 'team'
+                AND ( s.start_date IS NULL OR s.start_date <= %s )
+                AND ( s.end_date   IS NULL OR s.end_date   >= %s )",
+            $user_id, $today, $today
+        ) );
+        return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ), static fn( int $v ): bool => $v > 0 ) );
+    }
+
+    /**
+     * The ids of `$team_ids` a team list may show: teams of the current
+     * club, not archived, inside the demo-mode scope — the filters every
+     * team list applies (`QueryHelpers::get_teams()`).
+     *
+     * @param list<int> $team_ids
+     * @return list<int>
+     */
+    private static function listableTeamIds( array $team_ids ): array {
+        $ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_by_ids( $team_ids ) as $team ) {
+            $id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $id > 0 ) $ids[] = $id;
+        }
+        sort( $ids );
+        return $ids;
+    }
+
+    /**
      * #3181 — the scoped sibling of `hasAuthorityAnyScope()`: persona and
      * runtime-scope authority for one specific target, IGNORING the
      * sub-feature toggle (#1485).
