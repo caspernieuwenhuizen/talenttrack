@@ -25,7 +25,7 @@ final class ReadersStep implements WizardStepInterface {
         return StartChoices::settle( $state, $answers );
     }
 
-    public function nextStep( array $state ): ?string { return 'when'; }
+    public function nextStep( array $state ): string { return 'when'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }

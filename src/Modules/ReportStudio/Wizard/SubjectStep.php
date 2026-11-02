@@ -48,7 +48,7 @@ final class SubjectStep implements WizardStepInterface {
                 $this->renderTeam( $teams, (int) ( $state['team_id'] ?? 0 ) );
                 return;
             case ReportContext::SCOPE_GROUP:
-                $chosen = array_map( 'intval', is_array( $state['cohort_team_ids'] ?? null ) ? $state['cohort_team_ids'] : [] );
+                $chosen = array_values( array_map( 'intval', is_array( $state['cohort_team_ids'] ?? null ) ? $state['cohort_team_ids'] : [] ) );
                 $this->renderGroup( $teams, $chosen, (string) ( $state['cohort_age_group'] ?? '' ) );
                 return;
         }
@@ -88,7 +88,7 @@ final class SubjectStep implements WizardStepInterface {
         return [];
     }
 
-    public function nextStep( array $state ): ?string { return 'readers'; }
+    public function nextStep( array $state ): string { return 'readers'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }

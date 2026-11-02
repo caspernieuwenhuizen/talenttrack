@@ -25,7 +25,7 @@ final class SharingStep implements WizardStepInterface {
         return StartChoices::settle( $state, $answers );
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    public function nextStep( array $state ): string { return 'review'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }

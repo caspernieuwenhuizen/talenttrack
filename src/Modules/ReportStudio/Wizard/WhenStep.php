@@ -69,7 +69,7 @@ final class WhenStep implements WizardStepInterface {
         return StartChoices::settle( $state, $answers ) + $extra;
     }
 
-    public function nextStep( array $state ): ?string { return 'sharing'; }
+    public function nextStep( array $state ): string { return 'sharing'; }
 
     /** @return array<string,mixed> */
     public function submit( array $state ): array { return []; }
