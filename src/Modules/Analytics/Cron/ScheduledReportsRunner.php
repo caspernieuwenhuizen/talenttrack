@@ -40,6 +40,9 @@ final class ScheduledReportsRunner {
 
     public const HOOK = 'tt_scheduled_reports_cron';
 
+    /** The length of the schedule's `last_error` column. */
+    private const NOTE_LIMIT = 255;
+
     public static function init(): void {
         add_action( self::HOOK, [ self::class, 'run' ] );
         // Schedule on plugin boot if missing.
@@ -127,19 +130,24 @@ final class ScheduledReportsRunner {
      * Who receives a KPI schedule, with which scope, and who is left out.
      *
      * A role key expands to its users; a plain address that belongs to an
-     * account is that account. An account receives its own CSV, built with
-     * its own scope, when `FactQuery::canRead()` lets it read the fact.
+     * account is that account. An account receives the CSV built with its
+     * own scope, when `FactQuery::canRead()` lets it read the fact; accounts
+     * that read the same rows (`FactScope::rowsKey()`) share one build.
      * Addresses with no account share one CSV built with the creator's
      * scope, and only when the fact carries no player data.
+     *
+     * Each skipped entry carries `via`: the role key it was reached through,
+     * or '' for an address the creator typed.
      *
      * @param string[] $entries
      * @return array{
      *     deliveries: list<array{scope: FactScope, recipients: list<Recipient>}>,
-     *     skipped: list<array{email: string, user_id: int, reason: string}>
+     *     skipped: list<array{email: string, user_id: int, reason: string, via: string}>
      * }
      */
     public static function planKpiDelivery( array $entries, string $fact_key, int $creator_id ): array {
         $users     = [];
+        $via       = [];
         $addresses = [];
         foreach ( $entries as $entry ) {
             $entry = trim( (string) $entry );
@@ -150,6 +158,7 @@ final class ScheduledReportsRunner {
                 if ( $account instanceof \WP_User && (int) $account->ID > 0 ) {
                     $user_id = (int) $account->ID;
                     $users[ $user_id ] = self::userRecipient( $user_id, $entry );
+                    $via[ $user_id ]   = '';
                 } else {
                     $addresses[ strtolower( $entry ) ] = new Recipient( 0, Recipient::KIND_SYSTEM, null, $entry );
                 }
@@ -163,27 +172,34 @@ final class ScheduledReportsRunner {
                 $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
                 if ( $email === '' || ! is_email( $email ) ) continue;
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
+                $via[ $user_id ]   = $entry;
             }
         }
 
-        $deliveries = [];
-        $skipped    = [];
-        $taken      = [];
+        $fact          = FactRegistry::find( $fact_key );
+        $entity        = $fact !== null ? $fact->readEntity : '';
+        $by_visibility = $fact !== null && $fact->visibilityColumn !== null;
+        $groups        = [];
+        $skipped       = [];
+        $taken         = [];
         foreach ( $users as $user_id => $recipient ) {
             $taken[ strtolower( $recipient->emailAddress ) ] = true;
             $scope = FactScope::forUser( $user_id );
             if ( ! FactQuery::canRead( $fact_key, $scope ) ) {
-                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access' ];
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access', 'via' => $via[ $user_id ] ?? '' ];
                 continue;
             }
-            $deliveries[] = [ 'scope' => $scope, 'recipients' => [ $recipient ] ];
+            $key = $scope->rowsKey( $entity, $by_visibility );
+            if ( ! isset( $groups[ $key ] ) ) $groups[ $key ] = [ 'scope' => $scope, 'recipients' => [] ];
+            $groups[ $key ]['recipients'][] = $recipient;
         }
+        $deliveries = array_values( $groups );
 
         $outside = [];
         foreach ( $addresses as $key => $recipient ) {
             if ( isset( $taken[ $key ] ) ) continue;
             if ( self::factCarriesPlayerData( $fact_key ) ) {
-                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => 0, 'reason' => 'player_data_to_address' ];
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => 0, 'reason' => 'player_data_to_address', 'via' => '' ];
                 continue;
             }
             $outside[] = $recipient;
@@ -285,19 +301,65 @@ final class ScheduledReportsRunner {
     /**
      * The line the schedules screen shows for recipients left out of a run.
      *
-     * @param list<array{email: string, user_id: int, reason: string}> $skipped
+     * A recipient reached through a role key is counted under that key, never
+     * named: the creator typed the role, not the addresses of its members.
+     * Typed addresses are named until the note would pass the `last_error`
+     * column's length, and the rest are counted. The audit row keeps the
+     * full list.
+     *
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
      */
     private static function skippedNote( array $skipped ): string {
-        $who = implode( ', ', array_map( static fn( array $s ): string => $s['email'], $skipped ) );
+        $per_role = [];
+        $typed    = [];
+        foreach ( $skipped as $s ) {
+            if ( $s['via'] !== '' ) {
+                $per_role[ $s['via'] ] = ( $per_role[ $s['via'] ] ?? 0 ) + 1;
+            } else {
+                $typed[] = $s['email'];
+            }
+        }
+
+        $parts = [];
+        foreach ( $per_role as $role => $n ) {
+            $parts[] = sprintf(
+                /* translators: 1: a role key such as tt_parent, 2: how many of its members were left out */
+                _n( '%1$s (%2$d member)', '%1$s (%2$d members)', $n, 'talenttrack' ),
+                $role,
+                $n
+            );
+        }
+        $parts = array_merge( $parts, $typed );
+
+        $shown = [];
+        foreach ( $parts as $part ) {
+            $candidate = array_merge( $shown, [ $part ] );
+            if ( mb_strlen( self::noteText( count( $skipped ), $candidate, count( $parts ) - count( $candidate ) ) ) > self::NOTE_LIMIT ) break;
+            $shown = $candidate;
+        }
+        if ( $shown === [] && $parts !== [] ) $shown = [ $parts[0] ];
+
+        return self::noteText( count( $skipped ), $shown, count( $parts ) - count( $shown ) );
+    }
+
+    /**
+     * @param list<string> $shown
+     */
+    private static function noteText( int $total, array $shown, int $more ): string {
+        $who = implode( ', ', $shown );
+        if ( $more > 0 ) {
+            /* translators: 1: a comma-separated list of role keys and addresses, 2: how many more were left out */
+            $who = sprintf( __( '%1$s and %2$d more', 'talenttrack' ), $who, $more );
+        }
         return sprintf(
-            /* translators: 1: number of recipients left out, 2: their email addresses, comma-separated */
+            /* translators: 1: number of recipients left out, 2: who they are: role keys with a count, and email addresses */
             _n(
                 'Left out %1$d recipient who may not receive this report: %2$s',
                 'Left out %1$d recipients who may not receive this report: %2$s',
-                count( $skipped ),
+                $total,
                 'talenttrack'
             ),
-            count( $skipped ),
+            $total,
             $who
         );
     }
@@ -518,8 +580,8 @@ final class ScheduledReportsRunner {
     }
 
     /**
-     * @param array<string,mixed>                                       $schedule
-     * @param list<array{email: string, user_id: int, reason: string}> $skipped
+     * @param array<string,mixed>                                                    $schedule
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
      */
     private static function auditLog( array $schedule, int $recipient_count, bool $ok, array $skipped = [] ): void {
         if ( ! class_exists( '\\TT\\Infrastructure\\Audit\\AuditService' ) ) return;

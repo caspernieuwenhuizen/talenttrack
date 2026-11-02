@@ -40,6 +40,9 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
     /** @var array<string,string> recipient address => CSV they received */
     private array $sent = [];
 
+    /** @var array<string,true> staged CSV paths seen, one per build */
+    private array $builds = [];
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
@@ -69,7 +72,8 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
 
         $this->repo = new ScheduledReportsRepository();
-        $this->sent = [];
+        $this->sent   = [];
+        $this->builds = [];
         add_filter( 'tt_comms_email_send', [ $this, 'captureSend' ], 10, 2 );
     }
 
@@ -89,9 +93,60 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         $csv = '';
         foreach ( (array) ( $payload['attachments'] ?? [] ) as $path ) {
             $csv .= (string) file_get_contents( (string) $path );
+            $this->builds[ (string) $path ] = true;
         }
         $this->sent[ strtolower( (string) $payload['to'] ) ] = $csv;
         return true;
+    }
+
+    public function test_readers_with_the_same_rows_share_one_csv_build(): void {
+        $second_hod    = $this->makePersona( 'tt_head_dev', 'head_of_development', $this->team_b );
+        $manager_email = (string) get_userdata( $this->manager )->user_email;
+        $hod_email     = (string) get_userdata( $this->hod )->user_email;
+        $second_email  = (string) get_userdata( $second_hod )->user_email;
+        $recipients    = [ $hod_email, $second_email, $manager_email ];
+
+        $plan = ScheduledReportsRunner::planKpiDelivery( $recipients, 'attendance', 0 );
+        $this->assertCount( 2, $plan['deliveries'], 'two club-wide readers and a team reader are two builds' );
+
+        $this->runSchedule( self::PLAYER_KPI, $recipients );
+
+        $this->assertCount( 2, $this->builds, 'the CSV was built once per reader instead of once per set of rows' );
+        foreach ( [ $hod_email, $second_email ] as $email ) {
+            $this->assertStringContainsString( 'Recipients U15', $this->sent[ strtolower( $email ) ] ?? '', $email );
+        }
+        $this->assertSame( $this->sent[ strtolower( $hod_email ) ], $this->sent[ strtolower( $second_email ) ] );
+        $this->assertStringNotContainsString( 'Recipients U15', $this->sent[ strtolower( $manager_email ) ] ?? '', 'the team reader shares no build with the club-wide readers' );
+        $this->assertStringContainsString( 'Recipients U12', $this->sent[ strtolower( $manager_email ) ] ?? '' );
+    }
+
+    public function test_a_role_left_out_is_named_with_a_count_not_its_members_addresses(): void {
+        if ( get_role( 'tt_parent' ) === null ) add_role( 'tt_parent', 'parent', [ 'read' => true ] );
+        for ( $i = 1; $i <= 20; $i++ ) {
+            self::factory()->user->create( [ 'role' => 'tt_parent', 'user_email' => "member-{$i}-4619@example.test" ] );
+        }
+        $this->flush();
+        $members = count( get_users( [ 'role' => 'tt_parent', 'fields' => [ 'ID' ] ] ) );
+
+        $id   = $this->runSchedule( self::PLAYER_KPI, [ 'tt_parent' ] );
+        $note = (string) $this->lastError( $id );
+
+        $this->assertLessThan( 255, mb_strlen( $note ) );
+        $this->assertStringContainsString( "tt_parent ({$members} members)", $note );
+        $this->assertStringNotContainsString( '@example.test', $note, 'a parent\'s address reached the schedules screen' );
+    }
+
+    public function test_typed_addresses_are_named_up_to_the_limit_and_the_rest_counted(): void {
+        $typed = [];
+        for ( $i = 1; $i <= 15; $i++ ) $typed[] = "outside-{$i}-4619@example.test";
+
+        $id   = $this->runSchedule( self::PLAYER_KPI, $typed, $this->hod );
+        $note = (string) $this->lastError( $id );
+
+        $this->assertLessThanOrEqual( 255, mb_strlen( $note ) );
+        $this->assertStringContainsString( 'outside-1-4619@example.test', $note );
+        $this->assertStringNotContainsString( 'outside-15-4619@example.test', $note );
+        $this->assertMatchesRegularExpression( '/ and \d+ more$/', $note );
     }
 
     public function test_a_parent_role_receives_nothing_for_a_player_level_fact(): void {
@@ -103,7 +158,9 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         $id = $this->runSchedule( self::PLAYER_KPI, [ 'tt_parent' ] );
 
         $this->assertArrayNotHasKey( 'parent-4619@example.test', $this->sent, 'a parent received a club attendance report' );
-        $this->assertStringContainsString( 'parent-4619@example.test', (string) $this->lastError( $id ), 'the parent left out is not named on the schedule' );
+        $note = (string) $this->lastError( $id );
+        $this->assertStringContainsString( 'tt_parent (', $note, 'the role left out is not named on the schedule' );
+        $this->assertStringNotContainsString( 'parent-4619@example.test', $note );
     }
 
     public function test_a_team_scoped_recipient_gets_only_their_teams_rows(): void {
@@ -151,14 +208,18 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
 
         $this->assertArrayHasKey( strtolower( $hod_email ), $this->sent, 'a reader lost the report because someone else was skipped' );
         $note = (string) $this->lastError( $id );
-        $this->assertStringContainsString( 'parent-b-4619@example.test', $note );
+        $this->assertStringContainsString( 'tt_parent (', $note );
+        $this->assertStringNotContainsString( 'parent-b-4619@example.test', $note );
         $this->assertStringContainsString( 'outside-4619@example.test', $note );
         $this->assertStringNotContainsString( $hod_email, $note );
 
         $plan = ScheduledReportsRunner::planKpiDelivery( [ $hod_email, 'tt_parent', 'outside-4619@example.test' ], 'attendance', $this->hod );
         $reasons = array_column( $plan['skipped'], 'reason', 'email' );
+        $vias    = array_column( $plan['skipped'], 'via', 'email' );
         $this->assertSame( 'no_read_access', $reasons['parent-b-4619@example.test'] ?? null );
+        $this->assertSame( 'tt_parent', $vias['parent-b-4619@example.test'] ?? null );
         $this->assertSame( 'player_data_to_address', $reasons['outside-4619@example.test'] ?? null );
+        $this->assertSame( '', $vias['outside-4619@example.test'] ?? null );
     }
 
     // ===== helpers =====

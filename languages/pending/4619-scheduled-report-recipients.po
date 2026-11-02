@@ -1,9 +1,21 @@
-#. translators: 1: number of recipients left out, 2: their email addresses, comma-separated
+#. translators: 1: number of recipients left out, 2: who they are: role keys with a count, and email addresses
 #: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
 msgid "Left out %1$d recipient who may not receive this report: %2$s"
 msgid_plural "Left out %1$d recipients who may not receive this report: %2$s"
 msgstr[0] "%1$d ontvanger overgeslagen die dit rapport niet mag ontvangen: %2$s"
 msgstr[1] "%1$d ontvangers overgeslagen die dit rapport niet mogen ontvangen: %2$s"
+
+#. translators: 1: a role key such as tt_parent, 2: how many of its members were left out
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "%1$s (%2$d member)"
+msgid_plural "%1$s (%2$d members)"
+msgstr[0] "%1$s (%2$d lid)"
+msgstr[1] "%1$s (%2$d leden)"
+
+#. translators: 1: a comma-separated list of role keys and addresses, 2: how many more were left out
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "%1$s and %2$d more"
+msgstr "%1$s en nog %2$d"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
 msgid "Each recipient with an account receives only the rows they may read themselves, and nothing if they may read none. An address with no account here receives only a report that holds no player data. Whoever is left out is named on the schedule after the run."
