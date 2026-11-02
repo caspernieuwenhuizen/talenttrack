@@ -29,7 +29,11 @@ final class SubjectStep implements WizardStepInterface {
         $scope = (string) ( $state['scope'] ?? '' );
         if ( $scope === ReportContext::SCOPE_ME || $scope === ReportContext::SCOPE_ACADEMY ) return true;
         if ( $scope === ReportContext::SCOPE_GROUP ) return false;
-        if ( (string) ( $state['binding'] ?? '' ) !== ReportStartRules::BINDING_FIXED ) return true;
+        // #4711 — skipped only once the binding is known not to be fixed.
+        // Before the readers step is answered the step still counts, so the
+        // step total can shrink after that choice but never grow.
+        $binding = (string) ( $state['binding'] ?? '' );
+        if ( $binding !== '' && $binding !== ReportStartRules::BINDING_FIXED ) return true;
         if ( ! empty( $state['subject_from_page'] ) ) {
             if ( $scope === ReportContext::SCOPE_PLAYER && (int) ( $state['player_id'] ?? 0 ) > 0 ) return true;
             if ( $scope === ReportContext::SCOPE_TEAM && (int) ( $state['team_id'] ?? 0 ) > 0 ) return true;
