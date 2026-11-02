@@ -104,6 +104,7 @@ class AuthorizationService {
         self::$cache_scopes = [];
         self::$cache_decisions = [];
         self::$cache_matrix = [];
+        RecordRedactor::flush();
 
         // #3257 — the functional-role grant layer caches a user's team /
         // role assignments per request, and `tt_person_assigned_to_team`

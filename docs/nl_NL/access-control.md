@@ -197,6 +197,30 @@ De bulkexports controleren op de ruwe leescapability, die de matrixbrug beantwoo
 
 Een gebruiker zonder matrixrij én zonder scoperij wordt precies zo geweigerd als voorheen, en van geen enkele export is de capability versmald — de export was juist de route die met de seed overeenkwam.
 
+## Gevoelige velden
+
+Sommige velden op een dossier dat iemand mag openen, zijn toch niet voor die lezer bedoeld: wie een speler mag lezen, mag daarmee nog niet het telefoonnummer van de ouder lezen. Die velden staan op één plek, `config/sensitive_fields.php`, met per veld het recht dat het vrijgeeft, en worden op één plek verborgen, `Infrastructure\Security\RecordRedactor`.
+
+Wat een lezer zonder dat recht krijgt:
+
+- **Via REST** ontbreekt het veld helemaal in het antwoord. Het wordt niet als `null` meegestuurd en er is geen vlag die zegt dat het is weggelaten. De controller haalt het weg uit wat hij teruggeeft met `RecordRedactor::redactRows()` (of `redact()` voor één dossier). Daarachter draait de redactor, voor elk routepatroon dat het register noemt, nog een keer na de controller (`rest_post_dispatch`) als vangnet op HTTP-niveau. Hij loopt arrays, objecten en `JsonSerializable`-waarden af en houdt van elk de JSON-vorm aan.
+- **Op het scherm** het woord **Verborgen** in een gedempte stijl op de plek van de waarde, met "Verborgen voor jouw rol" voor een schermlezer. Nooit een leeg vak, want dat leest als "niet ingevuld".
+
+De velden die nu geregistreerd zijn:
+
+| Entiteit | Velden | Wie ze mag lezen |
+| --- | --- | --- |
+| `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `custom_fields` | Staf van de speler: een stafrol bij het team van de speler, een rol die academiebreed spelers mag wijzigen, of een academiebrede roltoewijzing die spelers leest |
+
+### Een gevoelig veld toevoegen
+
+1. **Registreer het** in `config/sensitive_fields.php`, onder de entiteit: de veldnaam en de regel die het vrijgeeft. Geef een nieuwe entiteit haar `routes` en haar `id_key`. De routes zijn de geregistreerde routepatronen, precies zoals ze aan `register_rest_route()` worden meegegeven met de namespace ervoor (bijvoorbeeld `/talenttrack/v1/players/(?P<id>\d+)`), omdat het vangnet sleutelt op het patroon dat WordPress heeft gematcht, niet op het pad van het verzoek. De `id_key` is de sleutel in een teruggegeven rij die het spelers-id bevat; elke rij op een genoemde route die die sleutel en een geregistreerd veld heeft, wordt gelezen als een rij van deze entiteit, dus noem alleen routes waarvan de rijen dat zijn. Een module registreert haar velden daar, nooit met een eigen controle in een controller of weergave.
+2. **Controllers redigeren, weergaven vragen.** Een controller haalt wat hij teruggeeft door `RecordRedactor::redactRows()` of `redact()`. Een weergave roept `RecordRedactor::isMasked( $entity, $field, $user_id, $player_id )` aan en toont `Components\MaskedValue::render()` op de plek van de waarde als het antwoord ja is. Geen van beide bepaalt de regel zelf.
+3. **Lijsten vragen één keer.** `RecordRedactor::redactRows()` en `RecordRedactor::prime()` bepalen het recht voor alle spelers op een lijst tegelijk, uit de team-id's in de rijen zelf of uit één leesactie van de teams van de spelers. Een lijst van 200 spelers kost evenveel als een lijst van 20.
+4. **Test het als de lezer die het niet mag zien**, en als een die het wel mag. De contracttest loopt elke spelersroute af als Alleen-lezen waarnemer, zoals de server een echt verzoek beantwoordt (met `rest_post_dispatch`), en faalt als een geregistreerd veld, of de oudercontactgegevens uit de testdata, in een antwoord staat.
+
+Een regelnaam die de redactor niet kent, verbergt het veld voor iedereen, zodat een tikfout in het register dichtvalt in plaats van open.
+
 ## Het dossier van een speler, en de onderdelen ervan
 
 Het dossier van een speler openen en een onderdeel ervan lezen zijn twee vragen, die apart worden beantwoord.
