@@ -49,7 +49,12 @@ async function enterOn( page, field ) {
 async function cancelRun( page ) {
 	const cancel = page.locator( '.tt-wizard-actions [data-role="cancel"]' );
 	if ( ( await cancel.count() ) === 0 ) return;
-	await Promise.all( [ page.waitForNavigation( { timeout: 30000 } ), cancel.click() ] );
+	// Submitted through the form, not clicked: where the action bar sits on a
+	// long step is not this spec's subject.
+	await Promise.all( [
+		page.waitForNavigation( { timeout: 30000 } ),
+		cancel.evaluate( ( b ) => { const btn = /** @type {HTMLButtonElement} */ ( b ); if ( btn.form ) btn.form.requestSubmit( btn ); } ),
+	] );
 }
 
 test.describe( 'Enter in a wizard goes to the next step (#4709)', () => {
