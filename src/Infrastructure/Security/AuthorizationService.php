@@ -118,6 +118,10 @@ class AuthorizationService {
         if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
             \TT\Modules\Authorization\MatrixGate::clearCache();
         }
+        // #4731 — and the personas those answers are resolved against.
+        if ( class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
+            \TT\Modules\Authorization\PersonaResolver::clearCache();
+        }
     }
 
     /**

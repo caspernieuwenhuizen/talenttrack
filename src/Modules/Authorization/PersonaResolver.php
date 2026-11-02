@@ -65,6 +65,27 @@ class PersonaResolver {
     ];
 
     /**
+     * #4731 — `personasFor()` answers per request, keyed by user id. Every
+     * scoped `MatrixGate::can()` asks it, at four queries for a coach, so a
+     * list checking `can()` per team paid that per team.
+     *
+     * @var array<int, string[]>
+     */
+    private static array $personas = [];
+
+    /** Whether `tt_team_people.is_head_coach` exists; asked once per request. */
+    private static ?bool $head_coach_flag = null;
+
+    /**
+     * Forget the per-request answers. `AuthorizationService::flushCache()`
+     * calls this on every role change, grant, revoke, team assignment and
+     * login.
+     */
+    public static function clearCache(): void {
+        self::$personas = [];
+    }
+
+    /**
      * #1102 — Inverse of WP_ROLE_TO_PERSONA. Returns the WP role slug a
      * persona typically maps from, so the persona-dashboard editor can
      * answer "would a default user with this persona's typical WP role
@@ -99,6 +120,14 @@ class PersonaResolver {
     public static function personasFor( int $user_id ): array {
         if ( $user_id <= 0 ) return [];
 
+        if ( ! isset( self::$personas[ $user_id ] ) ) {
+            self::$personas[ $user_id ] = self::resolvePersonas( $user_id );
+        }
+        return self::$personas[ $user_id ];
+    }
+
+    /** @return string[] */
+    private static function resolvePersonas( int $user_id ): array {
         $user = get_user_by( 'id', $user_id );
         if ( ! $user instanceof \WP_User ) return [];
 
@@ -148,31 +177,20 @@ class PersonaResolver {
             "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
             $user_id
         ) );
-        if ( ! empty( $person_ids ) ) {
-            $tp_table = "{$p}tt_team_people";
-            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tp_table ) ) === $tp_table ) {
-                // Check the is_head_coach column exists (guarded for
-                // installs where Sprint 7's migration hasn't run).
-                $col = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'is_head_coach'",
-                    $tp_table
-                ) );
-                if ( $col !== null ) {
-                    $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
-                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                    $rows = $wpdb->get_results( $wpdb->prepare(
-                        "SELECT is_head_coach, COUNT(*) AS n
-                           FROM {$tp_table}
-                          WHERE person_id IN ({$placeholders})
-                          GROUP BY is_head_coach",
-                        $person_ids
-                    ) );
-                    foreach ( (array) $rows as $r ) {
-                        if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
-                        if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
-                    }
-                }
+        if ( ! empty( $person_ids ) && self::hasHeadCoachFlag() ) {
+            $tp_table     = "{$p}tt_team_people";
+            $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT is_head_coach, COUNT(*) AS n
+                   FROM {$tp_table}
+                  WHERE person_id IN ({$placeholders})
+                  GROUP BY is_head_coach",
+                $person_ids
+            ) );
+            foreach ( (array) $rows as $r ) {
+                if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
+                if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
             }
         }
 
@@ -181,6 +199,27 @@ class PersonaResolver {
         if ( $has_assistant ) $out[] = 'assistant_coach';
         if ( empty( $out ) )  $out[] = 'head_coach'; // no team assignments — defensive default
         return $out;
+    }
+
+    /**
+     * The table and its `is_head_coach` column (guarded for installs where
+     * Sprint 7's migration hasn't run). Schema, not a user fact, so it is
+     * asked once per request and `clearCache()` leaves it alone.
+     */
+    private static function hasHeadCoachFlag(): bool {
+        if ( self::$head_coach_flag === null ) {
+            global $wpdb;
+            $flag = false;
+            if ( \TT\Infrastructure\Query\TableExists::has( 'tt_team_people' ) ) {
+                $flag = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'is_head_coach'",
+                    $wpdb->prefix . 'tt_team_people'
+                ) ) !== null;
+            }
+            self::$head_coach_flag = $flag;
+        }
+        return self::$head_coach_flag;
     }
 
     /**
