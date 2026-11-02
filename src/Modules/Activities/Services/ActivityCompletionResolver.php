@@ -86,7 +86,8 @@ final class ActivityCompletionResolver {
      * caller can hide the "Complete activity" affordance instead of
      * rendering a button whose URL resolves to empty (§7, #2325).
      *
-     *  - Match WITH a match-execution → the finalize view (tt_edit_activities).
+     *  - Match WITH a match-execution → the finalize view (tt_edit_activities
+     *    and the activity's write scope).
      *  - Training / paper match → the evaluation wizard, whose availability
      *    already folds in its `tt_edit_evaluations` cap + the wizard config;
      *    OR, when that wizard is switched off, the attendance grid (#2401).
@@ -99,7 +100,10 @@ final class ActivityCompletionResolver {
             return false;
         }
         if ( self::routesToMatchExecution( $activity_id, $type_key ) ) {
-            return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' );
+            // The capability says the user finalizes matches, not whose: the
+            // finalize writes to this match's team, so its write scope too.
+            return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' )
+                && \TT\Modules\Authorization\ActivityTeamScope::coversActivityForWrite( $user_id, $activity_id );
         }
         if ( self::wizardAvailable( $user_id ) ) {
             return true;
