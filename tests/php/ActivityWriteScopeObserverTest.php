@@ -162,6 +162,44 @@ final class ActivityWriteScopeObserverTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-mp-readonly-note', $prep );
     }
 
+    /**
+     * The same path through the dashboard's own gates: the coach with the
+     * observer seat passes dispatch for both slugs, the activity page
+     * carries the read entry, and the prep slug renders the read-only sheet.
+     */
+    public function test_the_dashboard_dispatch_reaches_the_read_only_prep(): void {
+        ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );
+
+        $this->assertTrue( \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'activities', $this->coach ) );
+        $this->assertTrue( \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'match-prep', $this->coach ) );
+
+        $_GET = [ 'tt_view' => 'activities', 'id' => (string) $this->other_match ];
+        [ $handled, $page ] = $this->dispatch( 'activities' );
+        $this->assertTrue( $handled );
+        $this->assertStringContainsString( 'data-tt-match-prep-read', $page );
+        $this->assertNoWriteEntries( $page );
+
+        $_GET = [ 'tt_view' => 'match-prep', 'activity_id' => (string) $this->other_match ];
+        [ $handled, $prep ] = $this->dispatch( 'match-prep' );
+        $this->assertTrue( $handled );
+        $this->assertStringContainsString( 'tt-mp-readonly-note', $prep );
+        $this->assertStringNotContainsString( 'tt-match-prep-bootstrap', $prep );
+    }
+
+    /** @return array{0:bool,1:string} */
+    private function dispatch( string $view ): array {
+        $m = new \ReflectionMethod( \TT\Shared\Frontend\DashboardShortcode::class, 'tryDispatch' );
+        $m->setAccessible( true );
+        ob_start();
+        $handled = (bool) $m->invoke( null, $view, $this->coach, current_user_can( 'tt_edit_settings' ), null );
+        return [ $handled, (string) ob_get_clean() ];
+    }
+
+    /**
+     * The view's own answer for a reader with no activity capability. The
+     * dashboard does not route this reader to the activities panel yet
+     * (that is a separate change), so this pins the view, not the dispatch.
+     */
     public function test_the_read_only_observer_alone_is_offered_view_match_prep(): void {
         ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->ensureForActivity( $this->other_match );
         $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
