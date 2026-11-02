@@ -3,7 +3,7 @@ title: Rapporten
 group: analytics
 summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -714,3 +714,15 @@ Een rapport bevat hooguit 40 blokken.
 **Opslaan.** Het canvas slaat zichzelf op terwijl je werkt; er is geen Opslaan-knop. **Ongedaan maken** gaat stap voor stap terug, tot 50 stappen in deze sessie, en **Wijzigingen terugdraaien** zet het rapport terug zoals het was toen je het opende. Heb je hetzelfde rapport in een tweede tabblad open, dan laadt het tabblad met de oudere kopie de nieuwste in plaats van eroverheen te schrijven. Zie [Hoe opslaan werkt](save-model.md).
 
 **Versies en publiceren.** **Publiceren** maakt van je concept een versie. Het vraagt wat er veranderd is, en bij een rapport voor een rol vraagt het voor welke rollen je het publiceert en zegt het hoeveel mensen dat bereikt. **Versies** toont de gepubliceerde versies; **Deze versie gebruiken** zet er een terug in je concept, en de volgende publicatie maakt hem weer live.
+
+## Report Studio — een gedeeld rapport lezen
+
+Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.
+
+- **Je leest de gepubliceerde versie**, nooit het concept van de bouwer, onder de naam waarmee het is gepubliceerd.
+- **Over wie het gaat** hangt af van hoe het is gemaakt. Een rapport over een vast team of een vaste speler toont dat team of die speler. Een rapport dat bij het openen wordt gekozen, laat je een van je eigen teams of spelers kiezen. Een rapport dat volgt wie het opent, toont je eigen team.
+- **De periode** is die waarvoor het rapport is gemaakt. Wordt hij bij het openen gekozen, kies dan een van de periodes: vorige week, vorige maand, deze maand of dit seizoen.
+- **Een blok dat je niet mag zien** meldt "Niet beschikbaar voor jou." en toont geen cijfers. Contactgegevens van een gezin waar je niet mee werkt, worden nooit getoond.
+- Op een telefoon staan de blokken onder elkaar.
+
+Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.

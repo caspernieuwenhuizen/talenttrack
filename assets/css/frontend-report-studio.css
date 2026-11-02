@@ -32,6 +32,18 @@
     color: var(--tt-muted, #6a6d66);
 }
 
+/* ---- the reader's view (#4591) ----------------------------------------- */
+
+.tt-dashboard .tt-rv-title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 1.375rem;
+}
+
+.tt-dashboard .tt-rv-context [hidden],
+.tt-dashboard .tt-rv-context[hidden] {
+    display: none;
+}
+
 /* ---- the list --------------------------------------------------------- */
 
 .tt-dashboard .tt-rs-list-head {

@@ -190,7 +190,7 @@ final class ReportData {
                 $id = $asked;
             }
         } elseif ( $binding === ReportStartRules::BINDING_VIEWER ) {
-            $id = $is_player ? self::viewersPlayer( $user_id ) : self::viewersTeam( $user_id, $asked );
+            $id = $is_player ? self::viewersPlayer( $user_id ) : self::viewersTeam( $reader, $asked );
         } else {
             $id = $asked;
         }
@@ -243,12 +243,17 @@ final class ReportData {
         return $id > 0 ? $id : null;
     }
 
-    /** The team asked for when it is one the viewer coaches, else their first. */
-    private static function viewersTeam( int $user_id, ?int $asked ): ?int {
-        $ids = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+    /**
+     * The team asked for when it is one the viewer coaches, else their first,
+     * of the ones whose reports they read (#4591): a coached team they may
+     * not report on is never the default.
+     */
+    private static function viewersTeam( ReportReader $reader, ?int $asked ): ?int {
+        $readable = $reader->reportTeams();
+        $ids      = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $reader->userId ) as $team ) {
             $id = (int) ( $team->id ?? 0 );
-            if ( $id > 0 ) $ids[] = $id;
+            if ( $id > 0 && ( $readable === null || in_array( $id, $readable, true ) ) ) $ids[] = $id;
         }
         if ( $asked !== null && in_array( $asked, $ids, true ) ) return $asked;
         return $ids[0] ?? null;

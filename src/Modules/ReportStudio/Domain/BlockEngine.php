@@ -3,6 +3,8 @@ namespace TT\Modules\ReportStudio\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\RecordRedactor;
+
 /**
  * BlockEngine — renders one block for one context (#4568).
  *
@@ -46,7 +48,7 @@ final class BlockEngine {
         $options = self::validateOptions( $block, $context, $options_in );
         if ( $options instanceof StudioError ) return $options;
 
-        $data = self::forAudience( $block, $context, $block->render( $context, $options ) );
+        $data = self::masked( self::forAudience( $block, $context, $block->render( $context, $options ) ), $user_id );
 
         return [
             'block'   => $block->key(),
@@ -81,6 +83,49 @@ final class BlockEngine {
             unset( $data['rows'] );
             $data['breakdown'] = null;
         }
+        return $data;
+    }
+
+    /**
+     * #4591 — a block's rows about a player go through the sensitive-field
+     * registry (`RecordRedactor`, entity `players`), so a field this reader
+     * may not see about that player never leaves the server, whichever block
+     * and whichever route carries it. A row names its player in `player_id`,
+     * or in `key` when the block is broken down by player.
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
+    public static function masked( array $data, int $user_id ): array {
+        if ( ! is_array( $data['rows'] ?? null ) || RecordRedactor::fields( 'players' ) === [] ) return $data;
+
+        $by_key = ( $data['breakdown'] ?? null ) === 'player_id';
+        $player = static function ( mixed $row ) use ( $by_key ): int {
+            if ( ! is_array( $row ) ) return 0;
+            if ( isset( $row['player_id'] ) && is_numeric( $row['player_id'] ) ) return (int) $row['player_id'];
+            return $by_key && isset( $row['key'] ) && is_numeric( $row['key'] ) ? (int) $row['key'] : 0;
+        };
+
+        $teams = [];
+        foreach ( $data['rows'] as $row ) {
+            $pid = $player( $row );
+            if ( $pid > 0 ) $teams[ $pid ] = null;
+        }
+        if ( $teams === [] ) return $data;
+        RecordRedactor::prime( $user_id, $teams );
+
+        $rows = [];
+        foreach ( $data['rows'] as $row ) {
+            $pid = $player( $row );
+            if ( $pid <= 0 || ! is_array( $row ) ) {
+                $rows[] = $row;
+                continue;
+            }
+            $keyed = [];
+            foreach ( $row as $k => $v ) $keyed[ (string) $k ] = $v;
+            $rows[] = RecordRedactor::redact( 'players', $keyed, $user_id, $pid );
+        }
+        $data['rows'] = $rows;
         return $data;
     }
 

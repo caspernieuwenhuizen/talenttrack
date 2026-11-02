@@ -21,7 +21,7 @@
 
 	var cfg = window.TTReportStudio;
 	var root = document.querySelector('[data-tt-rs]');
-	if (!cfg || !root || !window.TT || !window.TT.Autosave) return;
+	if (!cfg || !root || !window.TT || !window.TT.Autosave || !window.TT.ReportBlocks) return;
 
 	var t = cfg.i18n || {};
 	var MAX_HISTORY = 50;
@@ -496,77 +496,11 @@
 		return btn;
 	}
 
-	function day(ymd) {
-		if (!ymd) return '';
-		var d = new Date(ymd + 'T00:00:00');
-		if (isNaN(d.getTime())) return ymd;
-		try { return d.toLocaleDateString(document.documentElement.lang || undefined, { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return ymd; }
-	}
+	function day(ymd) { return window.TT.ReportBlocks.day(ymd); }
 
+	/** A block's data, drawn the way the reader's view draws it. */
 	function renderData(b) {
-		var box = el('div', 'tt-rs-card-body');
-		var d = state.data[b.id];
-		if (!d) {
-			box.appendChild(el('p', 'tt-rs-block-msg', t.loading));
-			return box;
-		}
-		if (d.error) {
-			box.classList.add('is-off');
-			box.appendChild(el('p', 'tt-rs-block-msg', d.error.message));
-			return box;
-		}
-		var data = d.data || {};
-		if (data.value !== undefined && !Array.isArray(data.rows)) {
-			var fig = el('p', 'tt-rs-figure');
-			fig.appendChild(el('span', 'tt-rs-figure-value', data.value == null ? '–' : String(data.value) + (data.unit === 'percent' ? '%' : '')));
-			fig.appendChild(el('span', 'tt-rs-figure-label', data.measure_label || ''));
-			box.appendChild(fig);
-			return box;
-		}
-		var rows = Array.isArray(data.rows) ? data.rows : [];
-		if (!rows.length) {
-			var ctx = state.context || {};
-			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.nothing, day(ctx.from), day(ctx.to))));
-			return box;
-		}
-		var cols = Object.keys(rows[0]).filter(function (k) { return k !== 'player_id' && k !== 'key'; });
-		var wrap = el('div', 'tt-rs-table-wrap');
-		var table = el('table', 'tt-rs-table');
-		var thead = el('thead');
-		var hr = el('tr');
-		cols.forEach(function (c) { hr.appendChild(el('th', null, column(c, d))); });
-		thead.appendChild(hr);
-		table.appendChild(thead);
-		var tbody = el('tbody');
-		rows.forEach(function (r) {
-			var tr = el('tr');
-			cols.forEach(function (c) { tr.appendChild(el('td', null, r[c] == null ? '–' : String(r[c]))); });
-			tbody.appendChild(tr);
-		});
-		table.appendChild(tbody);
-		wrap.appendChild(table);
-		box.appendChild(wrap);
-		if (data.truncated) box.appendChild(el('p', 'tt-rs-block-msg', t.truncated));
-		return box;
-	}
-
-	/** A column's heading: the measure or breakdown the block names, else the server's word. */
-	function column(c, d) {
-		var data = d.data || {};
-		if (c === 'value' && data.measure_label) return data.measure_label;
-		if (c === 'label' && data.breakdown) {
-			var opt = optionOf(d.key, 'breakdown');
-			var set = opt && opt.choices ? opt.choices[(d.options || {}).fact] || [] : [];
-			for (var i = 0; i < set.length; i++) if (set[i].value === data.breakdown) return set[i].label;
-		}
-		return (cfg.columns && cfg.columns[c]) || t.value;
-	}
-
-	function optionOf(key, name) {
-		var b = state.catalog[key];
-		if (!b) return null;
-		for (var i = 0; i < b.options.length; i++) if (b.options[i].key === name) return b.options[i];
-		return null;
+		return window.TT.ReportBlocks.body(state.data[b.id], { i18n: t, columns: cfg.columns, catalog: state.catalog, context: state.context });
 	}
 
 	function renderMeter() {

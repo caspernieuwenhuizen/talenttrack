@@ -1349,6 +1349,7 @@ answered `403 forbidden` on a report that was not published to scouts.
 | `GET /reports/{id}/data` | `tt_view_reports` | Every block's data, for me. |
 | `GET /reports/{id}/reach` | `tt_build_reports` | How many people publishing to personas reaches. |
 | `GET /reports/subject-options` | `tt_build_reports` | The teams and players I build reports about. |
+| `GET /reports/{id}/subjects` | `tt_view_reports` | The subjects I may switch a report I read to. |
 
 An editor-only route answers a recipient `403 forbidden` and anyone else the
 same; a report that does not exist in the club is `404 not_found`.
@@ -1479,6 +1480,16 @@ Editors only. `{ "count": 7, "personas": [ { "key": "head_coach", "label":
 "Head coach" } ] }`. A persona that cannot be published to is `400
 bad_filter`. The Studio's publish confirm shows this number.
 
+### `GET /reports/{id}/subjects`
+
+The subjects a reader may switch the report to, by its binding: none for a
+fixed subject; for one chosen when opened, the teams whose reports they read
+or the players on them whose report they read; for one that follows the
+viewer, their own teams (a player follows their own record). `{ "teams": [ {
+"id", "name" } ], "players": [ { "id", "name", "team_id" } ] }`. Needs
+`tt_view_reports` and the right to open the report (`403` otherwise). The
+list only offers: `/data` checks the subject again on every call.
+
 ### `GET /reports/subject-options`
 
 The teams and players the caller builds reports about, for the Studio's
@@ -1486,7 +1497,7 @@ subject switch: `{ "teams": [ { "id", "name", "age_group" } ], "players": [ {
 "id", "name", "team_id" } ] }`. A coach gets their own squads; a builder for
 every team gets every squad. Needs `tt_build_reports`.
 
-### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=&audience=`
+### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=&period=&audience=`
 
 Every block of the definition, read through `POST
 /report-blocks/{key}/preview`'s engine, so each block checks its capability,
@@ -1514,6 +1525,17 @@ row scope. `source` is `draft` (a builder's own, their default) or
   staff-only block comes back as an `error` and no breakdown by player is
   sent. A recipient asking for another audience than the report's is `403
   fixed_audience`.
+- **`period`** (`last_week`, `last_month`, `this_month`, `this_season`) is a
+  period pill, computed today, in place of `from` / `to`, and follows the
+  same rule: a recipient may send it only when the period is chosen on
+  opening. An unknown key is `400 bad_filter`.
+- **Rows about a player** go through the sensitive-field registry
+  (`RecordRedactor`, entity `players`): a field the reader may not see about
+  that player is removed before the response leaves the server. The block
+  engine does it, so `POST /report-blocks/{key}/preview` answers the same,
+  and a row broken down by player (the player in `key`) is covered too.
+- **`period=this_season`** before the season starts is `422 no_period`, the
+  answer an omitted period gets then.
 - **`page_fit`** is the A4 estimate for the report in rows: `pages`, `fill`
   (percent per page) and `breaks` (the ids of the blocks that start a new
   page). It uses the player report's measured heights, two half blocks side

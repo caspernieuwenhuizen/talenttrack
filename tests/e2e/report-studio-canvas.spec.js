@@ -92,6 +92,7 @@ async function mount( page, opts = {} ) {
 				contentType: 'text/html',
 				body: '<!doctype html><html><body class="tt-dashboard">' + BODY +
 					'<script>' + CONFIG + '</script><script>' + script( 'tt-autosave.js' ) + '</script>' +
+					'<script>' + script( 'tt-report-blocks.js' ) + '</script>' +
 					'<script>' + script( 'frontend-report-studio.js' ) + '</script></body></html>',
 			} );
 			return;

@@ -1,0 +1,5 @@
+# Report Studio: read a report that is shared with you (#4591)
+
+Bump: minor
+
+A Report Studio report published for a role now reaches the people in it. The Reports launcher has a **Shared with me** group listing the published reports for a persona the reader holds, about a subject they read; each opens at `?tt_view=report&id=N`, read only. The reader sees the published version, never the draft. A fixed subject stays fixed, a report chosen when opened offers the reader's own teams or players, and one that follows the viewer shows their own team; a period chosen on opening offers the period options (last week, last month, this month, this season). A block the reader may not see says "Not available to you." and shows no figures, and every row about a player goes through the sensitive-field registry, so a family's contact details never reach a reader who does not work with that player. New route `GET /reports/{id}/subjects`; `GET /reports/{id}/data` takes `period`. The builder's canvas and the reader's view draw a block with the same script.

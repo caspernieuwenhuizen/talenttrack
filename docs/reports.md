@@ -3,7 +3,7 @@ title: Reports
 group: analytics
 summary: The tile launcher — progress charts, team ratings, coach activity.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -674,3 +674,15 @@ A report holds at most 40 blocks.
 **Saving.** The canvas saves itself as you work; there is no Save button. **Undo** goes back step by step, up to 50 steps in this sitting, and **Revert changes** puts the report back to how it was when you opened it. If you have the same report open in a second tab, the tab with the older copy reloads the newest one rather than writing over it. See [How saving works](save-model.md).
 
 **Versions and publishing.** **Publish** makes your draft a version. It asks what changed, and for a report made for a role it asks which roles to publish it for and says how many people that reaches. **Versions** lists the published versions; **Use this version** puts one back in your draft, and the next publish makes it live again.
+
+## Report Studio — reading a shared report
+
+A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.
+
+- **You read the published version**, never the builder's draft, under the name it was published with.
+- **Who it is about** depends on how it was made. A report about a fixed team or player shows that team or player. A report chosen when it is opened lets you pick one of your own teams or players. A report that follows whoever opens it shows your own team.
+- **The period** is the one the report was made for. When it is chosen on opening, pick one of the period options: last week, last month, this month or this season.
+- **A block you may not see** says "Not available to you." and shows no figures. Contact details of a family you do not work with are never shown.
+- On a phone the blocks stack one under the other.
+
+A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
