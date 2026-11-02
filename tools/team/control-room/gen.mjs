@@ -2,6 +2,7 @@
 // environments and team.json. Usage: node gen.mjs  -> writes control-room.html
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { QUESTIONS_CSS, QUESTIONS_JS } from './questions.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -135,14 +136,17 @@ h3.sub{font-size:1.05rem;font-weight:600;margin:1.1rem 0 .4rem}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.6rem}.kpi{border:1px solid var(--line);padding:.6rem .8rem}.kpi .n{font-family:var(--display);font-size:1.6rem;font-weight:600;font-variant-numeric:tabular-nums}.kpi .l{font-size:.8rem;color:var(--muted)}
 .dec{padding:.7rem 0;border-bottom:1px solid var(--line)}.dec:last-child{border-bottom:0}.dec .q{font-weight:500}.dec .r{font-size:.9rem;margin-top:.25rem}.dec .r b{color:var(--you)}
 .foot{margin-top:2rem;font-size:.85rem;color:var(--muted)}
+${QUESTIONS_CSS}
 </style>
 <div class="wrap">
   <div class="head"><div><div class="eyebrow">TalentTrack · delivery team</div><h1>Control room</h1></div><div class="mono">generated ${esc(stamp)} · refreshed by the lead · <a href="${ROADMAP_URL}">Roadmap</a></div></div>
   <p class="headline">${esc(team.headline)}</p>
   <div class="grid">
-    <section class="panel you p-dec"><h2>Decisions for you · ${openDecisions.length} open</h2>
-      ${openDecisions.map((d) => `<div class="dec"><span class="eyebrow">${esc(d.id)} · asked ${esc(d.asked)}</span><div class="q">${esc(d.question)}</div><div class="r"><b>Recommendation:</b> ${esc(d.recommendation)}</div><div class="r"><b>If nobody answers:</b> ${esc(d.ifSilent)}</div></div>`).join('') || '<p>Nothing waits on you.</p>'}
-      <p class="mono" style="margin:.75rem 0 0">Answer in the lead's session (Joris). Answered this week: ${answered.map((d) => esc(d.id)).join(', ') || 'none'}.</p>
+    <section class="panel you p-dec"><h2>Questions for you · <span id="tt-q-count">${openDecisions.length}</span> open</h2>
+      <div class="qs" id="tt-questions">${openDecisions.map((d) => `<div class="dec"><span class="eyebrow">${esc(d.id)} · asked ${esc(d.asked)}</span><div class="q">${esc(d.question)}</div><div class="r"><b>Recommendation:</b> ${esc(d.recommendation)}</div><div class="r"><b>If nobody answers:</b> ${esc(d.ifSilent)}</div></div>`).join('') || '<p>Nothing waits on you.</p>'}</div>
+      <p class="mono" id="tt-q-note" style="margin:.5rem 0 0"></p>
+      <h3 class="sub">Recently answered</h3>
+      <div id="tt-answered"><p class="mono">Answered decisions: ${answered.slice(-8).map((d) => esc(d.id)).join(', ') || 'none'}.</p></div>
     </section>
     <section class="panel p-env"><h2>Environments</h2><div class="envs">${envs.map((e) => `<div class="env"><div class="eyebrow">${e.n} · ${esc(e.role)}</div><div class="v ${latest && e.v !== latest.tagName.replace(/^v/, '') ? 'behind' : ''}">${esc(e.v)}</div><div class="host">${esc(e.host)}</div></div>`).join('')}</div>
       <p class="mono" style="margin:.75rem 0 0">Latest release ${esc(latest?.tagName)} · ${esc(latest ? new Date(latest.publishedAt).toLocaleDateString('nl-NL') : '')} · unreleased snippets on main: ${snippets.length}${snippets.length ? ` (${snippets.map((s) => esc(s.replace('changelog.d/', ''))).join(', ')})` : ''}</p></section>
@@ -160,6 +164,7 @@ h3.sub{font-size:1.05rem;font-weight:600;margin:1.1rem 0 .4rem}
       <div class="tbl"><table><thead><tr><th>Issue</th><th>Lane</th><th>Title</th><th></th><th>Age</th></tr></thead><tbody>${unshaped.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1).map(row).join('') || '<tr><td colspan="5">Nothing.</td></tr>'}</tbody></table></div></section>
   </div>
   <p class="foot">Everything above is read from GitHub, the three installs and the lead's team.json. The roadmap is <a href="${ROADMAP_URL}">the roadmap page</a> (source: <a href="https://github.com/${REPO}/blob/main/docs/roadmap.md">docs/roadmap.md</a>); the charter is <a href="https://github.com/${REPO}/blob/main/docs/team/README.md">docs/team/README.md</a>.</p>
-</div>`;
+</div>
+<script>${QUESTIONS_JS}</script>`;
 writeFileSync(join(here, 'control-room.html'), html);
 console.log(`control-room.html written: ${issues.length} issues, ${prs.length} PRs, envs ${envs.map((e) => e.v).join('/')}`);
