@@ -44,6 +44,7 @@ export const QUESTIONS_JS = `
     try { isOwner = user ? !!user.isOwner() : false; } catch (e) {}
     var timer = setTimeout(function(){ if (note) note.textContent = 'Live questions could not be reached yet; showing the last generated list.'; }, 10000);
     var picks = {};
+    var notes = {};
     var busy = {};
     db.collection('questions').onSnapshot(function(snap){
       if (!snap.metadata.fromCache) { clearTimeout(timer); if (note) note.textContent = ''; }
@@ -51,9 +52,11 @@ export const QUESTIONS_JS = `
       snap.docs.forEach(function(d){ var q = d.data(); if (!q) return; q._id = d.id; if (q.state === 'answered') done.push(q); else open.push(q); });
       open.sort(function(a,b){ return String(a.asked||'') < String(b.asked||'') ? -1 : 1; });
       done.sort(function(a,b){ return String(b.answeredAt||'') < String(a.answeredAt||'') ? -1 : 1; });
+      if (snap.empty) return;
       render(open, done);
     }, function(err){ clearTimeout(timer); if (note) note.textContent = 'Live questions are not available in this view.'; });
     function render(open, done){
+      var focusId = document.activeElement && box.contains(document.activeElement) ? document.activeElement.id : '';
       var h = document.getElementById('tt-q-count');
       if (h) h.textContent = String(open.length);
       box.textContent = '';
@@ -64,18 +67,23 @@ export const QUESTIONS_JS = `
         card.appendChild(el('div', 'q', q.question || ''));
         if (q.context) card.appendChild(el('p', 'ctx', q.context));
         var opts = el('div', 'qopts');
-        (q.options || []).forEach(function(o){
-          var b = el('button', 'qopt'); b.type = 'button';
+        (q.options || []).forEach(function(o, i){
+          var b = el('button', 'qopt'); b.type = 'button'; b.id = 'o-' + q._id + '-' + i;
           b.setAttribute('aria-pressed', picks[q._id] === o.label ? 'true' : 'false');
           var l = el('span', 'lbl', o.label); b.appendChild(l);
           if (o.recommended) b.appendChild(el('span', 'rec', 'recommended'));
           if (o.description) b.appendChild(el('span', 'desc', o.description));
           b.disabled = !isOwner;
-          b.addEventListener('click', function(){ picks[q._id] = o.label; render(open, done); });
+          b.addEventListener('click', function(){
+            picks[q._id] = o.label;
+            Array.prototype.forEach.call(opts.querySelectorAll('.qopt'), function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+          });
           opts.appendChild(b);
         });
         card.appendChild(opts);
         var ta = el('textarea', 'qnote'); ta.placeholder = 'Optional note or another answer'; ta.id = 'n-' + q._id; ta.setAttribute('aria-label', 'Note for this question'); ta.disabled = !isOwner;
+        ta.value = notes[q._id] || '';
+        ta.addEventListener('input', function(){ notes[q._id] = ta.value; });
         card.appendChild(ta);
         var send = el('button', 'qsend', busy[q._id] ? 'Sending...' : 'Send answer'); send.type = 'button';
         send.disabled = !isOwner || !!busy[q._id];
@@ -101,7 +109,8 @@ export const QUESTIONS_JS = `
           doneBox.appendChild(row);
         });
       }
+      if (focusId) { var f = document.getElementById(focusId); if (f) f.focus(); }
     }
-  });
+  }).catch(function(){ if (note) note.textContent = 'Live questions are not available in this view.'; });
 })();
 `;
