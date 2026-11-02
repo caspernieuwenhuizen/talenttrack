@@ -1,0 +1,91 @@
+#: config/navigation_groups.php:27
+msgctxt "navigation group"
+msgid "Me"
+msgstr "Ik"
+
+#: config/navigation_groups.php:28
+#: config/navigation_groups.php:39
+msgctxt "navigation group"
+msgid "Players & teams"
+msgstr "Spelers & teams"
+
+#: config/navigation_groups.php:29
+#: config/navigation_groups.php:41
+msgctxt "navigation group"
+msgid "Activities & matches"
+msgstr "Activiteiten & wedstrijden"
+
+#: config/navigation_groups.php:30
+msgctxt "navigation group"
+msgid "Development"
+msgstr "Ontwikkeling"
+
+#: config/navigation_groups.php:31
+msgctxt "navigation group"
+msgid "Tactics"
+msgstr "Tactiek"
+
+#: config/navigation_groups.php:32
+msgctxt "navigation group"
+msgid "Analytics & reports"
+msgstr "Analyses & rapporten"
+
+#: config/navigation_groups.php:33
+msgctxt "navigation group"
+msgid "Intake"
+msgstr "Instroom"
+
+#: config/navigation_groups.php:34
+msgctxt "navigation group"
+msgid "Communication"
+msgstr "Communicatie"
+
+#: config/navigation_groups.php:35
+msgctxt "navigation group"
+msgid "Product ideas"
+msgstr "Productideeën"
+
+#: config/navigation_groups.php:36
+msgctxt "navigation group"
+msgid "Settings"
+msgstr "Instellingen"
+
+#: config/navigation_groups.php:38
+msgctxt "navigation group"
+msgid "Academy"
+msgstr "Academie"
+
+#: config/navigation_groups.php:40
+msgctxt "navigation group"
+msgid "Development & evaluations"
+msgstr "Ontwikkeling & evaluaties"
+
+#: config/navigation_groups.php:42
+msgctxt "navigation group"
+msgid "Lookups"
+msgstr "Keuzelijsten"
+
+#: config/navigation_groups.php:43
+msgctxt "navigation group"
+msgid "People & access"
+msgstr "Mensen & toegang"
+
+#: config/navigation_groups.php:44
+msgctxt "navigation group"
+msgid "Messages & tasks"
+msgstr "Berichten & taken"
+
+#: config/navigation_groups.php:45
+msgctxt "navigation group"
+msgid "Data"
+msgstr "Gegevens"
+
+#: config/navigation_groups.php:46
+msgctxt "navigation group"
+msgid "Features & plan"
+msgstr "Functies & pakket"
+
+#: config/navigation_groups.php:47
+msgctxt "navigation group"
+msgid "System"
+msgstr "Systeem"

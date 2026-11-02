@@ -34,8 +34,8 @@ class ImportModule implements ModuleInterface {
             // Literal, not the class constant: check-module-toggles reads
             // this statically and cannot resolve a computed slug.
             'view_slug'    => 'import-history',
-            'group'        => __( 'Administration', 'talenttrack' ),
-            'kind'         => 'admin',
+            'group'        => 'data',
+            'kind'         => 'setup',
             'order'        => 75,
             'label'        => __( 'Import history', 'talenttrack' ),
             'description'  => __( 'What came in from a spreadsheet, and a way to take a whole import back out again.', 'talenttrack' ),

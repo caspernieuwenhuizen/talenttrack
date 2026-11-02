@@ -444,7 +444,7 @@ final class MatrixEntityCatalog {
         // Pass 1 — preferred: a tile that explicitly declares this entity.
         foreach ( TileRegistry::allRegistered() as $tile ) {
             if ( ( $tile['entity'] ?? '' ) === $entity ) {
-                $group = (string) ( $tile['group'] ?? '' );
+                $group = \TT\Shared\Tiles\NavigationGroups::label( (string) ( $tile['group'] ?? '' ) );
                 if ( $group !== '' ) return $group;
             }
         }
@@ -456,7 +456,7 @@ final class MatrixEntityCatalog {
                 foreach ( TileRegistry::allRegistered() as $tile ) {
                     $cap = (string) ( $tile['cap'] ?? '' );
                     if ( $cap !== '' && isset( $caps[ $cap ] ) ) {
-                        $group = (string) ( $tile['group'] ?? '' );
+                        $group = \TT\Shared\Tiles\NavigationGroups::label( (string) ( $tile['group'] ?? '' ) );
                         if ( $group !== '' ) return $group;
                     }
                 }

@@ -102,7 +102,7 @@ class TournamentsModule implements ModuleInterface {
                 'module_class' => self::class,
                 'view_slug'    => 'tournaments',
                 'entity'       => 'tournaments',
-                'group'        => __( 'Performance', 'talenttrack' ),
+                'group'        => 'activities',
                 'kind'         => 'work',
                 'order'        => 28,
                 'label'        => __( 'Tournaments', 'talenttrack' ),

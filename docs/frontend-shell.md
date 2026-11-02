@@ -96,8 +96,17 @@ builds the tile overview, so:
 - You see only the sections your role has access to.
 - Section names follow your role — the same destination can be labelled
   differently for a coach and for a parent, exactly as on the tiles.
-- Groups appear in the standard order: Performance, People, Planning & tactics,
-  Development, Reference.
+- Groups appear in one fixed order, the same on the tile overview, in the
+  sidebar and in the slide-out menu: Me, Players & teams, Activities &
+  matches, Development, Tactics, Analytics & reports, Intake, Communication,
+  Product ideas and Settings. Tests and measurements sit under Development. A
+  group you have nothing in is left out.
+- Setup screens are not listed in the sidebar or the slide-out menu. You reach
+  them through **Configuration** under Settings, whose page groups them into
+  the Configuration sections: Academy, Players & teams, Development &
+  evaluations, Activities & matches, Lookups, People & access, Messages &
+  tasks, Data, Features & plan and System. The tile overview still shows them
+  under *Setup & administration*, in that order.
 - At the foot sit your name and the role you are working as: the one you
   picked in the role switcher, or otherwise your first role. It is the same
   role your landing page is built for.
@@ -198,8 +207,42 @@ value, which is what lets a later club change reach the user.
 `\TT\Shared\Frontend\Components\FrontendAppNav` renders it, reading
 `TileRegistry::tilesForUserGrouped()` — which already applies the capability
 check, the per-persona label map (including the `__hidden__` marker), module and
-feature gating, and the `groupOrder()` sequence. **There is no second navigation
+feature gating, and the group order. **There is no second navigation
 registry.** Adding a tile adds a nav entry.
+
+### Navigation groups
+
+`config/navigation_groups.php` lists every group in display order, each with a
+stable `key`, a `surface` (`dashboard` or `settings`) and an English label with
+the `navigation group` context. `\TT\Shared\Tiles\NavigationGroups` reads it;
+`TileRegistry::groupOrder()` returns its keys. A tile names a key in `group`:
+
+```php
+TileRegistry::register( [
+    'view_slug' => 'injuries',
+    'group'     => 'people_teams',
+    'kind'      => 'work',
+    // ...
+] );
+```
+
+`TileRegistry::register()` refuses a tile whose `group` is not a listed key or
+whose `kind` is not `work` or `setup`, and a tile that takes an icon another
+tile in the same group already uses. The gear (`settings`) is reserved for the
+Configuration tile. Under `WP_DEBUG` a refusal throws. On a live install it is
+logged instead: an unknown group or kind keeps the tile out of the registry
+rather than inventing a heading for it, while a tile with a clashing or
+reserved icon is still registered. Each distinct refusal (`code|slug`) is
+written to the error log once, not on every request; the signatures already
+logged sit in the autoloaded option `tt_tile_refusals`. Module boot order plays
+no part in the order: `tilesForUserGrouped()` walks the list, and every group
+it returns carries its `key` next to the translated `label`.
+
+`FrontendAppNav::groups()` (the sidebar, rail, drawer and bottom bar) keeps
+only groups whose surface is `dashboard`. The settings groups are reached
+through the Configuration tile and its landing page; listing them in the nav
+as well would put two headings with the same name in it, since a dashboard
+group and a settings section can share a label (*Players & teams*).
 
 `FrontendAppNav::groups()` is public and separate from `render()` so a second
 presentation can consume the same resolved list unchanged.

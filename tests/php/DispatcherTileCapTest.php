@@ -58,7 +58,7 @@ final class DispatcherTileCapTest extends WP_UnitTestCase {
         TileRegistry::register( [
             'module_class' => null,
             'view_slug'    => 'tt-test-gated',
-            'group'        => 'Test',
+            'group'        => 'analytics',
             'kind'         => 'work',
             'order'        => 1,
             'label'        => 'Gated',
@@ -76,7 +76,7 @@ final class DispatcherTileCapTest extends WP_UnitTestCase {
         TileRegistry::register( [
             'module_class' => null,
             'view_slug'    => 'tt-test-open',
-            'group'        => 'Test',
+            'group'        => 'analytics',
             'kind'         => 'work',
             'order'        => 1,
             'label'        => 'Open',
@@ -99,7 +99,7 @@ final class DispatcherTileCapTest extends WP_UnitTestCase {
         TileRegistry::register( [
             'module_class' => null,
             'view_slug'    => 'tt-test-shared',
-            'group'        => 'Test',
+            'group'        => 'analytics',
             'kind'         => 'work',
             'order'        => 1,
             'label'        => 'Denied variant',
@@ -108,7 +108,7 @@ final class DispatcherTileCapTest extends WP_UnitTestCase {
         TileRegistry::register( [
             'module_class' => null,
             'view_slug'    => 'tt-test-shared',
-            'group'        => 'Test',
+            'group'        => 'analytics',
             'kind'         => 'work',
             'order'        => 2,
             'label'        => 'Allowed variant',
@@ -125,7 +125,7 @@ final class DispatcherTileCapTest extends WP_UnitTestCase {
         TileRegistry::register( [
             'module_class' => null,
             'view_slug'    => 'tt-test-callback',
-            'group'        => 'Test',
+            'group'        => 'analytics',
             'kind'         => 'work',
             'order'        => 1,
             'label'        => 'Callback gated',

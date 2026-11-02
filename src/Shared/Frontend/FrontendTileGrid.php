@@ -519,8 +519,8 @@ class FrontendTileGrid {
      * operational Trial cases list (#3046). Splitting per tile is what lets
      * Configuration own the setup half without the work half following it.
      *
-     * @param array<int, array{label:string, tiles:array}> $groups
-     * @return array{0: list<array{label:string, tiles:list<array<string,mixed>>}>, 1: list<array{label:string, tiles:list<array<string,mixed>>}>}
+     * @param array<int, array{key?:string, label:string, tiles:array}> $groups
+     * @return array{0: list<array{key:string, label:string, tiles:list<array<string,mixed>>}>, 1: list<array{key:string, label:string, tiles:list<array<string,mixed>>}>}
      */
     private static function splitByKind( array $groups ): array {
         $work  = [];
@@ -535,28 +535,28 @@ class FrontendTileGrid {
                     $w[] = $t;
                 }
             }
-            if ( $w !== [] ) $work[]  = [ 'label' => $g['label'], 'tiles' => $w ];
-            if ( $s !== [] ) $setup[] = [ 'label' => $g['label'], 'tiles' => $s ];
+            $key = (string) ( $g['key'] ?? '' );
+            if ( $w !== [] ) $work[]  = [ 'key' => $key, 'label' => $g['label'], 'tiles' => $w ];
+            if ( $s !== [] ) $setup[] = [ 'key' => $key, 'label' => $g['label'], 'tiles' => $s ];
         }
         return [ $work, $setup ];
     }
 
     /**
      * #1603 — separate the personal "Me" group from the rest of the
-     * daily-use groups. The Me group is matched against the same `__('Me')`
-     * source string registered in CoreSurfaceRegistration. Returns the
-     * remaining groups (left column) plus the Me group (right rail), or
-     * `null` for the rail when no Me group is visible for this user.
+     * daily-use groups, by its `me` key (#4669) rather than its translated
+     * label. Returns the remaining groups (left column) plus the Me group
+     * (right rail), or `null` for the rail when no Me group is visible for
+     * this user.
      *
-     * @param array<int, array{label:string, tiles:array}> $groups
-     * @return array{0: list<array{label:string, tiles:array}>, 1: array<string, mixed>|null}
+     * @param array<int, array{key?:string, label:string, tiles:array}> $groups
+     * @return array{0: list<array{key?:string, label:string, tiles:array}>, 1: array<string, mixed>|null}
      */
     private static function peelMeGroup( array $groups ): array {
-        $me_label = __( 'Me', 'talenttrack' );
         $left     = [];
         $me       = null;
         foreach ( $groups as $g ) {
-            if ( $me === null && (string) $g['label'] === $me_label ) {
+            if ( $me === null && (string) ( $g['key'] ?? '' ) === 'me' ) {
                 $me = $g;
                 continue;
             }

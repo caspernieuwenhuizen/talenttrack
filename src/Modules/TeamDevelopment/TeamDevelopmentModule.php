@@ -50,7 +50,7 @@ class TeamDevelopmentModule implements ModuleInterface {
                 'view_slug'    => 'chemistry-config',
                 'entity'       => 'team_chemistry',
                 'feature'      => 'team_chemistry',
-                'group'        => __( 'Configuration', 'talenttrack' ),
+                'group'        => 'development_evaluations',
                 'kind'         => 'setup',
                 'order'        => 60,
                 'label'        => __( 'Chemistry settings', 'talenttrack' ),
