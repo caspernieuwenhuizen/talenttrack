@@ -109,7 +109,7 @@ final class ReportContext {
 
         $window = ReportFilters::seasonDefaultWindow();
         $from   = is_string( $in['from'] ?? null ) && $in['from'] !== '' ? (string) $in['from'] : ( $window['from'] ?? '' );
-        $to     = is_string( $in['to'] ?? null ) && $in['to'] !== '' ? (string) $in['to'] : ( $window['to'] ?? '' );
+        $to     = is_string( $in['to'] ?? null ) && $in['to'] !== '' ? (string) $in['to'] : ( $window['to'] ?? gmdate( 'Y-m-d' ) );
         if ( $from === '' || $to === '' ) {
             // #4637 — the season has not started and no window was given.
             return new StudioError( 'no_period', ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );

@@ -835,6 +835,16 @@ class PlayersRestController {
             );
         }
 
+        // #4637 — the same window the GET resolves: before the current season
+        // has started, no window means nothing to freeze.
+        $window = \TT\Modules\Analytics\Reports\PlayerReportComposition::window(
+            \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [ 'player_id' => $player_id ] + $raw ),
+            gmdate( 'Y-m-d' )
+        );
+        if ( $window['from'] === '' || $window['to'] === '' ) {
+            return RestResponse::error( 'no_period', \TT\Modules\Analytics\Reports\ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );
+        }
+
         $uuid = sanitize_key( (string) ( $r['audience'] ?? '' ) ) === 'family'
             ? \TT\Modules\Analytics\Reports\PlayerReportSnapshots::share( $player_id, $raw, get_current_user_id(), $title )
             : \TT\Modules\Analytics\Reports\PlayerReportSnapshots::take( $player_id, $raw, get_current_user_id(), $title );

@@ -421,7 +421,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * @return array{from:string,to:string,period:string,notice:string}
      */
     private static function resolveReportWindow( ?array $defaults = null ): array {
-        $defaults = $defaults ?? \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow() ?? [ 'from' => '', 'to' => '' ];
+        $defaults = $defaults ?? \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultOrOpen();
         $period   = \TT\Modules\Analytics\Reports\ReportFilters::sanitizePeriod(
             isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : ''
         );

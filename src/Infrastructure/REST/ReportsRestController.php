@@ -512,7 +512,7 @@ final class ReportsRestController extends BaseController {
     private static function resolveWindow( string $from, string $to ): array {
         $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'] ?? '';
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? '';
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? gmdate( 'Y-m-d' );
         return [ $from, $to ];
     }
 

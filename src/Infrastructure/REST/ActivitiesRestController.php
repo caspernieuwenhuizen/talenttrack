@@ -799,7 +799,7 @@ class ActivitiesRestController {
 
         $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : ( $defaults['from'] ?? '' );
-        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : ( $defaults['to'] ?? '' );
+        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : ( $defaults['to'] ?? gmdate( 'Y-m-d' ) );
         if ( $from === '' || $to === '' ) return self::noPeriod();
 
         // #3748 — `matrix()` returns the window it applied alongside the

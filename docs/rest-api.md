@@ -883,9 +883,10 @@ them, `period` resolves one (`last_week`, `last_month`, `this_month`,
 season's start through today, falling back to the last 90 days when no season
 is configured; the response's `period` is then `""`. Before the current season
 has started there is no season so far, and the call answers `422 no_period`
-(`details.fields: ["from", "to"]`); the attendance, minutes-audit,
-coach-evaluation-quality and grid reads, the Report Studio data read and the
-player report and scouting PDF exports answer the same way. An unknown period is
+(`details.fields: ["from", "to"]`); `POST /players/{id}/report-snapshots`, the
+attendance, minutes-audit, coach-evaluation-quality and grid reads, the Report
+Studio data and preview reads and the player report and scouting PDF exports
+answer the same way. On those reads a `from` without a `to` runs up to today. An unknown period is
 `400 bad_period`; a `from` or `to` that is sent but is not a date, or a `from`
 after `to`, is `400 bad_window` — never quietly replaced by the default.
 

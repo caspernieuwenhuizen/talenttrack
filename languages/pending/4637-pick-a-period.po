@@ -2,6 +2,10 @@
 msgid "Pick a period to see this report."
 msgstr "Kies een periode om dit rapport te zien."
 
+#: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php
+msgid "This report starts when the season starts."
+msgstr "Dit rapport begint wanneer het seizoen begint."
+
 #: src/Modules/Analytics/Reports/PlayerReportDelivery.php
 msgid "Not sent: the current season has not started yet, so there is no season so far to report on."
 msgstr "Niet verstuurd: het huidige seizoen is nog niet begonnen, dus er is nog geen seizoen tot nu toe om over te rapporteren."

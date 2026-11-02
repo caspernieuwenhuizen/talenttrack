@@ -87,6 +87,16 @@ final class ReportNoPeriodTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( self::PICK, $html );
     }
 
+    public function test_a_from_without_a_to_runs_up_to_today_before_the_season(): void {
+        $this->currentSeasonStarting( '+30 days' );
+
+        $html = $this->render( 'player-report', [ 'player_id' => (string) $this->player, 'from' => '2020-03-01' ] );
+
+        $this->assertStringContainsString( 'data-tt-player-report', $html );
+        $this->assertStringNotContainsString( self::PICK, $html );
+        $this->assertStringContainsString( 'value="' . gmdate( 'Y-m-d' ) . '"', $html, 'the bar carries today as the end' );
+    }
+
     public function test_a_backwards_window_on_the_player_report_is_a_form_error(): void {
         $html = $this->render( 'player-report', [ 'player_id' => (string) $this->player, 'from' => '2020-03-31', 'to' => '2020-03-01' ] );
 

@@ -171,7 +171,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
         $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
         $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] ?? '' );
-        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] ?? '' );
+        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] ?? gmdate( 'Y-m-d' ) );
 
         // #3293 — the bar shows the period the QUERY ran on. A manual
         // From/To wins above, so handing the raw param on left the pill

@@ -191,7 +191,7 @@ final class CoachEvalQualityQuery {
         if ( $from === '' ) $from = (string) ( $filters['date_from'] ?? '' );
         if ( $to === '' )   $to   = (string) ( $filters['date_to'] ?? '' );
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'] ?? '';
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? '';
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'] ?? gmdate( 'Y-m-d' );
         return [ $from, $to ];
     }
 

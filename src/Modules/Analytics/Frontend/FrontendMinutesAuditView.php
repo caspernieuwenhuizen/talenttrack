@@ -121,7 +121,7 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             : ( $window['from'] ?? $defaults['from'] ?? '' );
         $to = $has_manual_to
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
-            : ( $window['to'] ?? $defaults['to'] ?? '' );
+            : ( $window['to'] ?? $defaults['to'] ?? gmdate( 'Y-m-d' ) );
 
         // #3293 — the bar shows the period the query ran on, not the param.
         $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );

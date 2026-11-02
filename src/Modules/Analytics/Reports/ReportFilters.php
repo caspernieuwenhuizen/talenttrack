@@ -297,6 +297,17 @@ final class ReportFilters {
         return [ 'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ), 'to' => $to ]; // fallback
     }
 
+    /**
+     * #4637 — the season default, or before the season has started an open
+     * window that still ends today: a reader who types only a From gets a
+     * report up to today, and one who types nothing is asked for a period.
+     *
+     * @return array{from:string,to:string}
+     */
+    public static function seasonDefaultOrOpen(): array {
+        return self::seasonDefaultWindow() ?? [ 'from' => '', 'to' => gmdate( 'Y-m-d' ) ];
+    }
+
     /** #4637 — what a report says when it has no window to show. */
     public static function noPeriodMessage(): string {
         return __( 'Pick a period to see this report.', 'talenttrack' );

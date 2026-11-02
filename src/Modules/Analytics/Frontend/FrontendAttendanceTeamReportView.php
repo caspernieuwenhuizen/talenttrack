@@ -260,7 +260,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
      * @return array{from:string,to:string}
      */
     private static function defaultWindow(): array {
-        return ReportFilters::seasonDefaultWindow() ?? [ 'from' => '', 'to' => '' ];
+        return ReportFilters::seasonDefaultOrOpen();
     }
 
 
