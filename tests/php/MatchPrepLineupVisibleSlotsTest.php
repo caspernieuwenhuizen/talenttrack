@@ -155,7 +155,7 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
      */
     public function test_every_reader_takes_the_drawn_positions_and_only_the_editor_takes_all(): void {
         $readers = [
-            'src/Modules/Analytics/Reports/MinutesQuery.php'                         => '->listLineupForPrep(',
+            'src/Modules/Analytics/Reports/MinutesQuery.php'                         => '->listDrawnLineupForPreps(',
             'src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php'   => '->listLineup(',
             'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php'       => '->listLineup(',
             'src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php'     => '->listLineup(',
