@@ -59,7 +59,7 @@ All four use the shared `StaffStubForm` placeholder for now — completing the t
 | `tt_manage_staff_development` | Administrator, Head of Development, Club Admin | Edit any staff member's records. |
 | `tt_view_staff_certifications_expiry` | Administrator, Head of Development, Club Admin | See the org-wide certification-expiry roll-up tile. |
 
-The authorization matrix decides whose records you reach. You read your own record, or every staff member's record when you hold academy-wide staff-development access. A team grant does not reach a colleague's record. Writing to your own record needs the staff-development change right. The screens and the REST API give the same answer.
+The authorization matrix decides whose records you reach. You read your own record, or every staff member's record when you hold academy-wide staff-development access. A team grant does not reach a colleague's record. Writing to your own record needs the staff-development change right. Without it the four pages show your record read-only, with no form and no Save, and a notice that you can view it but not change it. The screens and the REST API give the same answer.
 
 ## REST surface
 

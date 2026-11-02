@@ -79,8 +79,14 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
         echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Completed', 'talenttrack' ), 'value' => (string) ( $total - $open ) ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
         echo '</div>';
 
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        $can_write = StaffDevelopmentAccess::canWrite( $user_id, $person_id );
+
         if ( ! $goals ) {
-            echo '<p class="tt-sdev-empty">' . esc_html__( 'No goals yet. Add one below.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sdev-empty">' . ( $can_write
+                ? esc_html__( 'No goals yet. Add one below.', 'talenttrack' )
+                : esc_html__( 'No goals yet.', 'talenttrack' ) ) . '</p>';
         } else {
             echo '<ul class="tt-sdev-list">';
             foreach ( $goals as $g ) {
@@ -104,6 +110,11 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
                 echo '</li>';
             }
             echo '</ul>';
+        }
+
+        if ( ! $can_write ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            return;
         }
 
         echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Add a goal', 'talenttrack' ) . '</h3>';
