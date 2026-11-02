@@ -484,11 +484,17 @@ final class StravaRestController {
             ];
         }
 
-        return RestResponse::success( [
-            'configured'      => StravaConfig::hasCredentials(),
-            'subscription_id' => StravaConfig::subscriptionId(),
-            'connections'     => $items,
-        ] );
+        $payload = [
+            'configured'  => StravaConfig::hasCredentials(),
+            'connections' => $items,
+        ];
+        // The subscription id is webhook state, which is club-wide: a
+        // team-scope reader gets the roster without it.
+        if ( StravaConsoleScope::isClubWide( get_current_user_id() ) ) {
+            $payload['subscription_id'] = StravaConfig::subscriptionId();
+        }
+
+        return RestResponse::success( $payload );
     }
 
     // ---- Webhook -----------------------------------------------------

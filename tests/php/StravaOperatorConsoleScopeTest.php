@@ -171,8 +171,61 @@ final class StravaOperatorConsoleScopeTest extends WP_UnitTestCase {
         $res = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/strava/connections' ) );
         $this->assertSame( 200, $res->get_status() );
 
-        $ids = array_map( 'intval', array_column( $res->get_data()['data']['connections'], 'player_id' ) );
+        $data = $res->get_data()['data'];
+        $ids  = array_map( 'intval', array_column( $data['connections'], 'player_id' ) );
         $this->assertSame( [ $this->player_id ], $ids, 'their own team only, not the other team' );
+        $this->assertArrayNotHasKey( 'subscription_id', $data, 'webhook state is club-wide' );
+        $this->assertArrayHasKey( 'configured', $data );
+    }
+
+    public function test_a_club_wide_reader_gets_the_subscription_id(): void {
+        wp_set_current_user( $this->hod_uid );
+        $data = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/strava/connections' ) )->get_data()['data'];
+        $this->assertArrayHasKey( 'subscription_id', $data );
+    }
+
+    public function test_the_head_coach_roster_leaves_out_players_who_left_the_squad(): void {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = (int) CurrentClub::id();
+        $team = (int) $wpdb->get_var( $wpdb->prepare( "SELECT team_id FROM {$p}tt_players WHERE id = %d", $this->player_id ) );
+
+        $left = [];
+        foreach ( [ [ 'status' => 'released' ], [ 'status' => 'active', 'archived_at' => current_time( 'mysql' ) ] ] as $i => $state ) {
+            $wpdb->insert( "{$p}tt_players", array_merge( [
+                'club_id'    => $club,
+                'first_name' => 'Stravascope',
+                'last_name'  => 'Gone' . $i,
+                'team_id'    => $team,
+            ], $state ) );
+            $pid = (int) $wpdb->insert_id;
+            $this->assertGreaterThan( 0, $pid, 'fixture: the player row was written' );
+            ( new ConnectionRepository() )->connect( $pid, [
+                'athlete_id'    => 7100 + $i,
+                'access_token'  => '',
+                'refresh_token' => 'r-gone-' . $i,
+                'expires_at'    => time() + 3600,
+            ] );
+            $left[] = $pid;
+        }
+
+        wp_set_current_user( $this->coach_uid );
+        $ids = array_map( 'intval', array_column(
+            rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/strava/connections' ) )->get_data()['data']['connections'],
+            'player_id'
+        ) );
+        $this->assertSame( [ $this->player_id ], $ids, 'only the live roster' );
+        foreach ( $left as $pid ) {
+            $this->assertNotContains( $pid, $ids );
+        }
+    }
+
+    public function test_the_configuration_tile_tells_a_head_coach_what_they_get(): void {
+        $this->assertSame(
+            'See which players in your teams have connected their Strava accounts.',
+            $this->stravaTileDesc( $this->coach_uid )
+        );
+        $this->assertStringContainsString( 'webhook', $this->stravaTileDesc( $this->hod_uid ) );
     }
 
     public function test_the_webhook_status_is_for_club_wide_readers_only(): void {
@@ -333,6 +386,20 @@ final class StravaOperatorConsoleScopeTest extends WP_UnitTestCase {
         ob_start();
         $handled = (bool) $m->invoke( null, $view, $uid, current_user_can( 'tt_edit_settings' ), null );
         return [ $handled, (string) ob_get_clean() ];
+    }
+
+    private function stravaTileDesc( int $uid ): string {
+        wp_set_current_user( $uid );
+        AuthorizationService::flushCache();
+        $groups = \TT\Shared\Configuration\ConfigurationSurfaces::groups( $uid, home_url( '/?config_sub=' ), home_url( '/?tt_view=' ) );
+        foreach ( $groups as $group ) {
+            foreach ( $group['tiles'] as $tile ) {
+                if ( str_contains( (string) ( $tile['url'] ?? '' ), 'strava-admin' ) ) {
+                    return (string) ( $tile['desc'] ?? '' );
+                }
+            }
+        }
+        $this->fail( 'the Strava tile is listed for this reader' );
     }
 
     private function migration(): object {

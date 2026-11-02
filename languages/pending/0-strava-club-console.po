@@ -1,3 +1,7 @@
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
 msgid "Strava club console"
 msgstr "Strava-clubconsole"
+
+#: src/Shared/Configuration/ConfigurationSurfaces.php
+msgid "See which players in your teams have connected their Strava accounts."
+msgstr "Bekijk welke spelers in je teams hun Strava-account hebben gekoppeld."

@@ -212,8 +212,10 @@ final class ConnectionRepository {
      * player name. NEVER selects the encrypted token columns — this feeds a
      * read-only console and the payload must never carry secrets.
      *
-     * `$team_ids` narrows the list to players on those teams; null lists
-     * the whole club and an empty list lists nothing.
+     * `$team_ids` narrows the list to the live roster of those teams
+     * (active, not archived or trashed, as `TeamRoster::liveClause()`
+     * defines it); null lists the whole club and an empty list lists
+     * nothing.
      *
      * @param list<int>|null $team_ids
      * @return object[]
@@ -227,7 +229,8 @@ final class ConnectionRepository {
         if ( $team_ids !== null ) {
             $ids = array_values( array_filter( array_map( 'intval', $team_ids ), static fn( int $id ): bool => $id > 0 ) );
             if ( $ids === [] ) return [];
-            $team_clause = ' AND p.team_id IN (' . implode( ',', $ids ) . ')';
+            $team_clause = ' AND p.team_id IN (' . implode( ',', $ids ) . ')'
+                . ' AND ' . \TT\Infrastructure\Teams\TeamRoster::liveClause( 'p' );
         }
 
         $rows = $wpdb->get_results( $wpdb->prepare(
