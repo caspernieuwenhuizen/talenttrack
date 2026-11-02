@@ -64,6 +64,29 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
         $season  = StaffPersonHelper::currentSeasonId();
         $pdp     = $repo->findForPersonSeason( $person_id, $season );
 
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, $person_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-staff-pdp-form tt-staff-pdp-readonly">';
+            $fields = [
+                'strengths'            => __( 'Strengths', 'talenttrack' ),
+                'development_areas'    => __( 'Development areas', 'talenttrack' ),
+                'actions_next_quarter' => __( 'Actions next quarter', 'talenttrack' ),
+                'narrative'            => __( 'Narrative (optional)', 'talenttrack' ),
+            ];
+            foreach ( $fields as $key => $label ) {
+                $value = $pdp ? (string) ( $pdp->$key ?? '' ) : '';
+                echo '<div class="tt-field"><p class="tt-field-label">' . esc_html( $label ) . '</p>';
+                echo '<p>' . ( $value !== '' ? nl2br( esc_html( $value ) ) : '—' ) . '</p></div>';
+            }
+            if ( $pdp && $pdp->last_reviewed_at ) {
+                echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
+            }
+            echo '</div>';
+            return;
+        }
+
         echo '<form method="post" class="tt-form tt-staff-pdp-form">';
         wp_nonce_field( 'tt_staff_pdp_save', 'tt_staff_pdp_nonce' );
         echo '<input type="hidden" name="season_id" value="' . esc_attr( $season ? (string) $season : '' ) . '">';

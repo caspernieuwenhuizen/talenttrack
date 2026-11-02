@@ -59,7 +59,7 @@ Alle vier gebruiken voorlopig de gedeelde placeholder `StaffStubForm` — de taa
 | `tt_manage_staff_development` | Administrator, Hoofd Ontwikkeling, Clubbeheerder | Records van iedere stafmedewerker bewerken. |
 | `tt_view_staff_certifications_expiry` | Administrator, Hoofd Ontwikkeling, Clubbeheerder | De club-brede roll-up van verlopende certificeringen zien. |
 
-De autorisatiematrix bepaalt wiens records je bereikt. Je leest je eigen dossier, of het dossier van iedere stafmedewerker als je academiebrede toegang tot stafontwikkeling hebt. Een teamtoekenning reikt niet tot het dossier van een collega. Schrijven in je eigen dossier vraagt het wijzigrecht voor stafontwikkeling. De schermen en de REST-API geven hetzelfde antwoord.
+De autorisatiematrix bepaalt wiens records je bereikt. Je leest je eigen dossier, of het dossier van iedere stafmedewerker als je academiebrede toegang tot stafontwikkeling hebt. Een teamtoekenning reikt niet tot het dossier van een collega. Schrijven in je eigen dossier vraagt het wijzigrecht voor stafontwikkeling. Zonder dat recht tonen de vier pagina's je dossier alleen-lezen, zonder formulier en zonder Opslaan, met een melding dat je het kunt bekijken maar niet wijzigen. De schermen en de REST-API geven hetzelfde antwoord.
 
 ## REST-eindpunten
 

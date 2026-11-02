@@ -103,6 +103,13 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
             echo '</ul>';
         }
 
+        // The save path refuses a reader without the change right, so the
+        // form is only offered where a Save would succeed.
+        if ( ! StaffDevelopmentAccess::canWrite( $user_id, $person_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You can view this, but not change it.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $can_top_down = StaffDevelopmentAccess::canManageAll( $user_id );
         echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Record a new evaluation', 'talenttrack' ) . '</h3>';
         echo '<form method="post" class="tt-form tt-sdev-form">';
