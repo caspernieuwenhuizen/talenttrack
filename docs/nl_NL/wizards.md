@@ -23,7 +23,7 @@ De "+ Nieuw"-knoppen op Spelers, Teams, Evaluaties en Doelen kunnen óf het beke
 Elke wizard is een korte serie pagina's:
 
 - Een voortgangsbalk laat zien waar je bent. Bij een wizard die splitst (bijvoorbeeld de keuze *Een activiteit evalueren* versus *1 speler evalueren* in de evaluatiewizard) toont de balk **alleen de stappen van het pad dat je koos** — de stappen van de andere tak worden niet getoond.
-- De knop rechtsonder gaat naar de volgende stap. De knop in het midden slaat de huidige stap over. De link annuleert — en brengt je terug naar waar je de wizard opende (de lijst waar je vandaan kwam, anders het dashboard), nooit terug in de wizard.
+- De knop rechtsonder gaat naar de volgende stap. Met de middelste knoppen ga je een stap terug of bewaar je een concept, als de wizard dat aanbiedt. De link annuleert — en brengt je terug naar waar je de wizard opende (de lijst waar je vandaan kwam, anders het dashboard), nooit terug in de wizard.
 - Druk je op **Enter** in een veld of op een keuze, dan doet dat hetzelfde als de knop rechtsonder: de stap wordt gecontroleerd en je gaat verder. Enter annuleert nooit. In een tekstvak met meerdere regels begint Enter een nieuwe regel.
 - Sluit je tussentijds af, dan blijven antwoorden een uur bewaard zodat je later op dezelfde URL terug kunt komen.
 - Veranderen je antwoorden onderweg — bijvoorbeeld een wisseling van "selectie" naar "stage" — dan worden alleen de nog relevante stappen opnieuw doorlopen.
