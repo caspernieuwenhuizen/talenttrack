@@ -750,6 +750,12 @@ class FrontendWizardView extends FrontendViewBase {
         // the rail entirely, not shown greyed, so the rail reflects only
         // the path the user is on. Displayed numbers + "Step X of Y" are
         // computed from the applicable steps only.
+        // #4711 — the total may only shrink during a run. An optional step
+        // whose condition hangs on an answer not given yet returns false
+        // from `notApplicableFor()` until that answer says it is skipped; a
+        // total that grows mid-run reads as the wizard moving the goalposts.
+        // The branches of a fork (#2254) are the exception: they stay out
+        // until the branch is picked, since only one of them will run.
         $resolved = [];
         $found_current = false;
         $current_pos = 0; // 1-based position of the current step in the rail
