@@ -217,7 +217,7 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
             $res = $this->send( 'POST', "reports/{$id}/versions", $body );
             $this->assertSame( 400, $res->get_status(), (string) wp_json_encode( $body ) );
             $this->assertSame( 'missing_fields', $this->code( $res ) );
-            $this->assertSame( 'note', $res->get_data()['errors'][0]['details']['field'] ?? null );
+            $this->assertSame( 'note', ( (array) ( $res->get_data()['errors'][0]['details'] ?? [] ) )['field'] ?? null );
         }
         $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'First' ] )->get_status() );
     }
