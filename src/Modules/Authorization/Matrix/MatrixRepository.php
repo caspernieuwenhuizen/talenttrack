@@ -134,6 +134,8 @@ class MatrixRepository {
     public static function clearCache(): void {
         self::$cache = null;
         self::$idCache = null;
+        // #4683 — the gate's per-request answers rest on these rows.
+        \TT\Modules\Authorization\MatrixGate::clearCache();
     }
 
     /**

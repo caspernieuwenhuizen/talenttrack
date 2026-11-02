@@ -113,6 +113,11 @@ class AuthorizationService {
         if ( class_exists( '\\TT\\Modules\\Authorization\\FunctionalRoleGrants' ) ) {
             \TT\Modules\Authorization\FunctionalRoleGrants::clearCache();
         }
+        // #4683 — and the matrix gate's per-request "any scope" answers,
+        // which rest on the same assignments.
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            \TT\Modules\Authorization\MatrixGate::clearCache();
+        }
     }
 
     /**
@@ -422,6 +427,11 @@ class AuthorizationService {
         add_action( 'tt_role_granted',            [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'tt_role_revoked',            [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'tt_functional_role_mapping_updated', [ __CLASS__, 'flushCache' ], 10, 0 );
+        // #4683 — a persona follows the WordPress role, so a role change
+        // within a request must not keep the answers given before it.
+        add_action( 'set_user_role',              [ __CLASS__, 'flushCache' ], 10, 0 );
+        add_action( 'add_user_role',              [ __CLASS__, 'flushCache' ], 10, 0 );
+        add_action( 'remove_user_role',           [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'wp_login',                   [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'wp_logout',                  [ __CLASS__, 'flushCache' ], 10, 0 );
     }
