@@ -13,9 +13,9 @@ const gh = (args) => JSON.parse(sh(`gh ${args}`));
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const team = JSON.parse(readFileSync(join(here, 'team.json'), 'utf8'));
 
-const issues = gh(`issue list --repo ${REPO} --state open --limit 200 --json number,title,labels,createdAt,updatedAt`)
+const issues = gh(`issue list --repo ${REPO} --state open --limit 200 --json number,title,labels,createdAt,updatedAt,body`)
   .map((i) => ({ ...i, labels: i.labels.map((l) => l.name) }));
-const prs = gh(`pr list --repo ${REPO} --state open --json number,title,headRefName,isDraft,mergeStateStatus,headRefOid,labels,updatedAt`);
+const prs = gh(`pr list --repo ${REPO} --state open --json number,title,headRefName,isDraft,mergeStateStatus,headRefOid,labels,updatedAt,body`);
 const releases = gh(`release list --repo ${REPO} --limit 6 --json tagName,publishedAt`);
 const latest = releases[0];
 for (const pr of prs) {
@@ -25,6 +25,23 @@ for (const pr of prs) {
     const bad = done.filter((r) => ['failure', 'timed_out', 'cancelled', 'action_required'].includes(r.conclusion));
     pr.ci = bad.length ? `red (${bad.length} failed)` : done.length < runs.length ? `running (${done.length}/${runs.length})` : runs.length ? 'green' : 'no checks';
   } catch { pr.ci = 'unknown'; }
+}
+// Every open PR, keyed by the issue numbers its body closes.
+const prFor = new Map();
+for (const pr of prs) {
+  for (const m of String(pr.body ?? '').matchAll(/(?:closes|fixes|resolves)\s+#(\d+)/gi)) {
+    if (!prFor.has(+m[1])) prFor.set(+m[1], pr);
+  }
+}
+// Closed ready-for-dev issues since the latest release: what the next release ships.
+// The search narrows by day; closedAt narrows to the publish time.
+let unreleased = [];
+if (latest) {
+  try {
+    unreleased = gh(`issue list --repo ${REPO} --state closed --limit 200 --search "closed:${latest.publishedAt.slice(0, 10)}..* label:ready-for-dev" --json number,title,closedAt,stateReason`)
+      .filter((i) => i.stateReason === 'COMPLETED' && i.closedAt > latest.publishedAt)
+      .sort((a, b) => a.closedAt < b.closedAt ? -1 : 1);
+  } catch {}
 }
 const envVersion = (host) => { try { return (sh(`curl -sS --max-time 15 https://${host}/wp-content/plugins/talenttrack/readme.txt`).match(/Stable tag:\s*([0-9.]+)/) || [])[1] || '?'; } catch { return 'unreachable'; } };
 const localVersion = (readFileSync(join(MAIN, 'talenttrack.php'), 'utf8').match(/Version:\s+([0-9.]+)/) || [])[1] || '?';
@@ -41,8 +58,38 @@ try { phpstanCount = (readFileSync(join(MAIN, 'phpstan-baseline.neon'), 'utf8').
 
 const has = (i, l) => i.labels.includes(l);
 const ready = issues.filter((i) => has(i, 'ready-for-dev') && !has(i, 'epic'));
-const inProgress = ready.filter((i) => has(i, 'in-progress'));
-const unclaimed = ready.filter((i) => !has(i, 'in-progress'));
+// One status per queued issue, in this order: in review, waiting, in progress, ready.
+const openNums = new Set(issues.map((i) => i.number));
+const stateCache = new Map();
+const isOpen = (n) => {
+  if (openNums.has(n)) return true;
+  if (!stateCache.has(n)) {
+    try { stateCache.set(n, gh(`issue view ${n} --repo ${REPO} --json state`).state === 'OPEN'); } catch { stateCache.set(n, false); }
+  }
+  return stateCache.get(n);
+};
+const reviewState = (pr) => pr.isDraft ? 'draft'
+  : pr.ci.startsWith('red') ? 'checks failed'
+  : pr.ci.startsWith('running') ? 'checks running'
+  : pr.ci === 'green' ? 'green, waiting to merge'
+  : pr.ci;
+const STATUS_ORDER = ['review', 'progress', 'waiting', 'ready'];
+for (const i of ready) {
+  const pr = prFor.get(i.number);
+  const blocker = [...String(i.body ?? '').matchAll(/\bafter\s+#(\d+)/gi)].map((m) => +m[1]).find((n) => n !== i.number && isOpen(n));
+  i.status = pr ? { key: 'review', pr, label: `In review · ${reviewState(pr)}` }
+    : blocker ? { key: 'waiting', blocker, label: 'Waiting for' }
+    : has(i, 'in-progress') ? { key: 'progress', label: 'In progress' }
+    : { key: 'ready', label: 'Ready' };
+}
+const byStatus = (key) => ready.filter((i) => i.status.key === key);
+const statusCell = (i) => {
+  const s = i.status;
+  const link = s.pr ? ` <a href="https://github.com/${REPO}/pull/${s.pr.number}">#${s.pr.number}</a>`
+    : s.blocker ? ` <a href="https://github.com/${REPO}/issues/${s.blocker}">#${s.blocker}</a>` : '';
+  return `<td class="n"><span class="pill st-${s.key}">${esc(s.label)}</span>${link}</td>`;
+};
+const queueRow = (i) => `<tr><td class="n"><a href="https://github.com/${REPO}/issues/${i.number}">#${i.number}</a></td><td class="n"><span class="pill ${lane(i).toLowerCase()}">${lane(i)}</span></td>${statusCell(i)}<td class="t">${esc(i.title)}</td><td class="mono">${has(i, 'from-hq') ? 'HQ' : ''}</td><td class="mono">${age(i.createdAt)}</td></tr>`;
 const backlog = issues.filter((i) => has(i, 'backlog') && !has(i, 'ready-for-dev') && !has(i, 'epic'));
 const unshaped = issues.filter((i) => !has(i, 'ready-for-dev') && !has(i, 'epic') && !has(i, 'in-progress') && !has(i, 'backlog'));
 const ROADMAP_URL = 'https://claude.ai/artifact/Rf5wtJuk8yXkWMJknaXRLc';
@@ -80,6 +127,8 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}.tbl{overflow-x:auto}
 .mono{font-family:var(--mono);font-size:.82rem;color:var(--muted);white-space:nowrap}
 .pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:.05rem .45rem;border-radius:999px;border:1px solid var(--line);white-space:nowrap}.pill.p1{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}.pill.p2{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}.pill.p3{color:var(--muted)}
 .pill.live{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}.pill.open{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.pill.st-review{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}.pill.st-progress{border-color:var(--you);color:var(--you);background:var(--you-soft)}.pill.st-waiting{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}.pill.st-ready{color:var(--fg)}
+h3.sub{font-size:1.05rem;font-weight:600;margin:1.1rem 0 .4rem}
 .envs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}@media (max-width:480px){.envs{grid-template-columns:1fr}}.env{border:1px solid var(--line);padding:.7rem .8rem}.env .v{font-family:var(--display);font-size:1.5rem;font-weight:600}.env .v.behind{color:var(--warn)}.env .host{font-family:var(--mono);font-size:.78rem;color:var(--muted);word-break:break-all}
 .seats{display:grid;gap:.5rem}.seat{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem;align-items:baseline;padding:.5rem 0;border-bottom:1px solid var(--line)}.seat:last-child{border-bottom:0}.seat .who{font-family:var(--display);font-weight:600;font-size:1.05rem}.seat .who small{display:block;font-family:var(--body);font-weight:400;font-size:.8rem;color:var(--muted)}.seat .now{font-size:.9rem}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.6rem}.kpi{border:1px solid var(--line);padding:.6rem .8rem}.kpi .n{font-family:var(--display);font-size:1.6rem;font-weight:600;font-variant-numeric:tabular-nums}.kpi .l{font-size:.8rem;color:var(--muted)}
@@ -100,8 +149,10 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}.tbl{overflow-x:auto}
       <div class="kpis"><div class="kpi"><div class="n">${escaped}</div><div class="l">HQ bugs since the last 3 releases</div></div><div class="kpi"><div class="n">${baselineCount}</div><div class="l">mobile gate baseline entries</div></div><div class="kpi"><div class="n">${phpstanCount}</div><div class="l">PHPStan baseline entries</div></div><div class="kpi"><div class="n">–</div><div class="l">re-failed fixes (first HQ run pending)</div></div></div></section>
     <section class="panel p-team"><h2>Team</h2><div class="seats">${team.seats.map((s) => `<div class="seat"><div class="who">${esc(s.name)}<small>${esc(s.seat)}</small></div><div class="now"><span class="pill ${s.state === 'live' ? 'live' : 'open'}">${esc(s.state)}</span> ${esc(s.now)}</div></div>`).join('')}</div></section>
     <section class="panel p-queue"><h2>Queue · ${ready.length} ready</h2>
-      <div class="kpis"><div class="kpi"><div class="n">${unclaimed.length}</div><div class="l">ready, unclaimed</div></div><div class="kpi"><div class="n">${inProgress.length}</div><div class="l">in progress</div></div><div class="kpi"><div class="n">${unshaped.length}</div><div class="l">waiting for shaping</div></div><div class="kpi"><div class="n">${backlog.length}</div><div class="l">in the backlog</div></div><div class="kpi"><div class="n">${epics.length}</div><div class="l">open epics</div></div></div>
-      <div class="tbl"><table><thead><tr><th>Issue</th><th>Lane</th><th>Title</th><th></th><th>Age</th></tr></thead><tbody>${[...inProgress, ...unclaimed].sort((a, b) => a.createdAt < b.createdAt ? -1 : 1).map(row).join('')}</tbody></table></div></section>
+      <div class="kpis"><div class="kpi"><div class="n">${byStatus('review').length}</div><div class="l">in review</div></div><div class="kpi"><div class="n">${byStatus('progress').length}</div><div class="l">in progress</div></div><div class="kpi"><div class="n">${byStatus('waiting').length}</div><div class="l">waiting for another issue</div></div><div class="kpi"><div class="n">${byStatus('ready').length}</div><div class="l">ready</div></div><div class="kpi"><div class="n">${unshaped.length}</div><div class="l">waiting for shaping</div></div><div class="kpi"><div class="n">${backlog.length}</div><div class="l">in the backlog</div></div><div class="kpi"><div class="n">${epics.length}</div><div class="l">open epics</div></div></div>
+      <div class="tbl"><table><thead><tr><th>Issue</th><th>Lane</th><th>Status</th><th>Title</th><th></th><th>Age</th></tr></thead><tbody>${[...ready].sort((a, b) => (STATUS_ORDER.indexOf(a.status.key) - STATUS_ORDER.indexOf(b.status.key)) || (a.createdAt < b.createdAt ? -1 : 1)).map(queueRow).join('') || '<tr><td colspan="6">Nothing queued.</td></tr>'}</tbody></table></div>
+      <h3 class="sub">Merged, not released · ${unreleased.length}</h3>
+      <div class="tbl"><table><thead><tr><th>Issue</th><th>Title</th><th>Closed</th></tr></thead><tbody>${unreleased.map((i) => `<tr><td class="n"><a href="https://github.com/${REPO}/issues/${i.number}">#${i.number}</a></td><td class="t">${esc(i.title)}</td><td class="mono">${esc(new Date(i.closedAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam', dateStyle: 'short', timeStyle: 'short' }))}</td></tr>`).join('') || `<tr><td colspan="3">Nothing since ${esc(latest?.tagName ?? 'the latest release')}.</td></tr>`}</tbody></table></div></section>
     <section class="panel p-pr"><h2>Pull requests · ${prs.length} open</h2>
       <div class="tbl"><table><thead><tr><th>PR</th><th>Title</th><th>CI</th><th>Merge</th></tr></thead><tbody>${prs.map((p) => `<tr><td class="n"><a href="https://github.com/${REPO}/pull/${p.number}">#${p.number}</a></td><td class="t">${esc(p.title)}${p.isDraft ? ' <span class="pill">draft</span>' : ''}</td><td class="mono">${esc(p.ci)}</td><td class="mono">${esc(p.mergeStateStatus.toLowerCase())}</td></tr>`).join('') || '<tr><td colspan="4">None.</td></tr>'}</tbody></table></div></section>
     <section class="panel p-unshaped"><h2>Waiting for shaping · ${unshaped.length}</h2>
