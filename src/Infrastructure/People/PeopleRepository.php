@@ -563,6 +563,11 @@ class PeopleRepository {
             self::syncTeamScopeRow( (int) $row->team_id, (int) $row->person_id );
         }
 
+        // #4730 — flush even when the team scope row survives: dropping the
+        // head-coach row of someone who also assists the team changes their
+        // personas, and the memoised ones must not outlive the change.
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+
         return true;
     }
 

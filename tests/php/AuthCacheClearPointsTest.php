@@ -8,6 +8,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Authorization\PersonaResolver;
 
 /**
  * #4730 — two writes that change an authorization answer also clear the
@@ -61,6 +62,36 @@ final class AuthCacheClearPointsTest extends WP_UnitTestCase {
         $this->assertTrue( $people->unassign( $assignment ) );
 
         $this->assertFalse( MatrixGate::canAnyScope( $coach, 'team', MatrixGate::READ ) );
+    }
+
+    /** The scope row survives (another role on the team remains), the personas still change. */
+    public function test_unassigning_head_coach_with_an_assistant_row_left_drops_the_persona(): void {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => 1, 'name' => 'Cacheclear Dual U13' ] );
+        $team = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => 1, 'first_name' => 'Cacheclear', 'last_name' => 'Dual',
+            'wp_user_id' => $coach, 'role_type' => 'staff', 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+
+        $people = new PeopleRepository();
+        $this->assertTrue( $people->assignToTeam( $team, $person, $this->functionalRoleId( 'head_coach' ) ) );
+        $this->assertTrue( $people->assignToTeam( $team, $person, $this->functionalRoleId( 'assistant_coach' ) ) );
+        $personas = PersonaResolver::personasFor( $coach );
+        sort( $personas );
+        $this->assertSame( [ 'assistant_coach', 'head_coach' ], $personas, 'precondition: both personas' );
+
+        $head_row = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_team_people WHERE team_id = %d AND person_id = %d AND is_head_coach = 1",
+            $team, $person
+        ) );
+        $this->assertTrue( $people->unassign( $head_row ) );
+
+        $this->assertSame( [ 'assistant_coach' ], PersonaResolver::personasFor( $coach ) );
     }
 
     /** The importer and the demo generator write tt_team_people themselves and then sync. */
