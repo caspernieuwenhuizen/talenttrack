@@ -13,6 +13,7 @@ use TT\Modules\ReportStudio\Domain\ReportStartRules;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\SaveState;
@@ -119,13 +120,22 @@ final class FrontendReportStudioView extends FrontendViewBase {
 
         echo '<ul class="tt-rs-reports">';
         foreach ( $list['rows'] as $row ) {
-            $url  = RecordLink::detailUrlForWithBack( self::SLUG, $row['id'] );
+            // A report whose subject the builder no longer builds for stays
+            // listed, without a link into a refusal.
             $name = $row['name'] !== '' ? $row['name'] : __( 'Untitled report', 'talenttrack' );
+            $meta = ReportStartRules::label( 'kind', $row['kind'] ) . ' · ' . ReportStartRules::label( 'scope', $row['scope'] );
+            $open = CrossViewLink::allows( self::SLUG, [ 'gate' => static fn(): bool => ReportAccess::canEdit( $reader, $row ) ] );
             echo '<li class="tt-rs-report">';
-            echo '<a class="tt-rs-report-link" href="' . esc_url( $url ) . '">';
+            if ( $open ) {
+                $url = RecordLink::detailUrlForWithBack( self::SLUG, $row['id'] ); /* tt-xview-ok: gated by CrossViewLink::allows above */
+                echo '<a class="tt-rs-report-link" href="' . esc_url( $url ) . '">';
+            } else {
+                echo '<span class="tt-rs-report-link">';
+            }
             echo '<span class="tt-rs-report-name">' . esc_html( $name ) . '</span>';
-            echo '<span class="tt-rs-report-meta">' . esc_html( ReportStartRules::label( 'kind', $row['kind'] ) . ' · ' . ReportStartRules::label( 'scope', $row['scope'] ) ) . '</span>';
-            echo '</a></li>';
+            echo '<span class="tt-rs-report-meta">' . esc_html( $meta ) . '</span>';
+            echo $open ? '</a>' : '</span>';
+            echo '</li>';
         }
         echo '</ul></div>';
     }

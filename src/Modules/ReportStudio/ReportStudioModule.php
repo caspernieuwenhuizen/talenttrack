@@ -62,7 +62,7 @@ class ReportStudioModule implements ModuleInterface {
                 'order'        => 29,
                 'label'        => __( 'Report Studio', 'talenttrack' ),
                 'description'  => __( 'Build your own report or dashboard from blocks that show the same figures as the reports.', 'talenttrack' ),
-                'icon'         => 'reports',
+                'icon'         => 'layers',
                 'color'        => '#0b3d2e',
                 'cap'          => 'tt_build_reports',
                 'feature'      => 'report_studio',

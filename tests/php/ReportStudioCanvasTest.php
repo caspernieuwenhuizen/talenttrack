@@ -36,6 +36,9 @@ use TT\Modules\ReportStudio\Frontend\FrontendReportStudioView;
  */
 final class ReportStudioCanvasTest extends WP_UnitTestCase {
 
+    // Publishing commits, so every test cleans up what it wrote.
+    use CommitsAfterCascade;
+
     private int $team_a = 0;
     private int $team_b = 0;
     private int $player_a = 0;
@@ -50,6 +53,7 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->markFixtureFloor();
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
 
@@ -91,6 +95,7 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
         LicenseGate::overrideTierForTests( null );
         wp_set_current_user( 0 );
         unset( $_GET['id'] );
+        $this->cleanUpAndCommit();
         $this->flush();
         parent::tear_down();
     }
