@@ -25,7 +25,7 @@
     border: 1px solid var(--tt-line, #e5e7ea);
     border-radius: 10px;
     padding: 10px 12px;
-    background: #fff;
+    background: var(--tt-paper, #fff);
 }
 
 .tt-avail-name {
@@ -89,14 +89,19 @@
     align-items: center;
     justify-content: center;
     min-height: 48px;
+    /* #4664 — a long translated label ("Verontschuldigd") breaks inside its
+       chip instead of running over its edges. */
+    min-width: 0;
     padding: 6px 8px;
-    border: 1px solid #d6dadd;
+    border: 1px solid var(--tt-line, #d6dadd);
     border-radius: 8px;
-    background: #f7f9fa;
-    color: #36424a;
+    background: var(--tt-bg-soft, #f7f9fa);
+    color: var(--tt-ink, #36424a);
     font-size: 0.8125rem;
     line-height: 1.2;
     text-align: center;
+    overflow-wrap: anywhere;
+    hyphens: auto;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -142,8 +147,21 @@
     .tt-avail-seg label { transition: none; }
 }
 
+/* #4664 — every status on one line once a phone is large enough, however
+   many the attendance_status lookup holds: one equal column per chip. Below
+   480px the base auto-fit wraps them (3 + 2 for five). */
 @media (min-width: 480px) {
-    /* Roomier rows on larger phones / tablets: name beside the control. */
+    .tt-avail-seg {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+    }
+}
+
+/* #4664 — the name sits beside the control only on desktop. From 480px it
+   squeezed the chips into two thirds of a tablet row, too narrow for five,
+   so they wrapped and every row grew to about 150px. */
+@media (min-width: 1024px) {
     .tt-avail-row {
         display: grid;
         grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
