@@ -175,6 +175,35 @@ final class PlannedAttendanceMatchSquadTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4689 — the read-only observer reads the activity and every player on
+     * it, but does not work with them: the squad position stays null for the
+     * observer, while the head of development still gets it.
+     */
+    public function test_the_observer_gets_null_and_the_head_of_development_the_squad(): void {
+        $this->savePrep( $this->squadPayload() );
+
+        $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        AuthorizationService::flushCache();
+        wp_set_current_user( $hod );
+        $this->assertSame( 'start', $this->rowFor( $this->players['starter'] )['match_squad'], 'HoD' );
+        $this->assertSame( 'out', $this->rowFor( $this->players['absent'] )['match_squad'], 'HoD' );
+
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        AuthorizationService::flushCache();
+        $this->assertTrue(
+            AuthorizationService::canViewPlayer( $observer, $this->players['starter'] ),
+            'the observer reads the player; the null below is about working with them'
+        );
+        $this->assertFalse( AuthorizationService::isStaffForPlayer( $observer, $this->players['starter'] ) );
+
+        wp_set_current_user( $observer );
+        foreach ( $this->roster() as $row ) {
+            $this->assertArrayHasKey( 'match_squad', $row );
+            $this->assertNull( $row['match_squad'], 'observer' );
+        }
+    }
+
+    /**
      * Performance: who is staff is asked for the roster at once, so the
      * route's query count does not grow with the squad (5 rows vs 20).
      */

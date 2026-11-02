@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -117,9 +118,19 @@ final class FederationJsonExporter implements ExporterInterface, ScopeGatedExpor
         $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
         $rows = is_array( $rows ) ? $rows : [];
 
+        // Guardian contact follows the staff rule (#4689), asked once per
+        // distinct team: a reader who does not work with the player gets the
+        // guardian block with empty strings.
+        $team_by_player = [];
+        foreach ( $rows as $row ) {
+            $team_by_player[ (int) $row['id'] ] = (int) $row['team_id'];
+        }
+        $staff = AuthorizationService::staffForPlayers( $request->requesterUserId, $team_by_player );
+
         $teams_index = [];
         foreach ( $rows as $row ) {
-            $tid = (int) $row['team_id'];
+            $tid     = (int) $row['team_id'];
+            $contact = ! empty( $staff[ (int) $row['id'] ] );
             if ( ! isset( $teams_index[ $tid ] ) ) {
                 $teams_index[ $tid ] = [
                     'id'        => $tid > 0 ? $tid : null,
@@ -137,9 +148,9 @@ final class FederationJsonExporter implements ExporterInterface, ScopeGatedExpor
                 'preferred_foot'      => (string) $row['preferred_foot'],
                 'preferred_positions' => (string) $row['preferred_positions'],
                 'guardian'            => [
-                    'name'  => (string) $row['guardian_name'],
-                    'email' => (string) $row['guardian_email'],
-                    'phone' => (string) $row['guardian_phone'],
+                    'name'  => $contact ? (string) $row['guardian_name'] : '',
+                    'email' => $contact ? (string) $row['guardian_email'] : '',
+                    'phone' => $contact ? (string) $row['guardian_phone'] : '',
                 ],
                 'status'              => (string) $row['status'],
                 'date_joined'         => $row['date_joined'] !== null ? (string) $row['date_joined'] : null,

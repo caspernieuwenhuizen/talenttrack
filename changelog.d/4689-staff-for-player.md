@@ -1,0 +1,3 @@
+# Read-only observer: guardian contact follows the staff rule (#4689)
+
+Reading every player is no longer the same as working with one. The staff check behind a player's family details now asks for a staff role on the player's team, or a role that may change players academy-wide (Head of development, Academy admin). A global read on its own, as the read-only observer holds, no longer counts. The observer still reads every player record, without the guardian name, e-mail and phone, and no longer sees the profile's Parents · Guardians card, the Discovery card or the match-day squad on expected attendance. Team staff, the Head of development and admins see exactly what they saw before.

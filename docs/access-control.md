@@ -172,7 +172,7 @@ Use cases:
 | They can read | They cannot |
 | --- | --- |
 | **Teams** — every squad, its roster and its details | Change anything about a team |
-| **Players** — every player's record and profile, including the guardian contact on it | Add, edit or remove a player |
+| **Players** — every player's record and profile, without the guardian contact on it | Add, edit or remove a player |
 | **People** — the staff directory | Edit a staff record |
 | **Evaluations** — the assessments coaches record | Write or share an evaluation |
 | **Activities** — the training and match calendar | Plan, edit or cancel anything |
@@ -182,7 +182,7 @@ Use cases:
 
 **And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of development and Academy admin alone, and several are deliberately withheld even from head coaches.
 
-Each player's guardian contact **is** visible to an observer: it is part of the player record, which the role reads.
+Each player's guardian contact is **not** visible to an observer. Reading every player is not the same as working with one, and a family's details stay with the people around their child: the staff of the player's team, and the roles that may change players academy-wide (the Head of development and the Academy admin). An observer gets the player record without the guardian name, e-mail and phone, does not see the profile's Parents · Guardians card, and does not get the match-day squad (start, bench, out) on an activity's expected attendance.
 
 Because an observer does not see injuries, an observer also does not get the **Unavailable** or **Check availability** markers beside a name on an activity's expected attendance or in a match preparation, and does not see the reason a coach typed beside an absent player in a match preparation or its printout: on a training those can only mean an injury. The status the coach set (present, absent and so on) stays visible. The markers and reasons go to whoever may plan that team, and to whoever may read that player's injuries.
 

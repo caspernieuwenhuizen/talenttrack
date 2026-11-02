@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -100,7 +101,7 @@ final class PlayersListCsvExporter implements ExporterInterface, ScopeGatedExpor
             $where[] = ExportScope::inClause( 'pl.team_id', $scope );
         }
 
-        $sql = "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
+        $sql = "SELECT pl.id, pl.team_id, pl.first_name, pl.last_name, pl.date_of_birth,
                        pl.jersey_number, pl.preferred_foot, pl.preferred_positions,
                        pl.guardian_name, pl.guardian_email, pl.guardian_phone,
                        pl.status, pl.date_joined,
@@ -128,8 +129,19 @@ final class PlayersListCsvExporter implements ExporterInterface, ScopeGatedExpor
             __( 'Date joined',        'talenttrack' ),
         ];
 
+        // Guardian contact follows the staff rule the profile's guardians
+        // card asks (#4689): a reader who may see the player but does not
+        // work with them gets the row with those three cells empty. Asked
+        // once per distinct team, not per row.
+        $team_by_player = [];
+        foreach ( $rows as $r ) {
+            $team_by_player[ (int) $r->id ] = (int) ( $r->team_id ?? 0 );
+        }
+        $staff = AuthorizationService::staffForPlayers( $request->requesterUserId, $team_by_player );
+
         $out_rows = [];
         foreach ( $rows as $r ) {
+            $contact = ! empty( $staff[ (int) $r->id ] );
             $out_rows[] = [
                 (int)    $r->id,
                 (string) $r->first_name,
@@ -139,9 +151,9 @@ final class PlayersListCsvExporter implements ExporterInterface, ScopeGatedExpor
                 ExportValueFormatter::preferredFoot( $r->preferred_foot ?? '' ),
                 ExportValueFormatter::positions( $r->preferred_positions ?? '' ),
                 (string) ( $r->team_name ?? '' ),
-                (string) ( $r->guardian_name ?? '' ),
-                (string) ( $r->guardian_email ?? '' ),
-                (string) ( $r->guardian_phone ?? '' ),
+                $contact ? (string) ( $r->guardian_name ?? '' ) : '',
+                $contact ? (string) ( $r->guardian_email ?? '' ) : '',
+                $contact ? (string) ( $r->guardian_phone ?? '' ) : '',
                 ExportValueFormatter::playerStatus( $r->status ?? '' ),
                 (string) ( $r->date_joined ?? '' ),
             ];
