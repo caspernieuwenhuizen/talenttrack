@@ -5,27 +5,32 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * ReportDefinition (#4569) — what a draft or a version holds: the blocks in
- * their order, each with its key and options.
+ * their order, each with its key, its options and its width on the canvas.
  *
- *     { "blocks": [ { "id": "b1", "key": "playing_time", "options": { … } } ] }
+ *     { "blocks": [ { "id": "b1", "key": "playing_time", "options": { … }, "width": "half" } ] }
  *
  * A block key must be a registered block. Its options are checked against the
  * block when its data is read, because which options a block offers depends
- * on the subject it is read about.
+ * on the subject it is read about. A block is a full row unless it says
+ * `half` (#4571).
  */
 final class ReportDefinition {
 
     /** The most blocks one definition holds. */
-    public const MAX_BLOCKS = 60;
+    public const MAX_BLOCKS = 40;
 
     /** The largest stored definition, in bytes of JSON. */
     public const MAX_BYTES = 65536;
+
+    public const WIDTH_FULL = 'full';
+    public const WIDTH_HALF = 'half';
+    public const WIDTHS     = [ self::WIDTH_FULL, self::WIDTH_HALF ];
 
     /**
      * The definition to store, or why it cannot be. Null, an empty string or
      * an empty object clears the definition.
      *
-     * @return array{blocks:list<array{id:string, key:string, options:array<mixed>}>}|StudioError
+     * @return array{blocks:list<array{id:string, key:string, options:array<mixed>, width:string}>}|StudioError
      */
     public static function normalise( mixed $raw ): array|StudioError {
         if ( $raw === null || $raw === '' || $raw === [] ) return [ 'blocks' => [] ];
@@ -49,7 +54,7 @@ final class ReportDefinition {
         $out = [];
         foreach ( $blocks as $i => $block ) {
             if ( ! is_array( $block ) ) return self::invalid( __( 'Every block must be an object.', 'talenttrack' ) );
-            $extra = array_values( array_diff( array_map( 'strval', array_keys( $block ) ), [ 'id', 'key', 'options' ] ) );
+            $extra = array_values( array_diff( array_map( 'strval', array_keys( $block ) ), [ 'id', 'key', 'options', 'width' ] ) );
             if ( $extra !== [] ) {
                 /* translators: %s: comma-separated field names */
                 return self::invalid( sprintf( __( 'A block does not accept: %s.', 'talenttrack' ), implode( ', ', $extra ) ) );
@@ -61,8 +66,12 @@ final class ReportDefinition {
             $options = $block['options'] ?? [];
             if ( ! is_array( $options ) ) return self::invalid( __( 'The options must be an object.', 'talenttrack' ) );
             $id = is_string( $block['id'] ?? null ) && $block['id'] !== '' ? sanitize_key( (string) $block['id'] ) : 'b' . ( $i + 1 );
+            $width = $block['width'] ?? self::WIDTH_FULL;
+            if ( ! is_string( $width ) || ! in_array( $width, self::WIDTHS, true ) ) {
+                return self::invalid( __( 'A block is full or half width.', 'talenttrack' ) );
+            }
 
-            $out[] = [ 'id' => $id, 'key' => $key, 'options' => $options ];
+            $out[] = [ 'id' => $id, 'key' => $key, 'options' => $options, 'width' => $width ];
         }
 
         $definition = [ 'blocks' => $out ];
@@ -77,7 +86,7 @@ final class ReportDefinition {
      * The blocks of a stored definition, skipping anything malformed.
      *
      * @param array<mixed> $definition
-     * @return list<array{id:string, key:string, options:array<mixed>}>
+     * @return list<array{id:string, key:string, options:array<mixed>, width:string}>
      */
     public static function blocks( array $definition ): array {
         $out = [];
@@ -87,6 +96,7 @@ final class ReportDefinition {
                 'id'      => is_string( $block['id'] ?? null ) ? (string) $block['id'] : 'b' . ( (int) $i + 1 ),
                 'key'     => (string) $block['key'],
                 'options' => is_array( $block['options'] ?? null ) ? $block['options'] : [],
+                'width'   => ( $block['width'] ?? '' ) === self::WIDTH_HALF ? self::WIDTH_HALF : self::WIDTH_FULL,
             ];
         }
         return $out;

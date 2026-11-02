@@ -1232,13 +1232,22 @@ for. The payload carries capabilities and keys, never role names.
         "choices": [ { "value": "attendance", "label": "Attendance" } ] },
       { "key": "measure", "type": "measure", "label": "Measure", "required": true, "depends_on": "fact",
         "choices": { "attendance": [ { "value": "attendance_pct", "label": "Attendance %" } ] } }
-    ] }
-] }
+    ],
+    "source": "The data and the measure you pick, …",
+    "family": "A family may see this block, without other players' figures." }
+],
+  "unavailable": [
+    { "key": "playing_time", "label": "Playing time per player",
+      "reason": "This block does not fit what the report is about." } ] }
 ```
 
 Option types are `enum`, `bool`, `int`, `measure` and `breakdown`. A
 `depends_on` option's `choices` are grouped by the value of the option it
-names.
+names. `source` and `family` say, in plain words, where a block's figures
+come from and whether a family may see it. `unavailable` lists every other
+registered block with the translated reason it cannot be placed (the first
+scope asked for when several are listed), so a library shows it switched off
+rather than leaving it out.
 
 ### `POST /report-blocks/{key}/preview`
 
@@ -1338,6 +1347,8 @@ answered `403 forbidden` on a report that was not published to scouts.
 | `GET /reports/{id}/versions` | `tt_build_reports` | The versions, newest first, without their definitions. |
 | `POST /reports/{id}/versions` | `tt_build_reports` | Publish my draft as the next version. |
 | `GET /reports/{id}/data` | `tt_view_reports` | Every block's data, for me. |
+| `GET /reports/{id}/reach` | `tt_build_reports` | How many people publishing to personas reaches. |
+| `GET /reports/subject-options` | `tt_build_reports` | The teams and players I build reports about. |
 
 An editor-only route answers a recipient `403 forbidden` and anyone else the
 same; a report that does not exist in the club is `404 not_found`.
@@ -1416,15 +1427,18 @@ ruled out, moved to the first option still allowed, with the reason.
 ### `PATCH /reports/{id}`
 
 Writes the **caller's** draft, never another builder's: `definition` (`{
-"blocks": [ { "id", "key", "options" } ] }`, at most 60 registered blocks and
-65536 bytes) and `name`. **An omitted field keeps its value; a field sent
-empty clears it.** A body with neither is `400 no_writable_field`. The draft
-row is made on first use from the published version, or the owner's draft.
+"blocks": [ { "id", "key", "options", "width" } ] }`, at most 40 registered
+blocks and 65536 bytes; `width` is `full`, the default, or `half`) and
+`name`. **An omitted field keeps its value; a field sent empty clears it.** A
+body with neither is `400 no_writable_field`. The draft row is made on first
+use from the published version, or the owner's draft.
 
-`revision` is optional. When sent it must be the draft's current revision,
-and a stale one is **`409 stale_revision`** with `details.current_revision`,
-so two tabs of one builder never overwrite each other silently; the canvas
-reloads the draft. Every definition write raises the revision by one.
+`revision` is optional, in the body or as a query parameter
+(`PATCH /reports/{id}?revision=4`). When sent it must be the draft's current
+revision, and a stale one is **`409 stale_revision`** with
+`details.current_revision`, so two tabs of one builder never overwrite each
+other silently; the canvas reloads the draft. Every definition write raises
+the revision by one.
 
 ### `POST /reports/{id}/versions`
 
@@ -1451,7 +1465,23 @@ definition; the next publish makes it live. `404 not_found` for an unknown
 version. It is deliberately not called `restore`, which on this API means
 un-archiving.
 
-### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=`
+### `GET /reports/{id}/reach?persona_keys=`
+
+How many people publishing to these personas (comma-separated, or as a
+list) would reach: the accounts holding one of them that can read the
+report's subject, the two questions a recipient is asked when they open it.
+Editors only. `{ "count": 7, "personas": [ { "key": "head_coach", "label":
+"Head coach" } ] }`. A persona that cannot be published to is `400
+bad_filter`. The Studio's publish confirm shows this number.
+
+### `GET /reports/subject-options`
+
+The teams and players the caller builds reports about, for the Studio's
+subject switch: `{ "teams": [ { "id", "name", "age_group" } ], "players": [ {
+"id", "name", "team_id" } ] }`. A coach gets their own squads; a builder for
+every team gets every squad. Needs `tt_build_reports`.
+
+### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=&audience=`
 
 Every block of the definition, read through `POST
 /report-blocks/{key}/preview`'s engine, so each block checks its capability,
@@ -1474,14 +1504,24 @@ row scope. `source` is `draft` (a builder's own, their default) or
   out of scope is `403 forbidden_team` / `forbidden_player` /
   `forbidden_scope` for the whole report. A block that cannot be read for
   this subject carries an `error` in its own slot and the others still read.
+- **`audience`** (`internal`, `scout`, `family`) lets an editor preview the
+  report as that audience gets it: every block is cut on the server, so a
+  staff-only block comes back as an `error` and no breakdown by player is
+  sent. A recipient asking for another audience than the report's is `403
+  fixed_audience`.
+- **`page_fit`** is the A4 estimate for the report in rows: `pages`, `fill`
+  (percent per page) and `breaks` (the ids of the blocks that start a new
+  page). It uses the player report's measured heights, two half blocks side
+  by side making one row.
 
 ```json
 { "report_id": 7, "uuid": "…", "source": "published", "version_no": 2,
   "context": { "scope": "team", "player_id": null, "team_id": 12, "player_ids": [],
                "from": "2026-09-01", "to": "2026-09-30", "audience": "internal" },
   "blocks": [
-    { "id": "b1", "key": "attendance_per_week", "options": {}, "data": { "breakdown": "week", "rows": [ … ], "truncated": false } },
-    { "id": "b2", "key": "playing_time", "error": { "code": "invalid_field", "message": "…" } } ] }
+    { "id": "b1", "key": "attendance_per_week", "width": "full", "options": {}, "data": { "breakdown": "week", "rows": [ … ], "truncated": false } },
+    { "id": "b2", "key": "playing_time", "width": "half", "error": { "code": "invalid_field", "message": "…" } } ],
+  "page_fit": { "pages": 1, "fill": [ 46 ], "breaks": [] } }
 ```
 
 ### Payload

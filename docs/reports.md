@@ -3,7 +3,7 @@ title: Reports
 group: analytics
 summary: The tile launcher — progress charts, team ratings, coach activity.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -658,3 +658,19 @@ The rules between the choices:
 - Publishing for a role needs a subject each reader chooses or follows (or the academy), and the right to publish.
 
 Building needs the **Report Studio: build reports** permission; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **Add report** button is hidden.
+
+## Report Studio — building a report
+
+The **Report Studio** tile under Reports lists the reports you made, with the **Add report** button above them. Open one, or finish the wizard, and you are on the canvas: the report, built from blocks, each showing real figures for the subject and period, never placeholders.
+
+- **At the top**: the report's name (type to rename it), the save state, **Undo**, **Versions** and **Publish**. **Share and schedule** and **Make PDF** come in a later release.
+- **Above the canvas**: who the report is about and the period. You can switch to another of your players or teams, or another period, to check how the report reads for them; that is not saved. **Read as** shows the report as staff, a scout or the family would get it, worked out by the server, so a block a family never sees says so instead of showing its figures. **Screen**, **A4** and **Phone** show the canvas as it fits each: A4 shows the page breaks and how full the pages are, Phone stacks half blocks.
+- **Blocks**: tap a block to add it at the end, or drag it onto the canvas by its handle. A block that does not fit this report stays in the list, switched off, with the reason. On a phone or a tablet the list opens from **Add block**.
+- **On each block**: move it up or down with the arrows or drag it by its handle, make it full or half width, duplicate it, remove it, or open its settings. With the keyboard, Tab to a block, Enter opens its settings and Delete removes it.
+- **Settings**: the block's choices in plain words, whether a family may see it, and where its figures come from.
+
+A report holds at most 40 blocks.
+
+**Saving.** The canvas saves itself as you work; there is no Save button. **Undo** goes back step by step, up to 50 steps in this sitting, and **Revert changes** puts the report back to how it was when you opened it. If you have the same report open in a second tab, the tab with the older copy reloads the newest one rather than writing over it. See [How saving works](save-model.md).
+
+**Versions and publishing.** **Publish** makes your draft a version. It asks what changed, and for a report made for a role it asks which roles to publish it for and says how many people that reaches. **Versions** lists the published versions; **Use this version** puts one back in your draft, and the next publish makes it live again.

@@ -33,6 +33,7 @@ not. Beside it, **Undo** and **Revert changes**.
 | [PDP conversation](pdp-cycle.md) | Until it is signed off |
 | [PDP preparation](pdp-cycle.md) | The coach's answers, until the conversation is signed off |
 | [PDP self-reflection](pdp-cycle.md) | While the reflection window is open |
+| [Report Studio](reports.md#report-studio--building-a-report) | The draft of a report; **Publish** makes a version |
 
 **Why these.** They are all places where you *compose* — you write sentences
 about a player, over minutes, often on a phone, often standing somewhere
@@ -70,9 +71,19 @@ on the screen still works exactly the same.
 Neither is version history, and neither is trying to be. There are no
 server-side snapshots, no per-field history, and no restoring to a date.
 
+**One exception: the Report Studio.** On the Studio's canvas Undo reaches
+back step by step, up to 50 steps, through every move, addition, removal,
+width change, setting and rename in this sitting. Building a report is a run
+of small moves, and taking back only the last one would leave a builder who
+dragged three blocks the wrong way with no way back but by hand. Every undo is
+still saved through the same save as any other change, and the history ends
+with the sitting, like Revert. Its published versions are kept on the server:
+**Versions** puts an earlier one back in your draft. Every other screen that
+saves itself keeps one step.
+
 ### Publishing is not saving
 
-Two screens keep deliberate buttons, and none of them is a Save:
+These screens keep deliberate buttons, and none of them is a Save:
 
 - **Mark as final** on a match analysis. Until you press it the staff share
   link says the analysis is not finished yet; after it, the link shows the
@@ -83,6 +94,9 @@ Two screens keep deliberate buttons, and none of them is a Save:
   place. It moves the cycle on to the next talk, so it sits beside Sign off,
   behind its own confirm, with a required reason. It can be undone only until
   a later talk moves on.
+- **Publish** in the Report Studio. The draft saves itself; publishing makes
+  it a version the people it is published for read. The confirm names the
+  roles and how many people it reaches, and asks what changed.
 
 They are irreversible in practice, which is why none of them is a checkbox on
 a screen that saves itself.
@@ -185,7 +199,8 @@ Ask what the surface is, not what is convenient:
    over minutes rather than filled in. → **Autosave.** Use
    `\TT\Shared\Frontend\Components\FormAutosave` and
    `\TT\Shared\Frontend\Components\SaveState`; the save state, undo and revert
-   come with them. Do not hand-roll a debounce.
+   come with them. Do not hand-roll a debounce. A surface that is not a form
+   uses `TT.Autosave` with `SaveState`, as the Report Studio canvas does.
 2. **Is a half-finished commit worse than a lost one?** A set of values that
    only mean something together, entered in one pass, possibly on a bad
    connection. → **Explicit Save**, with a real Cancel per `CLAUDE.md` §6.

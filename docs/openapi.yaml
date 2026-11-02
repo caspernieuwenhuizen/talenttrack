@@ -435,7 +435,7 @@ paths:
     patch:
       tags: [report-studio]
       summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
-      description: 'Body — name, definition, revision. A stale revision is 409 stale_revision with details.current_revision.'
+      description: 'Body — name, definition (at most 40 blocks of id, key, options and width full | half), revision; revision may also be a query parameter. A stale revision is 409 stale_revision with details.current_revision.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field or no_writable_field' }, '403': { description: forbidden }, '409': { description: stale_revision } }
     delete:
@@ -463,9 +463,24 @@ paths:
     get:
       tags: [report-studio]
       summary: Every block's data for the caller
-      description: 'Query — source (draft | published), player_id / team_id for a subject chosen when opened, from / to for a period chosen when opened. A recipient cannot change a fixed subject or period. Each block is read through the block engine, which checks the subject on every call.'
+      description: 'Query — source (draft | published), player_id / team_id for a subject chosen when opened, from / to for a period chosen when opened, audience (internal | scout | family) for an editor''s preview, cut on the server. A recipient cannot change a fixed subject, period or audience. Each block is read through the block engine, which checks the subject on every call. `page_fit` is the A4 estimate: pages, fill, breaks.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
-      responses: { '200': { description: OK }, '400': { description: 'invalid_field or bad_date' }, '403': { description: 'forbidden, forbidden_team, forbidden_player, forbidden_scope, fixed_subject or fixed_period' }, '404': { description: not_published } }
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field, bad_date or bad_filter' }, '403': { description: 'forbidden, forbidden_team, forbidden_player, forbidden_scope, fixed_subject, fixed_period or fixed_audience' }, '404': { description: not_published } }
+
+  /reports/{id}/reach:
+    get:
+      tags: [report-studio]
+      summary: How many people publishing to these personas would reach
+      description: 'Cap required: `tt_build_reports`, and the caller edits the report. Query — persona_keys (comma-separated or a list). Answers count and the personas with their labels.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: 'OK — count, personas' }, '400': { description: bad_filter }, '402': { description: license_required }, '403': { description: forbidden } }
+
+  /reports/subject-options:
+    get:
+      tags: [report-studio]
+      summary: The teams and players the caller builds reports about
+      description: 'Cap required: `tt_build_reports`. Answers teams (id, name, age_group) and players (id, name, team_id). A coach gets their own squads.'
+      responses: { '200': { description: 'OK — teams, players' }, '402': { description: license_required } }
 
   /teams:
     get: { tags: [teams], summary: List teams, responses: { '200': { description: OK } } }

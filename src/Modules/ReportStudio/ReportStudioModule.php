@@ -12,6 +12,7 @@ use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
+use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
 
 /**
@@ -46,6 +47,26 @@ class ReportStudioModule implements ModuleInterface {
             $register();
         } else {
             add_action( 'init', $register, 20 );
+        }
+
+        // #4571 — the Studio itself, a tile under Reports for the people
+        // who build reports. The feature key hides it while the Studio is
+        // switched off.
+        if ( class_exists( TileRegistry::class ) ) {
+            TileRegistry::register( [
+                'module_class' => self::class,
+                'view_slug'    => 'report-studio',
+                'entity'       => 'report_studio',
+                'group'        => 'analytics',
+                'kind'         => 'work',
+                'order'        => 29,
+                'label'        => __( 'Report Studio', 'talenttrack' ),
+                'description'  => __( 'Build your own report or dashboard from blocks that show the same figures as the reports.', 'talenttrack' ),
+                'icon'         => 'reports',
+                'color'        => '#0b3d2e',
+                'cap'          => 'tt_build_reports',
+                'feature'      => 'report_studio',
+            ] );
         }
     }
 }

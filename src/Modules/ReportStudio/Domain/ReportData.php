@@ -33,8 +33,12 @@ final class ReportData {
     private const CONTEXT_FIELDS = [ 'scope', 'audience', 'player_id', 'team_id', 'player_ids' ];
 
     /**
+     * `audience` is a builder's preview (#4571): the report read as that
+     * audience would get it, cut on the server. A recipient reads the
+     * report's own audience and cannot ask for another.
+     *
      * @param Report $report
-     * @param array{source:string, player_id:?int, team_id:?int, from:string, to:string} $in
+     * @param array{source:string, player_id:?int, team_id:?int, from:string, to:string, audience?:string} $in
      * @return array<string,mixed>|StudioError
      */
     public static function compose( array $report, array $in, ReportReader $reader ): array|StudioError {
@@ -42,6 +46,13 @@ final class ReportData {
         $editor  = ReportAccess::canEdit( $reader, $report );
         if ( ! $editor && ! ReportAccess::isRecipient( $reader, $report ) ) {
             return new StudioError( 'forbidden', __( 'This report is not shared with you.', 'talenttrack' ), 403 );
+        }
+
+        $audience = (string) ( $in['audience'] ?? '' );
+        if ( $audience === '' ) {
+            $audience = $report['audience'];
+        } elseif ( $audience !== $report['audience'] && ! $editor ) {
+            return new StudioError( 'fixed_audience', __( 'This report is written for one audience.', 'talenttrack' ), 403, [ 'field' => 'audience' ] );
         }
 
         $definition = self::definition( $report, $in['source'], $editor, $user_id );
@@ -60,7 +71,7 @@ final class ReportData {
             'player_ids' => $subject['player_ids'],
             'from'       => $period['from'],
             'to'         => $period['to'],
-            'audience'   => $report['audience'],
+            'audience'   => $audience,
         ];
 
         // The subject is checked once for the report, so a report with no
@@ -75,6 +86,7 @@ final class ReportData {
         $context['player_ids'] = $checked->playerIds;
 
         $blocks = [];
+        $layout = [];
         foreach ( ReportDefinition::blocks( $definition['definition'] ) as $block ) {
             $read = BlockEngine::preview( $block['key'], $context, self::stringKeys( $block['options'] ), $user_id );
             if ( $read instanceof StudioError ) {
@@ -82,10 +94,12 @@ final class ReportData {
                     || in_array( (string) ( $read->details['field'] ?? '' ), self::CONTEXT_FIELDS, true ) ) {
                     return $read;
                 }
-                $blocks[] = [ 'id' => $block['id'], 'key' => $block['key'], 'error' => [ 'code' => $read->code, 'message' => $read->message ] ];
-                continue;
+                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'error' => [ 'code' => $read->code, 'message' => $read->message ] ];
+            } else {
+                $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
             }
-            $blocks[] = [ 'id' => $block['id'], 'key' => $block['key'], 'options' => $read['options'], 'data' => $read['data'] ];
+            $blocks[] = $out;
+            $layout[] = [ 'id' => $block['id'], 'width' => $block['width'], 'rows' => ReportPageFit::rowsOf( $out ) ];
         }
 
         return [
@@ -100,9 +114,11 @@ final class ReportData {
                 'player_ids' => $checked->playerIds,
                 'from'       => $period['from'],
                 'to'         => $period['to'],
-                'audience'   => $report['audience'],
+                'audience'   => $audience,
             ],
             'blocks'     => $blocks,
+            // #4571 — the A4 estimate the canvas's page meter shows.
+            'page_fit'   => ReportPageFit::estimate( $layout ),
         ];
     }
 

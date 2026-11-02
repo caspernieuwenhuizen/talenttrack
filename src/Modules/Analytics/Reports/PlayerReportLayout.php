@@ -151,6 +151,24 @@ final class PlayerReportLayout {
             $height     = self::height( self::degrade( $report, $degraded )['data'] );
         }
 
+        $split = self::pagesFor( $height );
+
+        return [
+            'pages'     => $split['pages'],
+            'max_pages' => $max,
+            'fits'      => $split['pages'] <= $max,
+            'fill'      => $split['fill'],
+            'degraded'  => $degraded,
+        ];
+    }
+
+    /**
+     * How a printed height splits over A4 portrait pages, and how full each
+     * is: the arithmetic `fit()` uses, for any reader that sums heights.
+     *
+     * @return array{pages:int, fill:list<int>}
+     */
+    public static function pagesFor( float $height ): array {
         // One page holds the full printable height; once the report breaks,
         // every page gives up the slack a break leaves behind.
         $per_page = $height <= self::PORTRAIT_MM ? self::PORTRAIT_MM : self::PORTRAIT_MM - self::BREAK_SLACK_MM;
@@ -161,14 +179,28 @@ final class PlayerReportLayout {
             $fill[] = (int) round( min( $left, $per_page ) / $per_page * 100 );
             $left  -= $per_page;
         }
+        return [ 'pages' => $pages, 'fill' => $fill ];
+    }
 
-        return [
-            'pages'     => $pages,
-            'max_pages' => $max,
-            'fits'      => $pages <= $max,
-            'fill'      => $fill,
-            'degraded'  => $degraded,
-        ];
+    /** The printable height of one page, and what a break leaves empty on it, in mm. */
+    public static function pageHeight( bool $breaks ): float {
+        return $breaks ? self::PORTRAIT_MM - self::BREAK_SLACK_MM : self::PORTRAIT_MM;
+    }
+
+    /** The letterhead every printed report opens with, in mm. */
+    public static function letterheadHeight(): float {
+        return self::MM['letterhead'];
+    }
+
+    /**
+     * One plain section, in mm: a heading, then a strip of figures (no rows)
+     * or a table of `$rows` rows. For a reader with no section type of its
+     * own here, such as a Report Studio block (#4571), so both measure with
+     * the same numbers.
+     */
+    public static function sectionHeight( int $rows ): float {
+        if ( $rows <= 0 ) return self::MM['section_base'] + self::MM['stats'];
+        return self::MM['section_base'] + self::MM['table_head'] + $rows * self::MM['row'] + self::MM['table_gap'];
     }
 
     /**

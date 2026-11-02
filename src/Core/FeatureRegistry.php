@@ -203,7 +203,7 @@ class FeatureRegistry {
                 'description'     => __( 'Build reports and dashboards from blocks that show the same figures as the reports.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\ReportStudio\\ReportStudioModule',
                 'default_enabled' => false,
-                'view_slugs'      => [],
+                'view_slugs'      => [ 'report-studio' ],
                 'entities'        => [],
             ],
             // #2128 — per-tile toggles for the two HoD analytics surfaces.

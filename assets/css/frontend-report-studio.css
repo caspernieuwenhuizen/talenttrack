@@ -1,0 +1,588 @@
+/*
+ * frontend-report-studio.css — the Report Studio (#4571): the list of the
+ * builder's reports and the canvas in Rows.
+ *
+ * Mobile-first (CLAUDE.md §2). At ~360px everything stacks: the library and
+ * the settings are bottom sheets (<dialog>), half blocks are full rows, and
+ * reordering uses the arrows. From 768px half blocks sit side by side; from
+ * 1024px the library and the settings are side panels next to the canvas.
+ * Every control is a 48px target under a coarse pointer, nothing depends on
+ * hover, and colours come from tokens.css. Scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-rs-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-rs-hint {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-reason {
+    display: block;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- the list --------------------------------------------------------- */
+
+.tt-dashboard .tt-rs-list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-rs-list-head .tt-fview-title {
+    margin: 0;
+    font-size: 1.375rem;
+}
+
+.tt-dashboard .tt-rs-reports {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-dashboard .tt-rs-report-link {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rs-report-link:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rs-report-link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rs-report-name {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rs-report-meta {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- top bar and context bar ---------------------------------------------- */
+
+.tt-dashboard .tt-rs-top,
+.tt-dashboard .tt-rs-context {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-name {
+    width: 100%;
+    font-size: 1.125rem;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-rs-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-radios legend {
+    width: 100%;
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rs-radios[hidden] {
+    display: none;
+}
+
+.tt-dashboard .tt-rs-radio {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rs-radio:has(input:checked) {
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-rs-radio:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rs-radio.is-off {
+    cursor: not-allowed;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-notice {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-info-subtle, #e6f0fa);
+    color: var(--tt-info-ink, #1c5aa0);
+}
+
+.tt-dashboard .tt-rs-notice.is-error {
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
+}
+
+/* ---- the canvas ------------------------------------------------------------ */
+
+.tt-dashboard .tt-rs-body {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-main {
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-canvas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-3, 12px);
+    margin: 0;
+    padding: var(--tt-sp-2, 8px);
+    list-style: none;
+    border: 2px dashed transparent;
+    border-radius: var(--tt-radius-lg, 14px);
+    min-height: 6rem;
+}
+
+.tt-dashboard .tt-rs-canvas.is-drop-target {
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-rs-block {
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-empty {
+    padding: var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+    text-align: center;
+}
+
+.tt-dashboard .tt-rs-card {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rs-card:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rs-card.is-selected {
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-rs-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-card-title {
+    flex: 1 1 8rem;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-rs-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-tool,
+.tt-dashboard .tt-rs-grip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--tt-tap-min, 48px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    font-size: 1.125rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rs-tool:active,
+.tt-dashboard .tt-rs-grip:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rs-tool:focus-visible,
+.tt-dashboard .tt-rs-grip:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rs-tool:disabled,
+.tt-dashboard .tt-rs-grip:disabled {
+    cursor: not-allowed;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* The grip is what a pointer drags, so the browser must not scroll with it. */
+.tt-dashboard .tt-rs-grip {
+    touch-action: none;
+    cursor: grab;
+}
+
+.tt-dashboard .tt-rs-grip::before {
+    content: "⋮⋮";
+    letter-spacing: -0.2em;
+}
+
+.tt-dashboard .tt-rs-card-body.is-off {
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-block-msg {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-figure {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    margin: 0;
+}
+
+.tt-dashboard .tt-rs-figure-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.tt-dashboard .tt-rs-table-wrap {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+.tt-dashboard .tt-rs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-rs-table th,
+.tt-dashboard .tt-rs-table td {
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    text-align: start;
+}
+
+.tt-dashboard .tt-rs-page-break {
+    padding: var(--tt-sp-1, 4px) 0;
+    border-top: 2px dashed var(--tt-line, #e3e6e1);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-meter {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-meter[hidden] {
+    display: none;
+}
+
+.tt-dashboard .tt-rs-meter-text {
+    margin: 0;
+}
+
+.tt-dashboard .tt-rs-meter-bars {
+    display: flex;
+    gap: var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-rs-meter-bar {
+    flex: 1 1 0;
+    height: 0.5rem;
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-line, #e3e6e1);
+    overflow: hidden;
+}
+
+.tt-dashboard .tt-rs-meter-fill {
+    display: block;
+    height: 100%;
+    background: var(--tt-primary, #0b3d2e);
+}
+
+/* A4: the width of a printed page. Phone: the width of a phone. */
+.tt-dashboard .tt-rs-canvas[data-view="a4"] {
+    max-width: 48rem;
+    margin-inline: auto;
+}
+
+.tt-dashboard .tt-rs-canvas[data-view="phone"] {
+    max-width: 24rem;
+    margin-inline: auto;
+}
+
+/* ---- sheets and dialogs ---------------------------------------------------- */
+
+.tt-dashboard .tt-rs-sheet,
+.tt-dashboard .tt-rs-dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    margin: auto auto 0;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-3, 12px) calc(var(--tt-sp-3, 12px) + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
+    background: var(--tt-paper, #fff);
+    box-shadow: var(--tt-shadow-lg, 0 8px 24px rgba(0,0,0,0.12));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-rs-sheet::backdrop,
+.tt-dashboard .tt-rs-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.tt-dashboard .tt-rs-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-sheet-head h2,
+.tt-dashboard .tt-rs-publish-form h2 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.tt-dashboard .tt-rs-lib,
+.tt-dashboard .tt-rs-versions {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-dashboard .tt-rs-lib-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rs-lib-add {
+    flex: 1 1 8rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rs-lib-add:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rs-lib-add:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rs-lib-item--off {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-rs-settings-sub {
+    margin: var(--tt-sp-3, 12px) 0 var(--tt-sp-1, 4px);
+    font-size: 0.95rem;
+}
+
+.tt-dashboard .tt-rs-check {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.tt-dashboard .tt-rs-version {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-rs-version-title {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rs-publish-form {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-rs-reach,
+.tt-dashboard .tt-rs-error {
+    margin: 0;
+}
+
+.tt-dashboard .tt-rs-error {
+    color: var(--tt-danger-ink, #a32b22);
+}
+
+/* ---- tablet: half blocks side by side ---------------------------------------- */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rs-canvas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tt-dashboard .tt-rs-block--full,
+    .tt-dashboard .tt-rs-page-break,
+    .tt-dashboard .tt-rs-canvas > .tt-rs-empty {
+        grid-column: 1 / -1;
+    }
+
+    /* The phone view stacks half blocks, as a phone does. */
+    .tt-dashboard .tt-rs-canvas[data-view="phone"] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tt-dashboard .tt-rs-context {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: end;
+    }
+
+    .tt-dashboard .tt-rs-context .tt-rs-radios {
+        grid-column: 1 / -1;
+    }
+
+    .tt-dashboard .tt-rs-dialog {
+        max-width: 32rem;
+        margin: auto;
+        border-radius: var(--tt-radius-lg, 14px);
+    }
+}
+
+/* ---- desktop: the library and the settings beside the canvas --------------------- */
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-rs-body {
+        grid-template-columns: minmax(0, 1fr) 18rem;
+        align-items: start;
+    }
+
+    .tt-dashboard .tt-rs-open-library {
+        display: none;
+    }
+
+    .tt-dashboard .tt-rs-sheet:not(:modal) {
+        position: static;
+        grid-column: 2;
+        width: auto;
+        max-height: none;
+        margin: 0;
+        border: 1px solid var(--tt-line, #e3e6e1);
+        border-radius: var(--tt-radius, 8px);
+        box-shadow: none;
+    }
+
+    .tt-dashboard .tt-rs-library:not(:modal) .tt-rs-sheet-close {
+        display: none;
+    }
+}
+
+@media (pointer: fine) {
+    .tt-dashboard .tt-rs-tool,
+    .tt-dashboard .tt-rs-grip {
+        min-width: var(--tt-tap-min-fine, 2.25rem);
+        min-height: var(--tt-tap-min-fine, 2.25rem);
+    }
+
+    .tt-dashboard .tt-rs-radio,
+    .tt-dashboard .tt-rs-lib-add,
+    .tt-dashboard .tt-rs-report-link {
+        min-height: var(--tt-tap-min-fine, 2.25rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-rs-sheet,
+    .tt-dashboard .tt-rs-dialog {
+        transition: none;
+    }
+}
