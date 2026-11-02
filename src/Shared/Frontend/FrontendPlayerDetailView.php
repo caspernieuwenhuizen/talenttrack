@@ -705,7 +705,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( $dob !== '' && $dob !== '0000-00-00' ) {
             $fields[] = [
                 __( 'Date of birth', 'talenttrack' ),
-                self::dobMasked( (int) $player->id )
+                self::dobMasked( (int) ( $player->id ?? 0 ) )
                     ? \TT\Shared\Frontend\Components\MaskedValue::html()
                     : esc_html( self::shortDate( $dob ) ),
             ];

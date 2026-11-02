@@ -310,7 +310,7 @@ class PlayerComparisonPage {
                         [ __( 'Date of birth', 'talenttrack' ), function( $pl ) {
                             // #4691 — the date of birth follows the sensitive-field registry.
                             if ( empty( $pl->date_of_birth ) ) return '—';
-                            return \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), (int) $pl->id )
+                            return \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), (int) ( $pl->id ?? 0 ) )
                                 ? \TT\Shared\Frontend\Components\MaskedValue::label()
                                 : (string) $pl->date_of_birth;
                         } ],
