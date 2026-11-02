@@ -66,6 +66,7 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 | Report Studio starts with choices: kind, scope, subject, audience, period, layout and sharing, with the grid layout as an option | A report that cannot work (a family report about a whole team) cannot be started |
 | Search reaches settings and modules, players get a limited search, and evaluation text and notes are searchable only for staff who may read them | Settings are findable by what they do; a child's private notes never reach the wrong reader |
 | Configuratie is grouped by task, and the dashboard shows daily work only | Ten clear settings sections instead of twenty module sections; no setting in two places |
+| A read-only observer sees the activities panel and the team planner, read-only | An observer follows what the teams do without being able to change anything |
 | Coach attendance reports follow attendance access | A coach sees attendance for the teams they may record it for |
 | Minutes planned but not recorded count as not recorded | The minutes audit shows what a coach still has to enter |
 | Team blueprints are a desktop screen | The phone keeps the screens a coach uses at the pitch |
