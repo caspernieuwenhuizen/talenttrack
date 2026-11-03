@@ -327,7 +327,7 @@ final class FrontendMessageLogView extends FrontendViewBase {
                             <?php echo esc_html( (string) ( $row['created_at'] ?? '' ) ); ?>
                         </td>
                         <td<?php echo StackTable::attrs( 'cell', __( 'Message', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                            <span class="tt-msglog-value">
+                            <span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                                 <?php echo esc_html( self::templateLabel( (string) ( $row['template_key'] ?? '' ) ) ); ?>
                                 <?php if ( ! empty( $row['subject'] ) ) : ?>
                                     <span class="tt-msglog-subject"><?php echo esc_html( (string) $row['subject'] ); ?></span>
@@ -341,7 +341,7 @@ final class FrontendMessageLogView extends FrontendViewBase {
                             <?php echo esc_html( (string) ( $row['channel'] ?? '' ) ); ?>
                         </td>
                         <td<?php echo StackTable::attrs( 'cell', __( 'Outcome', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                            <span class="tt-msglog-value">
+                            <span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                                 <span class="tt-msglog-status tt-msglog-status--<?php echo esc_attr( CommsStatusLabels::tone( $status ) ); ?>">
                                     <?php echo esc_html( CommsStatusLabels::label( $status, $error ) ); ?>
                                 </span>

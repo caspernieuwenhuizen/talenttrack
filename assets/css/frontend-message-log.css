@@ -113,15 +113,6 @@
     font-size: 0.8125rem;
 }
 
-/* A cell with several parts (a status with its hint and reach note, a
-   message with its subject) keeps them in one block beside the label, so
-   they stack under each other as in the table instead of each becoming its
-   own column in the line. */
-.tt-msglog-value {
-    display: block;
-    min-width: 0;
-}
-
 @media (min-width: 768px) {
     .tt-msglog-table tr {
         margin: 0;

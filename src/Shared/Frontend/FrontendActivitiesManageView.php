@@ -15,6 +15,7 @@ use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\GuestAddModal;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -4313,39 +4314,41 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <?php if ( empty( $planned_rows ) ) : ?>
                     <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
                 <?php else : ?>
-                    <table class="tt-table tt-attendance-table">
-                        <thead><tr>
-                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
+                    <table class="tt-table tt-attendance-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768 ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
                         </tr></thead>
-                        <tbody>
+                        <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <?php foreach ( $planned_rows as $pid => $prow ) :
                             $pid        = (int) $pid;
                             $plan_key   = $stored_to_plan_key( (string) ( $prow->status ?? '' ) );
                             $prow_notes = (string) ( $prow->notes ?? '' );
                             $prow_guest = (int) ( $prow->is_guest ?? 0 ) === 1;
                             ?>
-                            <tr class="tt-attendance-row">
-                                <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
-                                    <?php echo esc_html( (string) ( $prow->name ?? ( '#' . $pid ) ) ); ?>
-                                    <?php if ( $prow_guest ) : ?>
-                                        <span class="tt-planned-guest"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
-                                    <?php endif; ?>
-                                    <?php if ( isset( $plan_unavailable[ $pid ] ) ) : ?>
-                                        <span class="tt-planned-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span>
-                                    <?php elseif ( isset( $plan_check[ $pid ] ) ) : ?>
-                                        <span class="tt-planned-check"><?php echo esc_html( PlayerAvailability::checkLabel() ); ?></span>
-                                    <?php endif; ?>
+                            <tr class="tt-attendance-row"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <td<?php echo StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
+                                        <?php echo esc_html( (string) ( $prow->name ?? ( '#' . $pid ) ) ); ?>
+                                        <?php if ( $prow_guest ) : ?>
+                                            <span class="tt-planned-guest"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
+                                        <?php endif; ?>
+                                        <?php if ( isset( $plan_unavailable[ $pid ] ) ) : ?>
+                                            <span class="tt-planned-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span>
+                                        <?php elseif ( isset( $plan_check[ $pid ] ) ) : ?>
+                                            <span class="tt-planned-check"><?php echo esc_html( PlayerAvailability::checkLabel() ); ?></span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
-                                <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                                <td<?php echo StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <select class="tt-input tt-attendance-status" name="planned[<?php echo $pid; ?>][status]">
                                         <?php foreach ( $plan_status_options as $opt_key => $opt_label ) : ?>
                                             <option value="<?php echo esc_attr( $opt_key ); ?>" <?php selected( $plan_key, $opt_key ); ?>><?php echo esc_html( $opt_label ); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </td>
-                                <td data-label="<?php esc_attr_e( 'Note', 'talenttrack' ); ?>">
+                                <td<?php echo StackTable::attrs( 'cell', __( 'Note', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <input type="text" class="tt-input" name="planned[<?php echo $pid; ?>][note]" value="<?php echo esc_attr( $prow_notes ); ?>" />
                                 </td>
                             </tr>
@@ -4406,28 +4409,28 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <?php if ( empty( $actual_rows ) ) : ?>
                         <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
                     <?php else : ?>
-                        <table class="tt-table tt-attendance-table">
-                            <thead><tr>
-                                <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                                <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                                <th><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
+                        <table class="tt-table tt-attendance-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768 ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                                <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                                <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
                             </tr></thead>
-                            <tbody>
+                            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php foreach ( $actual_rows as $arow ) :
                                 $apid     = (int) $arow->player_id;
                                 $a_status = strtolower( trim( (string) $arow->status ) );
                                 if ( ! in_array( $a_status, $status_keys, true ) ) $a_status = 'present';
                                 ?>
-                                <tr class="tt-attendance-row">
-                                    <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>"><?php echo esc_html( (string) $arow->name ); ?></td>
-                                    <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                                <tr class="tt-attendance-row"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <td<?php echo StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $arow->name ); ?></td>
+                                    <td<?php echo StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                         <select class="tt-input tt-attendance-status" name="attendance[<?php echo $apid; ?>][status]">
                                             <?php foreach ( $status_keys as $sk ) : ?>
                                                 <option value="<?php echo esc_attr( $sk ); ?>" <?php selected( $a_status, $sk ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $sk ) ) ); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
-                                    <td data-label="<?php esc_attr_e( 'Note', 'talenttrack' ); ?>">
+                                    <td<?php echo StackTable::attrs( 'cell', __( 'Note', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                         <input type="text" class="tt-input" name="attendance[<?php echo $apid; ?>][notes]" value="<?php echo esc_attr( (string) $arow->notes ); ?>" />
                                     </td>
                                 </tr>
@@ -4565,22 +4568,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             <?php esc_html_e( 'Players from outside the squad. Guests do not count toward team stats.', 'talenttrack' ); ?>
         </p>
         <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $activity_id; ?>">
-            <table class="tt-table tt-attendance-table tt-guest-table" data-tt-guest-table>
+            <table class="tt-table tt-attendance-table tt-guest-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768 ) ); ?>" data-tt-guest-table<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php // #943 — column widths: 35ch Player / 10ch Status / rest Notes (mobile stacks via data-label) ?>
                 <colgroup>
                     <col style="width: 35ch;">
                     <col style="width: 10ch;">
                     <col style="width: auto;">
                 </colgroup>
-                <thead><tr>
-                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                    <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                    <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
                 </tr></thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php if ( empty( $guests ) ) : ?>
-                    <tr class="tt-attendance-row tt-attendance-row--empty" data-tt-guest-empty>
-                        <td colspan="3" style="text-align:center; color:#5b6470; font-style:italic; padding:18px;">
+                    <tr class="tt-attendance-row tt-attendance-row--empty" data-tt-guest-empty<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td colspan="3"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php esc_html_e( 'No guests added yet.', 'talenttrack' ); ?>
                         </td>
                     </tr>
@@ -4601,24 +4604,27 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         $sub = $sub === '' ? $pos : $sub . ' · ' . $pos;
                     }
                     ?>
-                    <tr class="tt-attendance-row tt-attendance-row--guest" data-tt-attendance-id="<?php echo (int) $g->id; ?>" data-is-guest="1">
-                        <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
-                            <em><?php echo esc_html( $label ); ?></em>
-                            <span class="tt-guest-badge"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
-                            <?php if ( $sub !== '' ) : ?>
-                                <div class="tt-guest-subline"><?php echo esc_html( $sub ); ?></div>
-                            <?php endif; ?>
+                    <tr class="tt-attendance-row tt-attendance-row--guest" data-tt-attendance-id="<?php echo (int) $g->id; ?>" data-is-guest="1"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
+                                <em><?php echo esc_html( $label ); ?></em>
+                                <span class="tt-guest-badge"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
+                                <?php if ( $sub !== '' ) : ?>
+                                    <div class="tt-guest-subline"><?php echo esc_html( $sub ); ?></div>
+                                <?php endif; ?>
+                            </div>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php echo esc_html( LabelTranslator::attendanceStatus( (string) ( $g->status ?? 'Present' ) ) ); ?>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'Notes', 'talenttrack' ); ?>">
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Notes', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php // #943 — Evaluate shortcut removed for linked guests; they surface in
                                 //  the existing "Continue rating" wizard flow via RateActorsStep alongside
                                 //  roster players (per the shaping delta on #943).
                                 //  "Add as player" promote shortcut removed for anon guests; promotion
                                 //  is a broader process (trial → assess → assign team → permissions)
                                 //  that doesn't belong on a single activity row. ?>
+                            <div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                             <input type="text" class="tt-input tt-guest-notes-input"
                                    data-tt-guest-notes-id="<?php echo (int) $g->id; ?>"
                                    data-initial="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
@@ -4628,6 +4634,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                 <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="color:#b32d2e;">
                                     <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
                                 </button>
+                            </div>
                             </div>
                         </td>
                     </tr>
