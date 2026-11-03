@@ -46,7 +46,8 @@ final class PlayerEventsRepository {
     /**
      * The entries as this reader may see them: a PDP verdict entry only for
      * a reader who may read that player's PDP verdict (`pdp_verdict`, asked
-     * about the entry's player). Every other entry passes unchanged.
+     * about the entry's player) and, for a linked parent, whose child shares
+     * the PDP with them. Every other entry passes unchanged.
      *
      * Visibility rungs decide medical and safeguarding entries in SQL; this
      * is the entity rule on top, applied by every surface that shows journey
@@ -64,8 +65,12 @@ final class PlayerEventsRepository {
             if ( (string) ( $row->event_type ?? '' ) === JourneyEventType::PDP_VERDICT_RECORDED ) {
                 $pid = $player_id ?? (int) ( $row->player_id ?? 0 );
                 if ( ! isset( $allowed[ $pid ] ) ) {
+                    // And, for a linked parent, the child's own PDP switch:
+                    // the rule `GET players/{id}/pdp` honours. A no-op for
+                    // the player and for staff.
                     $allowed[ $pid ] = $pid > 0
-                        && AuthorizationService::canReadPlayerSection( $user_id, $pid, 'pdp_verdict' );
+                        && AuthorizationService::canReadPlayerSection( $user_id, $pid, 'pdp_verdict' )
+                        && AuthorizationService::parentCanViewSection( $user_id, $pid, 'pdp' );
                 }
                 if ( ! $allowed[ $pid ] ) continue;
             }

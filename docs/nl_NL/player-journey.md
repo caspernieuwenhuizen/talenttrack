@@ -84,7 +84,7 @@ Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarh
 - **Medisch** — alleen rollen met de medische-zicht-permissie. Blessures staan standaard hierop.
 - **Veiligheid** — alleen hoofd opleidingen + beheerder. Gereserveerd voor gevoelige regels.
 
-Een regel met het **POP-besluit** volgt daarnaast het POP: die zie je alleen als je het POP-besluit van die speler mag lezen, op de tijdlijn, in de overgangen, bij de cohortovergangen, in het spelersrapport en in het maandrapport van het team. Ieder ander ziet de rest van de reis zonder die regel.
+Een regel met het **POP-besluit** volgt daarnaast het POP: die zie je alleen als je het POP-besluit van die speler mag lezen (een ouder alleen zolang het kind het POP met de ouders deelt), op de tijdlijn, in de overgangen, bij de cohortovergangen, in het spelersrapport en in het maandrapport van het team. Ieder ander ziet de rest van de reis zonder die regel.
 
 Als de reis een regel bevat die je niet mag zien, lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld.
 

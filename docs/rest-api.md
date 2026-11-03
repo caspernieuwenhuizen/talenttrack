@@ -1772,6 +1772,15 @@ safeguarding only with their own capabilities. A player sees the public
 entries and a `hidden_count` for the rest — the same cut `My journey`
 renders.
 
+**PDP verdict entries.** A `pdp_verdict_recorded` entry comes back only to a
+reader who may read that player's PDP verdict (`pdp_verdict`) and, for a
+linked guardian, whose child shares the PDP section. The same rule holds on
+`GET /journey/cohort-transitions`, row by row. Leaving those entries out
+happens after the page is read, so a timeline page can hold fewer entries
+than `limit` while `next_cursor` is still set: keep paging until
+`next_cursor` is `null`, not until a page comes back short. `hidden_count`
+counts the visibility levels only, not these entries.
+
 **What an entry was about.** Every event in both responses carries
 `activity`: `{ id, type, title, opponent, date, analysis_id }` for a
 match-analysis observation (`match_observed`, read from its payload) and for

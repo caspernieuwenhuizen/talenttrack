@@ -5,6 +5,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
+use TT\Infrastructure\Players\PlayerParentVisibilityRepository;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -119,6 +120,82 @@ final class JourneyPdpVerdictReaderTest extends WP_UnitTestCase {
         $this->assertContains( self::POSITION, $this->changes( $this->assistant ) );
         $this->assertContains( self::VERDICT, $this->changes( $this->head ) );
         $this->assertNotContains( self::VERDICT, $this->changes( 0 ), 'an unattended render holds no right' );
+    }
+
+    /**
+     * A linked parent holds `pdp_verdict` at player scope, so the child's
+     * own PDP switch decides, as on `GET players/{id}/pdp`: a child who keeps
+     * the PDP from their parents but shares the journey shows no verdict.
+     */
+    public function test_a_parent_sees_the_verdict_only_while_the_child_shares_the_pdp(): void {
+        global $wpdb;
+        $parent = self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_parents", [
+            'club_id'        => (int) CurrentClub::id(),
+            'player_id'      => $this->player,
+            'parent_user_id' => $parent,
+        ] );
+        $this->flush();
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $parent, $this->player, 'pdp_verdict' ), 'precondition: the parent holds the verdict right' );
+
+        wp_set_current_user( $parent );
+        $this->assertContains( self::VERDICT, $this->summaries( "/talenttrack/v1/players/{$this->player}/timeline" ), 'shared: the verdict shows' );
+
+        ( new PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'pdp', false );
+        $this->flush();
+        $this->assertTrue( AuthorizationService::parentCanViewSection( $parent, $this->player, 'journey' ), 'precondition: the journey stays shared' );
+
+        $summaries = $this->summaries( "/talenttrack/v1/players/{$this->player}/timeline" );
+        $this->assertContains( self::POSITION, $summaries, 'the rest of the journey stays' );
+        $this->assertNotContains( self::VERDICT, $summaries, 'the child keeps the PDP from the parent' );
+        $this->assertNotContains( self::VERDICT, $this->summaries( "/talenttrack/v1/players/{$this->player}/transitions" ) );
+    }
+
+    /**
+     * The cohort path reads across players, so the rule is asked per row:
+     * a reader of the cohort without the verdict right gets no verdict row,
+     * an academy admin does. The observer is the reader here because the
+     * route asks the settings view right, which that seat holds.
+     */
+    public function test_the_cohort_route_follows_the_same_rule(): void {
+        global $wpdb;
+        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => (int) CurrentClub::id(), 'first_name' => 'Verdict', 'last_name' => 'Observerx',
+            'role_type' => 'other', 'wp_user_id' => $observer, 'status' => 'active',
+        ] );
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        // The cohort surface ships switched off.
+        \TT\Core\FeatureRegistry::setEnabled( 'cohort_transitions', true );
+        $this->flush();
+        $this->assertFalse( AuthorizationService::canReadPlayerSection( $observer, $this->player, 'pdp_verdict' ), 'precondition' );
+
+        $route = '/talenttrack/v1/journey/cohort-transitions';
+        $query = [ 'event_type' => 'pdp_verdict_recorded', 'from' => '2026-06-01 00:00:00', 'to' => '2026-06-30 23:59:59' ];
+
+        $this->assertTrue( \TT\Core\FeatureRegistry::isEnabled( 'cohort_transitions' ), 'precondition: the cohort surface is on' );
+        $this->assertTrue( user_can( $observer, 'tt_view_settings' ), 'precondition: the observer passes the route' );
+
+        wp_set_current_user( $admin );
+        $this->assertContains( self::VERDICT, array_column( $this->cohortRows( $route, $query ), 'summary' ), 'the academy admin gets the verdict row' );
+
+        wp_set_current_user( $observer );
+        $this->assertNotContains( self::VERDICT, array_column( $this->cohortRows( $route, $query ), 'summary' ), 'no verdict row for a reader without the verdict right' );
+
+        \TT\Core\FeatureRegistry::setEnabled( 'cohort_transitions', false );
+    }
+
+    /**
+     * @param array<string,string> $query
+     * @return list<array<string,mixed>> the rows; fails when the route refuses the reader.
+     */
+    private function cohortRows( string $route, array $query ): array {
+        $request = new WP_REST_Request( 'GET', $route );
+        foreach ( $query as $k => $v ) $request->set_param( $k, $v );
+        $response = rest_do_request( $request );
+        $data     = (array) $response->get_data();
+        $this->assertSame( 200, (int) $response->get_status(), 'precondition: the route answers this reader: ' . wp_json_encode( $data ) );
+        return array_values( (array) ( $data['data']['rows'] ?? [] ) );
     }
 
     public function test_the_filter_passes_every_other_entry_unchanged(): void {
