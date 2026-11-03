@@ -228,6 +228,14 @@ final class TemplateGuide {
                 'when'      => __( 'On the report\'s own schedule.', 'talenttrack' ),
                 'triggered' => true,
             ],
+            // #4874 — the owner hears once when a schedule stops sending.
+            'scheduled_report_not_sent' => [
+                'family'    => self::FAMILY_TRANSACTIONAL,
+                'what'      => __( 'Tells the person who set up a scheduled report that it was not sent, because it refers to a field that no longer exists, and links to the schedule.', 'talenttrack' ),
+                'who'       => __( 'The person who set up the scheduled report.', 'talenttrack' ),
+                'when'      => __( 'The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed.', 'talenttrack' ),
+                'triggered' => true,
+            ],
             'desktop_link' => [
                 'family'    => self::FAMILY_TRANSACTIONAL,
                 'what'      => __( 'Emails somebody a link to a screen that needs a bigger display.', 'talenttrack' ),

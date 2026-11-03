@@ -436,6 +436,7 @@ class FrontendMySettingsView extends FrontendViewBase {
             \TT\Modules\Comms\Domain\MessageType::ALERT_DIGEST              => __( 'A summary of your open alerts', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::DIRECT_MESSAGE            => __( 'Messages written to you by academy staff', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::SCHEDULED_REPORT          => __( 'Reports delivered on a schedule', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::SCHEDULED_REPORT_NOT_SENT => __( 'When a report you scheduled could not be sent', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::TRIAL_INPUT_REMINDER      => __( 'Reminders that a trial still needs your input', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::SCOUT_REPORT_DELIVERY     => __( 'Scout reports sent to you', 'talenttrack' ),
         ];

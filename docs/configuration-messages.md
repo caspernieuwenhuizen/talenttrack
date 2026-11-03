@@ -76,6 +76,7 @@ Every outgoing email now comes from a named message type, including the ones tha
 
 - **Trial input reminder** — nudges assigned staff whose input on a trial case is still missing.
 - **Scheduled report delivery** — the analytics export, with the file attached.
+- **Scheduled report not sent** — tells the person who set up a schedule that it was not sent, because the report refers to a field that no longer exists, and links to the schedule. Sent once when it breaks, and again only if it breaks again after it has been sent successfully or paused and resumed.
 - **Email written by a staff member** — anything typed into the in-product composer.
 - **Player report for a scout** — the confidential one-time link sent outside the academy.
 - **Desktop link you asked for** — the "email me the link" button on the desktop-only prompt.

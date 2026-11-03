@@ -1,0 +1,33 @@
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid "Scheduled report not sent"
+msgstr "Gepland rapport niet verstuurd"
+
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid "Your scheduled report wasn't sent"
+msgstr "Je geplande rapport is niet verstuurd"
+
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid ""
+"Your scheduled report \"{schedule_name}\" was not sent, because it refers to a field that no longer exists: {field_name}. Nothing is sent until the schedule is fixed.\n"
+"\n"
+"Open the schedule: {schedule_url}"
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" is niet verstuurd, omdat het verwijst naar een veld dat niet meer bestaat: {field_name}. Er wordt niets verstuurd tot het schema is aangepast.\n"
+"\n"
+"Open het schema: {schedule_url}"
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Tells the person who set up a scheduled report that it was not sent, because it refers to a field that no longer exists, and links to the schedule."
+msgstr "Laat degene die een gepland rapport heeft ingesteld weten dat het niet is verstuurd, omdat het verwijst naar een veld dat niet meer bestaat, met een link naar het schema."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The person who set up the scheduled report."
+msgstr "Degene die het geplande rapport heeft ingesteld."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed."
+msgstr "De eerste keer dat een geplande run wordt overgeslagen. Het wordt pas opnieuw verstuurd als de planning weer misgaat na een geslaagde verzending, of nadat ze is gepauzeerd en hervat."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "When a report you scheduled could not be sent"
+msgstr "Als een rapport dat je hebt ingepland niet verstuurd kon worden"

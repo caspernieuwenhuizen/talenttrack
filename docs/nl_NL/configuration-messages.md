@@ -76,6 +76,7 @@ Elke uitgaande e-mail komt nu uit een berichtsoort met een naam, ook de berichte
 
 - **Herinnering stage-input** — port toegewezen medewerkers die hun input op een stagedossier nog niet hebben ingevuld.
 - **Levering gepland rapport** — de analyse-export, met het bestand als bijlage.
+- **Gepland rapport niet verstuurd** — laat degene die een schema heeft ingesteld weten dat het niet is verstuurd, omdat het rapport verwijst naar een veld dat niet meer bestaat, met een link naar het schema. Eén keer verstuurd als het misgaat, en pas opnieuw als het weer misgaat nadat het met succes is verstuurd of is gepauzeerd en hervat.
 - **E-mail geschreven door een medewerker** — alles wat via de opsteller in het product wordt getypt.
 - **Spelersrapport voor een scout** — de vertrouwelijke eenmalige link naar buiten de academie.
 - **Desktoplink die je hebt aangevraagd** — de knop "Mail mij de link" op de melding voor desktop-only pagina's.
