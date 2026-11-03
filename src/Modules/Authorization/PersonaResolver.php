@@ -78,7 +78,7 @@ class PersonaResolver {
      * personas and kept for `coachPersonaHoldsTeam()`, which asks per
      * team-scoped check.
      *
-     * @var array<int, list<array{team_id:int, head:bool, live:bool}>>
+     * @var array<int, list<array{team_id:int, head:bool, live:bool, ended_on:string}>>
      */
     private static array $coach_rows = [];
 
@@ -182,10 +182,12 @@ class PersonaResolver {
      *
      * Only assignments live today count (start and end date inclusive), so
      * a head-coach assignment that ended, or one that has not started,
-     * does not make somebody a head coach now. A coach whose assignments
-     * have all ended or not yet started is read from all of them, so a
-     * former assistant stays an assistant rather than falling to the
-     * no-assignments default below.
+     * does not make somebody a head coach now. A coach with no live
+     * assignment is read from the most recent one that ended (every
+     * assignment that ended on that last day), so a former assistant
+     * stays an assistant rather than falling to the no-assignments
+     * default below. Only when nothing has ended either, so every
+     * assignment is still to start, are those read.
      *
      * A coach with no assignments still gets `head_coach` (defensive
      * default — better to over-grant than to lock them out during
@@ -201,8 +203,16 @@ class PersonaResolver {
      */
     private static function resolveCoachPersona( int $user_id ): array {
         $rows = self::coachRows( $user_id );
-        $live = array_values( array_filter( $rows, static fn( array $r ): bool => $r['live'] ) );
-        $read = $live !== [] ? $live : $rows;
+        $read = array_values( array_filter( $rows, static fn( array $r ): bool => $r['live'] ) );
+        if ( $read === [] ) {
+            $last = '';
+            foreach ( $rows as $r ) {
+                if ( $r['ended_on'] > $last ) $last = $r['ended_on'];
+            }
+            $read = $last === ''
+                ? $rows
+                : array_values( array_filter( $rows, static fn( array $r ): bool => $r['ended_on'] === $last ) );
+        }
 
         $has_head      = false;
         $has_assistant = false;
@@ -233,7 +243,10 @@ class PersonaResolver {
      *
      * Applies only to somebody who holds team assignments at all. A user
      * with none, whose team scope an operator granted directly, is
-     * answered by that scope alone, as before. Any other persona passes.
+     * answered by that scope alone, as before. For a coach who does hold
+     * an assignment, a team role granted under Roles & Permissions on a
+     * team they are not assigned to does not carry the coach rows there:
+     * their team access follows the assignments. Any other persona passes.
      */
     public static function coachPersonaHoldsTeam( int $user_id, string $persona, int $team_id ): bool {
         if ( $persona !== 'head_coach' && $persona !== 'assistant_coach' ) return true;
@@ -249,11 +262,12 @@ class PersonaResolver {
     }
 
     /**
-     * Every team assignment of the people linked to the user, with whether
-     * it is a head-coach assignment and whether it is live today. Read once
-     * per request.
+     * Every team assignment of the people linked to the user in the
+     * current club, with whether it is a head-coach assignment, whether it
+     * is live today, and the end date when it has ended (`''` otherwise).
+     * Read once per request.
      *
-     * @return list<array{team_id:int, head:bool, live:bool}>
+     * @return list<array{team_id:int, head:bool, live:bool, ended_on:string}>
      */
     private static function coachRows( int $user_id ): array {
         if ( $user_id <= 0 ) return [];
@@ -263,14 +277,15 @@ class PersonaResolver {
         return self::$coach_rows[ $user_id ];
     }
 
-    /** @return list<array{team_id:int, head:bool, live:bool}> */
+    /** @return list<array{team_id:int, head:bool, live:bool, ended_on:string}> */
     private static function loadCoachRows( int $user_id ): array {
         global $wpdb;
-        $p = $wpdb->prefix;
+        $p    = $wpdb->prefix;
+        $club = \TT\Infrastructure\Tenancy\CurrentClub::id();
 
         $person_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
-            $user_id
+            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d AND club_id = %d",
+            $user_id, $club
         ) );
         if ( ! is_array( $person_ids ) || $person_ids === [] || ! self::hasHeadCoachFlag() ) return [];
 
@@ -280,21 +295,24 @@ class PersonaResolver {
         $today        = current_time( 'Y-m-d' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT team_id, is_head_coach,
+            "SELECT team_id, is_head_coach, end_date,
                     ( ( start_date IS NULL OR start_date <= %s )
                   AND ( end_date   IS NULL OR end_date   >= %s ) ) AS is_live
                FROM {$tp_table}
-              WHERE person_id IN ({$placeholders})",
-            array_merge( [ $today, $today ], $person_ids )
+              WHERE club_id = %d
+                AND person_id IN ({$placeholders})",
+            array_merge( [ $today, $today, $club ], $person_ids )
         ) );
         if ( ! is_array( $rows ) ) return [];
 
         $out = [];
         foreach ( $rows as $r ) {
+            $end   = is_string( $r->end_date ) ? $r->end_date : '';
             $out[] = [
-                'team_id' => (int) $r->team_id,
-                'head'    => (int) $r->is_head_coach === 1,
-                'live'    => (int) $r->is_live === 1,
+                'team_id'  => (int) $r->team_id,
+                'head'     => (int) $r->is_head_coach === 1,
+                'live'     => (int) $r->is_live === 1,
+                'ended_on' => ( $end !== '' && $end < $today ) ? $end : '',
             ];
         }
         return $out;

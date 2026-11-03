@@ -165,6 +165,72 @@ final class CoachPersonaPerTeamTest extends WP_UnitTestCase {
         $this->assertFalse( $this->can( $uid, 'player_injuries', $this->teamY ) );
     }
 
+    public function test_an_assistant_only_is_an_assistant_on_their_team(): void {
+        [ $uid, $person ] = $this->coach();
+        $this->assertTrue( ( new PeopleRepository() )->assignToTeam( $this->teamX, $person, $this->assistant_role, '2020-08-01', null ) );
+        $this->flush();
+
+        $this->assertSame( [ 'assistant_coach' ], PersonaResolver::personasFor( $uid ) );
+        $this->assertTrue( $this->can( $uid, 'team', $this->teamX ) );
+        $this->assertFalse( $this->can( $uid, 'player_injuries', $this->teamX ) );
+        $this->assertFalse( $this->can( $uid, 'team', $this->teamY ), 'another team stays outside the scope' );
+    }
+
+    public function test_an_ended_head_coach_assignment_on_another_team_gives_no_head_coach_rows(): void {
+        [ $uid, $person ] = $this->coach();
+        $repo = new PeopleRepository();
+        $this->assertTrue( $repo->assignToTeam( $this->teamY, $person, $this->head_role, '2020-08-01', $this->yesterday ) );
+        $this->assertTrue( $repo->assignToTeam( $this->teamX, $person, $this->assistant_role, '2020-08-01', null ) );
+        $this->flush();
+
+        $this->assertSame( [ 'assistant_coach' ], PersonaResolver::personasFor( $uid ) );
+        $this->assertTrue( $this->can( $uid, 'team', $this->teamX ) );
+        $this->assertFalse( $this->can( $uid, 'player_injuries', $this->teamX ), 'no head-coach rows on the team they assist' );
+        $this->assertFalse( $this->can( $uid, 'player_injuries', $this->teamY ), 'and none on the team they used to head-coach' );
+        $this->assertFalse( MatrixGate::can( $uid, 'measurement_definitions', MatrixGate::READ ), 'nor the head coach\'s global rows' );
+    }
+
+    public function test_with_no_live_assignment_the_most_recent_ended_one_decides(): void {
+        [ $uid, $person ] = $this->coach();
+        $repo = new PeopleRepository();
+        $this->assertTrue( $repo->assignToTeam( $this->teamX, $person, $this->head_role, '2020-08-01', $this->yesterday ) );
+        $this->assertTrue( $repo->assignToTeam( $this->teamX, $person, $this->assistant_role, $this->tomorrow, null ) );
+        $this->flush();
+
+        $this->assertSame( [ 'head_coach' ], PersonaResolver::personasFor( $uid ), 'the ended assignment, not the one still to start' );
+        $this->assertFalse( $this->can( $uid, 'team', $this->teamX ), 'and no team is in scope today' );
+    }
+
+    /**
+     * A coach with an assignment gets the coach role's team access from the
+     * assignments. A role granted under Roles & Permissions on another team
+     * does not carry it there; assigning the person to that team does.
+     */
+    public function test_a_role_granted_on_another_team_does_not_carry_the_coach_rows_for_an_assigned_coach(): void {
+        [ $uid, $person ] = $this->coach();
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => (int) CurrentClub::id(), 'name' => 'Coachteam Z' ] );
+        $teamZ = (int) $wpdb->insert_id;
+
+        $this->assertTrue( ( new PeopleRepository() )->assignToTeam( $this->teamX, $person, $this->assistant_role, '2020-08-01', null ) );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'club_id'    => (int) CurrentClub::id(),
+            'person_id'  => $person,
+            'role_id'    => 5,
+            'scope_type' => 'team',
+            'scope_id'   => $teamZ,
+        ] );
+        $this->flush();
+
+        $this->assertTrue( $this->can( $uid, 'team', $this->teamX ), 'the assigned team is still allowed' );
+        $this->assertFalse( $this->can( $uid, 'team', $teamZ ), 'the granted team gets no coach-role team rows' );
+        $this->assertFalse( $this->can( $uid, 'player_injuries', $teamZ ) );
+
+        $this->assertTrue( ( new PeopleRepository() )->assignToTeam( $teamZ, $person, $this->assistant_role, '2020-08-01', null ) );
+        $this->flush();
+        $this->assertTrue( $this->can( $uid, 'team', $teamZ ), 'assigning the person to the team is the way in' );
+    }
+
     public function test_the_team_check_adds_no_query_per_call(): void {
         [ $uid, $person ] = $this->coach();
         $repo = new PeopleRepository();
