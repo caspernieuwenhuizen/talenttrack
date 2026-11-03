@@ -1781,6 +1781,17 @@ than `limit` while `next_cursor` is still set: keep paging until
 `next_cursor` is `null`, not until a page comes back short. `hidden_count`
 counts the visibility levels only, not these entries.
 
+### `GET /journey/cohort-transitions`
+
+**Permission:** read on the `cohort_transitions` entity at global scope,
+the rule the Cohort transitions screen applies (`QueryHelpers::user_has_global_entity_read`:
+the settings edit right and a site administrator pass, everyone else asks
+the matrix), and the `cohort_transitions` feature switched on. The settings
+view right plays no part. A reader without the entity read gets `403`
+whatever their settings rights; with the feature off the route answers `403`
+for everyone. Query: `event_type`, `from` and `to` are required (`400
+missing_fields` otherwise), `team_id` is optional.
+
 **What an entry was about.** Every event in both responses carries
 `activity`: `{ id, type, title, opponent, date, analysis_id }` for a
 match-analysis observation (`match_observed`, read from its payload) and for

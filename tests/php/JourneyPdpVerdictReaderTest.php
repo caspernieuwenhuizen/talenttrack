@@ -154,8 +154,9 @@ final class JourneyPdpVerdictReaderTest extends WP_UnitTestCase {
     /**
      * The cohort path reads across players, so the rule is asked per row:
      * a reader of the cohort without the verdict right gets no verdict row,
-     * an academy admin does. The observer is the reader here because the
-     * route asks the settings view right, which that seat holds.
+     * an academy admin does. The reader is an observer an academy granted
+     * the cohort read (the route asks `cohort_transitions` read, #4794),
+     * and who holds no PDP right.
      */
     public function test_the_cohort_route_follows_the_same_rule(): void {
         global $wpdb;
@@ -167,6 +168,12 @@ final class JourneyPdpVerdictReaderTest extends WP_UnitTestCase {
         $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
         // The cohort surface ships switched off.
         \TT\Core\FeatureRegistry::setEnabled( 'cohort_transitions', true );
+        $wpdb->query( $wpdb->prepare(
+            "INSERT IGNORE INTO {$wpdb->prefix}tt_authorization_matrix
+               (persona, entity, activity, scope_kind, module_class, is_default)
+             VALUES (%s, 'cohort_transitions', 'read', 'global', 'x', 0)",
+            'readonly_observer'
+        ) );
         $this->flush();
         $this->assertFalse( AuthorizationService::canReadPlayerSection( $observer, $this->player, 'pdp_verdict' ), 'precondition' );
 
@@ -174,7 +181,7 @@ final class JourneyPdpVerdictReaderTest extends WP_UnitTestCase {
         $query = [ 'event_type' => 'pdp_verdict_recorded', 'from' => '2026-06-01 00:00:00', 'to' => '2026-06-30 23:59:59' ];
 
         $this->assertTrue( \TT\Core\FeatureRegistry::isEnabled( 'cohort_transitions' ), 'precondition: the cohort surface is on' );
-        $this->assertTrue( user_can( $observer, 'tt_view_settings' ), 'precondition: the observer passes the route' );
+        $this->assertTrue( \TT\Modules\Authorization\MatrixGate::can( $observer, 'cohort_transitions', 'read', 'global' ), 'precondition: the observer reads the cohort' );
 
         wp_set_current_user( $admin );
         $this->assertContains( self::VERDICT, array_column( $this->cohortRows( $route, $query ), 'summary' ), 'the academy admin gets the verdict row' );
