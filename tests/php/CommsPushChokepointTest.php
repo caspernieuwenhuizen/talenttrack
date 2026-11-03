@@ -28,6 +28,7 @@ use TT\Modules\Push\Dispatchers\EmailDispatcher;
  */
 final class CommsPushChokepointTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
     use QuietHoursClosed;
 
     private string $table;
@@ -127,8 +128,7 @@ final class CommsPushChokepointTest extends WP_UnitTestCase {
     }
 
     public function test_quiet_hours_hold_is_claimed_not_dropped(): void {
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '00:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '23:59' );
+        $this->freezeCommsClockAt( '23:59:30' );
 
         $delivered = ( new EmailDispatcher() )->deliver( $this->context() );
 

@@ -30,6 +30,8 @@ use TT\Modules\Comms\Template\TemplateRegistry;
  */
 final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
+
     private string $table;
 
     public function set_up(): void {
@@ -69,12 +71,6 @@ final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
     /** Same request, subject to quiet hours. */
     private function quietHoursRequest( array $recipients ): CommsRequest {
         return new CommsRequest( 'test_template', 'test_template', 1, 0, $recipients, [], null, false );
-    }
-
-    /** Force the quiet-hours window open or shut regardless of the hour. */
-    private function setQuietHours( string $start, string $end ): void {
-        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_start', $start );
-        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_end', $end );
     }
 
     private function recipient( string $email = 'parent@example.test' ): Recipient {
@@ -151,9 +147,9 @@ final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
     public function test_preflight_reports_unreachable_over_quiet_hours(): void {
         TemplateRegistry::register( new SpyTemplate() );
         ChannelAdapterRegistry::register( new SpyAdapter() );
-        $this->setQuietHours( '00:00', '23:59' );  // always inside the window
+        $this->freezeCommsClockAt( '23:59:30' );
 
-        $results = ( new CommsService() )->preflight(
+        $results = $this->commsService()->preflight(
             $this->quietHoursRequest( [ $this->recipient( '' ) ] )
         );
 
@@ -168,9 +164,9 @@ final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
     public function test_preflight_reports_quiet_hours_for_a_reachable_recipient(): void {
         TemplateRegistry::register( new SpyTemplate() );
         ChannelAdapterRegistry::register( new SpyAdapter() );
-        $this->setQuietHours( '00:00', '23:59' );
+        $this->freezeCommsClockAt( '23:59:30' );
 
-        $results = ( new CommsService() )->preflight(
+        $results = $this->commsService()->preflight(
             $this->quietHoursRequest( [ $this->recipient() ] )
         );
 

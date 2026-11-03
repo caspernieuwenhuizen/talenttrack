@@ -38,6 +38,7 @@ use TT\Shared\Wizards\WizardRegistry;
  */
 final class TeamAnnouncementTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
     use QuietHoursClosed;
 
     private string $log;
@@ -291,8 +292,7 @@ final class TeamAnnouncementTest extends WP_UnitTestCase {
 
     /** The other half: quiet hours hold it, and there is no override. */
     public function test_quiet_hours_hold_it(): void {
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '00:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '23:59' );
+        $this->freezeCommsClockAt( '23:59:30' );
 
         $results = ( new MassAnnouncementSender() )->send(
             'Kit',

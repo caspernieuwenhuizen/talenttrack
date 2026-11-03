@@ -36,6 +36,8 @@ use TT\Modules\Invitations\PlayerParentsRepository;
  */
 final class TrainingCancelledTriggerTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
+
     private string $p;
     private int $club;
     private string $log_table;
@@ -219,11 +221,10 @@ final class TrainingCancelledTriggerTest extends WP_UnitTestCase {
             'a training called off tonight is useless news tomorrow'
         );
 
-        // Shut the window over the whole day so the wall clock cannot
+        // Freeze the clock inside quiet hours so the wall clock cannot
         // decide this, and send without the `urgent` flag so it is the
         // message type doing the bypassing, not the caller.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '00:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '23:59' );
+        $this->freezeCommsClockAt( '00:00:30' );
 
         $user    = self::factory()->user->create( [ 'user_email' => 'late@example.test' ] );
         $results = CommsDispatcher::dispatchSync(
