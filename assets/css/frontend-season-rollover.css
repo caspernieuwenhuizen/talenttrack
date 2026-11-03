@@ -145,28 +145,18 @@
     font-style: italic;
 }
 
-/* ---- Tables: stacked cards on phones ---- */
+/* ---- Tables: stacked cards on phones ----
+   The stacking, the visually hidden header row, the label line and the
+   table from 768px up come from the stack-table primitive
+   (components/stack-table.css, --to-768, #4810); this is the rollover's
+   own card look. */
 .tt-dashboard .tt-sr-table {
     width: 100%;
     border-collapse: collapse;
     margin: 0 0 var(--tt-sp-4, 16px);
 }
 
-.tt-dashboard .tt-sr-table thead {
-    /* Hidden on phones — each cell carries its own label via data-label. */
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
 .tt-dashboard .tt-sr-table tr {
-    display: block;
     border: 1px solid var(--tt-line, #e1e4e8);
     border-radius: var(--tt-radius, 8px);
     padding: var(--tt-sp-3, 12px);
@@ -175,8 +165,6 @@
 }
 
 .tt-dashboard .tt-sr-table td {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: var(--tt-sp-3, 12px);
     padding: var(--tt-sp-2, 8px) 0;
@@ -184,19 +172,19 @@
 }
 
 .tt-dashboard .tt-sr-table td::before {
-    content: attr(data-label);
     font-weight: 600;
     color: var(--tt-muted, #6a6d66);
-    flex: 0 0 auto;
 }
 
 .tt-dashboard .tt-sr-table td.tt-sr-check-col::before {
     content: none;
 }
 
+/* On a phone the select shares its line with the label and may shrink to
+   fit the card; its 9rem floor applies in the table from 768px up. */
 .tt-dashboard .tt-sr-table .tt-sr-select {
     width: auto;
-    min-width: 9rem;
+    min-width: 0;
     max-width: 60%;
 }
 
@@ -218,16 +206,10 @@
 
 /* ---- >=768px: real tables ---- */
 @media (min-width: 768px) {
-    .tt-dashboard .tt-sr-table thead {
-        position: static;
-        width: auto;
-        height: auto;
-        clip: auto;
-        margin: 0;
-        overflow: visible;
-    }
-
     .tt-dashboard .tt-sr-table thead th {
+        /* The header row always kept to one line (the hiding rule's
+           nowrap was never reset); kept as it was. */
+        white-space: nowrap;
         text-align: left;
         padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
         border-bottom: 2px solid var(--tt-line, #e1e4e8);
@@ -236,7 +218,6 @@
     }
 
     .tt-dashboard .tt-sr-table tr {
-        display: table-row;
         border: 0;
         border-bottom: 1px solid var(--tt-line, #e1e4e8);
         border-radius: 0;
@@ -245,17 +226,12 @@
     }
 
     .tt-dashboard .tt-sr-table td {
-        display: table-cell;
-        justify-content: flex-start;
         padding: var(--tt-sp-3, 12px);
         vertical-align: middle;
     }
 
-    .tt-dashboard .tt-sr-table td::before {
-        content: none;
-    }
-
     .tt-dashboard .tt-sr-table .tt-sr-select {
+        min-width: 9rem;
         max-width: 100%;
     }
 

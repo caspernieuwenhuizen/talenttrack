@@ -9,6 +9,7 @@ use TT\Infrastructure\REST\SeasonRolloverRestController;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -119,13 +120,13 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
         echo '</label>';
         echo '</fieldset>';
 
-        echo '<table class="tt-sr-table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Source team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Age group', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Active players', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Promote to', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-sr-table ' . esc_attr( StackTable::classes( StackTable::TO_768 ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Source team', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Age group', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Active players', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Promote to', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         // #2868 — built once, then passed into every comparison below.
         $age_ranks = self::ageGroupRanks();
@@ -134,11 +135,11 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
             $team_id   = (int) $team->id;
             $count     = self::activeCount( $team_id );
             $selected  = $mapping[ $team_id ] ?? 0;
-            echo '<tr>';
-            echo '<td data-label="' . esc_attr__( 'Source team', 'talenttrack' ) . '">' . esc_html( (string) $team->name ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Age group', 'talenttrack' ) . '">' . esc_html( (string) ( $team->age_group ?? '' ) ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Active players', 'talenttrack' ) . '">' . esc_html( (string) $count ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Promote to', 'talenttrack' ) . '">';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Source team', 'talenttrack' ) ) . '>' . esc_html( (string) $team->name ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Age group', 'talenttrack' ) ) . '>' . esc_html( (string) ( $team->age_group ?? '' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Active players', 'talenttrack' ) ) . '>' . esc_html( (string) $count ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Promote to', 'talenttrack' ) ) . '>';
             echo '<select name="tt_sr_target[' . esc_attr( (string) $team_id ) . ']" class="tt-sr-select">';
             echo '<option value="0">' . esc_html__( 'No promotion / stays', 'talenttrack' ) . '</option>';
             // #2868 — the column is titled "Promote to", and it offered every
@@ -229,13 +230,13 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
                 continue;
             }
 
-            echo '<table class="tt-sr-table">';
-            echo '<thead><tr>';
-            echo '<th scope="col" class="tt-sr-check-col"><span class="tt-screen-reader-text">' . esc_html__( 'Include', 'talenttrack' ) . '</span></th>';
-            echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-            echo '<th scope="col">' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-            echo '<th scope="col">' . esc_html__( 'Action', 'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            echo '<table class="tt-sr-table ' . esc_attr( StackTable::classes( StackTable::TO_768 ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+            echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="col" class="tt-sr-check-col"' . StackTable::attrs( 'columnheader' ) . '><span class="tt-screen-reader-text">' . esc_html__( 'Include', 'talenttrack' ) . '</span></th>';
+            echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+            echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+            echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Action', 'talenttrack' ) . '</th>';
+            echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
             foreach ( $players as $player ) {
                 /** @var \stdClass $player */
@@ -243,13 +244,13 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
                 $name      = QueryHelpers::player_display_name( $player );
                 $status    = LabelTranslator::playerStatus( (string) ( $player->status ?? '' ) );
                 $cb_id     = 'tt-sr-inc-' . $player_id;
-                echo '<tr>';
-                echo '<td data-label="' . esc_attr__( 'Include', 'talenttrack' ) . '" class="tt-sr-check-col">';
+                echo '<tr' . StackTable::attrs( 'row' ) . '>';
+                echo '<td class="tt-sr-check-col"' . StackTable::attrs( 'cell', __( 'Include', 'talenttrack' ) ) . '>';
                 echo '<input type="checkbox" id="' . esc_attr( $cb_id ) . '" name="tt_sr_include[]" value="' . esc_attr( (string) $player_id ) . '" checked class="tt-sr-check" />';
                 echo '</td>';
-                echo '<td data-label="' . esc_attr__( 'Player', 'talenttrack' ) . '"><label for="' . esc_attr( $cb_id ) . '">' . esc_html( $name ) . '</label></td>';
-                echo '<td data-label="' . esc_attr__( 'Status', 'talenttrack' ) . '">' . esc_html( $status ) . '</td>';
-                echo '<td data-label="' . esc_attr__( 'Action', 'talenttrack' ) . '">';
+                echo '<td' . StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ) . '><label for="' . esc_attr( $cb_id ) . '">' . esc_html( $name ) . '</label></td>';
+                echo '<td' . StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ) . '>' . esc_html( $status ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', __( 'Action', 'talenttrack' ) ) . '>';
                 echo '<select name="tt_sr_action[' . esc_attr( (string) $player_id ) . ']" class="tt-sr-select">';
                 self::actionOption( SeasonRolloverService::ACTION_PROMOTE, $default_act, $target_id > 0 );
                 self::actionOption( SeasonRolloverService::ACTION_RELEASE, $default_act, true );
@@ -311,22 +312,22 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
 
         echo '<p class="tt-sr-backup-note">' . esc_html__( 'A full backup runs automatically before any change is made. If the backup fails, the rollover is aborted and nothing is changed.', 'talenttrack' ) . '</p>';
 
-        echo '<table class="tt-sr-table tt-sr-review">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'From team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'To team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Action', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Journey event', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-sr-table tt-sr-review ' . esc_attr( StackTable::classes( StackTable::TO_768 ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'From team', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'To team', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Action', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Journey event', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $plan['changes'] as $change ) {
-            echo '<tr>';
-            echo '<td data-label="' . esc_attr__( 'Player', 'talenttrack' ) . '">' . esc_html( $change['player_name'] ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'From team', 'talenttrack' ) . '">' . esc_html( $change['from_team_name'] ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'To team', 'talenttrack' ) . '">' . esc_html( $change['to_team_name'] !== '' ? $change['to_team_name'] : '—' ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Action', 'talenttrack' ) . '">' . esc_html( $change['event_label'] ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Journey event', 'talenttrack' ) . '">' . esc_html( self::eventTypeLabel( $change['event_type'] ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ) . '>' . esc_html( $change['player_name'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'From team', 'talenttrack' ) ) . '>' . esc_html( $change['from_team_name'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'To team', 'talenttrack' ) ) . '>' . esc_html( $change['to_team_name'] !== '' ? $change['to_team_name'] : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Action', 'talenttrack' ) ) . '>' . esc_html( $change['event_label'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Journey event', 'talenttrack' ) ) . '>' . esc_html( self::eventTypeLabel( $change['event_type'] ) ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
