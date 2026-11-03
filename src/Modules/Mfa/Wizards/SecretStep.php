@@ -19,8 +19,10 @@ use TT\Shared\Wizards\WizardStepInterface;
  *     current user, or the row has no `secret_encrypted`, we generate
  *     a fresh 20-byte secret and persist it via `upsertSecret()` with
  *     an empty backup-codes array.
- *   - `upsertSecret()` resets `enrolled_at` if a previous enrollment
- *     existed, so re-enrollment cleanly replaces the old secret.
+ *   - `upsertSecret()` replaces the secret and the recovery codes on an
+ *     existing row and clears the failed-attempt counter and the lockout.
+ *     It leaves `enrolled_at` as it was: the final step,
+ *     `BackupCodesStep::submit()`, sets it again through `markEnrolled()`.
  *   - On the next visit / Back navigation, we re-read the existing row
  *     and decrypt the secret — the QR shown is identical to the one
  *     the user scanned the first time.
@@ -44,7 +46,7 @@ final class SecretStep implements WizardStepInterface {
 
         // Lazy-create / re-create the secret if there's nothing usable
         // on disk. Re-enrollment from an enrolled state replaces the
-        // secret (upsertSecret resets `enrolled_at`).
+        // secret (upsertSecret leaves `enrolled_at` as it was).
         $needs_fresh = ( $row === null )
             || empty( $row['secret'] )
             || ! empty( $row['enrolled_at'] );

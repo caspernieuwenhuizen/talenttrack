@@ -9,7 +9,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 /**
  * MfaSecretsRepository — CRUD on `tt_user_mfa` (#0086 Workstream B Child 1).
  *
- * One row per (`wp_user_id`, `club_id`) pair. The shared TOTP secret
+ * One row per account (`wp_user_id`, #4798); `club_id` records the
+ * academy it was set up in and decides nothing. The shared TOTP secret
  * is encrypted at rest via `CredentialEncryption` (AES-256-GCM under
  * `wp_salt('auth')`); backup codes and remembered devices are stored
  * as JSON.
@@ -42,8 +43,18 @@ final class MfaSecretsRepository {
     }
 
     /**
-     * Find the row for a WP user in the current club. Returns null when
-     * the user has never enrolled (no row exists).
+     * The account's enrolment. Returns null when the account has never
+     * enrolled (no row exists).
+     *
+     * #4798 — a second factor belongs to the account: one row per
+     * `wp_user_id`, whichever academy it was set up in, read the same from
+     * every academy the account belongs to. Whether a second factor is
+     * required stays the academy's policy (`MfaLoginGuard::personaIsGated()`).
+     *
+     * Until migration 0318 has merged an account's rows there can be more
+     * than one; the one read is the one the migration keeps (the latest
+     * verification, then the latest set-up), so the authenticator asked for
+     * is the same before and after the merge.
      *
      * @return array<string,mixed>|null
      */
@@ -51,30 +62,33 @@ final class MfaSecretsRepository {
         if ( $wp_user_id <= 0 ) return null;
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table()} WHERE wp_user_id = %d AND club_id = %d",
-            $wp_user_id,
-            CurrentClub::id()
+            "SELECT * FROM {$this->table()} WHERE wp_user_id = %d
+              ORDER BY ( last_verified_at IS NULL ) ASC, last_verified_at DESC,
+                       ( enrolled_at IS NULL ) ASC, enrolled_at DESC,
+                       created_at DESC, id DESC
+              LIMIT 1",
+            $wp_user_id
         ), ARRAY_A );
         if ( ! is_array( $row ) ) return null;
         return $this->hydrate( $row );
     }
 
     /**
-     * #1392 — every enrollment row for the current club, for the
+     * #1392 — every enrollment row on the install, for the
      * `wp tt mfa status` diagnostic. Narrow shape: user id, enrolled
-     * timestamp, lockout state, failed-attempt counter.
+     * timestamp, lockout state, failed-attempt counter. #4798: an
+     * enrolment is the account's, so the install-wide list is the list.
      *
      * @return list<array{wp_user_id:int, enrolled_at:?string, locked_until:?string, failed_attempts:int}>
      */
     public function listEnrollments(): array {
         global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
+        $rows = $wpdb->get_results(
             "SELECT wp_user_id, enrolled_at, locked_until, failed_attempts
                FROM {$this->table()}
-              WHERE club_id = %d
               ORDER BY wp_user_id ASC",
-            CurrentClub::id()
-        ), ARRAY_A );
+            ARRAY_A
+        );
         $out = [];
         foreach ( (array) $rows as $r ) {
             $out[] = [
@@ -82,6 +96,42 @@ final class MfaSecretsRepository {
                 'enrolled_at'     => $r['enrolled_at'] !== null ? (string) $r['enrolled_at'] : null,
                 'locked_until'    => $r['locked_until'] !== null ? (string) $r['locked_until'] : null,
                 'failed_attempts' => (int) ( $r['failed_attempts'] ?? 0 ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * The enrolled accounts that belong to an academy
+     * (`ClubMembership::userIdsForClub()`), for the operator's reset list:
+     * an enrolment is the account's, and the list follows the academy, so it
+     * holds only that academy's members. The reset checks the same relation
+     * from the account's end (`clubIdsForUser()`). An account with no academy
+     * row is not listed; it is reset at install level (`wp tt mfa reset`).
+     *
+     * @return list<array{wp_user_id:int, user_login:string, display_name:string}>
+     */
+    public function enrolledAccountsOfClub( int $club_id, int $limit = 200 ): array {
+        $ids = \TT\Infrastructure\Tenancy\ClubMembership::userIdsForClub( $club_id );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT m.wp_user_id, u.user_login, u.display_name
+               FROM {$this->table()} m
+               JOIN {$wpdb->users} u ON u.ID = m.wp_user_id
+              WHERE m.enrolled_at IS NOT NULL
+                AND m.wp_user_id IN ({$in})
+              ORDER BY u.user_login ASC
+              LIMIT %d",
+            ...array_merge( $ids, [ max( 1, $limit ) ] )
+        ), ARRAY_A );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            $out[] = [
+                'wp_user_id'   => (int) $r['wp_user_id'],
+                'user_login'   => (string) $r['user_login'],
+                'display_name' => (string) $r['display_name'],
             ];
         }
         return $out;
@@ -119,7 +169,6 @@ final class MfaSecretsRepository {
 
         $existing = $this->findByUserId( $wp_user_id );
         $data = [
-            'club_id'             => CurrentClub::id(),
             'wp_user_id'          => $wp_user_id,
             'secret_encrypted'    => CredentialEncryption::encrypt( $secret_plaintext ),
             'backup_codes_hashed' => wp_json_encode( $backup_codes ),
@@ -137,6 +186,8 @@ final class MfaSecretsRepository {
             return $ok !== false;
         }
 
+        // The academy it was set up in, kept as a record; it decides nothing.
+        $data['club_id']    = CurrentClub::id();
         $data['uuid']       = wp_generate_uuid4();
         $data['created_at'] = $now;
         $ok = $wpdb->insert( $this->table(), $data );
@@ -379,13 +430,7 @@ final class MfaSecretsRepository {
     public function disable( int $wp_user_id ): bool {
         if ( $wp_user_id <= 0 ) return false;
         global $wpdb;
-        $ok = $wpdb->delete(
-            $this->table(),
-            [
-                'wp_user_id' => $wp_user_id,
-                'club_id'    => CurrentClub::id(),
-            ]
-        );
+        $ok = $wpdb->delete( $this->table(), [ 'wp_user_id' => $wp_user_id ] );
         return $ok !== false;
     }
 

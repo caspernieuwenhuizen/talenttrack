@@ -22,9 +22,10 @@ use TT\Shared\Wizards\WizardInterface;
  *                        MFA tab.
  *
  * Capability: `read` — every logged-in user can enroll their own MFA;
- * each tt_user_mfa row is keyed by (wp_user_id, club_id) so no
- * cross-user concerns. The tab on the Account page provides the entry
- * point.
+ * each tt_user_mfa row is keyed by `wp_user_id` alone (#4798: the
+ * second factor belongs to the account, in every academy it belongs
+ * to) so no cross-user concerns. The tab on the Account page provides
+ * the entry point.
  *
  * Plaintext-credential lifetime in wizard state:
  *   - The TOTP secret is generated and persisted (encrypted) at step 2;
