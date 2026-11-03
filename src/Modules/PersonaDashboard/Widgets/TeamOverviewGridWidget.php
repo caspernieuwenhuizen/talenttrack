@@ -53,12 +53,17 @@ class TeamOverviewGridWidget extends AbstractWidget {
 
     public function personaContext(): string { return PersonaContext::ACADEMY; }
 
+    /** #4827 — the heading, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : __( 'Team overview', 'talenttrack' );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $config    = $this->parseConfig( $slot->data_source );
         $repo      = new TeamOverviewRepository();
         $summaries = $repo->summariesFor( $ctx->user_id, $config['days'], $config['sort'], $config['limit'] );
 
-        $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'Team overview', 'talenttrack' );
+        $title = $this->titleFor( $slot );
 
         $head = '<div class="tt-pd-panel-head">'
             . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'

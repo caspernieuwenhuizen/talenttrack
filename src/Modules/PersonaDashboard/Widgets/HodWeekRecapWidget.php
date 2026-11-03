@@ -51,12 +51,17 @@ class HodWeekRecapWidget extends AbstractWidget {
 
     public function capRequired(): string { return 'tt_view_reports'; }
 
+    /** #4827 — the heading, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : __( 'This week at the academy', 'talenttrack' );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $since = self::sinceTimestamp( $ctx->user_id );
         $stats = self::collect( $since, $ctx->club_id );
         $base  = RecordLink::dashboardUrl();
 
-        $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'This week at the academy', 'talenttrack' );
+        $title = $this->titleFor( $slot );
         $sub   = sprintf(
             /* translators: %s: localized date the recap window starts at */
             __( 'Since %s', 'talenttrack' ),
