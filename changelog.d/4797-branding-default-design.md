@@ -9,6 +9,6 @@ The built-in colours are now a single set. As a result, the default design's sta
 - Success: `#00a32a` → `#2f9e5e`.
 - Info: `#2271b1` → `#2d6fb3`.
 
-A Branding colour still set to the form's suggestion counts as not chosen. So does a status colour stored as black (`#000000`), which some installs hold for colours nobody picked. Either way, that colour keeps the built-in value instead of turning alerts black.
+A primary, secondary or status colour still set to the form's suggestion counts as not chosen. The accent and focus ring colours keep whatever is stored, as they do today. So does a status colour stored as black (`#000000`), which some installs hold for colours nobody picked. Either way, that colour keeps the built-in value instead of turning alerts black.
 
 Installs that use the Leon Hutten or federation theme don't change; the theme still owns the whole design. A few screens outside the dashboard follow the dashboard's own neutral greys and spacing now: the wp-admin Help & Docs page, the wp-admin plan panel, the trial letter, the search preview panel and the team chemistry picker. The Help & Docs page's links and quotes there are now green instead of WordPress blue.
