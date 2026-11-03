@@ -55,7 +55,7 @@ Voeg persona's geleidelijk toe: zet het op dag één aan voor *Academy admin* + 
 
 **Lockout-beleid** — 5 mislukte verificaties op rij geven 15 minuten lockout op dat account. De teller springt op nul na een geslaagde verificatie. Beide drempels (5 pogingen, 15 minuten) zijn instelbaar via de per-club `tt_config` met keys `mfa_max_attempts` en `mfa_lockout_minutes` (nog geen UI; aanpassen via directe DB-toegang of een plugin zoals Better Search Replace).
 
-**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker).
+**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. De lijst en de reset volgen de academie waarin je werkt: ze bevatten alleen de accounts van die academie. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker) — in elke academie waar het account bij hoort.
 
 ### Herstel bij MFA-buitensluiting
 

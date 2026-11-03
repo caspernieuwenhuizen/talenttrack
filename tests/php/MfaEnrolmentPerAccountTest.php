@@ -69,9 +69,15 @@ final class MfaEnrolmentPerAccountTest extends WP_UnitTestCase {
         $this->allowDuplicates();
         $user  = 990001;
         $other = 990002;
-        $older = $this->row( $user, 1, 'OLDSECRET234567', '2026-01-01 10:00:00', '2026-03-01 10:00:00', [ 'older-code-hash' ] );
+        // The survivor is inserted first, so it has the lower id: the rule
+        // cannot pass by keeping the highest id.
         $newer = $this->row( $user, 2, 'NEWSECRET234567', '2025-06-01 10:00:00', '2026-10-01 10:00:00', [ 'newer-code-hash' ] );
+        $older = $this->row( $user, 1, 'OLDSECRET234567', '2026-01-01 10:00:00', '2026-03-01 10:00:00', [ 'older-code-hash' ] );
         $alone = $this->row( $other, 1, 'ALONESECRET2345', '2026-02-01 10:00:00', '2026-02-02 10:00:00', [ 'alone-code-hash' ] );
+        $this->assertLessThan( $older, $newer );
+
+        // Before the merge the repository already reads the row the merge keeps.
+        $this->assertSame( 'NEWSECRET234567', ( new MfaSecretsRepository() )->findByUserId( $user )['secret'] ?? '' );
 
         $this->migration()->up();
         // Twice, because a re-run must change nothing.
@@ -86,14 +92,16 @@ final class MfaEnrolmentPerAccountTest extends WP_UnitTestCase {
         $this->assertNotSame( $older, $newer );
 
         $audit = $wpdb->get_results( $wpdb->prepare(
-            "SELECT payload FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_id = %d",
+            "SELECT club_id, payload FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_id = %d ORDER BY club_id ASC",
             'mfa.enrolments_merged', $user
         ), ARRAY_A );
-        $this->assertCount( 1, (array) $audit, 'one audit row per merge' );
-        $payload = (string) $audit[0]['payload'];
-        $this->assertSame( $newer, (int) json_decode( $payload, true )['kept']['id'] );
-        foreach ( [ 'SECRET', 'code-hash', 'secret_encrypted' ] as $secret ) {
-            $this->assertStringNotContainsString( $secret, $payload, 'no secret material in the audit row' );
+        $this->assertSame( [ '1', '2' ], array_column( (array) $audit, 'club_id' ), 'one audit row per merge in each academy that had an enrolment, though the migration ran twice' );
+        foreach ( (array) $audit as $entry ) {
+            $payload = (string) $entry['payload'];
+            $this->assertSame( $newer, (int) json_decode( $payload, true )['kept']['id'] );
+            foreach ( [ 'SECRET', 'code-hash', 'secret_encrypted' ] as $secret ) {
+                $this->assertStringNotContainsString( $secret, $payload, 'no secret material in the audit row' );
+            }
         }
         $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_id = %d", 'mfa.enrolments_merged', $other ) ) );
 
@@ -103,8 +111,11 @@ final class MfaEnrolmentPerAccountTest extends WP_UnitTestCase {
     public function test_with_no_verification_the_most_recently_set_up_enrolment_survives(): void {
         $this->allowDuplicates();
         $user = 990003;
-        $this->row( $user, 1, 'FIRSTSECRET2345', '2026-05-01 10:00:00', null, [] );
+        // The survivor first again, with the lower id.
         $later = $this->row( $user, 2, 'LATERSECRET2345', '2026-09-01 10:00:00', null, [] );
+        $first = $this->row( $user, 1, 'FIRSTSECRET2345', '2026-05-01 10:00:00', null, [] );
+        $this->assertLessThan( $first, $later );
+        $this->assertSame( 'LATERSECRET2345', ( new MfaSecretsRepository() )->findByUserId( $user )['secret'] ?? '' );
 
         $this->migration()->up();
 

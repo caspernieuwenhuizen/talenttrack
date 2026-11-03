@@ -13,7 +13,8 @@
  *     (`enrolled_at`, then `created_at`, then the highest id);
  *   - its recovery codes and remembered devices are on that row and stay
  *     with it; the merged-away rows are deleted;
- *   - each merge writes one audit row, `mfa.enrolments_merged`: the
+ *   - each merge writes one audit row, `mfa.enrolments_merged`, in every
+ *     academy whose enrolment took part: the
  *     account, the row kept and the rows removed, by id and academy. No
  *     secret, code or token goes into it.
  *
@@ -85,7 +86,8 @@ return new class extends Migration {
     }
 
     /**
-     * One audit row per merge. Ids and academies only.
+     * One audit row per merge in every academy whose enrolment took part, so
+     * each academy's log shows the merge. Ids and academies only.
      *
      * @param array<string,mixed>       $kept
      * @param list<array<string,mixed>> $removed
@@ -100,11 +102,15 @@ return new class extends Migration {
             'removed' => array_map( static fn( array $r ): array => [ 'id' => (int) $r['id'], 'club_id' => (int) $r['club_id'] ], $removed ),
             'rule'    => 'most recently verified, else most recently set up',
         ] );
-        $this->exec( $wpdb->prepare(
-            "INSERT INTO {$log} ( club_id, user_id, action, entity_type, entity_id, payload, ip_address, created_at )
-             VALUES ( %d, %d, %s, %s, %d, %s, %s, %s )",
-            (int) $kept['club_id'], 0, 'mfa.enrolments_merged', 'user', $account, $payload, '', current_time( 'mysql' )
-        ) );
+        $clubs = array_values( array_unique( array_map( static fn( array $r ): int => (int) $r['club_id'], array_merge( [ $kept ], $removed ) ) ) );
+        sort( $clubs );
+        foreach ( $clubs as $club_id ) {
+            $this->exec( $wpdb->prepare(
+                "INSERT INTO {$log} ( club_id, user_id, action, entity_type, entity_id, payload, ip_address, created_at )
+                 VALUES ( %d, %d, %s, %s, %d, %s, %s, %s )",
+                $club_id, 0, 'mfa.enrolments_merged', 'user', $account, $payload, '', current_time( 'mysql' )
+            ) );
+        }
     }
 
     /** @return int 1 when the key was changed, 0 when it already was */

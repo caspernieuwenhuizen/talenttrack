@@ -51,13 +51,22 @@ final class MfaSecretsRepository {
      * every academy the account belongs to. Whether a second factor is
      * required stays the academy's policy (`MfaLoginGuard::personaIsGated()`).
      *
+     * Until migration 0318 has merged an account's rows there can be more
+     * than one; the one read is the one the migration keeps (the latest
+     * verification, then the latest set-up), so the authenticator asked for
+     * is the same before and after the merge.
+     *
      * @return array<string,mixed>|null
      */
     public function findByUserId( int $wp_user_id ): ?array {
         if ( $wp_user_id <= 0 ) return null;
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table()} WHERE wp_user_id = %d ORDER BY id ASC LIMIT 1",
+            "SELECT * FROM {$this->table()} WHERE wp_user_id = %d
+              ORDER BY ( last_verified_at IS NULL ) ASC, last_verified_at DESC,
+                       ( enrolled_at IS NULL ) ASC, enrolled_at DESC,
+                       created_at DESC, id DESC
+              LIMIT 1",
             $wp_user_id
         ), ARRAY_A );
         if ( ! is_array( $row ) ) return null;
@@ -87,6 +96,39 @@ final class MfaSecretsRepository {
                 'enrolled_at'     => $r['enrolled_at'] !== null ? (string) $r['enrolled_at'] : null,
                 'locked_until'    => $r['locked_until'] !== null ? (string) $r['locked_until'] : null,
                 'failed_attempts' => (int) ( $r['failed_attempts'] ?? 0 ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * The enrolled accounts an academy governs (`ClubMembership`), for the
+     * operator's reset list: an enrolment is the account's, and the list
+     * follows the academy, so it holds only that academy's accounts.
+     *
+     * @return list<array{wp_user_id:int, user_login:string, display_name:string}>
+     */
+    public function enrolledAccountsGovernedBy( int $club_id, int $limit = 200 ): array {
+        $ids = \TT\Infrastructure\Tenancy\ClubMembership::userIdsGovernedBy( $club_id );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT m.wp_user_id, u.user_login, u.display_name
+               FROM {$this->table()} m
+               JOIN {$wpdb->users} u ON u.ID = m.wp_user_id
+              WHERE m.enrolled_at IS NOT NULL
+                AND m.wp_user_id IN ({$in})
+              ORDER BY u.user_login ASC
+              LIMIT %d",
+            ...array_merge( $ids, [ max( 1, $limit ) ] )
+        ), ARRAY_A );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            $out[] = [
+                'wp_user_id'   => (int) $r['wp_user_id'],
+                'user_login'   => (string) $r['user_login'],
+                'display_name' => (string) $r['display_name'],
             ];
         }
         return $out;
