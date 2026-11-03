@@ -187,7 +187,8 @@ final class TeamMonthlyReportSnapshotPage {
             (string) ( $team->name ?? '' ),
             $notes,
             static fn( string $section ): string => self::noteEditor( $section, $notes, $uuid ),
-            self::pdfUrl( $uuid )
+            // #4718 — no PDF link for an account that may receive no file.
+            \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ? self::pdfUrl( $uuid ) : ''
         );
 
         return true;
@@ -210,8 +211,11 @@ final class TeamMonthlyReportSnapshotPage {
             TTDate::date( substr( (string) ( $row->created_at ?? '' ), 0, 10 ) )
         ) ) . '</p>';
         echo '<p class="tt-mr-muted">' . esc_html__( 'This snapshot is only readable by signed-in staff who can see this team. It has no shareable link — send the PDF instead.', 'talenttrack' ) . '</p>';
-        echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( (string) ( $row->uuid ?? '' ) ) ) . '">'
-            . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
+        // #4718 — the PDF only for an account that may receive files.
+        if ( \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( (string) ( $row->uuid ?? '' ) ) ) . '">'
+                . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
+        }
         echo '</div>';
     }
 

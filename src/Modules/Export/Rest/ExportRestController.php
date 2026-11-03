@@ -100,6 +100,10 @@ final class ExportRestController {
 
     public static function list_exporters( WP_REST_Request $req ) {
         $out = [];
+        // #4718 — an account that may receive no file is offered no export.
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            return rest_ensure_response( [ 'exporters' => $out ] );
+        }
         foreach ( ExporterRegistry::all() as $key => $exporter ) {
             // Hide exporters the caller has no chance of running.
             // #3155 — an exporter over a matrix-only entity answers through

@@ -158,6 +158,8 @@ final class FrontendTestResultsView extends FrontendViewBase {
      * pressed, and asks for a test first when none is chosen.
      */
     private static function renderExportForm(): void {
+        // #4718 — offered only to an account that may receive files.
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) return;
         echo '<form method="POST" class="tt-tr-export" data-tt-tr-export="1" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
         wp_nonce_field( 'tt_export', '_tt_export_nonce' );
         echo '<input type="hidden" name="action" value="tt_export" />';

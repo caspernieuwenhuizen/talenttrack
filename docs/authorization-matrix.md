@@ -648,11 +648,37 @@ A journey entry follows the read right of the record it describes, on the timeli
 
 **No write, anywhere.** The observer holds no `change` and no `create_delete` row. A test asserts it over the seed and over an upgraded matrix.
 
+**No file, anywhere.** The observer holds no `exports` row, so it receives no file the server produces: no export, no report CSV or PDF, no scheduled report. It prints a page it can read from the browser. See [Matrix entity `exports`](#matrix-entity-exports--receiving-a-file).
+
 **Write rights ask the change level.** A capability that gates a write maps to `change` (or `create_delete`) in `LegacyCapMapper`, never to `read`, so a read grant on an entity opens no write behind it. The VCT configuration capabilities (`tt_vct_admin_config` and its alias `tt_vct_admin_library`, which gate the age profiles, macro-blocks, team cycles and cycle weeks) map to `vct_library: change`, and `tt_training_plan` (the planner, plan and run writes, and observations) maps to `training_plan: change`. Every persona seeded on those entities holds `change` with its read, so nobody who writes there loses it. Removing a training observation asks what writing one asks: its author, or someone who may evaluate that player. The evaluation categories screen follows the same rule on screen: without `tt_edit_evaluation_categories` it lists the categories read-only, with no add, move, edit or delete control and no form.
 
 **PDP on every route.** The observer holds no PDP row, and the role no longer carries the raw `tt_view_pdp` capability (it is revoked on upgrade, so an install whose matrix is dormant answers the same). `GET /players/{id}/pdp` asks `pdp_file` read for the player, as the journey and status routes ask their own sections, so a reader who may open the player record but holds no PDP right gets `403`: the read-only observer, and equally a scout on a linked player, a staff member, or a team manager outside their own team. The PDP tiles, the player profile's PDP tab and the `pdp-files` routes refuse the observer as well.
 
 **Existing installs** get the rows with migrations `0310_authorization_observer_reads_non_sensitive` and, for the journey, `0312_authorization_hod_settings_observer_journey`. A cell your academy already changed keeps its value: each migration skips an entity when the matrix already holds a row for that persona on it at any scope, or when the changelog records an edit to it since the last reset or import. They add rows with `INSERT IGNORE`, so a second run writes nothing, and they delete nothing.
+
+## Matrix entity `exports` — receiving a file
+
+Receiving a file the server produces is a right of its own, the matrix entity `exports` (labelled **File downloads** in the matrix). `ExportGate::mayExport()` asks it, at any scope, in front of:
+
+- the export pipeline: the Exports page and its tile, `GET /exports` (which lists nothing to an account without the right), `GET|POST /exports/{key}`, and every export form that posts to it (measurement results, the team planner, the configuration download, the report PDFs);
+- the files the report screens stream themselves: the standard reports' CSV, the explorer's CSV and PDF, and the cohort board's CSV;
+- the scheduled reports: a recipient without the right is left out of the mailed PDF or CSV and named on the schedule.
+
+Each download button is hidden from an account without the right, and the route behind it answers `403`. The gate stands in front of each file's own rule, never instead of it: an exporter still checks the record or the teams it covers, and a report still checks who may read it.
+
+| Persona | `exports` |
+| - | - |
+| `player`, `parent` | read (self): their own files, as before |
+| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `staff`, `head_of_development`, `academy_admin` | read (global) |
+| `readonly_observer` | none |
+
+A WordPress administrator always passes. The global scope says nothing about which records a file may hold; that stays with each file's own rule.
+
+**Prints stay on the read rule.** The browser's print of a page, and the print routes that render a page for the browser to print (the player report, the match prep sheet, the weekly team planner sheet), are not files the server hands out: they follow the read rule of the record they show, so an observer prints what it can see on screen.
+
+**Downloads and prints follow the export rule and the record's own read rule.** A bulk export is unrestricted for an administrator or for someone who reads the exported entity at global scope; anyone else gets the teams they work with. The printable player report follows the player's read rule for everyone, including the parent section check.
+
+Existing installs get the rows with migration `0313_authorization_exports`. It writes with `INSERT IGNORE`, so a second run writes nothing and a row an admin has edited is left alone, and it gives the observer nothing.
 
 ## The head of development reads settings
 

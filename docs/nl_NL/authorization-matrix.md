@@ -647,11 +647,37 @@ Een regel in het spelerspad volgt het leesrecht van het record dat die beschrijf
 
 **Nergens schrijven.** De waarnemer heeft geen `change`- en geen `create_delete`-rij. Een test legt dat vast, over de seed en over een bijgewerkte matrix.
 
+**Nergens een bestand.** De waarnemer heeft geen `exports`-rij en ontvangt dus geen bestand dat de server maakt: geen export, geen csv of pdf van een rapport, geen gepland rapport. Een pagina die hij mag lezen, drukt hij af vanuit de browser. Zie [Matrix-entiteit `exports`](#matrix-entiteit-exports--een-bestand-ontvangen).
+
 **Schrijfrechten vragen het wijzigniveau.** Een recht dat een schrijfactie afschermt, hoort in `LegacyCapMapper` bij `change` (of `create_delete`), nooit bij `read`, zodat leesrecht op een entiteit geen schrijfactie daarachter opent. De rechten voor de VCT-configuratie (`tt_vct_admin_config` en de alias `tt_vct_admin_library`, voor de leeftijdsprofielen, macroblokken, teamcycli en cyclusweken) horen bij `vct_library: change`, en `tt_training_plan` (de planner, het schrijven van plannen en trainingen, en observaties) hoort bij `training_plan: change`. Elke persona die op die entiteiten is geseed, heeft `change` naast het leesrecht, dus niemand die daar schrijft verliest dat. Een observatie bij een training verwijderen vraagt wat er schrijven vraagt: de auteur, of iemand die die speler mag beoordelen. Het scherm met evaluatiecategorieën volgt dezelfde regel: zonder `tt_edit_evaluation_categories` toont het de categorieën alleen-lezen, zonder knoppen om toe te voegen, te verplaatsen, te bewerken of te verwijderen en zonder formulier.
 
 **POP op elke route.** De waarnemer heeft geen POP-rij, en de rol draagt het kale recht `tt_view_pdp` niet meer (het wordt bij de update ingetrokken, zodat een installatie met een slapende matrix hetzelfde antwoordt). `GET /players/{id}/pdp` vraagt leesrecht op `pdp_file` voor deze speler, zoals de routes voor het spelerspad en de status naar hun eigen onderdeel vragen. Wie het spelersrecord mag openen maar geen POP-recht heeft, krijgt dus `403`: de alleen-lezen waarnemer, en net zo goed een scout bij een gekoppelde speler, een stafmedewerker, of een teammanager buiten het eigen team. De POP-tegels, het POP-tabblad op het spelersprofiel en de `pdp-files`-routes weigeren de waarnemer ook.
 
 **Bestaande installaties** krijgen de rijen via de migraties `0310_authorization_observer_reads_non_sensitive` en, voor het spelerspad, `0312_authorization_hod_settings_observer_journey`. Een cel die je academie al heeft aangepast, houdt haar waarde: elke migratie slaat een entiteit over als de matrix al een rij voor die persona op die entiteit heeft, op welke scope ook, of als het wijzigingslogboek sinds de laatste reset of import een wijziging ervan vastlegt. Ze voegen rijen toe met `INSERT IGNORE`, dus een tweede run schrijft niets, en ze verwijderen niets.
+
+## Matrix-entiteit `exports` — een bestand ontvangen
+
+Een bestand ontvangen dat de server maakt, is een recht op zich: de matrix-entiteit `exports` (in de matrix **Bestanden downloaden**). `ExportGate::mayExport()` vraagt het, op welke scope ook, vóór:
+
+- de exportroute: de pagina Exports en de tegel ervan, `GET /exports` (dat een account zonder het recht niets toont), `GET|POST /exports/{key}`, en elk exportformulier dat daarheen post (meetresultaten, de teamplanner, het downloaden van de configuratie, de rapport-pdf's);
+- de bestanden die de rapportschermen zelf sturen: de csv van de standaardrapporten, de csv en pdf van de verkenner, en de csv van het cohortbord;
+- de geplande rapporten: een ontvanger zonder het recht krijgt de gemailde pdf of csv niet en staat bij de planning vermeld.
+
+Elke downloadknop is verborgen voor een account zonder het recht, en de route erachter antwoordt met `403`. De poort staat vóór de eigen regel van elk bestand, nooit in plaats daarvan: een exporter controleert nog steeds het record of de teams die het bestand bevat, en een rapport controleert nog steeds wie het mag lezen.
+
+| Persona | `exports` |
+| - | - |
+| `player`, `parent` | lezen (self): hun eigen bestanden, zoals voorheen |
+| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `staff`, `head_of_development`, `academy_admin` | lezen (global) |
+| `readonly_observer` | geen |
+
+Een WordPress-beheerder komt er altijd door. De globale scope zegt niets over welke records een bestand mag bevatten; dat blijft bij de eigen regel van elk bestand.
+
+**Afdrukken blijft bij het leesrecht.** Het afdrukken van een pagina vanuit de browser, en de afdrukroutes die een pagina voor de browser opmaken (het spelersrapport, het wedstrijdvoorbereidingsblad, het weekblad van de teamplanner), zijn geen bestanden die de server uitgeeft: ze volgen het leesrecht van het record dat ze tonen, dus een waarnemer drukt af wat hij op het scherm ziet.
+
+**Downloads en afdrukken volgen de exportregel en het eigen leesrecht van het record.** Een bulkexport is onbeperkt voor een beheerder of voor wie de geëxporteerde entiteit op globale scope leest; ieder ander krijgt de teams waarmee hij werkt. Het afdrukbare spelersrapport volgt voor iedereen het leesrecht op die speler, inclusief de controle op de onderdelen die ouders mogen zien.
+
+Bestaande installaties krijgen de rijen via migratie `0313_authorization_exports`. Die schrijft met `INSERT IGNORE`, dus een tweede run schrijft niets en een rij die een beheerder heeft aangepast blijft ongemoeid, en de waarnemer krijgt niets.
 
 ## Het hoofd opleiding leest de instellingen
 

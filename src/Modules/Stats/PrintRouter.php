@@ -102,10 +102,12 @@ class PrintRouter {
      * page. The report is built from evaluation ratings, so a parent the
      * child has hidden evaluations from is refused, as the profile does.
      * The views that render the print link ask the same question.
+     *
+     * #4718 — a print shows a player's record, so it follows that record's
+     * read rule for everyone.
      */
     public static function canPrint( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        if ( user_can( $user_id, 'tt_view_settings' ) ) return true;
 
         return AuthorizationService::canViewPlayer( $user_id, $player_id )
             && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'evaluations' );

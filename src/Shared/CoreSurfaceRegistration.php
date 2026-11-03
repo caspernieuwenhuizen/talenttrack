@@ -1389,7 +1389,10 @@ final class CoreSurfaceRegistration {
             // #1105 / #1106 leaks. Aligned to 'reports' to match the
             // tile's declared cap (`tt_view_reports`) and the view's
             // own per-cap card filtering. Audit 1 (#1175) caught this.
-            'entity'       => 'reports',
+            // #4718 — `exports` is a seeded entity now, the right to receive
+            // a file, so the tile asks it: the read-only observer reads
+            // reports but receives no file, and does not see the tile.
+            'entity'       => 'exports',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 27,

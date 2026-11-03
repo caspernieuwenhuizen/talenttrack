@@ -42,6 +42,12 @@ final class ExportService {
             ) );
         }
 
+        // #4718 — receiving a file at all is a right of its own, asked before
+        // anything about this exporter or its records.
+        if ( ! ExportGate::mayExport( $request->requesterUserId ) ) {
+            throw new ExportException( 'forbidden', ExportGate::refusalMessage() );
+        }
+
         // #1762 — per-tile academy toggle. An academy admin can disable an
         // individual export tile via FeatureRegistry; a disabled tile must
         // be rejected at execution, not merely hidden from the grid, so a

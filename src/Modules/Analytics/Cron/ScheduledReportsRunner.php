@@ -22,6 +22,7 @@ use TT\Modules\Comms\Domain\CommsOutcomeSummary;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\Templates\ScheduledReportTemplate;
+use TT\Modules\Export\ExportGate;
 
 /**
  * ScheduledReportsRunner — daily cron that processes due schedules
@@ -196,6 +197,12 @@ final class ScheduledReportsRunner {
         $taken         = [];
         foreach ( $users as $user_id => $recipient ) {
             $taken[ strtolower( $recipient->emailAddress ) ] = true;
+            // #4718 — the CSV is a file; an account that may receive none
+            // is left out and named like any other refusal.
+            if ( ! ExportGate::mayExport( (int) $user_id ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_file_access', 'via' => $via[ $user_id ] ?? '' ];
+                continue;
+            }
             $scope = FactScope::forUser( $user_id );
             if ( ! FactQuery::canRead( $fact_key, $scope ) ) {
                 $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access', 'via' => $via[ $user_id ] ?? '' ];
@@ -490,7 +497,11 @@ final class ScheduledReportsRunner {
 
         $allowed = [];
         foreach ( $recipients as $recipient ) {
-            if ( $may_receive( $recipient->userId, $result ) ) {
+            // #4718 — the PDF is a file: receiving one is a right of its own,
+            // asked before the report's read rule.
+            if ( ! ExportGate::mayExport( (int) $recipient->userId ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_file_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];
+            } elseif ( $may_receive( $recipient->userId, $result ) ) {
                 $allowed[] = $recipient;
             } else {
                 $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_read_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];

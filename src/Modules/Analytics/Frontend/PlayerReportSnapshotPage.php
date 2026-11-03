@@ -207,8 +207,11 @@ final class PlayerReportSnapshotPage {
             ) ) . '</p>';
             echo '<p class="tt-mr-muted">' . esc_html__( 'Only signed-in staff who can see this player can open this snapshot. It has no shareable link — send the PDF instead.', 'talenttrack' ) . '</p>';
         }
-        echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $snapshot['uuid'] ) ) . '">'
-            . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
+        // #4718 — the PDF only for an account that may receive files.
+        if ( \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $snapshot['uuid'] ) ) . '">'
+                . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
+        }
         echo '</div>';
     }
 

@@ -143,6 +143,9 @@ $expand = function ( string $persona, array $entries ): array {
 return array_merge(
     // ─── PLAYER ─────────────────────────────────────────────────────
     $expand( 'player', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'self', $mod_authorization ],
         'my_card'                 => [ 'r',   'self',   $mod_players ],
         'my_profile'              => [ 'rc',  'self',   $mod_players ],
         'my_team'                 => [ 'r',   'self',   $mod_teams ],
@@ -199,6 +202,9 @@ return array_merge(
 
     // ─── PARENT ─────────────────────────────────────────────────────
     $expand( 'parent', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'self',   $mod_authorization ],
         'my_card'                 => [ 'r',   'player', $mod_players ],
         'my_profile'              => [ 'rc',  'self',   $mod_players ],
         'my_team'                 => [ 'r',   'player', $mod_teams ],
@@ -267,6 +273,9 @@ return array_merge(
     // the development entities); the AC-with-kid case is handled by
     // the existing parent path.
     $expand( 'assistant_coach', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'holidays'                => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'r',   'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
@@ -434,6 +443,9 @@ return array_merge(
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
     $expand( 'head_coach', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'holidays'                => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'rc',  'team',   $mod_teams ],
         // #2584 — head coaches correct their own squad's player records
@@ -591,6 +603,9 @@ return array_merge(
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
     $expand( 'team_manager', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         // #2788 — tile-visibility entity for the Holidays management tile,
         // separate from `holidays` because coaches hold that read for the
@@ -695,6 +710,9 @@ return array_merge(
 
     // ─── SCOUT ──────────────────────────────────────────────────────
     $expand( 'scout', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         // #3807 — was global, and it was the last of the three. The full
         // player record carries guardian name, e-mail and phone plus every
         // custom field a club has defined, with no per-field filter, so a
@@ -814,6 +832,9 @@ return array_merge(
     // pdp_*, trial_*, staff_development, etc.). audit_log + tasks_dashboard +
     // usage_stats remain R for governance visibility.
     $expand( 'head_of_development', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         // #2788 — see the team_manager block.
         'holidays_panel'          => [ 'r',   'global', $mod_holidays ],
@@ -1020,6 +1041,9 @@ return array_merge(
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
     $expand( 'academy_admin', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         // #2788 — see the team_manager block.
         'holidays_panel'          => [ 'r',   'global', $mod_holidays ],
@@ -1284,6 +1308,8 @@ return array_merge(
     // dashboard. The page renders read-only for this seat because every
     // edit, archive, status and rating action asks a change right.
     $expand( 'readonly_observer', [
+        // #4718 — no `exports` row, on purpose: the observer reads on screen
+        // and prints from the browser, and receives no server-produced file.
         'team'             => [ 'r', 'global', $mod_teams ],
         'players'          => [ 'r', 'global', $mod_players ],
         'people'           => [ 'r', 'global', $mod_people ],
@@ -1341,6 +1367,9 @@ return array_merge(
     // this role currently has nothing, and on a matrix-inactive one the
     // seed is not consulted. See the PR for the follow-up.
     $expand( 'staff', [
+        // #4718 — may receive a file the server produces (ExportGate).
+        // A gate only: each file still asks its own record or team rule.
+        'exports'                 => [ 'r',   'global', $mod_authorization ],
         'team'         => [ 'r',  'team', $mod_teams ],
         'players'      => [ 'rc', 'team', $mod_players ],
         'people'       => [ 'rc', 'team', $mod_people ],

@@ -304,6 +304,14 @@ class FrontendExportsView extends FrontendViewBase {
 
         FrontendBreadcrumbs::fromDashboard( __( 'Exports', 'talenttrack' ) );
 
+        // #4718 — no export is offered to an account that may receive no
+        // file; the endpoint refuses it as well (ExportService::run()).
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( $user_id ) ) {
+            self::renderHeader( __( 'Exports', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html( \TT\Modules\Export\ExportGate::refusalMessage() ) . '</p>';
+            return;
+        }
+
         $all_cards = self::cards();
         // #1762 — per-tile academy toggle (FeatureRegistry, club-scoped).
         // The cap check narrows by user; the feature toggle narrows by

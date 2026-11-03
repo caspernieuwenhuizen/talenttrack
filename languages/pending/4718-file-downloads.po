@@ -1,0 +1,7 @@
+#: src/Modules/Export/ExportGate.php
+msgid "Your account cannot download files."
+msgstr "Met je account kun je geen bestanden downloaden."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "File downloads"
+msgstr "Bestanden downloaden"

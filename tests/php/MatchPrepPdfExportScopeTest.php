@@ -121,8 +121,17 @@ final class MatchPrepPdfExportScopeTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'data-tt-mp-goal', $view, 'no inputs' );
         $this->assertStringNotContainsString( self::REASON, $view );
 
+        // #4718 — the observer receives no file: the pipeline refuses the PDF.
+        // What the exporter would build still leaves the reason out.
+        try {
+            ( new \TT\Modules\Export\ExportService() )->run(
+                new ExportRequest( 'match_prep_pdf', 'pdf', $this->club, $observer, null, [ 'activity_id' => $this->activity ] )
+            );
+            $this->fail( 'the observer received the match prep PDF' );
+        } catch ( \TT\Modules\Export\ExportException $e ) {
+            $this->assertSame( 'forbidden', $e->errorKey );
+        }
         $out = $this->export( $observer );
-        $this->assertStringContainsString( 'Prepdfplayer', (string) ( $out['html'] ?? '' ), 'the observer gets the PDF' );
         $this->assertStringNotContainsString( self::REASON, (string) ( $out['html'] ?? '' ) );
 
         $print = MatchPrepPrintRouter::renderHtml( $this->activity );
