@@ -124,9 +124,11 @@ final class MatchPrepPrintableRenderer {
             ? null
             : \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $player_ids, (int) ( $activity->team_id ?? 0 ) );
         // #4692 — the reason also follows the sensitive-field registry for a
-        // named viewer, resolved for the squad at once.
+        // named viewer, resolved for the squad at once. The ids come from the
+        // prep's rows and can include a player who has since left the team,
+        // so each player's own team is read rather than assumed.
         if ( $viewer_id !== null ) {
-            \TT\Infrastructure\Security\RecordRedactor::prime( $viewer_id, array_fill_keys( array_map( 'intval', $player_ids ), (int) ( $activity->team_id ?? 0 ) ) );
+            \TT\Infrastructure\Security\RecordRedactor::prime( $viewer_id, array_fill_keys( array_map( 'intval', $player_ids ), null ) );
         }
         foreach ( $availability as $a ) {
             $pid = (int) $a->player_id;

@@ -3236,12 +3236,27 @@ class ActivitiesRestController {
                 : null;
         }
 
+        // #4692 — the free-text note beside a planned status (why a player is
+        // not coming) follows the sensitive-field registry. A guest row has
+        // no player record, so the registry hides its note from everybody;
+        // it is given back only to a reader who reads notes on every player
+        // of the activity's team.
+        $guest_notes = [];
+        foreach ( $out as $i => $row ) {
+            if ( (int) $row['player_id'] <= 0 ) $guest_notes[ $i ] = $row['notes'];
+        }
+        $roster = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'attendance', $out, get_current_user_id() );
+        if ( $guest_notes !== []
+            && \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'attendance', 'notes', get_current_user_id(), $team_id > 0 ? [ $team_id ] : [] ) ) {
+            foreach ( $guest_notes as $i => $note ) {
+                if ( isset( $roster[ $i ] ) ) $roster[ $i ]['notes'] = $note;
+            }
+        }
+
         return RestResponse::success( [
             'activity_id' => $id,
             'count'       => count( $out ),
-            // #4692 — the free-text note beside a planned status (why a
-            // player is not coming) follows the sensitive-field registry.
-            'roster'      => \TT\Infrastructure\Security\RecordRedactor::redactRows( 'attendance', $out, get_current_user_id() ),
+            'roster'      => $roster,
         ] );
     }
 

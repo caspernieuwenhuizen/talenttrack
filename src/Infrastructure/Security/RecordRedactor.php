@@ -103,11 +103,7 @@ final class RecordRedactor {
 
         $out = [];
         foreach ( $rows as $row ) {
-            $id = (int) ( $row[ $id_key ] ?? 0 );
-            // A row with no id under the key is not a row of this entity (an
-            // activity's guest has no player record), the same line the
-            // response filter draws.
-            $out[] = $id > 0 ? self::redact( $entity, $row, $user_id, $id ) : $row;
+            $out[] = self::redact( $entity, $row, $user_id, (int) ( $row[ $id_key ] ?? 0 ) );
         }
         return $out;
     }
