@@ -200,7 +200,7 @@ class HodWeekRecapWidget extends AbstractWidget {
                 [ $since, $club_id ]
             ),
             'trial_decisions'    => self::guardedCount(
-                "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE decided_at IS NOT NULL AND decided_at > %s AND club_id = %d",
+                "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE decision_made_at IS NOT NULL AND decision_made_at > %s AND club_id = %d",
                 [ $since, $club_id ]
             ),
             'behaviour'          => self::guardedCount(
