@@ -134,22 +134,68 @@ final class FamilyTrialJourneyTest extends WP_UnitTestCase {
     }
 
     /**
-     * The hidden count covers entries hidden by their visibility level only.
-     * An entry left out because the reader may not open its record is not
-     * counted: a count would say the record exists.
+     * #4832 — the journey counts nothing the reader may not read: not the
+     * entries hidden by their visibility level, not the entries about a
+     * record the reader may not open. A count would say they exist. The
+     * field stays in the v1 shape at 0, and the view says nothing.
      */
-    public function test_the_hidden_count_leaves_out_entries_about_records_the_reader_may_not_open(): void {
-        $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+    public function test_no_reader_gets_a_count_or_a_hint_of_unreadable_entries(): void {
+        $readers = [
+            'observer' => self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] ),
+            'parent'   => $this->parentOf( $this->player ),
+            'player'   => $this->account,
+            'coach'    => $this->headCoach(),
+        ];
         $this->flush();
 
-        wp_set_current_user( $observer );
-        $response = rest_do_request( new WP_REST_Request( 'GET', "/talenttrack/v1/players/{$this->player}/timeline" ) );
-        $this->assertSame( 200, (int) $response->get_status() );
-        $data = (array) $response->get_data();
+        foreach ( $readers as $who => $uid ) {
+            wp_set_current_user( $uid );
+            $response = rest_do_request( new WP_REST_Request( 'GET', "/talenttrack/v1/players/{$this->player}/timeline" ) );
+            $this->assertSame( 200, (int) $response->get_status(), "{$who}: precondition" );
+            $data = (array) $response->get_data();
+            $this->assertSame( 0, (int) ( $data['data']['hidden_count'] ?? -1 ), "{$who}: no count" );
 
-        $types = array_column( (array) ( $data['data']['events'] ?? [] ), 'event_type' );
-        $this->assertNotContains( 'suspension_started', $types, 'precondition: the suspension entry is left out' );
-        $this->assertSame( 1, (int) ( $data['data']['hidden_count'] ?? -1 ), 'only the medical entry is counted' );
+            $html = $this->journeyView( $uid );
+            $this->assertStringContainsString( 'tt-journey', $html, "{$who}: precondition, the view renders" );
+            foreach ( [ 'entry hidden', 'entries hidden', 'visible to other roles', 'only visible to your coaches', 'verborgen' ] as $hint ) {
+                $this->assertStringNotContainsString( $hint, strtolower( $html ), "{$who}: no \"{$hint}\" hint" );
+            }
+        }
+    }
+
+    /**
+     * The family copy is built from a fixed allow-list: a field that is not
+     * on it never reaches a family, whatever a later row carries.
+     */
+    public function test_an_unknown_field_does_not_reach_the_family_copy(): void {
+        $row = (object) [
+            'id' => 1, 'uuid' => 'u', 'club_id' => 1, 'player_id' => $this->player,
+            'event_type' => 'trial_ended', 'event_date' => '2026-05-20 09:00:00', 'visibility' => 'public',
+            'summary' => 'Trial ended: ' . self::DECISION, 'payload' => '{"decision":"' . self::DECISION . '"}',
+            'source_entity_id' => self::CASE_ID, 'future_case_note' => 'Famtrial secret note',
+        ];
+
+        $out = \TT\Infrastructure\Journey\PlayerEventsRepository::readableBy( $this->account, [ $row ], $this->player );
+
+        $this->assertCount( 1, $out, 'precondition: the player gets the family entry' );
+        $copy = get_object_vars( $out[0] );
+        $this->assertArrayNotHasKey( 'future_case_note', $copy );
+        $this->assertSame( '{}', $copy['payload'] );
+        $this->assertNull( $copy['source_entity_id'] );
+        $this->assertSame( 'Trial ended', $copy['summary'] );
+    }
+
+    private function journeyView( int $uid ): string {
+        global $wpdb;
+        $player = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_players WHERE id = %d", $this->player ) );
+        $this->assertNotNull( $player );
+        wp_set_current_user( $uid );
+        $_GET = [ 'tt_view' => 'player-journey', 'player_id' => (string) $this->player ];
+        ob_start();
+        \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
+        $html = (string) ob_get_clean();
+        $_GET = [];
+        return $html;
     }
 
     /** @param list<array<string,mixed>> $events */

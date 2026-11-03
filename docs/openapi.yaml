@@ -312,9 +312,20 @@ paths:
     get:
       tags: [journey]
       summary: Player journey timeline (chronological events)
-      description: 'Per-player gate (#3653): `canViewPlayer()` — own record, linked guardian, team or global staff — plus the child''s section preference, plus event-visibility caps for coaching-staff / medical / safeguarding rows.'
+      description: 'Per-player gate (#3653): `canViewPlayer()` — own record, linked guardian, team or global staff — plus the child''s section preference, plus event-visibility caps for coaching-staff / medical / safeguarding rows. Entries the reader may not open are left out and not counted.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
-      responses: { '200': { description: OK } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hidden_count:
+                    type: integer
+                    deprecated: true
+                    description: 'Deprecated: always 0. Kept in the v1 shape; a count of unreadable entries would say they exist.'
 
   /players/{id}/transitions:
     get:

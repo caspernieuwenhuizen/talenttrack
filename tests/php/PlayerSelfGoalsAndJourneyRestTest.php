@@ -215,7 +215,8 @@ final class PlayerSelfGoalsAndJourneyRestTest extends WP_UnitTestCase {
 
         $visibilities = array_map( static fn( array $e ): string => $e['visibility'], $data['events'] );
         $this->assertSame( [ 'public' ], array_values( array_unique( $visibilities ) ) );
-        $this->assertSame( 2, $data['hidden_count'], 'The coaching-staff and safeguarding entries are counted, not shown.' );
+        // #4832 — and not counted either: a count says they exist.
+        $this->assertSame( 0, $data['hidden_count'], 'The coaching-staff and safeguarding entries are neither shown nor counted.' );
     }
 
     public function test_the_player_goals_route_declares_its_id(): void {

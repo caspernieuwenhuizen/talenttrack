@@ -92,7 +92,7 @@ Dezelfde lijst is voor andere apps beschikbaar via de API als `GET /wp-json/tale
 Blessures zijn medische gegevens over minderjarigen, dus gelden er twee dingen:
 
 - Elke keer dat iemand de blessures van een speler leest — het tabblad, het overzicht of de API — komt dat in het auditlogboek met wie, wanneer en welke speler.
-- Blessureregels op de reis hebben het zichtbaarheidsniveau **medisch**, dus een rol zonder medische inzage ziet de chronologie mét de melding dat er een regel verborgen is, in plaats van een stilzwijgend gat.
+- Blessureregels op de reis hebben het zichtbaarheidsniveau **medisch**, dus een rol zonder medische inzage ziet die regel niet, en niets op de reis telt de regel of verwijst ernaar.
 
 Een blessure verwijderen is voorbehouden aan het hoofd opleidingen en de academiebeheerder, en gearchiveerde regels gaan naar de prullenbak in plaats van te verdwijnen.
 

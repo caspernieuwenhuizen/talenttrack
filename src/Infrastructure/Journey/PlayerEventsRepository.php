@@ -12,8 +12,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * Visibility filtering happens server-side: callers pass the viewer's
  * allowed visibilities (computed from their caps) and queries restrict
- * to those rows. The `hidden_count` companion query lets the UI render
- * "1 entry hidden" placeholders without a second round-trip.
+ * to those rows. Nothing counts the rows a reader may not see: a count
+ * would say they exist (`hidden_count` is always 0).
  */
 final class PlayerEventsRepository {
 
@@ -135,17 +135,37 @@ final class PlayerEventsRepository {
      * letter travels with it.
      */
     private static function familyView( object $row ): object {
-        $fields = get_object_vars( $row );
+        $source = get_object_vars( $row );
 
-        $fields['summary'] = (string) ( $fields['event_type'] ?? '' ) === JourneyEventType::TRIAL_ENDED
+        // Built from a fixed allow-list, never from a full copy: a field
+        // added to the row later does not reach families by default.
+        $copy = [];
+        foreach ( self::FAMILY_FIELDS as $field ) {
+            $copy[ $field ] = $source[ $field ] ?? null;
+        }
+
+        $copy['summary'] = (string) ( $copy['event_type'] ?? '' ) === JourneyEventType::TRIAL_ENDED
             ? __( 'Trial ended', 'talenttrack' )
             : __( 'Trial started', 'talenttrack' );
-        $fields['payload']          = '{}';
-        $fields['source_entity_id'] = null;
-        if ( array_key_exists( 'activity', $fields ) ) $fields['activity'] = null;
 
-        return (object) $fields;
+        // The shape every journey surface reads, with nothing in it.
+        return (object) array_merge( $copy, [
+            'payload'                => '{}',
+            'payload_valid'          => 1,
+            'source_module'          => '',
+            'source_entity_type'     => '',
+            'source_entity_id'       => null,
+            'effective_from'         => null,
+            'effective_to'           => null,
+            'activity'               => null,
+        ] );
     }
+
+    /** The row fields a family copy keeps: who, what, when, and whether it still stands. */
+    private const FAMILY_FIELDS = [
+        'id', 'uuid', 'club_id', 'player_id', 'event_type', 'event_date', 'visibility',
+        'superseded_by_event_id', 'superseded_at',
+    ];
 
     /**
      * @param array{
@@ -188,19 +208,14 @@ final class PlayerEventsRepository {
         }
         JourneySummaryLocaliser::localise( $rows );
 
-        // Hidden count — same WHERE but visibility NOT IN allowed.
-        $hidden_sql = "SELECT COUNT(*) FROM {$this->table}
-                        WHERE {$where_sql}
-                          AND visibility NOT IN ($vis_placeholders)";
-        $hidden_count = (int) $this->wpdb->get_var(
-            $this->wpdb->prepare( $hidden_sql, ...array_merge( $params, $allowed_visibilities ) )
-        );
-
         return [
             // #4181 — a match observation or an evaluation says which
             // activity it was about, on the timeline and in its REST payload.
             'events'       => JourneyActivityResolver::withActivities( array_values( $rows ), CurrentClub::id() ),
-            'hidden_count' => $hidden_count,
+            // #4832 — the journey shows no count of entries the reader may
+            // not read: a count says they exist. Kept at 0 so the v1 shape
+            // does not change.
+            'hidden_count' => 0,
             'next_cursor'  => $next_cursor,
         ];
     }

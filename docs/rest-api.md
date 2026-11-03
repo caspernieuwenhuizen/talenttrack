@@ -1781,8 +1781,11 @@ goals or journey from a guardian. Which journey entries come back is
 `RecordVisibility::forJourney()`: public to everyone who may read the
 player, coaching-staff entries only with `tt_edit_evaluations`, medical and
 safeguarding only with their own capabilities. A player sees the public
-entries and a `hidden_count` for the rest — the same cut `My journey`
-renders.
+entries and nothing about the rest — the same cut `My journey` renders.
+
+**`hidden_count` is deprecated.** The timeline response keeps the field in
+the v1 shape, but it is always `0`: a count of the entries a reader may not
+open would say they exist. Don't read it; it goes in a future namespace.
 
 **Entries that describe a record of their own.** An entry follows the read
 right of the record it describes (`PlayerEventsRepository::ENTRY_RIGHTS`),
@@ -1795,8 +1798,7 @@ journey right alone. The same rule holds on
 `GET /journey/cohort-transitions`, row by row. Leaving those entries out
 happens after the page is read, so a timeline page can hold fewer entries
 than `limit` while `next_cursor` is still set: keep paging until
-`next_cursor` is `null`, not until a page comes back short. `hidden_count`
-counts the visibility levels only, not these entries.
+`next_cursor` is `null`, not until a page comes back short.
 
 **What an entry was about.** Every event in both responses carries
 `activity`: `{ id, type, title, opponent, date, analysis_id }` for a
