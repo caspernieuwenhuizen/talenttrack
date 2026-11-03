@@ -62,7 +62,7 @@ class ScoutingPlanWidget extends AbstractWidget {
         $rows = $repo->upcomingForScout( $ctx->user_id, 5 );
 
         $base_url    = $ctx->viewUrl( 'scouting-visits' );
-        $all_link    = '<a class="tt-pd-link" href="' . esc_url( $base_url ) . '">'
+        $all_link    = '<a class="tt-pd-panel-more" href="' . esc_url( $base_url ) . '">'
             . esc_html__( 'Show all', 'talenttrack' )
             . '</a>';
 

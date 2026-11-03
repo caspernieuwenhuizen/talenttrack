@@ -138,17 +138,14 @@
       "widths": {
         "320": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
-          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open, the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Fixed by #4865; until then this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         },
         "360": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
-          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open, the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Fixed by #4865; until then this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         },
         "390": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
-          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open, the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Fixed by #4865; until then this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         }
       }
