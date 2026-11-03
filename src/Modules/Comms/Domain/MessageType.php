@@ -68,6 +68,14 @@ final class MessageType {
     public const SCHEDULED_REPORT            = 'scheduled_report';
 
     /**
+     * #4874 — the owner of a scheduled report is told, once per breakage,
+     * that it was not sent because it refers to a field that no longer
+     * exists. Unlike the delivery itself it carries no file, so it waits for
+     * quiet hours like any other message.
+     */
+    public const SCHEDULED_REPORT_NOT_SENT   = 'scheduled_report_not_sent';
+
+    /**
      * #2604 — a message a staff member composed and sent by hand from the
      * in-product composer. Opt-outable: someone who has asked the academy
      * not to email them means it here too.
@@ -223,6 +231,7 @@ final class MessageType {
         self::METHODOLOGY_DELIVERED      => [ MessageAudience::STAFF ],
         self::ATTENDANCE_FLAG            => [ MessageAudience::STAFF ],
         self::SCHEDULED_REPORT           => [ MessageAudience::STAFF ],
+        self::SCHEDULED_REPORT_NOT_SENT  => [ MessageAudience::STAFF ],
         self::TRIAL_INPUT_REMINDER       => [ MessageAudience::STAFF ],
         self::SCOUT_REPORT_DELIVERY      => [ MessageAudience::STAFF ],
 

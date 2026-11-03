@@ -1,0 +1,3 @@
+# Scheduled reports: the owner is told when a report was not sent (#4874)
+
+When a scheduled report is not sent because it refers to a field that no longer exists, the person who set up the schedule now gets one message, "Your scheduled report wasn't sent" ("Je geplande rapport is niet verstuurd"), naming the report and the missing field and linking to the schedule. It goes out in-app and by email as their preferences allow, in their own language, and waits for quiet hours. Later skipped runs send nothing more; a new message goes out only if the schedule breaks again after it was sent successfully or paused and resumed. The reason stays on the schedule as before. The message has its own row on the "My settings" message preferences and on the academy's message switches.

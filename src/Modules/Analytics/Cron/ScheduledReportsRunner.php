@@ -22,7 +22,9 @@ use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsOutcomeSummary;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Templates\ScheduledReportNotSentTemplate;
 use TT\Modules\Comms\Templates\ScheduledReportTemplate;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Modules\Export\ExportGate;
 
 /**
@@ -125,9 +127,15 @@ final class ScheduledReportsRunner {
             // is sent, because the file would carry the un-narrowed number;
             // the schedule says why in its list, and the run is logged once
             // per distinct reason rather than every heartbeat.
+            //
+            // #4874 — the owner is told once per breakage. The reason on the
+            // schedule is the flag: the message goes out when the reason
+            // first appears, and again only after it has cleared (a
+            // successful send, a resume) and the schedule breaks again.
             $note = $e->readerMessage();
             if ( (string) ( $schedule['last_error'] ?? '' ) !== $note ) {
                 Logger::warning( 'Scheduled report: the KPI names a field that no longer exists, send skipped.', [ 'schedule_id' => $id, 'kpi_key' => $kpi_key ] + $e->details() );
+                self::tellOwnerNotSent( $schedule, $e->key );
             }
             $repo->recordError( $id, $note );
             $repo->markRun( $id, $now );
@@ -309,6 +317,32 @@ final class ScheduledReportsRunner {
             $email,
             '',
             (string) get_user_meta( $user_id, 'locale', true )
+        );
+    }
+
+    /**
+     * #4874 — tell the schedule's owner it was not sent and why, with a link
+     * to the schedule. In-app and by email as the owner's preferences allow,
+     * in the owner's language, and held for quiet hours like any message.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    private static function tellOwnerNotSent( array $schedule, string $field ): void {
+        $owner = (int) ( $schedule['created_by'] ?? 0 );
+        if ( $owner <= 0 || get_userdata( $owner ) === false ) return;
+
+        CommsDispatcher::dispatchSync(
+            ScheduledReportNotSentTemplate::KEY,
+            [
+                'schedule_name' => (string) ( $schedule['name'] ?? '' ),
+                'field_name'    => $field,
+                'schedule_url'  => add_query_arg( [ 'tt_view' => 'scheduled-reports' ], RecordLink::dashboardUrl() ),
+            ],
+            [ self::userRecipient( $owner, (string) ( ContactResolver::emailForUser( $owner ) ?? '' ) ) ],
+            [
+                'message_type'   => MessageType::SCHEDULED_REPORT_NOT_SENT,
+                'sender_user_id' => 0,
+            ]
         );
     }
 
