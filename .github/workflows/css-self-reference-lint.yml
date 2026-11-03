@@ -1,0 +1,58 @@
+name: CSS custom-property self-reference
+
+# #4825 — `--tt-line: var(--tt-line, #e3e6e1)` reads like "keep the inherited
+# value, or fall back". It is not: a custom property that refers to itself is
+# a cycle, invalid at computed-value time, so inside that scope the token is
+# empty and every rule reading it loses the theme's colour. Two such lines
+# sat in frontend-activities-manage.css unnoticed. To keep the inherited
+# value, leave the property undeclared.
+#
+# Absolute rather than diff-only: there is no backlog, so the whole of
+# assets/css is scanned on every run.
+
+on:
+  pull_request:
+    paths:
+      - 'assets/css/**'
+      - '.github/workflows/css-self-reference-lint.yml'
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No custom property defined in terms of itself
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: "Fail on a custom property that reads itself in assets/css"
+        shell: bash
+        run: |
+          set -e
+
+          # The property name, then var() of that same name followed by a
+          # comma or a closing paren, so --tt-series: var(--tt-series-1)
+          # (a different property) does not match.
+          HITS=$(grep -rnE --include='*.css' \
+                   -e '--([A-Za-z0-9_-]+)[[:space:]]*:[[:space:]]*var\([[:space:]]*--\1[[:space:]]*[,)]' \
+                   assets/css || true)
+
+          if [ -n "$HITS" ]; then
+            echo "$HITS" | while IFS= read -r line; do
+              f="${line%%:*}"
+              echo "::error file=$f::A custom property is defined in terms of itself; it computes empty. Remove the declaration to inherit the value."
+            done
+            echo ""
+            echo "--- occurrences ---"
+            echo "$HITS"
+            echo ""
+            echo "A custom property that refers to itself is invalid at computed-value"
+            echo "time, so it is empty in that scope. To inherit the value from"
+            echo "tokens.css or the theme, do not redeclare it. See #4825."
+            exit 1
+          fi
+          echo "OK — no custom property refers to itself."
