@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\TableExists;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -222,6 +223,12 @@ final class GenericCascadeDeleter {
             throw $e;
         }
         Transaction::commit();
+
+        // #4778 — a team purge removes its staff assignments and team scope
+        // rows; no per-request authorization answer may outlive them.
+        if ( isset( $per_table['tt_team_people'] ) || isset( $per_table['tt_user_role_scopes'] ) ) {
+            AuthorizationService::flushCache();
+        }
 
         Logger::info( 'entity.deleted_with_cascade', [
             'entity'    => $entity,
