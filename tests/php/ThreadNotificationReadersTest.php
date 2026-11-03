@@ -25,6 +25,8 @@ use TT\Modules\Threads\Subscribers\NotificationSubscriber;
  */
 final class ThreadNotificationReadersTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private int $player_id  = 0;
     private int $player_uid = 0;
     private int $parent_uid = 0;
@@ -47,6 +49,7 @@ final class ThreadNotificationReadersTest extends WP_UnitTestCase {
         TemplateRegistry::register( new NotificationTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
+        $this->closeQuietHours();
         add_filter( 'tt_comms_email_send', [ $this, 'captureSend' ], 10, 2 );
         $this->sent_to = [];
 

@@ -26,6 +26,8 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  */
 final class ThreadStaffOnlyNotificationTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private int $team_id    = 0;
     private int $other_team = 0;
     private int $player_id  = 0;
@@ -49,6 +51,7 @@ final class ThreadStaffOnlyNotificationTest extends WP_UnitTestCase {
         TemplateRegistry::register( new NotificationTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
+        $this->closeQuietHours();
         add_filter( 'tt_comms_email_send', [ $this, 'captureSend' ], 10, 2 );
         $this->sent_to = [];
 
