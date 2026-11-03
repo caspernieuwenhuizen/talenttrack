@@ -22,7 +22,7 @@ use TT\Modules\Comms\Domain\MessageType;
  *
  * Per-club override via `tt_config` keys
  * `comms_quiet_hours_start` / `comms_quiet_hours_end` (HH:MM strings).
- * Defaults match the spec.
+ * Defaults match the spec. A start equal to the end means no quiet hours.
  *
  * The dispatcher consults this before invoking the channel adapter.
  * A held message is logged with `status = 'quiet_hours'` and queued in

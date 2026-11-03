@@ -33,6 +33,8 @@ use TT\Modules\Workflow\TaskStatus;
  */
 final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     // #4399 — the delete cases run a real cascade, which commits.
     use CommitsAfterCascade;
 
@@ -685,8 +687,7 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         TemplateRegistry::register( new NotificationTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $box       = new \stdClass();
         $box->sent = [];

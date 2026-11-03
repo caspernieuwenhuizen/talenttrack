@@ -38,6 +38,8 @@ use TT\Shared\Wizards\WizardRegistry;
  */
 final class TeamAnnouncementTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private string $log;
     private int $admin;
     private int $coach_a;
@@ -68,11 +70,9 @@ final class TeamAnnouncementTest extends WP_UnitTestCase {
         TemplateRegistry::register( new MassAnnouncementTemplate() );
         ChannelAdapterRegistry::register( new AnnouncementSpyAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        // A zero-width window, so quiet hours cannot decide the outcome
-        // of tests that are about the audience. CI runs at whatever hour
-        // it runs at, and the default window is 21:00-07:00.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '00:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '00:00' );
+        // Quiet hours cannot decide the outcome of tests that are about
+        // the audience.
+        $this->closeQuietHours();
 
         // The registry is populated by WizardsModule at boot; register
         // explicitly so the test does not depend on module boot order.

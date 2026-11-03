@@ -27,6 +27,8 @@ use TT\Modules\Comms\Templates\ScheduledReportTemplate;
  */
 final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private const PLAYER_KPI = 'attendance_vs_squad';
     private const TEAM_KPI   = 'activity_volume';
 
@@ -68,8 +70,7 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         TemplateRegistry::register( new ScheduledReportTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $this->repo = new ScheduledReportsRepository();
         $this->sent   = [];

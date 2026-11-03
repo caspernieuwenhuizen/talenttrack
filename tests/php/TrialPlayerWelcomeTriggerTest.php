@@ -37,8 +37,7 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
  */
 final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
 
-    /** A quiet-hours window that starts and ends at once, so it is never open. */
-    private const QUIET_SHUT = '03:00';
+    use QuietHoursClosed;
 
     private string $p;
     private int $club;
@@ -63,16 +62,9 @@ final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
 
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        // Pin the quiet-hours window shut: this template does not bypass
-        // it, and a test that passes only outside office hours is not one.
-        // #4837 — shut means empty. The window used to be 03:00–03:01,
-        // which is open for one minute a day, and a CI run that reaches this
-        // file between 03:00 and 03:01 UTC holds the message: nothing
-        // reaches the channel and three cases fail. A window that starts
-        // and ends at the same minute holds nothing at any time of day
-        // (`QuietHoursPolicy::shouldDefer()`).
-        QueryHelpers::set_config( 'comms_quiet_hours_start', self::QUIET_SHUT );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', self::QUIET_SHUT );
+        // This template does not bypass quiet hours, and a test that passes
+        // only outside office hours is not one (#4837).
+        $this->closeQuietHours();
 
         $wpdb->query( "DELETE FROM {$this->log_table}" );
     }
@@ -219,11 +211,12 @@ final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
             $this->assertFalse( $policy->shouldDefer( $request ), "held at {$time}" );
         }
 
-        // The edge of the case it pins: an open window does hold the message.
+        // The other side, on the frozen clock: a window that is open at
+        // 03:00 does hold the message.
         QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', '04:00' );
         $at_three = ( new \DateTimeImmutable( '2026-09-14 03:00:30', $tz ) )->getTimestamp();
-        $this->assertTrue( ( new \TT\Modules\Comms\QuietHours\QuietHoursPolicy( static fn (): int => $at_three ) )->shouldDefer( $request ), 'Precondition: the old pin was open at 03:00.' );
+        $this->assertTrue( ( new \TT\Modules\Comms\QuietHours\QuietHoursPolicy( static fn (): int => $at_three ) )->shouldDefer( $request ), 'Precondition: an open window holds the welcome at 03:00.' );
     }
 
     // --- fixtures -------------------------------------------------------

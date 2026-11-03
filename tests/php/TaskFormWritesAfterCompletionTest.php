@@ -37,6 +37,8 @@ use TT\Modules\Workflow\WorkflowModule;
  */
 final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     /** Tables the six forms write to. */
     private const RECORD_TABLES = [
         'tt_prospect_consent_requests', 'tt_prospects', 'tt_test_trainings', 'tt_trial_cases',
@@ -521,8 +523,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
         // Quiet hours shut, so the send does not depend on the time of day.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
         add_filter( 'tt_comms_email_send', [ $this, 'captureMail' ], 10, 2 );
     }
 

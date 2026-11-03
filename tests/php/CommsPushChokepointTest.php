@@ -28,6 +28,8 @@ use TT\Modules\Push\Dispatchers\EmailDispatcher;
  */
 final class CommsPushChokepointTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private string $table;
     private int $user_id;
 
@@ -49,8 +51,7 @@ final class CommsPushChokepointTest extends WP_UnitTestCase {
 
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
         // Pin the window shut so the wall clock cannot decide these tests.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $wpdb->query( "DELETE FROM {$this->table}" );
     }
