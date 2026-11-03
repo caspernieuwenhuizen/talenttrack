@@ -40,7 +40,6 @@ jobs:
             'assets/css/components/list-table.css'
             'assets/css/frontend-activities-manage.css'
             'assets/css/frontend-backups.css'
-            'assets/css/frontend-message-log.css'
             'assets/css/frontend-mobile.css'
             'assets/css/frontend-pdp-evidence.css'
             'assets/css/frontend-season-rollover.css'

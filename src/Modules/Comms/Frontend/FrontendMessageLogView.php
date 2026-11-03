@@ -10,6 +10,7 @@ use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -299,17 +300,17 @@ final class FrontendMessageLogView extends FrontendViewBase {
         if ( $rows === [] ) return;
         ?>
         <div class="tt-table-wrap">
-            <table class="tt-table tt-msglog-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'When', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Message', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'To', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Channel', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Outcome', 'talenttrack' ); ?></th>
+            <table class="tt-table tt-msglog-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768 ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'When', 'talenttrack' ); ?></th>
+                        <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Message', 'talenttrack' ); ?></th>
+                        <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'To', 'talenttrack' ); ?></th>
+                        <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Channel', 'talenttrack' ); ?></th>
+                        <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Outcome', 'talenttrack' ); ?></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $rows as $row ) :
                     $status = (string) ( $row['status'] ?? '' );
                     $error  = (string) ( $row['error_code'] ?? '' );
@@ -321,34 +322,38 @@ final class FrontendMessageLogView extends FrontendViewBase {
                     $reachable  = isset( $row['reachable'] ) ? (int) $row['reachable'] : null;
                     $reach_note = CommsStatusLabels::reachabilityNote( $status, $reachable );
                     ?>
-                    <tr>
-                        <td data-label="<?php esc_attr_e( 'When', 'talenttrack' ); ?>">
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', __( 'When', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php echo esc_html( (string) ( $row['created_at'] ?? '' ) ); ?>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'Message', 'talenttrack' ); ?>">
-                            <?php echo esc_html( self::templateLabel( (string) ( $row['template_key'] ?? '' ) ) ); ?>
-                            <?php if ( ! empty( $row['subject'] ) ) : ?>
-                                <span class="tt-msglog-subject"><?php echo esc_html( (string) $row['subject'] ); ?></span>
-                            <?php endif; ?>
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Message', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <span class="tt-msglog-value">
+                                <?php echo esc_html( self::templateLabel( (string) ( $row['template_key'] ?? '' ) ) ); ?>
+                                <?php if ( ! empty( $row['subject'] ) ) : ?>
+                                    <span class="tt-msglog-subject"><?php echo esc_html( (string) $row['subject'] ); ?></span>
+                                <?php endif; ?>
+                            </span>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'To', 'talenttrack' ); ?>">
+                        <td<?php echo StackTable::attrs( 'cell', __( 'To', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php echo esc_html( self::recipientLabel( $row ) ); ?>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'Channel', 'talenttrack' ); ?>">
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Channel', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php echo esc_html( (string) ( $row['channel'] ?? '' ) ); ?>
                         </td>
-                        <td data-label="<?php esc_attr_e( 'Outcome', 'talenttrack' ); ?>">
-                            <span class="tt-msglog-status tt-msglog-status--<?php echo esc_attr( CommsStatusLabels::tone( $status ) ); ?>">
-                                <?php echo esc_html( CommsStatusLabels::label( $status, $error ) ); ?>
-                            </span>
-                            <?php if ( $hint !== '' ) : ?>
-                                <span class="tt-msglog-hint"><?php echo esc_html( $hint ); ?></span>
-                            <?php endif; ?>
-                            <?php if ( $reach_note !== '' ) : ?>
-                                <span class="tt-msglog-reach tt-msglog-reach--<?php echo esc_attr( CommsStatusLabels::reachabilityTone( $reachable ) ); ?>">
-                                    <?php echo esc_html( $reach_note ); ?>
+                        <td<?php echo StackTable::attrs( 'cell', __( 'Outcome', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <span class="tt-msglog-value">
+                                <span class="tt-msglog-status tt-msglog-status--<?php echo esc_attr( CommsStatusLabels::tone( $status ) ); ?>">
+                                    <?php echo esc_html( CommsStatusLabels::label( $status, $error ) ); ?>
                                 </span>
-                            <?php endif; ?>
+                                <?php if ( $hint !== '' ) : ?>
+                                    <span class="tt-msglog-hint"><?php echo esc_html( $hint ); ?></span>
+                                <?php endif; ?>
+                                <?php if ( $reach_note !== '' ) : ?>
+                                    <span class="tt-msglog-reach tt-msglog-reach--<?php echo esc_attr( CommsStatusLabels::reachabilityTone( $reachable ) ); ?>">
+                                        <?php echo esc_html( $reach_note ); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </span>
                         </td>
                     </tr>
                 <?php endforeach; ?>
