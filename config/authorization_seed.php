@@ -632,6 +632,11 @@ return array_merge(
         // the same row, and the owner accepted that they open too. `team`
         // scope, so the grant reaches the manager's own teams and no others.
         'reports'                    => [ 'r',   'team',   $mod_reports ],
+        // #4695 — reads a Report Studio report published to them. Every
+        // Studio read asks `report_studio` read as well as `reports`, which
+        // keeps the Studio closed to the observer. Read only: building asks
+        // create/delete. Existing installs get it through migration 0315.
+        'report_studio'              => [ 'r',   'team',   $mod_report_studio ],
         // #3808 — the load half of the availability conversation.
         //
         // The team manager is who parents ring when a boy is tired or sore,

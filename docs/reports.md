@@ -687,3 +687,5 @@ A report someone published for your role appears on the Reports launcher under *
 - On a phone the blocks stack one under the other.
 
 A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
+
+The Report Studio is closed to the read-only observer: no report is published to that role, and an observer opens none.

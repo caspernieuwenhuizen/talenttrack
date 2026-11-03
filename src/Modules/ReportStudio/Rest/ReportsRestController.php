@@ -59,8 +59,22 @@ final class ReportsRestController extends BaseController {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
 
+    /**
+     * The read routes' gate: `tt_view_reports` with the feature on, and
+     * `report_studio` read at some scope (#4695). The observer holds the
+     * first club-wide and never the second, so the Studio stays closed to
+     * that seat; a builder holds both, and a team manager reads at team
+     * scope.
+     */
+    public static function permReadStudio(): callable {
+        $view = self::permCanFeature( 'tt_view_reports', 'report_studio' );
+        return static function () use ( $view ): bool {
+            return $view() && ReportReader::for( get_current_user_id() )->readsStudio();
+        };
+    }
+
     public static function register(): void {
-        $view  = self::permCanFeature( 'tt_view_reports', 'report_studio' );
+        $view  = self::permReadStudio();
         $build = self::permCanFeature( 'tt_build_reports', 'report_studio' );
 
         register_rest_route( self::NS, '/reports', [

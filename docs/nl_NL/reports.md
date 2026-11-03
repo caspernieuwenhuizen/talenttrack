@@ -727,3 +727,5 @@ Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapporteno
 - Op een telefoon staan de blokken onder elkaar.
 
 Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.
+
+De Report Studio is gesloten voor de alleen-lezen waarnemer: er wordt geen rapport voor die rol gepubliceerd en een waarnemer opent er geen.

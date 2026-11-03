@@ -746,8 +746,9 @@ The Report Studio stores reports and dashboards that a builder puts together fro
 | --- | --- | --- |
 | `report_studio` (create/delete) | `tt_build_reports` | **Head coach** and **assistant coach** at **team** scope; **head of development** and **academy admin** at **global** scope |
 | `report_publishing` (create/delete) | `tt_publish_reports` | **Head of development** and **academy admin** at **global** scope only |
+| `report_studio` (read) | reading a Studio report | The builders above, and the **team manager** at **team** scope |
 
-Nobody else is seeded: not the team manager, the scout, the observer, the player or the parent.
+Nobody else is seeded: not the scout, the observer, the player or the parent. The team manager reads the reports published to them and builds none, because building asks create/delete.
 
 What the scope means:
 
@@ -759,7 +760,11 @@ What the scope means:
 
 **Reading a published report.** A user reads a published report when they hold one of the personas it was published to and can read what it is about, and each block still checks its subject against them. A coach who leaves the team stops seeing the report, in the list too. Read on `reports` alone is not enough: a scout holds it for every team and still cannot open a report that was not published to scouts.
 
-Existing installs get both entities' rows with the update that adds the Studio's storage (migration `0307_report_studio_storage`). It writes the seed's rows with `INSERT IGNORE`, so a row an admin has edited is left alone and a second run writes nothing.
+**Every Studio read asks `report_studio` read too**, at any scope: the report list, one report, its data, the subjects a reader may switch to, the block names, the viewer and "Shared with me". `reports` read cannot tell a team manager from the read-only observer, which holds it club-wide.
+
+**Closed to the read-only observer.** The observer holds no `report_studio` and no `report_publishing` row, is answered `403` on every Studio route, and sees no Studio report under "Shared with me". A report cannot be published to the observer.
+
+Existing installs get both entities' rows with the update that adds the Studio's storage (migration `0307_report_studio_storage`). It writes the seed's rows with `INSERT IGNORE`, so a row an admin has edited is left alone and a second run writes nothing. Migration `0315_report_studio_closed_to_observer` adds the team manager's read the same way, leaving a cell your academy already set alone. It also removes any observer row on the two entities and any publication to the observer persona. A report published to the observer and to other roles stays published to the others.
 
 ## The functional-role axis (#3257, #3433)
 

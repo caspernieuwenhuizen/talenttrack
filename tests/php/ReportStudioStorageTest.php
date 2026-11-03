@@ -58,7 +58,9 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
         $this->assertSame( 1, $row( 'head_of_development', 'report_studio', 'global' ) );
         $this->assertSame( 1, $row( 'academy_admin', 'report_publishing', 'global' ) );
         $this->assertSame( 0, $row( 'head_coach', 'report_publishing', 'team' ) + $row( 'head_coach', 'report_publishing', 'global' ), 'a coach does not publish' );
-        $this->assertSame( 0, (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$matrix} WHERE entity IN ( 'report_studio', 'report_publishing' ) AND persona IN ( 'scout', 'parent', 'player', 'team_manager', 'readonly_observer' )" ) );
+        $this->assertSame( 0, (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$matrix} WHERE entity IN ( 'report_studio', 'report_publishing' ) AND persona IN ( 'scout', 'parent', 'player', 'readonly_observer' )" ) );
+        // #4695 — the team manager reads reports published to them, and builds and publishes none.
+        $this->assertSame( 0, (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$matrix} WHERE persona = 'team_manager' AND ( entity = 'report_publishing' OR ( entity = 'report_studio' AND activity <> 'read' ) )" ) );
     }
 
     public function test_a_version_number_is_unique_per_report(): void {

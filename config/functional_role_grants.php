@@ -73,6 +73,10 @@ $mod_training      = class_exists( '\TT\Modules\Training\TrainingModule' )
 $mod_threads       = TT\Modules\Threads\ThreadsModule::class;
 // #4259 — declared here for the same reason as `$mod_threads`.
 $mod_reports       = TT\Modules\Reports\ReportsModule::class;
+// #4695 — the same fallback the authorization seed uses for this module.
+$mod_report_studio = class_exists( '\TT\Modules\ReportStudio\ReportStudioModule' )
+    ? TT\Modules\ReportStudio\ReportStudioModule::class
+    : $mod_authorization;
 
 return [
 
@@ -282,6 +286,10 @@ return [
             // `team_manager` PERSONA gets the same row in
             // `authorization_seed.php`, for the reason given above.
             'reports'                 => [ 'r',  $mod_reports ],
+            // #4695 — reads a Report Studio report published to them, as the
+            // `team_manager` PERSONA does in `authorization_seed.php`. Every
+            // Studio read asks this as well as `reports`. Read only.
+            'report_studio'           => [ 'r',  $mod_report_studio ],
             // #3808 — the same two reads the `team_manager` persona gains,
             // because the comment above says a team manager on this install
             // may be either shape and the answer must not depend on which.

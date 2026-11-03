@@ -20,7 +20,7 @@ final class SharedWithMe {
 
     /** @return list<Report> */
     public static function forReader( ReportReader $reader ): array {
-        if ( $reader->userId <= 0 || $reader->personas() === [] ) return [];
+        if ( $reader->userId <= 0 || ! $reader->readsStudio() || $reader->personas() === [] ) return [];
         $repo     = new ReportsRepository();
         $subjects = ReportAccess::listedSubjects( $reader, $repo->publishedPlayerSubjects( $reader->userId, $reader->personas() ) );
         $list     = $repo->listFor(
