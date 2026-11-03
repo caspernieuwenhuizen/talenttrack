@@ -606,7 +606,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
 
         $one = TeamMonthlyReportPdfExporter::payload( $report, 'A', 'Pdf U13' )['html'];
         $this->assertStringContainsString( 'class="tstat"', $one );
-        $this->assertStringNotContainsString( 'class="rd tt-stack-table"', $one, 'The one-pager prints the strip only.' );
+        $this->assertStringNotContainsString( 'class="rd ', $one, 'The one-pager prints the strip only.' );
         $this->assertStringContainsString( '16:04', $one, 'With the worst reading in place of the history.' );
     }
 

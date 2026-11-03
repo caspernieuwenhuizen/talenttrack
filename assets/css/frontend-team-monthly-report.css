@@ -711,7 +711,22 @@
 
     .tt-mr-doc .tt-d-rd,
     .tt-mr-doc .tt-d-rd tbody { display: block; }
-    .tt-mr-doc .tt-d-rd tr:first-child { display: none; }
+    /* The header row (the first row of the body: DomPDF must not repeat it)
+       is hidden the way the primitive hides a thead, so a screen reader
+       still has the column headers. */
+    .tt-mr-doc .tt-d-rd tr:first-child {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        min-height: 0;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
     .tt-mr-doc .tt-d-rd tr {
         display: grid;
         grid-template-columns: 1.75rem minmax(0, 1fr) auto;
@@ -735,7 +750,7 @@
     .tt-mr-doc .tt-d-rd .tt-d-pv { grid-area: pv; font-size: 0.8rem; color: var(--tt-muted); }
     .tt-mr-doc .tt-d-rd .tt-d-av { grid-area: av; text-align: right; font-size: 0.8rem; color: var(--tt-muted); }
     /* The label (the primitive's) runs in front of the figure. */
-    .tt-mr-doc .tt-d-rd td[data-label]::before { margin-right: 0.28em; }
+    .tt-mr-doc .tt-d-rd td[data-label]::before { margin-inline-end: 0.28em; }
     .tt-mr-doc .tt-d-rd .tt-d-avgline { display: block; min-height: 0; padding: 0; border-bottom: 2px dashed var(--tt-ink); }
     .tt-mr-doc .tt-d-rd .tt-d-avgline td { display: none; }
     .tt-mr-doc .tt-d-pb {

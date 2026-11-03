@@ -190,7 +190,7 @@ final class TeamMonthlyEvaluationsTest extends WP_UnitTestCase {
         $this->assertLessThan( strpos( $html, '<!--tt-block:evaluations-->' ), strpos( $html, '<!--tt-block:status-->' ), 'right after the squad status' );
 
         $one = TeamMonthlyReportDocument::prepare( $report, 'A' );
-        $this->assertStringNotContainsString( 'class="egrid tt-stack-table"', TeamMonthlyReportDocument::html( $one['report'], 'A', 'Eval U13', [], $one['fit']['groups'] ), 'the one-pager prints the summary' );
+        $this->assertStringNotContainsString( 'class="egrid ', TeamMonthlyReportDocument::html( $one['report'], 'A', 'Eval U13', [], $one['fit']['groups'] ), 'the one-pager prints the summary' );
     }
 
     /**
