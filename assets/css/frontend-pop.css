@@ -1023,17 +1023,6 @@
     border-collapse: separate;
     border-spacing: 0;
 }
-/* On a phone each team is a card (the stack-table primitive); the table,
-   from 480px, keeps its width and scrolls inside the wrapper. */
-@media (min-width: 480px) {
-    .tt-table.tt-pdp-team-coverage__table { min-width: 40rem; }
-}
-.tt-table.tt-pdp-team-coverage__table th[scope="row"] {
-    display: block;
-}
-@media (min-width: 480px) {
-    .tt-table.tt-pdp-team-coverage__table th[scope="row"] { display: table-cell; }
-}
 .tt-table.tt-pdp-team-coverage__table th,
 .tt-table.tt-pdp-team-coverage__table td {
     vertical-align: middle;

@@ -633,15 +633,15 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         echo '<section class="tt-pdp-team-coverage">';
         echo '<h2 class="tt-pdp-team-coverage__title">' . esc_html__( 'PDP coverage by team', 'talenttrack' ) . '</h2>';
-        // #4914 — a card per team on a phone (the team its title), the table
-        // from 480px, where it scrolls sideways inside its wrapper as before.
+        // #4914 — a card per team (the team its title) on a phone and a
+        // tablet in portrait; the table from 768px.
         $c_players = __( 'Players', 'talenttrack' );
         $c_plan    = __( 'With a plan', 'talenttrack' );
         $c_talked  = __( 'Talked to', 'talenttrack' );
         $c_booked  = __( 'Booked in 4 weeks', 'talenttrack' );
         $c_signed  = __( 'Signed by a parent', 'talenttrack' );
         $th        = StackTable::attrs( 'columnheader' );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
         echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         echo '<th scope="col"' . $th . '>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         echo '<th scope="col"' . $th . '>' . esc_html( $c_players ) . '</th>';

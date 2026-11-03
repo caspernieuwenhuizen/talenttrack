@@ -87,7 +87,8 @@ Een tabel die op een telefoon in kaarten met labels verandert, gebruikt de gedee
 **Markup.** Bouw de tabel met `\TT\Shared\Frontend\Components\StackTable`:
 
 - `StackTable::classes( $to, $cards )` geeft de classes. `$to` is `StackTable::TO_480`, `StackTable::TO_768` of `StackTable::ALWAYS`; `$cards` voegt de kaartopmaak toe.
-- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'cell', $label )` zet de expliciete rol op elk onderdeel, en de `data-label` op een cel. Als `display` op tabelelementen verandert, verliezen sommige engines hun impliciete rollen; een renderer zonder de rollen is voor een schermlezer geen tabel meer.
+- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'rowheader' | 'cell', $label )` zet de expliciete rol op elk onderdeel, en de `data-label` op een cel. Als `display` op tabelelementen verandert, verliezen sommige engines hun impliciete rollen; een renderer zonder de rollen is voor een schermlezer geen tabel meer.
+- `rowheader` is een `<th scope="row">` in de body die zijn rij benoemt, zoals een team. Op een telefoon maakt de stapeltabel er een eigen blok bovenaan de kaart van, en de tabel maakt er weer een cel van. De stylesheet van het scherm geeft hem de opmaak van een titel.
 - Een cel met meerdere delen (een naam met een badge, een status met een toelichting) zet ze samen in één `StackTable::VALUE`-blok, zodat ze naast het label onder elkaar staan.
 - Een tabel die JavaScript opbouwt, schrijft dezelfde attributen als de helper (zie `frontend-list-table.js`).
 

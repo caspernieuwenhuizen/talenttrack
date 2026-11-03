@@ -112,7 +112,7 @@ final class FrontendPdpPlanningView {
 
         $today = gmdate( 'Y-m-d' );
         echo '<div class="tt-pdp-matrix-card">';
-        // #4914 — a card per team on a phone, the matrix from 480px.
+        // #4914 — a card per team on a phone, the matrix from 768px (four blocks do not fit at 480).
         $c_team     = __( 'Team', 'talenttrack' );
         $max_blocks = (int) $matrix['max_blocks'];
         $c_blocks   = [];
@@ -120,7 +120,7 @@ final class FrontendPdpPlanningView {
             $c_blocks[ $b ] = sprintf( __( 'Block %d', 'talenttrack' ), $b );
         }
         $th = StackTable::attrs( 'columnheader' );
-        echo '<table class="tt-table tt-pdp-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<table class="tt-table tt-pdp-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
         echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
         for ( $b = 1; $b <= $max_blocks; $b++ ) {
