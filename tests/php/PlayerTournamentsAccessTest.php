@@ -47,7 +47,9 @@ final class PlayerTournamentsAccessTest extends WP_UnitTestCase {
         $this->assertSame( 'team',   $granted['head_coach'] ?? null );
         $this->assertSame( 'global', $granted['head_of_development'] ?? null );
         $this->assertSame( 'global', $granted['academy_admin'] ?? null );
-        $this->assertCount( 6, $granted, 'nobody else reads a player\'s tournament record' );
+        // #4688 — the read-only observer reads the non-sensitive set academy-wide.
+        $this->assertSame( 'global', $granted['readonly_observer'] ?? null );
+        $this->assertCount( 7, $granted, 'nobody else reads a player\'s tournament record' );
     }
 
     /** The planner stays where #3703 left it. This is the AC that guards the whole design. */

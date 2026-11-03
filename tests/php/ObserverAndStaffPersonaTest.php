@@ -53,16 +53,27 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
     private const PANEL_ENTITIES = [ 'activities_panel' ];
 
     /**
+     * The non-sensitive set (#4688), read from the migration that brings it
+     * to existing installs, so the seed and the upgrade cannot disagree.
+     *
+     * @return list<string>
+     */
+    private function nonSensitiveEntities(): array {
+        $migration = require dirname( __DIR__, 2 ) . '/database/migrations/0310_authorization_observer_reads_non_sensitive.php';
+        return array_values( (array) constant( get_class( $migration ) . '::ENTITIES' ) );
+    }
+
+    /**
      * Exactly the eight entities `RolesService::VIEW_CAPS` maps to
-     * through `LegacyCapMapper`, plus the named panel entities, and
-     * nothing else.
+     * through `LegacyCapMapper`, plus the named panel entities, plus the
+     * non-sensitive set, and nothing else.
      *
      * Derived rather than hard-listed: if a ninth view capability is
      * added to the role, this test says so instead of silently passing on
      * a stale list.
      */
     public function test_the_observer_is_seeded_exactly_what_its_view_caps_map_to(): void {
-        $expected = self::PANEL_ENTITIES;
+        $expected = array_merge( self::PANEL_ENTITIES, $this->nonSensitiveEntities() );
         foreach ( RolesService::VIEW_CAPS as $cap ) {
             $tuple = LegacyCapMapper::tupleFor( $cap );
             $this->assertNotNull( $tuple, "VIEW_CAPS carries {$cap}, which the mapper does not know." );
@@ -111,9 +122,10 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
     }
 
     /**
-     * The entities the first pass would have granted and this one does
-     * not. Named individually, because "not all 138" is not a property a
-     * future edit can trip over but "not safeguarding_notes" is.
+     * The entities that stay closed to the observer (owner decision,
+     * 2 November 2026). Named individually, because "not everything" is
+     * not a property a future edit can trip over but "not
+     * safeguarding_notes" is.
      */
     public function test_the_observer_reaches_nothing_sensitive(): void {
         $entities = array_map(
@@ -129,6 +141,10 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
             'player_potential',
             'parent_accounts',
             'media',
+            'staff_only_notes',
+            'pdp_file',
+            'pdp_conversations',
+            'pdp_verdict',
             'audit_log',
             'impersonation_log',
             'permission_debug',

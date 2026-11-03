@@ -184,11 +184,12 @@ An earlier sketch in this document described a narrower split — view for Coach
 | `parent` | `read`, player |
 | `assistant_coach`, `head_coach` | `read`, team |
 | `head_of_development`, `academy_admin` | `read`, global |
-| `team_manager`, `scout`, `readonly_observer`, `staff` | *(none)* |
+| `readonly_observer` | `read`, global |
+| `team_manager`, `scout`, `staff` | *(none)* |
 
 Two notes on the shape:
 
-- **The planner is untouched.** No change to `tt_view_tournaments`, to the `tournaments` entity, or to who holds it. A test asserts it, because a later widening of the planner "so the family can see the day" is exactly the change this entity exists to make unnecessary.
+- **The planner is untouched.** No change to `tt_view_tournaments`, to the `tournaments` entity, or to who holds it. A test asserts it, because a later widening of the planner "so the family can see the day" is exactly the change this entity exists to make unnecessary. The read-only observer reads `player_tournaments` academy-wide, as part of everything non-sensitive it reads (see "The read-only observer" below), and not the planner.
 - **The head of development is global, not team.** The epic's shaping listed them beside the coaches at team scope; every other head-of-development row in the seed is global, and a head of development holds no team assignment of their own, so a team-scoped row would have read as no access for the persona whose job is the whole academy.
 
 A parent passes two gates, not one: this entity admits them to their own child, and then `AuthorizationService::parentCanViewSection( …, 'tournaments' )` asks whether the child has left the section open. The section is new in `PlayerParentVisibilityRepository::SECTIONS` and defaults to shared, so no family loses anything when this ships, and no migration is needed for it — an absent preference row means shared.
@@ -591,7 +592,7 @@ Those eight are exactly what `RolesService::VIEW_CAPS` maps to through `LegacyCa
 
 Plus `activities_panel`, read at global scope. It holds no data. It is the entity the dashboard asks before it opens the activities list or an activity's page, and without it the `activities` read led nowhere. The observer can now open the list and any activity's page, and the page renders read-only: every edit, archive, status and rating action asks a change right the observer does not hold. On a match with a preparation, the page offers **View match prep**, which opens the read-only sheet. The team planner tile is gated by the same entity, so the observer opens the planner too, also read-only, because planning asks `activities` change. Existing installs get the row through migration `0308_authorization_observer_activities_panel`. It writes with `INSERT IGNORE`, so a second run writes nothing and a row an admin has edited is left alone.
 
-A first pass proposed global read on **all 138 entities**, reasoning from the role's `"view EVERYTHING, edit NOTHING"` docstring. That inverted the relationship — the docstring describes `allViewCapsTrue()`, which is these eight capabilities, not the matrix. The wide version would have made a board-member or sponsor account the third persona able to read `safeguarding_notes` about minors, alongside `player_injuries`, `player_notes`, `parent_accounts`, `media`, `audit_log` and `impersonation_log`. 52 of the 138 entities are held by Head of Development and Academy Admin alone today, and a further 17 exist only at `self` / `player` scope, where a global row is incoherent.
+Those nine rows are where the observer started. It now reads everything that is not sensitive: see "The read-only observer" below.
 
 `staff` — read/change at **team** scope, matching `team_manager`, which the #0085 note groups this role with:
 
@@ -610,6 +611,45 @@ A first pass proposed global read on **all 138 entities**, reasoning from the ro
 **`players:create_delete` is deliberately not granted.** The role holds `tt_manage_players` as a raw WP capability, but that capability is not "manage the roster" in this codebase: it gates season rollover, player-account provisioning, custom-field definitions and player deletion, and `BehaviourPendingSource` uses it as the "sees every player in the academy" marker for — in its own comment — HoDs and admins. Seeding it would hand a kit manager the academy-admin surface. Declining changes no live behaviour: on a matrix-active install the role currently has nothing, and on a matrix-inactive one the seed is not consulted. Whether the raw grant should stay on the role definition is a separate question, because removing it *would* change matrix-inactive installs.
 
 Migration `0249_authorization_seed_topup_observer_and_staff` backfills both personas on existing installs — idempotent `INSERT IGNORE`, walking only these two personas, and refusing to write a non-`read` activity for the observer even if the seed file later gains one. No other persona's answer moves.
+
+## The read-only observer — everything that is not sensitive
+
+The rule: the read-only observer reads everything in the academy that is not sensitive, at **global** scope, and changes nothing. Sensitive fields on a record it reads are masked through one chokepoint, the sensitive-field registry (`config/sensitive_fields.php`, read by `RecordRedactor`): the reader sees "Hidden" on screen and the field is left out of the API answer.
+
+**What it reads**, `read` at global scope, on top of the nine rows above:
+
+| Area | Entities |
+| --- | --- |
+| Tournaments | `player_tournaments` (each player's own tournament record) |
+| Training | `exercises` |
+| Reference data | `seasons`, `methodology`, `football_actions`, `evaluation_categories`, `category_weights`, `rating_scale`, `holidays`, `documentation` |
+| Panels | `goals_panel` |
+
+**What stays closed**, by decision of the academy's owner: `player_injuries`, `safeguarding_notes`, `player_notes`, `staff_only_notes`, `thread_messages`, `parent_accounts`, every PDP entity (`pdp_file`, `pdp_conversations`, `pdp_verdict`, `pdp_evidence_packet`, `pdp_planning`, `pdp_panel`, `pdp_calendar_export`, `my_pdp_panel`) and `audit_log`. Report Studio (`report_studio`, `report_publishing`) is closed to the observer too.
+
+**What follows with its masking.** A record whose sensitive fields are not yet registered is not granted, so nothing becomes readable before it can be masked:
+
+| Entities | Masked field |
+| --- | --- |
+| `attendance` | absence reasons |
+| `evaluations_panel` | evaluation comments |
+| `player_status`, `player_status_breakdown` | potential notes, which the status routes return |
+| `trial_*`, `prospects`, `test_trainings`, `scout_*`, `scouting_visits_panel`, `player_potential` | contact details and free-text judgements |
+| `custom_field_values` | the club's own player fields |
+| `people_directory_panel` | parent and guardian contact in the people list |
+| `team_roster_panel`, `coach_player_list_panel`, `compare` | date of birth |
+
+**What follows with its own review:** `vct` (load-restriction reasons per player), `training_plan` and `training_exposure` (coach notes and ratings on observations), `tournaments` (free-text squad, tournament and match notes), `media`, and `measurements`, `measurement_sessions`, `measurement_definitions`.
+
+**What is not granted either:** `vct_library` and `vct_workload` (no surface opens on either alone; the workload routes also ask `vct`); `player_timeline` and `cohort_transitions` (the journey carries the PDP verdict entry, and PDP stays closed); `player_behaviour_ratings` (free-text notes about a child's behaviour); `team_chemistry` and its panel, `analytics`, `lookups`, `player_suspensions`, `rate_cards`, `podium_panel`, `holidays_panel` and the staff-development entities; everything that operates the install (backups, migrations, the matrix itself, integrations, impersonation, usage statistics, workflow templates); and the `my_*` rows, which describe the reader's own record and mean nothing at global scope.
+
+**No write, anywhere.** The observer holds no `change` and no `create_delete` row. A test asserts it over the seed and over an upgraded matrix.
+
+**Write rights ask the change level.** A capability that gates a write maps to `change` (or `create_delete`) in `LegacyCapMapper`, never to `read`, so a read grant on an entity opens no write behind it. The VCT configuration capabilities (`tt_vct_admin_config` and its alias `tt_vct_admin_library`, which gate the age profiles, macro-blocks, team cycles and cycle weeks) map to `vct_library: change`, and `tt_training_plan` (the planner, plan and run writes, and observations) maps to `training_plan: change`. Every persona seeded on those entities holds `change` with its read, so nobody who writes there loses it. Removing a training observation asks what writing one asks: its author, or someone who may evaluate that player. The evaluation categories screen follows the same rule on screen: without `tt_edit_evaluation_categories` it lists the categories read-only, with no add, move, edit or delete control and no form.
+
+**PDP on every route.** The observer holds no PDP row, and the role no longer carries the raw `tt_view_pdp` capability (it is revoked on upgrade, so an install whose matrix is dormant answers the same). `GET /players/{id}/pdp` asks `pdp_file` read for the player, as the journey and status routes ask their own sections, so a reader who may open the player record but holds no PDP right gets `403`: the read-only observer, and equally a scout on a linked player, a staff member, or a team manager outside their own team. The PDP tiles, the player profile's PDP tab and the `pdp-files` routes refuse the observer as well.
+
+**Existing installs** get the rows with migration `0310_authorization_observer_reads_non_sensitive`. A cell your academy already changed keeps its value: the migration skips an entity when the matrix already holds an observer row for it at any scope, or when the changelog records an edit to it since the last reset or import. It adds rows with `INSERT IGNORE`, so a second run writes nothing, and it deletes nothing.
 
 ## Matrix entity `analytics` — reading it, and setting the evaluation windows
 

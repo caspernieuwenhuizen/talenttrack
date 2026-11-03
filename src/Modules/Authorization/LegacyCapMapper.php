@@ -447,10 +447,16 @@ final class LegacyCapMapper {
         // claims to own a library: `tt_vct_admin_config`. Both resolve to
         // the same `vct_library` matrix entity, whose rows are unchanged,
         // so no persona gains or loses anything.
-        'tt_vct_admin_config'            => [ 'vct_library',          'read' ],
+        //
+        // #4688 — both are write gates (age profiles, macro-blocks, team
+        // cycles, cycle weeks), so they ask the `change` level. Every
+        // persona seeded on `vct_library` holds `change` with its read, so
+        // no writer loses anything; a read-only grant on the entity opens
+        // no write.
+        'tt_vct_admin_config'            => [ 'vct_library',          'change' ],
         // Deprecated alias, kept for one release per the repo's
         // deprecation pattern. Remove in the next minor.
-        'tt_vct_admin_library'           => [ 'vct_library',          'read' ],
+        'tt_vct_admin_library'           => [ 'vct_library',          'change' ],
         'tt_vct_view_load'               => [ 'vct_workload',         'read' ],
 
         // #2496 — Training plans (epic #2493). Matrix-only cap, no role
@@ -459,7 +465,13 @@ final class LegacyCapMapper {
         // resolves the team scope behind it. A plan carries no player data,
         // so read and write share the cap — the boundary that matters is
         // which teams' plans a coach can reach, not whether they may edit.
-        'tt_training_plan'               => [ 'training_plan',        'read' ],
+        //
+        // #4688 — the cap gates plan and run writes (create, edit, publish,
+        // observations) as well as the planner itself, so it asks the
+        // `change` level. Every persona seeded on `training_plan` holds
+        // `change` with its read, so no planner loses anything; a read-only
+        // grant on the entity opens no write.
+        'tt_training_plan'               => [ 'training_plan',        'change' ],
 
         // #2500 — reading a player's training exposure. Deliberately NOT
         // `tt_training_plan`: that cap is about planning a training, and

@@ -152,9 +152,18 @@ class FrontendVctSessionView extends FrontendViewBase {
             $by_id[ (int) ( $p->id ?? 0 ) ] = $p;
         }
         $entries = [];
+        $viewer  = get_current_user_id();
         foreach ( $restricted as $pid ) {
             if ( ! isset( $by_id[ $pid ] ) ) continue;
             $name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $by_id[ $pid ] );
+            // The reason is health-adjacent data on a minor, so it follows
+            // the rule the player profile uses for the same restriction:
+            // staff for this player read it, every other reader sees only
+            // that the player is restricted.
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer( $viewer, $pid ) ) {
+                $entries[] = $name;
+                continue;
+            }
             // One row read per restricted player, for the reason. A squad
             // carries none or a handful, and the banner has already
             // returned when it carries none.
