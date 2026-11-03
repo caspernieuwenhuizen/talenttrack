@@ -7,14 +7,24 @@ name: Stack-table primitive
 # little different. This fails any stylesheet outside the primitive that
 # writes `content: attr(data-label)`.
 #
-# MIGRATING lists the sheets that still carry their own copy. Each moves onto
-# the primitive in its own PR and leaves this list in the same PR; the list
-# only shrinks. A new copy anywhere else fails at once.
+# One named exception: frontend-mobile.css's legacy phone stack, which
+# labels the `.tt-table`s not yet on the primitive (tt-table-tools.js copies
+# the header text onto their cells). The #4810 decision keeps it until the
+# tables move, under epic #4908:
+# https://github.com/caspernieuwenhuizen/talenttrack/issues/4810#issuecomment-6599880029
+#
+# The second step counts those tables: the frontend PHP and JS lines that
+# write a `tt-table` class without the primitive, against the exact baseline in
+# .github/stack-table-legacy-baseline.txt. A new one fails; one that moves
+# fails until the baseline is lowered, so the count only falls.
 
 on:
   pull_request:
     paths:
       - 'assets/css/**'
+      - 'src/**/*.php'
+      - 'assets/js/**'
+      - '.github/stack-table-legacy-baseline.txt'
       - '.github/workflows/stack-table-lint.yml'
   push:
     branches: [ main ]
@@ -36,9 +46,9 @@ jobs:
           set -e
 
           PRIMITIVE='assets/css/components/stack-table.css'
-          MIGRATING=(
-            'assets/css/frontend-mobile.css'
-          )
+          # The legacy phone stack: kept by the #4810 decision until epic
+          # #4908 moves its tables onto the primitive.
+          EXCEPTION='assets/css/frontend-mobile.css'
 
           if [ ! -f "$PRIMITIVE" ]; then
             echo "::error file=$PRIMITIVE::The stack-table primitive is missing."
@@ -50,19 +60,8 @@ jobs:
           BAD=()
           for f in $HITS; do
             [ "$f" = "$PRIMITIVE" ] && continue
-            allowed=0
-            for m in "${MIGRATING[@]}"; do
-              [ "$f" = "$m" ] && allowed=1
-            done
-            [ "$allowed" = 1 ] && continue
+            [ "$f" = "$EXCEPTION" ] && continue
             BAD+=( "$f" )
-          done
-
-          STALE=()
-          for m in "${MIGRATING[@]}"; do
-            if ! echo "$HITS" | grep -qxF "$m"; then
-              STALE+=( "$m" )
-            fi
           done
 
           if [ ${#BAD[@]} -gt 0 ]; then
@@ -78,11 +77,69 @@ jobs:
             exit 1
           fi
 
-          if [ ${#STALE[@]} -gt 0 ]; then
-            for f in "${STALE[@]}"; do
-              echo "::error file=.github/workflows/stack-table-lint.yml::$f no longer writes its own data-label line; remove it from MIGRATING."
-            done
+          if ! echo "$HITS" | grep -qxF "$EXCEPTION"; then
+            echo "::error file=.github/workflows/stack-table-lint.yml::$EXCEPTION no longer writes its own data-label line; remove the exception (epic #4908 is done)."
             exit 1
           fi
 
-          echo "OK — the data-label line is written only by the primitive (${#MIGRATING[@]} sheet(s) still migrating)."
+          echo "OK — the data-label line is written only by the primitive and by one named exception:"
+          echo "  $EXCEPTION, the legacy phone stack, kept by the #4810 decision until epic #4908 moves its tables:"
+          echo "  https://github.com/caspernieuwenhuizen/talenttrack/issues/4810#issuecomment-6599880029"
+
+      - name: Count the tables still on the legacy phone stack
+        shell: bash
+        run: |
+          set -e
+
+          BASELINE='.github/stack-table-legacy-baseline.txt'
+
+          # A frontend line that writes `tt-table` as a quoted class token
+          # (not `tt-table-wrap` and the like, not the `.tt-table` of a
+          # selector or a comment) without the primitive: in PHP markup,
+          # whether the class is written in place or built in a variable or
+          # array, and in a table a script builds. wp-admin pages are out:
+          # the legacy stack does not load there.
+          TOKEN="[\"' ]tt-table([\"' ]|\$)"
+          legacy_lines() {
+            {
+              grep -rnE "$TOKEN" --include='*.php' src | grep -vE '^src/Modules/[^/]+/Admin/' || true
+              grep -rnE "$TOKEN" --include='*.js' assets/js || true
+            } | grep -v -e 'tt-stack-table' -e 'StackTable::classes(' || true
+          }
+
+          CURRENT=$(legacy_lines | cut -d: -f1 | LC_ALL=C sort | uniq -c | awk '{ print $2 " " $1 }')
+          EXPECTED=$(grep -vE '^[[:space:]]*(#|$)' "$BASELINE" | LC_ALL=C sort)
+
+          total() { echo "$1" | awk 'NF { n += $2 } END { print n + 0 }'; }
+
+          if [ "$CURRENT" = "$EXPECTED" ]; then
+            echo "OK — $(total "$CURRENT") line(s) in $(echo "$CURRENT" | grep -c .) file(s) still print a .tt-table on the legacy phone stack (epic #4908), as the baseline says."
+            exit 0
+          fi
+
+          FAIL=0
+          # Every file in either list, with its count now and in the baseline.
+          FILES=$( { echo "$CURRENT"; echo "$EXPECTED"; } | awk 'NF { print $1 }' | LC_ALL=C sort -u )
+          for f in $FILES; do
+            now=$(echo "$CURRENT" | awk -v f="$f" '$1 == f { print $2 }')
+            was=$(echo "$EXPECTED" | awk -v f="$f" '$1 == f { print $2 }')
+            now=${now:-0}
+            was=${was:-0}
+            if [ "$now" -gt "$was" ]; then
+              FAIL=1
+              legacy_lines | grep -F "$f:" | while IFS=: read -r path line rest; do
+                echo "::error file=$path,line=$line::A .tt-table on the legacy phone stack. Build the table through StackTable::classes() / StackTable::attrs() (docs/architecture-mobile-first.md, Stacked tables); epic #4908 is moving the rest."
+              done
+              echo "$f: $now legacy line(s), the baseline allows $was."
+            elif [ "$now" -lt "$was" ]; then
+              FAIL=1
+              echo "::error file=$BASELINE::$f now has $now legacy line(s), the baseline says $was. Lower it in $BASELINE (or remove the line at 0), so the count stays exact."
+            fi
+          done
+
+          if [ "$FAIL" = 1 ]; then
+            echo ""
+            echo "The current count, in the baseline's own shape:"
+            echo "$CURRENT"
+            exit 1
+          fi
