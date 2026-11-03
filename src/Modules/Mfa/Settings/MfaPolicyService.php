@@ -3,6 +3,8 @@ namespace TT\Modules\Mfa\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\ClubMembership;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\Mfa\Audit\MfaAuditEvents;
 use TT\Modules\Mfa\MfaSecretsRepository;
@@ -92,8 +94,9 @@ final class MfaPolicyService {
         }
 
         $out = [];
-        // Accounts come from the whole install until a shared account-to-club lookup exists.
-        $ids = array_map( 'intval', get_users( [ 'fields' => 'ID', 'number' => -1 ] ) );
+        // #4787 — the accounts this club's policy governs, by the gate's own rule.
+        $ids = ClubMembership::userIdsGovernedBy( CurrentClub::id() );
+        if ( $ids === [] ) return [];
         // One query for every user and their roles, instead of two per account in personasFor().
         cache_users( $ids );
         foreach ( $ids as $id ) {

@@ -34,6 +34,8 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
         CoreSurfaceRegistration::register();
         SettingsRegistry::clear();
         AuthorizationService::flushCache();
+        // The membership memo lives for one request; a test is a new one.
+        \TT\Infrastructure\Tenancy\ClubMembership::flush();
         $this->policy_was = (string) ( new ConfigService() )->get( MfaSettings::KEY_REQUIRED_PERSONAS, '' );
         $this->admin      = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
     }

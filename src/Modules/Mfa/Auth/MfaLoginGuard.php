@@ -259,11 +259,24 @@ final class MfaLoginGuard {
      * Whether `$user_id` holds at least one persona that's in the
      * per-club `mfa_required_personas` list. Multi-persona users
      * trip the gate as soon as any persona is required.
+     *
+     * #4787 — the policies that apply are those of the clubs the account
+     * belongs to plus the current club (`ClubMembership::policyClubIdsForUser()`),
+     * the strictest winning: a second factor protects the account, not one
+     * club's view of it. Including the current club means the gate is never
+     * looser than the club being signed in to.
      */
     public static function personaIsGated( int $user_id ): bool {
-        $required = ( new MfaSettings() )->requiredPersonas();
-        if ( empty( $required ) ) return false;
         $personas = PersonaResolver::personasFor( $user_id );
-        return ! empty( array_intersect( $required, $personas ) );
+        if ( empty( $personas ) ) return false;
+
+        foreach ( \TT\Infrastructure\Tenancy\ClubMembership::policyClubIdsForUser( $user_id ) as $club_id ) {
+            $required = \TT\Infrastructure\Tenancy\ClubIteration::withClub(
+                $club_id,
+                static fn (): array => ( new MfaSettings() )->requiredPersonas()
+            );
+            if ( array_intersect( $required, $personas ) !== [] ) return true;
+        }
+        return false;
     }
 }
