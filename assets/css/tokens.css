@@ -96,8 +96,6 @@
     --tt-r-md:       6px;
     --tt-r-lg:       10px;
 
-    /* Focus ring (a box-shadow; `--tt-focus-ring` is the Branding colour). */
-    --tt-focus: 0 0 0 2px rgba(11, 61, 46, 0.35);
 
     /* Font families. Branding or a theme override them. */
     --tt-font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -137,4 +135,22 @@
        lower floor a fine pointer keeps for desktop density. */
     --tt-tap-min:      48px;
     --tt-tap-min-fine: 2.25rem;
+}
+
+/*
+ * Focus ring (#4804): a solid ring in the primary colour, so it takes the
+ * primary's hue on every design and stays visible against the light page
+ * backgrounds (3:1 or more). A box-shadow, used where an outline cannot be.
+ *
+ * Declared on `.tt-dashboard` as well as `.tt-root` on purpose: a custom
+ * property resolves its `var()` where it is declared, and a theme redeclares
+ * `--tt-primary` on `.tt-dashboard`. Declared on `.tt-root` alone the ring
+ * would keep the default green under every theme.
+ *
+ * `--tt-focus-color` is set only by `BrandStyles`, for a Branding primary
+ * too light to reach 3:1: the same hue, darkened until it does.
+ */
+.tt-root,
+.tt-dashboard {
+    --tt-focus: 0 0 0 2px var(--tt-focus-color, var(--tt-primary));
 }

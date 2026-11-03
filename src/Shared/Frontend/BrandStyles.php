@@ -92,7 +92,13 @@ class BrandStyles {
             $value = (string) $cfg->get( $key, '' );
             if ( ! self::isChosen( $key, $value ) ) continue;
             $decls[] = $token . ':' . esc_attr( $value );
-            if ( $key === 'primary_color' )   $decls[] = '--tt-primary-rgb:' . esc_attr( self::hexToRgb( $value ) );
+            if ( $key === 'primary_color' ) {
+                $decls[] = '--tt-primary-rgb:' . esc_attr( self::hexToRgb( $value ) );
+                // #4804 — the focus ring is drawn in the primary colour; a
+                // primary too light to see on the page gets a darker shade.
+                $focus = self::focusColor( $value );
+                if ( $focus !== '' ) $decls[] = '--tt-focus-color:' . esc_attr( $focus );
+            }
             if ( $key === 'secondary_color' ) $decls[] = '--tt-secondary-rgb:' . esc_attr( self::hexToRgb( $value ) );
         }
 
@@ -157,6 +163,108 @@ class BrandStyles {
         );
         if ( $url === '' ) return;
         wp_enqueue_style( 'tt-brand-fonts', $url, [], null );
+    }
+
+    /**
+     * The darkest light background a focus ring is drawn on: the canvas
+     * page background `#f4f5f7`. A ring that reaches 3:1 here also reaches
+     * it on white and on the training scene's pitch (`#f3f7f3`).
+     */
+    private const FOCUS_BACKGROUND = [ 244, 245, 247 ];
+
+    /** WCAG 2.2 non-text contrast for a focus indicator. */
+    private const FOCUS_MIN_CONTRAST = 3.0;
+
+    /**
+     * The focus ring colour for a Branding primary (#4804): '' when the
+     * primary itself reaches 3:1 against the page background, otherwise the
+     * same hue with its lightness lowered until it does.
+     */
+    public static function focusColor( string $hex ): string {
+        $rgb = self::parseHex( $hex );
+        if ( $rgb === null ) return '';
+        $bg = self::FOCUS_BACKGROUND;
+        if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) return '';
+
+        [ $h, $s, $l ] = self::rgbToHsl( $rgb );
+        while ( $l > 0 ) {
+            $l   = max( 0.0, $l - 0.02 );
+            $rgb = self::hslToRgb( $h, $s, $l );
+            if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) break;
+        }
+        return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
+    }
+
+    /**
+     * @return array{0:int,1:int,2:int}|null
+     */
+    private static function parseHex( string $hex ): ?array {
+        $hex = ltrim( trim( $hex ), '#' );
+        if ( strlen( $hex ) === 3 ) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        if ( strlen( $hex ) !== 6 || ! ctype_xdigit( $hex ) ) return null;
+        return [ (int) hexdec( substr( $hex, 0, 2 ) ), (int) hexdec( substr( $hex, 2, 2 ) ), (int) hexdec( substr( $hex, 4, 2 ) ) ];
+    }
+
+    /**
+     * @param array{0:int,1:int,2:int} $rgb
+     */
+    private static function luminance( array $rgb ): float {
+        $lin = array_map( static function ( int $c ): float {
+            $c = $c / 255;
+            return $c <= 0.03928 ? $c / 12.92 : ( ( $c + 0.055 ) / 1.055 ) ** 2.4;
+        }, $rgb );
+        return 0.2126 * $lin[0] + 0.7152 * $lin[1] + 0.0722 * $lin[2];
+    }
+
+    /**
+     * @param array{0:int,1:int,2:int} $a
+     * @param array{0:int,1:int,2:int} $b
+     */
+    public static function contrast( array $a, array $b ): float {
+        $la = self::luminance( $a );
+        $lb = self::luminance( $b );
+        return ( max( $la, $lb ) + 0.05 ) / ( min( $la, $lb ) + 0.05 );
+    }
+
+    /**
+     * @param array{0:int,1:int,2:int} $rgb
+     * @return array{0:float,1:float,2:float}
+     */
+    private static function rgbToHsl( array $rgb ): array {
+        [ $r, $g, $b ] = [ $rgb[0] / 255, $rgb[1] / 255, $rgb[2] / 255 ];
+        $max = max( $r, $g, $b );
+        $min = min( $r, $g, $b );
+        $l   = ( $max + $min ) / 2;
+        if ( $max === $min ) return [ 0.0, 0.0, $l ];
+        $d = $max - $min;
+        $s = $l > 0.5 ? $d / ( 2 - $max - $min ) : $d / ( $max + $min );
+        if ( $max === $r )      $h = ( $g - $b ) / $d + ( $g < $b ? 6 : 0 );
+        elseif ( $max === $g )  $h = ( $b - $r ) / $d + 2;
+        else                    $h = ( $r - $g ) / $d + 4;
+        return [ $h / 6, $s, $l ];
+    }
+
+    /**
+     * @return array{0:int,1:int,2:int}
+     */
+    private static function hslToRgb( float $h, float $s, float $l ): array {
+        if ( $s == 0.0 ) {
+            $v = (int) round( $l * 255 );
+            return [ $v, $v, $v ];
+        }
+        $q = $l < 0.5 ? $l * ( 1 + $s ) : $l + $s - $l * $s;
+        $p = 2 * $l - $q;
+        $f = static function ( float $t ) use ( $p, $q ): float {
+            if ( $t < 0 ) $t += 1;
+            if ( $t > 1 ) $t -= 1;
+            if ( $t < 1 / 6 ) return $p + ( $q - $p ) * 6 * $t;
+            if ( $t < 1 / 2 ) return $q;
+            if ( $t < 2 / 3 ) return $p + ( $q - $p ) * ( 2 / 3 - $t ) * 6;
+            return $p;
+        };
+        return [ (int) round( $f( $h + 1 / 3 ) * 255 ), (int) round( $f( $h ) * 255 ), (int) round( $f( $h - 1 / 3 ) * 255 ) ];
     }
 
     private static function hexToRgb( string $hex ): string {
