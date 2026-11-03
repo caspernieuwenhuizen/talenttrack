@@ -15,8 +15,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * @phpstan-type Cohort array{team_ids:list<int>, age_group:string, position:string}
  * @phpstan-type Report array{id:int, uuid:string, kind:string, scope:string, binding:string, audience:string, period_mode:string, period_value:string, layout:string, sharing:string, name:string, player_id:?int, team_id:?int, cohort:?Cohort, owner_user_id:int, published_version_id:?int, created_at:string, updated_at:string, archived_at:?string}
- * @phpstan-type Draft array{definition:array<mixed>, revision:int, updated_at:string}
- * @phpstan-type Version array{id:int, uuid:string, version_no:int, definition:array<mixed>, note:string, published_by:int, published_at:string}
+ * @phpstan-type Draft array{definition:array<mixed>, name:string, revision:int, updated_at:string}
+ * @phpstan-type Version array{id:int, uuid:string, version_no:int, name:string, definition:array<mixed>, note:string, published_by:int, published_at:string}
  */
 final class ReportsRepository {
 
@@ -55,6 +55,7 @@ final class ReportsRepository {
             'club_id'         => CurrentClub::id(),
             'report_id'       => $id,
             'user_id'         => $owner_user_id,
+            'name'            => $choices['name'],
             'definition_json' => (string) wp_json_encode( self::emptyDefinition() ),
             'revision'        => 0,
             'updated_at'      => $now,
@@ -195,13 +196,14 @@ final class ReportsRepository {
     public function draft( int $report_id, int $user_id ): ?array {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT definition_json, revision, updated_at FROM {$wpdb->prefix}tt_report_drafts
+            "SELECT definition_json, name, revision, updated_at FROM {$wpdb->prefix}tt_report_drafts
               WHERE report_id = %d AND user_id = %d AND club_id = %d",
             $report_id, $user_id, CurrentClub::id()
         ), ARRAY_A );
         if ( ! is_array( $row ) ) return null;
         return [
             'definition' => self::decodeDefinition( $row['definition_json'] ?? null ),
+            'name'       => (string) ( $row['name'] ?? '' ),
             'revision'   => (int) ( $row['revision'] ?? 0 ),
             'updated_at' => (string) ( $row['updated_at'] ?? '' ),
         ];
@@ -209,9 +211,9 @@ final class ReportsRepository {
 
     /**
      * The user's draft, made on first use from the published version or, when
-     * there is none, the owner's draft.
+     * there is none, the owner's draft, with that version's or draft's name.
      *
-     * @param array{id:int, owner_user_id:int, published_version_id:?int} $report
+     * @param array{id:int, owner_user_id:int, published_version_id:?int, name:string} $report
      * @return Draft
      */
     public function ensureDraft( array $report, int $user_id ): array {
@@ -219,47 +221,57 @@ final class ReportsRepository {
         if ( $draft !== null ) return $draft;
 
         $definition = self::emptyDefinition();
+        $name       = $report['name'];
         $published  = $report['published_version_id'] !== null ? $this->versionById( $report['id'], $report['published_version_id'] ) : null;
         if ( $published !== null ) {
             $definition = $published['definition'];
+            $name       = $published['name'];
         } else {
             $owner = $this->draft( $report['id'], $report['owner_user_id'] );
-            if ( $owner !== null ) $definition = $owner['definition'];
+            if ( $owner !== null ) {
+                $definition = $owner['definition'];
+                $name       = $owner['name'];
+            }
         }
 
         global $wpdb;
         $wpdb->query( $wpdb->prepare(
-            "INSERT IGNORE INTO {$wpdb->prefix}tt_report_drafts (club_id, report_id, user_id, definition_json, revision, updated_at)
-             VALUES (%d, %d, %d, %s, 0, %s)",
-            CurrentClub::id(), $report['id'], $user_id, (string) wp_json_encode( $definition ), current_time( 'mysql', true )
+            "INSERT IGNORE INTO {$wpdb->prefix}tt_report_drafts (club_id, report_id, user_id, name, definition_json, revision, updated_at)
+             VALUES (%d, %d, %d, %s, %s, 0, %s)",
+            CurrentClub::id(), $report['id'], $user_id, $name, (string) wp_json_encode( $definition ), current_time( 'mysql', true )
         ) );
-        return $this->draft( $report['id'], $user_id ) ?? [ 'definition' => $definition, 'revision' => 0, 'updated_at' => '' ];
+        return $this->draft( $report['id'], $user_id ) ?? [ 'definition' => $definition, 'name' => $name, 'revision' => 0, 'updated_at' => '' ];
     }
 
     /**
-     * Replace the user's draft definition when its revision is still the one
-     * expected (any revision when null).
+     * Replace the user's draft definition, its name, or both, when its
+     * revision is still the one expected (any revision when null). Either
+     * write raises the revision by one.
      *
-     * @param array<mixed> $definition
+     * @param array<mixed>|null $definition null keeps the definition
+     * @param string|null       $name       null keeps the name
      * @return int|null the new revision, null when the expected one is stale
      */
-    public function saveDraft( int $report_id, int $user_id, array $definition, ?int $expected_revision ): ?int {
+    public function saveDraft( int $report_id, int $user_id, ?array $definition, ?int $expected_revision, ?string $name = null ): ?int {
         global $wpdb;
-        $p    = $wpdb->prefix;
-        $json = (string) wp_json_encode( $definition );
-        $now  = current_time( 'mysql', true );
+        $p   = $wpdb->prefix;
+        $now = current_time( 'mysql', true );
 
-        $n = $expected_revision === null
-            ? $wpdb->query( $wpdb->prepare(
-                "UPDATE {$p}tt_report_drafts SET definition_json = %s, revision = revision + 1, updated_at = %s
-                  WHERE report_id = %d AND user_id = %d AND club_id = %d",
-                $json, $now, $report_id, $user_id, CurrentClub::id()
-            ) )
-            : $wpdb->query( $wpdb->prepare(
-                "UPDATE {$p}tt_report_drafts SET definition_json = %s, revision = revision + 1, updated_at = %s
-                  WHERE report_id = %d AND user_id = %d AND club_id = %d AND revision = %d",
-                $json, $now, $report_id, $user_id, CurrentClub::id(), $expected_revision
-            ) );
+        // Each optional field keeps its stored value when it is not given.
+        // wpdb::prepare() turns a null into '', so the columns are chosen
+        // here rather than left to a COALESCE.
+        $json = $definition !== null ? (string) wp_json_encode( $definition ) : '';
+        $set_definition = $definition !== null ? 1 : 0;
+        $set_name       = $name !== null ? 1 : 0;
+        $n = $wpdb->query( $wpdb->prepare(
+            "UPDATE {$p}tt_report_drafts
+                SET definition_json = IF( %d = 1, %s, definition_json ),
+                    name = IF( %d = 1, %s, name ),
+                    revision = revision + 1, updated_at = %s
+              WHERE report_id = %d AND user_id = %d AND club_id = %d AND ( %d = -1 OR revision = %d )",
+            $set_definition, $json, $set_name, (string) $name, $now, $report_id, $user_id, CurrentClub::id(),
+            $expected_revision ?? -1, $expected_revision ?? -1
+        ) );
         if ( (int) $n !== 1 ) return null;
 
         $this->touch( $report_id );
@@ -267,6 +279,30 @@ final class ReportsRepository {
         return $draft !== null ? $draft['revision'] : null;
     }
 
+    /**
+     * This user's draft names for these reports, in one statement (#4737),
+     * for a builder's list.
+     *
+     * @param list<int> $report_ids
+     * @return array<int,string> report id => draft name
+     */
+    public function draftNames( array $report_ids, int $user_id ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $report_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT report_id, name FROM {$wpdb->prefix}tt_report_drafts WHERE club_id = %d AND user_id = %d AND report_id IN ({$in})",
+            CurrentClub::id(), $user_id, ...$ids
+        ), ARRAY_A );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            if ( is_array( $row ) ) $out[ (int) ( $row['report_id'] ?? 0 ) ] = (string) ( $row['name'] ?? '' );
+        }
+        return $out;
+    }
+
+    /** The report's own name: its published name, or its only name while it was never published. */
     public function rename( int $report_id, string $name ): void {
         global $wpdb;
         $wpdb->update(
@@ -286,16 +322,24 @@ final class ReportsRepository {
      * the publication list are written in one transaction, so a failure
      * leaves the report as it was.
      *
+     * `$name` (#4737) is the draft's name: the version keeps it, and it
+     * becomes the report's published name, the one readers get. Null keeps
+     * the report's current name.
+     *
      * @param array<mixed> $definition
      * @param list<string> $persona_keys
      * @return array{id:int, version_no:int}|null null when the version number stayed taken or locked
      * @throws \RuntimeException on any other database error, after rolling back.
      */
-    public function publish( int $report_id, array $definition, string $note, array $persona_keys, int $user_id ): ?array {
+    public function publish( int $report_id, array $definition, string $note, array $persona_keys, int $user_id, ?string $name = null ): ?array {
         global $wpdb;
         $p    = $wpdb->prefix;
         $club = CurrentClub::id();
         $now  = current_time( 'mysql', true );
+        if ( $name === null ) {
+            $current = $this->find( $report_id );
+            $name    = $current !== null ? $current['name'] : '';
+        }
 
         Transaction::begin();
         try {
@@ -328,6 +372,7 @@ final class ReportsRepository {
                     'club_id'         => $club,
                     'report_id'       => $report_id,
                     'version_no'      => $next,
+                    'name'            => $name,
                     'definition_json' => (string) wp_json_encode( $definition ),
                     'note'            => $note,
                     'published_by'    => $user_id,
@@ -352,7 +397,7 @@ final class ReportsRepository {
                 return null;
             }
 
-            $this->check( $wpdb->update( $p . 'tt_reports', [ 'published_version_id' => $version['id'], 'updated_at' => $now ], [ 'id' => $report_id, 'club_id' => $club ] ) );
+            $this->check( $wpdb->update( $p . 'tt_reports', [ 'published_version_id' => $version['id'], 'name' => $name, 'updated_at' => $now ], [ 'id' => $report_id, 'club_id' => $club ] ) );
             $this->check( $wpdb->delete( $p . 'tt_report_publications', [ 'report_id' => $report_id, 'club_id' => $club ] ) );
             foreach ( $persona_keys as $key ) {
                 $this->check( $wpdb->insert( $p . 'tt_report_publications', [
@@ -388,12 +433,12 @@ final class ReportsRepository {
     /**
      * The report's versions, newest first, without their definitions.
      *
-     * @return list<array{id:int, uuid:string, version_no:int, note:string, published_by:int, published_at:string}>
+     * @return list<array{id:int, uuid:string, version_no:int, name:string, note:string, published_by:int, published_at:string}>
      */
     public function versions( int $report_id ): array {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, uuid, version_no, note, published_by, published_at FROM {$wpdb->prefix}tt_report_versions
+            "SELECT id, uuid, version_no, name, note, published_by, published_at FROM {$wpdb->prefix}tt_report_versions
               WHERE report_id = %d AND club_id = %d ORDER BY version_no DESC",
             $report_id, CurrentClub::id()
         ), ARRAY_A );
@@ -404,6 +449,7 @@ final class ReportsRepository {
                 'id'           => (int) ( $row['id'] ?? 0 ),
                 'uuid'         => (string) ( $row['uuid'] ?? '' ),
                 'version_no'   => (int) ( $row['version_no'] ?? 0 ),
+                'name'         => (string) ( $row['name'] ?? '' ),
                 'note'         => (string) ( $row['note'] ?? '' ),
                 'published_by' => (int) ( $row['published_by'] ?? 0 ),
                 'published_at' => (string) ( $row['published_at'] ?? '' ),
@@ -528,6 +574,7 @@ final class ReportsRepository {
             'id'           => (int) ( $row['id'] ?? 0 ),
             'uuid'         => (string) ( $row['uuid'] ?? '' ),
             'version_no'   => (int) ( $row['version_no'] ?? 0 ),
+            'name'         => (string) ( $row['name'] ?? '' ),
             'definition'   => self::decodeDefinition( $row['definition_json'] ?? null ),
             'note'         => (string) ( $row['note'] ?? '' ),
             'published_by' => (int) ( $row['published_by'] ?? 0 ),

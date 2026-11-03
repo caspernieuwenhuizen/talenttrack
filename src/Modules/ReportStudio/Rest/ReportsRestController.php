@@ -10,6 +10,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReach;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
 use TT\Modules\ReportStudio\Domain\ReportViewerSubjects;
@@ -394,16 +395,21 @@ final class ReportsRestController extends BaseController {
             }
         }
 
+        $definition = null;
         if ( array_key_exists( 'definition', $body ) ) {
             $definition = ReportDefinition::normalise( $body['definition'] );
             if ( $definition instanceof StudioError ) return self::refuse( $definition );
-            $saved = $repo->saveDraft( $report['id'], $user_id, $definition, $revision ?? $draft['revision'] );
-            if ( $saved === null ) {
-                $current = $repo->draft( $report['id'], $user_id );
-                return self::stale( $current !== null ? $current['revision'] : 0 );
-            }
         }
-        if ( $name !== null ) $repo->rename( $report['id'], $name );
+
+        // #4737 — the name is part of the draft, like the definition, and
+        // reaches readers when the draft is published. A report never
+        // published has no readers, so its own name follows the draft.
+        $saved = $repo->saveDraft( $report['id'], $user_id, $definition, $revision ?? $draft['revision'], $name );
+        if ( $saved === null ) {
+            $current = $repo->draft( $report['id'], $user_id );
+            return self::stale( $current !== null ? $current['revision'] : 0 );
+        }
+        if ( $name !== null && $report['published_version_id'] === null ) $repo->rename( $report['id'], $name );
 
         $fresh = $repo->find( $report['id'] );
         return RestResponse::success( self::full( $fresh ?? $report, $reader ) );
@@ -478,7 +484,7 @@ final class ReportsRestController extends BaseController {
 
         $draft = $repo->ensureDraft( $report, $user_id );
         if ( $revision !== null && $revision !== $draft['revision'] ) return self::stale( $draft['revision'] );
-        if ( $repo->saveDraft( $report['id'], $user_id, $version['definition'], $revision ) === null ) {
+        if ( $repo->saveDraft( $report['id'], $user_id, $version['definition'], $revision, $version['name'] ) === null ) {
             $current = $repo->draft( $report['id'], $user_id );
             return self::stale( $current !== null ? $current['revision'] : 0 );
         }
@@ -543,7 +549,7 @@ final class ReportsRestController extends BaseController {
         $repo    = new ReportsRepository();
         $draft   = $repo->ensureDraft( $report, $user_id );
         try {
-            $version = $repo->publish( $report['id'], $draft['definition'], $note, $keys, $user_id );
+            $version = $repo->publish( $report['id'], $draft['definition'], $note, $keys, $user_id, $draft['name'] );
         } catch ( \RuntimeException $e ) {
             return RestResponse::error( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
         }
@@ -741,8 +747,14 @@ final class ReportsRestController extends BaseController {
     private static function full( array $report, ReportReader $reader ): array {
         $out = self::payload( $report, $reader );
         if ( ReportAccess::canEdit( $reader, $report ) ) {
-            $repo                = new ReportsRepository();
-            $out['draft']        = $repo->draft( $report['id'], $reader->userId );
+            $repo  = new ReportsRepository();
+            $draft = $repo->draft( $report['id'], $reader->userId );
+            // #4737 — `name` is what readers see; the builder's draft keeps
+            // its own, and says when it differs from the published one.
+            if ( $draft !== null ) {
+                $draft['name_changed'] = ReportNaming::changed( $report, $draft['name'] );
+            }
+            $out['draft']        = $draft;
             $out['persona_keys'] = $repo->personaKeys( $report['id'] );
         }
         return $out;

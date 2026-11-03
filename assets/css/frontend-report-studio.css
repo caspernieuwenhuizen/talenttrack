@@ -95,6 +95,20 @@
     font-weight: 600;
 }
 
+/* A draft name readers do not see yet (#4737). */
+.tt-dashboard .tt-rs-name-changed {
+    justify-self: start;
+    padding: 0 var(--tt-sp-2, 8px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-rs-name-changed[hidden] {
+    display: none;
+}
+
 .tt-dashboard .tt-rs-report-meta {
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);

@@ -1518,14 +1518,20 @@ Writes the **caller's** draft, never another builder's: `definition` (`{
 blocks and 65536 bytes; `width` is `full`, the default, or `half`) and
 `name`. **An omitted field keeps its value; a field sent empty clears it.** A
 body with neither is `400 no_writable_field`. The draft row is made on first
-use from the published version, or the owner's draft.
+use from the published version, or the owner's draft, with that version's or
+draft's name.
+
+**A rename waits for publish.** `name` is written to the caller's draft, like
+`definition`, and readers keep the published name until the next publish
+copies the draft's name onto the new version and the report. A report that
+was never published has no readers, so its `name` follows the draft at once.
 
 `revision` is optional, in the body or as a query parameter
 (`PATCH /reports/{id}?revision=4`). When sent it must be the draft's current
 revision, and a stale one is **`409 stale_revision`** with
 `details.current_revision`, so two tabs of one builder never overwrite each
-other silently; the canvas reloads the draft. Every definition write raises
-the revision by one.
+other silently; the canvas reloads the draft. Every draft write, of the
+definition, the name or both, raises the revision by one.
 
 ### `POST /reports/{id}/versions`
 
@@ -1647,9 +1653,15 @@ row scope. `source` is `draft` (a builder's own, their default) or
   "owner_user_id": 3, "published_version_id": 11,
   "created_at": "…", "updated_at": "…", "archived_at": null,
   "permissions": { "can_edit": true, "can_publish": true },
-  "draft": { "definition": { "blocks": [ … ] }, "revision": 4, "updated_at": "…" },
+  "draft": { "definition": { "blocks": [ … ] }, "name": "Month pack (new)", "revision": 4,
+             "updated_at": "…", "name_changed": true },
   "persona_keys": [ "head_coach" ] }
 ```
+
+`name` is the published name, the one readers see (the only name while the
+report was never published). An editor also gets `draft.name`, their own
+draft's name, and `draft.name_changed`, true while that name differs from the
+published one. `GET /reports/{id}/versions` gives each version's `name`.
 
 `permissions` says what the caller may do; no role names travel.
 `owner_user_id` is a mapping to the account that made the report, not its

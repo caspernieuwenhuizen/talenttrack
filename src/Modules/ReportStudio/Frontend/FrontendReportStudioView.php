@@ -8,6 +8,7 @@ use TT\Modules\License\LicenseGate;
 use TT\Modules\License\UpgradePanel;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportDefinition;
+use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
@@ -73,10 +74,13 @@ final class FrontendReportStudioView extends FrontendViewBase {
             return;
         }
 
-        $name = $report['name'] !== '' ? $report['name'] : __( 'Untitled report', 'talenttrack' );
+        // The builder works on their draft's name (#4737).
+        $draft      = ( new ReportsRepository() )->draft( $id, $user_id );
+        $draft_name = $draft !== null ? $draft['name'] : $report['name'];
+        $name       = $draft_name !== '' ? $draft_name : __( 'Untitled report', 'talenttrack' );
         FrontendBreadcrumbs::fromDashboard( $name, [ self::reportsCrumb(), self::studioCrumb() ] );
         self::enqueue( $id, $report['scope'] );
-        self::renderCanvas( $report );
+        self::renderCanvas( $draft_name, ReportNaming::changed( $report, $draft_name ) );
     }
 
     /** The builder's own reports, and the way to start one. */
@@ -118,11 +122,16 @@ final class FrontendReportStudioView extends FrontendViewBase {
             return;
         }
 
+        $draft_names = $repo->draftNames( array_column( $list['rows'], 'id' ), $user_id );
+
         echo '<ul class="tt-rs-reports">';
         foreach ( $list['rows'] as $row ) {
             // A report whose subject the builder no longer builds for stays
-            // listed, without a link into a refusal.
-            $name = $row['name'] !== '' ? $row['name'] : __( 'Untitled report', 'talenttrack' );
+            // listed, without a link into a refusal. It is listed under the
+            // builder's draft name, marked when readers still see another.
+            $draft_name = $draft_names[ $row['id'] ] ?? $row['name'];
+            $changed    = ReportNaming::changed( $row, $draft_name );
+            $name       = $draft_name !== '' ? $draft_name : __( 'Untitled report', 'talenttrack' );
             $meta = ReportStartRules::label( 'kind', $row['kind'] ) . ' · ' . ReportStartRules::label( 'scope', $row['scope'] );
             $open = CrossViewLink::allows( self::SLUG, [ 'gate' => static fn(): bool => ReportAccess::canEdit( $reader, $row ) ] );
             echo '<li class="tt-rs-report">';
@@ -133,6 +142,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
                 echo '<span class="tt-rs-report-link">';
             }
             echo '<span class="tt-rs-report-name">' . esc_html( $name ) . '</span>';
+            if ( $changed ) echo '<span class="tt-rs-name-changed">' . esc_html__( 'Changed since publish', 'talenttrack' ) . '</span>';
             echo '<span class="tt-rs-report-meta">' . esc_html( $meta ) . '</span>';
             echo $open ? '</a>' : '</span>';
             echo '</li>';
@@ -140,16 +150,14 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '</ul></div>';
     }
 
-    /**
-     * @param array<string,mixed> $report
-     */
-    private static function renderCanvas( array $report ): void {
-        $name = (string) $report['name'];
+    private static function renderCanvas( string $name, bool $name_changed ): void {
         echo '<div class="tt-rs" data-tt-rs>';
 
         echo '<div class="tt-rs-top">';
         echo '<label class="tt-rs-sr" for="tt-rs-name">' . esc_html__( 'Report name', 'talenttrack' ) . '</label>';
-        echo '<input type="text" id="tt-rs-name" class="tt-input tt-rs-name" data-tt-rs-name maxlength="' . esc_attr( (string) ReportStartRules::MAX_NAME ) . '" autocomplete="off" value="' . esc_attr( $name ) . '" />';
+        echo '<input type="text" id="tt-rs-name" class="tt-input tt-rs-name" data-tt-rs-name maxlength="' . esc_attr( (string) ReportStartRules::MAX_NAME ) . '" autocomplete="off" value="' . esc_attr( $name ) . '" aria-describedby="tt-rs-name-changed" />';
+        // Readers keep the published name until the next publish (#4737).
+        echo '<span class="tt-rs-name-changed" id="tt-rs-name-changed" data-tt-rs-name-changed' . ( $name_changed ? '' : ' hidden' ) . '>' . esc_html__( 'Changed since publish', 'talenttrack' ) . '</span>';
         SaveState::render( 'tt-rs-save-state' );
         echo '<div class="tt-rs-actions">';
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-rs-open-library" data-tt-rs-open-library>' . esc_html__( 'Add block', 'talenttrack' ) . '</button>';

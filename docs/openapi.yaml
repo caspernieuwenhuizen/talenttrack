@@ -435,7 +435,7 @@ paths:
     patch:
       tags: [report-studio]
       summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
-      description: 'Body — name, definition (at most 40 blocks of id, key, options and width full | half), revision; revision may also be a query parameter. A stale revision is 409 stale_revision with details.current_revision.'
+      description: 'Body — name, definition (at most 40 blocks of id, key, options and width full | half), revision; revision may also be a query parameter. The name is the caller''s draft name; readers keep the published name until the next publish. A stale revision is 409 stale_revision with details.current_revision.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field or no_writable_field' }, '403': { description: forbidden }, '409': { description: stale_revision } }
     delete:
