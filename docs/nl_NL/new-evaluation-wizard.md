@@ -100,7 +100,7 @@ Ploeg-gerichte speler-dropdown. Kies een ploeg en selecteer vervolgens de speler
 
 ### Stap 2 · Hybride deep-rate
 
-Datumkiezer (standaard vandaag), Type-dropdown (gestuurd door de `eval_type`-lookup), vrije-tekst-context (max 500 tekens), dan de rating-velden.
+Datumkiezer (standaard vandaag), Type-dropdown (gestuurd door de keuzelijst `eval_type`), vrije-tekst-context (max 500 tekens), dan de rating-velden.
 
 Elke hoofdcategorie is een **inklapbaar blok, standaard ingeklapt**. De samenvattingsregel toont de categorienaam, een alleen-lezen sterren-spiegel en het gemiddelde-woord, zodat je in één oogopslag ziet wat al beoordeeld is zonder iets uit te klappen. Tik op een categorie om die uit te klappen: beoordeel de categorie rechtstreeks, of beoordeel de subvaardigheden — het beoordelen van subvaardigheden zet de categorie op het afgeronde gemiddelde van de niet-nul subs, en de samenvatting volgt live. Inklappen behoudt elke waarde.
 
