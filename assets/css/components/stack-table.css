@@ -107,7 +107,7 @@
     box-sizing: border-box;
     margin-bottom: var(--tt-sp-2);
     padding: var(--tt-sp-3);
-    background: var(--tt-paper, #fff);
+    background: var(--tt-paper);
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-r-md);
 }

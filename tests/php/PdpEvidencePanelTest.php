@@ -70,6 +70,34 @@ final class PdpEvidencePanelTest extends WP_UnitTestCase {
         $this->assertSame( [], $unlabelled[0], 'every <td> needs a data-label' );
     }
 
+    public function test_the_tables_stack_through_the_shared_primitive(): void {
+        // #4810 — every evidence table is a stack-table with explicit roles,
+        // so a stacked card still reads as a table to a screen reader.
+        $html = EvidencePanel::html( self::packet() );
+
+        preg_match_all( '/<table\b[^>]*>/', $html, $tables );
+        $this->assertNotEmpty( $tables[0] );
+        foreach ( $tables[0] as $table ) {
+            $this->assertStringContainsString( 'tt-stack-table tt-stack-table--to-768 tt-stack-table--cards', $table );
+            $this->assertStringContainsString( 'role="table"', $table );
+        }
+        preg_match_all( '/<td\b(?![^>]*role="cell")[^>]*>/', $html, $roleless );
+        $this->assertSame( [], $roleless[0], 'every <td> carries role="cell"' );
+    }
+
+    public function test_the_print_css_carries_the_primitive_ahead_of_the_panel(): void {
+        // #4810 — the print page and the PDF have no wp_head(); css() is the
+        // one source of their rules, and the panel's print rules undo the
+        // primitive, so the primitive has to come first.
+        $css = EvidencePanel::css();
+
+        $primitive = strpos( $css, '.tt-stack-table--cards' );
+        $panel     = strpos( $css, '.tt-evidence--print' );
+        $this->assertNotFalse( $primitive );
+        $this->assertNotFalse( $panel );
+        $this->assertLessThan( $panel, $primitive );
+    }
+
     public function test_the_season_packet_shows_no_self_reflection_section(): void {
         // There is no conversation, so there is nothing a player wrote for
         // it — an empty "the player has not written one yet" would be a

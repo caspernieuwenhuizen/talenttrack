@@ -162,7 +162,8 @@
                     '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>';
             }
 
-            cells += '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_notes || 'Notes') + '">' + escapeHtml(note) + '</td>';
+            // #4885 — data-notes is what frontend-csv-import.css widens the column by.
+            cells += '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_notes || 'Notes') + '" data-notes="1">' + escapeHtml(note) + '</td>';
             tr.innerHTML = cells;
             tbody.appendChild(tr);
         });

@@ -57,6 +57,16 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+
+        // #4885 — the flow's shared sheet (status pill, notes column width),
+        // as the exercise importer enqueues it.
+        wp_enqueue_style(
+            'tt-frontend-csv-import',
+            TT_PLUGIN_URL . 'assets/css/frontend-csv-import.css',
+            [ 'tt-public' ],
+            TT_VERSION
+        );
+
         self::renderHeader( __( 'Import players from CSV', 'talenttrack' ) );
 
         ?>
