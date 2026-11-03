@@ -124,8 +124,10 @@ class InvitationsConfigView extends FrontendViewBase {
         <?php
         // #4918 — a card per invitation on a phone, the table from 768px.
         // (`.tt-table` is full width already; the inline width it carried
-        // said nothing new.)
-        $c_kind    = __( 'Kind', 'talenttrack' );
+        // said nothing new.) From 768px the seven columns can be wider
+        // than the screen, so the table scrolls inside its own box rather
+        // than pushing the page sideways.
+        $c_kind   = __( 'Kind', 'talenttrack' );
         $c_target  = __( 'Target', 'talenttrack' );
         $c_inviter = __( 'Inviter', 'talenttrack' );
         $c_created = __( 'Created', 'talenttrack' );
@@ -133,6 +135,7 @@ class InvitationsConfigView extends FrontendViewBase {
         $c_status  = __( 'Status', 'talenttrack' );
         $th        = StackTable::attrs( 'columnheader' );
         ?>
+        <div class="tt-table-wrap">
         <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
             <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
@@ -212,6 +215,7 @@ class InvitationsConfigView extends FrontendViewBase {
             <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
         <?php
     }
 
