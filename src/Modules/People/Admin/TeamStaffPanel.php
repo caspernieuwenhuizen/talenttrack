@@ -36,6 +36,18 @@ class TeamStaffPanel {
     public static function render( int $team_id ): void {
         $repo    = new PeopleRepository();
         $grouped = $repo->getTeamStaff( $team_id );
+
+        // #4715 — the e-mail column follows the sensitive-field registry: a
+        // staff member can also be a guardian of a child.
+        $viewer     = get_current_user_id();
+        $person_ids = [];
+        foreach ( $grouped as $entries ) {
+            foreach ( $entries as $entry ) {
+                $pid = (int) ( $entry['person']->id ?? 0 );
+                if ( $pid > 0 ) $person_ids[] = $pid;
+            }
+        }
+        \TT\Infrastructure\Security\RecordRedactor::primePeople( $viewer, $person_ids );
         ?>
         <h2 style="margin-top:30px;"><?php esc_html_e( 'Staff', 'talenttrack' ); ?></h2>
 
@@ -62,7 +74,9 @@ class TeamStaffPanel {
 
                         if ( $person ) {
                             $name  = trim( $person->first_name . ' ' . $person->last_name );
-                            $email = $person->email ?: '—';
+                            $email = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', $viewer, (int) ( $person->id ?? 0 ) )
+                                ? \TT\Shared\Frontend\Components\MaskedValue::label()
+                                : ( $person->email ?: '—' );
                         } elseif ( $wp_user ) {
                             $name  = $wp_user->display_name;
                             $email = $wp_user->user_email ?: '—';
@@ -132,8 +146,9 @@ class TeamStaffPanel {
                             <select name="person_id" id="tt_assign_person_id" required>
                                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                                 <?php foreach ( $active_people as $p ) :
-                                    $label = trim( $p->first_name . ' ' . $p->last_name );
-                                    if ( $p->email ) $label .= ' <' . $p->email . '>'; ?>
+                                    // #4715 — the name only: the e-mail can be a
+                                    // guardian's contact, which this list need not carry.
+                                    $label = trim( $p->first_name . ' ' . $p->last_name ); ?>
                                     <option value="<?php echo (int) $p->id; ?>"><?php echo esc_html( $label ); ?></option>
                                 <?php endforeach; ?>
                             </select>

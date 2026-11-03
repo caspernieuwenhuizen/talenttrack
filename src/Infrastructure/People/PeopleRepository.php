@@ -79,7 +79,7 @@ class PeopleRepository {
     // People CRUD
 
     /**
-     * @param array{only_staff?:bool, status?:string, search?:string, role_type?:string|list<string>, include_archived?:bool} $filters
+     * @param array{only_staff?:bool, status?:string, search?:string, search_email?:bool, role_type?:string|list<string>, include_archived?:bool} $filters
      * @return array<int, object>
      */
     public function list( array $filters = [] ): array {
@@ -106,10 +106,18 @@ class PeopleRepository {
 
         if ( ! empty( $filters['search'] ) ) {
             $like = '%' . $wpdb->esc_like( (string) $filters['search'] ) . '%';
-            $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
-            $params[] = $like;
-            $params[] = $like;
-            $params[] = $like;
+            // #4715 — `search_email` false leaves the e-mail column out of the
+            // match, for a reader who may not read every guardian's contact.
+            if ( ! array_key_exists( 'search_email', $filters ) || ! empty( $filters['search_email'] ) ) {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
+                $params[] = $like;
+                $params[] = $like;
+                $params[] = $like;
+            } else {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s)';
+                $params[] = $like;
+                $params[] = $like;
+            }
         }
 
         if ( ! empty( $filters['role_type'] ) ) {

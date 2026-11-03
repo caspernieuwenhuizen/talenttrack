@@ -103,6 +103,11 @@ class PeopleRestController {
             );
         }
         $orderby = self::LIST_ORDERBY_WHITELIST[ $orderby_key ];
+        // #4715 — search and sort follow the same contact rule as the rows:
+        // they read the e-mail column only for a reader who may read every
+        // guardian's contact, so neither can say what a hidden address is.
+        $reads_email = \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() );
+        if ( $orderby_key === 'email' && ! $reads_email ) $orderby = 'p.last_name';
         $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
@@ -138,8 +143,13 @@ class PeopleRestController {
 
         if ( ! empty( $r['search'] ) ) {
             $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
-            $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            if ( $reads_email ) {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
+                $params[] = $like; $params[] = $like; $params[] = $like;
+            } else {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s)';
+                $params[] = $like; $params[] = $like;
+            }
         }
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
@@ -164,6 +174,11 @@ class PeopleRestController {
         // string so the list column is honest about multi-team / multi-role
         // people. One extra query per page (cap 100) — fine.
         $repo = new PeopleRepository();
+        // #4715 — who may read each guardian's contact, resolved for the page at once.
+        \TT\Infrastructure\Security\RecordRedactor::primePeople(
+            get_current_user_id(),
+            array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['id'] ?? 0 ), (array) $rows ) )
+        );
         $formatted = [];
         foreach ( $rows as $row ) {
             $formatted[] = self::fmtRow( $row, $repo );
@@ -481,6 +496,12 @@ class PeopleRestController {
             'name_link_html'  => $name_link_html,
             'email'           => $email,
             'email_link_html' => $email_link_html,
+            // #4715 — the list's e-mail cell: the link, or "Hidden" for a
+            // reader the sensitive-field registry hides a guardian's contact
+            // from. Carries no contact of its own, so it is not registered.
+            'email_cell_html' => ( $email !== '' && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), (int) ( $row->id ?? 0 ) ) )
+                ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                : $email_link_html,
             'phone'           => (string) ( $row->phone ?? '' ),
             'role_type'       => (string) ( $row->role_type ?? 'other' ),
             'role_type_localised' => \TT\Infrastructure\Query\LabelTranslator::roleType( (string) ( $row->role_type ?? 'other' ) ),

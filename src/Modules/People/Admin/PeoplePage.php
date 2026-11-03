@@ -104,6 +104,12 @@ class PeoplePage {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id     = isset( $_GET['id'] ) ? absint( wp_unslash( (string) $_GET['id'] ) ) : 0;
 
+        // #4715 — the form holds a person's contact; it is for a reader who
+        // may edit people.
+        if ( ( $action === 'new' || $action === 'edit' ) && ! current_user_can( 'tt_edit_people' ) ) {
+            echo '<div class="wrap"><p>' . esc_html__( 'You do not have permission to do that.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         if ( $action === 'new' ) {
             self::renderForm( null );
             return;
@@ -139,16 +145,24 @@ class PeoplePage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pe' );
 
         if ( $view === 'active' ) {
-            $people = $repo->list( [
-                'only_staff' => $only_staff,
-                'search'     => $search,
-                'status'     => $status !== '' ? $status : null,
-            ] );
+            $filters = [
+                'only_staff'   => $only_staff,
+                'search'       => $search,
+                // #4715 — the search follows the same contact rule as the rows.
+                'search_email' => \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() ),
+            ];
+            if ( $status !== '' ) $filters['status'] = $status;
+            $people = $repo->list( $filters );
         } else {
             global $wpdb; $p = $wpdb->prefix;
             $scope = QueryHelpers::apply_demo_scope( 'pe', 'person' );
             $people = $wpdb->get_results( "SELECT pe.*, 0 AS team_count FROM {$p}tt_people pe WHERE {$view_clause} {$scope} ORDER BY pe.last_name, pe.first_name ASC" );
         }
+        // #4715 — who may read each guardian's contact, resolved for the list at once.
+        \TT\Infrastructure\Security\RecordRedactor::primePeople(
+            get_current_user_id(),
+            array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['id'] ?? 0 ), (array) $people ) )
+        );
 
         $new_url  = admin_url( 'admin.php?page=tt-people&action=new' );
         $base_url = admin_url( 'admin.php?page=tt-people' );
@@ -229,7 +243,11 @@ class PeoplePage {
                             // #0063 — email links to the in-product mail composer
                             // (Sprint 3) when present, falling back to a plain
                             // mailto: until the composer module ships its handler.
-                            if ( $p->email ) {
+                            // #4715 — a guardian's contact follows the sensitive-field registry.
+                            $contact_hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), (int) $p->id );
+                            if ( $p->email && $contact_hidden ) {
+                                echo esc_html( \TT\Shared\Frontend\Components\MaskedValue::label() );
+                            } elseif ( $p->email ) {
                                 $compose = add_query_arg(
                                     [ 'tt_view' => 'mail-compose', 'person_id' => (int) $p->id ],
                                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -239,7 +257,7 @@ class PeoplePage {
                                 echo '—';
                             }
                         ?></td>
-                        <td><?php echo esc_html( $p->phone ?? '—' ); ?></td>
+                        <td><?php echo esc_html( ( ! empty( $p->phone ) && $contact_hidden ) ? \TT\Shared\Frontend\Components\MaskedValue::label() : ( $p->phone ?? '—' ) ); ?></td>
                         <td>
                             <?php if ( $team_count > 0 ) : ?>
                                 <span class="awaiting-mod count-<?php echo (int) $team_count; ?>"><span class="pending-count"><?php echo (int) $team_count; ?></span></span>
