@@ -18,8 +18,9 @@ use TT\Infrastructure\Security\AuthorizationService;
  *
  * Exposes the journey timeline + cohort + injury surfaces. Visibility
  * filtering is server-side: each list endpoint computes the viewer's
- * allowed visibilities from their caps and returns a `hidden_count` so
- * the UI can render placeholder cards for masked rows.
+ * allowed visibilities from their caps. The timeline's `hidden_count`
+ * stays in the v1 shape but is always 0 (#4832): no count of entries the
+ * reader may not read, because a count says they exist.
  *
  * Lives under Infrastructure/REST rather than a single module because
  * the journey is cross-module by design — it aggregates events emitted
@@ -277,7 +278,9 @@ class PlayerJourneyRestController extends BaseController {
 
         return RestResponse::success( [
             'events'       => $events,
-            'hidden_count' => $result['hidden_count'],
+            // Deprecated in v1 and always 0: the journey counts nothing the
+            // reader may not read.
+            'hidden_count' => 0,
             'next_cursor'  => $result['next_cursor'],
         ] );
     }

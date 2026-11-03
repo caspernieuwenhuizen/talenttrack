@@ -92,7 +92,7 @@ The same list is available to other apps through the API as `GET /wp-json/talent
 Injuries are medical data about minors, so two things hold:
 
 - Every time someone reads a player's injuries — the tab, the overview, or the API — it is written to the audit log with who, when and which player.
-- Injury entries on the journey carry the **medical** visibility level, so a role without medical access sees the chronology with the entry withheld rather than silently missing.
+- Injury entries on the journey carry the **medical** visibility level, so a role without medical access does not see the entry, and nothing on the journey counts or hints at it.
 
 Deleting an injury is restricted to the head of development and the academy admin, and archived records go to the recycle bin rather than disappearing.
 

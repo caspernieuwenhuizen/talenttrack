@@ -20,9 +20,8 @@ use TT\Shared\Frontend\Components\JourneyActivityLink;
  *   - transitions — milestone-severity events only (parent-meeting + new-coach onboarding)
  *
  * Filter chips above the list narrow by event type. Visibility filtering
- * happens server-side; events the viewer can't see render as discreet
- * "1 entry hidden" placeholders so the count is honest without leaking
- * detail.
+ * happens server-side; the view shows the entries the viewer may read and
+ * nothing that hints at the others, not even a count (#4832).
  *
  * The same view backs the player-side `?tt_view=my-journey` slug and
  * the coach-side `?tt_view=player-journey&player_id=N` slug — only the
@@ -101,7 +100,6 @@ class FrontendJourneyView {
         $repo = new PlayerEventsRepository();
         if ( $mode === 'transitions' ) {
             $events = $repo->transitionsForPlayer( $player_id, $allowed_visibilities );
-            $hidden = 0;
         } else {
             $now = strtotime( current_time( 'mysql' ) ) ?: time();
             $filters = [
@@ -115,7 +113,6 @@ class FrontendJourneyView {
             }
             $result = $repo->timelineForPlayer( $player_id, $filters, $allowed_visibilities );
             $events = $result['events'];
-            $hidden = $result['hidden_count'];
         }
         // The same rule as `GET players/{id}/timeline`: a PDP verdict entry
         // follows the PDP verdict right.
@@ -183,38 +180,6 @@ class FrontendJourneyView {
 
             <?php if ( $mode === 'timeline' ) : ?>
                 <?php self::renderFilters( $selected_types, $full, $is_own_journey ); ?>
-            <?php endif; ?>
-
-            <?php if ( $hidden > 0 ) : ?>
-                <p class="tt-notice tt-notice-info">
-                    <?php
-                    // #3398 — the count stays for everyone: a timeline with
-                    // silent gaps is its own kind of dishonesty on a record
-                    // that is about the person reading it. What changes is
-                    // the voice. "Visible to other roles only" is staff
-                    // vocabulary; a player gets told plainly who can see the
-                    // rest and that asking is how to find out, because that
-                    // conversation belongs with their coach rather than with
-                    // a notice bar (decided 2026-09-14).
-                    echo esc_html( $is_own_journey
-                        ? sprintf(
-                            /* translators: %d: count of entries on the player's own journey that they may not read */
-                            _n(
-                                '%d entry is only visible to your coaches. Ask them if you want to know more.',
-                                '%d entries are only visible to your coaches. Ask them if you want to know more.',
-                                $hidden,
-                                'talenttrack'
-                            ),
-                            $hidden
-                        )
-                        : sprintf(
-                            /* translators: %d: count of events hidden because the viewer lacks the medical or safeguarding cap */
-                            _n( '%d entry hidden — visible to other roles only.', '%d entries hidden — visible to other roles only.', $hidden, 'talenttrack' ),
-                            $hidden
-                        )
-                    );
-                    ?>
-                </p>
             <?php endif; ?>
 
             <?php if ( empty( $events ) ) : ?>

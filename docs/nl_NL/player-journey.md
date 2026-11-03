@@ -88,7 +88,7 @@ Een regel over een eigen record volgt daarnaast het leesrecht van dat record: ee
 
 Een gezin ziet de eigen proeftraining: de speler en de gekoppelde ouders (zolang het kind de reis deelt) zien **Stage gestart** en **Stage afgerond** met de datum, en verder niets. De proeftraining zelf, de notities, het besluit en de brieven blijven bij wie de proeftraining mag lezen.
 
-Als de reis een regel bevat met een zichtbaarheidsniveau voor andere rollen (coachingstaf, medisch, veiligheid), lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld. Een regel over een record dat je niet mag openen (een proeftraining, schorsing, blessure of POP-besluit, zie hierboven) staat er niet en wordt niet meegeteld, want een telling zou verraden dat het record bestaat.
+De reis toont alleen de regels die je mag lezen. Een regel met een zichtbaarheidsniveau voor andere rollen (coachingstaf, medisch, veiligheid), of een regel over een record dat je niet mag openen (een proeftraining, schorsing, blessure of POP-besluit, zie hierboven), staat er niet. Niets op de pagina telt zulke regels of verwijst ernaar, want een telling zou verraden dat ze bestaan.
 
 Medische gegevens zijn dubbel afgeschermd en audit-gelogd: blessures van een speler bekijken of bewerken vereist zowel de medische-zicht-permissie **als** toegang tot die specifieke speler (dezelfde scoperegel als de rest van het dossier), en elke blessure-weergave, -aanmaak, -bewerking en -archivering — plus elke tijdlijn-weergave die medische of veiligheidsregels opleverde — komt in het auditlog met wie, wanneer en welke speler. Dat is precies het spoor waar een veiligheidsonderzoek om vraagt.
 
