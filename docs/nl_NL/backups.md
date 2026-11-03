@@ -26,7 +26,7 @@ Het wp-admin-tabblad Back-ups (`?page=tt-config&tab=backups`) blijft als terugva
 
 ## Instellingen
 
-- **Preset** — *Minimaal* (basisgegevens), *Standaard* (dagelijkse gegevens inclusief sessies/doelen/personen), *Uitgebreid* (alles inclusief auditlog + opzoeklijsten), of *Aangepast* (lijst per tabel). De omschrijving onder de keuzelijst werkt automatisch bij wanneer je een andere preset selecteert.
+- **Preset** — *Minimaal* (basisgegevens), *Standaard* (dagelijkse gegevens inclusief sessies/doelen/personen), *Uitgebreid* (alles inclusief auditlog + keuzelijsten), of *Aangepast* (lijst per tabel). De omschrijving onder de keuzelijst werkt automatisch bij wanneer je een andere preset selecteert.
 - **Schema** — dagelijks, wekelijks of op aanvraag (geen automatische runs).
 - **Bewaartermijn** — hoeveel lokale back-ups bewaard worden voor de oudste verwijderd wordt. Standaard 30.
 - **Lokale bestemming** — schrijft `.json.gz`-bestanden naar `wp-content/uploads/talenttrack-backups/`. De map wordt automatisch aangemaakt met een `index.php` + `.htaccess` die directe browsertoegang blokkeert.

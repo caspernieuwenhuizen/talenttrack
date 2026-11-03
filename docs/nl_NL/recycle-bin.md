@@ -32,7 +32,7 @@ AVG-verplichtingen van de academie voor gegevens van minderjarigen.
 
 Elke entiteit die gearchiveerd kan worden, kan ook in de prullenbak — 20
 recordtypen, van spelers en teams tot beoordelingen, doelen, proefdossiers,
-blessures, metingen en geplande rapporten. Opzoek- en configuratietabellen
+blessures, metingen en geplande rapporten. Keuzelijst- en configuratietabellen
 (beoordelingsschalen, leeftijdsgroepen, woordenlijsten) kunnen **niet** in de
 prullenbak: dat zijn gedeelde instellingen, geen spelerrecords, en er valt
 niets te herstellen.
