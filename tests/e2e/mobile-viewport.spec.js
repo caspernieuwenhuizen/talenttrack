@@ -71,6 +71,7 @@ const { uniqueName } = require( './helpers/admin' );
 const { rest } = require( './helpers/match-prep' );
 const { widestOffender } = require( './helpers/overflow' );
 const { WALKED_PERSONAS, createPersona, deletePersona } = require( './helpers/personas' );
+const { seedFixture, removeFixture } = require( './helpers/gate-fixture' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
@@ -482,6 +483,8 @@ const recordIds = {};
 const created = [];
 /** @type {Record<string, { id: number, state?: string, error?: string }>} persona key => account; `state` only when it can be walked with */
 const accounts = {};
+/** @type {Awaited<ReturnType<typeof seedFixture>>|null} the rows made for the persona dashboards (#4823) */
+let fixture = null;
 
 /**
  * A logged-in desktop page for the REST calls around the walk. The calls
@@ -523,9 +526,30 @@ test.describe( 'mobile viewport gate', () => {
 		for ( const persona of WALKED_PERSONAS ) {
 			accounts[ persona.key ] = await createPersona( browser, testInfo.project.use.baseURL, persona, testInfo.project.name );
 		}
+
+		// #4823 — rows for the persona dashboards' tables, so their row
+		// links are measured. Needs both persona accounts.
+		const coach = accounts.head_coach;
+		const scout = accounts.scout;
+		fixture = coach && coach.state && scout && scout.state
+			? await seedFixture( browser, testInfo.project.use.baseURL, {
+				coachUserId: coach.id,
+				coachState: coach.state,
+				scoutState: scout.state,
+			} )
+			: null;
 	} );
 
 	test.afterAll( async ( { browser }, testInfo ) => {
+		// #4823 — the fixture goes first, while the accounts it hangs off
+		// still exist. Everything REST can remove must be gone; the staff
+		// record and the prospect, which it cannot, must carry the prefix.
+		if ( fixture ) {
+			const left = await removeFixture( browser, testInfo.project.use.baseURL, fixture );
+			fixture = null;
+			expect( left, `the gate's fixture was not cleaned up:\n  ${ left.join( '\n  ' ) }` ).toEqual( [] );
+		}
+
 		// Any account that was made is deleted, also one that could not sign in.
 		for ( const [ key, account ] of Object.entries( accounts ) ) {
 			if ( account.id > 0 ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
@@ -842,6 +866,17 @@ test.describe( 'mobile viewport gate', () => {
 					`[${ persona.key }] its home links to only ${ surfaces.length } phone-reachable surface(s), fewer than ${ persona.minSurfaces }: the walk is shrinking`
 				).toBeGreaterThanOrEqual( persona.minSurfaces );
 
+				// #4823 — the dashboard tables have rows, so the row links
+				// the walk measures on the home are real ones, not nothing.
+				expect( fixture, `[${ persona.key }] the dashboard fixture was not made` ).not.toBeNull();
+				expect( fixture ? fixture.errors : [], `[${ persona.key }] the dashboard fixture is incomplete` ).toEqual( [] );
+				expect( fixture && fixture.featureOn, 'behaviour_rating is switched on' ).toBe( true );
+				expect( fixture && fixture.coachMayRate, 'the coach holds tt_rate_player_behaviour (behaviour-ratings answered 400, not 403)' ).toBe( true );
+				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+				const rowLinks = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
+				console.log( `\n[${ persona.key }] ${ rowLinks } row link(s) on the dashboard home` );
+				expect( rowLinks, `[${ persona.key }] the dashboard home shows no .tt-pd-row-link, so the walk is blind to them` ).toBeGreaterThan( 0 );
+
 				await walk( page, persona.key, surfaces, false );
 			} finally {
 				await context.close();
@@ -895,6 +930,53 @@ test.describe( 'mobile viewport gate', () => {
 			await context.close();
 		}
 	} );
+
+	// #4823 — the row links the fixture renders, measured against #4817's
+	// floor. #4819 added it to persona-dashboard.css; since #4830 the
+	// coarse-pointer half sits next to the record-link floor in public.css.
+	// Without it a row link is its line of text, 21px tall. This takes the
+	// floor away on the page and requires the row links to come back as a
+	// tap-target finding the persona's home baseline does not allow, so
+	// reverting the floor fails the gate.
+	for ( const persona of WALKED_PERSONAS ) {
+		test( `without the row-link rule, the ${ persona.key } dashboard's row links are tap-target findings`, async ( { browser }, testInfo ) => {
+			const account = accounts[ persona.key ];
+			const state = account && account.state;
+			expect( state, `[${ persona.key }] no account to walk with` ).toBeTruthy();
+			if ( ! state ) return;
+
+			const context = await browser.newContext( phoneContext( testInfo, state ) );
+			const page = await context.newPage();
+			try {
+				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+				await hideAdminBar( page );
+				const links = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
+				expect( links, `[${ persona.key }] no row links to measure` ).toBeGreaterThan( 0 );
+
+				const small = await page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.filter( ( el ) => {
+					const r = el.getBoundingClientRect();
+					return r.height < 48 || r.width < 48;
+				} ).length );
+				expect( small, `[${ persona.key }] with #4817's rule in place every row link is at least 48x48` ).toBe( 0 );
+
+				// What the page looks like with #4819 reverted: no rule for
+				// the class, so the link is inline text.
+				await page.addStyleTag( {
+					content: '.tt-pd-row-link { display: inline !important; min-height: 0 !important; min-width: 0 !important; justify-content: normal !important; }',
+				} );
+				const reverted = await page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.map( ( el ) => Math.round( el.getBoundingClientRect().height ) ) );
+				expect( Math.max( ...reverted ), `[${ persona.key }] a reverted row link is under 48px tall` ).toBeLessThan( 48 );
+
+				const findings = await measure( page, 'native' );
+				const allowed = ( loadBaseline( page.viewportSize().width, persona.key )[ HOME_SURFACE.key ] || { kinds: [] } ).kinds;
+				expect( findings.map( ( f ) => f.kind ), `[${ persona.key }] the reverted row links are a tap-target finding` ).toContain( 'tap-target' );
+				expect( allowed, `[${ persona.key }] the baseline allows tap-target findings on the dashboard home, so a revert would pass` ).not.toContain( 'tap-target' );
+				console.log( `\n[${ persona.key }] reverted row links measure ${ reverted.join( ', ' ) }px tall; finding: ${ ( findings.find( ( f ) => f.kind === 'tap-target' ) || { detail: '' } ).detail }` );
+			} finally {
+				await context.close();
+			}
+		} );
+	}
 } );
 
 /**

@@ -142,6 +142,36 @@ admin's stays under the top-level `widths`. A separate test plants a 30px
 link in the head coach's dashboard preset and checks that the tap-target
 check counts it.
 
+**The dashboard fixture (#4823).** The tests instance has no data, so
+without help the coach's and scout's dashboard tables render no rows and
+their row links are never measured. `helpers/gate-fixture.js` makes the
+smallest set that fills both, over TalentTrack REST, in `beforeAll` after
+the accounts exist:
+
+- for the head coach (`behaviour_pending`): the `behaviour_rating` feature
+  switched on, a staff record linked to the coach account, a team, a
+  head-coach assignment on it, and one active player with no behaviour
+  rating. A probe posts an out-of-range rating as the coach: 400 means the
+  coach may rate behaviour, 403 means it may not and the widget stays
+  empty. Nothing is written either way.
+- for the scout (`my_recent_prospects`): one prospect, logged by the scout
+  itself.
+
+Every name the fixture writes starts with `e2e-`. Each persona walk fails
+when the fixture is incomplete or when its home shows no `.tt-pd-row-link`.
+`afterAll` removes the fixture before the accounts, and fails if any of it
+is left as it should not be: the player goes archive, trash, recycle-bin
+purge and must answer 404; the team goes through `DELETE /teams/{id}/permanent`
+and must answer 404; the assignment is deleted and must no longer be listed.
+REST has no route that removes a staff record or a prospect, so the staff
+record is archived and the prospect is left, both under the `e2e-` prefix.
+On CI the container goes with the job; locally, find them by the prefix.
+
+A further test per persona takes #4817's row-link floor away on the page
+(the coarse-pointer `.tt-pd-row-link` rule in `public.css`; the state a
+revert of #4819 leaves) and requires the row links to come
+back as a tap-target finding the persona's home baseline does not allow.
+
 **The dashboard home** has no `tt_view`, so the slug walk never reaches it.
 It is measured at every width under the key `dashboard#home`, and like a
 record page it may not be skipped.
