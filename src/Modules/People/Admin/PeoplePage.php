@@ -145,13 +145,14 @@ class PeoplePage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pe' );
 
         if ( $view === 'active' ) {
-            $people = $repo->list( [
+            $filters = [
                 'only_staff'   => $only_staff,
                 'search'       => $search,
                 // #4715 — the search follows the same contact rule as the rows.
                 'search_email' => \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() ),
-                'status'       => $status !== '' ? $status : null,
-            ] );
+            ];
+            if ( $status !== '' ) $filters['status'] = $status;
+            $people = $repo->list( $filters );
         } else {
             global $wpdb; $p = $wpdb->prefix;
             $scope = QueryHelpers::apply_demo_scope( 'pe', 'person' );
