@@ -227,7 +227,7 @@ final class CoreTemplates {
         // M=6 cols on the left half of the row; the right half is left
         // empty to give the list breathing room. Drops into the natural
         // reading flow between the trials table and the navigation tile
-        // grid below. Cap-gated on `tt_view_threads` — HoD has it.
+        // grid below. Each comment follows the threads rule (#4842).
         $grid->add( new WidgetSlot( 'recent_comments',    '',                            Size::M, 0, 9, 1, 14 ) );
         // #871 — row 10: behaviour-pending widget for HoD. Same source
         // as the coach version (`behaviour_pending`) but with global

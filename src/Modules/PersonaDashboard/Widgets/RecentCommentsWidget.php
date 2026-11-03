@@ -10,6 +10,8 @@ use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Modules\Threads\Domain\ThreadAccess;
+use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -23,9 +25,10 @@ use TT\Shared\Frontend\Components\RecordLink;
  * PDPs, etc.). System messages (`is_system = 1`) are excluded so the
  * widget surfaces only operator-authored content.
  *
- * Scope is `club_id` — academy-wide. Suitable for academy-wide personas
- * (HoD, Academy Admin); cap-gated on `tt_view_threads` so users without
- * thread visibility don't see the widget at all.
+ * #4842 — gated on the threads rule itself (`ThreadAccess`), per comment:
+ * the reader sees only comments on threads they may open, and a staff-only
+ * message only when `canSeePrivate()` admits them. It used to ask
+ * `tt_view_threads`, a capability no role holds, so nobody saw it.
  */
 class RecentCommentsWidget extends AbstractWidget {
 
@@ -42,7 +45,11 @@ class RecentCommentsWidget extends AbstractWidget {
 
     public function personaContext(): string { return PersonaContext::ACADEMY; }
 
-    public function capRequired(): string { return 'tt_view_threads'; }
+    /** No capability: each comment answers to the threads rule (`ThreadAccess`). */
+    public function capRequired(): string { return ''; }
+
+    /** How many recent messages are read to find five the reader may see. */
+    private const CANDIDATES = 50;
 
     /** #4827 — the heading, and the phone fold's summary. */
     public function titleFor( WidgetSlot $slot ): string {
@@ -50,7 +57,7 @@ class RecentCommentsWidget extends AbstractWidget {
     }
 
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
-        $rows  = $this->fetchRows( $ctx->club_id );
+        $rows  = $this->fetchRows( $ctx->club_id, $ctx->user_id );
         $title = $this->titleFor( $slot );
 
         if ( empty( $rows ) ) {
@@ -88,11 +95,14 @@ class RecentCommentsWidget extends AbstractWidget {
     }
 
     /**
-     * Fetch the 5 most recent non-deleted, non-system thread messages.
+     * The 5 most recent non-deleted, non-system thread messages this reader
+     * may see: the thread must pass `ThreadAccess::canRead()`, and a
+     * staff-only message `ThreadAccess::canSeePrivate()`.
      *
      * @return list<array{ entity_label: string, entity_url: string, author: string, when: string }>
      */
-    private function fetchRows( int $club_id ): array {
+    private function fetchRows( int $club_id, int $user_id ): array {
+        if ( $user_id <= 0 ) return [];
         global $wpdb;
         $p = $wpdb->prefix;
         $effective_club = $club_id > 0 ? $club_id : CurrentClub::id();
@@ -101,7 +111,7 @@ class RecentCommentsWidget extends AbstractWidget {
         // tt_thread_messages (migration 0043) exists on every install; no table check.
 
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT tm.id, tm.thread_type, tm.thread_id, tm.author_user_id, tm.created_at,
+            "SELECT tm.id, tm.thread_type, tm.thread_id, tm.author_user_id, tm.created_at, tm.visibility,
                     u.display_name AS author_name
                FROM {$table} tm
                LEFT JOIN {$wpdb->users} u ON u.ID = tm.author_user_id
@@ -109,12 +119,22 @@ class RecentCommentsWidget extends AbstractWidget {
                 AND tm.deleted_at IS NULL
                 AND tm.is_system = 0
               ORDER BY tm.created_at DESC, tm.id DESC
-              LIMIT 5",
-            $effective_club
+              LIMIT %d",
+            $effective_club,
+            self::CANDIDATES
         ) );
 
         $out = [];
         foreach ( (array) $rows as $r ) {
+            if ( count( $out ) >= 5 ) break;
+            $type      = (string) $r->thread_type;
+            $thread_id = (int) $r->thread_id;
+            if ( ! ThreadAccess::canRead( $type, $thread_id, $user_id ) ) continue;
+            if ( (string) ( $r->visibility ?? '' ) === ThreadVisibility::PRIVATE_COACH
+                && ! ThreadAccess::canSeePrivate( $type, $thread_id, $user_id ) ) {
+                continue;
+            }
+
             $entity = self::resolveEntity( (string) $r->thread_type, (int) $r->thread_id );
             $author = (string) ( $r->author_name ?? '' );
             if ( $author === '' ) $author = __( '— Unknown —', 'talenttrack' );
