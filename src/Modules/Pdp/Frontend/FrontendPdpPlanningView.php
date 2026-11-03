@@ -135,8 +135,10 @@ final class FrontendPdpPlanningView {
                 \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $team_id )
             );
             echo '<tr' . StackTable::attrs( 'row' ) . '>';
-            echo '<td class="tt-pdp-team"' . StackTable::attrs( 'cell', $c_team ) . '><span class="' . esc_attr( StackTable::VALUE ) . '"><strong>' . $team_link . '</strong>'
-                . ' <small class="tt-pdp-team__roster">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></span></td>';
+            // The team heads its row (and its card on a phone), as in the
+            // coverage table.
+            echo '<th scope="row" class="tt-pdp-team"' . StackTable::attrs( 'rowheader' ) . '><strong>' . $team_link . '</strong>'
+                . ' <small class="tt-pdp-team__roster">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></th>';
             for ( $b = 1; $b <= $max_blocks; $b++ ) {
                 $cell = $team['blocks'][ $b ] ?? null;
                 // v3.94.1 — drill-down lands on the per-player block view

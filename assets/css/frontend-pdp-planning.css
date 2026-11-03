@@ -75,6 +75,18 @@
     color: var(--tt-ink, #0e1a14);
 }
 
+/* The team is the row header, so it reads as body text, not as a column
+   heading. */
+.tt-dashboard .tt-pdp-table tbody th.tt-pdp-team {
+    border-bottom-color: var(--tt-line-soft, #eef0ec);
+    vertical-align: top;
+    font-size: inherit;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--tt-ink, #0e1a14);
+}
+
 .tt-dashboard .tt-pdp-team__roster {
     color: var(--tt-muted, #6a6d66);
     font-size: 0.8rem;
