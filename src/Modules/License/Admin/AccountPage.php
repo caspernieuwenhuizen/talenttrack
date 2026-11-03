@@ -352,15 +352,16 @@ class AccountPage {
         // dropdown rather than typing a numeric ID). Cap to first 200 by
         // username; in practice an academy has < 50 enrolled accounts.
         global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
+        // #4798 — an enrolment is the account's, whichever academy it was
+        // set up in, so the install's operator sees every enrolled account.
+        $rows = $wpdb->get_results(
             "SELECT m.wp_user_id, u.user_login, u.display_name
                FROM {$wpdb->prefix}tt_user_mfa m
                JOIN {$wpdb->users} u ON u.ID = m.wp_user_id
-              WHERE m.club_id = %d AND m.enrolled_at IS NOT NULL
+              WHERE m.enrolled_at IS NOT NULL
               ORDER BY u.user_login ASC
-              LIMIT 200",
-            \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) );
+              LIMIT 200"
+        );
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:16px; max-width:760px; padding:16px; background:#fff8f8; border:1px solid #f0c5c5;">';
         wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE, 'tt_mfa_nonce' );
