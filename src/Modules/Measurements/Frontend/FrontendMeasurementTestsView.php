@@ -467,6 +467,8 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
      */
     private static function renderExportForm( int $definition_id ): void {
         if ( $definition_id <= 0 ) return;
+        // #4718 — offered only to an account that may receive files.
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) return;
 
         $return_url = BackLink::appendTo( add_query_arg(
             [ 'tt_view' => 'measurement-tests' ],

@@ -1389,7 +1389,13 @@ final class CoreSurfaceRegistration {
             // #1105 / #1106 leaks. Aligned to 'reports' to match the
             // tile's declared cap (`tt_view_reports`) and the view's
             // own per-cap card filtering. Audit 1 (#1175) caught this.
+            // #4718 — the page needs two rights, `reports` and `exports`
+            // (the right to receive a file), and a tile names one entity.
+            // It keeps `reports`, which keeps its audience; the read-only
+            // observer reads reports but receives no file, so the tile is
+            // hidden from that persona. The view asks ExportGate itself.
             'entity'       => 'reports',
+            'hide_for_personas' => [ 'readonly_observer' ],
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 27,

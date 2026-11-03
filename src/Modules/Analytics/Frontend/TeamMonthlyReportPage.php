@@ -81,7 +81,10 @@ final class TeamMonthlyReportPage {
             (string) ( $team->name ?? '' ),
             [],
             self::sourceLinks( $team_id, $window ),
-            self::pdfUrl( $team_id, $window, $layout, $report['blocks'], $options )
+            // #4718 — no PDF link for an account that may receive no file.
+            \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() )
+                ? self::pdfUrl( $team_id, $window, $layout, $report['blocks'], $options )
+                : ''
         );
 
         TeamMonthlyReportSnapshotPage::renderTakeAndList( $team_id, $window, $layout, $report['blocks'], $options );
@@ -523,7 +526,10 @@ final class TeamMonthlyReportPage {
 
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected, $options ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        // #4718 — the PDF only for an account that may receive files.
+        if ( \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected, $options ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        }
         $schedule_url = self::scheduleUrl( $team_id, $layout, $selected, $options );
         if ( $schedule_url !== '' ) {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';

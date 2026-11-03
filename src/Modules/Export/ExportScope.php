@@ -19,12 +19,11 @@ use TT\Modules\Authorization\MatrixGate;
  *
  * The rule, in three tiers:
  *
- *  - **Unrestricted** — an administrator, a holder of `tt_view_settings`, or
- *    a holder of the entity at global scope. `null` is returned and the
- *    exporter adds no clause. The first two are the same unconditional line
- *    `PrintRouter::canPrint()` draws; they are here because a WordPress
- *    administrator does not always resolve to a matrix persona, and a gate
- *    built on the matrix alone would lock them out.
+ *  - **Unrestricted** — an administrator, or a holder of the entity at
+ *    global scope. `null` is returned and the exporter adds no clause. The
+ *    administrator is named because a WordPress administrator does not
+ *    always resolve to a matrix persona, and a gate built on the matrix
+ *    alone would lock them out.
  *  - **Team-scoped** — the teams returned by `get_permitted_teams()`, which
  *    is the teams the caller coaches, each confirmed against the matrix at
  *    team scope. The export is narrowed to them, and a requested team outside
@@ -41,7 +40,8 @@ use TT\Modules\Authorization\MatrixGate;
 final class ExportScope {
 
     /**
-     * May this caller run a bulk export over `$entity` at all?
+     * May this caller run a bulk export over `$entity` at all? Only when
+     * they may receive files at all (`ExportGate`, #4718).
      *
      * The coarse gate — `ScopeGatedExporter::isAvailableFor()` delegates
      * here, so a refused caller is stopped before `collect()` and does not
@@ -49,6 +49,7 @@ final class ExportScope {
      */
     public static function mayExport( int $user_id, string $entity ): bool {
         if ( $user_id <= 0 ) return false;
+        if ( ! ExportGate::mayExport( $user_id ) ) return false;
         if ( self::isUnrestricted( $user_id, $entity ) ) return true;
 
         return self::permittedTeamIds( $user_id, $entity ) !== [];
@@ -94,9 +95,13 @@ final class ExportScope {
         return $column . ' IN (' . implode( ',', $ids ) . ')';
     }
 
+    /**
+     * #4718 — an export follows the read rule of what it exports: a caller
+     * is unrestricted when they read the exported entity at global scope,
+     * or are an administrator.
+     */
     private static function isUnrestricted( int $user_id, string $entity ): bool {
         return user_can( $user_id, 'administrator' )
-            || user_can( $user_id, 'tt_view_settings' )
             || MatrixGate::can( $user_id, $entity, 'read', MatrixGate::SCOPE_GLOBAL );
     }
 

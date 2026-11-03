@@ -122,6 +122,8 @@ final class FrontendCohortBoardView extends FrontendViewBase {
     }
 
     private static function renderExportLink( int $team_id ): void {
+        // #4718 — offered only to an account that may receive files.
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) return;
         $url = wp_nonce_url(
             add_query_arg(
                 [ 'tt_view' => 'cohort-board', 'team_id' => $team_id, 'export' => 'csv' ],
@@ -277,6 +279,10 @@ final class FrontendCohortBoardView extends FrontendViewBase {
      * response, not a routable view body).
      */
     private static function exportCsv( int $team_id ): void {
+        // #4718 — a CSV is a file, and receiving one is its own right.
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            wp_die( esc_html( \TT\Modules\Export\ExportGate::refusalMessage() ), '', [ 'response' => 403 ] );
+        }
         if ( ! current_user_can( 'tt_view_analytics' )
             || ! CohortBoardRestController::callerCanReadTeam( $team_id ) ) {
             wp_die( esc_html__( 'You do not have access to this export.', 'talenttrack' ), '', [ 'response' => 403 ] );

@@ -99,6 +99,11 @@ class FrontendExploreView extends FrontendViewBase {
         $kpi     = KpiRegistry::find( $kpi_key );
         $action  = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
 
+        // #4718 — both export branches hand out a file, which is its own right.
+        if ( in_array( $action, [ 'export_csv', 'export_pdf' ], true )
+             && ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            wp_die( esc_html( \TT\Modules\Export\ExportGate::refusalMessage() ), '', [ 'response' => 403 ] );
+        }
         if ( $action === 'export_csv' && $kpi !== null ) {
             self::streamCsv( $kpi );
             return;
@@ -182,14 +187,17 @@ class FrontendExploreView extends FrontendViewBase {
         $pdf_args = $export_args;
         $pdf_args['action'] = 'export_pdf';
         $pdf_url = add_query_arg( $pdf_args, WizardEntryPoint::dashboardBaseUrl() );
-        echo '<p class="tt-explore-export">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $export_url ) . '">'
-            . esc_html__( 'Export CSV', 'talenttrack' )
-            . '</a>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $pdf_url ) . '">'
-            . esc_html__( 'Export PDF', 'talenttrack' )
-            . '</a>';
-        echo '</p>';
+        // #4718 — offered only to an account that may receive files.
+        if ( \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            echo '<p class="tt-explore-export">';
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $export_url ) . '">'
+                . esc_html__( 'Export CSV', 'talenttrack' )
+                . '</a>';
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $pdf_url ) . '">'
+                . esc_html__( 'Export PDF', 'talenttrack' )
+                . '</a>';
+            echo '</p>';
+        }
 
         // Group-by selector.
         echo '<form method="get" action="" class="tt-explore-groupby">';

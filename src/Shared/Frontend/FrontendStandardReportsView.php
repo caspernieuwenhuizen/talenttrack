@@ -237,6 +237,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * query argument.
      */
     private static function streamLearningCoursesCsv(): void {
+        self::refuseUnlessMayDownload();
         if ( ! LearningReports::canSeeEveryone( get_current_user_id() ) ) {
             wp_die(
                 esc_html__( 'You do not have permission to export learning statistics.', 'talenttrack' ),
@@ -260,6 +261,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         fclose( $out );
         exit;
+    }
+
+    /**
+     * #4718 — a CSV is a file, and receiving one is its own right
+     * (`ExportGate`). The table on screen is unaffected.
+     */
+    private static function refuseUnlessMayDownload(): void {
+        if ( ! \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
+            wp_die( esc_html( \TT\Modules\Export\ExportGate::refusalMessage() ), '', [ 'response' => 403 ] );
+        }
     }
 
     /**
@@ -292,7 +303,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( $explore_url !== '' && \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
             echo '<a class="tt-rep-btn" href="' . esc_url( $explore_url ) . '">' . esc_html__( 'Explorer →', 'talenttrack' ) . '</a>';
         }
-        if ( $export_url !== null ) {
+        // #4718 — the CSV link only for an account that may receive files.
+        if ( $export_url !== null && \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
             echo '<a class="tt-rep-btn" href="' . esc_url( $export_url ) . '">' . esc_html__( 'Export (CSV)', 'talenttrack' ) . '</a>';
         }
         if ( $schedule_url !== null ) {
@@ -2076,6 +2088,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * notice).
      */
     private static function streamCoachEvalQualityCsv(): void {
+        self::refuseUnlessMayDownload();
         $scope = self::currentScope();
         if ( ! $scope['is_scope_admin'] ) return;
 

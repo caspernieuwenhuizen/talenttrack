@@ -118,6 +118,8 @@ final class MatrixEntityCatalog {
             'holidays'                      => __( 'Holidays', 'talenttrack' ),
             'methodology'                   => __( 'Methodology', 'talenttrack' ),
             'reports'                       => __( 'Reports', 'talenttrack' ),
+            // #4718 — the right to receive a file the server produces.
+            'exports'                       => __( 'File downloads', 'talenttrack' ),
             // Settings + admin
             'settings'                      => __( 'Settings (umbrella)', 'talenttrack' ),
             'lookups'                       => __( 'Lookups', 'talenttrack' ),

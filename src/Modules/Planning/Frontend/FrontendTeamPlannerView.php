@@ -211,9 +211,13 @@ class FrontendTeamPlannerView extends FrontendViewBase {
     private static function exportActionButtons( int $team_id, string $date_from, string $date_to ): string {
         if ( $team_id <= 0 ) return '';
         $self_url = remove_query_arg( [ 'tt_export_error' ] );
+        // #4718 — the two downloads only for an account that may receive
+        // files; the weekly sheet below is a browser print and stays.
+        $may_download = \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() );
 
         ob_start();
         ?>
+            <?php if ( $may_download ) : ?>
             <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
                 <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
                 <input type="hidden" name="action"               value="tt_export">
@@ -242,6 +246,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                     <span class="tt-page-actions__label"><?php esc_html_e( 'Export XLSX', 'talenttrack' ); ?></span>
                 </button>
             </form>
+            <?php endif; ?>
             <?php // #1631 — branded weekly portrait PDF via the compose dialog. ?>
             <button type="button" class="tt-btn tt-btn-secondary is-icon" data-tt-open-compose aria-label="<?php esc_attr_e( 'Weekly PDF', 'talenttrack' ); ?>">
                 <span class="tt-page-actions__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>

@@ -22,6 +22,7 @@ use TT\Modules\Comms\Domain\CommsOutcomeSummary;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\Templates\ScheduledReportTemplate;
+use TT\Modules\Export\ExportGate;
 
 /**
  * ScheduledReportsRunner — daily cron that processes due schedules
@@ -166,9 +167,16 @@ final class ScheduledReportsRunner {
                 if ( $user_id > 0 ) {
                     $users[ $user_id ] = self::userRecipient( $user_id, $entry );
                     $via[ $user_id ]   = '';
-                } else {
-                    $addresses[ strtolower( $entry ) ] = new Recipient( 0, Recipient::KIND_SYSTEM, null, $entry );
+                    continue;
                 }
+                // #4718 — an address that belongs to an account, in this
+                // club or not, follows the export rule for that account.
+                $account_id = self::accountFor( $entry );
+                if ( $account_id > 0 && ! ExportGate::mayExport( $account_id ) ) {
+                    $skipped[] = [ 'email' => $entry, 'user_id' => 0, 'reason' => 'no_file_access', 'via' => '' ];
+                    continue;
+                }
+                $addresses[ strtolower( $entry ) ] = new Recipient( 0, Recipient::KIND_SYSTEM, null, $entry );
                 continue;
             }
 
@@ -196,6 +204,12 @@ final class ScheduledReportsRunner {
         $taken         = [];
         foreach ( $users as $user_id => $recipient ) {
             $taken[ strtolower( $recipient->emailAddress ) ] = true;
+            // #4718 — the CSV is a file; an account that may receive none
+            // is left out and named like any other refusal.
+            if ( ! ExportGate::mayExport( (int) $user_id ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_file_access', 'via' => $via[ $user_id ] ?? '' ];
+                continue;
+            }
             $scope = FactScope::forUser( $user_id );
             if ( ! FactQuery::canRead( $fact_key, $scope ) ) {
                 $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access', 'via' => $via[ $user_id ] ?? '' ];
@@ -245,10 +259,15 @@ final class ScheduledReportsRunner {
      * whole install.
      */
     private static function clubAccountFor( string $email ): int {
+        $user_id = self::accountFor( $email );
+        return $user_id > 0 && self::inClub( $user_id ) ? $user_id : 0;
+    }
+
+    /** The account this address belongs to anywhere on the install; 0 when none. */
+    private static function accountFor( string $email ): int {
         $account = get_user_by( 'email', $email );
         if ( ! $account instanceof \WP_User || (int) $account->ID <= 0 ) return 0;
-        $user_id = (int) $account->ID;
-        return self::inClub( $user_id ) ? $user_id : 0;
+        return (int) $account->ID;
     }
 
     /** Does this account have a person record in the current club? */
@@ -490,7 +509,11 @@ final class ScheduledReportsRunner {
 
         $allowed = [];
         foreach ( $recipients as $recipient ) {
-            if ( $may_receive( $recipient->userId, $result ) ) {
+            // #4718 — the PDF is a file: receiving one is a right of its own,
+            // asked before the report's read rule.
+            if ( ! ExportGate::mayExport( (int) $recipient->userId ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_file_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];
+            } elseif ( $may_receive( $recipient->userId, $result ) ) {
                 $allowed[] = $recipient;
             } else {
                 $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_read_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];

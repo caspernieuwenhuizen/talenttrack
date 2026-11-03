@@ -278,7 +278,9 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
 
         $this->assertSame(
             // #4296 (D-15) added `lookups`: read-only club vocabulary.
-            [ 'lookups', 'my_person', 'people', 'player_notes', 'players', 'team' ],
+            // #4718 added `exports`: receiving a file, at team scope; a gate
+            // in front of each file's own rule, which reads nothing itself.
+            [ 'exports', 'lookups', 'my_person', 'people', 'player_notes', 'players', 'team' ],
             array_values( $entities )
         );
     }
