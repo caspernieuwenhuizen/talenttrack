@@ -3,6 +3,8 @@ namespace TT\Modules\ReportStudio\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
+
 /**
  * ReportDefinition (#4569) — what a draft or a version holds: the blocks in
  * their order, each with its key, its options and its width on the canvas.
@@ -59,12 +61,26 @@ final class ReportDefinition {
                 /* translators: %s: comma-separated field names */
                 return self::invalid( sprintf( __( 'A block does not accept: %s.', 'talenttrack' ), implode( ', ', $extra ) ) );
             }
-            $key = is_string( $block['key'] ?? null ) ? (string) $block['key'] : '';
-            if ( BlockRegistry::find( $key ) === null ) {
+            $key      = is_string( $block['key'] ?? null ) ? (string) $block['key'] : '';
+            $registry = BlockRegistry::find( $key );
+            if ( $registry === null ) {
                 return self::invalid( __( 'There is no block with that key.', 'talenttrack' ) );
             }
             $options = $block['options'] ?? [];
             if ( ! is_array( $options ) ) return self::invalid( __( 'The options must be an object.', 'talenttrack' ) );
+            // #4860 — a block naming an analytics field that no longer
+            // exists is refused on save; a renamed one is stored by its new
+            // name.
+            if ( $registry instanceof ChecksFactKeys ) {
+                $keyed = [];
+                foreach ( $options as $k => $v ) $keyed[ (string) $k ] = $v;
+                try {
+                    $options = $registry->resolveStoredKeys( $keyed );
+                } catch ( UnknownFactKeyException $e ) {
+                    $refusal = BlockEngine::unknownField( $e );
+                    return new StudioError( $refusal->code, $refusal->message, 400, $e->details() + [ 'field' => 'definition', 'block' => $i ] );
+                }
+            }
             $id = is_string( $block['id'] ?? null ) && $block['id'] !== '' ? sanitize_key( (string) $block['id'] ) : 'b' . ( $i + 1 );
             $width = $block['width'] ?? self::WIDTH_FULL;
             if ( ! is_string( $width ) || ! in_array( $width, self::WIDTHS, true ) ) {

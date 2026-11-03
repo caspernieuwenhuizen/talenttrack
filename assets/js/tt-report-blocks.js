@@ -74,7 +74,11 @@
 		}
 		if (d.error) {
 			box.classList.add('is-off');
-			box.appendChild(el('p', 'tt-rs-block-msg', opts.errorText || d.error.message));
+			// A field the block names is gone (#4860): say so, in the
+			// server's words, to the builder and the reader alike.
+			var missing = d.error.code === 'unknown_dimension';
+			if (missing) box.classList.add('is-missing-field');
+			box.appendChild(el('p', 'tt-rs-block-msg', missing ? d.error.message : (opts.errorText || d.error.message)));
 			return box;
 		}
 		var data = d.data || {};

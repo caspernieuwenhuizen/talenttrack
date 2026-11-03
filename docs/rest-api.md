@@ -1373,6 +1373,14 @@ for a group), `from` and `to` (`Y-m-d`; the season so far when omitted) and
   record. A fact with no read entity is refused.
 - **Options.** Only declared options and values: `400 unknown_field` /
   `invalid_field` with the field in `details`.
+- **Analytics fields that no longer exist.** A block that names a fact, a
+  measure or a dimension its fact no longer has is `400 unknown_dimension`,
+  with `details.fact`, `details.key` and `details.kind` (`fact`, `measure`,
+  `dimension` or `filter`). Before #4860 the analytics engine skipped an
+  unknown dimension or filter key and answered for more rows than were asked
+  about; it now refuses it everywhere. A renamed key is not unknown: a fact
+  declares the old key as an alias of the new one, and the old key reads
+  exactly what the new one reads.
 
 An unknown block, or one with no data for this subject, is `404 not_found`.
 
@@ -1524,7 +1532,10 @@ blocks and 65536 bytes; `width` is `full`, the default, or `half`) and
 `name`. **An omitted field keeps its value; a field sent empty clears it.** A
 body with neither is `400 no_writable_field`. The draft row is made on first
 use from the published version, or the owner's draft, with that version's or
-draft's name.
+draft's name. A block that names an analytics field its fact no longer has is
+refused, `400 unknown_dimension` with `details.field = "definition"` and
+`details.block` (its position); a field named by an alias is stored by its
+new name.
 
 **A rename waits for publish.** `name` is written to the caller's draft, like
 `definition`, and readers keep the published name until the next publish
@@ -1617,6 +1628,8 @@ row scope. `source` is `draft` (a builder's own, their default) or
   out of scope is `403 forbidden_team` / `forbidden_player` /
   `forbidden_scope` for the whole report. A block that cannot be read for
   this subject carries an `error` in its own slot and the others still read.
+  A stored block that names a field its fact no longer has carries `error.code
+  = "unknown_dimension"` with a message naming the field, never data.
 - **`audience`** (`internal`, `scout`, `family`) lets an editor preview the
   report as that audience gets it: every block is cut on the server, so a
   staff-only block comes back as an `error` and no breakdown by player is

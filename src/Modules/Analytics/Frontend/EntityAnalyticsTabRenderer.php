@@ -56,6 +56,9 @@ final class EntityAnalyticsTabRenderer {
 
         echo '<div class="tt-analytics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:12px;">';
         foreach ( $kpis as $key => $kpi ) {
+            // #4860 — a KPI whose fact cannot be narrowed to this entity is
+            // left off, rather than shown with the un-narrowed number.
+            if ( ! self::narrowsTo( $kpi, $entity_filter_key ) ) continue;
             $extra_filters = $entity_filter_key !== null
                 ? [ $entity_filter_key => $entity_id ]
                 : [];
@@ -118,6 +121,15 @@ final class EntityAnalyticsTabRenderer {
             return [ Kpi::CONTEXT_COACH, Kpi::CONTEXT_PLAYER_PARENT ];
         }
         return [ Kpi::CONTEXT_PLAYER_PARENT ];
+    }
+
+    /** Does the KPI's fact carry the dimension this entity filter names? */
+    private static function narrowsTo( Kpi $kpi, ?string $filter_key ): bool {
+        if ( $filter_key === null ) return true;
+        $fact = FactRegistry::find( $kpi->factKey );
+        if ( $fact === null ) return false;
+        $dim = (string) preg_replace( '/_eq$/', '', $filter_key );
+        return $fact->dimension( $fact->resolveKey( $dim ) ) !== null;
     }
 
     private static function filterKeyForScope( string $scope ): ?string {

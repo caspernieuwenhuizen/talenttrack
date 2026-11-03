@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Domain\Fact;
 use TT\Modules\Analytics\Domain\FactResult;
 use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Domain\Measure;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 
 /**
  * FactQuery — the engine every KPI and explorer hits (#0083 Child 1).
@@ -30,9 +31,14 @@ use TT\Modules\Analytics\Domain\Measure;
  *     'status_eq'       => 'present',
  *   ]
  *
- * Each operator key is `<dim_key>_<op>` where op ∈ {eq, in, not_eq}.
+ * Each operator key is `<dim_key>_<op>` where op ∈ {eq, in, not_eq, not_in}.
  * The `date_after` / `date_before` keys are special — they apply to
  * the fact's declared timeColumn, not a dimension.
+ *
+ * **Unknown keys are refused (#4860).** A dimension or filter key the fact
+ * neither declares nor aliases throws `UnknownFactKeyException`; it is never
+ * skipped, because a skipped filter answers for more rows than were asked
+ * for. A fact's `aliases` (old key => new key) are resolved first.
  *
  * **Multi-tenancy:** the engine auto-injects `WHERE club_id = <current>`
  * via `CurrentClub::id()`. Cross-club aggregation is deliberately
@@ -87,6 +93,7 @@ final class FactQuery {
     public static function query( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): FactResult {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return new FactResult( [], false );
+        [ $dimensionKeys, $filters ] = self::resolveKeys( $fact, $dimensionKeys, $filters );
 
         $cache_key = self::cacheKey( $factKey, $dimensionKeys, $measureKeys, $filters, $scope );
         $cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
@@ -125,6 +132,7 @@ final class FactQuery {
     public static function rows( string $factKey, array $filters, FactScope $scope, int $limit = 50, int $offset = 0 ): array {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return [];
+        [ , $filters ] = self::resolveKeys( $fact, [], $filters );
         $limit  = max( 1, min( self::ROW_LIMIT, $limit ) );
         $offset = max( 0, $offset );
         return self::executeRows( $fact, $filters, $scope, $limit, $offset );
@@ -139,7 +147,49 @@ final class FactQuery {
     public static function countRows( string $factKey, array $filters, FactScope $scope ): int {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return 0;
+        [ , $filters ] = self::resolveKeys( $fact, [], $filters );
         return self::executeCount( $fact, $filters, $scope );
+    }
+
+    /**
+     * #4860 — every dimension and filter key, aliases resolved, or the first
+     * one the fact does not know refused. A key is never skipped: a skipped
+     * filter widens the query, and the answer is a plausible number for the
+     * wrong rows. The same check a stored definition runs on save.
+     *
+     * @param string[]            $dimensionKeys
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>, 1:array<string,mixed>}
+     * @throws UnknownFactKeyException
+     */
+    public static function resolveKeys( Fact $fact, array $dimensionKeys, array $filters ): array {
+        $dims = [];
+        foreach ( $dimensionKeys as $key ) {
+            $resolved = $fact->resolveKey( (string) $key );
+            if ( $fact->dimension( $resolved ) === null ) {
+                throw new UnknownFactKeyException( $fact->key, (string) $key, UnknownFactKeyException::KIND_DIMENSION );
+            }
+            $dims[] = $resolved;
+        }
+
+        $out = [];
+        foreach ( $filters as $key => $value ) {
+            $key = (string) $key;
+            if ( $key === 'date_after' || $key === 'date_before' ) {
+                $out[ $key ] = $value;
+                continue;
+            }
+            [ $dim_key, $op ] = self::splitFilterKey( $key );
+            if ( $dim_key === null || $op === null ) {
+                throw new UnknownFactKeyException( $fact->key, $key, UnknownFactKeyException::KIND_FILTER );
+            }
+            $resolved = $fact->resolveKey( $dim_key );
+            if ( $fact->dimension( $resolved ) === null ) {
+                throw new UnknownFactKeyException( $fact->key, $dim_key, UnknownFactKeyException::KIND_FILTER );
+            }
+            $out[ $resolved . '_' . $op ] = $value;
+        }
+        return [ $dims, $out ];
     }
 
     /**
@@ -453,12 +503,20 @@ final class FactQuery {
                     $params[]  = $value;
                     break;
                 case 'in':
-                    if ( ! is_array( $value ) || empty( $value ) ) continue 2;
+                    // #4860 — "one of none" is no rows, never every row; a
+                    // single value is a list of one.
+                    if ( is_scalar( $value ) && $value !== '' ) $value = [ $value ];
+                    if ( ! is_array( $value ) || empty( $value ) ) {
+                        $clauses[] = '1 = 0';
+                        break;
+                    }
                     $placeholders = implode( ',', array_fill( 0, count( $value ), self::placeholderFor( reset( $value ) ) ) );
                     $clauses[]    = $expr . ' IN (' . $placeholders . ')';
                     foreach ( $value as $v ) $params[] = $v;
                     break;
                 case 'not_in':
+                    if ( is_scalar( $value ) && $value !== '' ) $value = [ $value ];
+                    // "None of none" leaves every row, which is what it says.
                     if ( ! is_array( $value ) || empty( $value ) ) continue 2;
                     $placeholders = implode( ',', array_fill( 0, count( $value ), self::placeholderFor( reset( $value ) ) ) );
                     $clauses[]    = $expr . ' NOT IN (' . $placeholders . ')';

@@ -4,6 +4,7 @@ namespace TT\Modules\ReportStudio\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\RecordRedactor;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 
 /**
  * BlockEngine — renders one block for one context (#4568).
@@ -45,10 +46,25 @@ final class BlockEngine {
             return new StudioError( 'not_found', __( 'This block has no data for this subject.', 'talenttrack' ), 404 );
         }
 
+        if ( $block instanceof ChecksFactKeys ) {
+            try {
+                $options_in = $block->resolveStoredKeys( $options_in );
+            } catch ( UnknownFactKeyException $e ) {
+                return self::unknownField( $e );
+            }
+        }
         $options = self::validateOptions( $block, $context, $options_in );
         if ( $options instanceof StudioError ) return $options;
 
-        $data = self::masked( self::forAudience( $block, $context, $block->render( $context, $options ) ), $user_id );
+        // #4860 — a block that names a field its fact no longer has is
+        // refused, never answered for more rows than it asked about. A stored
+        // report shows the refusal in that block's place; a preview is 400.
+        try {
+            $rendered = $block->render( $context, $options );
+        } catch ( UnknownFactKeyException $e ) {
+            return self::unknownField( $e );
+        }
+        $data = self::masked( self::forAudience( $block, $context, $rendered ), $user_id );
 
         return [
             'block'   => $block->key(),
@@ -64,6 +80,17 @@ final class BlockEngine {
             'options' => $options,
             'data'    => $data,
         ];
+    }
+
+    /** The refusal for a block that names a field its fact no longer has. */
+    public static function unknownField( UnknownFactKeyException $e ): StudioError {
+        return new StudioError(
+            'unknown_dimension',
+            /* translators: %s: the name of the field that no longer exists */
+            sprintf( __( 'This block refers to a field that no longer exists: %s.', 'talenttrack' ), $e->key ),
+            400,
+            $e->details()
+        );
     }
 
     /**

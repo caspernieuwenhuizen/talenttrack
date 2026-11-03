@@ -7,6 +7,7 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
@@ -112,11 +113,25 @@ final class ScheduledReportsRunner {
 
         $delivered = 0;
         $sent      = false;
-        foreach ( $plan['deliveries'] as $delivery ) {
-            $delivered += count( $delivery['recipients'] );
-            if ( self::sendKpiCsv( $schedule, $kpi_key, $kpi_label, $delivery['scope'], $delivery['recipients'] ) ) {
-                $sent = true;
+        try {
+            foreach ( $plan['deliveries'] as $delivery ) {
+                $delivered += count( $delivery['recipients'] );
+                if ( self::sendKpiCsv( $schedule, $kpi_key, $kpi_label, $delivery['scope'], $delivery['recipients'] ) ) {
+                    $sent = true;
+                }
             }
+        } catch ( UnknownFactKeyException $e ) {
+            // #4860 — the KPI names a field its fact no longer has. Nothing
+            // is sent, because the file would carry the un-narrowed number;
+            // the schedule says why in its list, and the run is logged once
+            // per distinct reason rather than every heartbeat.
+            $note = $e->readerMessage();
+            if ( (string) ( $schedule['last_error'] ?? '' ) !== $note ) {
+                Logger::warning( 'Scheduled report: the KPI names a field that no longer exists, send skipped.', [ 'schedule_id' => $id, 'kpi_key' => $kpi_key ] + $e->details() );
+            }
+            $repo->recordError( $id, $note );
+            $repo->markRun( $id, $now );
+            return;
         }
 
         if ( $plan['skipped'] !== [] ) {

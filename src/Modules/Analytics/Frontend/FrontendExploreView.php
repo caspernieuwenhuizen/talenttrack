@@ -4,7 +4,9 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\DimensionValueResolver;
+use TT\Modules\Analytics\Domain\Fact;
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
@@ -114,6 +116,12 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        // #4860 — a refused request answers 400; the status goes out before
+        // the page has printed anything.
+        $early_fact = $kpi !== null ? FactRegistry::find( $kpi->factKey ) : null;
+        $refusal    = $kpi !== null && $early_fact !== null ? self::requestRefusal( $kpi, $early_fact ) : null;
+        if ( $refusal !== null ) status_header( 400 );
+
         self::enqueueAssets();
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -133,8 +141,13 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        if ( $refusal !== null ) {
+            echo '<p class="tt-notice">' . esc_html( $refusal->readerMessage() ) . '</p>';
+            return;
+        }
+
         $filters  = self::filtersFromRequest( $kpi );
-        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+        $group_by = isset( $_GET['group_by'] ) ? $fact->resolveKey( sanitize_key( (string) $_GET['group_by'] ) ) : '';
 
         echo '<div class="tt-explore">';
 
@@ -442,9 +455,10 @@ class FrontendExploreView extends FrontendViewBase {
     private static function streamCsv( Kpi $kpi ): void {
         $fact = FactRegistry::find( $kpi->factKey );
         if ( $fact === null ) return;
+        self::refuseExport( $kpi, $fact );
 
         $filters  = self::filtersFromRequest( $kpi );
-        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+        $group_by = isset( $_GET['group_by'] ) ? $fact->resolveKey( sanitize_key( (string) $_GET['group_by'] ) ) : '';
 
         $dim_keys = [];
         if ( $group_by !== '' && $fact->dimension( $group_by ) !== null ) {
@@ -487,9 +501,10 @@ class FrontendExploreView extends FrontendViewBase {
     private static function streamPdf( Kpi $kpi ): void {
         $fact = FactRegistry::find( $kpi->factKey );
         if ( $fact === null ) return;
+        self::refuseExport( $kpi, $fact );
 
         $filters  = self::filtersFromRequest( $kpi );
-        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+        $group_by = isset( $_GET['group_by'] ) ? $fact->resolveKey( sanitize_key( (string) $_GET['group_by'] ) ) : '';
 
         $headline_rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, FactScope::forUser( get_current_user_id() ) );
         $headline = empty( $headline_rows ) ? null : ( $headline_rows[0]->{ $kpi->measureKey } ?? null );
@@ -606,6 +621,7 @@ class FrontendExploreView extends FrontendViewBase {
      */
     private static function filtersFromRequest( Kpi $kpi ): array {
         $filters = $kpi->defaultFilters;
+        $fact    = FactRegistry::find( $kpi->factKey );
 
         // Special date filters — accept Y-m-d strings or relative
         // ("-30 days") forms. Both are resolved to an absolute date by
@@ -628,12 +644,19 @@ class FrontendExploreView extends FrontendViewBase {
             if ( $stripped === '' ) continue;
             // Ignore the date_* shortcuts handled above.
             if ( $stripped === 'date_after' || $stripped === 'date_before' ) continue;
-            // Drop any filter whose dimension isn't one this KPI declares
-            // as explorable. Permissive-safe: an undeclared `filter_<key>`
-            // is silently ignored, so it never reaches the query or the
-            // export — keeping on-screen and exported filters in sync and
-            // preventing filters on columns the user was never offered.
-            if ( ! in_array( self::dimensionOf( $stripped ), $kpi->exploreDimensions, true ) ) continue;
+            // Only a filter on a dimension this KPI offers reaches the
+            // query. #4860 — an undeclared one is refused by
+            // `requestRefusal()` before this runs, never dropped; a renamed
+            // one is read through the fact's alias.
+            $dim      = self::dimensionOf( $stripped );
+            $resolved = $fact !== null ? $fact->resolveKey( $dim ) : $dim;
+            if ( ! in_array( $resolved, $kpi->exploreDimensions, true ) ) continue;
+            // #4860 — a bare `filter_<dim>`, which every explorer link built
+            // by `ExplorerUrl::build()` carries, is an equality filter. It
+            // used to reach the engine with no operator and be skipped, so
+            // a player's "explore" link showed the whole academy.
+            $op       = substr( $stripped, strlen( $dim ) );
+            $stripped = $resolved . ( $op !== '' ? $op : ( is_array( $raw_val ) ? '_in' : '_eq' ) );
             // Sanitize the value(s).
             if ( is_array( $raw_val ) ) {
                 $clean = array_values( array_filter( array_map(
@@ -658,6 +681,43 @@ class FrontendExploreView extends FrontendViewBase {
      * lines up with what the query layer actually consumes. Falls back
      * to the input unchanged when no known operator suffix matches.
      */
+    /**
+     * #4860 — the first `filter_…` or `group_by` in the request the KPI does
+     * not offer, or null. An explorer link saved against an older fact must
+     * not quietly answer for more rows than it names: the page and the
+     * exports refuse it instead of dropping it. A renamed key is read
+     * through the fact's alias.
+     */
+    /** An export of a request naming a field the KPI does not offer is a 400, not a wider file. */
+    private static function refuseExport( Kpi $kpi, Fact $fact ): void {
+        $refusal = self::requestRefusal( $kpi, $fact );
+        if ( $refusal !== null ) wp_die( esc_html( $refusal->readerMessage() ), '', [ 'response' => 400 ] );
+    }
+
+    private static function requestRefusal( Kpi $kpi, Fact $fact ): ?UnknownFactKeyException {
+        $offered = static fn( string $dim ): bool => in_array( $fact->resolveKey( $dim ), $kpi->exploreDimensions, true )
+            && $fact->dimension( $fact->resolveKey( $dim ) ) !== null;
+
+        foreach ( array_keys( $_GET ) as $raw_key ) {
+            $key = sanitize_key( (string) $raw_key );
+            if ( strpos( $key, 'filter_' ) !== 0 ) continue;
+            $stripped = substr( $key, strlen( 'filter_' ) );
+            if ( $stripped === '' || $stripped === 'date_after' || $stripped === 'date_before' ) continue;
+            // A bare `filter_<dim>` (what `ExplorerUrl::build()` writes) is
+            // `<dim>_eq`; `filtersFromRequest()` reads it that way.
+            $dim = self::dimensionOf( $stripped );
+            if ( ! $offered( $dim ) ) {
+                return new UnknownFactKeyException( $fact->key, $dim, UnknownFactKeyException::KIND_FILTER );
+            }
+        }
+
+        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+        if ( $group_by !== '' && $fact->dimension( $fact->resolveKey( $group_by ) ) === null ) {
+            return new UnknownFactKeyException( $fact->key, $group_by, UnknownFactKeyException::KIND_DIMENSION );
+        }
+        return null;
+    }
+
     private static function dimensionOf( string $stripped ): string {
         // Longest suffixes first so `_not_eq` wins over `_eq`.
         $ops = [ 'not_eq', 'not_in', 'eq', 'in' ];
