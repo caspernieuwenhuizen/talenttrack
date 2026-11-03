@@ -34,6 +34,7 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
         CoreSurfaceRegistration::register();
         SettingsRegistry::clear();
         AuthorizationService::flushCache();
+        \TT\Infrastructure\Tenancy\ClubMembership::flush();
         $this->policy_was = (string) ( new ConfigService() )->get( MfaSettings::KEY_REQUIRED_PERSONAS, '' );
         $this->admin      = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
     }
@@ -151,10 +152,29 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
 
     // ---- the counts ----
 
+    /**
+     * A scout account with a staff record in the current club: since #4787
+     * the counts are the club's own accounts, not every account on the install.
+     */
+    private function clubScout( string $display_name ): int {
+        global $wpdb;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_scout', 'display_name' => $display_name ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            'first_name' => 'Scout',
+            'last_name'  => (string) $uid,
+            'role_type'  => 'scout',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        \TT\Infrastructure\Tenancy\ClubMembership::flush();
+        return $uid;
+    }
+
     public function test_the_counts_per_role_are_right_and_name_nobody(): void {
         $scouts = [];
         foreach ( [ 'Sanne Scoutvanger', 'Pieter Spotter', 'Lotte Kijker' ] as $name ) {
-            $scouts[] = (int) self::factory()->user->create( [ 'role' => 'tt_scout', 'display_name' => $name ] );
+            $scouts[] = $this->clubScout( $name );
         }
         $this->enrol( $scouts[0] );
 
@@ -175,8 +195,7 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
     }
 
     public function test_the_form_shows_the_counts_and_the_save_and_cancel_pair(): void {
-        $scout = (int) self::factory()->user->create( [ 'role' => 'tt_scout', 'display_name' => 'Ruud Rondkijker' ] );
-        unset( $scout );
+        $this->clubScout( 'Ruud Rondkijker' );
         ( new MfaSettings() )->setRequiredPersonas( [ 'scout' ] );
         wp_set_current_user( $this->admin );
         $_GET['config_sub'] = 'mfa-policy';
