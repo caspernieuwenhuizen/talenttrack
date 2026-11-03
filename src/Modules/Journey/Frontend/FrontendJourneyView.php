@@ -117,6 +117,9 @@ class FrontendJourneyView {
             $events = $result['events'];
             $hidden = $result['hidden_count'];
         }
+        // The same rule as `GET players/{id}/timeline`: a PDP verdict entry
+        // follows the PDP verdict right.
+        $events = PlayerEventsRepository::readableBy( $user_id, $events, $player_id );
 
         ?>
         <section class="tt-journey">

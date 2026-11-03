@@ -79,9 +79,9 @@ class FrontendCohortTransitionsView {
 
         $rows = [];
         if ( $event_type !== '' && $may_read_team ) {
-            $rows = ( new PlayerEventsRepository() )->cohortByType(
+            $rows = PlayerEventsRepository::readableBy( $user_id, ( new PlayerEventsRepository() )->cohortByType(
                 $event_type, $from . ' 00:00:00', $to . ' 23:59:59', $team_id > 0 ? $team_id : null, $allowed
-            );
+            ) );
         }
 
         ?>

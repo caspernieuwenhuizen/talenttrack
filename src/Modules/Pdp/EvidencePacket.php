@@ -636,8 +636,11 @@ final class EvidencePacket {
         ) );
         if ( ! is_array( $rows ) ) return [];
 
+        // And a PDP verdict entry only for a reader of the PDP verdict.
+        $rows = PlayerEventsRepository::readableBy( $viewer_user_id, array_values( $rows ), $player_id );
+
         JourneySummaryLocaliser::localise( $rows );
-        return self::withActivities( array_values( $rows ), $club_id );
+        return self::withActivities( $rows, $club_id );
     }
 
     /**

@@ -84,6 +84,8 @@ Not every entry is visible to everyone. Each entry has a **visibility level**:
 - **Medical** — only roles with the medical-view permission see it. Injuries default here.
 - **Safeguarding** — only head-of-academy + administrator. Reserved for sensitive entries.
 
+A **PDP verdict** entry also follows the PDP: it shows only to someone who may read that player's PDP verdict (a parent only while the child shares the PDP with them), on the timeline, the transitions view, cohort transitions, the player report and the team's monthly report. Everyone else sees the rest of the journey without it.
+
 When the journey contains an entry you can't see, you'll see *"1 entry hidden — visible to other roles only."* at the top so the chronology stays honest. The detail itself stays out of sight.
 
 Medical data is double-gated and audit-logged: viewing or editing a player's injuries requires both the medical-view permission **and** access to that specific player (the same scope rule as the rest of their record), and every injury view, create, edit, and archive — plus any timeline read that returned medical or safeguarding entries — lands in the audit log with who, when, and which player. That's the trail a safeguarding inquiry asks for.
