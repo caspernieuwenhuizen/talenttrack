@@ -443,7 +443,7 @@ Access-preserving bridges (the matrix grantees match the prior raw grant):
   - `staff_development` read is own record, or global scope; team scope does not widen it.
 - **`tt_manage_modules` → `module_management:create_delete`** (re-pointed in #2187; was `feature_toggles:change` under #1941). Seeded to Academy Admin only. Module management now has a **dedicated** matrix entity, distinct from the read-mostly `feature_toggles` config entity and the `module_state` status view — so the matrix governs "enable/disable a whole module" independently of "edit a config feature-toggle". Head of Development holds `feature_toggles [read]` but **no** `module_management` row, so it gains nothing; module management stays admin-only. The re-point was driven by the Modules admin page (`ModulesPage` / `FrontendModulesView`) previously gating on a `current_user_can('administrator')` role-string compare — replaced with `current_user_can('tt_manage_modules')` so the matrix, not a WP role name, decides access. Migration 0194 top-ups existing installs with the `module_management` grant so no operator loses the Modules page on upgrade.
 - **`tt_view_scout_assignments` → `scout_my_players:read`.** Seeded to the Scout persona only, matching the scout-only raw grant. (The cap only opens the "My players" surface; the assignment list lives in user meta.)
-- **`tt_manage_invitations` → `settings:create_delete`.** The administrative invitation list / bulk-manage endpoints. Bridged to the admin-level `settings` entity (seeded to Academy Admin only; Head of Development has no `settings` row), so only the Academy Admin (and WP administrators, who bypass) manage invitations. Deliberately **not** `invitations:create_delete` — that tuple is seeded down to coaches/parents (so they can *send* an invite) and is far too broad for the management surface. The per-invite send caps keep their `invitations` tuple.
+- **`tt_manage_invitations` → `settings:create_delete`.** The administrative invitation list / bulk-manage endpoints. Bridged to the admin-level `settings` entity (`create_delete` seeded to Academy Admin only; Head of Development holds `settings` read and nothing more), so only the Academy Admin (and WP administrators, who bypass) manage invitations. Deliberately **not** `invitations:create_delete` — that tuple is seeded down to coaches/parents (so they can *send* an invite) and is far too broad for the management surface. The per-invite send caps keep their `invitations` tuple.
 
 Approved access changes:
 
@@ -624,6 +624,9 @@ The rule: the read-only observer reads everything in the academy that is not sen
 | Training | `exercises` |
 | Reference data | `seasons`, `methodology`, `football_actions`, `evaluation_categories`, `category_weights`, `rating_scale`, `holidays`, `documentation` |
 | Panels | `goals_panel` |
+| The journey | `player_timeline`, `cohort_transitions` |
+
+A journey entry follows the read right of the record it describes, on the timeline, the transitions view and cohort transitions alike: trial entries ask `trial_cases`, suspension entries `player_suspensions`, injury entries `player_injuries` and PDP verdict entries `pdp_verdict`. The observer holds none of those, so its journey carries none of those entries. Cohort transitions opens only while the academy has the feature switched on.
 
 **What stays closed**, by decision of the academy's owner: `player_injuries`, `safeguarding_notes`, `player_notes`, `staff_only_notes`, `thread_messages`, `parent_accounts`, every PDP entity (`pdp_file`, `pdp_conversations`, `pdp_verdict`, `pdp_evidence_packet`, `pdp_planning`, `pdp_panel`, `pdp_calendar_export`, `my_pdp_panel`) and `audit_log`. Report Studio (`report_studio`, `report_publishing`) is closed to the observer too.
 
@@ -641,7 +644,7 @@ The rule: the read-only observer reads everything in the academy that is not sen
 
 **What follows with its own review:** `vct` (load-restriction reasons per player), `training_plan` and `training_exposure` (coach notes and ratings on observations), `tournaments` (free-text squad, tournament and match notes), `media`, and `measurements`, `measurement_sessions`, `measurement_definitions`.
 
-**What is not granted either:** `vct_library` and `vct_workload` (no surface opens on either alone; the workload routes also ask `vct`); `player_timeline` and `cohort_transitions` (the journey carries the PDP verdict entry, and PDP stays closed); `player_behaviour_ratings` (free-text notes about a child's behaviour); `team_chemistry` and its panel, `analytics`, `lookups`, `player_suspensions`, `rate_cards`, `podium_panel`, `holidays_panel` and the staff-development entities; everything that operates the install (backups, migrations, the matrix itself, integrations, impersonation, usage statistics, workflow templates); and the `my_*` rows, which describe the reader's own record and mean nothing at global scope.
+**What is not granted either:** `vct_library` and `vct_workload` (no surface opens on either alone; the workload routes also ask `vct`); `player_behaviour_ratings` (free-text notes about a child's behaviour); `team_chemistry` and its panel, `analytics`, `lookups`, `player_suspensions`, `rate_cards`, `podium_panel`, `holidays_panel` and the staff-development entities; everything that operates the install (backups, migrations, the matrix itself, integrations, impersonation, usage statistics, workflow templates); and the `my_*` rows, which describe the reader's own record and mean nothing at global scope.
 
 **No write, anywhere.** The observer holds no `change` and no `create_delete` row. A test asserts it over the seed and over an upgraded matrix.
 
@@ -649,7 +652,11 @@ The rule: the read-only observer reads everything in the academy that is not sen
 
 **PDP on every route.** The observer holds no PDP row, and the role no longer carries the raw `tt_view_pdp` capability (it is revoked on upgrade, so an install whose matrix is dormant answers the same). `GET /players/{id}/pdp` asks `pdp_file` read for the player, as the journey and status routes ask their own sections, so a reader who may open the player record but holds no PDP right gets `403`: the read-only observer, and equally a scout on a linked player, a staff member, or a team manager outside their own team. The PDP tiles, the player profile's PDP tab and the `pdp-files` routes refuse the observer as well.
 
-**Existing installs** get the rows with migration `0310_authorization_observer_reads_non_sensitive`. A cell your academy already changed keeps its value: the migration skips an entity when the matrix already holds an observer row for it at any scope, or when the changelog records an edit to it since the last reset or import. It adds rows with `INSERT IGNORE`, so a second run writes nothing, and it deletes nothing.
+**Existing installs** get the rows with migrations `0310_authorization_observer_reads_non_sensitive` and, for the journey, `0312_authorization_hod_settings_observer_journey`. A cell your academy already changed keeps its value: each migration skips an entity when the matrix already holds a row for that persona on it at any scope, or when the changelog records an edit to it since the last reset or import. They add rows with `INSERT IGNORE`, so a second run writes nothing, and they delete nothing.
+
+## The head of development reads settings
+
+The head of development holds `settings` **read**, at global scope, and no `change` or `create_delete` on it. Read is the settings view right, which the role also holds on an install whose matrix is dormant: the HoD's settings entries are the ones whose own right the HoD holds, so HoD can inspect how the academy is set up. It changes none of it: saving a general setting asks `tt_edit_settings`, which the HoD does not hold. The System section asks that same edit right and the access matrix asks `tt_manage_authorization`, so both stay closed. Existing installs get the row with migration `0312_authorization_hod_settings_observer_journey`, on the same terms as above: a cell your academy changed keeps its value.
 
 ## Matrix entity `analytics` — reading it, and setting the evaluation windows
 

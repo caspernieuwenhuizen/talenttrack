@@ -25,6 +25,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\Migration;
+use TT\Infrastructure\Database\MigrationHelpers;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 return new class extends Migration {
@@ -113,35 +114,9 @@ return new class extends Migration {
 
     /**
      * Has the matrix, or an academy, already decided this observer cell?
+     * The rule is shared with every later top-up.
      */
     private function cellChanged( string $entity ): bool {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $held = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_authorization_matrix WHERE persona = %s AND entity = %s",
-            self::PERSONA,
-            $entity
-        ) );
-        if ( $held > 0 ) return true;
-
-        $changelog = "{$p}tt_authorization_changelog";
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $changelog ) ) !== $changelog ) {
-            return false;
-        }
-
-        // A reset or an import replaces the whole matrix, so an edit made
-        // before the latest one no longer stands.
-        $since = (int) $wpdb->get_var(
-            "SELECT COALESCE( MAX(id), 0 ) FROM {$changelog} WHERE change_type IN ( 'reset', 'bulk_import' )"
-        );
-
-        $edits = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$changelog} WHERE persona = %s AND entity = %s AND id > %d",
-            self::PERSONA,
-            $entity,
-            $since
-        ) );
-        return $edits > 0;
+        return MigrationHelpers::matrixCellChanged( self::PERSONA, $entity );
     }
 };

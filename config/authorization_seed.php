@@ -891,6 +891,11 @@ return array_merge(
         'branding'                      => [ 'r',   'global', $mod_configuration ],
         'lookups'                       => [ 'r',   'global', $mod_configuration ],
         'rating_scale'                  => [ 'r',   'global', $mod_configuration ],
+        // #4795 — the R-only `settings` row the narrowing above describes.
+        // HoD reads Configuration and changes none of it: the System
+        // section asks `tt_edit_settings` and the access matrix
+        // `tt_manage_authorization`, neither of which this grants.
+        'settings'                      => [ 'r',   'global', $mod_configuration ],
         'audit_log'                     => [ 'r',   'global', $mod_configuration ],
         'authorization_changelog'       => [ 'r',   'global', $mod_authorization ],
         'permission_debug'              => [ 'r',   'global', $mod_authorization ],
@@ -1254,8 +1259,6 @@ return array_merge(
     //     ratings on observations), `tournaments` (free-text squad,
     //     tournament and match notes), `media` (an open owner question),
     //     `measurements`, `measurement_sessions`, `measurement_definitions`;
-    //   - `player_timeline` and `cohort_transitions`: the journey carries
-    //     the PDP verdict entry, and PDP stays closed;
     //   - `player_behaviour_ratings`: free-text notes on a child's
     //     behaviour, with no masking registered;
     //   - `vct_library` and `vct_workload`: no surface opens on either
@@ -1304,6 +1307,13 @@ return array_merge(
         'goals_panel'             => [ 'r', 'global', $mod_goals ],
         'holidays'                => [ 'r', 'global', $mod_holidays ],
         'documentation'           => [ 'r', 'global', $mod_documentation ],
+
+        // #4795 — the journey and cohort transitions, now that a PDP verdict
+        // entry follows the PDP verdict right on every journey surface
+        // (#4775) and the cohort route asks `cohort_transitions` read
+        // (#4794). Existing installs get them through migration 0312.
+        'player_timeline'         => [ 'r', 'global', $mod_journey ],
+        'cohort_transitions'      => [ 'r', 'global', $mod_journey ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────

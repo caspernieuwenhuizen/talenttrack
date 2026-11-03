@@ -69,4 +69,43 @@ class MigrationHelpers {
         }
         return true;
     }
+
+    /**
+     * Has the matrix, or an academy, already decided this persona's cell on
+     * this entity? A seed top-up that adds rows asks this first and leaves a
+     * decided cell exactly as it is.
+     *
+     * A cell counts as decided when the matrix holds a row for the persona
+     * on the entity at any scope or activity, or when
+     * `tt_authorization_changelog` records an edit to it after the latest
+     * reset or import (either replaces the whole matrix, so an edit made
+     * before it no longer stands).
+     */
+    public static function matrixCellChanged( string $persona, string $entity ): bool {
+        global $wpdb;
+
+        $held = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_authorization_matrix WHERE persona = %s AND entity = %s",
+            $persona,
+            $entity
+        ) );
+        if ( $held > 0 ) return true;
+
+        $changelog = $wpdb->prefix . 'tt_authorization_changelog';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $changelog ) ) !== $changelog ) {
+            return false;
+        }
+
+        $since = (int) $wpdb->get_var(
+            "SELECT COALESCE( MAX(id), 0 ) FROM {$wpdb->prefix}tt_authorization_changelog WHERE change_type IN ( 'reset', 'bulk_import' )"
+        );
+
+        $edits = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_authorization_changelog WHERE persona = %s AND entity = %s AND id > %d",
+            $persona,
+            $entity,
+            $since
+        ) );
+        return $edits > 0;
+    }
 }

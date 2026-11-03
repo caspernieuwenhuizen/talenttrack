@@ -1784,9 +1784,14 @@ safeguarding only with their own capabilities. A player sees the public
 entries and a `hidden_count` for the rest — the same cut `My journey`
 renders.
 
-**PDP verdict entries.** A `pdp_verdict_recorded` entry comes back only to a
-reader who may read that player's PDP verdict (`pdp_verdict`) and, for a
-linked guardian, whose child shares the PDP section. The same rule holds on
+**Entries that describe a record of their own.** An entry follows the read
+right of the record it describes (`PlayerEventsRepository::ENTRY_RIGHTS`),
+asked for the entry's player: `trial_started` / `trial_ended` ask
+`trial_cases`, `suspension_started` / `suspension_ended` ask
+`player_suspensions`, `injury_started` / `injury_ended` ask
+`player_injuries`, and `pdp_verdict_recorded` asks `pdp_verdict` plus, for a
+linked guardian, the child's PDP section. Other entry types follow the
+journey right alone. The same rule holds on
 `GET /journey/cohort-transitions`, row by row. Leaving those entries out
 happens after the page is read, so a timeline page can hold fewer entries
 than `limit` while `next_cursor` is still set: keep paging until

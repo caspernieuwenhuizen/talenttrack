@@ -44,15 +44,33 @@ final class PlayerEventsRepository {
     }
 
     /**
-     * The entries as this reader may see them: a PDP verdict entry only for
-     * a reader who may read that player's PDP verdict (`pdp_verdict`, asked
-     * about the entry's player) and, for a linked parent, whose child shares
-     * the PDP with them. Every other entry passes unchanged.
+     * Journey entry types that describe a record of their own, and the read
+     * right that record asks: `[ entity, parent section ]`. The section, when
+     * set, is the child's own sharing switch a linked parent also needs (a
+     * no-op for the player and for staff). A type not listed here passes on
+     * the journey right alone.
+     */
+    public const ENTRY_RIGHTS = [
+        JourneyEventType::TRIAL_STARTED        => [ 'trial_cases', null ],
+        JourneyEventType::TRIAL_ENDED          => [ 'trial_cases', null ],
+        JourneyEventType::SUSPENSION_STARTED   => [ 'player_suspensions', null ],
+        JourneyEventType::SUSPENSION_ENDED     => [ 'player_suspensions', null ],
+        JourneyEventType::INJURY_STARTED       => [ 'player_injuries', null ],
+        JourneyEventType::INJURY_ENDED         => [ 'player_injuries', null ],
+        JourneyEventType::PDP_VERDICT_RECORDED => [ 'pdp_verdict', 'pdp' ],
+    ];
+
+    /**
+     * The entries as this reader may see them. A journey entry follows the
+     * read right of the record it describes: an entry whose type is in
+     * `ENTRY_RIGHTS` shows only to a reader who holds that entity's read for
+     * the entry's player (and, for a linked parent, the child's switch where
+     * one is named). Every other entry passes unchanged.
      *
      * Visibility rungs decide medical and safeguarding entries in SQL; this
      * is the entity rule on top, applied by every surface that shows journey
      * entries to a reader. A reader of 0 (an unattended render) holds no
-     * right, so it gets no verdict entry.
+     * right, so it gets none of the mapped entries.
      *
      * @param list<object> $rows      Each with `event_type`, and `player_id` unless `$player_id` is given.
      * @param int|null     $player_id The player every row belongs to, for rows read without the column.
@@ -62,17 +80,17 @@ final class PlayerEventsRepository {
         $out     = [];
         $allowed = [];
         foreach ( $rows as $row ) {
-            if ( (string) ( $row->event_type ?? '' ) === JourneyEventType::PDP_VERDICT_RECORDED ) {
+            $type = (string) ( $row->event_type ?? '' );
+            if ( isset( self::ENTRY_RIGHTS[ $type ] ) ) {
+                [ $entity, $section ] = self::ENTRY_RIGHTS[ $type ];
                 $pid = $player_id ?? (int) ( $row->player_id ?? 0 );
-                if ( ! isset( $allowed[ $pid ] ) ) {
-                    // And, for a linked parent, the child's own PDP switch:
-                    // the rule `GET players/{id}/pdp` honours. A no-op for
-                    // the player and for staff.
-                    $allowed[ $pid ] = $pid > 0
-                        && AuthorizationService::canReadPlayerSection( $user_id, $pid, 'pdp_verdict' )
-                        && AuthorizationService::parentCanViewSection( $user_id, $pid, 'pdp' );
+                $key = $entity . '|' . $pid;
+                if ( ! isset( $allowed[ $key ] ) ) {
+                    $allowed[ $key ] = $pid > 0
+                        && AuthorizationService::canReadPlayerSection( $user_id, $pid, $entity )
+                        && ( $section === null || AuthorizationService::parentCanViewSection( $user_id, $pid, $section ) );
                 }
-                if ( ! $allowed[ $pid ] ) continue;
+                if ( ! $allowed[ $key ] ) continue;
             }
             $out[] = $row;
         }

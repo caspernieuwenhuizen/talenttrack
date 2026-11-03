@@ -84,7 +84,7 @@ Not every entry is visible to everyone. Each entry has a **visibility level**:
 - **Medical** — only roles with the medical-view permission see it. Injuries default here.
 - **Safeguarding** — only head-of-academy + administrator. Reserved for sensitive entries.
 
-A **PDP verdict** entry also follows the PDP: it shows only to someone who may read that player's PDP verdict (a parent only while the child shares the PDP with them), on the timeline, the transitions view, cohort transitions, the player report and the team's monthly report. Everyone else sees the rest of the journey without it.
+An entry about a record of its own also follows that record's read right: a **trial** entry shows only to someone who may read the player's trial, a **suspension** entry only to someone who may read their suspensions, an **injury** entry only to someone who may read their injuries, and a **PDP verdict** entry only to someone who may read their PDP verdict (a parent only while the child shares the PDP with them). This holds on the timeline, the transitions view, cohort transitions, the player report and the team's monthly report. Everyone else sees the rest of the journey without those entries.
 
 When the journey contains an entry you can't see, you'll see *"1 entry hidden — visible to other roles only."* at the top so the chronology stays honest. The detail itself stays out of sight.
 
