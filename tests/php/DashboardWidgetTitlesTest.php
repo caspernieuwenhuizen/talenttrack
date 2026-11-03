@@ -20,17 +20,8 @@ final class DashboardWidgetTitlesTest extends WP_UnitTestCase {
 
     private int $admin = 0;
 
-    /** @var bool the wpdb error state before this test */
-    private $suppressed = false;
-
     public function set_up(): void {
         parent::set_up();
-        global $wpdb;
-        // The week recap counts trial decisions on a column that does not
-        // exist (`decided_at`; the column is `decision_made_at`), and wpdb
-        // prints that error into the test's output. This test is about
-        // titles; the recap's count is its own issue.
-        $this->suppressed = $wpdb->suppress_errors( true );
         $roles = new \TT\Infrastructure\Security\RolesService();
         $roles->installRoles();
         $roles->ensureCapabilities();
@@ -41,8 +32,6 @@ final class DashboardWidgetTitlesTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
-        global $wpdb;
-        $wpdb->suppress_errors( $this->suppressed );
         wp_set_current_user( 0 );
         parent::tear_down();
     }
