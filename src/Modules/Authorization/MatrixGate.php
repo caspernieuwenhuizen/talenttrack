@@ -267,9 +267,10 @@ class MatrixGate {
         $p = $wpdb->prefix;
 
         if ( $scope_kind === self::SCOPE_PLAYER ) {
+            // The account's own player record in this academy only.
             $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
-                $user_id
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
             ) );
             if ( $self_player > 0 ) return $self_player;
 
@@ -534,9 +535,10 @@ class MatrixGate {
         $p = $wpdb->prefix;
 
         if ( $scope_kind === self::SCOPE_PLAYER ) {
+            // The account's own player record in this academy only.
             $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
-                $user_id
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
             ) );
             if ( $self_player > 0 ) return true;
 
