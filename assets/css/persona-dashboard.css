@@ -838,6 +838,21 @@
 .tt-pd-table td.tt-pd-table-empty::before { content: none; }
 .tt-pd-table td[data-label=""] { justify-content: flex-end; }
 .tt-pd-table-empty { text-align: center; color: var(--tt-pd-text-muted); padding: 1rem 0; }
+
+/* #4817 — a row link (a player's name, "Open") is a tap target: the 36px
+   floor under a mouse, 48x48 under a finger, from the shared tokens. */
+.tt-pd-row-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tt-tap-min-fine);
+}
+@media (pointer: coarse) {
+    .tt-pd-row-link {
+        justify-content: center;
+        min-height: var(--tt-tap-min);
+        min-width: var(--tt-tap-min);
+    }
+}
 .tt-pd-table td.tt-pd-table-empty { display: block; text-align: center; padding: 1rem 0; }
 /* #4811 — a cell with nothing in it takes no line in a stacked row. */
 .tt-pd-table td:empty { display: none; }
