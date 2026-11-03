@@ -86,7 +86,9 @@ Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarh
 
 Een regel over een eigen record volgt daarnaast het leesrecht van dat record: een regel over een **proeftraining** zie je alleen als je de proeftraining van die speler mag lezen, een **schorsing** alleen als je de schorsingen mag lezen, een **blessure** alleen als je de blessures mag lezen, en een **POP-besluit** alleen als je het POP-besluit mag lezen (een ouder alleen zolang het kind het POP met de ouders deelt). Dat geldt op de tijdlijn, in de overgangen, bij de cohortovergangen, in het spelersrapport en in het maandrapport van het team. Ieder ander ziet de rest van de reis zonder die regels.
 
-Als de reis een regel bevat die je niet mag zien, lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld.
+Een gezin ziet de eigen proeftraining: de speler en de gekoppelde ouders (zolang het kind de reis deelt) zien **Stage gestart** en **Stage afgerond** met de datum, en verder niets. De proeftraining zelf, de notities, het besluit en de brieven blijven bij wie de proeftraining mag lezen.
+
+Als de reis een regel bevat met een zichtbaarheidsniveau voor andere rollen (coachingstaf, medisch, veiligheid), lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld. Een regel over een record dat je niet mag openen (een proeftraining, schorsing, blessure of POP-besluit, zie hierboven) staat er niet en wordt niet meegeteld, want een telling zou verraden dat het record bestaat.
 
 Medische gegevens zijn dubbel afgeschermd en audit-gelogd: blessures van een speler bekijken of bewerken vereist zowel de medische-zicht-permissie **als** toegang tot die specifieke speler (dezelfde scoperegel als de rest van het dossier), en elke blessure-weergave, -aanmaak, -bewerking en -archivering — plus elke tijdlijn-weergave die medische of veiligheidsregels opleverde — komt in het auditlog met wie, wanneer en welke speler. Dat is precies het spoor waar een veiligheidsonderzoek om vraagt.
 

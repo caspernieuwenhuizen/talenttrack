@@ -86,7 +86,9 @@ Not every entry is visible to everyone. Each entry has a **visibility level**:
 
 An entry about a record of its own also follows that record's read right: a **trial** entry shows only to someone who may read the player's trial, a **suspension** entry only to someone who may read their suspensions, an **injury** entry only to someone who may read their injuries, and a **PDP verdict** entry only to someone who may read their PDP verdict (a parent only while the child shares the PDP with them). This holds on the timeline, the transitions view, cohort transitions, the player report and the team's monthly report. Everyone else sees the rest of the journey without those entries.
 
-When the journey contains an entry you can't see, you'll see *"1 entry hidden — visible to other roles only."* at the top so the chronology stays honest. The detail itself stays out of sight.
+A family sees its own trial: the player and their linked parents (while the child shares the journey) see **Trial started** and **Trial ended** with the date, and nothing else. The trial itself, its notes, its decision and its letters stay with the people who may read the trial.
+
+When the journey contains an entry whose visibility level is for other roles (coaching staff, medical, safeguarding), you'll see *"1 entry hidden — visible to other roles only."* at the top so the chronology stays honest. The detail itself stays out of sight. An entry about a record you may not open (a trial, a suspension, an injury or a PDP verdict, as above) does not appear and is not counted, because a count would tell you the record exists.
 
 Medical data is double-gated and audit-logged: viewing or editing a player's injuries requires both the medical-view permission **and** access to that specific player (the same scope rule as the rest of their record), and every injury view, create, edit, and archive — plus any timeline read that returned medical or safeguarding entries — lands in the audit log with who, when, and which player. That's the trail a safeguarding inquiry asks for.
 
