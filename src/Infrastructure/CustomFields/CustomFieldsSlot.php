@@ -65,14 +65,17 @@ class CustomFieldsSlot {
     /**
      * Detail-page read-only view: outputs an "Additional information"
      * section with one row per non-empty custom field value. Emits
-     * nothing if the entity has no populated values. `$masked` keeps the
-     * labels and prints "Hidden" for every value (#4716).
+     * nothing if the entity has no populated values. `$masked` (#4716) lists
+     * every active field's label with "Hidden", filled or not, and never
+     * reads the values.
      */
     public static function renderReadonly( string $entity_type, int $entity_id, bool $masked = false ): void {
         if ( $entity_id <= 0 ) return;
 
         $groups = self::loadFields( $entity_type );
-        $values = self::loadValues( $entity_type, $entity_id );
+        // A masked reader gets every active field's label with "Hidden": the
+        // values are never read, so which fields are filled stays unsaid.
+        $values = $masked ? [] : self::loadValues( $entity_type, $entity_id );
 
         // Flatten groups back into a single ordered list.
         $ordered = [];
@@ -89,7 +92,7 @@ class CustomFieldsSlot {
         foreach ( $ordered as $f ) {
             $fid = (int) $f->id;
             $raw = $values[ $fid ] ?? null;
-            if ( $raw === null || $raw === '' ) continue;
+            if ( ! $masked && ( $raw === null || $raw === '' ) ) continue;
             $visible[] = [ 'field' => $f, 'value' => $raw ];
         }
         if ( empty( $visible ) ) return;

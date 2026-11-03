@@ -57,6 +57,16 @@ final class CustomPlayerFieldsMaskingTest extends WP_UnitTestCase {
             'is_active'   => 1,
         ] );
         ( new CustomValuesRepository() )->upsert( CustomFieldsRepository::ENTITY_PLAYER, $this->player, $field_id, self::VALUE );
+        // A second field left empty for this player: a masked reader must not
+        // be able to tell it apart from the filled one.
+        ( new CustomFieldsRepository() )->create( [
+            'entity_type' => CustomFieldsRepository::ENTITY_PLAYER,
+            'field_key'   => 'second_contact_4716',
+            'label'       => 'Second contact',
+            'field_type'  => CustomFieldsRepository::TYPE_TEXT,
+            'is_required' => 0,
+            'is_active'   => 1,
+        ] );
 
         $this->observer = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
         $this->hod      = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
@@ -102,6 +112,9 @@ final class CustomPlayerFieldsMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Medical note', $html, 'the label stays' );
         $this->assertStringContainsString( 'tt-masked-value', $html, '"Hidden" in its place' );
         $this->assertStringNotContainsString( 'peanuts', $html );
+        $this->assertStringContainsString( 'Second contact', $html, 'the empty field shows its label too' );
+        $this->assertGreaterThanOrEqual( 2, substr_count( $html, 'class="tt-masked-value"' ), 'filled and empty read the same' );
+        $this->assertStringNotContainsString( 'Second contact', $this->renderCard( $this->hod ), 'staff see filled fields only, as before' );
     }
 
     public function test_the_wp_admin_record_shows_hidden_for_each_value(): void {
@@ -111,6 +124,7 @@ final class CustomPlayerFieldsMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Medical note', $html );
         $this->assertStringContainsString( 'Hidden', $html );
         $this->assertStringNotContainsString( 'peanuts', $html );
+        $this->assertStringContainsString( 'Second contact', $html, 'the empty field shows its label too' );
     }
 
     // ---- fixtures ------------------------------------------------------

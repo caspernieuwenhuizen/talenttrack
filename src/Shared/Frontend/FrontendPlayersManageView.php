@@ -861,17 +861,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
     private static function renderCustomFieldsBlock( int $player_id ): void {
         // #4691 / #4716 — the club's own fields follow the sensitive-field
         // registry, as on the REST record and the wp-admin record view: a
-        // reader it hides them from sees each label with "Hidden".
+        // reader it hides them from sees every active field's label with
+        // "Hidden", filled or not, and the values are never read, so which
+        // fields hold something for this child stays unsaid.
         $masked = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $player_id );
 
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         if ( empty( $fields ) ) return;
-        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $player_id );
+        $values = $masked ? [] : ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $player_id );
 
-        $has_any = false;
+        $has_any = $masked;
         foreach ( $fields as $f ) {
+            if ( $has_any ) break;
             $v = $values[ (string) $f->field_key ] ?? null;
-            if ( $v !== null && $v !== '' ) { $has_any = true; break; }
+            if ( $v !== null && $v !== '' ) $has_any = true;
         }
         if ( ! $has_any ) return;
 
@@ -880,7 +883,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
         echo '<dl class="tt-custom-fields-list">';
         foreach ( $fields as $f ) {
             $v = $values[ (string) $f->field_key ] ?? null;
-            if ( $v === null || $v === '' ) continue;
+            if ( ! $masked && ( $v === null || $v === '' ) ) continue;
             echo '<dt>' . esc_html( (string) $f->label ) . '</dt>';
             echo '<dd>' . ( $masked ? \TT\Shared\Frontend\Components\MaskedValue::html() : CustomFieldRenderer::display( $f, $v ) ) . '</dd>';
         }
