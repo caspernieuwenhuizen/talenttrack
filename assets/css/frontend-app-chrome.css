@@ -542,7 +542,7 @@
 .tt-child-switcher-pill.is-active {
     background: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
-    color: #fff;
+    color: var(--tt-color-on-primary, #fff);
 }
 
 .tt-child-switcher--page { margin: 1rem 0 0; }
@@ -658,7 +658,7 @@
 .tt-segmented__opt:active { background: var(--tt-bg-soft, #f4f6f3); }
 .tt-segmented__opt.is-on {
     background: var(--tt-primary, #0b3d2e);
-    color: #fff;
+    color: var(--tt-color-on-primary, #fff);
 }
 .tt-segmented__opt:focus-visible {
     outline: 2px solid var(--tt-primary, #0b3d2e);
