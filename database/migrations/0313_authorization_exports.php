@@ -6,9 +6,10 @@
  * mailed report: the export pipeline, the report and explorer CSV and PDF
  * streams, and the scheduled report deliveries. It asks the new matrix
  * entity `exports`. The seed grants it to every persona that downloads
- * today (player and parent at self scope, every staff persona at global
- * scope: the right is about the account, never wider than the file's own
- * rule) and not to the read-only observer. The matrix reseed
+ * today (player and parent at self scope, the staff persona at team scope,
+ * every other staff persona at global scope: the right is about the
+ * account, never wider than the file's own rule) and not to the read-only
+ * observer. The matrix reseed
  * never runs on upgrade, so this adds the rows to existing installs; without
  * them every persona would lose its downloads.
  *

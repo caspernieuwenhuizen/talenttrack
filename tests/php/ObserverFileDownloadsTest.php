@@ -114,7 +114,10 @@ final class ObserverFileDownloadsTest extends WP_UnitTestCase {
         $this->assertTrue( ExportGate::mayExport( (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] ) ) );
         $this->assertTrue( ExportGate::mayExport( $this->persona( 'tt_scout', 'scout' ) ) );
         $this->assertTrue( ExportGate::mayExport( $this->persona( 'tt_team_manager', 'team_manager' ) ) );
-        $this->assertTrue( ExportGate::mayExport( $this->persona( 'tt_staff', 'other' ) ) );
+        // Staff rows are team-scoped: a staff member on a squad receives
+        // files, one attached to none does not, as for every other row.
+        $this->assertTrue( ExportGate::mayExport( $this->onTeam( $this->persona( 'tt_staff', 'other' ), $this->team_a ) ) );
+        $this->assertFalse( ExportGate::mayExport( $this->persona( 'tt_staff', 'other' ) ) );
         $this->assertFalse( ExportGate::mayExport( 0 ), 'a visitor receives nothing' );
     }
 
@@ -266,6 +269,15 @@ final class ObserverFileDownloadsTest extends WP_UnitTestCase {
             'club_id' => (int) CurrentClub::id(), 'first_name' => 'Filedl', 'last_name' => 'Persona' . $uid,
             'role_type' => $role_type, 'wp_user_id' => $uid, 'status' => 'active',
         ] );
+        $this->flush();
+        return $uid;
+    }
+
+    /** A team scope for an existing persona account. */
+    private function onTeam( int $uid, int $team_id ): int {
+        global $wpdb;
+        $person = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d", $uid ) );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [ 'club_id' => (int) CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team_id ] );
         $this->flush();
         return $uid;
     }

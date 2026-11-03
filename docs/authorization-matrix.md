@@ -669,7 +669,8 @@ Each download button is hidden from an account without the right, and the route 
 | Persona | `exports` |
 | - | - |
 | `player`, `parent` | read (self): their own files, as before |
-| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `staff`, `head_of_development`, `academy_admin` | read (global) |
+| `staff` | read (team): a staff member attached to a squad, as for every staff row |
+| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `head_of_development`, `academy_admin` | read (global) |
 | `readonly_observer` | none |
 
 A WordPress administrator always passes. The global scope says nothing about which records a file may hold; that stays with each file's own rule.

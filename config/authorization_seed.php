@@ -1367,9 +1367,10 @@ return array_merge(
     // this role currently has nothing, and on a matrix-inactive one the
     // seed is not consulted. See the PR for the follow-up.
     $expand( 'staff', [
-        // #4718 — may receive a file the server produces (ExportGate).
-        // A gate only: each file still asks its own record or team rule.
-        'exports'                 => [ 'r',   'global', $mod_authorization ],
+        // #4718 — may receive a file the server produces (ExportGate), at
+        // team scope like every other row here: a staff member attached to
+        // no squad receives no file. Each file still asks its own rule.
+        'exports'      => [ 'r',  'team', $mod_authorization ],
         'team'         => [ 'r',  'team', $mod_teams ],
         'players'      => [ 'rc', 'team', $mod_players ],
         'people'       => [ 'rc', 'team', $mod_people ],

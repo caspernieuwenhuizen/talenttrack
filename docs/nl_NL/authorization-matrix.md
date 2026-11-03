@@ -668,7 +668,8 @@ Elke downloadknop is verborgen voor een account zonder het recht, en de route er
 | Persona | `exports` |
 | - | - |
 | `player`, `parent` | lezen (self): hun eigen bestanden, zoals voorheen |
-| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `staff`, `head_of_development`, `academy_admin` | lezen (global) |
+| `staff` | lezen (team): een stafmedewerker die aan een team is gekoppeld, zoals bij elke stafrij |
+| `assistant_coach`, `head_coach`, `team_manager`, `scout`, `head_of_development`, `academy_admin` | lezen (global) |
 | `readonly_observer` | geen |
 
 Een WordPress-beheerder komt er altijd door. De globale scope zegt niets over welke records een bestand mag bevatten; dat blijft bij de eigen regel van elk bestand.
