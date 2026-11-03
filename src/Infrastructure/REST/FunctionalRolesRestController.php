@@ -531,6 +531,13 @@ class FunctionalRolesRestController {
         return $value === '' ? null : $value;
     }
 
+    /** A date field as the body sends it, or the stored value when the body leaves it out. */
+    private static function sentOrStored( \WP_REST_Request $r, string $field, object $stored ): ?string {
+        if ( $r->has_param( $field ) ) return self::dateOrNull( $r, $field );
+        $value = (string) ( ( (array) $stored )[ $field ] ?? '' );
+        return $value === '' ? null : $value;
+    }
+
     public static function create_assignment( \WP_REST_Request $r ) {
         // #3816 — a key this route does not take is refused by name rather
         // than read by nothing.
@@ -597,13 +604,16 @@ class FunctionalRolesRestController {
 
         $refused = self::refusedDate( $r );
         if ( $refused !== null ) return $refused;
-        $start = self::dateOrNull( $r, 'start_date' );
-        $end   = self::dateOrNull( $r, 'end_date' );
-
-        $repo = new PeopleRepository();
-        if ( $repo->findAssignment( $assignment_id ) === null ) {
+        $repo     = new PeopleRepository();
+        $existing = $repo->findAssignment( $assignment_id );
+        if ( $existing === null ) {
             return RestResponse::error( 'not_found', __( 'Assignment not found.', 'talenttrack' ), 404 );
         }
+
+        // #4924 — a date the body leaves out keeps its stored value; a date
+        // sent empty clears it, and a real date is stored as given.
+        $start = self::sentOrStored( $r, 'start_date', $existing );
+        $end   = self::sentOrStored( $r, 'end_date', $existing );
 
         if ( ! $repo->updateAssignment( $assignment_id, $role_id, $start, $end ) ) {
             global $wpdb;
