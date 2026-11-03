@@ -65,12 +65,24 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'messages'      => __( 'Messages', 'talenttrack' ),
                 // #4707 — which roles must enrol a second factor.
                 'mfa-policy'    => __( 'Require two-step verification', 'talenttrack' ),
+                // #4788 — the headers' own labels, so the crumb is translated
+                // instead of falling back to the English slug.
+                'menus'         => __( 'wp-admin menus', 'talenttrack' ),
+                'dashboard'     => __( 'Default dashboard', 'talenttrack' ),
+                'lookups'       => __( 'Lookups', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                $current_sub,
-                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'configuration', $config_label ) ]
-            );
+            $trail       = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'configuration', $config_label ) ];
+            // #4788 — a lookup category's way back to the lookups index is a
+            // linked Lookups crumb, not a separate back link.
+            $category_meta = $sub === 'lookups' && isset( $_GET['category'] )
+                ? self::lookupCategoryMeta( sanitize_key( (string) $_GET['category'] ) )
+                : null;
+            if ( $category_meta !== null ) {
+                $trail[]     = \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'configuration', $current_sub, [ 'config_sub' => 'lookups' ] );
+                $current_sub = (string) $category_meta['label'];
+            }
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $current_sub, $trail );
         } else {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $config_label );
         }
@@ -154,7 +166,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                     $meta = self::lookupCategoryMeta( $category_slug );
                     if ( $meta !== null ) {
                         self::renderHeader( $meta['label'] );
-                        self::renderLookupsBackLink();
                         self::renderLookupCategoryEditor( $meta );
                         return;
                     }
@@ -442,11 +453,6 @@ class FrontendConfigurationView extends FrontendViewBase {
             }
         }
         return array_values( array_unique( $out ) );
-    }
-
-    private static function renderLookupsBackLink(): void {
-        $base = add_query_arg( [ 'config_sub' => 'lookups' ], remove_query_arg( [ 'category', 'edit' ] ) );
-        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All lookups', 'talenttrack' ) . '</a></p>';
     }
 
     /**

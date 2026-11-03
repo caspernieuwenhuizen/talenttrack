@@ -31,7 +31,7 @@ final class ConfigurationSubFormNavTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
-        unset( $_GET['config_sub'] );
+        unset( $_GET['config_sub'], $_GET['category'] );
         wp_set_current_user( 0 );
         parent::tear_down();
     }
@@ -66,6 +66,47 @@ final class ConfigurationSubFormNavTest extends WP_UnitTestCase {
 
         $this->assertStringNotContainsString( 'All configuration', $html, "{$sub}: the extra back link is back" );
         $this->assertStringNotContainsString( '&larr;', $this->outsideBreadcrumb( $html ), "{$sub}: a back arrow outside the breadcrumb" );
+    }
+
+    /**
+     * A lookup category goes back to the lookups index through a linked
+     * Lookups crumb, not an "All lookups" link under its header.
+     */
+    public function test_a_lookup_category_goes_back_through_a_linked_lookups_crumb(): void {
+        $_GET['category'] = 'positions';
+        $html = $this->render( 'lookups' );
+
+        $this->assertSame( 1, preg_match( '#<nav class="tt-breadcrumbs"[^>]*>(.*?)</nav>#s', $html, $m ) );
+        $chain = $m[1];
+        $this->assertMatchesRegularExpression( '#<a href="[^"]*tt_view=configuration[^"]*">Configuration</a>#', $chain );
+        $this->assertMatchesRegularExpression( '#<a href="[^"]*config_sub=lookups[^"]*">Lookups</a>#', $chain, 'the Lookups crumb links to the index' );
+        $this->assertStringContainsString( 'Positions', $chain, 'the category is the current crumb' );
+        $this->assertDoesNotMatchRegularExpression( '#<a [^>]*>Positions</a>#', $chain, 'the current crumb is not a link' );
+
+        $this->assertStringNotContainsString( 'All lookups', $html );
+        $this->assertStringNotContainsString( '&larr;', $this->outsideBreadcrumb( $html ) );
+    }
+
+    /** @return array<string, array{0: string, 1: string}> */
+    public static function headerLabels(): array {
+        return [
+            'menus'     => [ 'menus', 'wp-admin menus' ],
+            'dashboard' => [ 'dashboard', 'Default dashboard' ],
+            'lookups'   => [ 'lookups', 'Lookups' ],
+        ];
+    }
+
+    /**
+     * These three fell back to the English slug ("Menus", "Dashboard") for
+     * their last crumb; it now reads the header's translated label.
+     *
+     * @dataProvider headerLabels
+     */
+    public function test_the_last_crumb_uses_the_translated_label( string $sub, string $label ): void {
+        $html = $this->render( $sub );
+
+        $this->assertSame( 1, preg_match( '#<nav class="tt-breadcrumbs"[^>]*>(.*?)</nav>#s', $html, $m ) );
+        $this->assertStringContainsString( $label, wp_strip_all_tags( $m[1] ), "{$sub}: last crumb" );
     }
 
     private function render( string $sub ): string {
