@@ -66,8 +66,8 @@ final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
         // Pin the quiet-hours window shut: this template does not bypass
         // it, and a test that passes only outside office hours is not one.
         // #4837 — shut means empty. The window used to be 03:00–03:01,
-        // which is open for one minute a day, and the nightly CI run starts
-        // at 03:00 UTC: inside that minute the message is held, nothing
+        // which is open for one minute a day, and a CI run that reaches this
+        // file between 03:00 and 03:01 UTC holds the message: nothing
         // reaches the channel and three cases fail. A window that starts
         // and ends at the same minute holds nothing at any time of day
         // (`QuietHoursPolicy::shouldDefer()`).
