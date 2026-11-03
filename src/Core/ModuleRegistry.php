@@ -135,6 +135,12 @@ class ModuleRegistry {
             $wpdb->insert( $table, $row );
         }
         self::$stateCache = null;
+        // #4730 — the matrix gate skips a disabled module's rows, so every
+        // per-request authorization answer built on it rests on the state just
+        // changed: the gate's memo and AuthorizationService's own caches.
+        if ( class_exists( '\\TT\\Infrastructure\\Security\\AuthorizationService' ) ) {
+            \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        }
     }
 
     /**
