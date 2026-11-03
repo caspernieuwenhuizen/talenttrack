@@ -62,7 +62,7 @@ class DataTableWidget extends AbstractWidget {
         $config = $this->presetConfig( $preset );
         if ( $config === null ) return '';
 
-        $title   = $slot->persona_label !== '' ? $slot->persona_label : (string) $config['title'];
+        $title   = $this->titleFor( $slot );
         $see_all = $ctx->viewUrl( (string) $config['see_all_view'] );
         // v3.110.164 (#480) — per-preset URL params append to the
         // See-all link so the destination list lands pre-filtered to
@@ -83,6 +83,13 @@ class DataTableWidget extends AbstractWidget {
             . '</div>'
             . '<div class="tt-pd-table-wrap"><table class="tt-pd-table"><thead>' . $head . '</thead><tbody>' . $rows_html . '</tbody></table></div>';
         return $this->wrap( $slot, $inner, 'data-table' );
+    }
+
+    /** The slot's own label, else the preset's title ("Behaviour pending", ...). */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        $config = $this->presetConfig( $slot->data_source );
+        return $config === null ? '' : (string) $config['title'];
     }
 
     /** @return array<string,mixed>|null */

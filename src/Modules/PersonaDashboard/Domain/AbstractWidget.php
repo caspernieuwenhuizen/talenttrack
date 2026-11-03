@@ -97,6 +97,15 @@ abstract class AbstractWidget implements Widget {
     abstract public function render( WidgetSlot $slot, RenderContext $ctx ): string;
 
     /**
+     * #4818 — the title this slot shows, for the chrome around the widget
+     * (the phone fold's summary). '' when the slot has no title of its own;
+     * the caller then falls back to the widget type's `label()`.
+     */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label;
+    }
+
+    /**
      * v4.20.22 (#1207) — Resolve a KPI's deep-link URL with the right
      * builder. Prefer `linkUrl( $ctx )` when the data source overrides
      * it (carries filter query-strings — date windows, team scope, etc.)

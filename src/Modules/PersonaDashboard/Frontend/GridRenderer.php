@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaTemplate;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
@@ -82,8 +83,12 @@ final class GridRenderer {
 
             echo '<div class="' . esc_attr( $cls ) . '" style="' . esc_attr( $style ) . '" role="listitem">';
             if ( $fold ) {
+                // #4818 — the fold says what is inside it: the slot's own
+                // title, and the widget type's name only when there is none.
+                $fold_label = $widget instanceof AbstractWidget ? $widget->titleFor( $slot ) : '';
+                if ( $fold_label === '' ) $fold_label = $widget->label();
                 echo '<details class="tt-pd-fold" open>'
-                    . '<summary class="tt-pd-fold-summary">' . esc_html( $widget->label() ) . '</summary>'
+                    . '<summary class="tt-pd-fold-summary">' . esc_html( $fold_label ) . '</summary>'
                     . '<div class="tt-pd-fold-body">';
             }
             echo $widget->render( $slot, $ctx ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
