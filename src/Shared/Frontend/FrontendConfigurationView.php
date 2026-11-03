@@ -1759,6 +1759,19 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <div class="tt-field">
                             <label class="tt-field-label" for="tt-cfg-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
                             <input type="color" id="tt-cfg-<?php echo esc_attr( $key ); ?>" name="config[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( QueryHelpers::get_config( $key, $default ) ); ?>" />
+                            <?php
+                            // #4829 — what the focus colour does, and a warning when
+                            // the saved one is too faint to serve as a focus ring.
+                            // The warning is also filled in by the save handler
+                            // below, from the save response.
+                            if ( $key === 'color_focus' ) :
+                                $focus_saved = (string) QueryHelpers::get_config( 'color_focus', '' );
+                                $focus_faint = \TT\Shared\Frontend\BrandStyles::isChosen( 'color_focus', $focus_saved )
+                                    && ! \TT\Shared\Frontend\BrandStyles::isVisibleFocusColor( $focus_saved );
+                                ?>
+                                <p class="tt-field-hint"><?php esc_html_e( 'Colour of the outline around the active field or button (keyboard)', 'talenttrack' ); ?></p>
+                                <p class="tt-field-error" role="status" data-tt-config-warning="color_focus"<?php echo $focus_faint ? '' : ' hidden'; ?>><?php esc_html_e( 'This colour is hard to see as a focus outline.', 'talenttrack' ); ?></p>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -3375,6 +3388,14 @@ class FrontendConfigurationView extends FrontendViewBase {
                         if (r.ok && r.json && r.json.success) {
                             if (btn) btn.setAttribute('data-state', 'saved');
                             if (msg) { msg.classList.add('tt-success'); msg.textContent = i18n.saved || 'Saved.'; }
+                            // #4829 — a value was saved, but the server has something
+                            // to say about it: show it next to its field.
+                            var warned = {};
+                            ((r.json.data && r.json.data.warnings) || []).forEach(function(w){ if (w && w.field) warned[w.field] = w.message; });
+                            form.querySelectorAll('[data-tt-config-warning]').forEach(function(el){
+                                var field = el.getAttribute('data-tt-config-warning');
+                                if (warned[field]) { el.textContent = warned[field]; el.hidden = false; } else { el.hidden = true; }
+                            });
                             setTimeout(function(){ if (btn) btn.setAttribute('data-state', 'idle'); }, 1500);
                         } else {
                             if (btn) btn.setAttribute('data-state', 'error');

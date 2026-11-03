@@ -87,6 +87,13 @@ class BrandStyles {
         /** @var \TT\Infrastructure\Config\ConfigService $cfg */
         $cfg = \TT\Core\Kernel::instance()->container()->get( 'config' );
 
+        // #4829 — a focus colour the academy set colours the focus ring, but
+        // only when it reaches 3:1 against the page. Otherwise the ring
+        // keeps following the primary (#4804), so keyboard focus never
+        // becomes invisible; the form warns when such a colour is saved.
+        $focus_set = (string) $cfg->get( 'color_focus', '' );
+        $focus_own = self::isChosen( 'color_focus', $focus_set ) && self::isVisibleFocusColor( $focus_set );
+
         $decls = [];
         foreach ( self::COLOR_TOKENS as $key => $token ) {
             $value = (string) $cfg->get( $key, '' );
@@ -97,10 +104,11 @@ class BrandStyles {
                 // #4804 — the focus ring is drawn in the primary colour; a
                 // primary too light to see on the page gets a darker shade.
                 $focus = self::focusColor( $value );
-                if ( $focus !== '' ) $decls[] = '--tt-focus-color:' . esc_attr( $focus );
+                if ( $focus !== '' && ! $focus_own ) $decls[] = '--tt-focus-color:' . esc_attr( $focus );
             }
             if ( $key === 'secondary_color' ) $decls[] = '--tt-secondary-rgb:' . esc_attr( self::hexToRgb( $value ) );
         }
+        if ( $focus_own ) $decls[] = '--tt-focus-color:' . esc_attr( $focus_set );
 
         $resolved_display = BrandFonts::resolveFamily( (string) $cfg->get( 'font_display', '' ), BrandFonts::displayCatalogue() );
         $resolved_body    = BrandFonts::resolveFamily( (string) $cfg->get( 'font_body',    '' ), BrandFonts::bodyCatalogue() );
@@ -193,6 +201,15 @@ class BrandStyles {
             if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) break;
         }
         return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
+    }
+
+    /**
+     * Whether a colour reaches 3:1 against the page background, so it can
+     * serve as the focus ring (#4829). An unreadable value cannot.
+     */
+    public static function isVisibleFocusColor( string $hex ): bool {
+        $rgb = self::parseHex( $hex );
+        return $rgb !== null && self::contrast( $rgb, self::FOCUS_BACKGROUND ) >= self::FOCUS_MIN_CONTRAST;
     }
 
     /**
