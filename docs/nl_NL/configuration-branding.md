@@ -111,7 +111,7 @@ De regels die het overzichtelijk houden:
 
 Het vak **Zoek een instelling** bovenaan filtert terwijl je typt. Het zoekt in de naam, de beschrijving en een lijst extra woorden per instelling, zonder op hoofdletters of accenten te letten. *logo* vindt Uiterlijk, *weging* (*weighting*) vindt Categoriegewichten, *spond* vindt Spond en *2fa* vindt de verplichte tweestapsverificatie. Als niets overeenkomt, staat dat op de pagina. Escape maakt het vak leeg.
 
-**Tweestapsverificatie verplichten** (Mensen & toegang) opent in de app. Vink de rollen aan die tweestapsverificatie moeten instellen en kies Opslaan, of Annuleren om terug te gaan naar Configuratie. Bij elke rol staat hoeveel accounts het nog niet hebben ingesteld, als aantal en nooit met namen, zodat je ziet hoeveel mensen een wijziging raakt voordat je opslaat. Je hebt het academiebrede recht nodig om instellingen te wijzigen, en elke wijziging komt in het auditlog. Iemand anders' tweede factor herstellen na een blokkade blijft in wp-admin.
+**Tweestapsverificatie verplichten** (Mensen & toegang) opent in de app. Vink de rollen aan die tweestapsverificatie moeten instellen en kies Opslaan, of Annuleren om terug te gaan naar Configuratie. Bij elke rol staat hoeveel accounts het nog niet hebben ingesteld, als aantal en nooit met namen, zodat je ziet hoeveel mensen een wijziging raakt voordat je opslaat. Je hebt het academiebrede recht nodig om instellingen te wijzigen, en elke wijziging komt in het auditlog. Andermans tweede factor herstellen na een blokkade blijft in wp-admin.
 
 Onderdelen die in wp-admin openen hebben een externe-link-markering zodat de contextwissel verwacht is; frontend-onderdelen niet.
 

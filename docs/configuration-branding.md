@@ -111,7 +111,7 @@ The rules that keep it readable:
 
 The **Find a setting** box at the top filters as you type. It matches the name, the description and a list of extra words for each setting, without regard to capitals or accents. *logo* finds Appearance, *weighting* (*weging*) finds Category weights, *spond* finds Spond and *2fa* finds the two-step requirement. When nothing matches, the page says so. Escape clears the box.
 
-**Require two-step verification** (People & access) opens in the app. Tick the roles that must set up two-factor authentication, then Save, or Cancel to go back to Configuration. Each role shows how many of its accounts have not set it up yet, as a count and never by name, so you can see how many people a change reaches before you save. It needs the academy-wide right to change settings, and every change is audit-logged. Resetting somebody else's second factor after a lockout stays in wp-admin.
+**Require two-step verification** (People & access) opens in the app. Tick the roles that must set up two-step verification, then Save, or Cancel to go back to Configuration. Each role shows how many of its accounts have not set it up yet, as a count and never by name, so you can see how many people a change reaches before you save. It needs the academy-wide right to change settings, and every change is audit-logged. Resetting somebody else's second factor after a lockout stays in wp-admin.
 
 Entries that open in wp-admin carry an external-link marker so the context switch is expected; frontend entries do not.
 

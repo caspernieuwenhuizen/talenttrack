@@ -2,7 +2,7 @@
 
 Configuration → People & access → **Require two-step verification** now opens
 a form in the app instead of sending the administrator to wp-admin. Tick the
-roles that must set up two-factor authentication, then Save, or Cancel to go
+roles that must set up two-step verification, then Save, or Cancel to go
 back to Configuration. Each role shows how many of its accounts have not set
 it up yet ("2 of 3 not set up yet"), as a count and never by name. When a
 ticked role still has people to enrol, a line under the form says they will be

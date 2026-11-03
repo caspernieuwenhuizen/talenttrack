@@ -93,6 +93,20 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new MfaSettings() )->requiredPersonas() );
     }
 
+    public function test_an_unknown_field_is_refused_and_nothing_is_stored(): void {
+        wp_set_current_user( $this->admin );
+        $before = $this->stored();
+        $req    = new WP_REST_Request( 'PUT', '/talenttrack/v1/settings/mfa-policy' );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( [ 'personas' => [ 'scout' ], 'lockout_minutes' => 1 ] ) );
+
+        $res = rest_get_server()->dispatch( $req );
+
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'unknown_field', ( (array) $res->get_data() )['errors'][0]['code'] ?? null );
+        $this->assertSame( $before, $this->stored() );
+    }
+
     public function test_the_change_is_audit_logged_with_before_and_after(): void {
         global $wpdb;
         ( new MfaSettings() )->setRequiredPersonas( [ 'academy_admin' ] );

@@ -92,7 +92,10 @@ final class MfaPolicyService {
         }
 
         $out = [];
-        $ids = get_users( [ 'fields' => 'ID', 'number' => -1 ] );
+        // Accounts come from the whole install until a shared account-to-club lookup exists.
+        $ids = array_map( 'intval', get_users( [ 'fields' => 'ID', 'number' => -1 ] ) );
+        // One query for every user and their roles, instead of two per account in personasFor().
+        cache_users( $ids );
         foreach ( $ids as $id ) {
             $uid = (int) $id;
             foreach ( PersonaResolver::personasFor( $uid ) as $persona ) {

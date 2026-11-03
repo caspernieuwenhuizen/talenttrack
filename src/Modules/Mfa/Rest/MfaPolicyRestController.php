@@ -36,15 +36,20 @@ final class MfaPolicyRestController extends BaseController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update' ],
                 'permission_callback' => self::permCan( self::CAP ),
-                'args'                => [
-                    'personas' => [
-                        'type'     => 'array',
-                        'required' => true,
-                        'items'    => [ 'type' => 'string' ],
-                    ],
-                ],
+                'args'                => self::updateArgs(),
             ],
         ] );
+    }
+
+    /** @return array<string, array<string,mixed>> */
+    private static function updateArgs(): array {
+        return [
+            'personas' => [
+                'type'     => 'array',
+                'required' => true,
+                'items'    => [ 'type' => 'string' ],
+            ],
+        ];
     }
 
     public static function show( WP_REST_Request $request ): WP_REST_Response {
@@ -52,6 +57,9 @@ final class MfaPolicyRestController extends BaseController {
     }
 
     public static function update( WP_REST_Request $request ): WP_REST_Response {
+        $refused = self::checkBody( $request, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $raw     = $request->get_param( 'personas' );
         $service = new MfaPolicyService();
         $service->save( is_array( $raw ) ? $raw : [], get_current_user_id() );
