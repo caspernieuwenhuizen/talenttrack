@@ -57,14 +57,19 @@
     "Recalibrated for #4770 from the first CI run in Dutch (PR #4777), the",
     "language the gate now walks in. The Dutch render added one entry,",
     "'mfa-prompt: wide-table' at 320 and 360px; the reasons quote the Dutch",
-    "link texts the gate now sees."
+    "link texts the gate now sees.",
+    "",
+    "#4780: that entry was the dashboard home's, booked under the key the walk",
+    "asked for. mfa-prompt redirects to the home for the gate admin; it is now",
+    "an expected redirect, not measured. The home is measured as",
+    "'dashboard#home', and the entry moved there (from PR #4793's first run)."
   ],
   "widths": {
     "320": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
+      "dashboard#home": { "kinds": [ "wide-table" ], "reason": "In Dutch, the Recent audit events widget (table.tt-pd-table: Wanneer, Wie, Wat) is 342px wide, 22px past a 320px viewport. It scrolls inside its tt-pd-table-wrap, so the page does not. Fix tracked in #4792." },
       "docs": { "kinds": [ "tap-target" ], "reason": "The 120 help topic links in the index are 29px high." },
       "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
-      "mfa-prompt": { "kinds": [ "wide-table" ], "reason": "In Dutch, the table on the MFA prompt is 342px wide, 22px past a 320px viewport." },
       "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
       "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
       "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
@@ -75,9 +80,9 @@
     },
     "360": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
+      "dashboard#home": { "kinds": [ "wide-table" ], "reason": "In Dutch, the Recent audit events widget (table.tt-pd-table: Wanneer, Wie, Wat) is 368px wide, 8px past a 360px viewport. It scrolls inside its tt-pd-table-wrap, so the page does not. Fix tracked in #4792." },
       "docs": { "kinds": [ "tap-target" ], "reason": "The 120 help topic links in the index are 29px high." },
       "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
-      "mfa-prompt": { "kinds": [ "wide-table" ], "reason": "In Dutch, the table on the MFA prompt is 368px wide, 8px past a 360px viewport." },
       "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
       "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
       "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },

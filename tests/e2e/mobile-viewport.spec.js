@@ -152,6 +152,29 @@ function loadBaseline( width ) {
 }
 
 /**
+ * Surfaces that are expected to redirect for the gate's account (#4780),
+ * keyed by the slug the walk asks for. `to` is the `tt_view` they land on
+ * ('' is the dashboard home). An expected redirect is reported and not
+ * measured; any redirect not listed here fails the gate, because a page
+ * measured under another page's key is a finding filed against the wrong
+ * screen.
+ *
+ * @type {Record<string, { to: string, reason: string }>}
+ */
+const EXPECTED_REDIRECTS = {
+	'mfa-prompt': {
+		to: '',
+		reason: 'no second-factor challenge is pending for the gate admin, so MfaChallengeHandler sends it to the dashboard home',
+	},
+};
+
+/**
+ * The persona dashboard home (#4780): the page every account lands on, with
+ * no `tt_view` of its own.
+ */
+const HOME_SURFACE = { key: 'dashboard#home', cls: 'native', url: '/' };
+
+/**
  * Record pages the walk opens by id (#4738). The slug list alone only
  * reaches lists and landing pages; a record such as the player profile is
  * where #4702's sideways scroll was, and the gate never saw it.
@@ -320,7 +343,18 @@ async function measure( page, cls ) {
 			document.querySelectorAll( '.tt-dashboard table' ).forEach( ( t ) => {
 				const r = t.getBoundingClientRect();
 				if ( r.width > doc.clientWidth ) {
-					wide.push( `${ Math.round( r.width ) }px wide` );
+					// #4780 — name the table, so the finding can be traced
+					// without a second run: its classes, its first two
+					// header texts and the nearest prefixed container.
+					const classes = String( t.className || '' ).trim().split( /\s+/ ).filter( Boolean ).join( '.' );
+					const heads = Array.from( t.querySelectorAll( 'th' ) )
+						.slice( 0, 2 )
+						.map( ( th ) => ( th.textContent || '' ).replace( /\s+/g, ' ' ).trim() )
+						.filter( Boolean );
+					let box = t.parentElement;
+					while ( box && ! /(^|\s)tt-/.test( String( box.className || '' ) ) ) box = box.parentElement;
+					const inside = box ? ` in ${ box.tagName.toLowerCase() }.${ String( box.className ).trim().split( /\s+/ )[ 0 ] }` : '';
+					wide.push( `table${ classes ? '.' + classes : '' } (${ heads.join( ', ' ) || 'no headers' })${ inside } ${ Math.round( r.width ) }px wide` );
 				}
 			} );
 			if ( wide.length ) {
@@ -502,22 +536,35 @@ test.describe( 'mobile viewport gate', () => {
 		 * @param {string} key   the name in the baseline
 		 * @param {string} cls   the surface's mobile class
 		 * @param {string} url
+		 * @param {string} view  the `tt_view` the page must still show
+		 *                       when it has loaded ('' for the home)
 		 */
-		const visit = async ( key, cls, url ) => {
+		const visit = async ( key, cls, url, view ) => {
 			const response = await page.goto( url, {
 				waitUntil: 'domcontentloaded',
 			} );
 
 			// A surface can legitimately be unreachable for this account:
-			// a module switched off, a capability the admin lacks, or a
-			// half-authenticated landing on the MFA prompt. None of those
-			// are viewport defects, and failing on them would make the
-			// gate a test of the seed data instead of the CSS.
+			// a module switched off or a capability the admin lacks. Neither
+			// is a viewport defect, and failing on them would make the gate
+			// a test of the seed data instead of the CSS.
 			if ( response && response.status() >= 400 ) {
 				return `HTTP ${ response.status() }`;
 			}
-			if ( page.url().includes( 'tt_view=mfa-prompt' ) ) {
-				return 'redirected to the MFA prompt';
+
+			// #4780 — a surface that redirected is never measured under the
+			// key it asked for. The `mfa-prompt` walk used to land on the
+			// dashboard home and book that page's wide table as the
+			// prompt's. An expected redirect is a skip; any other fails.
+			const landed = new URL( page.url() ).searchParams.get( 'tt_view' ) || '';
+			if ( landed !== view ) {
+				const where = landed ? `?tt_view=${ landed }` : 'the dashboard home';
+				const expected = EXPECTED_REDIRECTS[ key ];
+				if ( expected && expected.to === landed ) {
+					return `redirected to ${ where }, as expected: ${ expected.reason }`;
+				}
+				regressions.push( `${ key }: redirected to ${ where } unexpectedly, so it was not measured. List it in EXPECTED_REDIRECTS with a reason, or fix the redirect.` );
+				return `redirected to ${ where }, unexpectedly`;
 			}
 			if ( ( await page.locator( '.tt-dashboard' ).count() ) === 0 ) {
 				unrendered.push( key );
@@ -556,8 +603,17 @@ test.describe( 'mobile viewport gate', () => {
 		};
 
 		for ( const { slug, cls } of SURFACES ) {
-			const why = await visit( slug, cls, `/?tt_view=${ slug }` );
+			const why = await visit( slug, cls, `/?tt_view=${ slug }`, slug );
 			if ( why ) skipped.push( `${ slug } (${ why })` );
+		}
+
+		// #4780 — the persona dashboard home, the page everyone lands on.
+		// It has no slug, so the slug walk never measured it; it was only
+		// ever seen by accident, behind a redirect. Like a record page it is
+		// never a legitimate skip.
+		{
+			const why = await visit( HOME_SURFACE.key, HOME_SURFACE.cls, HOME_SURFACE.url, '' );
+			if ( why ) regressions.push( `${ HOME_SURFACE.key }: not measured, ${ why }` );
 		}
 
 		// A record page is never a legitimate skip. The spec made the
@@ -574,7 +630,7 @@ test.describe( 'mobile viewport gate', () => {
 				regressions.push( `${ record.key }: '${ record.slug }' is not a phone-reachable surface in config/mobile_surfaces.php` );
 				continue;
 			}
-			const why = await visit( record.key, surface.cls, record.url( id ) );
+			const why = await visit( record.key, surface.cls, record.url( id ), record.slug );
 			if ( why ) {
 				regressions.push( `${ record.key }: not measured, ${ why }` );
 				continue;

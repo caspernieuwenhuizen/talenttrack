@@ -104,6 +104,19 @@ read from `config/mobile_surfaces.php`, skipping `desktop_only`, since a
 phone visitor is intercepted before those render — and asserts three things
 per surface, plus two more on `native` list surfaces:
 
+**Redirects.** A surface is measured only if the page still shows the
+`tt_view` the walk asked for once it has loaded. A surface that lands
+somewhere else is reported as redirected and not measured, so a finding is
+never filed under the wrong page's key. Redirects the gate's account always
+hits are listed in `EXPECTED_REDIRECTS` in the spec, each with its target
+and a reason. Today that is `mfa-prompt`, which sends an admin with no
+pending challenge to the dashboard home. An unlisted redirect fails the
+gate.
+
+**The dashboard home** has no `tt_view`, so the slug walk never reaches it.
+It is measured at every width under the key `dashboard#home`, and like a
+record page it may not be skipped.
+
 **Record pages.** A slug alone reaches lists and landing pages, never a
 record. `RECORD_SURFACES` in the spec lists record pages the walk opens by
 id. Today that is the player profile: in `beforeAll` the spec creates a player
@@ -121,7 +134,10 @@ activity the same way.
    `overflow-offender.spec.js` holds the fixtures.
 2. No visible interactive element under 48px in either dimension.
 3. No table wider than the viewport, on `native` surfaces only. Elsewhere a
-   table scrolling inside its own container is the intended compromise.
+   table scrolling inside its own container is the intended compromise. The
+   finding names each table by its classes, its first two header texts and
+   its nearest `tt-` container, for example
+   `table.tt-pd-table (Wanneer, Wie) in div.tt-pd-table-wrap 342px wide`.
 
 **When it measures.** `FrontendListTable` fills its body over REST after
 first paint. On a surface with a list the spec waits for the loading row to
