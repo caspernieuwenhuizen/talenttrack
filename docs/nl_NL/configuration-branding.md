@@ -180,7 +180,7 @@ Zes semantische kleuren, elk gekoppeld aan een `--tt-*` CSS custom property die 
 
 Een veld leeg laten herstelt de standaard­token uit de stylesheet van de plugin. De door de operator gekozen kleuren worden aan de ontwerptokens van de plugin op de pagina toegevoegd en kunnen — doordat canvas-modus de CSS van het actieve thema verwijdert — door niets worden overschreven.
 
-**Focus-ringkleur.** Zonder focuskleur volgt de focusrand van het toetsenbord de primaire kleur. Een focuskleur die je instelt, neemt die plaats in, zolang hij goed afsteekt tegen de pagina (een contrast van minstens 3 op 1). Een vagere kleur wordt wel opgeslagen, maar het formulier waarschuwt dat hij slecht zichtbaar is als focusrand, en de rand blijft de primaire kleur volgen, zodat wie het toetsenbord gebruikt altijd ziet waar hij is. Onder een visueel thema bepaalt het thema de rand.
+**Focus-ringkleur.** Zonder focuskleur volgt de focusrand van het toetsenbord de primaire kleur. Het blauw dat het veld toont voordat je iets kiest (`#1e88e5`), telt als geen focuskleur, omdat het formulier het met elke andere huisstijlinstelling meebewaart. Een focuskleur die je instelt, neemt die plaats in, zolang hij goed afsteekt tegen de pagina (een contrast van minstens 3 op 1). Een vagere kleur wordt wel opgeslagen, maar het formulier waarschuwt dat hij slecht zichtbaar is als focusrand, en de rand blijft de primaire kleur volgen, zodat wie het toetsenbord gebruikt altijd ziet waar hij is. Onder een visueel thema bepaalt het thema de rand.
 
 ### Achterwaartse compatibiliteit
 

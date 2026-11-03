@@ -74,6 +74,28 @@ final class FocusColourFieldTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( '--tt-focus-color', BrandStyles::css() );
     }
 
+    /**
+     * `#1e88e5` is the field's form default, posted on every Branding save,
+     * so it says nothing about what the academy wanted: the ring keeps
+     * following the primary. A different colour still applies.
+     */
+    public function test_the_form_default_counts_as_unset(): void {
+        $this->cfg()->set( 'primary_color', '#7a1fa2' );
+        foreach ( [ '#1e88e5', '#1E88E5', ' #1e88e5 ' ] as $value ) {
+            $this->cfg()->set( 'color_focus', $value );
+            $css = BrandStyles::css();
+            $this->assertStringNotContainsString( '--tt-focus-color', $css, $value );
+            $this->assertStringNotContainsString( '--tt-focus-ring', $css, $value );
+        }
+
+        $this->cfg()->set( 'primary_color', '#ffd54f' );
+        $this->cfg()->set( 'color_focus', '#1e88e5' );
+        $this->assertStringContainsString( '--tt-focus-color:' . BrandStyles::focusColor( '#ffd54f' ), BrandStyles::css(), 'the primary shade, not the form default' );
+
+        $this->cfg()->set( 'color_focus', '#1e88e6' );
+        $this->assertStringContainsString( '--tt-focus-color:#1e88e6', BrandStyles::css() );
+    }
+
     public function test_visibility_is_three_to_one_against_the_page(): void {
         $this->assertTrue( BrandStyles::isVisibleFocusColor( '#6200ea' ) );
         $this->assertTrue( BrandStyles::isVisibleFocusColor( '#1e88e5' ) );

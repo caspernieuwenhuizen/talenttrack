@@ -30,10 +30,11 @@ class BrandStyles {
      * submits every colour on every save, so a stored value equal to its
      * form default says nothing about what the academy wanted.
      *
-     * Only colours with a `tokens.css` default are listed. The accent and
-     * the focus ring have none, so their form default (`#1e88e5`) is what
-     * a saved install renders today; treating it as unset would change
-     * every such install.
+     * Only colours with a default of their own are listed. The focus ring
+     * follows the primary colour when nothing was chosen (#4804), so its
+     * form default (`#1e88e5`) is unset as well. The accent has no default
+     * apart from the form's, so its `#1e88e5` is what a saved install
+     * renders; treating it as unset would change every such install.
      */
     private const FORM_DEFAULTS = [
         'primary_color'   => '#0b3d2e',
@@ -42,6 +43,7 @@ class BrandStyles {
         'color_warning'   => '#dba617',
         'color_success'   => '#00a32a',
         'color_info'      => '#2271b1',
+        'color_focus'     => '#1e88e5',
     ];
 
     /** The status colours, which some installs hold as a stored `#000000`. */
