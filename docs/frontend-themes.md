@@ -90,25 +90,48 @@ across views.
 
 A theme is a **token layer**, not a second set of surfaces:
 
-1. `assets/css/tokens.css` declares the neutral tokens on `.tt-root`: a
+1. `assets/css/tokens.css` declares every default token on `.tt-root`: a
    wrapper the dashboard renders directly around `.tt-dashboard`, and the body
    class. The wrapper is always there, so the tokens resolve whatever the
    WordPress theme does and whether or not the custom CSS module is on.
 2. The theme sheet redeclares a subset on `.tt-dashboard`, a closer ancestor,
    so every surface inside the dashboard inherits the themed value with no
-   per-view rule. This is the same cascade argument `tokens.css` itself makes
-   about `BrandStyles`.
+   per-view rule.
 3. Anything a token cannot express — the app shell's navy rail, which cannot
    come from re-pointing `--tt-paper` without darkening every card — is a small
    set of explicit rules against the shell's existing class vocabulary.
 
+### Layer order
+
+There are three design layers, and on any page at most two of them apply:
+
+1. **`tokens.css`**: the one set of defaults, on `.tt-root`. Every token the
+   product reads is declared here, brand colours and fonts included.
+2. **A theme**, when one is chosen. It owns the complete visual design and
+   redeclares its tokens on `.tt-dashboard`. Branding is not output under a
+   theme.
+3. **Branding**, on the default design only. The academy's chosen colours and
+   fonts are attached to `tokens.css` itself (`BrandStyles::attachVars()`),
+   as a `.tt-root` rule printed right after the defaults, so they win by
+   order. A colour counts as chosen only when it differs from the Branding
+   form's own default; a stored `#000000` for a status colour (danger,
+   warning, success, info) counts as not chosen. A colour that is not chosen
+   keeps its `tokens.css` value.
+
+On top of those sits the academy's own **custom CSS** (the custom CSS module
+and its visual editor), which writes `.tt-root { --tt-…: … }` rules of its
+own and is meant to have the last word.
+
+No surface stylesheet declares tokens of its own. `frontend-admin.css` used to
+redeclare a second set on `.tt-dashboard`, which beat both `tokens.css` and
+Branding inside the dashboard; it no longer declares any. `public.css` still
+repeats a few `tokens.css` declarations on `.tt-root`, at the same values, so
+they change nothing.
+
 A theme **must** declare the brand tokens (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb`, and the derived
-`--tt-primary-deep` / `-ink` / `-hover`). `BrandStyles::injectVars()` returns
-early while a theme is active, so nothing else supplies them — and roughly
-forty surfaces read `var(--tt-primary, #0b3d2e)` with the shipped green as a
-hardcoded fallback, which is what those rules would paint if the theme stayed
-silent.
+`--tt-primary-deep` / `-ink` / `-hover`). Otherwise the default design's
+values from `tokens.css` show through.
 
 Suppression lives in `BrandStyles` rather than in the theme sheet because that
 method emits a dozen tokens, and which of them appear depends on which

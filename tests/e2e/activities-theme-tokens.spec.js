@@ -23,7 +23,7 @@ const SHEETS = [ 'tokens.css', 'theme-federation.css', 'theme-leon-hutten.css', 
 	.map( css ).join( '\n' );
 
 const DESIGNS = [
-	{ name: 'default', className: '', line: '#e3e6e1', inkSoft: '#6a6d66' },
+	{ name: 'default', className: '', line: '#e3e1d8', inkSoft: '#6a6d66' },
 	{ name: 'federation', className: 'tt-theme-federation', line: '#ccd4de', inkSoft: '#46566b' },
 	{ name: 'leon-hutten', className: 'tt-theme-leon-hutten', line: '#dde3e8', inkSoft: '#3f4a55' },
 ];

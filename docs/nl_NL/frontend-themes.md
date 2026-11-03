@@ -93,26 +93,51 @@ zoektocht door alle views.
 
 Een thema is een **tokenlaag**, geen tweede set schermen:
 
-1. `assets/css/tokens.css` declareert de neutrale tokens op `.tt-root`: een
+1. `assets/css/tokens.css` declareert alle standaardtokens op `.tt-root`: een
    omhullend element dat het dashboard direct om `.tt-dashboard` heen zet, en
    de body-klasse. Dat element is er altijd, dus de tokens werken wat het
    WordPress-thema ook doet en of de module voor eigen CSS nu aan staat of
    niet.
 2. Het themablad declareert een deel daarvan opnieuw op `.tt-dashboard`, een
    dichterbij liggende voorouder, zodat elk vlak binnen het dashboard de
-   themawaarde erft zonder één regel per view. Dat is hetzelfde
-   cascade-argument dat `tokens.css` zelf over `BrandStyles` maakt.
+   themawaarde erft zonder één regel per view.
 3. Wat een token niet kan uitdrukken — de marineblauwe balk van de app-shell,
    die niet uit een andere `--tt-paper` kan komen zonder elke kaart donker te
    maken — is een klein aantal expliciete regels op de bestaande klassen van
    de shell.
 
+### Volgorde van de lagen
+
+Er zijn drie ontwerplagen, en op een pagina gelden er hoogstens twee:
+
+1. **`tokens.css`**: de ene set standaardwaarden, op `.tt-root`. Elk token dat
+   het product leest staat hier, ook de merkkleuren en de lettertypen.
+2. **Een thema**, als er een gekozen is. Het bepaalt het hele uiterlijk en
+   declareert zijn tokens opnieuw op `.tt-dashboard`. Onder een thema wordt
+   de Huisstijl niet uitgestuurd.
+3. **De Huisstijl**, alleen op het standaardontwerp. De kleuren en
+   lettertypen die de academie koos, hangen aan `tokens.css` zelf
+   (`BrandStyles::attachVars()`), als een `.tt-root`-regel direct na de
+   standaardwaarden, dus ze winnen op volgorde. Een kleur telt alleen als
+   gekozen wanneer hij afwijkt van de standaardwaarde in het
+   Huisstijl-formulier; een opgeslagen `#000000` voor een statuskleur (gevaar,
+   waarschuwing, succes, info) telt als niet gekozen. Een kleur die niet
+   gekozen is, houdt zijn waarde uit `tokens.css`.
+
+Daarbovenop komt de **eigen CSS** van de academie (de module voor eigen CSS
+en de visuele editor daarvan). Die schrijft eigen `.tt-root { --tt-…: … }`-regels
+en heeft bedoeld het laatste woord.
+
+Geen enkel stylesheet van een scherm declareert eigen tokens.
+`frontend-admin.css` declareerde vroeger een tweede set op `.tt-dashboard`, die
+binnen het dashboard zowel `tokens.css` als de Huisstijl overtroefde; het
+declareert er nu geen meer. `public.css` herhaalt nog een paar declaraties uit
+`tokens.css` op `.tt-root`, met dezelfde waarden, dus die veranderen niets.
+
 Een thema **moet** de merktokens declareren (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb` en de afgeleide
-`--tt-primary-deep` / `-ink` / `-hover`). `BrandStyles::injectVars()` stopt
-meteen zolang er een thema actief is, dus niets anders levert ze — en zo'n
-veertig vlakken lezen `var(--tt-primary, #0b3d2e)` met het meegeleverde groen
-als harde terugvalwaarde, en dát zouden die regels tekenen als het thema zweeg.
+`--tt-primary-deep` / `-ink` / `-hover`). Anders schijnen de waarden van het
+standaardontwerp uit `tokens.css` erdoorheen.
 
 Het onderdrukken zit in `BrandStyles` en niet in het themablad, omdat die
 methode een stuk of twaalf tokens uitstuurt en het van de ingevulde
