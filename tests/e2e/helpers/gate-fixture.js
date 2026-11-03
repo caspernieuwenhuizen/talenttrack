@@ -89,7 +89,12 @@ async function seedFixture( browser, baseURL, who ) {
 	} catch ( e ) {
 		// A throw partway leaves whatever was made already: take it away
 		// before failing, since the caller never gets `made` to do it.
-		await removeFixture( browser, baseURL, made ).catch( () => [] );
+		try {
+			const left = await removeFixture( browser, baseURL, made );
+			if ( left.length ) console.log( `\n[gate fixture] setup failed and cleanup left:\n  ${ left.join( '\n  ' ) }` );
+		} catch ( cleanupError ) {
+			console.log( `\n[gate fixture] setup failed and cleanup threw: ${ cleanupError }` );
+		}
 		throw e;
 	}
 	return made;
@@ -105,7 +110,7 @@ async function seedFixture( browser, baseURL, who ) {
  * @param {Awaited<ReturnType<typeof seedFixture>>} made
  */
 async function seedSteps( browser, baseURL, who, made ) {
-	const admin =await restContext( browser, baseURL, 'tests/e2e/.auth/admin.json' );
+	const admin = await restContext( browser, baseURL, 'tests/e2e/.auth/admin.json' );
 	try {
 		if ( ! admin.ready ) {
 			made.errors.push( 'the admin dashboard carried no REST config' );

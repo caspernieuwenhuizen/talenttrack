@@ -26,6 +26,17 @@
         }, 300);
     }
 
+    // #4864 — the × of a banner built here: a real button with the shared
+    // tap-target class, named like the server-rendered one.
+    function closeButton() {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tt-flash-dismiss';
+        btn.setAttribute('aria-label', (window.TT && window.TT.i18n && window.TT.i18n.close_message) || 'Close message');
+        btn.textContent = '×';
+        return btn;
+    }
+
     function wireFlash(flashEl) {
         // Intercept the `×` dismiss link so it doesn't reload the page.
         var link = flashEl.querySelector('a[href*="tt_flash_dismiss"]');
@@ -84,10 +95,13 @@
             }
             var flash = document.createElement('div');
             flash.className = 'tt-flash tt-flash-' + (type || 'info');
-            var dismissLabel = (window.TT && window.TT.i18n && window.TT.i18n.dismiss) || 'Dismiss';
-            flash.innerHTML = '<span style="flex:1;"></span><a href="#" aria-label="' + dismissLabel.replace(/"/g, '&quot;') + '" style="color:inherit;text-decoration:none;opacity:0.7;">×</a>';
-            flash.querySelector('span').textContent = message;
-            flash.querySelector('a').addEventListener('click', function(e) { e.preventDefault(); dismissFlash(flash); });
+            var msgSpan = document.createElement('span');
+            msgSpan.className = 'tt-flash-text';
+            msgSpan.textContent = message;
+            var dismissBtn = closeButton();
+            dismissBtn.addEventListener('click', function() { dismissFlash(flash); });
+            flash.appendChild(msgSpan);
+            flash.appendChild(dismissBtn);
             stack.appendChild(flash);
             if (type === 'success') setTimeout(function() { dismissFlash(flash); }, AUTO_DISMISS_MS);
         },
@@ -119,12 +133,7 @@
             actionBtn.type = 'button';
             actionBtn.className = 'tt-btn tt-btn-secondary tt-flash-action';
             actionBtn.textContent = actionLabel;
-            var dismissLabel = (window.TT && window.TT.i18n && window.TT.i18n.dismiss) || 'Dismiss';
-            var dismissBtn = document.createElement('button');
-            dismissBtn.type = 'button';
-            dismissBtn.className = 'tt-flash-dismiss';
-            dismissBtn.setAttribute('aria-label', dismissLabel);
-            dismissBtn.textContent = '×';
+            var dismissBtn = closeButton();
             flash.appendChild(msgSpan);
             flash.appendChild(actionBtn);
             flash.appendChild(dismissBtn);

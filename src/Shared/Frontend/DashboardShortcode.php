@@ -345,7 +345,7 @@ class DashboardShortcode {
                 'csv_import_failed'    => __( 'Import failed.', 'talenttrack' ),
                 // i18n audit — aria-labels previously hardcoded.
                 'remove'               => __( 'Remove', 'talenttrack' ),
-                'dismiss'              => __( 'Dismiss', 'talenttrack' ),
+                'close_message'        => __( 'Close message', 'talenttrack' ),
                 'fnrole_delete_confirm' => __( 'Delete this role type?', 'talenttrack' ),
                 'eval_cat_delete_confirm' => __( 'Delete this category?', 'talenttrack' ),
                 // #3 — confirm dialog + post-event flash strings.
