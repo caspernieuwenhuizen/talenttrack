@@ -128,7 +128,14 @@ REST users route (`helpers/personas.js`), signed in once to save their
 storage state, set to `nl_NL`, and deleted in `afterAll`. A `tt_coach` with
 no team resolves to the head coach persona. Their dashboards carry presets
 and controls the admin never sees, such as the coach and scout widgets'
-row links, which is why they are walked at all. The gate reports per
+row links, which is why they are walked at all. Each persona walk first
+checks that its home's `data-tt-pd-persona` is the persona it is named
+after, prints the surfaces its home links to, and fails when there are fewer
+than that persona's `minSurfaces` (`helpers/personas.js`): the walk is
+decided by those links, so losing them must not shrink it silently. An
+account that was made is deleted in `afterAll` even when it could not sign
+in, and a refused delete is logged. Storage state is saved per persona and
+project. The gate reports per
 persona and width (`[360px as head_coach] …`), and each persona has its own
 baseline under `personas.<key>.widths` in `mobile-baseline.json`; the
 admin's stays under the top-level `widths`. A separate test plants a 30px

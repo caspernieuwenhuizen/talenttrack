@@ -84,7 +84,7 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). At 320px a card is about 191px." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
     },
     "360": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
@@ -96,7 +96,7 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
     },
     "390": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
@@ -108,7 +108,7 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
     }
   },
   "personas": {

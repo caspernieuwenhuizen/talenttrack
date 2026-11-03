@@ -480,7 +480,7 @@ const SURFACES = phoneReachableSurfaces();
 const recordIds = {};
 /** @type {string[]} REST paths of the records made for this run */
 const created = [];
-/** @type {Record<string, { id: number, state: string }|string>} persona key => account, or why there is none */
+/** @type {Record<string, { id: number, state?: string, error?: string }>} persona key => account; `state` only when it can be walked with */
 const accounts = {};
 
 /**
@@ -521,13 +521,14 @@ test.describe( 'mobile viewport gate', () => {
 
 		// #4812 — the accounts the persona walks sign in with.
 		for ( const persona of WALKED_PERSONAS ) {
-			accounts[ persona.key ] = await createPersona( browser, testInfo.project.use.baseURL, persona );
+			accounts[ persona.key ] = await createPersona( browser, testInfo.project.use.baseURL, persona, testInfo.project.name );
 		}
 	} );
 
 	test.afterAll( async ( { browser }, testInfo ) => {
+		// Any account that was made is deleted, also one that could not sign in.
 		for ( const [ key, account ] of Object.entries( accounts ) ) {
-			if ( typeof account === 'object' ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
+			if ( account.id > 0 ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
 			delete accounts[ key ];
 		}
 		if ( ! created.length ) return;
@@ -814,13 +815,34 @@ test.describe( 'mobile viewport gate', () => {
 	for ( const persona of WALKED_PERSONAS ) {
 		test( `no surface regresses beyond the recorded baseline as ${ persona.key }`, async ( { browser }, testInfo ) => {
 			const account = accounts[ persona.key ];
-			expect( typeof account, `[${ persona.key }] no account to walk with: ${ account }` ).toBe( 'object' );
-			if ( typeof account !== 'object' ) return;
+			const state = account && account.state;
+			expect( state, `[${ persona.key }] no account to walk with: ${ account ? account.error : 'none made' }` ).toBeTruthy();
+			if ( ! state ) return;
 
-			const context = await browser.newContext( phoneContext( testInfo, account.state ) );
+			const context = await browser.newContext( phoneContext( testInfo, state ) );
 			const page = await context.newPage();
 			try {
-				await walk( page, persona.key, await surfacesOffered( page ), false );
+				const surfaces = await surfacesOffered( page );
+
+				// The baseline is keyed by persona, so the walk has to be
+				// the persona it says it is. A teamless `tt_coach` that
+				// started landing as an assistant coach would otherwise be
+				// measured against the head coach's allowances.
+				expect(
+					await page.locator( '.tt-pd-landing' ).first().getAttribute( 'data-tt-pd-persona' ),
+					`[${ persona.key }] the account lands on another persona's dashboard`
+				).toBe( persona.key );
+
+				// The walk is the set of surfaces the home links to, so
+				// fewer links mean a smaller walk. A floor keeps a lost tile
+				// or a renamed nav from shrinking it silently (#4195).
+				console.log( `\n[${ persona.key }] Walking ${ surfaces.length } surface(s) its home links to: ${ surfaces.map( ( s ) => s.slug ).join( ', ' ) || 'none' }` );
+				expect(
+					surfaces.length,
+					`[${ persona.key }] its home links to only ${ surfaces.length } phone-reachable surface(s), fewer than ${ persona.minSurfaces }: the walk is shrinking`
+				).toBeGreaterThanOrEqual( persona.minSurfaces );
+
+				await walk( page, persona.key, surfaces, false );
 			} finally {
 				await context.close();
 			}
@@ -832,10 +854,11 @@ test.describe( 'mobile viewport gate', () => {
 	// tap-target finding, under the coarse pointer the phone projects run.
 	test( 'a 30px-tall link in the coach dashboard preset is a tap-target finding', async ( { browser }, testInfo ) => {
 		const account = accounts.head_coach;
-		expect( typeof account, `no head coach account: ${ account }` ).toBe( 'object' );
-		if ( typeof account !== 'object' ) return;
+		const state = account && account.state;
+		expect( state, `no head coach account: ${ account ? account.error : 'none made' }` ).toBeTruthy();
+		if ( ! state ) return;
 
-		const context = await browser.newContext( phoneContext( testInfo, account.state ) );
+		const context = await browser.newContext( phoneContext( testInfo, state ) );
 		const page = await context.newPage();
 		try {
 			await page.goto( '/', { waitUntil: 'domcontentloaded' } );
