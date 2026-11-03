@@ -602,7 +602,9 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'LIMIT 10 OFFSET 10', (string) reset( $paged ), 'the page is cut in the query' );
 
         wp_set_current_user( $this->scout );
-        $this->assertSame( 0, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_data()['data']['total'], 'Edge: a persona the reports are not published to lists none of them' );
+        // #4695 — the scout holds `reports` read and no `report_studio` read,
+        // so the list itself is closed to them, not merely empty.
+        $this->assertSame( 403, $this->send( 'GET', 'reports', [], [ 'owner' => 'published' ] )->get_status(), 'Edge: a persona no report can be published to reads no Studio list' );
     }
 
     /** #4639 — the list costs the same number of queries for 2 reports and for 200. */
