@@ -341,6 +341,26 @@ async function measure( page, cls ) {
 			'.tt-dashboard a[href], .tt-dashboard button, .tt-dashboard input:not([type="hidden"]), .tt-dashboard select, .tt-dashboard textarea, .tt-dashboard [role="button"], .tt-dashboard summary'
 		);
 
+		/**
+		 * Is the element inside the visually-hidden pattern itself: an
+		 * ancestor of 1px or less on both axes with a deliberate clip or
+		 * clip-path? A collapsed but unclipped box (a zero-height row, an
+		 * overflow strip) does not count, so a target that sticks out of
+		 * one is still measured.
+		 *
+		 * @param {Element} el
+		 * @returns {boolean}
+		 */
+		const insideClippedBox = ( el ) => {
+			for ( let box = el.parentElement; box && box !== document.body; box = box.parentElement ) {
+				const r = box.getBoundingClientRect();
+				if ( r.width > 1 || r.height > 1 ) continue;
+				const cs = getComputedStyle( box );
+				if ( cs.clipPath !== 'none' || cs.clip !== 'auto' ) return true;
+			}
+			return false;
+		};
+
 		/** @type {string[]} */
 		const small = [];
 		interactive.forEach( ( el ) => {
@@ -356,6 +376,15 @@ async function measure( page, cls ) {
 			// their own `display`, and were reported as tap targets nobody
 			// can tap (#4232).
 			if ( ! el.checkVisibility( { opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true } ) ) return;
+			// The same pattern one level up: an element inside a visually
+			// hidden box. The stack-table primitive hides a table's header
+			// row that way on a phone, clipped to a pixel so screen readers
+			// keep the column headers, and the sort links in it keep their
+			// own box, which passes checkVisibility(). Nobody can tap them.
+			// The box is read live, so once focus is inside the header and
+			// the primitive shows it (`thead:focus-within`), the links are
+			// measured again.
+			if ( insideClippedBox( el ) ) return;
 			// An element that cannot receive a tap is not a tap target. In a
 			// row-link list the row is the target and a link on its title
 			// line lets the tap fall through to it (#4224); the gate counted
