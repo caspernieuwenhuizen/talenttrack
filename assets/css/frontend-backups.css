@@ -191,19 +191,12 @@
     font-size: var(--tt-fs-sm);
 }
 
-/* Mobile: stack the table into labelled cards so the 5 columns don't
-   overflow 360px. The data-label attribute carries the column heading. */
+/* Mobile: the table stacks into labelled cards so the 5 columns don't
+   overflow 360px. The stacking, the visually hidden header row and the
+   label line come from the stack-table primitive (components/stack-table.css,
+   --to-768, #4810); this is the backups card look. */
 @media (max-width: 767px) {
-    .tt-dashboard .tt-backups__table thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-    }
-
     .tt-dashboard .tt-backups__table tr {
-        display: block;
         border: 1px solid var(--tt-line);
         border-radius: var(--tt-radius);
         margin-bottom: var(--tt-sp-3);
@@ -211,15 +204,12 @@
     }
 
     .tt-dashboard .tt-backups__table td {
-        display: flex;
-        justify-content: space-between;
         gap: var(--tt-sp-3);
         border-bottom: 1px solid var(--tt-line-soft);
         padding: var(--tt-sp-2);
     }
 
     .tt-dashboard .tt-backups__table td::before {
-        content: attr(data-label);
         font-weight: 600;
         color: var(--tt-muted);
         font-size: var(--tt-fs-sm);

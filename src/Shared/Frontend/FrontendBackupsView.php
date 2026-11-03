@@ -12,6 +12,7 @@ use TT\Modules\Backup\PresetRegistry;
 use TT\Modules\Backup\Scheduler;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendBackupsView — frontend port of the wp-admin Backups page
@@ -264,17 +265,17 @@ class FrontendBackupsView extends FrontendViewBase {
             <?php if ( empty( $list ) ) : ?>
                 <p class="tt-backups__empty"><em><?php esc_html_e( 'No local backups yet.', 'talenttrack' ); ?></em></p>
             <?php else : ?>
-                <table class="tt-backups__table">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e( 'Filename', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Created', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Preset', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Size', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                <table class="tt-backups__table <?php echo esc_attr( StackTable::classes( StackTable::TO_768 ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Filename', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Created', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Preset', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Size', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php
                     $can_partial = FrontendAccessControl::canReachWpAdmin( 'tt_view_settings' );
                     foreach ( $list as $row ) :
@@ -286,12 +287,12 @@ class FrontendBackupsView extends FrontendViewBase {
                         $dl   = self::downloadUrl( $id );
                         $part = self::partialRestoreUrl( $id );
                         ?>
-                        <tr data-backup-id="<?php echo esc_attr( $id ); ?>">
-                            <td data-label="<?php echo esc_attr__( 'Filename', 'talenttrack' ); ?>"><code><?php echo esc_html( $id ); ?></code></td>
-                            <td data-label="<?php echo esc_attr__( 'Created', 'talenttrack' ); ?>"><?php echo esc_html( $when ); ?></td>
-                            <td data-label="<?php echo esc_attr__( 'Preset', 'talenttrack' ); ?>"><?php echo esc_html( $prst ); ?></td>
-                            <td data-label="<?php echo esc_attr__( 'Size', 'talenttrack' ); ?>"><?php echo esc_html( size_format( $size ) ); ?></td>
-                            <td data-label="<?php echo esc_attr__( 'Actions', 'talenttrack' ); ?>" class="tt-backups__row-actions">
+                        <tr data-backup-id="<?php echo esc_attr( $id ); ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', __( 'Filename', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><code><?php echo esc_html( $id ); ?></code></td>
+                            <td<?php echo StackTable::attrs( 'cell', __( 'Created', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $when ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', __( 'Preset', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $prst ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', __( 'Size', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( size_format( $size ) ); ?></td>
+                            <td class="tt-backups__row-actions"<?php echo StackTable::attrs( 'cell', __( 'Actions', 'talenttrack' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                 <a class="tt-btn tt-btn-secondary tt-btn--sm" href="<?php echo esc_url( $dl ); ?>">
                                     <?php esc_html_e( 'Download', 'talenttrack' ); ?>
                                 </a>
