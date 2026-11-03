@@ -254,6 +254,15 @@
     text-decoration: none;
     font-weight: 500;
 }
+/* #4865 — 40px is the mouse height; under a finger the secondary call to
+   action (the scouting plan's "Plan visit") takes the shared floor. */
+@media (pointer: coarse) {
+    .tt-pd-cta-secondary {
+        justify-content: center;
+        min-height: var(--tt-tap-min);
+        min-width: var(--tt-tap-min);
+    }
+}
 .tt-pd-cta-secondary:hover { background: #e5eaf0; }
 .tt-pd-cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 

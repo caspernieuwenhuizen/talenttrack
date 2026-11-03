@@ -968,10 +968,10 @@ test.describe( 'mobile viewport gate', () => {
 	// Without it a row link is its line of text, 21px tall. This takes the
 	// floor away on the page and requires the row links to come back as a
 	// tap-target finding the persona's home baseline does not allow, so
-	// reverting the floor fails the gate. The baseline is per kind, and the
-	// scout's home already carries two other small targets, so the proof
-	// runs where a revert is the only tap-target on the home: the coach.
-	for ( const persona of WALKED_PERSONAS.filter( ( p ) => p.key === 'head_coach' ) ) {
+	// reverting the floor fails the gate. The baseline is per kind, so this
+	// holds only while no persona's home allows a tap-target finding (#4865
+	// brought the scout's last two up to the floor).
+	for ( const persona of WALKED_PERSONAS ) {
 		test( `without the row-link rule, the ${ persona.key } dashboard's row links are tap-target findings`, async ( { browser }, testInfo ) => {
 			const account = accounts[ persona.key ];
 			const state = account && account.state;
