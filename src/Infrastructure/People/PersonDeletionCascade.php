@@ -7,6 +7,7 @@ use TT\Infrastructure\Database\MigrationHelpers;
 use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\TableExists;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -419,6 +420,10 @@ class PersonDeletionCascade {
             throw $e;
         }
         Transaction::commit();
+
+        // #4778 — the team assignments and role scopes are gone, so no
+        // per-request authorization answer may outlive them.
+        AuthorizationService::flushCache();
 
         Logger::info( 'person.deleted_with_cascade', [
             'person_ids' => $ids,

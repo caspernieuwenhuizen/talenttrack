@@ -375,7 +375,11 @@ class TeamsPage {
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.
         $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id, 'club_id' => CurrentClub::id() ] );
+        // #4778 — and the team scope rows those assignments mirrored, which
+        // would otherwise outlive the team and keep counting as a team grant.
+        $wpdb->delete( $wpdb->prefix . 'tt_user_role_scopes', [ 'scope_type' => 'team', 'scope_id' => $id, 'club_id' => CurrentClub::id() ] );
         $wpdb->delete( $wpdb->prefix . 'tt_teams', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        AuthorizationService::flushCache();
         wp_safe_redirect( admin_url( 'admin.php?page=tt-teams&tt_msg=deleted' ) );
         exit;
     }
