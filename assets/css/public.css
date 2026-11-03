@@ -1223,8 +1223,7 @@ input[type="checkbox"], input[type="radio"] {
        taking it out of the text flow of the cell it sits in.
        #4810 — the dashboard table's row link opens a record too and takes
        the same floor, read from the tap token. */
-    .tt-record-link,
-    .tt-pd-row-link {
+    .tt-record-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;
