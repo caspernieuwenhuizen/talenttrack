@@ -375,7 +375,7 @@ class EvaluationsRestController {
             // #4693 — the coach's written words follow the sensitive-field registry.
             'rows'     => \TT\Infrastructure\Security\RecordRedactor::redactRows(
                 'evaluations',
-                array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
+                array_values( array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ) ),
                 get_current_user_id()
             ),
             'total'    => $total,
