@@ -64,6 +64,8 @@ Voeg via de bewerkpagina **Teams** een persoon toe met een functionele rol. Een 
 
 Elke toewijzing staat ook onder **Functionele rollen → Toewijzingen**, met een optionele **Einddatum** om er een af te sluiten zonder hem te verwijderen.
 
+Een toewijzing telt vanaf de startdatum tot en met de einddatum. Voordat ze begint en nadat ze is afgelopen, hoort het team niet bij de teams van die persoon: het verdwijnt die dag uit hun teamlijsten, hun spelers en wat ze mogen openen, zonder dat er iets hoeft te draaien. Heeft iemand meer dan één toewijzing op hetzelfde team, dan telt het team van de vroegste start tot het laatste einde.
+
 ## De rol van iemand binnen een team wijzigen
 
 Neemt een assistent-coach het over als hoofdcoach, bewerk dan de toewijzing in plaats van hem te verwijderen en opnieuw aan te maken:
