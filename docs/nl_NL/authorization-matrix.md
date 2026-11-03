@@ -659,7 +659,7 @@ Een regel in het spelerspad volgt het leesrecht van het record dat die beschrijf
 
 Een bestand ontvangen dat de server maakt, is een recht op zich: de matrix-entiteit `exports` (in de matrix **Bestanden downloaden**). `ExportGate::mayExport()` vraagt het, op welke scope ook, vóór:
 
-- de exportroute: de pagina Exports en de tegel ervan, `GET /exports` (dat een account zonder het recht niets toont), `GET|POST /exports/{key}`, en elk exportformulier dat daarheen post (meetresultaten, de teamplanner, het downloaden van de configuratie, de rapport-pdf's);
+- de exportroute: de pagina Exports (de tegel vraagt `reports`, het andere recht van de pagina, en is verborgen voor de persona waarnemer), `GET /exports` (dat een account zonder het recht niets toont), `GET|POST /exports/{key}`, en elk exportformulier dat daarheen post (meetresultaten, de teamplanner, het downloaden van de configuratie, de rapport-pdf's);
 - de bestanden die de rapportschermen zelf sturen: de csv van de standaardrapporten, de csv en pdf van de verkenner, en de csv van het cohortbord;
 - de geplande rapporten: een ontvanger zonder het recht krijgt de gemailde pdf of csv niet en staat bij de planning vermeld.
 

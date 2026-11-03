@@ -660,7 +660,7 @@ A journey entry follows the read right of the record it describes, on the timeli
 
 Receiving a file the server produces is a right of its own, the matrix entity `exports` (labelled **File downloads** in the matrix). `ExportGate::mayExport()` asks it, at any scope, in front of:
 
-- the export pipeline: the Exports page and its tile, `GET /exports` (which lists nothing to an account without the right), `GET|POST /exports/{key}`, and every export form that posts to it (measurement results, the team planner, the configuration download, the report PDFs);
+- the export pipeline: the Exports page (its tile asks `reports`, the page's other right, and is hidden from the observer persona), `GET /exports` (which lists nothing to an account without the right), `GET|POST /exports/{key}`, and every export form that posts to it (measurement results, the team planner, the configuration download, the report PDFs);
 - the files the report screens stream themselves: the standard reports' CSV, the explorer's CSV and PDF, and the cohort board's CSV;
 - the scheduled reports: a recipient without the right is left out of the mailed PDF or CSV and named on the schedule.
 

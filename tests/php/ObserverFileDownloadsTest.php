@@ -193,6 +193,35 @@ final class ObserverFileDownloadsTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( $hod_mail, $reasons, 'the HoD still receives it' );
     }
 
+    public function test_scheduled_files_follow_the_export_rule_for_every_account(): void {
+        // An observer account with no person record in this club, typed as
+        // an address, on a fact with no player data.
+        $elsewhere      = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer', 'user_email' => 'observer-elsewhere-4718@example.test' ] );
+        $elsewhere_mail = (string) get_userdata( $elsewhere )->user_email;
+        $this->flush();
+        $this->assertFalse( ScheduledReportsRunner::factCarriesPlayerData( 'activities' ), 'precondition: an aggregate fact' );
+
+        $plan    = ScheduledReportsRunner::planKpiDelivery( [ $elsewhere_mail, 'nobody-4718@example.test' ], 'activities', $this->hod );
+        $reasons = array_column( $plan['skipped'], 'reason', 'email' );
+        $this->assertSame( 'no_file_access', $reasons[ $elsewhere_mail ] ?? null, 'the account is asked, wherever its club' );
+
+        $reached = [];
+        foreach ( $plan['deliveries'] as $delivery ) {
+            foreach ( $delivery['recipients'] as $recipient ) $reached[] = strtolower( $recipient->emailAddress );
+        }
+        $this->assertNotContains( $elsewhere_mail, $reached );
+        $this->assertContains( 'nobody-4718@example.test', $reached, 'an address with no account still receives the aggregate' );
+    }
+
+    public function test_the_exports_page_stays_closed_to_a_player_and_a_parent(): void {
+        $player = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $this->flush();
+
+        $this->assertFalse( TileRegistry::canAccessViewSlug( 'exports', $player ), 'no Exports tile for a player' );
+        $this->assertFalse( TileRegistry::canAccessViewSlug( 'exports', $parent ), 'no Exports tile for a parent' );
+    }
+
     // ---- exports and prints follow the record's read rule ------------
 
     public function test_an_export_covers_the_teams_the_reader_works_with(): void {
