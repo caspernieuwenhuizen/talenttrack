@@ -131,8 +131,8 @@ en heeft bedoeld het laatste woord.
 Geen enkel stylesheet van een scherm declareert eigen tokens.
 `frontend-admin.css` declareerde vroeger een tweede set op `.tt-dashboard`, die
 binnen het dashboard zowel `tokens.css` als de Huisstijl overtroefde; het
-declareert er nu geen meer. `public.css` herhaalt nog een paar declaraties uit
-`tokens.css` op `.tt-root`, met dezelfde waarden, dus die veranderen niets.
+declareert er nu geen meer. `public.css` ook niet; dat herhaalde vroeger een
+paar standaardwaarden uit `tokens.css`.
 
 Eén token staat in `tokens.css` op zowel `.tt-dashboard` als `.tt-root`: de
 focusring, `--tt-focus`. Die is afgeleid van `--tt-primary`, en een thema zet

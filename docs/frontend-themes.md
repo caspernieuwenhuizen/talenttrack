@@ -124,9 +124,8 @@ own and is meant to have the last word.
 
 No surface stylesheet declares tokens of its own. `frontend-admin.css` used to
 redeclare a second set on `.tt-dashboard`, which beat both `tokens.css` and
-Branding inside the dashboard; it no longer declares any. `public.css` still
-repeats a few `tokens.css` declarations on `.tt-root`, at the same values, so
-they change nothing.
+Branding inside the dashboard; it no longer declares any. Neither does
+`public.css`, which used to repeat a few `tokens.css` defaults.
 
 One token is declared on `.tt-dashboard` as well as `.tt-root`, in
 `tokens.css`: the focus ring, `--tt-focus`. It is derived from `--tt-primary`,
