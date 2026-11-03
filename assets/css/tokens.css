@@ -13,7 +13,9 @@
  *      owns the complete design (#2515): Branding is not output under it;
  *   3. without a theme, the academy's Branding: `BrandStyles` attaches a
  *      `.tt-root` rule to this stylesheet's handle, so it prints right
- *      after this file and wins by order for the values the academy chose.
+ *      after this file and wins by order for the values the academy chose;
+ *   4. on top, the academy's own custom CSS (the visual editor), which
+ *      writes `.tt-root` token rules of its own.
  *
  * `frontend-admin.css` used to redeclare a second set on `.tt-dashboard`,
  * which beat both this file and Branding inside the dashboard. That block

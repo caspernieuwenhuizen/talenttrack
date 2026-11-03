@@ -61,6 +61,23 @@ final class BrandingDefaultDesignTest extends WP_UnitTestCase {
         $this->assertTrue( BrandStyles::isChosen( 'color_accent', '#000000' ), 'black is a choice outside the status colours' );
     }
 
+    /**
+     * The accent and the focus ring have no tokens.css default, so their
+     * form default is what a saved install renders today. It still counts
+     * as chosen and still reaches the rule.
+     */
+    public function test_accent_and_focus_ring_keep_their_form_default(): void {
+        $this->assertTrue( BrandStyles::isChosen( 'color_accent', '#1e88e5' ) );
+        $this->assertTrue( BrandStyles::isChosen( 'color_focus', '#1e88e5' ) );
+
+        $this->cfg()->set( 'color_accent', '#1e88e5' );
+        $this->cfg()->set( 'color_focus', '#1E88E5' );
+        $css = BrandStyles::css();
+
+        $this->assertStringContainsString( '--tt-accent:#1e88e5', $css );
+        $this->assertStringContainsString( '--tt-focus-ring:#1E88E5', $css );
+    }
+
     public function test_only_chosen_colours_reach_the_rule(): void {
         $this->cfg()->set( 'primary_color', '#7a1fa2' );
         $this->cfg()->set( 'color_info', '#0277bd' );

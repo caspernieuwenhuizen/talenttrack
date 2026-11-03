@@ -108,7 +108,7 @@ Een thema is een **tokenlaag**, geen tweede set schermen:
 
 ### Volgorde van de lagen
 
-Er zijn drie lagen, en op een pagina gelden er hoogstens twee:
+Er zijn drie ontwerplagen, en op een pagina gelden er hoogstens twee:
 
 1. **`tokens.css`**: de ene set standaardwaarden, op `.tt-root`. Elk token dat
    het product leest staat hier, ook de merkkleuren en de lettertypen.
@@ -124,9 +124,15 @@ Er zijn drie lagen, en op een pagina gelden er hoogstens twee:
    waarschuwing, succes, info) telt als niet gekozen. Een kleur die niet
    gekozen is, houdt zijn waarde uit `tokens.css`.
 
-Geen ander blad declareert tokens. `frontend-admin.css` declareerde vroeger een
-tweede set op `.tt-dashboard`, die binnen het dashboard zowel `tokens.css` als
-de Huisstijl overtroefde.
+Daarbovenop komt de **eigen CSS** van de academie (de module voor eigen CSS
+en de visuele editor daarvan). Die schrijft eigen `.tt-root { --tt-…: … }`-regels
+en heeft bedoeld het laatste woord.
+
+Geen enkel stylesheet van een scherm declareert eigen tokens.
+`frontend-admin.css` declareerde vroeger een tweede set op `.tt-dashboard`, die
+binnen het dashboard zowel `tokens.css` als de Huisstijl overtroefde; het
+declareert er nu geen meer. `public.css` herhaalt nog een paar declaraties uit
+`tokens.css` op `.tt-root`, met dezelfde waarden, dus die veranderen niets.
 
 Een thema **moet** de merktokens declareren (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb` en de afgeleide

@@ -103,7 +103,7 @@ A theme is a **token layer**, not a second set of surfaces:
 
 ### Layer order
 
-There are three layers, and on any page at most two of them apply:
+There are three design layers, and on any page at most two of them apply:
 
 1. **`tokens.css`**: the one set of defaults, on `.tt-root`. Every token the
    product reads is declared here, brand colours and fonts included.
@@ -118,9 +118,15 @@ There are three layers, and on any page at most two of them apply:
    warning, success, info) counts as not chosen. A colour that is not chosen
    keeps its `tokens.css` value.
 
-No other sheet declares tokens. `frontend-admin.css` used to redeclare a second
-set on `.tt-dashboard`, which beat both `tokens.css` and Branding inside the
-dashboard.
+On top of those sits the academy's own **custom CSS** (the custom CSS module
+and its visual editor), which writes `.tt-root { --tt-…: … }` rules of its
+own and is meant to have the last word.
+
+No surface stylesheet declares tokens of its own. `frontend-admin.css` used to
+redeclare a second set on `.tt-dashboard`, which beat both `tokens.css` and
+Branding inside the dashboard; it no longer declares any. `public.css` still
+repeats a few `tokens.css` declarations on `.tt-root`, at the same values, so
+they change nothing.
 
 A theme **must** declare the brand tokens (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb`, and the derived

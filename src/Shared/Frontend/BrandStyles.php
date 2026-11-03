@@ -29,16 +29,19 @@ class BrandStyles {
      * (`FrontendConfigurationView` and `ConfigurationPage`). The form
      * submits every colour on every save, so a stored value equal to its
      * form default says nothing about what the academy wanted.
+     *
+     * Only colours with a `tokens.css` default are listed. The accent and
+     * the focus ring have none, so their form default (`#1e88e5`) is what
+     * a saved install renders today; treating it as unset would change
+     * every such install.
      */
     private const FORM_DEFAULTS = [
         'primary_color'   => '#0b3d2e',
         'secondary_color' => '#e8b624',
-        'color_accent'    => '#1e88e5',
         'color_danger'    => '#b32d2e',
         'color_warning'   => '#dba617',
         'color_success'   => '#00a32a',
         'color_info'      => '#2271b1',
-        'color_focus'     => '#1e88e5',
     ];
 
     /** The status colours, which some installs hold as a stored `#000000`. */
