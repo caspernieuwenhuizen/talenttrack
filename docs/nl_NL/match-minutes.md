@@ -21,8 +21,8 @@ invoer bij wedstrijdafronding bouwen er allemaal op voort.
 
 Configuratie -> **Wedstrijdminuten**.
 
-Het formulier toont elke leeftijdscategorie uit je opzoeklijst
-**Leeftijdsgroepen** (Configuratie -> Opzoeklijsten -> Leeftijdsgroepen). Vul
+Het formulier toont elke leeftijdscategorie uit je keuzelijst
+**Leeftijdsgroepen** (Configuratie -> Keuzelijsten -> Leeftijdsgroepen). Vul
 voor elke categorie de **minuten per helft (N)** in. De volledige wedstrijdduur
 — **2 x N** — verschijnt naast het invoerveld terwijl je typt.
 

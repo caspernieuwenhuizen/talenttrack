@@ -38,7 +38,7 @@ Opslaan zet een regel *Schorsing ingegaan* op de tijdlijn van de speler.
 
 Staan de stapsgewijze formulieren uit voor jouw academie, dan staan dezelfde vier velden op één pagina, met **Annuleren** en **Schorsing vastleggen**.
 
-De redenen (te veel gele kaarten, rode kaart, besluit van de club) kun je hernoemen of aanvullen onder **Configuratie → Opzoeklijsten → Redenen voor schorsing**.
+De redenen (te veel gele kaarten, rode kaart, besluit van de club) kun je hernoemen of aanvullen onder **Configuratie → Keuzelijsten → Redenen voor schorsing**.
 
 ## Voor welke wedstrijden ze geldt
 

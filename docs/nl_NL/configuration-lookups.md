@@ -7,16 +7,16 @@ views: [lookup-normalisation]
 order: 112
 ---
 
-# Configuratie — Lookups
+# Configuratie — Keuzelijsten
 
 **Doelgroep:** academy-administrator.
 
-De tegel Lookups op de configuratiepagina is de enige plek om elke dropdown-vocabulaire die het dashboard rendert te beheren — activiteitstypes, posities, leeftijdsgroepen, doelstatussen, evaluatietypes, gedragsbeoordelingen, potentieelbanden, enzovoort. Bewerkingen hier worden direct toegepast op elk formulier, elke lijst en elk rapport dat het betreffende vocabulaire leest.
+De tegel Keuzelijsten op de configuratiepagina is de enige plek om elke dropdown-vocabulaire die het dashboard rendert te beheren — activiteitstypes, posities, leeftijdsgroepen, doelstatussen, evaluatietypes, gedragsbeoordelingen, potentieelbanden, enzovoort. Bewerkingen hier worden direct toegepast op elk formulier, elke lijst en elk rapport dat het betreffende vocabulaire leest.
 
 ## De vier surfaces
 
-1. **Configuratie → Lookups** — landingspagina. Eén tegel per lookup-categorie, **gegroepeerd in domeinsecties** (Activiteiten & aanwezigheid, Spelers & teams, Evaluaties & ontwikkeling, Doelen, Scouting & stages, Toernooien & wedstrijd, Staf & mensen, Rapporten & workflow, Geavanceerd / intern). Elke tegel heeft een icoon, een korte beschrijving en klikt door naar de per-categorie editor. Een sectie zonder zichtbare tegels toont geen kop. *(v4.26.11 — voorheen één plat raster van ~32 kaarten.)*
-2. **Per-categorie editor** — de list-first weergave van de waarden van één lookup-categorie (bijv. Activiteitstypes). Standaardweergave: een overzichtelijke lijst van waarden met een knop `Waarde toevoegen` bovenaan.
+1. **Configuratie → Keuzelijsten** — landingspagina. Eén tegel per keuzelijst, **gegroepeerd in domeinsecties** (Activiteiten & aanwezigheid, Spelers & teams, Evaluaties & ontwikkeling, Doelen, Scouting & stages, Toernooien & wedstrijd, Staf & mensen, Rapporten & workflow, Geavanceerd / intern). Elke tegel heeft een icoon, een korte beschrijving en klikt door naar de per-categorie editor. Een sectie zonder zichtbare tegels toont geen kop. *(v4.26.11 — voorheen één plat raster van ~32 kaarten.)*
+2. **Per-categorie editor** — de list-first weergave van de waarden van één keuzelijst (bijv. Activiteitstypes). Standaardweergave: een overzichtelijke lijst van waarden met een knop `Waarde toevoegen` bovenaan.
 3. **Nieuwe waarde toevoegen** — opent vanaf de `Waarde toevoegen` knop. Leeg formulier met het veld Interne sleutel bovenaan + een vertalingsraster met 5 locales eronder.
 4. **Waarde bewerken** — opent door op een rij in de lijst te tikken. Zelfde vorm als Toevoegen maar gevuld met de data en vertalingen van de rij. Het veld Interne sleutel is alleen-lezen op bestaande rijen.
 
@@ -116,13 +116,13 @@ Praktische gevolgen:
 - Bestaande rijen: het Interne sleutel-veld is alleen-lezen. Om het te wijzigen is een code-migratie nodig, zodat elke `WHERE name = ...` verwijzing in de codebase atomair wordt bijgewerkt.
 - Dashboards lezen `tt_lookups.name` nooit rechtstreeks. Ze gaan via `LookupTranslator::name($row)`, die oplost via `tt_translations` voor de huidige locale en anders de ruwe `name` als terugval retourneert.
 
-### Waarom een niet-geseede lookup Engels toont
+### Waarom een niet-geseede keuzelijstwaarde Engels toont
 
 Er zat vroeger een tussenstap in: als er geen vertaalrij bestond, werd het label als losse zin aan de vertaalcatalogus van de plugin aangeboden, en werd getoond wat daar toevallig op matchte. Die stap is verwijderd, omdat een zin die voor het midden van een zin geschreven is zijn eigen betekenis meeneemt naar een labelvak. Het voorkeursbeen `Left` van een speler werd in het Nederlands getoond als *Vertrokken*, omdat dat de enige plek was waar het woord `Left` in de catalogus voorkwam. Stillere varianten van dezelfde fout zetten kleine letters en bijvoeglijke naamwoorden in statuslabels.
 
-Een lookup-waarde zonder vertaalrij toont nu dus zijn Engelse sleutel. Dat is bewust: zichtbaar onvertaald Engels wordt gemeld, een echt Nederlands woord met de verkeerde betekenis niet. Twee manieren om het te verhelpen:
+Een keuzelijstwaarde zonder vertaalrij toont nu dus zijn Engelse sleutel. Dat is bewust: zichtbaar onvertaald Engels wordt gemeld, een echt Nederlands woord met de verkeerde betekenis niet. Twee manieren om het te verhelpen:
 
-- **Eén club, één label** — pas de waarde aan via Configuratie → de betreffende lookup-lijst en vul het label per taal in.
+- **Eén club, één label** — pas de waarde aan via Configuratie → de betreffende keuzelijst en vul het label per taal in.
 - **Elke installatie** — het label hoort in de vaste vertaallijst van de plugin en komt via een update in de database. Vraag je ontwikkelaar; het is een kleine wijziging.
 
 Bij het bijwerken draait eenmalig een automatische reparatie die labels corrigeert die het oude gedrag al verkeerd had weggeschreven. Die vervangt alleen een waarde die exact is wat de catalogus zou hebben opgeleverd — een label dat je club zelf heeft ingetypt wordt nooit overschreven.
@@ -133,7 +133,7 @@ Pilot-installaties van vóór v4.11.0 kunnen waarden in `tt_lookups.name` bevatt
 
 **Migratie 0132** loopt elke `tt_lookups`-rij door, vergelijkt `name` met de canonieke seed-map in `LookupCanonicalSeeds` en schrijft een `lookup.needs_review`-entry naar `tt_audit_log` voor elke afgedreven rij (met de huidige waarde, de voorgestelde canonieke waarde en de gedetecteerde brontaal). De migratie hernoemt nooit automatisch — elke geaccepteerde herschrijving is door de operator aangestuurd.
 
-**De tool bereiken:** Configuratie -> tegel "Lookup canonical-language review" (verschijnt alleen wanneer er openstaande rijen zijn). De tegel-beschrijving toont het aantal.
+**De tool bereiken:** Configuratie -> tegel "Canonieke-taal revisie voor keuzelijsten" (verschijnt alleen wanneer er openstaande rijen zijn). De tegel-beschrijving toont het aantal.
 
 **Per-rij acties:**
 

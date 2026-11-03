@@ -42,7 +42,7 @@ Je kunt migraties ook handmatig uitvoeren vanaf de pagina **Plug-ins**. Naast de
 ## Wat migraties daadwerkelijk doen
 
 - **Schemaherstel** — zorgen dat elke TalentTrack-tabel bestaat met de verwachte kolommen
-- **Seed-data** — standaard evaluatiecategorieën, functionele rollen en lookup-waarden invoegen als de tabellen leeg zijn
+- **Seed-data** — standaard evaluatiecategorieën, functionele rollen en keuzelijstwaarden invoegen als de tabellen leeg zijn
 - **Toekennen van rechten** — zorgen dat de WordPress-beheerder elk `tt_*`-recht heeft, en dat elke TalentTrack-rol de rechten bezit die het zou moeten hebben
 - **Zelfherstel** — bekende foutieve staten uit oude releases detecteren (ontbrekende kolommen, corrupte enum-waarden) en herstellen
 

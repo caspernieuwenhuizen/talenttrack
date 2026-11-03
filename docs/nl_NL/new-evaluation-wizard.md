@@ -44,7 +44,7 @@ kan beoordelen.
 
 ### Stap 1 · Activiteit kiezen
 
-Toont rateable activiteiten van de laatste 90 dagen, op ploegen waaraan je via Functionele Rollen bent toegewezen (of alle ploegen als je HoD / Academy Admin bent), waar het activiteitstype als **rateable** is gemarkeerd in de lookups-admin (standaard: ja; standaard uit voor clinics, methodology-lectures en team-meetings).
+Toont rateable activiteiten van de laatste 90 dagen, op ploegen waaraan je via Functionele Rollen bent toegewezen (of alle ploegen als je HoD / Academy Admin bent), waar het activiteitstype als **rateable** is gemarkeerd in het keuzelijstenbeheer (standaard: ja; standaard uit voor clinics, methodology-lectures en team-meetings).
 
 Klik een activiteit aan en **Doorgaan**. Is de lijst leeg, dan zegt de stap dat — hij springt nooit stilletjes naar het spelerpad; ga **Terug** en kies *1 speler evalueren* om een speler zonder activiteit te beoordelen. (Deze stap wordt overgeslagen als een deur al een activiteit vooraf koos, bijv. de dashboard-hero of een Activiteit-voltooien-knop.)
 
@@ -130,7 +130,7 @@ Het persistent-opslag bewaart concepten **14 dagen**. Verouderde concepten worde
 
 ## Activiteitstypes als rateable markeren
 
-In Configuratie → Lookups → Activity Types heeft elke rij een **Rateable**-checkbox. Wanneer uitgevinkt verdwijnen activiteiten van dat type uit de activiteitkiezer van de nieuwe-evaluatie-wizard — ze blijven overal anders zichtbaar (de activiteit zelf, statistieken, rapporten). Handig voor clinics, methodology-lectures, team-meetings.
+In Configuratie → Keuzelijsten → Activity Types heeft elke rij een **Rateable**-checkbox. Wanneer uitgevinkt verdwijnen activiteiten van dat type uit de activiteitkiezer van de nieuwe-evaluatie-wizard — ze blijven overal anders zichtbaar (de activiteit zelf, statistieken, rapporten). Handig voor clinics, methodology-lectures, team-meetings.
 
 ## Categorieën als snelbeoordeel markeren
 

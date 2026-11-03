@@ -75,7 +75,7 @@ Dezelfde rechtencontrole, dezelfde inhoud, dezelfde auditregel. De download en d
 ## Beperkingen
 
 - **Alleen exporteren.** Er is nog geen importfunctie: je kunt een geëxporteerd bestand vanaf dit scherm niet op een andere installatie toepassen. Het scherm Back-ups bezit de bestaande datamigratie-import en is de waarschijnlijke plek voor een configuratie-import zodra die er komt.
-- **Alleen instellingen en schakelaars.** Opzoeklijsten en woordenlijsten, definities van eigen velden, de rechtenmatrix, persona's, workflowsjablonen en methodieksets zitten er *niet* in. Dat is inhoud van de academie, geen beschikbaarheid. Gebruik voor een volledige gegevensmomentopname **Configuratie → Back-ups**.
+- **Alleen instellingen en schakelaars.** Keuzelijsten en woordenlijsten, definities van eigen velden, de rechtenmatrix, persona's, workflowsjablonen en methodieksets zitten er *niet* in. Dat is inhoud van de academie, geen beschikbaarheid. Gebruik voor een volledige gegevensmomentopname **Configuratie → Back-ups**.
 - **Vereist de module Export.** De tegel is verborgen wanneer de module Export uit staat, omdat die module de downloadafhandeling bezit.
 
 ## Zie ook

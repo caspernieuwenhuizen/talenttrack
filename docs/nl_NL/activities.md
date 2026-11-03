@@ -378,7 +378,7 @@ ervan is wat je wilt als het ritme van een hele selectie niet klopt.
 
 Naast het type heeft elke activiteit twee extra velden:
 
-- **Status** — waar de activiteit zich in de levenscyclus bevindt. **Gepland** is de standaard bij nieuwe activiteiten. Hij gaat op **Voltooid** wanneer je de begeleide voltooiingsflow afrondt (zie [Een activiteit voltooien](#een-activiteit-voltooien)), en op **Geannuleerd** via de knop **Activiteit annuleren** op het detailscherm; **Heropenen** zet hem terug op Gepland. De lijst statuswaarden is uitbreidbaar via **Configuratie → Lookups** (lookup-type `activity_status`).
+- **Status** — waar de activiteit zich in de levenscyclus bevindt. **Gepland** is de standaard bij nieuwe activiteiten. Hij gaat op **Voltooid** wanneer je de begeleide voltooiingsflow afrondt (zie [Een activiteit voltooien](#een-activiteit-voltooien)), en op **Geannuleerd** via de knop **Activiteit annuleren** op het detailscherm; **Heropenen** zet hem terug op Gepland. De lijst statuswaarden is uitbreidbaar via **Configuratie → Keuzelijsten** (keuzelijst `activity_status`).
 - **Bron** — wie of wat de activiteit heeft aangemaakt. **Handmatig** voor activiteiten die in de app zijn gemaakt, **Gegenereerd** voor activiteiten van de demo-data-generator, en **Spond** voor activiteiten die uit een Spond-agenda zijn gesynchroniseerd (zodra de integratie aanstaat). De bron wordt automatisch gezet, niet handmatig op het formulier. Net als status is de lijst bronnen uitbreidbaar.
 
 De 90-daagse rollup die het Hoofd Opleidingen gebruikt toont één regel per actief type — hernoem of voeg types toe en de rollup volgt automatisch.

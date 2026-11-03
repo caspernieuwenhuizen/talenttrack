@@ -677,7 +677,7 @@ Bestaande installaties krijgen het wijzigrecht voor hoofd opleiding en academieb
 
 ## Matrix-entiteit `lookups` — de woordenlijsten van de club (#4296)
 
-De lookups zijn de lijsten van de club: soorten blessures, lichaamsdelen, ernst, posities, aanwezigheidsstatussen en de rest. Een vastlegging bewaart een lookup-id, dus wie een vastlegging maakt, heeft de lijst nodig om uit te kiezen. `GET /lookups` en `GET /lookups/{type}` vragen `tt_view_lookups`, dat koppelt naar `lookups: read`.
+De keuzelijsten zijn de lijsten van de club: soorten blessures, lichaamsdelen, ernst, posities, aanwezigheidsstatussen en de rest. Een vastlegging bewaart het id van een waarde uit zo'n lijst, dus wie een vastlegging maakt, heeft de lijst nodig om uit te kiezen. `GET /lookups` en `GET /lookups/{type}` vragen `tt_view_lookups`, dat koppelt naar `lookups: read`.
 
 | Persona | Recht |
 |---|---|
@@ -685,7 +685,7 @@ De lookups zijn de lijsten van de club: soorten blessures, lichaamsdelen, ernst,
 | `head_of_development` | `read`, global |
 | `academy_admin` | `read` + `change` + `create_delete`, global |
 
-**Alleen stafpersona's (D-15).** Een lookup bevat geen spelersgegevens, maar ouders en spelers hebben de route niet nodig: zij lezen het label in de vastlegging die ze mogen zien. Een teammanager of waarnemer die geen vastleggingen met deze lijsten maakt, krijgt evenmin een recht. Een lookup schrijven blijft bij `tt_edit_settings`.
+**Alleen stafpersona's (D-15).** Een keuzelijst bevat geen spelersgegevens, maar ouders en spelers hebben de route niet nodig: zij lezen het label in de vastlegging die ze mogen zien. Een teammanager of waarnemer die geen vastleggingen met deze lijsten maakt, krijgt evenmin een recht. Een keuzelijst wijzigen blijft bij `tt_edit_settings`.
 
 Bestaande installaties krijgen de vier stafrijen met migratie `0300_authorization_seed_staff_read_lookups`, die ze met `INSERT IGNORE` toevoegt en elke rij die een beheerder heeft aangepast met rust laat.
 

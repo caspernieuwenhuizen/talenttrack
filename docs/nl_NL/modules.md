@@ -157,7 +157,7 @@ Drie modules kunnen niet worden uitgeschakeld. Hun toggle is inert met een toolt
 | Module | Waarom |
 | - | - |
 | `Auth` | Inloggen + uitloggen. Het product is onbereikbaar zonder. |
-| `Configuration` | De instellingstabel + lookups. De meeste andere modules lezen uit `tt_config`. |
+| `Configuration` | De instellingstabel + keuzelijsten. De meeste andere modules lezen uit `tt_config`. |
 | `Authorization` | De matrix zelf. Uitschakelen zou iedereen buitensluiten van de toggle. |
 
 ## License-module — speciaal geval
