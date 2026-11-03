@@ -136,6 +136,8 @@ class Kernel {
 
         Menu::init();
         BrandStyles::init( $this->container );
+        // #4772 — the token root is core, not the custom CSS module's.
+        \TT\Shared\Frontend\TokenRoot::init();
         DashboardShortcode::register();
         // #1590 — full-canvas app shell. When the dashboard page hosts
         // the shortcode and the academy keeps canvas mode on (default),

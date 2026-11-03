@@ -111,9 +111,11 @@ class Tt404Handler {
      * button. Called by templates/canvas-404.php.
      */
     public static function renderContent(): void {
-        echo '<div class="tt-root tt-404 tt-dashboard">';
-        echo Tt404Page::innerHtml( true ); // phpcs:ignore — escaped inside Tt404Page.
-        echo '</div>';
+        // #4772 — the token root is a wrapper of its own around
+        // `.tt-dashboard`, as on every other entry point.
+        echo TokenRoot::wrap( // phpcs:ignore — escaped inside Tt404Page.
+            '<div class="tt-404 tt-dashboard">' . Tt404Page::innerHtml( true ) . '</div>'
+        );
     }
 
     /**

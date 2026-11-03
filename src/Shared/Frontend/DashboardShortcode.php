@@ -76,9 +76,22 @@ class DashboardShortcode {
     }
 
     /**
+     * The shortcode's output, inside the `.tt-root` wrapper that carries
+     * the design tokens (#4772). One wrapper for every branch below: the
+     * pre-login flows, the token-credential views and the dashboard alike,
+     * so no screen depends on the custom CSS module or on the theme
+     * calling `body_class()` for its tokens.
+     *
      * @param array<string,mixed>|string $atts
      */
     public static function render( $atts = [] ): string {
+        return TokenRoot::wrap( self::renderUnwrapped( $atts ) );
+    }
+
+    /**
+     * @param array<string,mixed>|string $atts
+     */
+    private static function renderUnwrapped( $atts = [] ): string {
         // #1379 — design tokens (the single source for the 2026 green/gold
         // palette, type/space scale, radius, shadow). Enqueued first, with
         // no deps, so every other TalentTrack stylesheet inherits it.

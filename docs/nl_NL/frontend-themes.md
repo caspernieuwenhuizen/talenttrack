@@ -93,8 +93,11 @@ zoektocht door alle views.
 
 Een thema is een **tokenlaag**, geen tweede set schermen:
 
-1. `assets/css/tokens.css` declareert de neutrale tokens op `.tt-root` (de
-   body-klasse).
+1. `assets/css/tokens.css` declareert de neutrale tokens op `.tt-root`: een
+   omhullend element dat het dashboard direct om `.tt-dashboard` heen zet, en
+   de body-klasse. Dat element is er altijd, dus de tokens werken wat het
+   WordPress-thema ook doet en of de module voor eigen CSS nu aan staat of
+   niet.
 2. Het themablad declareert een deel daarvan opnieuw op `.tt-dashboard`, een
    dichterbij liggende voorouder, zodat elk vlak binnen het dashboard de
    themawaarde erft zonder één regel per view. Dat is hetzelfde

@@ -28,33 +28,14 @@ use TT\Modules\CustomCss\Repositories\CustomCssRepository;
  */
 final class CustomCssEnqueue {
 
+    /**
+     * The `tt-root` body class this module used to add is core now
+     * (`\TT\Shared\Frontend\TokenRoot`, #4772): the design tokens hang off
+     * that class, and they must not disappear when this module is off.
+     */
     public static function init(): void {
-        add_filter( 'body_class',         [ __CLASS__, 'addBodyClass' ] );
-        add_filter( 'admin_body_class',   [ __CLASS__, 'addAdminBodyClass' ] );
         add_action( 'wp_head',            [ __CLASS__, 'frontendInjectInline' ], 20 );
         add_action( 'admin_head',         [ __CLASS__, 'adminInjectInline' ], 20 );
-    }
-
-    /**
-     * Append `tt-root` to the frontend body class so the scoped CSS
-     * has a global anchor. Always added — the layout cap also benefits
-     * from it being the entry point for theme-isolation rules in
-     * frontend-admin.css.
-     *
-     * @param array<int, string> $classes
-     * @return array<int, string>
-     */
-    public static function addBodyClass( array $classes ): array {
-        $classes[] = 'tt-root';
-        return $classes;
-    }
-
-    /**
-     * The wp-admin equivalent. `admin_body_class` is a filter that
-     * returns a single space-separated string, not an array.
-     */
-    public static function addAdminBodyClass( string $classes ): string {
-        return trim( $classes . ' tt-root' );
     }
 
     public static function frontendInjectInline(): void {
