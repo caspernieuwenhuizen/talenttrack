@@ -3236,10 +3236,16 @@ class ActivitiesRestController {
                 : null;
         }
 
+        // #4692 — the free-text note beside a planned status (why a player is
+        // not coming) follows the sensitive-field registry. Every row here
+        // names a player, a guest included (the guest's own record), so each
+        // note is decided for that player; a row without one is stripped.
+        $roster = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'attendance', $out, get_current_user_id() );
+
         return RestResponse::success( [
             'activity_id' => $id,
             'count'       => count( $out ),
-            'roster'      => $out,
+            'roster'      => $roster,
         ] );
     }
 

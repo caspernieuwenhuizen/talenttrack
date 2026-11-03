@@ -162,7 +162,9 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
         $this->assertSame( 'Hamstring', (string) ( (array) ( (array) $this->prep()['availability'] )[ $absent ] )['reason'] );
         $this->assertStringContainsString( 'Hamstring', \TT\Modules\MatchPrep\Print\MatchPrepPrintRouter::renderHtml( $this->activity ) );
 
-        $this->assertStringContainsString( 'Hamstring', \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::bodyHtml( $this->activity, $this->club ), 'the share body keeps it' );
+        $share = \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::bodyHtml( $this->activity, $this->club );
+        $this->assertStringContainsString( 'Absent', $share, 'the share body keeps the status' );
+        $this->assertStringNotContainsString( 'Hamstring', $share, 'and leaves the reason out' );
     }
 
     public function test_staff_with_injury_access_get_both_lists(): void {

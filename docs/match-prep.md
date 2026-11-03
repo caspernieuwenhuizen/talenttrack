@@ -164,10 +164,10 @@ availability** label in the same places instead, and count as available.
 It follows the same rules: no cause, never saved, never printed.
 
 The status you choose and its reason are different: they are saved into
-the prep, so everyone who opens it sees them, and the printed sheet, the
-PDF and a shared link list them as "name · status (reason)". A shared
-link opens without logging in. **Keep medical details out of the
-reason** if the prep may be shared: "Injured" is enough, the injury
+the prep, so everyone who opens it sees them, and the printed sheet and the
+PDF list them as "name · status (reason)". A shared link opens without
+logging in and lists the status without the reason. **Keep medical
+details out of the reason** all the same: "Injured" is enough, the injury
 itself belongs in the player's injury record. See
 [Access control](access-control.md) for what the Unavailable label does
 and does not tell someone.

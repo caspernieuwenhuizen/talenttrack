@@ -138,8 +138,18 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface, ScopeGat
             __( 'Notes',        'talenttrack' ),
         ];
 
+        // #4692 — the register's note follows the sensitive-field registry,
+        // resolved for every player in the file at once; a cell it hides is
+        // left empty.
+        $viewer = (int) $request->requesterUserId;
+        \TT\Infrastructure\Security\RecordRedactor::prime(
+            $viewer,
+            array_fill_keys( array_map( static fn( $r ): int => (int) ( ( (array) $r )['player_id'] ?? 0 ), $rows ), null )
+        );
+
         $out_rows = [];
         foreach ( $rows as $r ) {
+            $note_hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'attendance', 'notes', $viewer, (int) $r->player_id );
             $out_rows[] = [
                 (string) ( $r->session_date ?? '' ),
                 (string) ( $r->activity_title ?? '' ),
@@ -148,7 +158,7 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface, ScopeGat
                 (string) ( $r->first_name ?? '' ),
                 (string) ( $r->last_name ?? '' ),
                 ExportValueFormatter::attendanceStatus( $r->attendance_status ?? '' ),
-                (string) ( $r->attendance_notes ?? '' ),
+                $note_hidden ? '' : (string) ( $r->attendance_notes ?? '' ),
             ];
         }
 

@@ -51,8 +51,8 @@ final class MatchPrepPrintableRenderer {
      * `$viewer_id` is the reader the print is for: the coach's free-text
      * reason beside an absent player goes to who plans the team or reads
      * the player's injuries, and the status alone to anyone else. Null is a
-     * share link, a token the coach minted for their own staff, which keeps
-     * the reason.
+     * share link, a token the coach minted for their own staff; it prints
+     * the status without the reason.
      */
     public static function bodyHtml( int $activity_id, int $club_id, ?int $viewer_id = null ): string {
         global $wpdb;
@@ -120,18 +120,30 @@ final class MatchPrepPrintableRenderer {
         // on-screen view's "Doen per speler" panel iterates).
         $available_ids = [];
         $absent        = [];
+        // A share link (no named viewer) prints the status without the reason
+        // for now: who a link is for is not a reader the rule can resolve.
         $reason_for    = $viewer_id === null
-            ? null
+            ? []
             : \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $player_ids, (int) ( $activity->team_id ?? 0 ) );
+        // #4692 — the reason also follows the sensitive-field registry for a
+        // named viewer, resolved for the squad at once. The ids come from the
+        // prep's rows and can include a player who has since left the team,
+        // so each player's own team is read rather than assumed.
+        if ( $viewer_id !== null ) {
+            \TT\Infrastructure\Security\RecordRedactor::prime( $viewer_id, array_fill_keys( array_map( 'intval', $player_ids ), null ) );
+        }
         foreach ( $availability as $a ) {
             $pid = (int) $a->player_id;
             if ( strcasecmp( (string) $a->status, 'Present' ) === 0 ) {
                 $available_ids[] = $pid;
             } else {
+                $shows = $viewer_id !== null
+                    && isset( $reason_for[ $pid ] )
+                    && ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'attendance', 'reason', $viewer_id, $pid );
                 $absent[] = [
                     'pid'    => $pid,
                     'status' => (string) $a->status,
-                    'reason' => ( $reason_for === null || isset( $reason_for[ $pid ] ) ) ? (string) ( $a->reason ?? '' ) : '',
+                    'reason' => $shows ? (string) ( $a->reason ?? '' ) : '',
                 ];
             }
         }

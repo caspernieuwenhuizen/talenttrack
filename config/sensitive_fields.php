@@ -44,8 +44,8 @@
  *   'evaluation_comment' — those, and the player and a linked guardian.
  *
  * The owner's list (2 November 2026) is wider than what is registered here:
- * absence reasons, and the contact details and
- * judgements on trials, prospects, scouting and potential are registered by
+ * the contact details and judgements on trials, prospects, scouting and
+ * potential are registered by
  * the child issue that moves their surfaces onto the redactor, so a field
  * never starts disappearing from a surface that still renders it by hand.
  */
@@ -92,6 +92,22 @@ return [
             // Written for the player: the family keeps them.
             'player_feedback' => 'evaluation_comment',
             'category_notes'  => 'evaluation_comment',
+        ],
+    ],
+
+    // Why a child missed or will miss a training or a match: free text that
+    // can name an illness or a family matter. The status itself (present,
+    // absent, excused) stays for every reader.
+    'attendance' => [
+        'routes' => [
+            '/talenttrack/v1/activities/(?P<id>\d+)/planned-attendance' => [ 'rows' => 'data.roster.*' ],
+        ],
+        'id_key' => 'player_id',
+        'fields' => [
+            // The register's note, and the note beside a planned status.
+            'notes'  => 'staff_or_family',
+            // The coach's reason beside a match-prep availability status.
+            'reason' => 'staff_or_family',
         ],
     ],
 

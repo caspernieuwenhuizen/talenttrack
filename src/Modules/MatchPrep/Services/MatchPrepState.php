@@ -73,10 +73,16 @@ final class MatchPrepState {
         // the table; they are just not part of this squad any more.
         // The coach's reason is free text and can name an injury, so it goes
         // where the unavailable flag goes; anyone else reads the status.
+        // #4692 — and follows the sensitive-field registry on top, resolved
+        // for the squad at once.
         $flagged      = \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $roster_ids, $team_id );
         $availability = self::availabilityByPlayer( $repo->listAvailability( $prep_id ), $roster_ids );
+        \TT\Infrastructure\Security\RecordRedactor::prime( $viewer_id, array_fill_keys( $roster_ids, $team_id ) );
         foreach ( $availability as $pid => $entry ) {
-            if ( ! isset( $flagged[ $pid ] ) ) $availability[ $pid ]['reason'] = '';
+            if ( ! isset( $flagged[ $pid ] )
+                || \TT\Infrastructure\Security\RecordRedactor::isMasked( 'attendance', 'reason', $viewer_id, (int) $pid ) ) {
+                $availability[ $pid ]['reason'] = '';
+            }
         }
         $state['availability'] = (object) $availability;
         $state['lineup']       = [ '1' => (object) $lineup[1], '2' => (object) $lineup[2] ];
