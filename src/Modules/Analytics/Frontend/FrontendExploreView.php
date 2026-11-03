@@ -116,6 +116,12 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        // #4860 — a refused request answers 400; the status goes out before
+        // the page has printed anything.
+        $early_fact = $kpi !== null ? FactRegistry::find( $kpi->factKey ) : null;
+        $refusal    = $kpi !== null && $early_fact !== null ? self::requestRefusal( $kpi, $early_fact ) : null;
+        if ( $refusal !== null ) status_header( 400 );
+
         self::enqueueAssets();
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -135,9 +141,7 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
-        $refusal = self::requestRefusal( $kpi, $fact );
         if ( $refusal !== null ) {
-            status_header( 400 );
             echo '<p class="tt-notice">' . esc_html( $refusal->readerMessage() ) . '</p>';
             return;
         }

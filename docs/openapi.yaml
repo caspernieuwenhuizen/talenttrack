@@ -402,7 +402,7 @@ paths:
         - { in: path, name: key, required: true, schema: { type: string } }
       responses:
         '200': { description: OK }
-        '400': { description: 'invalid_field, unknown_field, missing_fields or bad_date' }
+        '400': { description: 'invalid_field, unknown_field, missing_fields, bad_date, or unknown_dimension (the block names an analytics field its fact no longer has)' }
         '402': { description: license_required — the install is not on the plan }
         '403': { description: 'forbidden_player, forbidden_team or forbidden_scope — the subject is not in the caller''s scope; forbidden — no access to the block' }
         '404': { description: not_found — no such block, or no data for this subject }
@@ -448,7 +448,7 @@ paths:
       summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
       description: 'Body — name, definition (at most 40 blocks of id, key, options and width full | half), revision; revision may also be a query parameter. The name is the caller''s draft name; readers keep the published name until the next publish. A stale revision is 409 stale_revision with details.current_revision.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
-      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field or no_writable_field' }, '403': { description: forbidden }, '409': { description: stale_revision } }
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field, no_writable_field, or unknown_dimension (a block names an analytics field its fact no longer has)' }, '403': { description: forbidden }, '409': { description: stale_revision } }
     delete:
       tags: [report-studio]
       summary: Archive the report
