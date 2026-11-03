@@ -31,6 +31,8 @@ class SemanticRegistry {
         'tt_player_parents'  => true,
         'tt_player_notes'    => true,
         'tt_safeguarding'    => true,
+        // #3949 — a coach's free-text judgement on one category of a child's evaluation.
+        'tt_eval_category_notes' => true,
     ];
 
     /**
