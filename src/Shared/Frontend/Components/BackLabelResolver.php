@@ -141,6 +141,31 @@ final class BackLabelResolver {
     }
 
     /**
+     * May the viewer open this activity's detail page? The same two
+     * questions the page asks: the dispatcher lets them into `activities`,
+     * and the activity's team is covered for them (`ActivityTeamScope`). An
+     * activity with no team has no team to be out of scope for.
+     */
+    private static function viewerMayOpenActivity( int $team_id ): bool {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) return false;
+        if ( ! \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'activities', $user_id ) ) return false;
+        return $team_id <= 0 || \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, $team_id );
+    }
+
+    /**
+     * May the viewer open a person's detail page? The dispatcher lets them
+     * into `people`, and they hold `tt_view_people`, which the page and
+     * `GET /people` both ask.
+     */
+    private static function viewerMayOpenPeople(): bool {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) return false;
+        return \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'people', $user_id )
+            && user_can( $user_id, 'tt_view_people' );
+    }
+
+    /**
      * Resolve a `(tt_view, id)` to a display name. Returns empty string
      * when the entity can't be found — or when the viewer may not see it
      * (#3156) — which causes the caller to fall back to a list-level label.
@@ -174,11 +199,13 @@ final class BackLabelResolver {
                 ) );
                 return is_string( $name ) ? $name : '';
             case 'activities':
-                $title = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT title FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+                $row = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT title, team_id FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
                     $id, $club_id
                 ) );
-                return is_string( $title ) && $title !== '' ? $title : '';
+                if ( ! $row || ! self::viewerMayOpenActivity( (int) ( $row->team_id ?? 0 ) ) ) return '';
+                $title = (string) ( $row->title ?? '' );
+                return $title;
             case 'goals':
                 $row = $wpdb->get_row( $wpdb->prepare(
                     "SELECT title, player_id FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
@@ -228,6 +255,7 @@ final class BackLabelResolver {
                 }
                 return '';
             case 'people':
+                if ( ! self::viewerMayOpenPeople() ) return '';
                 $row = $wpdb->get_row( $wpdb->prepare(
                     "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
                     $id, $club_id
