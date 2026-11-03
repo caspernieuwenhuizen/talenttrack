@@ -68,6 +68,14 @@
     color: var(--tt-danger);
     font-weight: 500;
 }
+/* A value that was saved but deserves a second look (a focus colour too
+   faint to see). Not an error: the ink shade of the warning colour, which
+   reads at small sizes where --tt-warning itself does not. */
+.tt-dashboard .tt-field-warning {
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-warning-ink);
+    font-weight: 500;
+}
 /* #2157 — a sub-section heading inside a settings panel (e.g. the email
    sender group on the General form). Adds breathing room above so the
    group reads as a distinct block without a separate panel. */

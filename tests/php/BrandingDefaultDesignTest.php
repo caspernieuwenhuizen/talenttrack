@@ -62,20 +62,21 @@ final class BrandingDefaultDesignTest extends WP_UnitTestCase {
     }
 
     /**
-     * The accent and the focus ring have no tokens.css default, so their
-     * form default is what a saved install renders today. It still counts
-     * as chosen and still reaches the rule.
+     * The accent has no default apart from the form's, so its `#1e88e5` is
+     * what a saved install renders today: it counts as chosen and reaches
+     * the rule. The focus ring follows the primary when nothing was chosen
+     * (#4804), so its form default counts as unset (#4829).
      */
-    public function test_accent_and_focus_ring_keep_their_form_default(): void {
+    public function test_the_accent_keeps_its_form_default_and_the_focus_ring_does_not(): void {
         $this->assertTrue( BrandStyles::isChosen( 'color_accent', '#1e88e5' ) );
-        $this->assertTrue( BrandStyles::isChosen( 'color_focus', '#1e88e5' ) );
+        $this->assertFalse( BrandStyles::isChosen( 'color_focus', '#1e88e5' ) );
 
         $this->cfg()->set( 'color_accent', '#1e88e5' );
         $this->cfg()->set( 'color_focus', '#1E88E5' );
         $css = BrandStyles::css();
 
         $this->assertStringContainsString( '--tt-accent:#1e88e5', $css );
-        $this->assertStringContainsString( '--tt-focus-ring:#1E88E5', $css );
+        $this->assertStringNotContainsString( '--tt-focus-ring', $css );
     }
 
     public function test_only_chosen_colours_reach_the_rule(): void {

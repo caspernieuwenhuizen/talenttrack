@@ -370,7 +370,39 @@ class ConfigRestController {
             'keys_skipped' => $skipped,
             'user'         => get_current_user_id(),
         ] );
-        return RestResponse::success( [ 'keys_written' => $written, 'keys_skipped' => $skipped ] );
+        return RestResponse::success( [
+            'keys_written' => $written,
+            'keys_skipped' => $skipped,
+            'warnings'     => self::saveWarnings( $payload, $skipped ),
+        ] );
+    }
+
+    /**
+     * Things the caller should know about values that were saved (#4829).
+     * A warning never refuses a value.
+     *
+     * A focus colour under 3:1 against the page is saved as asked, but the
+     * page does not use it for the focus ring: keyboard focus falls back to
+     * the primary-derived ring, so it never becomes invisible.
+     *
+     * @param array<mixed> $payload
+     * @param string[]     $skipped
+     * @return array<int, array{field: string, message: string}>
+     */
+    private static function saveWarnings( array $payload, array $skipped ): array {
+        $warnings = [];
+        if ( array_key_exists( 'color_focus', $payload ) && ! in_array( 'color_focus', $skipped, true ) ) {
+            $focus = sanitize_text_field( (string) $payload['color_focus'] );
+            if ( \TT\Shared\Frontend\BrandStyles::isChosen( 'color_focus', $focus )
+                && ! \TT\Shared\Frontend\BrandStyles::isVisibleFocusColor( $focus )
+            ) {
+                $warnings[] = [
+                    'field'   => 'color_focus',
+                    'message' => __( 'This colour is hard to see as a focus outline.', 'talenttrack' ),
+                ];
+            }
+        }
+        return $warnings;
     }
 
     /**

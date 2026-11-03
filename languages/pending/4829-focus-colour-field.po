@@ -1,0 +1,8 @@
+#: src/Shared/Frontend/FrontendConfigurationView.php:1771
+msgid "Colour of the outline around the active field or button (keyboard)"
+msgstr "Kleur van de rand rond het actieve veld of de knop (toetsenbord)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1772
+#: src/Infrastructure/REST/ConfigRestController.php:400
+msgid "This colour is hard to see as a focus outline."
+msgstr "Deze kleur is slecht zichtbaar als focusrand."
