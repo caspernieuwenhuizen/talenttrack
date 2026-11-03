@@ -839,6 +839,8 @@
 .tt-pd-table td[data-label=""] { justify-content: flex-end; }
 .tt-pd-table-empty { text-align: center; color: var(--tt-pd-text-muted); padding: 1rem 0; }
 .tt-pd-table td.tt-pd-table-empty { display: block; text-align: center; padding: 1rem 0; }
+/* #4811 — a cell with nothing in it takes no line in a stacked row. */
+.tt-pd-table td:empty { display: none; }
 
 @media (min-width: 480px) {
     .tt-pd-table {
@@ -861,6 +863,8 @@
         overflow-wrap: normal;
     }
     .tt-pd-table td::before { content: none; }
+    /* In the table an empty cell still holds its column. */
+    .tt-pd-table td:empty { display: table-cell; }
     .tt-pd-table th {
         font-size: 0.6875rem;
         text-transform: uppercase;
