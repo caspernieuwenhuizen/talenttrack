@@ -694,7 +694,7 @@ class FrontendExploreView extends FrontendViewBase {
         $offered = static fn( string $dim ): bool => in_array( $fact->resolveKey( $dim ), $kpi->exploreDimensions, true )
             && $fact->dimension( $fact->resolveKey( $dim ) ) !== null;
 
-        foreach ( array_keys( is_array( $_GET ) ? $_GET : [] ) as $raw_key ) {
+        foreach ( array_keys( $_GET ) as $raw_key ) {
             $key = sanitize_key( (string) $raw_key );
             if ( strpos( $key, 'filter_' ) !== 0 ) continue;
             $stripped = substr( $key, strlen( 'filter_' ) );

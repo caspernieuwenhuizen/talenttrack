@@ -57,6 +57,7 @@ final class FactKeyContractTest extends WP_UnitTestCase {
     }
 
     public function test_an_alias_points_at_a_declared_key(): void {
+        $this->assertNotEmpty( FactRegistry::all(), 'Precondition: facts are registered.' );
         foreach ( FactRegistry::all() as $fact ) {
             foreach ( $fact->aliases as $old => $new ) {
                 $this->assertNotNull( $fact->dimension( $new ), "{$fact->key}: the alias {$old} points at {$new}, which the fact does not declare" );

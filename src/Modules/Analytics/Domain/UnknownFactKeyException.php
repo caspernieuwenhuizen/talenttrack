@@ -27,7 +27,8 @@ final class UnknownFactKeyException extends \RuntimeException {
         public readonly string $key,
         public readonly string $kind
     ) {
-        parent::__construct( sprintf( 'The %s "%s" is not known to the fact "%s".', $kind, $key, $factKey ) );
+        // Developer-facing; readers get `readerMessage()`.
+        parent::__construct( $kind . ' "' . $key . '" is not known to the fact "' . $factKey . '".' );
     }
 
     /** The message a reader sees, naming the key. */
@@ -39,7 +40,11 @@ final class UnknownFactKeyException extends \RuntimeException {
         );
     }
 
-    /** The details a REST error carries. @return array{fact:string, key:string, kind:string} */
+    /**
+     * The details a REST error carries.
+     *
+     * @return array{fact:string, key:string, kind:string}
+     */
     public function details(): array {
         return [ 'fact' => $this->factKey, 'key' => $this->key, 'kind' => $this->kind ];
     }
