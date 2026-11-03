@@ -739,7 +739,7 @@ final class PlayerReportPage {
         // dashes that reads as "the coach wrote nothing".
         $has_notes = false;
         foreach ( $evals as $e ) {
-            if ( is_array( $e ) && array_key_exists( 'notes', $e ) ) { $has_notes = true; break; }
+            if ( is_array( $e ) && ( array_key_exists( 'notes', $e ) || ! empty( $e['notes_hidden'] ) ) ) { $has_notes = true; break; }
         }
 
         echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
@@ -757,7 +757,10 @@ final class PlayerReportPage {
                 . '<td data-label="' . esc_attr( $c_date ) . '">' . self::link( 'evaluations', $url, $date ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
                 . '<td data-label="' . esc_attr( $c_rating ) . '">' . esc_html( self::rating( $e['rating'] ?? null ) ) . '</td>'
                 . '<td data-label="' . esc_attr( $c_assessor ) . '">' . esc_html( $who !== '' ? $who : '—' ) . '</td>'
-                . ( $has_notes ? '<td data-label="' . esc_attr( $c_notes ) . '">' . esc_html( $notes !== '' ? $notes : '—' ) . '</td>' : '' )
+                . ( $has_notes ? '<td data-label="' . esc_attr( $c_notes ) . '">'
+                    // #4693 — notes the registry hides from this reader.
+                    . ( ! empty( $e['notes_hidden'] ) ? \TT\Shared\Frontend\Components\MaskedValue::html() : esc_html( $notes !== '' ? $notes : '—' ) )
+                    . '</td>' : '' )
                 . '</tr>';
         }
         echo '</tbody></table></div>';

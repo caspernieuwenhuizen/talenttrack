@@ -252,7 +252,10 @@ final class PlayerReportPdfDocument {
                 TTDate::date( (string) ( $e['eval_date'] ?? '' ) ),
                 self::rating( $e['rating'] ?? null ),
                 self::cut( (string) ( $e['assessor_name'] ?? '' ), 22 ),
-                trim( wp_strip_all_tags( (string) ( $e['notes'] ?? '' ) ) ),
+                // #4693 — notes the registry hides from this reader.
+                ! empty( $e['notes_hidden'] )
+                    ? \TT\Shared\Frontend\Components\MaskedValue::label()
+                    : trim( wp_strip_all_tags( (string) ( $e['notes'] ?? '' ) ) ),
             ];
         }
         $out .= self::table(

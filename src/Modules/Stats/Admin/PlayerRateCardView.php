@@ -80,7 +80,13 @@ class PlayerRateCardView {
 
         self::renderHeadline( $headline );
         self::renderMainBreakdown( $mains, $subs );
-        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ), $svc->getTrendNotes( $player_id, $filters ) );
+        // #4693 — the category notes behind the chart points follow the
+        // sensitive-field registry: a reader it hides them from gets the
+        // lines without the notes.
+        $trend_notes = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), $player_id )
+            ? []
+            : $svc->getTrendNotes( $player_id, $filters );
+        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ), $trend_notes );
     }
 
     private static function renderViewToggle( string $current, string $base_url, int $player_id ): void {

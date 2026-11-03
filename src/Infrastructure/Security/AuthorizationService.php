@@ -591,6 +591,25 @@ class AuthorizationService {
     }
 
     /**
+     * Is this user staff for every player in the academy: the academy-wide
+     * half of {@see self::isStaffForPlayer()}, without a player to ask about.
+     */
+    public static function isStaffAcademyWide( int $user_id ): bool {
+        return $user_id > 0 && self::staffAcademyWide( $user_id );
+    }
+
+    /**
+     * Is this user staff for every player on this team: the academy-wide
+     * half, or `players.view` granted on the team itself. The team half of
+     * {@see self::staffForPlayers()}, without a player to ask about.
+     */
+    public static function isStaffOnTeam( int $user_id, int $team_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( self::staffAcademyWide( $user_id ) ) return true;
+        return $team_id > 0 && self::holdsPlayersOnTeam( $user_id, $team_id );
+    }
+
+    /**
      * The global half of the staff rule: a role that may change players
      * academy-wide, or an academy-wide role assigned to this person in
      * `tt_user_role_scopes` that reads players (a head of development

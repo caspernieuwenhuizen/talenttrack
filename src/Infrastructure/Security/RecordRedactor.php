@@ -33,11 +33,22 @@ final class RecordRedactor {
      *    contact of a guardian of a live linked child goes to the person
      *    themselves and to staff for at least one of those children. A person
      *    with no such child is not a guardian here and is left as it is.
+     *  - `evaluation_notes`: staff for the player, or whoever may write the
+     *    player's evaluations (the `evaluations` change right, globally or on
+     *    the player's team).
+     *  - `evaluation_comment`: those, and the player and a linked guardian:
+     *    the comments a family already reads.
      */
-    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact' ];
+    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment' ];
 
     /** @var array<string, bool> "user|person" => may read that person's guardian contact */
     private static array $guardian = [];
+
+    /** @var array<string, bool> "user|player" => may write that player's evaluations */
+    private static array $writer = [];
+
+    /** @var array<string, bool> "user|team" => may write evaluations for that team's players */
+    private static array $writer_team = [];
 
     /** @var array<string, array{routes: array<string, array{rows: string, id_key: string}>, id_key: string, fields: array<string, string>}>|null */
     private static ?array $registry = null;
@@ -97,6 +108,49 @@ final class RecordRedactor {
         return $out;
     }
 
+    /**
+     * May this reader read this registered field on every player in the
+     * academy? For a query that would otherwise match on the field's content
+     * across rows it cannot redact one by one, such as a free-text search.
+     * Family readers never qualify: their reach is their own children.
+     */
+    public static function readsEverywhere( string $entity, string $field, int $user_id ): bool {
+        $rule = self::fields( $entity )[ $field ] ?? null;
+        if ( $rule === null ) return true;
+        if ( $user_id <= 0 || ! in_array( $rule, self::RULES, true ) || $rule === 'guardian_contact' ) return false;
+
+        if ( AuthorizationService::isStaffAcademyWide( $user_id ) ) return true;
+        if ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) {
+            $gate = \TT\Modules\Authorization\MatrixGate::class;
+            return $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL );
+        }
+        return false;
+    }
+
+    /**
+     * May this reader read this registered field on every player of these
+     * teams? True when {@see self::readsEverywhere()} is, or when every team
+     * passes the team half of the staff rule or, for the evaluation rules,
+     * the evaluations change right on that team. An empty list is false.
+     *
+     * @param list<int> $team_ids
+     */
+    public static function readsOnTeams( string $entity, string $field, int $user_id, array $team_ids ): bool {
+        if ( self::readsEverywhere( $entity, $field, $user_id ) ) return true;
+
+        $rule = self::fields( $entity )[ $field ] ?? null;
+        if ( $rule === null || $user_id <= 0 || $team_ids === [] ) return false;
+        if ( ! in_array( $rule, [ 'staff_for_player', 'staff_or_family', 'evaluation_notes', 'evaluation_comment' ], true ) ) return false;
+
+        foreach ( $team_ids as $team_id ) {
+            $team_id = (int) $team_id;
+            if ( AuthorizationService::isStaffOnTeam( $user_id, $team_id ) ) continue;
+            if ( ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) && self::writesEvaluationsOn( $user_id, $team_id ) ) continue;
+            return false;
+        }
+        return true;
+    }
+
     /** Is this registered field hidden from this reader, for this player? */
     public static function isMasked( string $entity, string $field, int $user_id, ?int $player_id ): bool {
         $rule = self::fields( $entity )[ $field ] ?? null;
@@ -139,7 +193,25 @@ final class RecordRedactor {
         $staff = AuthorizationService::staffForPlayers( $user_id, $ask );
         foreach ( $ask as $pid => $team_id ) {
             self::$memo[ $user_id . '|staff_for_player|' . $pid ] = ! empty( $staff[ $pid ] );
+            self::$writer[ $user_id . '|' . $pid ] = self::writesEvaluationsOn( $user_id, $team_id );
         }
+    }
+
+    /**
+     * The evaluations change right for a player on this team: at global
+     * scope, or at team scope on the player's team. The same question
+     * `EvaluationInserter::mayWriteFor()` asks, answered from the team the
+     * caller already resolved, once per distinct team.
+     */
+    private static function writesEvaluationsOn( int $user_id, int $team_id ): bool {
+        $key = $user_id . '|' . $team_id;
+        if ( isset( self::$writer_team[ $key ] ) ) return self::$writer_team[ $key ];
+
+        $gate    = \TT\Modules\Authorization\MatrixGate::class;
+        $allowed = $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL )
+            || ( $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id ) );
+        self::$writer_team[ $key ] = $allowed;
+        return $allowed;
     }
 
     /**
@@ -237,9 +309,11 @@ final class RecordRedactor {
     }
 
     public static function flush(): void {
-        self::$memo     = [];
-        self::$family   = [];
-        self::$guardian = [];
+        self::$memo        = [];
+        self::$family      = [];
+        self::$guardian    = [];
+        self::$writer      = [];
+        self::$writer_team = [];
     }
 
     // Internals
@@ -254,7 +328,15 @@ final class RecordRedactor {
             return self::$guardian[ $user_id . '|' . $player_id ] ?? false;
         }
 
-        if ( $rule === 'staff_or_family' && isset( self::familyOf( $user_id )[ $player_id ] ) ) return true;
+        if ( ( $rule === 'staff_or_family' || $rule === 'evaluation_comment' )
+            && isset( self::familyOf( $user_id )[ $player_id ] ) ) {
+            return true;
+        }
+
+        if ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) {
+            if ( ! isset( self::$writer[ $user_id . '|' . $player_id ] ) ) self::prime( $user_id, [ $player_id => null ] );
+            if ( self::$writer[ $user_id . '|' . $player_id ] ?? false ) return true;
+        }
 
         $key = $user_id . '|staff_for_player|' . $player_id;
         if ( ! isset( self::$memo[ $key ] ) ) {
@@ -264,7 +346,7 @@ final class RecordRedactor {
     }
 
     private static function known( int $user_id, int $player_id ): bool {
-        return isset( self::$memo[ $user_id . '|staff_for_player|' . $player_id ] );
+        return isset( self::$memo[ $user_id . '|staff_for_player|' . $player_id ], self::$writer[ $user_id . '|' . $player_id ] );
     }
 
     /**

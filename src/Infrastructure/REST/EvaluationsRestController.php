@@ -277,10 +277,12 @@ class EvaluationsRestController {
         //   3. No-teams short-circuit only fires when the coach has
         //      ALSO authored zero evaluations (caught by counting
         //      `e.coach_id = current_user` rows separately).
+        $scope_team_ids = [];
         if ( ! self::hasGlobalEvaluationsAccess() && ! $player_file_access ) {
             $uid         = get_current_user_id();
             $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
             $team_ids    = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
+            $scope_team_ids = array_values( $team_ids );
             if ( empty( $team_ids ) ) {
                 // Still surface the coach's own authored evals even
                 // when they own zero teams (newly assigned coach, or
@@ -334,9 +336,25 @@ class EvaluationsRestController {
         }
 
         if ( ! empty( $r['search'] ) ) {
-            $like     = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
-            $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            // #4693 — the search follows the same notes rule as the rows: it
+            // matches on the notes only when the reader may read them on
+            // every row this list can show, so a match cannot say what a
+            // hidden note contains.
+            if ( ! self::searchesNotes( $player_file_access, $player_filter_id, $scope_team_ids ) ) {
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s)";
+                $params[] = $like; $params[] = $like;
+            } elseif ( $scope_team_ids !== [] ) {
+                // The coach-scoped list also shows the reader's own
+                // evaluations of players who have since moved team; their
+                // notes match only on the teams the rule was asked for.
+                $in       = implode( ',', array_fill( 0, count( $scope_team_ids ), '%d' ) );
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( pl.team_id IN ($in) AND e.notes LIKE %s ))";
+                $params   = array_merge( $params, [ $like, $like ], $scope_team_ids, [ $like ] );
+            } else {
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
+                $params[] = $like; $params[] = $like; $params[] = $like;
+            }
         }
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
@@ -372,7 +390,12 @@ class EvaluationsRestController {
         $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
         return RestResponse::success( [
-            'rows'     => array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
+            // #4693 — the coach's written words follow the sensitive-field registry.
+            'rows'     => \TT\Infrastructure\Security\RecordRedactor::redactRows(
+                'evaluations',
+                array_values( array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ) ),
+                get_current_user_id()
+            ),
             'total'    => $total,
             'page'     => $page,
             'per_page' => $per_page,
@@ -488,6 +511,26 @@ class EvaluationsRestController {
     }
 
     /**
+     * #4693 — may the list's search match on the notes? The rows the list can
+     * show decide it: an academy-wide list needs a reader who reads notes on
+     * every player; a single player's file needs that player's notes; the
+     * coach-scoped list needs the notes on every one of the reader's teams,
+     * and matches them on those teams only.
+     *
+     * @param list<int> $scope_team_ids the coach-scoped list's teams
+     */
+    private static function searchesNotes( bool $player_file_access, int $player_filter_id, array $scope_team_ids ): bool {
+        $uid = get_current_user_id();
+        if ( self::hasGlobalEvaluationsAccess() ) {
+            return \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $uid );
+        }
+        if ( $player_file_access ) {
+            return ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $uid, $player_filter_id );
+        }
+        return \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $uid, $scope_team_ids );
+    }
+
+    /**
      * v3.110.126 — global-read bypass for evaluations list. Mirrors
      * `PdpFilesRestController::hasGlobalPdpAccess()` from v3.110.112.
      * Four rungs in order:
@@ -576,7 +619,9 @@ class EvaluationsRestController {
         $out                   = (array) $e;
         $out['category_notes'] = (object) ( new EvalCategoryNotesRepository() )->forEvaluation( (int) $r['id'] );
 
-        return RestResponse::success( $out );
+        // #4693 — the notes, the player feedback and the category notes
+        // follow the sensitive-field registry; ratings and the rest stay.
+        return RestResponse::success( \TT\Infrastructure\Security\RecordRedactor::redact( 'evaluations', $out, $uid, $player_id ) );
     }
 
     /**

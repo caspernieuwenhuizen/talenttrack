@@ -41,9 +41,22 @@ class EvaluationsPage {
                 . '<p>' . esc_html__( 'You do not have access to this evaluation.', 'talenttrack' ) . '</p></div>';
             return;
         }
+        // #4693 — the edit form follows the same rule as the frontend edit
+        // branch: reading is the floor and writing needs `canEvaluatePlayer`.
+        // A reader who may not write gets the record view, which follows the
+        // sensitive-field registry, instead of a form holding the notes.
+        if ( $action === 'edit' && $id > 0 && ! self::mayEditEvaluation( $id ) ) { self::render_view( $id ); return; }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $action === 'edit' ? $id : 0 ); return; }
         if ( $action === 'view' && $id ) { self::render_view( $id ); return; }
         self::render_list();
+    }
+
+    /** #4693 — may this user edit this evaluation: `canEvaluatePlayer` on its player. */
+    private static function mayEditEvaluation( int $eval_id ): bool {
+        $eval = QueryHelpers::get_evaluation( $eval_id );
+        if ( ! $eval ) return true; // "not found" is the form's own answer.
+        $player_id = (int) ( $eval->player_id ?? 0 );
+        return $player_id <= 0 || AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id );
     }
 
     /**
@@ -95,9 +108,28 @@ class EvaluationsPage {
         }
 
         if ( $f_search !== '' ) {
-            $like   = '%' . $wpdb->esc_like( $f_search ) . '%';
-            $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            $like = '%' . $wpdb->esc_like( $f_search ) . '%';
+            // #4693 — the search follows the same notes rule as the rows. A
+            // club-wide list matches on the notes only for a reader who reads
+            // them on every player, a scoped list only when the reader reads
+            // them on every one of its teams, and then on those teams only:
+            // the reader's own evaluations of a player who has since moved
+            // team are in the list, and their notes may be hidden from them.
+            $scope_ids = $scoped_team_ids === null ? [] : array_values( array_map( 'intval', $scoped_team_ids ) );
+            $notes_ok  = $scoped_team_ids === null
+                ? \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $user_id )
+                : \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $user_id, $scope_ids );
+            if ( ! $notes_ok ) {
+                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s)';
+                $params[] = $like; $params[] = $like;
+            } elseif ( $scope_ids !== [] ) {
+                $in       = implode( ',', array_fill( 0, count( $scope_ids ), '%d' ) );
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( pl.team_id IN ($in) AND e.notes LIKE %s ))";
+                $params   = array_merge( $params, [ $like, $like ], $scope_ids, [ $like ] );
+            } else {
+                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
+                $params[] = $like; $params[] = $like; $params[] = $like;
+            }
         }
         if ( $f_date_from !== '' ) { $where[] = 'e.eval_date >= %s'; $params[] = $f_date_from; }
         if ( $f_date_to   !== '' ) { $where[] = 'e.eval_date <= %s'; $params[] = $f_date_to; }
@@ -816,7 +848,14 @@ class EvaluationsPage {
                     <table class="form-table">
                         <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) $eval->eval_date ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th><td><?php echo esc_html( $eval->type_name ?: '—' ); ?></td></tr>
-                        <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><?php echo nl2br( esc_html( $eval->notes ?: '—' ) ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><?php
+                        // #4693 — the notes follow the sensitive-field registry.
+                        if ( ! empty( $eval->notes ) && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', get_current_user_id(), (int) ( $eval->player_id ?? 0 ) ) ) {
+                            echo esc_html( \TT\Shared\Frontend\Components\MaskedValue::label() );
+                        } else {
+                            echo nl2br( esc_html( $eval->notes ?: '—' ) );
+                        }
+                        ?></td></tr>
                     </table>
 
                     <h3 style="margin-top:24px;"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>

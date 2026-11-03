@@ -220,7 +220,17 @@ final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExpo
 
         $sheet_buckets = []; // sheet_name => array of rows
 
+        // #4693 — the category notes follow the sensitive-field registry,
+        // resolved for every player in the workbook at once; a cell it hides
+        // is left empty.
+        $viewer = (int) $request->requesterUserId;
+        \TT\Infrastructure\Security\RecordRedactor::prime(
+            $viewer,
+            array_fill_keys( array_map( static fn( $r ): int => (int) ( ( (array) $r )['player_id'] ?? 0 ), $evaluations ), null )
+        );
+
         foreach ( $evaluations as $e ) {
+            $cat_hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', $viewer, (int) $e->player_id );
             $season_label = self::resolveSeasonLabel( (string) $e->eval_date, $seasons );
             $type_label   = $type_label_by_id[ (int) ( $e->eval_type_id ?? 0 ) ] ?? '_AnyType';
 
@@ -245,7 +255,7 @@ final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExpo
                 $sum  = $agg[ $eid ][ $cid ][0] ?? null;
                 $n    = $agg[ $eid ][ $cid ][1] ?? 0;
                 $row[] = $n > 0 ? round( (float) $sum / $n, 2 ) : '';
-                $row[] = $cat_notes[ $eid ][ $cid ] ?? '';
+                $row[] = $cat_hidden ? '' : ( $cat_notes[ $eid ][ $cid ] ?? '' );
             }
             $sheet_buckets[ $sheet_name ][] = $row;
         }

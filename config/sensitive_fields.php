@@ -38,9 +38,13 @@
  *   'guardian_contact' — on a person row: the contact of a guardian of a live
  *                        linked child goes to the person themselves and to
  *                        staff for at least one of those children.
+ *   'evaluation_notes' — staff for the player, or whoever may write the
+ *                        player's evaluations (`evaluations` change, globally
+ *                        or on the player's team).
+ *   'evaluation_comment' — those, and the player and a linked guardian.
  *
  * The owner's list (2 November 2026) is wider than what is registered here:
- * absence reasons, evaluation comments, and the contact details and
+ * absence reasons, and the contact details and
  * judgements on trials, prospects, scouting and potential are registered by
  * the child issue that moves their surfaces onto the redactor, so a field
  * never starts disappearing from a surface that still renders it by hand.
@@ -69,6 +73,25 @@ return [
             // The full date. `birth_year` and the team's age group stay
             // on the record for every reader.
             'date_of_birth'    => 'staff_or_family',
+        ],
+    ],
+
+    // The coach's written words about a minor. Ratings, dates, type and
+    // evaluator stay on the record for every reader of the evaluation.
+    'evaluations' => [
+        'routes' => [
+            '/talenttrack/v1/evaluations'                       => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/evaluations/(?P<id>\d+)'          => [ 'rows' => 'data' ],
+            '/talenttrack/v1/players/(?P<id>\d+)/evaluations' => [ 'rows' => 'items.*' ],
+        ],
+        'id_key' => 'player_id',
+        'fields' => [
+            // Staff-only notes, never shown to the player or their family.
+            'notes'           => 'evaluation_notes',
+            'notes_excerpt'   => 'evaluation_notes',
+            // Written for the player: the family keeps them.
+            'player_feedback' => 'evaluation_comment',
+            'category_notes'  => 'evaluation_comment',
         ],
     ],
 
