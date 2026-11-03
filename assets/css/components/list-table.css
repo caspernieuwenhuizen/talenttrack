@@ -51,6 +51,13 @@
     background: none;
 }
 
+/* The header cells keep their sort links 8px apart when focus shows the
+   hidden header row. Written at the weight of the table's own cell rule
+   from 768px, which follows and keeps its padding there. */
+.tt-dashboard .tt-list-table-table th {
+    padding-inline: var(--tt-sp-1);
+}
+
 .tt-dashboard .tt-list-table-table td {
     gap: var(--tt-sp-3);
     padding: 4px 0;
@@ -322,6 +329,8 @@
     .tt-dashboard .tt-list-table-table .tt-list-table-sortable a {
         display: inline-flex;
         align-items: center;
+        /* inline-flex drops the space before the sort arrow. */
+        gap: var(--tt-sp-1);
         min-width: var(--tt-tap-min);
         min-height: var(--tt-tap-min);
         touch-action: manipulation;
