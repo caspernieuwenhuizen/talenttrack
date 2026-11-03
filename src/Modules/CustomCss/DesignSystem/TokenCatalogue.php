@@ -62,6 +62,7 @@ final class TokenCatalogue {
      *     kind: string,
      *     label: string,
      *     default: string,
+     *     legacy_default?: string,
      *     min?: float|int,
      *     max?: float|int,
      *     step?: float|int,
@@ -84,6 +85,7 @@ final class TokenCatalogue {
      *     kind: string,
      *     label: string,
      *     default: string,
+     *     legacy_default?: string,
      *     min?: float|int,
      *     max?: float|int,
      *     step?: float|int,
@@ -102,23 +104,23 @@ final class TokenCatalogue {
             [ 'key' => 'focus_ring_color',      'css_var' => '--tt-focus-ring',       'category' => self::CATEGORY_BRAND,    'kind' => self::KIND_COLOR,  'label' => __( 'Focus ring',             'talenttrack' ), 'default' => '#1e88e5' ],
 
             // --- Status ---
-            [ 'key' => 'success_color',         'css_var' => '--tt-success',          'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Success',                'talenttrack' ), 'default' => '#00a32a' ],
+            [ 'key' => 'success_color',         'css_var' => '--tt-success',          'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Success',                'talenttrack' ), 'default' => '#2f9e5e', 'legacy_default' => '#00a32a' ],
             [ 'key' => 'success_subtle_color',  'css_var' => '--tt-success-subtle',   'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Success — subtle bg',    'talenttrack' ), 'default' => '#dff5e1' ],
-            [ 'key' => 'warning_color',         'css_var' => '--tt-warning',          'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Warning',                'talenttrack' ), 'default' => '#dba617' ],
+            [ 'key' => 'warning_color',         'css_var' => '--tt-warning',          'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Warning',                'talenttrack' ), 'default' => '#e8902b', 'legacy_default' => '#dba617' ],
             [ 'key' => 'warning_subtle_color',  'css_var' => '--tt-warning-subtle',   'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Warning — subtle bg',    'talenttrack' ), 'default' => '#fdf3d8' ],
-            [ 'key' => 'danger_color',          'css_var' => '--tt-danger',           'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Danger',                 'talenttrack' ), 'default' => '#b32d2e' ],
+            [ 'key' => 'danger_color',          'css_var' => '--tt-danger',           'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Danger',                 'talenttrack' ), 'default' => '#d8453b', 'legacy_default' => '#b32d2e' ],
             [ 'key' => 'danger_subtle_color',   'css_var' => '--tt-danger-subtle',    'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Danger — subtle bg',     'talenttrack' ), 'default' => '#fde2e2' ],
-            [ 'key' => 'info_color',            'css_var' => '--tt-info',             'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Info',                   'talenttrack' ), 'default' => '#2271b1' ],
+            [ 'key' => 'info_color',            'css_var' => '--tt-info',             'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Info',                   'talenttrack' ), 'default' => '#2d6fb3', 'legacy_default' => '#2271b1' ],
             [ 'key' => 'info_subtle_color',     'css_var' => '--tt-info-subtle',      'category' => self::CATEGORY_STATUS,   'kind' => self::KIND_COLOR,  'label' => __( 'Info — subtle bg',       'talenttrack' ), 'default' => '#e6f0fa' ],
 
             // --- Surface ---
             [ 'key' => 'background_color',      'css_var' => '--tt-bg',               'category' => self::CATEGORY_SURFACE,  'kind' => self::KIND_COLOR,  'label' => __( 'Background',             'talenttrack' ), 'default' => '#ffffff' ],
             [ 'key' => 'surface_color',         'css_var' => '--tt-surface',          'category' => self::CATEGORY_SURFACE,  'kind' => self::KIND_COLOR,  'label' => __( 'Card surface',           'talenttrack' ), 'default' => '#ffffff' ],
-            [ 'key' => 'line_color',            'css_var' => '--tt-line',             'category' => self::CATEGORY_SURFACE,  'kind' => self::KIND_COLOR,  'label' => __( 'Lines + borders',        'talenttrack' ), 'default' => '#e5e7ea' ],
+            [ 'key' => 'line_color',            'css_var' => '--tt-line',             'category' => self::CATEGORY_SURFACE,  'kind' => self::KIND_COLOR,  'label' => __( 'Lines + borders',        'talenttrack' ), 'default' => '#e3e1d8', 'legacy_default' => '#e5e7ea' ],
 
             // --- Text ---
             [ 'key' => 'text_color',            'css_var' => '--tt-text',             'category' => self::CATEGORY_TEXT,     'kind' => self::KIND_COLOR,  'label' => __( 'Text',                   'talenttrack' ), 'default' => '#1a1d21' ],
-            [ 'key' => 'muted_color',           'css_var' => '--tt-muted',            'category' => self::CATEGORY_TEXT,     'kind' => self::KIND_COLOR,  'label' => __( 'Muted text',             'talenttrack' ), 'default' => '#5b6e75' ],
+            [ 'key' => 'muted_color',           'css_var' => '--tt-muted',            'category' => self::CATEGORY_TEXT,     'kind' => self::KIND_COLOR,  'label' => __( 'Muted text',             'talenttrack' ), 'default' => '#6a6d66', 'legacy_default' => '#5b6e75' ],
 
             // --- Typography ---
             [ 'key' => 'font_display',          'css_var' => '--tt-font-display',     'category' => self::CATEGORY_TYPOGRAPHY,'kind' => self::KIND_SELECT, 'label' => __( 'Display font (headings)', 'talenttrack' ), 'default' => '' ],
@@ -127,12 +129,12 @@ final class TokenCatalogue {
             [ 'key' => 'font_weight_body',      'css_var' => '--tt-fw-body',          'category' => self::CATEGORY_TYPOGRAPHY,'kind' => self::KIND_SELECT, 'label' => __( 'Body weight',            'talenttrack' ), 'default' => '', 'options' => [ '' => '(default)', '300' => '300', '400' => '400', '500' => '500', '600' => '600' ] ],
 
             // --- Shape ---
-            [ 'key' => 'corner_radius_md',      'css_var' => '--tt-r-md',             'category' => self::CATEGORY_SHAPE,    'kind' => self::KIND_NUMBER, 'label' => __( 'Corner radius — medium (px)', 'talenttrack' ), 'default' => '8',  'min' => 0,   'max' => 32, 'step' => 1 ],
-            [ 'key' => 'corner_radius_lg',      'css_var' => '--tt-r-lg',             'category' => self::CATEGORY_SHAPE,    'kind' => self::KIND_NUMBER, 'label' => __( 'Corner radius — large (px)',  'talenttrack' ), 'default' => '12', 'min' => 0,   'max' => 40, 'step' => 1 ],
+            [ 'key' => 'corner_radius_md',      'css_var' => '--tt-r-md',             'category' => self::CATEGORY_SHAPE,    'kind' => self::KIND_NUMBER, 'label' => __( 'Corner radius — medium (px)', 'talenttrack' ), 'default' => '6', 'legacy_default' => '8','min' => 0,   'max' => 32, 'step' => 1 ],
+            [ 'key' => 'corner_radius_lg',      'css_var' => '--tt-r-lg',             'category' => self::CATEGORY_SHAPE,    'kind' => self::KIND_NUMBER, 'label' => __( 'Corner radius — large (px)',  'talenttrack' ), 'default' => '10', 'legacy_default' => '12','min' => 0,   'max' => 40, 'step' => 1 ],
             [ 'key' => 'spacing_scale',         'css_var' => '--tt-spacing-scale',    'category' => self::CATEGORY_SHAPE,    'kind' => self::KIND_FLOAT,  'label' => __( 'Spacing scale (0.6–1.6)',     'talenttrack' ), 'default' => '1', 'min' => 0.6, 'max' => 1.6, 'step' => 0.05 ],
 
             // --- Shadow ---
-            [ 'key' => 'shadow_sm',             'css_var' => '--tt-shadow-sm',        'category' => self::CATEGORY_SHADOW,   'kind' => self::KIND_SELECT, 'label' => __( 'Card shadow — small',         'talenttrack' ), 'default' => 'light',
+            [ 'key' => 'shadow_sm',             'css_var' => '--tt-shadow-sm',        'category' => self::CATEGORY_SHADOW,   'kind' => self::KIND_SELECT, 'label' => __( 'Card shadow — small',         'talenttrack' ), 'default' => 'none', 'legacy_default' => 'light',
                 'options' => [ 'none' => '(none)', 'light' => 'Light', 'medium' => 'Medium', 'strong' => 'Strong' ] ],
             [ 'key' => 'shadow_md',             'css_var' => '--tt-shadow-md',        'category' => self::CATEGORY_SHADOW,   'kind' => self::KIND_SELECT, 'label' => __( 'Card shadow — medium (hover)','talenttrack' ), 'default' => 'medium',
                 'options' => [ 'none' => '(none)', 'light' => 'Light', 'medium' => 'Medium', 'strong' => 'Strong' ] ],
@@ -147,7 +149,7 @@ final class TokenCatalogue {
 
             // --- Type scale (#0075 Sprint 1 PR 5) ---
             [ 'key' => 'font_size_body',        'css_var' => '--tt-fs-body',          'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Body size (rem)',             'talenttrack' ), 'default' => '1',    'min' => 0.75, 'max' => 1.25, 'step' => 0.0625, 'unit' => 'rem' ],
-            [ 'key' => 'font_size_h1',          'css_var' => '--tt-fs-h1',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 1 size (rem)',        'talenttrack' ), 'default' => '2',    'min' => 1.25, 'max' => 3.5,  'step' => 0.125,  'unit' => 'rem' ],
+            [ 'key' => 'font_size_h1',          'css_var' => '--tt-fs-h1',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 1 size (rem)',        'talenttrack' ), 'default' => '1.75', 'legacy_default' => '2',  'min' => 1.25, 'max' => 3.5,  'step' => 0.125,  'unit' => 'rem' ],
             [ 'key' => 'font_size_h2',          'css_var' => '--tt-fs-h2',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 2 size (rem)',        'talenttrack' ), 'default' => '1.5',  'min' => 1.125,'max' => 2.5,  'step' => 0.125,  'unit' => 'rem' ],
             [ 'key' => 'font_size_h3',          'css_var' => '--tt-fs-h3',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 3 size (rem)',        'talenttrack' ), 'default' => '1.25', 'min' => 1,    'max' => 2,    'step' => 0.0625, 'unit' => 'rem' ],
             [ 'key' => 'font_size_h4',          'css_var' => '--tt-fs-h4',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 4 size (rem)',        'talenttrack' ), 'default' => '1.125','min' => 0.875,'max' => 1.5,  'step' => 0.0625, 'unit' => 'rem' ],
