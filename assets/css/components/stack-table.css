@@ -85,6 +85,16 @@
 }
 .tt-stack-table > tbody > tr > td[colspan]::before { content: none; }
 
+/* A cell with several parts (a name with its badge and subline, a status
+   with its hint, an input with its actions) wraps them in one value block
+   (StackTable::VALUE), so they stack under each other beside the label, as
+   they do in the table, instead of each becoming its own column in the
+   line. */
+.tt-stack-table__value {
+    display: block;
+    min-width: 0;
+}
+
 /* ---- From 480px: the table, for --to-480 ---------------------------- */
 
 @media (min-width: 480px) {

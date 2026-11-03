@@ -485,22 +485,11 @@
     margin: 12px 0 0;
 }
 
-/* Phone: stack the table — thead hidden, each <tr> renders as a card,
- * each <td> uses its data-label as a left-side legend.  This is the
- * canonical "list-table reflow" pattern from frontend-admin.css, just
- * authored mobile-first instead of inside a max-width query. */
-
-.tt-dashboard .tt-attendance-table thead {
-    display: none;
-}
-
-.tt-dashboard .tt-attendance-table,
-.tt-dashboard .tt-attendance-table tbody,
-.tt-dashboard .tt-attendance-table tr,
-.tt-dashboard .tt-attendance-table td {
-    display: block;
-    width: 100%;
-}
+/* Phone: each row is a card, each cell a line with its label in front.
+ * The stacking, the visually hidden header row, the label line and the
+ * table from 768px up come from the stack-table primitive
+ * (components/stack-table.css, --to-768, #4810); this is the attendance
+ * cards' own look. */
 
 .tt-dashboard .tt-attendance-table tr {
     border: 1px solid var(--tt-line);
@@ -513,14 +502,15 @@
 .tt-dashboard .tt-attendance-table td {
     border-bottom: none;
     padding: 4px 0;
-    display: flex;
+    /* The value sits right after the 80px label, not at the far edge. */
+    justify-content: flex-start;
+    text-align: left;
     align-items: center;
     gap: 12px;
     min-height: 48px;          /* CLAUDE.md § 2 — 48px tap-target floor */
 }
 
 .tt-dashboard .tt-attendance-table td::before {
-    content: attr(data-label);
     font-weight: 600;
     font-size: var(--tt-fs-xs, 12px);
     color: var(--tt-muted);
@@ -556,17 +546,7 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .tt-dashboard .tt-attendance-table thead {
-        display: table-header-group;
-    }
-    .tt-dashboard .tt-attendance-table {
-        display: table;
-    }
-    .tt-dashboard .tt-attendance-table tbody {
-        display: table-row-group;
-    }
     .tt-dashboard .tt-attendance-table tr {
-        display: table-row;
         border: 0;
         border-radius: 0;
         background: transparent;
@@ -575,12 +555,8 @@
         border-bottom: 1px solid var(--tt-line);
     }
     .tt-dashboard .tt-attendance-table td {
-        display: table-cell;
         padding: 8px 12px;
         min-height: 0;
-    }
-    .tt-dashboard .tt-attendance-table td::before {
-        content: none;
     }
     .tt-dashboard .tt-attendance-toolbar {
         padding: 12px 0;

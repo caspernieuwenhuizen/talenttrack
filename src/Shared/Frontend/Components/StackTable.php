@@ -28,6 +28,13 @@ final class StackTable {
     /** No breakpoint: stacked at every width. */
     public const ALWAYS = 0;
 
+    /**
+     * The class for a cell's value block: a cell with several parts wraps
+     * them in one element carrying it, so they stack beside the label on a
+     * phone instead of each becoming a column of the line.
+     */
+    public const VALUE = 'tt-stack-table__value';
+
     private const PARTS = [ 'table', 'rowgroup', 'row', 'columnheader', 'cell' ];
 
     /**

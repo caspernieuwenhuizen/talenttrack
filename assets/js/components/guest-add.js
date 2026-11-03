@@ -115,6 +115,9 @@
         tr.className = 'tt-attendance-row tt-attendance-row--guest';
         tr.setAttribute( 'data-tt-attendance-id', String( guest.id ) );
         tr.setAttribute( 'data-is-guest', '1' );
+        // #4810 — the same roles StackTable::attrs() writes on the server, so
+        // an added guest row stays a row of cells to a screen reader.
+        tr.setAttribute( 'role', 'row' );
 
         var label = guest.guest_player_id
             ? ( guest.player_name || ( STR.linkedFallback || 'Guest' ) )
@@ -124,30 +127,38 @@
             : ( STR.unaffiliated || '(unaffiliated)' );
 
         var nameTd = document.createElement( 'td' );
+        nameTd.setAttribute( 'role', 'cell' );
         nameTd.setAttribute( 'data-label', STR.player || 'Player' );
+        // The value block StackTable::VALUE names on the server.
         nameTd.innerHTML =
+            '<div class="tt-stack-table__value">' +
             '<em>' + escapeHtml( label ) + '</em> ' +
             '<span class="tt-guest-badge">' + escapeHtml( STR.guestBadge || 'Guest' ) + '</span>' +
-            ( sub ? '<div class="tt-guest-subline">' + escapeHtml( sub ) + '</div>' : '' );
+            ( sub ? '<div class="tt-guest-subline">' + escapeHtml( sub ) + '</div>' : '' ) +
+            '</div>';
         tr.appendChild( nameTd );
 
         var statusTd = document.createElement( 'td' );
+        statusTd.setAttribute( 'role', 'cell' );
         statusTd.setAttribute( 'data-label', STR.status || 'Status' );
         statusTd.textContent = guest.status || 'Present';
         tr.appendChild( statusTd );
 
         var notesTd = document.createElement( 'td' );
+        notesTd.setAttribute( 'role', 'cell' );
         notesTd.setAttribute( 'data-label', STR.notes || 'Notes' );
         // #943 — Evaluate + Promote shortcuts removed from guest rows;
         //  guests surface in the existing "Continue rating" wizard via
         //  RateActorsStep. Notes input + Remove button only.
         notesTd.innerHTML =
+            '<div class="tt-stack-table__value">' +
             '<input type="text" class="tt-input tt-guest-notes-input" ' +
             ' data-tt-guest-notes-id="' + guest.id + '" placeholder="' +
             escapeHtml( STR.notesPlaceholder || 'Notes…' ) + '" />' +
             '<div class="tt-guest-row-actions">' +
             '<button type="button" class="tt-btn-link" data-tt-guest-remove="' + guest.id + '">' +
             escapeHtml( STR.remove || 'Remove' ) + '</button>' +
+            '</div>' +
             '</div>';
         tr.appendChild( notesTd );
         tbody.appendChild( tr );
