@@ -626,7 +626,7 @@ The rule: the read-only observer reads everything in the academy that is not sen
 | Panels | `goals_panel` |
 | The journey | `player_timeline`, `cohort_transitions` |
 
-The journey reads without its PDP verdict entries: an entry about a PDP verdict shows only to a reader who may read that player's PDP verdict, on the timeline, the transitions view and cohort transitions alike. Cohort transitions opens only while the academy has the feature switched on.
+A journey entry follows the read right of the record it describes, on the timeline, the transitions view and cohort transitions alike: trial entries ask `trial_cases`, suspension entries `player_suspensions`, injury entries `player_injuries` and PDP verdict entries `pdp_verdict`. The observer holds none of those, so its journey carries none of those entries. Cohort transitions opens only while the academy has the feature switched on.
 
 **What stays closed**, by decision of the academy's owner: `player_injuries`, `safeguarding_notes`, `player_notes`, `staff_only_notes`, `thread_messages`, `parent_accounts`, every PDP entity (`pdp_file`, `pdp_conversations`, `pdp_verdict`, `pdp_evidence_packet`, `pdp_planning`, `pdp_panel`, `pdp_calendar_export`, `my_pdp_panel`) and `audit_log`. Report Studio (`report_studio`, `report_publishing`) is closed to the observer too.
 

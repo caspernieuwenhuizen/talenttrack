@@ -30,12 +30,17 @@ final class HodSettingsObserverJourneyTest extends WP_UnitTestCase {
     private const MIGRATION = '/database/migrations/0312_authorization_hod_settings_observer_journey.php';
     private const VERDICT   = 'PDP verdict: promote';
     private const POSITION  = 'Moved to right back.';
+    private const TRIAL     = 'Trial ended: hodset decision';
+    private const SUSPEND   = 'Suspended: hodset reason';
+    private const INJURY    = 'Medical: hodset ankle';
+    private const WELFARE   = 'Safeguarding: hodset welfare';
 
     private string $matrix_was = '';
 
     /** @var list<array<string,mixed>> */
     private array $tiles_were = [];
 
+    private int $team     = 0;
     private int $player   = 0;
     private int $hod      = 0;
     private int $observer = 0;
@@ -65,21 +70,25 @@ final class HodSettingsObserverJourneyTest extends WP_UnitTestCase {
 
         $club = (int) CurrentClub::id();
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Hodset U16', 'age_group' => 'U16' ] );
-        $team = (int) $wpdb->insert_id;
+        $this->team = (int) $wpdb->insert_id;
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
-            'club_id' => $club, 'team_id' => $team, 'first_name' => 'Hodset', 'last_name' => 'Playerx', 'status' => 'active',
+            'club_id' => $club, 'team_id' => $this->team, 'first_name' => 'Hodset', 'last_name' => 'Playerx', 'status' => 'active',
         ] );
         $this->player = (int) $wpdb->insert_id;
 
         $events = [
-            [ 'pdp_verdict_recorded', '2026-06-20 09:00:00', self::VERDICT, '{"pdp_file_id":1,"decision":"promote"}' ],
-            [ 'position_changed', '2026-06-10 09:00:00', self::POSITION, '{}' ],
+            [ 'pdp_verdict_recorded', '2026-06-20 09:00:00', self::VERDICT, '{"pdp_file_id":1,"decision":"promote"}', 'public' ],
+            [ 'position_changed', '2026-06-10 09:00:00', self::POSITION, '{}', 'public' ],
+            [ 'trial_ended', '2026-06-12 09:00:00', self::TRIAL, '{"trial_case_id":1,"decision":"admit","context":"post_trial"}', 'public' ],
+            [ 'suspension_started', '2026-06-14 09:00:00', self::SUSPEND, '{}', 'public' ],
+            [ 'injury_started', '2026-06-16 09:00:00', self::INJURY, '{}', 'medical' ],
+            [ 'note_added', '2026-06-18 09:00:00', self::WELFARE, '{}', 'safeguarding' ],
         ];
-        foreach ( $events as $i => [ $type, $when, $summary, $payload ] ) {
+        foreach ( $events as $i => [ $type, $when, $summary, $payload, $visibility ] ) {
             $wpdb->insert( "{$wpdb->prefix}tt_player_events", [
                 'club_id' => $club, 'uuid' => wp_generate_uuid4(), 'player_id' => $this->player,
                 'event_type' => $type, 'event_date' => $when, 'summary' => $summary, 'payload' => $payload,
-                'visibility' => 'public', 'source_module' => 'tests', 'source_entity_type' => 'test_event',
+                'visibility' => $visibility, 'source_module' => 'tests', 'source_entity_type' => 'test_event',
                 'source_entity_id' => $i + 1,
             ] );
         }
@@ -151,6 +160,79 @@ final class HodSettingsObserverJourneyTest extends WP_UnitTestCase {
         $this->assertSame( 200, (int) $response->get_status() );
         $data = (array) $response->get_data();
         $this->assertContains( self::POSITION, array_column( (array) ( $data['data']['rows'] ?? [] ), 'summary' ) );
+    }
+
+    /**
+     * A journey entry follows the read right of the record it describes: the
+     * observer, who reads the journey but not trials or suspensions, gets
+     * neither entry; a head coach of the team, who reads both, gets both.
+     */
+    public function test_trial_and_suspension_entries_follow_their_own_read_right(): void {
+        wp_set_current_user( $this->observer );
+        $observer_types = $this->timelineTypes();
+        $this->assertContains( 'position_changed', $observer_types, 'the journey is read' );
+        $this->assertNotContains( 'trial_ended', $observer_types, 'no trial entry without the trial read' );
+        $this->assertNotContains( 'suspension_started', $observer_types, 'no suspension entry without the suspension read' );
+
+        $coach = $this->headCoach();
+        foreach ( [ 'trial_cases', 'player_suspensions' ] as $entity ) {
+            $this->assertTrue( AuthorizationService::canReadPlayerSection( $coach, $this->player, $entity ), "precondition: the head coach reads {$entity}" );
+        }
+        wp_set_current_user( $coach );
+        $coach_types = $this->timelineTypes();
+        $this->assertContains( 'trial_ended', $coach_types, 'the head coach gets the trial entry' );
+        $this->assertContains( 'suspension_started', $coach_types, 'the head coach gets the suspension entry' );
+    }
+
+    /** Seeded medical and safeguarding entries never reach the observer. */
+    public function test_medical_and_safeguarding_entries_are_absent_for_the_observer(): void {
+        wp_set_current_user( $this->observer );
+
+        $timeline = $this->timelineTypes();
+        foreach ( [ 'injury_started', 'note_added', 'trial_ended', 'suspension_started' ] as $type ) {
+            $this->assertNotContains( $type, $timeline, "timeline: {$type}" );
+        }
+
+        FeatureRegistry::setEnabled( 'cohort_transitions', true );
+        $this->flush();
+        foreach ( [ 'injury_started', 'note_added', 'trial_ended', 'suspension_started', 'pdp_verdict_recorded' ] as $type ) {
+            $request = new WP_REST_Request( 'GET', '/talenttrack/v1/journey/cohort-transitions' );
+            $request->set_param( 'event_type', $type );
+            $request->set_param( 'from', '2026-06-01 00:00:00' );
+            $request->set_param( 'to', '2026-06-30 23:59:59' );
+            $response = rest_do_request( $request );
+            $this->assertSame( 200, (int) $response->get_status(), "precondition: the cohort answers for {$type}" );
+            $data = (array) $response->get_data();
+            $this->assertSame( [], array_values( (array) ( $data['data']['rows'] ?? [] ) ), "cohort: no {$type} row for the observer" );
+        }
+    }
+
+    /** @return list<string> the event types on the current reader's timeline */
+    private function timelineTypes(): array {
+        $response = rest_do_request( new WP_REST_Request( 'GET', "/talenttrack/v1/players/{$this->player}/timeline" ) );
+        $this->assertSame( 200, (int) $response->get_status() );
+        $data = (array) $response->get_data();
+        return array_values( array_map( static fn ( $e ): string => (string) ( ( (array) $e )['event_type'] ?? '' ), (array) ( $data['data']['events'] ?? [] ) ) );
+    }
+
+    private function headCoach(): int {
+        global $wpdb;
+        $club = (int) CurrentClub::id();
+        $uid  = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $club, 'first_name' => 'Hodset', 'last_name' => 'Coach' . $uid,
+            'role_type' => 'head_coach', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id' => $club, 'team_id' => $this->team, 'person_id' => $person,
+            'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        $this->flush();
+        return $uid;
     }
 
     public function test_the_migration_adds_each_row_once_and_read_only(): void {

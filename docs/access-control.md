@@ -196,7 +196,7 @@ The rule behind the list: an observer reads everything that is not sensitive, an
 
 **What waits for its masking.** Some records carry a sensitive field that cannot be masked yet. Those are not readable for an observer until it can be: attendance (absence reasons), the evaluations list (evaluation comments), the status verdict and potential, trials, prospects and scouting (contact details and judgements), the club's own player fields, the people list (parent and guardian contact), and the team roster screen, the coach's player list and the player comparison (date of birth). Measurements, the tournament planner, training plans and training load, VCT sessions, and photographs and video follow after their own review. Behaviour ratings and team chemistry are not readable for an observer either.
 
-**The journey.** An observer reads every player's journey and the cohort transitions (while the academy has that feature on), without the entries about a PDP verdict: those show only to someone who may read that player's PDP.
+**The journey.** An observer reads every player's journey and the cohort transitions (while the academy has that feature on), without the entries about a trial, a suspension, an injury or a PDP verdict: each of those shows only to someone who may read that record.
 
 On a VCT session's load-restriction banner, the reason beside a restricted player shows only to staff who work with that player, the same rule the player profile uses; every other reader sees that the player is restricted.
 

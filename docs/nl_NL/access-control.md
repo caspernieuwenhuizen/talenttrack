@@ -193,7 +193,7 @@ De regel achter de lijst: een waarnemer leest alles wat niet gevoelig is, en een
 
 **Wat wacht op de afscherming.** Sommige records bevatten een gevoelig veld dat nog niet afgeschermd kan worden. Die zijn voor een waarnemer pas leesbaar als dat wel kan: aanwezigheid (redenen van afwezigheid), de evaluatielijst (opmerkingen bij evaluaties), het statusoordeel en de potentie, proeftrainingen, prospects en scouting (contactgegevens en oordelen), de eigen spelersvelden van de club, de personenlijst (contactgegevens van ouders en verzorgers), en het selectiescherm van een team, de spelerslijst van de trainer en de spelersvergelijking (geboortedatum). Metingen, de toernooiplanner, trainingsplannen en trainingsbelasting, VCT-sessies, en foto's en video volgen na een eigen beoordeling. Gedragsbeoordelingen en teamchemie zijn voor een waarnemer evenmin leesbaar.
 
-**Het spelerspad.** Een waarnemer leest het spelerspad van elke speler en de cohortovergangen (zolang de academie die functie heeft aangezet), zonder de regels over een POP-besluit: die staan er alleen voor wie het POP van die speler mag lezen.
+**Het spelerspad.** Een waarnemer leest het spelerspad van elke speler en de cohortovergangen (zolang de academie die functie heeft aangezet), zonder de regels over een proeftraining, een schorsing, een blessure of een POP-besluit: die staan er alleen voor wie dat record mag lezen.
 
 Op de melding over belastingsbeperkingen bij een VCT-sessie staat de reden naast een beperkte speler alleen voor staf die met die speler werkt, dezelfde regel als op het spelersprofiel; elke andere lezer ziet alleen dat de speler beperkt is.
 

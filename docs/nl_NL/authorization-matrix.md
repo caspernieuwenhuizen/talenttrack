@@ -625,7 +625,7 @@ De regel: de alleen-lezen waarnemer leest alles in de academie wat niet gevoelig
 | Panelen | `goals_panel` |
 | Het spelerspad | `player_timeline`, `cohort_transitions` |
 
-Het spelerspad leest zonder de regels met een POP-besluit: zo'n regel staat er alleen voor wie het POP-besluit van die speler mag lezen, op de tijdlijn, in de overgangen en bij de cohortovergangen. Cohortovergangen opent alleen zolang de academie die functie heeft aangezet.
+Een regel in het spelerspad volgt het leesrecht van het record dat die beschrijft, op de tijdlijn, in de overgangen en bij de cohortovergangen: regels over proeftrainingen vragen `trial_cases`, over schorsingen `player_suspensions`, over blessures `player_injuries` en over een POP-besluit `pdp_verdict`. De waarnemer heeft geen van die rechten, dus het spelerspad van de waarnemer bevat geen van die regels. Cohortovergangen opent alleen zolang de academie die functie heeft aangezet.
 
 **Wat dicht blijft**, op besluit van de eigenaar van de academie: `player_injuries`, `safeguarding_notes`, `player_notes`, `staff_only_notes`, `thread_messages`, `parent_accounts`, elke POP-entiteit (`pdp_file`, `pdp_conversations`, `pdp_verdict`, `pdp_evidence_packet`, `pdp_planning`, `pdp_panel`, `pdp_calendar_export`, `my_pdp_panel`) en `audit_log`. Report Studio (`report_studio`, `report_publishing`) is ook dicht voor de waarnemer.
 
