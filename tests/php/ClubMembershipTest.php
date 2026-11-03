@@ -155,22 +155,51 @@ final class ClubMembershipTest extends WP_UnitTestCase {
 
         $this->assertSame( [ 2, 2 ], $count( self::CLUB_A ), 'scout A and the scout in both clubs' );
         $this->assertSame( [ 2, 2 ], $count( self::CLUB_B ), 'scout B and the scout in both clubs' );
+
+        // A scout account with no club row anywhere is governed by whichever
+        // club is current, so both screens count it, as the gate would.
+        self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        ClubMembership::flush();
+        $this->assertSame( [ 3, 3 ], $count( self::CLUB_A ) );
+        $this->assertSame( [ 3, 3 ], $count( self::CLUB_B ) );
+    }
+
+    public function test_an_administrator_without_a_staff_record_is_governed_by_the_current_club(): void {
+        $admin = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        $this->assertSame( [], ClubMembership::clubIdsForUser( $admin ) );
+        $this->assertContains( $admin, ClubMembership::userIdsGovernedBy( self::CLUB_A ) );
+        $this->assertNotContains( $this->scout_b, ClubMembership::userIdsGovernedBy( self::CLUB_A ), 'a member of another club only is not counted here' );
     }
 
     // ---- the login gate ----
 
-    public function test_an_account_in_one_club_follows_that_clubs_policy(): void {
+    public function test_an_account_in_one_club_signing_in_there_follows_that_clubs_policy(): void {
+        $gated_at = static fn ( int $club, int $uid ): bool => ClubIteration::withClub( $club, static fn (): bool => MfaLoginGuard::personaIsGated( $uid ) );
+
         $this->policy( self::CLUB_A, [ 'scout' ] );
         $this->policy( self::CLUB_B, [] );
 
-        $this->assertTrue( MfaLoginGuard::personaIsGated( $this->scout_a ) );
-        $this->assertFalse( MfaLoginGuard::personaIsGated( $this->scout_b ), 'club B does not require it' );
+        $this->assertTrue( $gated_at( self::CLUB_A, $this->scout_a ) );
+        $this->assertFalse( $gated_at( self::CLUB_B, $this->scout_b ), 'club B does not require it, and club A is neither its club nor current' );
 
         $this->policy( self::CLUB_A, [] );
         $this->policy( self::CLUB_B, [ 'scout' ] );
 
-        $this->assertFalse( MfaLoginGuard::personaIsGated( $this->scout_a ), 'club A no longer requires it' );
-        $this->assertTrue( MfaLoginGuard::personaIsGated( $this->scout_b ) );
+        $this->assertFalse( $gated_at( self::CLUB_A, $this->scout_a ), 'club A no longer requires it' );
+        $this->assertTrue( $gated_at( self::CLUB_B, $this->scout_b ) );
+    }
+
+    public function test_the_current_club_always_applies_even_to_an_account_whose_rows_are_elsewhere(): void {
+        // Rows only in club B; signing in where club A is current; A requires
+        // a scout to enrol and B does not. The gate is never looser than the
+        // club being signed in to.
+        $this->policy( self::CLUB_A, [ 'scout' ] );
+        $this->policy( self::CLUB_B, [] );
+
+        $this->assertSame( [ self::CLUB_B ], ClubMembership::clubIdsForUser( $this->scout_b ) );
+        $this->assertSame( [ self::CLUB_A, self::CLUB_B ], ClubIteration::withClub( self::CLUB_A, fn (): array => ClubMembership::policyClubIdsForUser( $this->scout_b ) ) );
+        $this->assertTrue( ClubIteration::withClub( self::CLUB_A, fn (): bool => MfaLoginGuard::personaIsGated( $this->scout_b ) ) );
     }
 
     public function test_an_account_in_two_clubs_follows_the_strictest(): void {

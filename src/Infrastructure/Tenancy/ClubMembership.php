@@ -14,9 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Never from `wp_usermeta` or `wp_options`, which are global to the install
  * and so cannot say which tenant an account is in (CLAUDE.md §4).
  *
- * Use this rather than a lookup of your own wherever a feature asks "is
- * this account part of this club". Answers are memoised for the request;
- * {@see flush()} drops them after a write that changes membership.
+ * Membership means the account **has or had** a record in the club:
+ * archived staff and released players still count. It is not an
+ * authorization check. Which records an account may read or change stays
+ * with `AuthorizationService` and the matrix (docs/access-control.md).
+ *
+ * Use this rather than a lookup of your own wherever a feature asks which
+ * club an account belongs to. Answers are memoised for one request and
+ * nothing in it flushes them: a caller that changes membership and then
+ * reads it again in the same request calls {@see flush()} itself.
  */
 final class ClubMembership {
 
@@ -25,6 +31,54 @@ final class ClubMembership {
 
     /** @var array<int, list<int>> club id => user ids */
     private static array $users_by_club = [];
+
+    /** @var array<int, list<int>> club id => user ids its policy governs */
+    private static array $governed_by_club = [];
+
+    /**
+     * The clubs whose policy applies to an account: the clubs it belongs to
+     * plus the current club. The current club is always in it, so an
+     * account is never checked against fewer clubs than the one it is
+     * signing in to; an account with no club row follows the current club
+     * alone. Ascending.
+     *
+     * @return list<int>
+     */
+    public static function policyClubIdsForUser( int $user_id ): array {
+        $clubs   = self::clubIdsForUser( $user_id );
+        $clubs[] = CurrentClub::id();
+        return self::ids( $clubs );
+    }
+
+    /**
+     * The accounts a club's policy governs, as the policy screen counts
+     * them: the club's members, plus the accounts with no club row
+     * anywhere, which follow whichever club is current. An administrator
+     * without a staff record is in this set. Ascending.
+     *
+     * @return list<int>
+     */
+    public static function userIdsGovernedBy( int $club_id ): array {
+        if ( $club_id <= 0 ) return [];
+        if ( isset( self::$governed_by_club[ $club_id ] ) ) return self::$governed_by_club[ $club_id ];
+
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $no_club  = $wpdb->get_col(
+            "SELECT u.ID FROM {$wpdb->users} u
+              WHERE u.ID NOT IN (
+                    SELECT wp_user_id FROM {$p}tt_people WHERE wp_user_id > 0
+                    UNION SELECT wp_user_id FROM {$p}tt_players WHERE wp_user_id > 0
+                    UNION SELECT parent_user_id FROM {$p}tt_player_parents WHERE parent_user_id > 0
+              )"
+        );
+
+        self::$governed_by_club[ $club_id ] = self::ids( array_merge(
+            self::userIdsForClub( $club_id ),
+            self::ids( $no_club )
+        ) );
+        return self::$governed_by_club[ $club_id ];
+    }
 
     /**
      * The clubs an account belongs to, ascending. Empty for an account with
@@ -71,10 +125,11 @@ final class ClubMembership {
         return self::$users_by_club[ $club_id ];
     }
 
-    /** Forget the memoised answers, after a write that changes membership. */
+    /** Forget the memoised answers, after a write that changes membership in this request. */
     public static function flush(): void {
-        self::$clubs_by_user = [];
-        self::$users_by_club = [];
+        self::$clubs_by_user    = [];
+        self::$users_by_club    = [];
+        self::$governed_by_club = [];
     }
 
     /**

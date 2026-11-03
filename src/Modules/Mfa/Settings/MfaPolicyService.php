@@ -94,8 +94,8 @@ final class MfaPolicyService {
         }
 
         $out = [];
-        // #4787 — this club's accounts only: its staff, players and guardians.
-        $ids = ClubMembership::userIdsForClub( CurrentClub::id() );
+        // #4787 — the accounts this club's policy governs, by the gate's own rule.
+        $ids = ClubMembership::userIdsGovernedBy( CurrentClub::id() );
         if ( $ids === [] ) return [];
         // One query for every user and their roles, instead of two per account in personasFor().
         cache_users( $ids );
