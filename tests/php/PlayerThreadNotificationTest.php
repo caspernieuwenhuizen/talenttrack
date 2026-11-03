@@ -7,8 +7,10 @@ use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
+use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
+use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
 use TT\Modules\Comms\Templates\NotificationTemplate;
@@ -23,6 +25,9 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * only those `ThreadAccess::canSeePrivate()` admits. The player and the
  * guardians are never notified, staff of another team are never notified,
  * and a person who muted notifications is not sent anything.
+ *
+ * Quiet hours are pinned to an empty window in `set_up()`, so no test here
+ * depends on the hour it runs at (#4838).
  */
 final class PlayerThreadNotificationTest extends WP_UnitTestCase {
 
@@ -49,6 +54,17 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
 
         ( new RolesService() )->installRoles();
         MatrixRepository::clearCache();
+        // A table-presence answer cached by an earlier test would let the
+        // opt-out write below fail silently.
+        OptOutPolicy::flushTableCache();
+
+        // Notifications are held during quiet hours (21:00-07:00 by
+        // default), so without this every positive delivery here failed
+        // whenever the suite ran at night. An equal start and end is an
+        // empty window: it holds nothing at any minute of the day, so the
+        // wall clock cannot decide these tests.
+        QueryHelpers::set_config( 'comms_quiet_hours_start', self::NEVER_QUIET );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', self::NEVER_QUIET );
 
         TemplateRegistry::clear();
         ChannelAdapterRegistry::clear();
@@ -96,9 +112,12 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
         TemplateRegistry::clear();
         ChannelAdapterRegistry::clear();
         MatrixRepository::clearCache();
+        OptOutPolicy::flushTableCache();
         wp_set_current_user( 0 );
         parent::tear_down();
     }
+
+    private const NEVER_QUIET = '00:00';
 
     /**
      * @param mixed               $accepted
@@ -236,12 +255,31 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
     }
 
     public function test_a_person_who_muted_notifications_is_not_notified(): void {
-        ( new OptOutPolicy() )->setOptedOut( $this->manager, MessageType::NOTIFICATION, true );
+        $policy = new OptOutPolicy();
+        $policy->setOptedOut( $this->manager, MessageType::NOTIFICATION, true );
+        $this->assertTrue( $policy->isOptedOut( $this->manager, MessageType::NOTIFICATION ), 'Precondition: the mute was stored.' );
+        $this->assertFalse( $policy->isOptedOut( $this->assistant, MessageType::NOTIFICATION ), 'Precondition: only the manager muted.' );
 
         $this->post( ThreadVisibility::PUBLIC_LEVEL, $this->head_coach );
 
         $this->assertNotContains( $this->manager, $this->sent_to );
         $this->assertContains( $this->assistant, $this->sent_to, 'the others are still notified' );
+    }
+
+    /**
+     * The pinned window holds nothing at any instant, the day boundary
+     * included, so the deliveries above do not depend on when they run.
+     */
+    public function test_the_pinned_window_holds_no_notification_at_any_hour(): void {
+        $request = new CommsRequest( NotificationTemplate::KEY, MessageType::NOTIFICATION, 1, 0, [], [], 'email', false );
+        $day     = ( new \DateTimeImmutable( 'now', wp_timezone() ) )->setTime( 0, 0 );
+
+        foreach ( [ '23:59', '00:00', '00:01', '03:00', '06:59', '07:00', '21:00' ] as $hhmm ) {
+            [ $h, $m ] = array_map( 'intval', explode( ':', $hhmm ) );
+            $at = $day->setTime( $h, $m )->getTimestamp();
+            $policy = new QuietHoursPolicy( static fn (): int => $at );
+            $this->assertFalse( $policy->shouldDefer( $request ), "a notification was held at {$hhmm}" );
+        }
     }
 
     public function test_the_notified_set_is_never_wider_than_the_participants(): void {
