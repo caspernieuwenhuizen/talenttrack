@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisTrends;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * PlayerMatchAnalysisTab (#2725) — what a player has repeatedly been
@@ -110,16 +111,19 @@ final class PlayerMatchAnalysisTab {
 
         $markers = MatchAnalysisEnums::markers();
 
-        echo '<div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Phase', 'talenttrack' ) . '</th>';
+        // #4915 — a card per phase on a phone, the table from 480px.
+        $c_phase = __( 'Phase', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_phase ) . '</th>';
         foreach ( $markers as $label ) {
-            echo '<th class="num">' . esc_html( $label ) . '</th>';
+            echo '<th class="num"' . $th . '>' . esc_html( $label ) . '</th>';
         }
-        echo '</tr></thead><tbody>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $tags as $tag ) {
-            echo '<tr><td>' . esc_html( $tag['label'] ) . '</td>';
-            foreach ( array_keys( $markers ) as $marker_key ) {
-                echo '<td class="num">' . esc_html( (string) ( $tag['counts'][ $marker_key ] ?? 0 ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_phase ) . '>' . esc_html( $tag['label'] ) . '</td>';
+            foreach ( $markers as $marker_key => $label ) {
+                echo '<td class="num"' . StackTable::attrs( 'cell', (string) $label ) . '>' . esc_html( (string) ( $tag['counts'][ $marker_key ] ?? 0 ) ) . '</td>';
             }
             echo '</tr>';
         }

@@ -76,8 +76,14 @@
 
 .tt-bmi-table {
     width: 100%;
-    min-width: 26rem;
     border-collapse: collapse;
+}
+
+/* Each row is a card (the stack-table primitive) until 768px, where the
+   table fits; the reason a row has no BMI then reads left, as the table's
+   other text does (the primitive centres a cell that spans the row). */
+@media (min-width: 768px) {
+    .tt-table.tt-bmi-table > tbody > tr > td.tt-bmi-cell-empty { text-align: left; }
 }
 
 .tt-bmi-player {

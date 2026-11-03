@@ -22,6 +22,7 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendInjuriesView (#2609) — who is out right now, across the teams
@@ -252,18 +253,27 @@ final class FrontendInjuriesView extends FrontendViewBase {
         }
         $any_edit = in_array( true, $can_edit, true );
 
-        echo '<table class="tt-table tt-injuries-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Injury', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Severity', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Since', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Expected back', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Days out', 'talenttrack' ) . '</th>';
+        // #4915 — a card per injury on a phone and a tablet held upright; eight columns need 768px.
+        $c_player   = __( 'Player', 'talenttrack' );
+        $c_team     = __( 'Team', 'talenttrack' );
+        $c_injury   = __( 'Injury', 'talenttrack' );
+        $c_severity = __( 'Severity', 'talenttrack' );
+        $c_since    = __( 'Since', 'talenttrack' );
+        $c_expected = __( 'Expected back', 'talenttrack' );
+        $c_days     = __( 'Days out', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-injuries-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_player ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_injury ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_severity ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_since ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_expected ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_days ) . '</th>';
         if ( $any_edit ) {
-            echo '<th><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
+            echo '<th' . $th . '><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
         }
-        echo '</tr></thead><tbody>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $player_id = (int) $row->player_id;
@@ -280,20 +290,21 @@ final class FrontendInjuriesView extends FrontendViewBase {
             $days_out = InjuryStatus::daysOut( $row, $today );
             $overdue  = $state === InjuryStatus::OVERDUE;
 
-            echo '<tr' . ( $overdue ? ' class="tt-injury-row--overdue"' : '' ) . '>';
+            echo '<tr' . ( $overdue ? ' class="tt-injury-row--overdue"' : '' ) . StackTable::attrs( 'row' ) . '>';
             $player_url = RecordLink::detailUrlForWithBack( 'players', $player_id );
-            echo '<td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '>';
             if ( $player_url !== '' ) {
                 echo '<a href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a>';
             } else {
                 echo esc_html( $name );
             }
             echo '</td>';
-            echo '<td>' . esc_html( (string) ( $row->team_name ?? '—' ) ) . '</td>';
-            echo '<td>' . esc_html( self::lookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' ) ) . '</td>';
-            echo '<td>' . esc_html( self::lookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' ) ) . '</td>';
-            echo '<td>' . esc_html( $started !== '' ? TTDate::date( $started ) : '—' ) . '</td>';
-            echo '<td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_team ) . '>' . esc_html( (string) ( $row->team_name ?? '—' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_injury ) . '>' . esc_html( self::lookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_severity ) . '>' . esc_html( self::lookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_since ) . '>' . esc_html( $started !== '' ? TTDate::date( $started ) : '—' ) . '</td>';
+            // A date with its chip is one value beside the label on a phone.
+            echo '<td' . StackTable::attrs( 'cell', $c_expected ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">';
             if ( $state === InjuryStatus::CLOSED ) {
                 echo '<span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span>';
             } elseif ( $expected !== '' ) {
@@ -308,10 +319,10 @@ final class FrontendInjuriesView extends FrontendViewBase {
                     echo ' <span class="tt-chip tt-chip--warn">' . esc_html_x( 'Incomplete', 'injury record', 'talenttrack' ) . '</span>';
                 }
             }
-            echo '</td>';
-            echo '<td>' . (int) $days_out . '</td>';
+            echo '</span></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_days ) . '>' . (int) $days_out . '</td>';
             if ( $any_edit ) {
-                echo '<td>';
+                echo '<td' . StackTable::attrs( 'cell' ) . '>';
                 if ( ! empty( $can_edit[ $player_id ] ) ) {
                     $edit_url = BackLink::appendTo( add_query_arg(
                         [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) ( $row->id ?? 0 ) ],

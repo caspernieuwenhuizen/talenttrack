@@ -14,15 +14,10 @@ src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php 1
 src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php 1
 src/Modules/Analytics/Frontend/TeamStatisticsTab.php 2
 src/Modules/CustomCss/Frontend/FrontendCustomCssView.php 1
-src/Modules/Development/Frontend/IdeaSubmitView.php 1
 src/Modules/Import/Frontend/FrontendImportHistoryView.php 1
 src/Modules/Invitations/Frontend/InvitationsConfigView.php 1
-src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php 1
-src/Modules/Journey/Frontend/FrontendInjuriesView.php 1
 src/Modules/Knowledge/Frontend/LearningReports.php 4
 src/Modules/License/Frontend/FrontendPlanView.php 2
-src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php 1
-src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php 2
 src/Modules/Methodology/Frontend/MethodologyView.php 2
 src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php 1
 src/Modules/Reports/Frontend/FrontendScoutHistoryView.php 1
