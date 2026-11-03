@@ -361,7 +361,7 @@ class AccountPage {
         echo '<input type="hidden" name="action" value="' . esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE ) . '">';
 
         if ( empty( $rows ) ) {
-            echo '<p style="margin:0;">' . esc_html__( 'Nobody in this academy has set up two-step verification yet.', 'talenttrack' ) . '</p>';
+            echo '<p>' . esc_html__( 'Nobody in this academy has set up two-step verification yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<label style="display:block; margin-bottom:12px;">';
             echo '<span style="display:block; font-weight:600; margin-bottom:6px;">'
