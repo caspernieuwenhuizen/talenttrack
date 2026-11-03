@@ -1270,6 +1270,11 @@ a.tt-pd-pipeline-col--link:focus-visible {
 @media (max-width: 768px) {
     .tt-pd-fold > .tt-pd-fold-summary { display: flex; }
     .tt-pd-fold[open] > .tt-pd-fold-summary { margin-bottom: 0.5rem; }
+    /* #4818 — a data table's fold already says its title; the panel head
+       keeps only its "See all" link, so the title is not read twice. Same
+       range as the summary above, so the title is never missing. */
+    .tt-pd-fold .tt-pd-variant-data-table .tt-pd-panel-title { display: none; }
+    .tt-pd-fold .tt-pd-variant-data-table .tt-pd-panel-more { margin-left: auto; }
 }
 
 /* #1375 — tile wall compacts to 2-up on phones so 19 tiles take half
