@@ -59,7 +59,7 @@
 }
 
 .tt-tsc-svg .tt-scene-actor:focus-visible circle:first-of-type {
-    stroke: var(--tt-focus, #2f6fed);
+    stroke: var(--tt-focus-color, var(--tt-primary));
     stroke-width: 1.2;
 }
 

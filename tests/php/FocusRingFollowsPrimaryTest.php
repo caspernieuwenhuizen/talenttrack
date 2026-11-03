@@ -83,6 +83,30 @@ final class FocusRingFollowsPrimaryTest extends WP_UnitTestCase {
         $this->assertSame( array_search( max( $in ), $in, true ), array_search( max( $out ), $out, true ) );
     }
 
+    /**
+     * `--tt-focus` is a box-shadow value. Read as a colour (an outline or an
+     * SVG stroke) it is invalid wherever it is defined, and the property
+     * falls back to its initial value: no ring at all. A colour reads
+     * `--tt-focus-color` falling back to `--tt-primary` instead.
+     */
+    public function test_the_focus_token_is_only_ever_a_box_shadow(): void {
+        $dir   = dirname( __DIR__, 2 ) . '/assets/css';
+        $paths = array_merge( glob( $dir . '/*.css' ) ?: [], glob( $dir . '/*/*.css' ) ?: [] );
+        $wrong = [];
+
+        foreach ( $paths as $path ) {
+            $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
+            preg_match_all( '/([a-z-]+)\s*:[^;{}]*var\(\s*--tt-focus\s*[,)]/', $css, $m );
+            foreach ( $m[1] as $property ) {
+                if ( $property !== 'box-shadow' ) {
+                    $wrong[] = basename( $path ) . ': ' . $property;
+                }
+            }
+        }
+
+        $this->assertSame( [], $wrong );
+    }
+
     public function test_branding_emits_the_shade_only_when_it_is_needed(): void {
         $cfg   = Kernel::instance()->container()->get( 'config' );
         $saved = $cfg->get( 'primary_color', '' );
