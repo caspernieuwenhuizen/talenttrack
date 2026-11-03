@@ -75,6 +75,8 @@ The Path C form maps form fields to `--tt-*` CSS custom properties on `.tt-root`
 
 Anything not set falls through to TT's bundled defaults.
 
+Saving writes only the fields you changed. The editor posts every field, but a field still at its default is left out of the generated CSS. That field keeps following TT's defaults and the club theme, including when either changes later. A stylesheet saved before this rule was regenerated once on upgrade by the same rule, so a value your academy changed is kept and nothing else is written.
+
 The editor groups the controls into eight collapsible accordion sections (Brand colours / Status colours / Surfaces / Text / Typography / Shape + spacing / Shadows / Motion) so the field count stays manageable as the catalogue grows. The legacy single `Shadow strength` field from v3.64 is replaced by three explicit shadow tokens; existing saves continue to render correctly and are normalised to the new shape on next save.
 
 ## Starter templates
