@@ -46,7 +46,7 @@ The search box matches a table's name, label and description **and its column na
 
 ## Sensitive tables
 
-Tables holding medical, safeguarding, or family data about minors (e.g. injuries, parent/guardian links, player notes, a coach's notes on the categories of an evaluation) are flagged. Opening one shows a warning and writes a `data_browser.view` entry to the audit log recording who looked and which table. The data is still shown — the flag is about accountability, not restriction.
+Tables holding medical, safeguarding, or family data about minors (e.g. injuries, parent/guardian links, player notes, a coach's notes on the categories of an evaluation) are flagged. So is every table holding a field the screens hide from a reader who may not see it: the players (guardian contact and date of birth), the club's own player fields, evaluations, attendance, the match-prep availability and the people records. Opening one shows a warning and writes a `data_browser.view` entry to the audit log recording who looked and which table. The data is still shown — the flag is about accountability, not restriction.
 
 ## Tenancy
 

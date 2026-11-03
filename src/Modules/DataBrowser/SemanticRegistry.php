@@ -33,6 +33,20 @@ class SemanticRegistry {
         'tt_safeguarding'    => true,
         // #3949 — a coach's free-text judgement on one category of a child's evaluation.
         'tt_eval_category_notes' => true,
+        // #4925 — tables owning a field config/sensitive_fields.php masks on
+        // every screen (DataBrowserSensitiveFieldsTest keeps the two in step).
+        // Guardian contact and date of birth.
+        'tt_players'                 => true,
+        // The club's own player fields.
+        'tt_custom_values'           => true,
+        // Evaluation notes and the comment for the player.
+        'tt_evaluations'             => true,
+        // The register's note and the note beside a planned status.
+        'tt_attendance'              => true,
+        // The coach's reason beside a match-prep availability status.
+        'tt_match_prep_availability' => true,
+        // A guardian's e-mail and phone.
+        'tt_people'                  => true,
     ];
 
     /**

@@ -46,7 +46,7 @@ Het zoekvak matcht de naam, het label en de omschrijving van een tabel **én de 
 
 ## Gevoelige tabellen
 
-Tabellen met medische, veiligheids- of gezinsgegevens van minderjarigen (zoals blessures, ouder-/verzorgerkoppelingen, spelersnotities, de notities van een trainer bij de categorieën van een evaluatie) zijn gemarkeerd. Het openen ervan toont een waarschuwing en schrijft een `data_browser.view`-regel naar het audit-log met wie keek en welke tabel. De gegevens worden nog steeds getoond — de markering gaat over verantwoording, niet over beperking.
+Tabellen met medische, veiligheids- of gezinsgegevens van minderjarigen (zoals blessures, ouder-/verzorgerkoppelingen, spelersnotities, de notities van een trainer bij de categorieën van een evaluatie) zijn gemarkeerd. Dat geldt ook voor elke tabel met een veld dat de schermen verbergen voor een lezer die het niet mag zien: de spelers (contactgegevens van ouders en geboortedatum), de eigen spelersvelden van de club, evaluaties, aanwezigheid, de beschikbaarheid in de wedstrijdvoorbereiding en de personen. Het openen ervan toont een waarschuwing en schrijft een `data_browser.view`-regel naar het audit-log met wie keek en welke tabel. De gegevens worden nog steeds getoond — de markering gaat over verantwoording, niet over beperking.
 
 ## Tenancy
 

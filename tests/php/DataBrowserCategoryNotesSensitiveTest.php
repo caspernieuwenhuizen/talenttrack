@@ -27,7 +27,7 @@ final class DataBrowserCategoryNotesSensitiveTest extends WP_UnitTestCase {
         foreach ( [ 'tt_player_injuries', 'tt_player_suspensions', 'tt_player_parents', 'tt_player_notes', 'tt_safeguarding' ] as $key ) {
             $this->assertTrue( SemanticRegistry::isSensitive( $key ), $key );
         }
-        foreach ( [ 'tt_evaluations', 'tt_eval_ratings', 'tt_players', 'tt_teams' ] as $key ) {
+        foreach ( [ 'tt_eval_ratings', 'tt_teams' ] as $key ) {
             $this->assertFalse( SemanticRegistry::isSensitive( $key ), $key );
         }
     }
