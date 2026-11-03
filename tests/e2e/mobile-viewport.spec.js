@@ -342,8 +342,11 @@ async function measure( page, cls ) {
 		);
 
 		/**
-		 * Is the element inside a box of 1px or less that clips what it
-		 * holds — the visually-hidden pattern on an ancestor?
+		 * Is the element inside the visually-hidden pattern itself: an
+		 * ancestor of 1px or less on both axes with a deliberate clip or
+		 * clip-path? A collapsed but unclipped box (a zero-height row, an
+		 * overflow strip) does not count, so a target that sticks out of
+		 * one is still measured.
 		 *
 		 * @param {Element} el
 		 * @returns {boolean}
@@ -351,9 +354,9 @@ async function measure( page, cls ) {
 		const insideClippedBox = ( el ) => {
 			for ( let box = el.parentElement; box && box !== document.body; box = box.parentElement ) {
 				const r = box.getBoundingClientRect();
-				if ( r.width > 1 && r.height > 1 ) continue;
+				if ( r.width > 1 || r.height > 1 ) continue;
 				const cs = getComputedStyle( box );
-				if ( cs.overflow !== 'visible' || cs.clipPath !== 'none' || cs.clip !== 'auto' ) return true;
+				if ( cs.clipPath !== 'none' || cs.clip !== 'auto' ) return true;
 			}
 			return false;
 		};
