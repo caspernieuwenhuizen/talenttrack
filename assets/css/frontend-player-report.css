@@ -130,9 +130,11 @@ button.tt-pr-order__move {
 
 /*
  * Evaluations with subcategories (#3989): a subcategory row sits indented
- * under its main category, a step quieter.
+ * under its main category, a step quieter. Written above the list-table
+ * and evidence-table cell padding (phone cards, the table from 768px and
+ * print), which would otherwise reset the indent.
  */
-.tt-pr-subcat .tt-pr-subcat__label {
+.tt-evidence__table tr.tt-pr-subcat > td.tt-pr-subcat__label {
 	padding-inline-start: var(--tt-sp-5, 1.5rem);
 	color: var(--tt-muted);
 }
