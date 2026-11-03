@@ -180,10 +180,10 @@ gelden dezelfde regels: geen oorzaak, nooit opgeslagen, nooit afgedrukt.
 
 De status die je kiest en de reden daarbij zijn iets anders: die worden
 in de voorbereiding opgeslagen, dus iedereen die haar opent ziet ze, en
-het afgedrukte blad, de PDF en een gedeelde link tonen ze als
-"naam · status (reden)". Een gedeelde link opent zonder inloggen. **Zet
-geen medische details in de reden** als de voorbereiding gedeeld kan
-worden: "Geblesseerd" is genoeg, de blessure zelf hoort in het
+het afgedrukte blad en de PDF tonen ze als "naam · status (reden)". Een
+gedeelde link opent zonder inloggen en toont de status zonder de reden.
+**Zet hoe dan ook geen medische details in de reden**: "Geblesseerd" is
+genoeg, de blessure zelf hoort in het
 blessuredossier van de speler. Zie [Toegangsbeheer](access-control.md)
 voor wat het label Niet beschikbaar wel en niet over een speler zegt.
 

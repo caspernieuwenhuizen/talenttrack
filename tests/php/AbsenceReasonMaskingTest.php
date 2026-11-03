@@ -28,6 +28,7 @@ final class AbsenceReasonMaskingTest extends WP_UnitTestCase {
     private const PLAN_NOTE   = 'Plan note 4692: stomach bug since Sunday';
     private const REG_NOTE    = 'Register note 4692: family funeral';
     private const PREP_REASON = 'Prep reason 4692: hamstring check';
+    private const GUEST_NOTE  = 'Guest note 4692: school trip';
 
     private int $club     = 0;
     private int $team     = 0;
@@ -122,6 +123,56 @@ final class AbsenceReasonMaskingTest extends WP_UnitTestCase {
         $this->assertSame( self::PLAN_NOTE, $this->plannedRow( $this->hod )['notes'] ?? null, 'HoD keeps the note' );
     }
 
+    /** A guest's row is the guest player's own record, and is decided for that player. */
+    public function test_a_guest_note_follows_the_guest_player(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => $this->club, 'name' => 'JO11-2' ] );
+        $other = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_players", [
+            'club_id' => $this->club, 'team_id' => $other, 'first_name' => 'Noor', 'last_name' => 'Bos', 'status' => 'active',
+        ] );
+        $guest = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_attendance", [
+            'club_id'         => $this->club,
+            'activity_id'     => $this->activity,
+            'player_id'       => null,
+            'guest_player_id' => $guest,
+            'is_guest'        => 1,
+            'status'          => 'Absent',
+            'notes'           => self::GUEST_NOTE,
+            'record_type'     => 'expected',
+        ] );
+
+        $this->assertSame( self::GUEST_NOTE, $this->plannedRow( $this->hod, $guest )['notes'] ?? null, 'HoD keeps the guest note' );
+        $observer = $this->plannedRow( $this->observer, $guest );
+        $this->assertTrue( (bool) ( $observer['is_guest'] ?? false ), 'the observer gets the guest row' );
+        $this->assertArrayNotHasKey( 'notes', $observer );
+    }
+
+    /** A row that names no player is left without its registered fields, for every reader. */
+    public function test_a_row_without_a_player_is_stripped(): void {
+        foreach ( [ $this->hod, $this->observer ] as $reader ) {
+            $rows = RecordRedactor::redactRows( 'attendance', [ [ 'player_id' => 0, 'status' => 'Absent', 'notes' => 'x' ] ], $reader );
+            $this->assertSame( 'Absent', $rows[0]['status'] ?? null );
+            $this->assertArrayNotHasKey( 'notes', $rows[0] );
+        }
+    }
+
+    public function test_the_activity_brief_shows_hidden_for_the_observer(): void {
+        $this->assertStringContainsString( '4692:', $this->briefHtml( $this->hod ), 'HoD reads the note' );
+        $observer = $this->briefHtml( $this->observer );
+        $this->assertStringContainsString( 'Mila', $observer, 'the observer gets the roster' );
+        $this->assertStringNotContainsString( '4692:', $observer );
+        $this->assertStringContainsString( 'Hidden', $observer );
+    }
+
+    /**
+     * Defence in depth: the observer neither plans the team nor reads its
+     * injuries, so the unavailable-flag rule already leaves the reason out
+     * for them; the registry check holds the same answer if that rule ever
+     * widens.
+     */
     public function test_the_match_prep_reason_is_left_out_for_the_observer(): void {
         wp_set_current_user( $this->hod );
         AuthorizationService::flushCache();
@@ -159,14 +210,15 @@ final class AbsenceReasonMaskingTest extends WP_UnitTestCase {
     }
 
     /** @return array<string, mixed> */
-    private function plannedRow( int $user_id ): array {
+    private function plannedRow( int $user_id, int $player_id = 0 ): array {
+        $player_id = $player_id > 0 ? $player_id : $this->player;
         wp_set_current_user( $user_id );
         AuthorizationService::flushCache();
         $response = $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/activities/' . $this->activity . '/planned-attendance' ) );
         $this->assertSame( 200, $response->get_status(), 'user ' . $user_id . ' reads the plan' );
         $data = (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
         foreach ( (array) ( $data['data']['roster'] ?? [] ) as $row ) {
-            if ( (int) ( $row['player_id'] ?? 0 ) === $this->player ) return (array) $row;
+            if ( (int) ( $row['player_id'] ?? 0 ) === $player_id ) return (array) $row;
         }
         $this->fail( 'no planned row for the player' );
     }
@@ -178,6 +230,16 @@ final class AbsenceReasonMaskingTest extends WP_UnitTestCase {
         $response = $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/match-prep/' . $this->activity ) );
         $this->assertSame( 200, $response->get_status(), 'user ' . $user_id . ' reads the prep' );
         return (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
+    }
+
+    private function briefHtml( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $exporter = ExporterRegistry::get( 'activity_brief_pdf' );
+        $this->assertNotNull( $exporter );
+        $filters = (array) $exporter->validateFilters( [ 'activity_id' => $this->activity ] );
+        $result  = $exporter->collect( new ExportRequest( 'activity_brief_pdf', 'pdf', $this->club, $user_id, null, $filters ) );
+        return (string) ( $result['html'] ?? '' );
     }
 
     private function registerBody( int $user_id ): string {
