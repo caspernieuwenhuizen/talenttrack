@@ -105,6 +105,10 @@ final class VisualEditor {
         foreach ( $catalogue as $key => $def ) {
             $raw = isset( $settings[ $key ] ) ? (string) $settings[ $key ] : '';
             if ( $raw === '' ) continue;
+            // #4839 — the editor posts every field, touched or not. Only a
+            // value the academy changed is written; the default stays with
+            // tokens.css, so an untouched save changes nothing on the page.
+            if ( self::isDefaultValue( $def, $raw ) ) continue;
 
             $emitted = self::resolveTokenValue( $def, $raw );
             if ( $emitted === '' ) continue;
@@ -153,6 +157,39 @@ final class VisualEditor {
 
         return "\n{$rest_selectors} {\n    text-decoration: {$rest_decoration};\n}\n"
             . "{$hover_selectors} {\n    text-decoration: {$hover_decoration};\n}\n";
+    }
+
+    /**
+     * Whether a posted value is the token's catalogue default, now or
+     * before #4839 aligned the catalogue with tokens.css (`legacy_default`).
+     * A save from before that change still holds the old default, and has
+     * to count as untouched too. Case is ignored, `#fff` equals `#ffffff`,
+     * and numbers compare by value.
+     *
+     * @param array<string, mixed> $def
+     */
+    public static function isDefaultValue( array $def, string $raw ): bool {
+        $value = self::comparable( $def, $raw );
+        foreach ( [ 'default', 'legacy_default' ] as $field ) {
+            if ( ! isset( $def[ $field ] ) || (string) $def[ $field ] === '' ) continue;
+            if ( $value === self::comparable( $def, (string) $def[ $field ] ) ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param array<string, mixed> $def
+     */
+    private static function comparable( array $def, string $value ): string {
+        $value = strtolower( trim( $value ) );
+        $kind  = (string) ( $def['kind'] ?? '' );
+        if ( $kind === TokenCatalogue::KIND_COLOR && preg_match( '/^#([0-9a-f])([0-9a-f])([0-9a-f])$/', $value, $m ) ) {
+            return '#' . $m[1] . $m[1] . $m[2] . $m[2] . $m[3] . $m[3];
+        }
+        if ( ( $kind === TokenCatalogue::KIND_NUMBER || $kind === TokenCatalogue::KIND_FLOAT ) && is_numeric( $value ) ) {
+            return (string) (float) $value;
+        }
+        return $value;
     }
 
     /**
@@ -236,8 +273,12 @@ final class VisualEditor {
      * @param array<string, mixed> $settings
      */
     private static function renderShadowOverrides( array $settings ): string {
+        $catalogue = TokenCatalogue::all();
         $sm = self::sanitizeShadowStrength( (string) ( $settings['shadow_sm'] ?? '' ) );
         $md = self::sanitizeShadowStrength( (string) ( $settings['shadow_md'] ?? '' ) );
+        // #4839 — an untouched shadow choice writes nothing here either.
+        if ( $sm !== '' && isset( $catalogue['shadow_sm'] ) && self::isDefaultValue( $catalogue['shadow_sm'], $sm ) ) $sm = '';
+        if ( $md !== '' && isset( $catalogue['shadow_md'] ) && self::isDefaultValue( $catalogue['shadow_md'], $md ) ) $md = '';
         if ( $sm === '' && $md === '' ) return '';
 
         $base_selectors  = ".tt-root .tt-panel,\n.tt-root .tt-card,\n.tt-root .tt-mc-card,\n.tt-root .tt-cfg-tile";

@@ -76,6 +76,8 @@ Pad C koppelt formuliervelden aan `--tt-*` CSS custom properties op `.tt-root`. 
 
 Wat je niet instelt, valt terug op de standaardwaarden van TT.
 
+Opslaan schrijft alleen de velden die je hebt veranderd. De editor stuurt elk veld mee, maar een veld dat nog op de standaardwaarde staat, komt niet in de gegenereerde CSS. Zo'n veld blijft de standaardwaarden van TT en het clubthema volgen, ook als die later veranderen. Een stylesheet die vóór deze regel is opgeslagen, is bij de update één keer opnieuw gegenereerd volgens dezelfde regel: een waarde die je academie heeft veranderd, blijft staan en verder wordt niets geschreven.
+
 Sinds v3.73.0 groepeert de editor de controls in acht inklapbare accordion-secties (Merkkleuren / Statuskleuren / Oppervlakken / Tekst / Typografie / Vorm + spacing / Schaduwen / Beweging) zodat het aantal velden beheersbaar blijft naarmate de catalogus groeit. Het oude enkele `Schaduwsterkte`-veld uit v3.64 is vervangen door drie expliciete schaduw-tokens; bestaande opslagen blijven correct renderen en worden bij het volgende opslaan genormaliseerd naar de nieuwe vorm.
 
 ## Start­templates
