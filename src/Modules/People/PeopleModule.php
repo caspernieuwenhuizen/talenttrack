@@ -70,8 +70,15 @@ class PeopleModule implements ModuleInterface {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
+        // #4905 — each date is empty or a real `Y-m-d` date, as on the REST
+        // route; anything else writes nothing and takes the form's error path.
+        $start = trim( $start );
+        $end   = trim( $end );
+        $dates_ok = ( $start === '' || \TT\Modules\Evaluations\EvaluationDateRule::isDate( $start ) )
+            && ( $end === '' || \TT\Modules\Evaluations\EvaluationDateRule::isDate( $end ) );
+
         $repo = new \TT\Infrastructure\People\PeopleRepository();
-        $ok = $team_id > 0 && $person_id > 0 && $functional_role_id > 0
+        $ok = $dates_ok && $team_id > 0 && $person_id > 0 && $functional_role_id > 0
             && $repo->assignToTeam( $team_id, $person_id, $functional_role_id, $start ?: null, $end ?: null );
 
         $redirect = admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $team_id . '&tt_msg=' . ( $ok ? 'saved' : 'error' ) );
