@@ -183,11 +183,15 @@ class DataTableWidget extends AbstractWidget {
         if ( $rows === [] ) {
             return $this->emptyRow( $col_count, (string) $config['empty_message'] );
         }
-        $html = '';
+        // #4792 — every cell carries its column's label: below 480px the row
+        // stacks into a block and the label stands before the value
+        // (persona-dashboard.css), so nothing hides behind a sideways scroll.
+        $labels = array_values( array_map( 'strval', (array) $config['columns'] ) );
+        $html   = '';
         foreach ( $rows as $row ) {
             $cells = '';
-            foreach ( $row as $cell ) {
-                $cells .= '<td>' . $cell . '</td>';
+            foreach ( $row as $i => $cell ) {
+                $cells .= '<td data-label="' . esc_attr( $labels[ $i ] ?? '' ) . '">' . $cell . '</td>';
             }
             $html .= '<tr>' . $cells . '</tr>';
         }
