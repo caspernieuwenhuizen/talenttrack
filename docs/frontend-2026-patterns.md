@@ -13,22 +13,24 @@ Read alongside [`docs/architecture-mobile-first.md`](architecture-mobile-first.m
 
 ## Tokens — the single source
 
-All neutral design tokens live in [`assets/css/tokens.css`](../assets/css/tokens.css),
+All design tokens live in [`assets/css/tokens.css`](../assets/css/tokens.css),
 scoped to `.tt-root`, enqueued first (handle `tt-tokens`). **Use the token,
 never a raw hex.** Brand colours (`--tt-primary` green, `--tt-secondary` gold)
-are emitted by `BrandStyles` on `:root` so the operator's club-colour editor
-can re-theme them — read them as `var(--tt-primary, #0b3d2e)`, don't redeclare.
+have their defaults there too; the academy's Branding overrides them on the
+default design through a rule attached to `tt-tokens`, and a theme redeclares
+them. Read them as `var(--tt-primary, #0b3d2e)`; never redeclare a token in a
+surface sheet (see `docs/frontend-themes.md`, layer order).
 
 | Token | Value | Use |
 | --- | --- | --- |
 | `--tt-ink` / `--tt-ink-soft` | `#0e1a14` / `#6a6d66` | Primary / secondary text |
-| `--tt-paper` / `--tt-bg-soft` | `#ffffff` / `#f4f6f3` | Card / page background |
-| `--tt-line` / `--tt-line-soft` | `#e3e6e1` / `#eef0ec` | Borders / dividers |
+| `--tt-paper` / `--tt-bg-soft` | `#ffffff` / `#faf8f3` | Card / page background |
+| `--tt-line` / `--tt-line-soft` | `#e3e1d8` / `#eef0ec` | Borders / dividers |
 | `--tt-success` / `--tt-danger` / `--tt-warning` / `--tt-info` | `#2f9e5e` / `#d8453b` / `#e8902b` / `#2d6fb3` | Status |
 | `--tt-radius` / `--tt-radius-lg` | `8px` / `14px` | Card corners |
 | `--tt-shadow-md` / `--tt-shadow-lg` | (see tokens) | Card hover / modal |
-| `--tt-sp-1..6` | `4..24px` | Spacing (4px scale) |
-| `--tt-fs-sm..h1` | `0.85..1.75rem` | Type scale |
+| `--tt-sp-1..7` | `4..48px` | Spacing (4px scale) |
+| `--tt-fs-sm..h1` | `0.875..1.75rem` | Type scale |
 
 ## Components — the 2026 vocabulary
 

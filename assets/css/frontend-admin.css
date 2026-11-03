@@ -7,77 +7,12 @@
    that invokes [talenttrack_dashboard]. public.css keeps the
    legacy dashboard/login layout; this file owns the newer
    form + component vocabulary that Sprints 2+ build on.
+
+   Tokens: none are declared here. tokens.css holds the one set of
+   defaults (#4797); this file only reads them.
     */
 
-/*  Tokens 
-   Scoped to .tt-dashboard so theme CSS can't leak in.
-   Consumers should reference tokens (var(--tt-...)) rather
-   than hardcoding values. When the brand identity work in
-   #0011 lands, only the tokens change — component styles
-   follow automatically.
-    */
-.tt-dashboard {
-    /* Colors — pulled from existing public.css where possible. */
-    --tt-primary: #0b3d2e;
-    --tt-primary-ink: #0a5c1a;
-    --tt-secondary: #e8b624;
-    --tt-ink: #0e1a14;
-    --tt-muted: #6a6d66;
-    --tt-line: #e3e1d8;
-    --tt-bg-soft: #faf8f3;
-    --tt-danger: #b32d2e;
-    --tt-danger-soft: #fbebeb;
-    --tt-warning: #dba617;
-    --tt-warning-soft: #fef7e0;
-    --tt-success: #00a32a;
-    --tt-success-soft: #ebf7ee;
-    --tt-info: #2271b1;
-    --tt-info-soft: #eef6fb;
-
-    /* Spacing — 4px base unit scale, used by margins/padding/gaps. */
-    --tt-sp-1: 4px;
-    --tt-sp-2: 8px;
-    --tt-sp-3: 12px;
-    --tt-sp-4: 16px;
-    --tt-sp-5: 24px;
-    --tt-sp-6: 32px;
-    --tt-sp-7: 48px;
-
-    /* Radii. */
-    --tt-r-sm: 4px;
-    --tt-r-md: 6px;
-    --tt-r-lg: 10px;
-
-    /* Typography scale (rem-based, user-zoom friendly). */
-    --tt-fs-xs: 0.75rem;
-    --tt-fs-sm: 0.875rem;
-    --tt-fs-md: 1rem;
-    --tt-fs-lg: 1.125rem;
-    --tt-fs-xl: 1.5rem;
-
-    /* Focus ring. */
-    --tt-focus: 0 0 0 2px rgba(11, 61, 46, 0.35);
-
-    /*
-     * #0075 Sprint 1 PR 2 — design-system shadow + motion + status
-     * subtle tokens are declared in .tt-root (public.css) only,
-     * NOT here. CSS custom properties cascade via inheritance, so
-     * declaring them here would block visual-editor overrides
-     * (operator's inline <style> targets .tt-root; this .tt-dashboard
-     * re-declaration would shadow it for dashboard descendants).
-     * Keeping the .tt-root default block as the single source of
-     * default values lets the operator's override actually take
-     * effect inside .tt-dashboard subtrees.
-     */
-
-    /* #0023 — font tokens. Defaults match the legacy stack used in
-       public.css; BrandStyles overrides via `:root` when the
-       Branding tab picks a curated family. */
-    --tt-font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --tt-font-body:    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-/*  Form layout primitives 
+/*  Form layout primitives
    .tt-field is the shared field container used by all the
    shared components (PlayerPicker, DateInput, RatingInput,
    MultiSelectTag). Gives every input a consistent vertical
