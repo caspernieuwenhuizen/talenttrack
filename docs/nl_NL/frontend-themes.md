@@ -134,6 +134,13 @@ binnen het dashboard zowel `tokens.css` als de Huisstijl overtroefde; het
 declareert er nu geen meer. `public.css` herhaalt nog een paar declaraties uit
 `tokens.css` op `.tt-root`, met dezelfde waarden, dus die veranderen niets.
 
+Eén token staat in `tokens.css` op zowel `.tt-dashboard` als `.tt-root`: de
+focusring, `--tt-focus`. Die is afgeleid van `--tt-primary`, en een thema zet
+zijn primaire kleur op `.tt-dashboard`, dus de ring moet daar ook gedeclareerd
+zijn om die te volgen. De kleur overschrijf je via `--tt-focus-color`.
+`BrandStyles` zet die alleen voor een primaire Huisstijlkleur die te licht is
+om 3:1 tegen de pagina te halen.
+
 Een thema **moet** de merktokens declareren (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb` en de afgeleide
 `--tt-primary-deep` / `-ink` / `-hover`). Anders schijnen de waarden van het

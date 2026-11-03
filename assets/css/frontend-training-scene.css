@@ -50,6 +50,14 @@
     fill: transparent;
     cursor: grab;
 }
+/* #4804 — the shared sheet's `.tt-tsc-token--own circle` (fill and stroke in
+   the primary) outranks the rule above and reaches this circle too, which
+   painted every own player as a 7-unit disc over its token and number.
+   The hit target stays invisible until it carries the focus ring below. */
+.tt-tsc-svg .tt-scene-actor .tt-scene-hit {
+    fill: transparent;
+    stroke: none;
+}
 
 .tt-tsc-svg .tt-scene-actor:active .tt-scene-hit { cursor: grabbing; }
 
@@ -58,9 +66,12 @@
     outline: none;
 }
 
-.tt-tsc-svg .tt-scene-actor:focus-visible circle:first-of-type {
+/* #4804 — the ring is drawn on the hit circle, a clear gap away from the
+   token, so it shows against the light pitch. On the token itself it was
+   lost: an own player is already filled and outlined in the primary. */
+.tt-tsc-svg .tt-scene-actor:focus-visible .tt-scene-hit {
     stroke: var(--tt-focus-color, var(--tt-primary));
-    stroke-width: 1.2;
+    stroke-width: 1;
 }
 
 /* ---- links revealed over time ---- */

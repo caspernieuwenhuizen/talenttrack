@@ -128,6 +128,13 @@ Branding inside the dashboard; it no longer declares any. `public.css` still
 repeats a few `tokens.css` declarations on `.tt-root`, at the same values, so
 they change nothing.
 
+One token is declared on `.tt-dashboard` as well as `.tt-root`, in
+`tokens.css`: the focus ring, `--tt-focus`. It is derived from `--tt-primary`,
+and a theme sets its primary on `.tt-dashboard`, so the ring has to be
+declared there too to follow it. Its colour is overridden through
+`--tt-focus-color`. `BrandStyles` sets that only for a Branding primary too
+light to reach 3:1 against the page.
+
 A theme **must** declare the brand tokens (`--tt-primary`,
 `--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb`, and the derived
 `--tt-primary-deep` / `-ink` / `-hover`). Otherwise the default design's

@@ -166,10 +166,11 @@ class BrandStyles {
     }
 
     /**
-     * The darkest light background a focus ring is drawn on (the canvas
-     * page background); a ring that reaches 3:1 here reaches it on white.
+     * The darkest light background a focus ring is drawn on: the canvas
+     * page background `#f4f5f7`. A ring that reaches 3:1 here also reaches
+     * it on white and on the training scene's pitch (`#f3f7f3`).
      */
-    private const FOCUS_BACKGROUND = '#f4f5f7';
+    private const FOCUS_BACKGROUND = [ 244, 245, 247 ];
 
     /** WCAG 2.2 non-text contrast for a focus indicator. */
     private const FOCUS_MIN_CONTRAST = 3.0;
@@ -182,7 +183,7 @@ class BrandStyles {
     public static function focusColor( string $hex ): string {
         $rgb = self::parseHex( $hex );
         if ( $rgb === null ) return '';
-        $bg = (array) self::parseHex( self::FOCUS_BACKGROUND );
+        $bg = self::FOCUS_BACKGROUND;
         if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) return '';
 
         [ $h, $s, $l ] = self::rgbToHsl( $rgb );
