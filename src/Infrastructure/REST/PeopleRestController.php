@@ -489,7 +489,7 @@ class PeopleRestController {
             // #4715 — the list's e-mail cell: the link, or "Hidden" for a
             // reader the sensitive-field registry hides a guardian's contact
             // from. Carries no contact of its own, so it is not registered.
-            'email_cell_html' => ( $email !== '' && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), (int) $row->id ) )
+            'email_cell_html' => ( $email !== '' && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), (int) ( $row->id ?? 0 ) ) )
                 ? \TT\Shared\Frontend\Components\MaskedValue::html()
                 : $email_link_html,
             'phone'           => (string) ( $row->phone ?? '' ),
