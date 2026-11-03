@@ -17,8 +17,13 @@ final class CascadeAuthFlushRedirected extends \Exception {}
  * #4778 — the three paths that remove team staff or team scope rows outside
  * PeopleRepository flush the per-request authorization caches, and a deleted
  * team leaves no team scope row behind.
+ *
+ * The two cascades commit, so those tests clean up after themselves; see
+ * `CommitsAfterCascade`.
  */
 final class CascadeAuthFlushTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private int $team   = 0;
     private int $coach  = 0;
@@ -33,6 +38,7 @@ final class CascadeAuthFlushTest extends WP_UnitTestCase {
         $roles->ensureCapabilities();
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
+        $this->markFixtureFloor();
 
         $wpdb->insert( "{$p}tt_teams", [ 'club_id' => 1, 'name' => 'Cascadeflush U16' ] );
         $this->team  = (int) $wpdb->insert_id;
@@ -61,6 +67,9 @@ final class CascadeAuthFlushTest extends WP_UnitTestCase {
         ( new PersonDeletionCascade() )->cascade( [ $this->person ] );
 
         $this->assertFalse( MatrixGate::canAnyScope( $this->coach, 'team', MatrixGate::READ ) );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_the_team_cascade_is_seen_by_the_next_check(): void {
@@ -70,6 +79,9 @@ final class CascadeAuthFlushTest extends WP_UnitTestCase {
 
         $this->assertSame( 0, $this->teamScopeRows() );
         $this->assertFalse( MatrixGate::canAnyScope( $this->coach, 'team', MatrixGate::READ ) );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_the_wp_admin_team_delete_removes_the_scope_rows_and_is_seen(): void {
