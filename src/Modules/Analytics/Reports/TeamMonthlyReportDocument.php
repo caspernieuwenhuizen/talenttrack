@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 use TT\Modules\Measurements\Services\TestVerdict;
 
@@ -233,7 +234,35 @@ final class TeamMonthlyReportDocument {
             self::css( $layout )
         );
 
-        return '@media (min-width: 1024px){' . self::sheetReset() . $scoped . '}';
+        return '@media (min-width: 1024px){' . self::sheetReset() . self::stackUndo() . $scoped . '}';
+    }
+
+    /**
+     * #4810 — the ranked readings, the roster and the evaluation grid are on
+     * the stack-table primitive, always stacked, so a phone reads them as
+     * labelled cards. From 1024px the sheet is the paper, and this takes the
+     * primitive back off them: the header row out of hiding, every part to
+     * its table display, empty and spanning cells included, and no label in
+     * front of a figure. Each rule outweighs the primitive's heaviest
+     * selector (`td[colspan]`, `td:empty`, `td[data-empty]`,
+     * `td[data-label=""]`) and sets only what the primitive set, so the
+     * document's own rules, which follow, still lay the table out. Screen
+     * only: `css()`, which DomPDF prints, never carries the primitive and
+     * never needs this.
+     */
+    private static function stackUndo(): string {
+        $t    = '.tt-mr-doc .tt-mr-sheet .tt-stack-table';
+        $cell = $t . '>tbody>tr>td';
+        return $t . '{display:table}'
+            . $t . '>thead{display:table-header-group;position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;clip-path:none;white-space:normal}'
+            . $t . '>tbody{display:table-row-group;width:auto}'
+            . $t . '>tbody>tr{display:table-row;width:auto}'
+            . $cell . ',' . $cell . ':empty,' . $cell . '[data-empty],' . $cell . '[colspan],' . $cell . '[data-label=""]'
+            . '{display:table-cell;justify-content:normal;align-items:normal;gap:normal;overflow-wrap:normal}'
+            // The primitive centres a spanning cell; the sheet's reset
+            // inherits, and the document sets no alignment on one.
+            . $cell . '[colspan]{text-align:inherit}'
+            . $cell . '::before{content:none}';
     }
 
     /**
@@ -970,14 +999,15 @@ final class TeamMonthlyReportDocument {
         $n     = max( 1, count( $cats ) );
         $chars = max( 4, (int) floor( TeamMonthlyReportLayout::gridCategoryWidth( $n, self::$layout ) / 1.55 ) );
 
-        $head = '<thead><tr><th class="jn">#</th><th class="l nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        $th   = StackTable::attrs( 'columnheader' );
+        $head = '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th class="jn"' . $th . '>#</th><th class="l nm"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         foreach ( $cats as $cat ) {
             if ( ! is_array( $cat ) ) continue;
-            $head .= '<th class="cat">' . esc_html( self::cut( (string) ( $cat['label'] ?? '' ), $chars ) ) . '</th>';
+            $head .= '<th class="cat"' . $th . '>' . esc_html( self::cut( (string) ( $cat['label'] ?? '' ), $chars ) ) . '</th>';
         }
-        $head .= '<th class="oa">' . esc_html_x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) . '</th>'
-            . '<th class="cnt">' . esc_html_x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) . '</th>'
-            . '<th class="l last">' . esc_html_x( 'Last', 'monthly report evaluations column: date of the last evaluation', 'talenttrack' ) . '</th></tr></thead>';
+        $head .= '<th class="oa"' . $th . '>' . esc_html_x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) . '</th>'
+            . '<th class="cnt"' . $th . '>' . esc_html_x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) . '</th>'
+            . '<th class="l last"' . $th . '>' . esc_html_x( 'Last', 'monthly report evaluations column: date of the last evaluation', 'talenttrack' ) . '</th></tr></thead>';
 
         $labels = [];
         foreach ( $cats as $cat ) {
@@ -989,44 +1019,46 @@ final class TeamMonthlyReportDocument {
             if ( ! is_array( $row ) ) continue;
             $jersey = $row['jersey_number'] ?? null;
             $none   = empty( $row['evaluated'] );
-            $body  .= '<tr' . ( $none ? ' class="none"' : '' ) . '>'
-                . '<td class="jn">' . esc_html( $jersey !== null ? (string) (int) $jersey : '' ) . '</td>'
-                . '<td class="l nm">' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), 24 ) . '</td>';
+            $body  .= '<tr' . ( $none ? ' class="none"' : '' ) . StackTable::attrs( 'row' ) . '>'
+                . '<td class="jn"' . StackTable::attrs( 'cell' ) . '>' . esc_html( $jersey !== null ? (string) (int) $jersey : '' ) . '</td>'
+                . '<td class="l nm"' . StackTable::attrs( 'cell' ) . '>' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), 24 ) . '</td>';
             foreach ( is_array( $row['cells'] ?? null ) ? array_values( $row['cells'] ) : [] as $i => $cell ) {
                 if ( ! is_array( $cell ) ) continue;
                 $label = $labels[ $i ] ?? '';
                 $value = $cell['value'] ?? null;
                 if ( ! is_int( $value ) && ! is_float( $value ) ) {
-                    $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '">—</td>';
+                    $body .= '<td class="cat"' . StackTable::attrs( 'cell', $label ) . '>—</td>';
                     continue;
                 }
                 $trend = (string) ( $cell['trend'] ?? '' );
                 $arrow = $trend === 'up' ? '▲' : ( $trend === 'down' ? '▼' : ( $trend === 'flat' ? '=' : '' ) );
-                $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '"><span class="rt t' . (int) ( $cell['tone'] ?? 3 ) . '">' . esc_html( self::rating( (float) $value ) ) . '</span>'
+                $body .= '<td class="cat"' . StackTable::attrs( 'cell', $label ) . '><span class="rt t' . (int) ( $cell['tone'] ?? 3 ) . '">' . esc_html( self::rating( (float) $value ) ) . '</span>'
                     . ( $arrow !== '' ? '<span class="ar ' . self::moveClass( $trend ) . '">' . esc_html( $arrow ) . '</span>' : '' ) . '</td>';
             }
             $avg   = $row['avg'] ?? null;
             $last  = (string) ( $row['last'] ?? '' );
-            $body .= '<td class="oa" data-label="' . esc_attr_x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) . '">' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
-                . '<td class="cnt" data-label="' . esc_attr_x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) . '">' . (int) ( $row['count'] ?? 0 ) . '</td>'
-                . '<td class="l last">' . esc_html( $none ? _x( 'not evaluated', 'monthly report evaluations: a player without an evaluation this month', 'talenttrack' ) : self::shortDate( $last ) ) . '</td>'
+            $body .= '<td class="oa"' . StackTable::attrs( 'cell', _x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) ) . '>' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
+                . '<td class="cnt"' . StackTable::attrs( 'cell', _x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) ) . '>' . (int) ( $row['count'] ?? 0 ) . '</td>'
+                . '<td class="l last"' . StackTable::attrs( 'cell' ) . '>' . esc_html( $none ? _x( 'not evaluated', 'monthly report evaluations: a player without an evaluation this month', 'talenttrack' ) : self::shortDate( $last ) ) . '</td>'
                 . '</tr>';
         }
 
         // The squad row.
-        $body .= '<tr class="tot"><td class="jn"></td><td class="l nm">' . esc_html_x( 'Squad', 'monthly report evaluations: the squad average row', 'talenttrack' ) . '</td>';
+        $body .= '<tr class="tot"' . StackTable::attrs( 'row' ) . '><td class="jn"' . StackTable::attrs( 'cell' ) . '></td><td class="l nm"' . StackTable::attrs( 'cell' ) . '>' . esc_html_x( 'Squad', 'monthly report evaluations: the squad average row', 'talenttrack' ) . '</td>';
         foreach ( $cats as $i => $cat ) {
             if ( ! is_array( $cat ) ) continue;
             $v     = $cat['avg'] ?? null;
-            $body .= '<td class="cat" data-label="' . esc_attr( $labels[ $i ] ?? '' ) . '">' . esc_html( ( is_int( $v ) || is_float( $v ) ) ? self::rating( (float) $v ) : '—' ) . '</td>';
+            $body .= '<td class="cat"' . StackTable::attrs( 'cell', $labels[ $i ] ?? '' ) . '>' . esc_html( ( is_int( $v ) || is_float( $v ) ) ? self::rating( (float) $v ) : '—' ) . '</td>';
         }
         $avg   = $e['squad_avg'] ?? null;
-        $body .= '<td class="oa">' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
-            . '<td class="cnt">' . (int) ( $e['evaluations'] ?? 0 ) . '</td><td class="l last"></td></tr>';
+        $body .= '<td class="oa"' . StackTable::attrs( 'cell' ) . '>' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
+            . '<td class="cnt"' . StackTable::attrs( 'cell' ) . '>' . (int) ( $e['evaluations'] ?? 0 ) . '</td><td class="l last"' . StackTable::attrs( 'cell' ) . '></td></tr>';
 
         $scale = self::scaleOf( $e );
+        // #4810 — the stack-table primitive, always stacked: the report's own
+        // wide block (screenCss()) brings the table back from 1024px.
         return '<div class="sub">' . esc_html__( 'Per player', 'talenttrack' ) . '</div>'
-            . '<table class="egrid">' . $head . '<tbody>' . $body . '</tbody></table>'
+            . '<table class="egrid ' . StackTable::classes( StackTable::ALWAYS ) . '"' . StackTable::attrs( 'table' ) . '>' . $head . '<tbody' . StackTable::attrs( 'rowgroup' ) . '>' . $body . '</tbody></table>'
             . '<div class="muted">' . esc_html( sprintf(
                 /* translators: 1: lowest rating on the scale, 2: highest */
                 __( 'Cell: the player\'s average this month in that category; ▲/▼ against the previous month. The colour follows the scale, %1$s low to %2$s high. In shirt-number order.', 'talenttrack' ),
@@ -1704,28 +1736,32 @@ final class TeamMonthlyReportDocument {
             if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
         }
 
-        $head = '<tr><th class="rk">#</th><th class="nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        // The header is the first row of the body, not a `thead`: DomPDF
+        // repeats a `thead` on every page a table runs onto, which the
+        // page estimate does not count.
+        $th   = StackTable::attrs( 'columnheader' );
+        $head = '<tr' . StackTable::attrs( 'row' ) . '><th class="rk"' . $th . '>#</th><th class="nm"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         $cols = 2;
         if ( $values ) {
-            $head .= '<th class="v">' . esc_html(
+            $head .= '<th class="v"' . $th . '>' . esc_html(
                 $unit !== ''
                     /* translators: %s: unit of measurement, e.g. "s" or "cm" */
                     ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
                     : _x( 'Result', 'monthly report tests column', 'talenttrack' )
-            ) . '</th><th class="bb"></th>';
+            ) . '</th><th class="bb"' . $th . '></th>';
             $cols += 2;
         }
         if ( $standing ) {
-            $head .= '<th class="st">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
+            $head .= '<th class="st"' . $th . '>' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
             $cols++;
         }
         if ( $trend ) {
-            $head .= '<th class="pv">' . esc_html__( 'Previous', 'talenttrack' ) . '</th>'
-                . '<th class="ch">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
+            $head .= '<th class="pv"' . $th . '>' . esc_html__( 'Previous', 'talenttrack' ) . '</th>'
+                . '<th class="ch"' . $th . '>' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
             $cols += 2;
         }
         if ( $values ) {
-            $head .= '<th class="av">' . esc_html_x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) . '</th>';
+            $head .= '<th class="av"' . $th . '>' . esc_html_x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) . '</th>';
             $cols++;
         }
         $head .= '</tr>';
@@ -1737,7 +1773,7 @@ final class TeamMonthlyReportDocument {
         foreach ( $rows as $i => $row ) {
             if ( ! is_array( $row ) ) continue;
             if ( $ranked && ! $line && $i > 0 && ! empty( $row['worse_than_avg'] ) ) {
-                $body .= '<tr class="avgline"><td colspan="' . $cols . '"></td></tr>';
+                $body .= '<tr class="avgline"' . StackTable::attrs( 'row' ) . '><td colspan="' . $cols . '"' . StackTable::attrs( 'cell' ) . '></td></tr>';
                 $line  = true;
             }
             $flag     = (string) ( $row['flag'] ?? '' );
@@ -1745,29 +1781,29 @@ final class TeamMonthlyReportDocument {
             $pb       = ! empty( $row['pb'] );
             $any_pb   = $any_pb || $pb;
             $rank     = $row['rank'] ?? null;
-            $body    .= '<tr><td class="rk">' . esc_html( is_int( $rank ) ? (string) $rank : '' ) . '</td>'
-                . '<td class="nm">' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), $pb ? 22 : 26 )
+            $body    .= '<tr' . StackTable::attrs( 'row' ) . '><td class="rk"' . StackTable::attrs( 'cell' ) . '>' . esc_html( is_int( $rank ) ? (string) $rank : '' ) . '</td>'
+                . '<td class="nm"' . StackTable::attrs( 'cell' ) . '>' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), $pb ? 22 : 26 )
                 . ( $pb ? '<span class="pb">' . esc_html_x( 'PB', 'personal best, short tag', 'talenttrack' ) . '</span>' : '' ) . '</td>';
             if ( $values ) {
                 $fill  = [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ][ $flag ] ?? 'fn';
-                $body .= '<td class="v">' . esc_html( self::testValue( $row ) ) . '</td>'
-                    . '<td class="bb">' . self::gauge( 'tb ' . $fill, (float) ( $row['bar_pct'] ?? 0 ) ) . '</td>';
+                $body .= '<td class="v"' . StackTable::attrs( 'cell' ) . '>' . esc_html( self::testValue( $row ) ) . '</td>'
+                    . '<td class="bb"' . StackTable::attrs( 'cell' ) . '>' . self::gauge( 'tb ' . $fill, (float) ( $row['bar_pct'] ?? 0 ) ) . '</td>';
             }
             if ( $standing ) {
                 $label = (string) ( $row['verdict_label'] ?? '' );
                 $tone  = (string) ( $row['verdict_tone'] ?? '' );
-                $body .= '<td class="st">' . ( $label !== ''
+                $body .= '<td class="st"' . StackTable::attrs( 'cell' ) . '>' . ( $label !== ''
                     ? '<span class="vc vc-' . esc_attr( in_array( $tone, [ 'ok', 'warn', 'bad' ], true ) ? $tone : 'none' ) . '">' . esc_html( self::cut( $label, 20 ) ) . '</span>'
                     : '' ) . '</td>';
             }
             if ( $trend ) {
                 $first = ! empty( $row['first'] );
-                $body .= '<td class="pv" data-label="' . esc_attr__( 'Previous', 'talenttrack' ) . '">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
-                    . '<td class="ch ' . ( $first ? 'eq' : self::moveClass( (string) ( $row['trend'] ?? '' ) ) ) . '">'
+                $body .= '<td class="pv"' . StackTable::attrs( 'cell', __( 'Previous', 'talenttrack' ) ) . '>' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
+                    . '<td class="ch ' . ( $first ? 'eq' : self::moveClass( (string) ( $row['trend'] ?? '' ) ) ) . '"' . StackTable::attrs( 'cell' ) . '>'
                     . esc_html( $first ? _x( 'first', 'a first test reading, nothing to compare with', 'talenttrack' ) : self::testDelta( $row ) ) . '</td>';
             }
             if ( $values ) {
-                $body .= '<td class="av" data-label="' . esc_attr_x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) . '">' . esc_html( (string) ( $row['vs_avg_display'] ?? '—' ) ) . '</td>';
+                $body .= '<td class="av"' . StackTable::attrs( 'cell', _x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) ) . '>' . esc_html( (string) ( $row['vs_avg_display'] ?? '—' ) ) . '</td>';
             }
             $body .= '</tr>';
         }
@@ -1785,7 +1821,7 @@ final class TeamMonthlyReportDocument {
         if ( $any_pb ) $legend[] = esc_html__( 'PB = personal best', 'talenttrack' );
         if ( $line )   $legend[] = esc_html__( 'Dashed line = squad average', 'talenttrack' );
 
-        return '<table class="rd">' . $head . $body . '</table>'
+        return '<table class="rd ' . StackTable::classes( StackTable::ALWAYS ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>' . $head . $body . '</tbody></table>'
             . ( $legend !== [] ? '<div class="muted recon">' . implode( ' &nbsp;·&nbsp; ', $legend ) . '</div>' : '' );
     }
 
@@ -1921,14 +1957,14 @@ final class TeamMonthlyReportDocument {
         $cols[] = [ $short['injured'], 'c', $labels['injured'] ];
         $cols[] = [ $labels['suspended'], 'c', '' ];
 
-        $out .= '<table class="tbl"><thead><tr>';
+        $out .= '<table class="tbl ' . StackTable::classes( StackTable::ALWAYS ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( $cols as $i => $col ) {
             $text = $col[2] !== '' && $col[2] !== $col[0]
                 ? '<abbr title="' . esc_attr( $col[2] ) . '">' . esc_html( $col[0] ) . '</abbr>'
                 : esc_html( $col[0] );
-            $out .= '<th class="w' . $i . ( $col[1] !== '' ? ' ' . $col[1] : '' ) . '">' . $text . '</th>';
+            $out .= '<th class="w' . $i . ( $col[1] !== '' ? ' ' . $col[1] : '' ) . '"' . StackTable::attrs( 'columnheader' ) . '>' . $text . '</th>';
         }
-        $out .= '</tr></thead><tbody>';
+        $out .= '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $row ) {
             if ( ! is_array( $row ) ) continue;
             $att   = $row['attendance_pct'] ?? null;
@@ -1943,17 +1979,17 @@ final class TeamMonthlyReportDocument {
 
             // #4098 — each figure carries its column's name, so a phone that
             // stacks the row can still say what the number is.
-            $out .= '<tr>'
-                . '<td class="nm">' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 31 : 26 ) . '</td>'
-                . '<td class="stat" data-label="' . esc_attr( $labels['status'] ) . '">' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
-                . '<td class="r" data-label="' . esc_attr( $labels['attendance'] ) . '">' . esc_html( self::pct( $att ) ) . '</td>'
-                . ( $wide ? '<td class="bar">' . self::miniBar( $att ) . '</td>' : '' )
-                . '<td class="r" data-label="' . esc_attr( $labels['minutes'] ) . '">' . esc_html( ( is_int( $min ) || is_float( $min ) ) ? number_format_i18n( (float) $min ) : '—' ) . '</td>'
-                . '<td class="r" data-label="' . esc_attr( $labels['share'] ) . '">' . esc_html( self::pct( $share ) ) . '</td>'
-                . ( $wide ? '<td class="bar">' . self::miniBar( $share ) . '</td>' : '' )
-                . '<td class="r" data-label="' . esc_attr( $labels['goals'] ) . '">' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
-                . '<td class="c" data-label="' . esc_attr( $labels['injured'] ) . '">' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
-                . '<td class="c" data-label="' . esc_attr( $labels['suspended'] ) . '">' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>'
+            $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td class="nm"' . StackTable::attrs( 'cell' ) . '>' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 31 : 26 ) . '</td>'
+                . '<td class="stat"' . StackTable::attrs( 'cell', $labels['status'] ) . '>' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
+                . '<td class="r"' . StackTable::attrs( 'cell', $labels['attendance'] ) . '>' . esc_html( self::pct( $att ) ) . '</td>'
+                . ( $wide ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $att ) . '</td>' : '' )
+                . '<td class="r"' . StackTable::attrs( 'cell', $labels['minutes'] ) . '>' . esc_html( ( is_int( $min ) || is_float( $min ) ) ? number_format_i18n( (float) $min ) : '—' ) . '</td>'
+                . '<td class="r"' . StackTable::attrs( 'cell', $labels['share'] ) . '>' . esc_html( self::pct( $share ) ) . '</td>'
+                . ( $wide ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $share ) . '</td>' : '' )
+                . '<td class="r"' . StackTable::attrs( 'cell', $labels['goals'] ) . '>' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
+                . '<td class="c"' . StackTable::attrs( 'cell', $labels['injured'] ) . '>' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
+                . '<td class="c"' . StackTable::attrs( 'cell', $labels['suspended'] ) . '>' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>'
                 . '</tr>';
         }
         return $out . '</tbody></table></div>';

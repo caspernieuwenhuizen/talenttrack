@@ -38,7 +38,6 @@ jobs:
           PRIMITIVE='assets/css/components/stack-table.css'
           MIGRATING=(
             'assets/css/frontend-mobile.css'
-            'assets/css/frontend-team-monthly-report.css'
           )
 
           if [ ! -f "$PRIMITIVE" ]; then
