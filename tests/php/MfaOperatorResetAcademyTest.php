@@ -41,39 +41,51 @@ final class MfaOperatorResetAcademyTest extends WP_UnitTestCase {
     public function test_an_operator_of_another_academy_is_refused_and_the_enrolment_stays(): void {
         $target   = $this->enrolledMemberOf( [ 1 ] );
         $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $this->assertTrue( user_can( $operator, 'tt_edit_settings' ), 'precondition: the operator may reset in their own academy' );
 
-        $refused = ClubIteration::withClub( 2, function () use ( $operator, $target ): ?int {
-            try {
-                $this->submitReset( $operator, $target );
-            } catch ( WPDieException $e ) {
-                return 403;
-            }
-            return null;
-        } );
-
-        $this->assertSame( 403, $refused, 'refused in an academy the account does not belong to' );
+        $this->assertSame( 'refused', $this->resetIn( 2, $operator, $target ), 'refused in an academy the account does not belong to' );
         $this->assertTrue( $this->repo->isEnrolled( $target ), 'the enrolment survives' );
         $this->assertSame( 0, $this->auditRows( $target ), 'and nothing is logged as reset' );
     }
 
-    public function test_an_operator_of_the_accounts_academy_resets_it_and_every_academy_logs_it(): void {
-        $target   = $this->enrolledMemberOf( [ 1, 3 ] );
+    public function test_an_account_with_no_academy_is_neither_listed_nor_reset_from_an_academy(): void {
+        $loose    = $this->enrolledMemberOf( [] );
         $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->assertSame( [], ClubMembership::clubIdsForUser( $loose ), 'precondition: the account belongs to no academy' );
+
+        $this->assertNotContains( $loose, array_column( $this->repo->enrolledAccountsOfClub( 1 ), 'wp_user_id' ), 'not in academy 1\'s list' );
+        $this->assertSame( 'refused', $this->resetIn( 1, $operator, $loose ), 'its reset is refused in academy 1' );
+        $this->assertTrue( $this->repo->isEnrolled( $loose ), 'the enrolment survives' );
+    }
+
+    /**
+     * Submit a reset while working in an academy: `refused` for the 403,
+     * `redirected` when the handler went on to reset. A throwing redirect
+     * keeps a handler that stopped refusing from reaching `exit`, so a
+     * regression fails the test instead of ending the run.
+     */
+    private function resetIn( int $club, int $operator, int $target ): string {
         add_filter( 'wp_redirect', static function (): string {
             throw new \RuntimeException( 'redirected' );
         } );
-
-        $done = ClubIteration::withClub( 1, function () use ( $operator, $target ): string {
+        return ClubIteration::withClub( $club, function () use ( $club, $operator, $target ): string {
+            $this->flush();
+            $this->assertTrue( user_can( $operator, 'tt_edit_settings' ), "precondition: the operator may reset in academy {$club}, so a refusal is the membership check" );
             try {
                 $this->submitReset( $operator, $target );
+            } catch ( WPDieException $e ) {
+                return 'refused';
             } catch ( \RuntimeException $e ) {
                 return $e->getMessage();
             }
             return '';
         } );
+    }
 
-        $this->assertSame( 'redirected', $done );
+    public function test_an_operator_of_the_accounts_academy_resets_it_and_every_academy_logs_it(): void {
+        $target   = $this->enrolledMemberOf( [ 1, 3 ] );
+        $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        $this->assertSame( 'redirected', $this->resetIn( 1, $operator, $target ) );
         $this->assertFalse( $this->repo->isEnrolled( $target ), 'the enrolment is reset' );
         global $wpdb;
         $clubs = $wpdb->get_col( $wpdb->prepare(
@@ -87,11 +99,11 @@ final class MfaOperatorResetAcademyTest extends WP_UnitTestCase {
         $here      = $this->enrolledMemberOf( [ 1 ] );
         $elsewhere = $this->enrolledMemberOf( [ 2 ] );
 
-        $listed = array_column( $this->repo->enrolledAccountsGovernedBy( 1 ), 'wp_user_id' );
+        $listed = array_column( $this->repo->enrolledAccountsOfClub( 1 ), 'wp_user_id' );
         $this->assertContains( $here, $listed, 'precondition: the academy\'s own enrolled account is listed' );
         $this->assertNotContains( $elsewhere, $listed, 'another academy\'s enrolled account is not listed' );
 
-        $this->assertContains( $elsewhere, array_column( $this->repo->enrolledAccountsGovernedBy( 2 ), 'wp_user_id' ), 'and it is listed in its own academy' );
+        $this->assertContains( $elsewhere, array_column( $this->repo->enrolledAccountsOfClub( 2 ), 'wp_user_id' ), 'and it is listed in its own academy' );
     }
 
     /**
@@ -107,7 +119,7 @@ final class MfaOperatorResetAcademyTest extends WP_UnitTestCase {
                 'club_id' => $club, 'first_name' => 'Reset', 'last_name' => 'Member' . $user, 'wp_user_id' => $user, 'status' => 'active',
             ] );
         }
-        ClubIteration::withClub( $clubs[0], function () use ( $user ): void {
+        ClubIteration::withClub( $clubs[0] ?? 1, function () use ( $user ): void {
             $this->repo->upsertSecret( $user, TotpService::generateSecret(), [] );
             $this->repo->markEnrolled( $user );
         } );

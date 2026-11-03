@@ -1,0 +1,3 @@
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Nobody in this academy has set up two-step verification yet."
+msgstr "Nog niemand in deze academie heeft tweestapsverificatie ingesteld."

@@ -102,14 +102,17 @@ final class MfaSecretsRepository {
     }
 
     /**
-     * The enrolled accounts an academy governs (`ClubMembership`), for the
-     * operator's reset list: an enrolment is the account's, and the list
-     * follows the academy, so it holds only that academy's accounts.
+     * The enrolled accounts that belong to an academy
+     * (`ClubMembership::userIdsForClub()`), for the operator's reset list:
+     * an enrolment is the account's, and the list follows the academy, so it
+     * holds only that academy's members. The reset checks the same relation
+     * from the account's end (`clubIdsForUser()`). An account with no academy
+     * row is not listed; it is reset at install level (`wp tt mfa reset`).
      *
      * @return list<array{wp_user_id:int, user_login:string, display_name:string}>
      */
-    public function enrolledAccountsGovernedBy( int $club_id, int $limit = 200 ): array {
-        $ids = \TT\Infrastructure\Tenancy\ClubMembership::userIdsGovernedBy( $club_id );
+    public function enrolledAccountsOfClub( int $club_id, int $limit = 200 ): array {
+        $ids = \TT\Infrastructure\Tenancy\ClubMembership::userIdsForClub( $club_id );
         if ( $ids === [] ) return [];
         global $wpdb;
         $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );

@@ -353,15 +353,15 @@ class AccountPage {
         // username; in practice an academy has < 50 enrolled accounts.
         // #4798 — an enrolment is the account's, whichever academy it was
         // set up in; the list follows the academy, so it holds the enrolled
-        // accounts this academy governs (`ClubMembership`).
-        $rows = ( new \TT\Modules\Mfa\MfaSecretsRepository() )->enrolledAccountsGovernedBy( (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), 200 );
+        // accounts that belong to this academy (`ClubMembership`).
+        $rows = ( new \TT\Modules\Mfa\MfaSecretsRepository() )->enrolledAccountsOfClub( (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), 200 );
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:16px; max-width:760px; padding:16px; background:#fff8f8; border:1px solid #f0c5c5;">';
         wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE, 'tt_mfa_nonce' );
         echo '<input type="hidden" name="action" value="' . esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE ) . '">';
 
         if ( empty( $rows ) ) {
-            echo '<p style="margin:0;">' . esc_html__( 'Nobody is currently enrolled in MFA on this install.', 'talenttrack' ) . '</p>';
+            echo '<p style="margin:0;">' . esc_html__( 'Nobody in this academy has set up two-step verification yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<label style="display:block; margin-bottom:12px;">';
             echo '<span style="display:block; font-weight:600; margin-bottom:6px;">'

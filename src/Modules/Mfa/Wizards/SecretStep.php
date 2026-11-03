@@ -21,8 +21,8 @@ use TT\Shared\Wizards\WizardStepInterface;
  *     an empty backup-codes array.
  *   - `upsertSecret()` replaces the secret and the recovery codes on an
  *     existing row and clears the failed-attempt counter and the lockout.
- *     It leaves `enrolled_at` as it was: the verify step sets it again
- *     through `markEnrolled()`.
+ *     It leaves `enrolled_at` as it was: the final step,
+ *     `BackupCodesStep::submit()`, sets it again through `markEnrolled()`.
  *   - On the next visit / Back navigation, we re-read the existing row
  *     and decrypt the secret — the QR shown is identical to the one
  *     the user scanned the first time.
