@@ -80,6 +80,38 @@ De pilot doet dit voor het Activiteiten-scherm. Goals, Players, Trial cases en P
 
 De gedeelde lijsttabel (`FrontendListTable`) is op dezelfde manier gemigreerd. De telefoonrijen zijn de basis van `assets/css/components/list-table.css` en de tabel komt terug bij `min-width: 768px`; `DashboardShortcode` laadt de stylesheet op elke view, omdat elke view een lijst kan tonen. Zie [Mobiele patronen](mobile-patterns.md) voor de `mobile`-kolomrollen.
 
+## Gestapelde tabellen
+
+Een tabel die op een telefoon in kaarten met labels verandert, gebruikt de gedeelde stapeltabel, `assets/css/components/stack-table.css`. Dat is de enige stylesheet die `content: attr(data-label)` mag schrijven; de stack-table-lint in CI keurt elke andere af.
+
+**Markup.** Bouw de tabel met `\TT\Shared\Frontend\Components\StackTable`:
+
+- `StackTable::classes( $to, $cards )` geeft de classes. `$to` is `StackTable::TO_480`, `StackTable::TO_768` of `StackTable::ALWAYS`; `$cards` voegt de kaartopmaak toe.
+- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'cell', $label )` zet de expliciete rol op elk onderdeel, en de `data-label` op een cel. Als `display` op tabelelementen verandert, verliezen sommige engines hun impliciete rollen; een renderer zonder de rollen is voor een schermlezer geen tabel meer.
+- Een cel met meerdere delen (een naam met een badge, een status met een toelichting) zet ze samen in één `StackTable::VALUE`-blok, zodat ze naast het label onder elkaar staan.
+- Een tabel die JavaScript opbouwt, schrijft dezelfde attributen als de helper (zie `frontend-list-table.js`).
+
+**Wat de stapeltabel doet.**
+
+| Class | Op een telefoon | Weer een tabel |
+| --- | --- | --- |
+| `tt-stack-table` | één kaart per rij, één regel met label en waarde per cel | nooit |
+| `tt-stack-table--to-480` | hetzelfde | vanaf 480px |
+| `tt-stack-table--to-768` | hetzelfde | vanaf 768px |
+| `tt-stack-table--cards` | elke rij krijgt papier, rand en ronding | de opmaak verdwijnt met het stapelen |
+
+- **Kopregel:** alleen visueel verborgen, nooit met `display: none`, zodat de kolomkoppen in de toegankelijkheidsboom blijven. Hij verschijnt zolang een bedieningselement erin de toetsenbordfocus heeft.
+- **Label:** verborgen voor een schermlezer (`content: attr(data-label) / ""`), omdat de kolomkop de cel al benoemt.
+- **Cellen zonder regel:** een lege cel neemt geen regel in, een cel met `data-label=""` is alleen zijn waarde, en een cel over de hele rij is één blok.
+
+Andere breekpunten en container queries zijn er niet.
+
+**Stylesheets van een scherm.** De eigen stylesheet van een scherm gaat over padding, randen en de opmaak van het label, nooit over het stapelen. De selectors van de stapeltabel zijn `> tbody > tr > td`-ketens (0,1,3, en 0,2,3 voor lege, overspannende en ongelabelde cellen). Een regel van een scherm die moet winnen, gebruikt dus dezelfde ketenvorm of staat onder een scope-class zoals `.tt-dashboard`.
+
+**Een renderer die zijn eigen brede opmaak heeft**, gebruikt `StackTable::ALWAYS` en maakt de stapeltabel in zijn eigen brede blok weer ongedaan. Het maandrapport van een team is het voorbeeld. Zijn vellen zijn vanaf 1024px het papier, en 1024 is geen breekpunt van de stapeltabel. Daarom haalt `TeamMonthlyReportDocument::screenCss()` de stapeltabel in zijn eigen `min-width: 1024px`-blok weer van zijn tabellen af. Dat geldt voor de kopregel, de weergave van elk onderdeel (lege, overspannende en ongelabelde cellen inbegrepen), de regeleigenschappen en het label. Dat ongedaan maken geldt alleen voor het scherm: de stylesheet die DomPDF afdrukt, noemt de stapeltabel nergens. De printvariant van het bewijspaneel (`.tt-evidence--print`) maakt hem op dezelfde manier ongedaan voor de afgedrukte pagina en de pdf. Elke regel die dat doet, moet zwaarder wegen dan de zwaarste selectors van de stapeltabel en alleen zetten wat de stapeltabel zette, zodat de eigen regels van de renderer de tabel nog opmaken.
+
+**De oude stapelweergave.** Onder 480px stapelt `frontend-mobile.css` nog elke `.tt-table` die niet op de stapeltabel staat, met labels die `tt-table-tools.js` uit de kopregel overneemt. Een tabel op de stapeltabel laat hij met rust. Die tabellen naar de stapeltabel overzetten is het deel van deze migratie dat nog openstaat.
+
 ## Wat is nog desktop-first
 
 `public.css`, `frontend-admin.css`, `frontend-mobile.css` en `admin.css` zijn van vóór de regel. Ze blijven staan voor views die nog niet gemigreerd zijn. De weg naar "geen oude desktop-first stylesheets meer" is één gemigreerde view per release, bijgehouden in [`SEQUENCE.md`](../../SEQUENCE.md) onder #0056.

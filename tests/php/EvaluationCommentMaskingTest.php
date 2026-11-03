@@ -267,6 +267,30 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '"rating"', $body, 'the ratings stay' );
     }
 
+    public function test_the_player_report_shows_hidden_in_the_notes_cell_for_the_observer(): void {
+        // The report's evaluations table: the Notes column stays, labelled
+        // for the stacked phone layout, and its cell says "Hidden" rather
+        // than printing the words or a dash that reads as "nothing written".
+        $from = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+        $to   = gmdate( 'Y-m-d' );
+
+        AuthorizationService::flushCache();
+        wp_set_current_user( $this->observer );
+        $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $this->player, $from, $to, [ 'ratings' ], $this->observer );
+        $this->assertNotNull( $report );
+
+        ob_start();
+        \TT\Modules\Analytics\Frontend\PlayerReportPage::renderBlocks( $report, [ 'from' => $from, 'to' => $to, 'period' => '' ] );
+        $html = (string) ob_get_clean();
+
+        $this->assertSame(
+            1,
+            preg_match( '#<td role="cell" data-label="Notes"><span class="tt-masked-value"#', $html ),
+            'the Notes cell carries the masked value'
+        );
+        $this->assertStringNotContainsString( 'worried about focus', $html );
+    }
+
     public function test_the_evaluations_file_leaves_the_words_out_for_the_observer(): void {
         $this->assertStringContainsString( 'worried about focus', $this->csvBody( $this->hod ) );
         $observer = $this->csvBody( $this->observer );

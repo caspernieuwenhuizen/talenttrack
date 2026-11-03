@@ -80,6 +80,38 @@ The pilot does this for the Activities surface. Goals, Players, Trial cases, and
 
 The shared list table (`FrontendListTable`) has been migrated the same way. Its phone rows are the base of `assets/css/components/list-table.css` and its table returns at `min-width: 768px`; `DashboardShortcode` loads the sheet on every view, because any view can render a list. See [Mobile patterns](mobile-patterns.md) for the `mobile` column roles.
 
+## Stacked tables
+
+A table that turns into labelled cards on a phone uses the stacked-table primitive, `assets/css/components/stack-table.css`. It is the only stylesheet allowed to write `content: attr(data-label)`; the stack-table lint in CI fails any other.
+
+**Markup.** Build the table through `\TT\Shared\Frontend\Components\StackTable`:
+
+- `StackTable::classes( $to, $cards )` gives the classes. `$to` is `StackTable::TO_480`, `StackTable::TO_768` or `StackTable::ALWAYS`; `$cards` adds the card chrome.
+- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'cell', $label )` writes the explicit role on every part, and the `data-label` on a cell. Changing `display` on table elements drops their implicit roles in some engines, so a renderer that leaves the roles out loses the table to a screen reader.
+- A cell with several parts (a name with its badge, a status with its hint) wraps them in one `StackTable::VALUE` block, so they stack beside the label.
+- A JS-rendered table writes the same attributes the helper does (see `frontend-list-table.js`).
+
+**What the primitive does.**
+
+| Class | On a phone | Back to a table |
+| --- | --- | --- |
+| `tt-stack-table` | one card per row, one label-and-value line per cell | never |
+| `tt-stack-table--to-480` | the same | from 480px |
+| `tt-stack-table--to-768` | the same | from 768px |
+| `tt-stack-table--cards` | each row gets paper, border and radius | the chrome goes with the stack |
+
+- **Header row:** hidden visually, never with `display: none`, so the column headers stay in the accessibility tree. It shows while a control in it has the keyboard focus.
+- **Label:** hidden from a screen reader (`content: attr(data-label) / ""`), because the column header already names the cell.
+- **Cells without a line:** an empty cell takes no line, a cell with `data-label=""` is its value alone, and a spanning cell is one block.
+
+There are no other breakpoints and no container queries.
+
+**Surface sheets.** A surface's own sheet owns padding, borders and the label's type, never the stacking. The primitive's selectors are `> tbody > tr > td` chains (0,1,3, and 0,2,3 for the empty, spanning and unlabelled cells), so a surface rule that must win uses the same chain shape or sits under a scope class such as `.tt-dashboard`.
+
+**A renderer that owns its wide layout** uses `StackTable::ALWAYS` and undoes the primitive inside its own wide block. The team monthly report is the example. Its sheets are the paper from 1024px up, which is not a primitive breakpoint, so `TeamMonthlyReportDocument::screenCss()` takes the primitive back off its tables in its own `min-width: 1024px` block. That covers the header row, each part's display (empty, spanning and unlabelled cells included), the line properties and the label. The undo is screen-only: the stylesheet DomPDF prints never mentions the primitive. The evidence panel's print variant (`.tt-evidence--print`) undoes it the same way for its printed page and PDF. Every undo must outweigh the primitive's heaviest selectors and set only what the primitive set, so the renderer's own rules still lay the table out.
+
+**The legacy stack.** Below 480px `frontend-mobile.css` still stacks every `.tt-table` that is not on the primitive, with labels `tt-table-tools.js` copies from the header row. It leaves a primitive table alone. Moving those tables onto the primitive is the open part of this migration.
+
 ## What's still desktop-first
 
 `public.css`, `frontend-admin.css`, `frontend-mobile.css`, and `admin.css` were authored before the rule. They're left in place for views that haven't been migrated yet. The path to "zero legacy desktop-first sheets" is one migrated view per release, tracked in [`SEQUENCE.md`](../SEQUENCE.md) under #0056.
