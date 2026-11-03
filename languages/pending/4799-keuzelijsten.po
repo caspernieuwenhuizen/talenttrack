@@ -1,5 +1,6 @@
 # Retranslations (#4799): "Keuzelijsten" is the one Dutch word for the
-# lookups area, replacing "Lookuplijsten" and "Lookups". The English msgids
+# lookups area, replacing "Lookuplijsten", "Lookups" and the "lookup-"
+# compounds in the lookup REST messages. The English msgids
 # stay. Technical names keep their English form: the `_Lookups` sheet of
 # the Excel template and the entity slugs in the matrix filter hint.
 
@@ -56,3 +57,27 @@ msgid ""
 msgstr ""
 "Nog geen speelvormen ingesteld. Voeg ze toe onder Keuzelijsten en kom "
 "daarna terug om per leeftijdscategorie een standaard te kiezen."
+
+#: src/Infrastructure/REST/LookupNormalisationRestController.php
+msgid "Canonical value must come from the list for this lookup type."
+msgstr "De canonieke waarde moet uit de lijst voor dit keuzelijst-type komen."
+
+#: src/Infrastructure/REST/LookupNormalisationRestController.php
+msgid "The lookup row no longer exists."
+msgstr "De keuzelijstrij bestaat niet meer."
+
+#: src/Infrastructure/REST/LookupNormalisationRestController.php
+msgid "Lookup type changed since this drift was flagged."
+msgstr "Het keuzelijst-type is gewijzigd sinds deze afwijking werd gemarkeerd."
+
+#: src/Infrastructure/REST/LookupsRestController.php
+msgid "Could not create lookup value."
+msgstr "Keuzelijstwaarde kon niet worden aangemaakt."
+
+#: src/Infrastructure/REST/LookupsRestController.php
+msgid "Could not update lookup value."
+msgstr "Keuzelijstwaarde kon niet worden bijgewerkt."
+
+#: src/Infrastructure/REST/LookupsRestController.php
+msgid "Could not delete lookup value."
+msgstr "Keuzelijstwaarde kon niet worden verwijderd."
