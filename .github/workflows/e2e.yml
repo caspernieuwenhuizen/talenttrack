@@ -127,8 +127,43 @@ jobs:
         env:
           CI: true
 
+      # #4770 — the mobile gate walks in Dutch, the language the academies
+      # use. Dutch labels are often much longer than English ones
+      # ("Geboortedatum" for "DOB"), and #4702's 320px overflow came from
+      # exactly that, so an English walk could not catch it. The desktop
+      # suite above has already run in English.
+      #
+      # The `.mo` is compiled on the runner and never committed (CI owns
+      # `.mo` at release too). The pending fragments are folded into the
+      # runner's copy of the catalogue first, with `--keep`, so strings
+      # merged since the last release are Dutch as well. Nothing here is
+      # pushed back. The fold runs in the wp-env container, like every other
+      # PHP process in this job; the runner has no PHP toolchain.
+      #
+      # `continue-on-error`: a failed download, apt install or compile must
+      # not turn the required check red. The gate below is reporting-only,
+      # and its Dutch check fails loudly if the switch did not happen.
+      - name: Switch the tests instance to Dutch for the mobile gate
+        continue-on-error: true
+        run: |
+          if ! command -v msgfmt; then
+            sudo apt-get update -o Acquire::Retries=3 \
+              -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+            sudo apt-get install -y gettext -o Acquire::Retries=3 \
+              -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          fi
+          npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack php tools/consolidate-translations.php --keep
+          msgfmt --check -o languages/talenttrack-nl_NL.mo languages/talenttrack-nl_NL.po
+          # WordPress refuses a WPLANG it has no core language files for
+          # (sanitize_option keeps the old value), so the core pack is
+          # installed and activated rather than the option written.
+          npx wp-env run tests-cli wp language core install nl_NL --activate
+          npx wp-env run tests-cli wp user meta update admin locale nl_NL
+          npx wp-env run tests-cli wp option get WPLANG
+
       # #2813 — the mobile viewport gate, at 320, 360 and 390px with touch
-      # enabled (#4738), including a player profile the spec makes itself.
+      # enabled (#4738), in Dutch (#4770), including a player profile the
+      # spec makes itself.
       # Walks every phone-reachable surface asserting no horizontal
       # overflow, no sub-48px tap target and no over-wide table on a
       # `native` surface. On `native` list surfaces it also reports rows

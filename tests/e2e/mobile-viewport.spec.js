@@ -162,7 +162,7 @@ function loadBaseline( width ) {
  * baseline; `slug` is the surface whose mobile class it shares. Add a team
  * or an activity the same way.
  *
- * @type {{ key: string, slug: string, create: (page: import('@playwright/test').Page, created: string[]) => Promise<number|string>, url: (id: number) => string }[]}
+ * @type {{ key: string, slug: string, create: (page: import('@playwright/test').Page, created: string[]) => Promise<number|string>, url: (id: number) => string, dutch: { selector: string, text: string } }[]}
  */
 const RECORD_SURFACES = [
 	{
@@ -186,6 +186,10 @@ const RECORD_SURFACES = [
 			return id;
 		},
 		url: ( id ) => `/?tt_view=players&id=${ id }`,
+		// The walk runs in Dutch (#4770). A label only the rendered
+		// profile carries proves both that the page is the real profile,
+		// not a "player not found" page, and that it rendered in Dutch.
+		dutch: { selector: '.tt-player-facts__label', text: 'Voet' },
 	},
 ];
 
@@ -571,7 +575,17 @@ test.describe( 'mobile viewport gate', () => {
 				continue;
 			}
 			const why = await visit( record.key, surface.cls, record.url( id ) );
-			if ( why ) regressions.push( `${ record.key }: not measured, ${ why }` );
+			if ( why ) {
+				regressions.push( `${ record.key }: not measured, ${ why }` );
+				continue;
+			}
+			const shown = ( await page.locator( record.dutch.selector ).allTextContents() ).map( ( t ) => t.trim() );
+			if ( ! shown.includes( record.dutch.text ) ) {
+				regressions.push(
+					`${ record.key }: "${ record.dutch.text }" not found in ${ record.dutch.selector } (saw ${ JSON.stringify( shown ) }). ` +
+					'The mobile gate walks in Dutch: compile the nl_NL .mo and set the site locale first (tests/e2e/README.md).'
+				);
+			}
 		}
 
 		// A baseline entry that no longer offends is the line to delete.

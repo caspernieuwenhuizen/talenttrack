@@ -74,6 +74,29 @@ use.
 Locally: `npm run test:e2e` for the desktop suite, `npm run test:e2e:mobile`
 for the viewport gate at all three widths.
 
+**The mobile gate runs in Dutch; the desktop suite in English.** The pilot
+academies use TalentTrack in Dutch, and Dutch labels are often much longer
+than English ones ("Geboortedatum" for "DOB"). A 320px overflow caused by a
+Dutch label cannot fail an English walk. In CI, after the desktop suite, the
+step *Switch the tests instance to Dutch for the mobile gate* in `e2e.yml`
+does three things, and is `continue-on-error` so a failed download or compile
+cannot turn the required check red (the gate's Dutch check then fails instead):
+
+1. Folds the pending fragments into the checkout's copy of the catalogue
+   (`php tools/consolidate-translations.php --keep`, run in the wp-env
+   container like every PHP process in the job).
+2. Compiles `languages/talenttrack-nl_NL.mo` with `msgfmt`. It is never
+   committed.
+3. Installs and activates the nl_NL core language pack (WordPress refuses a
+   `WPLANG` it has no language files for) and sets the admin's locale to
+   `nl_NL`.
+
+To run the gate locally, do the same before `npm run test:e2e:mobile`, then
+delete the `.mo` and restore the `.po` afterwards
+(`git checkout -- languages/talenttrack-nl_NL.po`). The spec checks that the
+player profile shows "Voet" in its facts strip, and fails with a pointer here
+when it doesn't.
+
 ### The mobile viewport gate (#2813)
 
 `mobile-viewport.spec.js` walks every surface a phone can actually reach —
