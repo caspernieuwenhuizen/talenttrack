@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 
 /**
  * KpiResolver — single value-resolution path for both new fact-driven
@@ -39,7 +40,18 @@ final class KpiResolver {
         $kpi = KpiRegistry::find( $key );
         if ( $kpi !== null ) {
             $filters = array_merge( $kpi->defaultFilters, $extraFilters );
-            $rows    = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, $scope );
+            // #4860 — a KPI asked to narrow on a field its fact does not
+            // have answers nothing (the card shows "—") rather than the
+            // un-narrowed number. The key is logged so the definition can be
+            // fixed.
+            try {
+                $rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters, $scope );
+            } catch ( UnknownFactKeyException $e ) {
+                if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                    \TT\Infrastructure\Logging\Logger::info( 'analytics.kpi_unknown_key', [ 'kpi' => $key ] + $e->details() );
+                }
+                return null;
+            }
             if ( empty( $rows ) ) return null;
             $row = $rows[0];
             $val = $row->{ $kpi->measureKey } ?? null;

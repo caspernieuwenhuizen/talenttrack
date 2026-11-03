@@ -34,6 +34,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * `playerColumn` (the player's current team). A fact with neither cannot be
  * narrowed and is read only with club-wide scope. `visibilityColumn` narrows
  * journey rows to the levels the reader holds.
+ *
+ * Dimension keys are a contract (#4860): saved blocks, explorer links and
+ * filters name them. A key is never renamed in place. A deliberate rename
+ * declares the old key in `aliases` (old key => new key), so a stored
+ * reference keeps reading the same rows; `FactQuery` resolves an alias
+ * before it validates, and refuses any key that is neither declared nor
+ * aliased. `tests/php/FactKeyContractTest.php` pins every fact's keys.
  */
 final class Fact {
 
@@ -51,10 +58,13 @@ final class Fact {
     public ?string $teamColumn;
     public ?string $playerColumn;
     public ?string $visibilityColumn;
+    /** @var array<string,string> retired dimension key => the key it was renamed to */
+    public array $aliases;
 
     /**
-     * @param Dimension[] $dimensions
-     * @param Measure[]   $measures
+     * @param Dimension[]          $dimensions
+     * @param Measure[]            $measures
+     * @param array<string,string> $aliases old dimension key => new key
      */
     public function __construct(
         string $key,
@@ -68,8 +78,10 @@ final class Fact {
         string $readEntity = '',
         ?string $teamColumn = null,
         ?string $playerColumn = null,
-        ?string $visibilityColumn = null
+        ?string $visibilityColumn = null,
+        array $aliases = []
     ) {
+        $this->aliases          = $aliases;
         $this->key              = $key;
         $this->tableName        = $tableName;
         $this->tableAlias       = $tableAlias;
@@ -87,6 +99,11 @@ final class Fact {
     /** Can a team-scoped reader be narrowed to their own rows? */
     public function isScopable(): bool {
         return $this->teamColumn !== null || $this->playerColumn !== null;
+    }
+
+    /** The current key for a dimension key, following an alias once. */
+    public function resolveKey( string $key ): string {
+        return $this->aliases[ $key ] ?? $key;
     }
 
     public function dimension( string $key ): ?Dimension {

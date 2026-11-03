@@ -9,7 +9,9 @@ use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
+use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 use TT\Modules\ReportStudio\Domain\BlockOption;
+use TT\Modules\ReportStudio\Domain\ChecksFactKeys;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportSubjectAccess;
@@ -23,7 +25,7 @@ use TT\Modules\ReportStudio\Domain\SubjectFilters;
  * its row scope and its row cap. Nobody composes an aggregation: the fact,
  * the measure and the breakdown are each picked from what the fact declares.
  */
-final class OwnQuestionBlock implements ReportBlock {
+final class OwnQuestionBlock implements ReportBlock, ChecksFactKeys {
 
     /**
      * The player-report section each fact belongs to. An external audience
@@ -82,6 +84,33 @@ final class OwnQuestionBlock implements ReportBlock {
             new BlockOption( 'measure', BlockOption::TYPE_MEASURE, _x( 'Measure', 'report studio option', 'talenttrack' ), $measures, true, null, 'fact' ),
             new BlockOption( 'breakdown', BlockOption::TYPE_BREAKDOWN, __( 'Break down by', 'talenttrack' ), $breakdowns, false, null, 'fact' ),
         ];
+    }
+
+    /**
+     * #4860 — the fact, measure and breakdown a saved block names must still
+     * exist. A renamed breakdown is read through the fact's alias.
+     */
+    public function resolveStoredKeys( array $options ): array {
+        $fact_key = is_string( $options['fact'] ?? null ) ? (string) $options['fact'] : '';
+        if ( $fact_key === '' ) return $options;
+
+        $fact = FactRegistry::find( $fact_key );
+        if ( $fact === null ) {
+            throw new UnknownFactKeyException( $fact_key, $fact_key, UnknownFactKeyException::KIND_FACT );
+        }
+        $measure = is_string( $options['measure'] ?? null ) ? (string) $options['measure'] : '';
+        if ( $measure !== '' && $fact->measure( $measure ) === null ) {
+            throw new UnknownFactKeyException( $fact_key, $measure, UnknownFactKeyException::KIND_MEASURE );
+        }
+        $breakdown = is_string( $options['breakdown'] ?? null ) ? (string) $options['breakdown'] : '';
+        if ( $breakdown !== '' ) {
+            $resolved = $fact->resolveKey( $breakdown );
+            if ( $fact->dimension( $resolved ) === null ) {
+                throw new UnknownFactKeyException( $fact_key, $breakdown, UnknownFactKeyException::KIND_DIMENSION );
+            }
+            $options['breakdown'] = $resolved;
+        }
+        return $options;
     }
 
     public function available( ReportContext $context ): bool {

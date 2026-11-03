@@ -1,0 +1,11 @@
+#. translators: %s: the name of the field that no longer exists
+#: src/Modules/Analytics/Domain/UnknownFactKeyException.php
+#, php-format
+msgid "This refers to a field that no longer exists: %s."
+msgstr "Dit verwijst naar een veld dat niet meer bestaat: %s."
+
+#. translators: %s: the name of the field that no longer exists
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+#, php-format
+msgid "This block refers to a field that no longer exists: %s."
+msgstr "Dit blok verwijst naar een veld dat niet meer bestaat: %s."
