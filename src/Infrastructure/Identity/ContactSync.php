@@ -97,6 +97,7 @@ final class ContactSync {
 
         self::$syncing = true;
         try {
+            /* search-text-ok: no source column */
             $wpdb->update(
                 "{$wpdb->prefix}tt_people",
                 $update,

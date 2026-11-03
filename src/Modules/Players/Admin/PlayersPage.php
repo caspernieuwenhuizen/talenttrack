@@ -712,11 +712,13 @@ class PlayersPage {
 
         if ( $id ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $id );
         } else {
             $data['club_id'] = CurrentClub::id();
             $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
             if ( $ok ) {
                 $id = (int) $wpdb->insert_id;
+                \TT\Infrastructure\Search\SearchText::refresh( 'player', $id );
                 // v3.76.2 — auto-tag demo-on rows.
                 \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $id );
             }
@@ -856,6 +858,7 @@ class PlayersPage {
         // (active/trial/inactive); abusing it as an archive flag silently
         // dropped players out of active-roster counts but kept them in the
         // primary player list. Mirrors `delete_team`'s archive shape.
+        /* search-text-ok: no source column */
         $wpdb->update(
             $wpdb->prefix . 'tt_players',
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],

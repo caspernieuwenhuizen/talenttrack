@@ -164,6 +164,9 @@ class Kernel {
         // rather than from a module: both span players, teams and
         // activities, so neither belongs to one module's boot.
         \TT\Infrastructure\REST\SearchRestController::init();
+        // #4671 — folds the search columns a write path missed, and the
+        // backlog after an upgrade, on the engine heartbeat.
+        \TT\Infrastructure\Search\SearchTextSweep::init();
         \TT\Infrastructure\REST\PeekRestController::init();
         // #4670 — the settings entries the caller may open, from the one
         // registry the Configuration landing reads.

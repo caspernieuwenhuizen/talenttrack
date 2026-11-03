@@ -1009,6 +1009,7 @@ class TournamentsRestController {
             return RestResponse::error( 'db_error', __( 'Could not create the match activity.', 'talenttrack' ), 500 );
         }
         $activity_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
 
         // Tag demo-on rows so they remain visible to demo-scoped queries.
         if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
@@ -1264,6 +1265,7 @@ class TournamentsRestController {
         // the status alone, so a completed 3-2 read as no result recorded
         // everywhere the activity was the thing being read.
         $match = self::fetchMatch( $match_id ) ?? $match;
+        /* search-text-ok: no source column */
         $wpdb->update(
             "{$p}tt_activities",
             [
@@ -1981,6 +1983,7 @@ class TournamentsRestController {
         if ( $activity_id <= 0 ) return;
 
         global $wpdb; $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         $wpdb->update(
             "{$p}tt_activities",
             [

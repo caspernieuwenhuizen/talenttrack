@@ -177,6 +177,51 @@ final class SettingsRegistry {
     }
 
     /**
+     * #4671 — {@see self::entriesFor()} narrowed to the screens the viewer's
+     * navigation offers them. An entry that opens a screen with a tile of its
+     * own is left out when that tile is not visible to the viewer; one whose
+     * screen has no tile (reached only from the Configuration landing) is
+     * left out when the Configuration tile is not visible. The matrix may
+     * grant the screen, but a persona whose navigation hides it
+     * (`hide_for_personas`) is never pointed at it from search. Owner
+     * decision, 3 November 2026: the head of development does not get the
+     * Configuration tile, so search lists no entry reached only through it.
+     *
+     * @return list<array{key:string, section:string, label:string, description:string, keywords:string, url:string, module_state:string, external:bool}>
+     */
+    public static function navigableEntriesFor( int $user_id ): array {
+        $visible = [];
+        $buckets = TileRegistry::tilesForUser( $user_id );
+        foreach ( array_merge( $buckets['work'], $buckets['setup'] ) as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? ( $tile['slug'] ?? '' ) );
+            if ( $slug !== '' ) $visible[ $slug ] = true;
+        }
+        $tiled = [];
+        foreach ( TileRegistry::allRegistered() as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? ( $tile['slug'] ?? '' ) );
+            if ( $slug !== '' ) $tiled[ $slug ] = true;
+        }
+
+        // Every entry is a card on the Configuration landing. A screen with a
+        // tile of its own is reached through that tile; one without (a
+        // sub-view such as the evaluation categories) only through the
+        // landing, so it needs the Configuration tile.
+        $landing = isset( $visible['configuration'] );
+
+        $out = [];
+        foreach ( self::entriesFor( $user_id ) as $entry ) {
+            $query = (string) wp_parse_url( $entry['url'], PHP_URL_QUERY );
+            parse_str( $query, $args );
+            $view = isset( $args['tt_view'] ) && is_string( $args['tt_view'] ) ? $args['tt_view'] : '';
+            $own_tile = $view !== '' && isset( $tiled[ $view ] );
+            $reached  = $own_tile ? isset( $visible[ $view ] ) : $landing;
+            if ( ! $reached ) continue;
+            $out[] = $entry;
+        }
+        return $out;
+    }
+
+    /**
      * The entries grouped for the Configuration landing: the settings
      * sections in order, each with its label and question. A section with
      * fewer than MIN_SECTION_SIZE entries folds into the next one (the last

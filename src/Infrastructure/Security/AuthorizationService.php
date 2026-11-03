@@ -78,6 +78,15 @@ class AuthorizationService {
     private static $cache_matrix = [];
 
     /**
+     * #4671 — {@see self::playerReadScope()} per club and user. Built from
+     * the answers `$cache_matrix` already keeps, so it is exactly as fresh;
+     * cleared by the same `flushCache()`.
+     *
+     * @var array<string, array{global:bool, team_ids:list<int>, player_ids:list<int>}>
+     */
+    private static $cache_read_scope = [];
+
+    /**
      * #3644 — legacy permission string → the `(entity, activity)` tuple
      * that says the same thing in the authorization matrix.
      *
@@ -104,6 +113,8 @@ class AuthorizationService {
         self::$cache_scopes = [];
         self::$cache_decisions = [];
         self::$cache_matrix = [];
+        self::$cache_read_scope = [];
+        ScopeMemo::clear();
         RecordRedactor::flush();
 
         // #3257 — the functional-role grant layer caches a user's team /
@@ -409,16 +420,20 @@ class AuthorizationService {
         if ( $user_id <= 0 || $entity === '' ) return [];
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [];
 
-        $out = [];
-        foreach ( \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id ) as $player_id ) {
-            if ( \TT\Modules\Authorization\MatrixGate::can(
-                $user_id, $entity, \TT\Modules\Authorization\MatrixGate::READ,
-                \TT\Modules\Authorization\MatrixGate::SCOPE_PLAYER, $player_id
-            ) ) {
-                $out[] = $player_id;
+        // The gate reads the scout's links again for every player it is
+        // asked about; the memo keeps that to one read (#4671).
+        return ScopeMemo::run( static function () use ( $user_id, $entity ): array {
+            $out = [];
+            foreach ( \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id ) as $player_id ) {
+                if ( \TT\Modules\Authorization\MatrixGate::can(
+                    $user_id, $entity, \TT\Modules\Authorization\MatrixGate::READ,
+                    \TT\Modules\Authorization\MatrixGate::SCOPE_PLAYER, $player_id
+                ) ) {
+                    $out[] = $player_id;
+                }
             }
-        }
-        return $out;
+            return $out;
+        } );
     }
 
     public static function registerCacheInvalidators(): void {
@@ -459,6 +474,77 @@ class AuthorizationService {
 
             return false;
         } );
+    }
+
+    /**
+     * #4671 — {@see self::canViewPlayers()} as a scope instead of a verdict:
+     * which players this user may view, as the building blocks an SQL clause
+     * is made of. `PlayerVisibility::sqlClause()` turns it into SQL; a
+     * parity test holds the two to one rule.
+     *
+     *  - `global`: `players.view` without a scope. Every player.
+     *  - `team_ids`: the teams on which `players.view` holds at team scope.
+     *  - `player_ids`: the players on which `players.view_own_children` holds
+     *    at player scope (a guardian's children, a scout's linked players).
+     *  - and always the player whose account this is, which the SQL asks
+     *    as `wp_user_id`.
+     *
+     * The candidates are the scopes the user resolves to, the matrix's team
+     * and player answers, the guardian links and the scout links; each is
+     * then asked the very question `canViewPlayers()` asks of it, so a
+     * candidate the rule refuses never makes it in.
+     *
+     * @return array{global:bool, team_ids:list<int>, player_ids:list<int>}
+     */
+    public static function playerReadScope( int $user_id ): array {
+        if ( $user_id <= 0 ) return [ 'global' => false, 'team_ids' => [], 'player_ids' => [] ];
+        $key = (int) CurrentClub::id() . '|' . $user_id;
+        if ( ! isset( self::$cache_read_scope[ $key ] ) ) {
+            // Each candidate asks the per-player rule, which reads the
+            // user's own links again for every player; the memo reads them
+            // once, so the cost does not grow with the scope.
+            self::$cache_read_scope[ $key ] = ScopeMemo::run( static fn(): array => self::computePlayerReadScope( $user_id ) );
+        }
+        return self::$cache_read_scope[ $key ];
+    }
+
+    /** @return array{global:bool, team_ids:list<int>, player_ids:list<int>} */
+    private static function computePlayerReadScope( int $user_id ): array {
+        if ( self::userHasPermission( $user_id, 'players.view' ) ) {
+            return [ 'global' => true, 'team_ids' => [], 'player_ids' => [] ];
+        }
+
+        $team_candidates   = [];
+        $player_candidates = [];
+        foreach ( self::resolveScopesForUser( $user_id ) as $scope ) {
+            $id = (int) ( $scope['scope_id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            if ( ( $scope['scope_type'] ?? '' ) === 'team' ) $team_candidates[ $id ] = true;
+            if ( ( $scope['scope_type'] ?? '' ) === 'player' ) $player_candidates[ $id ] = true;
+        }
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            foreach ( \TT\Modules\Authorization\MatrixGate::teamIdsFor( $user_id, 'players', 'read' ) as $team_id ) {
+                $team_candidates[ (int) $team_id ] = true;
+            }
+        }
+        foreach ( \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id, \TT\Infrastructure\Players\ParentChildResolver::NEED_SCHEDULE ) as $player_id ) {
+            $player_candidates[ (int) $player_id ] = true;
+        }
+        foreach ( \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id ) as $player_id ) {
+            $player_candidates[ (int) $player_id ] = true;
+        }
+
+        $team_ids = [];
+        foreach ( array_keys( $team_candidates ) as $team_id ) {
+            if ( self::userHasPermission( $user_id, 'players.view', 'team', (int) $team_id ) ) $team_ids[] = (int) $team_id;
+        }
+        $player_ids = [];
+        foreach ( array_keys( $player_candidates ) as $player_id ) {
+            if ( self::userHasPermission( $user_id, 'players.view_own_children', 'player', (int) $player_id ) ) $player_ids[] = (int) $player_id;
+        }
+        sort( $team_ids );
+        sort( $player_ids );
+        return [ 'global' => false, 'team_ids' => $team_ids, 'player_ids' => $player_ids ];
     }
 
     /**
@@ -699,6 +785,70 @@ class AuthorizationService {
             && self::parentCanViewSection( $user_id, $player_id, $section );
     }
 
+    /**
+     * {@see self::mayReadPlayerSection()} for many players whose team and
+     * account the caller already read: the same rules, with the academy-wide
+     * read asked once, the team read once per distinct team and the guardian
+     * links read in one statement. Each section answer is seeded into the
+     * cache the single check reads.
+     *
+     * A player this user is a linked parent of goes through the single
+     * {@see self::parentCanViewSection()}, the child's own switches; there are
+     * only as many of those as the guardian has children.
+     *
+     * @param array<int, array{team_id:int, wp_user_id:int}> $players player id => team and account
+     * @return array<int, bool> player id => may read the section
+     */
+    public static function mayReadPlayerSections( int $user_id, array $players, string $section ): array {
+        $out = [];
+        if ( $user_id <= 0 || $section === '' || ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            foreach ( array_keys( $players ) as $pid ) $out[ (int) $pid ] = false;
+            return $out;
+        }
+
+        $gate     = '\\TT\\Modules\\Authorization\\MatrixGate';
+        $global   = $gate::can( $user_id, $section, $gate::READ, $gate::SCOPE_GLOBAL );
+        $by_team  = [];
+        $children = null;
+        foreach ( $players as $pid => $player ) {
+            $pid = (int) $pid;
+            if ( $pid <= 0 ) continue;
+            $team_id = $player['team_id'];
+            $own     = $player['wp_user_id'] === $user_id;
+
+            $key = $user_id . '|section|' . $section . '|' . $pid;
+            if ( isset( self::$cache_matrix[ $key ] ) ) {
+                $read = self::$cache_matrix[ $key ];
+            } else {
+                $read = $global;
+                if ( ! $read && $team_id > 0 ) {
+                    $by_team[ $team_id ] ??= $gate::can( $user_id, $section, $gate::READ, $gate::SCOPE_TEAM, $team_id );
+                    $read = $by_team[ $team_id ];
+                }
+                if ( ! $read ) $read = $gate::can( $user_id, $section, $gate::READ, $gate::SCOPE_PLAYER, $pid );
+                if ( ! $read && $own ) {
+                    $read = $gate::can( $user_id, $section, $gate::READ, $gate::SCOPE_SELF, $user_id )
+                        || $gate::can( $user_id, 'my_' . $section, $gate::READ, $gate::SCOPE_SELF, $user_id );
+                }
+                self::$cache_matrix[ $key ] = $read;
+            }
+            if ( ! $read ) {
+                $out[ $pid ] = false;
+                continue;
+            }
+
+            // The child's own switch governs only a linked parent; the player
+            // themselves and staff read what the matrix gives them.
+            if ( $own ) {
+                $out[ $pid ] = true;
+                continue;
+            }
+            $children ??= array_flip( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->playersForParent( $user_id ) );
+            $out[ $pid ] = isset( $children[ $pid ] ) ? self::parentCanViewSection( $user_id, $pid, $section ) : true;
+        }
+        return $out;
+    }
+
     public static function canEditPlayer( int $user_id, int $player_id ): bool {
         return self::decide( 'edit_player', $user_id, 'player', $player_id, function () use ( $user_id, $player_id ) {
             if ( self::userHasPermission( $user_id, 'players.edit' ) ) return true;
@@ -719,6 +869,34 @@ class AuthorizationService {
 
             return false;
         } );
+    }
+
+    /**
+     * {@see self::canEvaluatePlayer()} for many players whose team the caller
+     * already read: the academy-wide grant asked once, the team grant once per
+     * distinct team, each answer seeded into the decision cache. No player
+     * rows are read, so a list costs the same whatever its size.
+     *
+     * @param array<int, int> $team_by_player player id => team id (0 = none).
+     * @return array<int, bool> player id => may evaluate
+     */
+    public static function canEvaluatePlayers( int $user_id, array $team_by_player ): array {
+        $global  = $user_id > 0 && self::userHasPermission( $user_id, 'evaluations.create' );
+        $by_team = [];
+        $out     = [];
+        foreach ( $team_by_player as $pid => $team_id ) {
+            $pid     = (int) $pid;
+            $team_id = (int) $team_id;
+            if ( $pid <= 0 ) continue;
+            $out[ $pid ] = self::decide( 'evaluate_player', $user_id, 'player', $pid, function () use ( $user_id, $team_id, $global, &$by_team ) {
+                if ( $user_id <= 0 ) return false;
+                if ( $global ) return true;
+                if ( $team_id <= 0 ) return false;
+                $by_team[ $team_id ] ??= self::userHasPermission( $user_id, 'evaluations.create', 'team', $team_id );
+                return $by_team[ $team_id ];
+            } );
+        }
+        return $out;
     }
 
     public static function canManageTeam( int $user_id, int $team_id ): bool {

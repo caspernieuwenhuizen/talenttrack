@@ -358,6 +358,7 @@ class PeopleRestController {
         global $wpdb;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid person id.', 'talenttrack' ), 400 );
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_people',
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id(), 'status' => 'inactive' ],

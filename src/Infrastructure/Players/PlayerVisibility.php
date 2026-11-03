@@ -76,6 +76,43 @@ final class PlayerVisibility {
     }
 
     /**
+     * #4671 — the players this user may view, as an SQL condition on a
+     * `tt_players` alias, built from the same resolved scope
+     * `AuthorizationService::canViewPlayers()` decides with
+     * (`AuthorizationService::playerReadScope()`):
+     *
+     *  - `players.view` globally: no condition (`1=1`);
+     *  - at team scope: `team_id IN (…)`;
+     *  - a guardian's children and a scout's linked players: `id IN (…)`;
+     *  - and the player's own account: `wp_user_id = %d`.
+     *
+     * A parity test runs every persona over every player and asserts this
+     * and `canViewPlayers()` agree on each one, which is what keeps one rule.
+     * The batched `canViewPlayers()` stays the confirm step after it.
+     *
+     * @return array{sql:string, params:list<int>}
+     */
+    public static function sqlClause( int $user_id, string $alias ): array {
+        $alias = preg_replace( '/[^a-zA-Z0-9_]/', '', $alias ) ?: 'p';
+        if ( $user_id <= 0 ) return [ 'sql' => '1=0', 'params' => [] ];
+
+        $scope = AuthorizationService::playerReadScope( $user_id );
+        if ( $scope['global'] ) return [ 'sql' => '1=1', 'params' => [] ];
+
+        $parts  = [ "{$alias}.wp_user_id = %d" ];
+        $params = [ $user_id ];
+        if ( $scope['team_ids'] !== [] ) {
+            $parts[] = "{$alias}.team_id IN (" . implode( ',', array_fill( 0, count( $scope['team_ids'] ), '%d' ) ) . ')';
+            $params  = array_merge( $params, $scope['team_ids'] );
+        }
+        if ( $scope['player_ids'] !== [] ) {
+            $parts[] = "{$alias}.id IN (" . implode( ',', array_fill( 0, count( $scope['player_ids'] ), '%d' ) ) . ')';
+            $params  = array_merge( $params, $scope['player_ids'] );
+        }
+        return [ 'sql' => '( ' . implode( ' OR ', $parts ) . ' )', 'params' => $params ];
+    }
+
+    /**
      * The sentence both surfaces say. One wording, because the screen
      * and the API refusing the same thing differently is how a user
      * comes to believe they are two different problems.

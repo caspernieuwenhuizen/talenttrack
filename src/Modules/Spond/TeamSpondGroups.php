@@ -121,6 +121,7 @@ final class TeamSpondGroups {
     public static function setGroup( int $team_id, string $group_id ): bool {
         if ( $team_id <= 0 ) return false;
         global $wpdb;
+        /* search-text-ok: no source column */
         $updated = $wpdb->update(
             $wpdb->prefix . 'tt_teams',
             [ 'spond_group_id' => $group_id ],

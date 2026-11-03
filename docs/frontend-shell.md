@@ -128,8 +128,20 @@ closes the list while leaving your cursor in the box. **⌘K** / **Ctrl+K** jump
 to the box; the shortcut is only ever a shortcut, since the box is on screen and
 clickable without it.
 
+Accents and capitals don't matter: *jose* finds José. Every word you type has to
+match, so *den b* finds Daan den Besten. The best matches come first: a name
+that starts with what you typed ranks above one that only contains it, and
+players come before teams. A few shortcuts are understood:
+
+- **#7** finds the players with shirt number 7;
+- **O14** finds the O14 teams and their players (**MO14** the girls' teams only);
+- **12-10** finds the activities on 12 October this season;
+- a weekday such as **zaterdag** or **saturday** finds the activities on last
+  and next Saturday.
+
 You only see records you already have access to. Search does not widen what you
-can reach; it just makes reaching it faster.
+can reach; it just makes reaching it faster. A record you may not open is not
+counted either.
 
 ## Preview — look without leaving
 

@@ -844,6 +844,7 @@ class TeamsRestController {
             return RestResponse::error( 'db_error', __( 'The team could not be created.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
         }
         $team_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'team', $team_id );
         // v3.76.2 — auto-tag demo-on rows.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $team_id );
         // #4007 — the one post-insert extension point on team creation, and
@@ -896,6 +897,7 @@ class TeamsRestController {
         if ( $data === [] ) return RestResponse::success( [ 'id' => $id ] );
 
         $ok = $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        \TT\Infrastructure\Search\SearchText::refresh( 'team', $id );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'team.update.failed', [ 'db_error' => $err, 'team_id' => $id ] );
@@ -1016,6 +1018,7 @@ class TeamsRestController {
         if ( QueryHelpers::get_team( $team_id ) === null ) {
             return RestResponse::error( 'team_not_found', __( 'Team not found in your club.', 'talenttrack' ), 404 );
         }
+        /* search-text-ok: no source column */
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => $team_id ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
@@ -1033,6 +1036,7 @@ class TeamsRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
         }
         // Only clear if the player is actually on that team (no-op otherwise).
+        /* search-text-ok: no source column */
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => 0 ], [ 'id' => $player_id, 'team_id' => $team_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;

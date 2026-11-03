@@ -146,6 +146,7 @@ class PeopleGenerator implements GeneratorInterface {
                 ],
                 [ 'id' => $person_id, 'club_id' => CurrentClub::id() ]
             );
+            \TT\Infrastructure\Search\SearchText::refresh( 'person', $person_id );
             return $person_id;
         }
 
@@ -159,6 +160,7 @@ class PeopleGenerator implements GeneratorInterface {
             'status'     => 'active',
         ] );
         $person_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'person', $person_id );
         if ( $person_id > 0 ) {
             $this->registry->tag( 'person', $person_id, [
                 'persistent' => true,

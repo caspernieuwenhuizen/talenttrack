@@ -530,6 +530,7 @@ final class AttendanceStep implements WizardStepInterface, ConditionalStepInterf
             $activity_id, CurrentClub::id()
         ) );
         if ( $current === 'completed' || $current === 'cancelled' ) return;
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [

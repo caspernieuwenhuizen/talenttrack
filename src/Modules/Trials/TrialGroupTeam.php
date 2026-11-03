@@ -53,6 +53,7 @@ final class TrialGroupTeam {
             'age_group' => $age_group,
             'team_kind' => self::TEAM_KIND,
         ] );
+        \TT\Infrastructure\Search\SearchText::refresh( 'team', (int) $wpdb->insert_id );
         return (int) $wpdb->insert_id;
     }
 

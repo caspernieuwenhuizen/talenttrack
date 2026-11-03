@@ -226,6 +226,7 @@ class PlayerCsvImporter {
 
             if ( $dupe && $dupe_strategy === self::DUPE_UPDATE ) {
                 $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $payload, [ 'id' => (int) $dupe->id, 'club_id' => CurrentClub::id() ] );
+                \TT\Infrastructure\Search\SearchText::refresh( 'player', (int) ( ( (array) $dupe )['id'] ?? 0 ) );
                 if ( $ok === false ) {
                     Logger::error( 'csv.player.update.failed', [ 'row' => $row_number, 'db_error' => (string) $wpdb->last_error ] );
                     $errored++;
@@ -246,6 +247,7 @@ class PlayerCsvImporter {
                 continue;
             }
             $player_id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $player_id );
             // v3.85.2 — auto-tag CSV-imported rows when demo mode is on.
             // Operator hit this: imported players didn't show on the list
             // (which applies apply_demo_scope) but appeared on goal-form

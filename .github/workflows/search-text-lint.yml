@@ -1,0 +1,45 @@
+name: Search text lint
+
+# #4671 — search matches on folded columns (`search_title`, `search_text`)
+# that every write path keeps current through `SearchText::refresh()`. A
+# write that changes a name, a title or a location without it leaves search
+# matching the old text until the sweep comes by: a missed match, never a
+# disclosure, and the drift a gate catches better than review.
+#
+# The gate fails on a function under src/ that writes tt_players, tt_teams,
+# tt_activities or tt_people without calling `SearchText::refresh(` and
+# without a `search-text-ok: <reason>` marker — the `both-kinds-ok` and
+# `record-scope-ok` precedent.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-search-text.php'
+      - '.github/workflows/search-text-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tools/check-search-text.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every write to a searchable table refreshes its search text
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check search text
+        run: php tools/check-search-text.php

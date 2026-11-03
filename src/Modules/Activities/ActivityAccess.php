@@ -239,6 +239,59 @@ final class ActivityAccess {
     }
 
     /**
+     * #4671 — {@see self::canRead()} as a scope: global read, the teams a
+     * staff reader coaches, and the players through whom this user reads
+     * activities (their own, their children, a scout's linked players).
+     * Search narrows by it in SQL; {@see self::readableIds()} confirms.
+     *
+     * @return array{global:bool, team_ids:list<int>, player_ids:list<int>}
+     */
+    public static function readScope( int $user_id ): array {
+        if ( $user_id <= 0 ) return [ 'global' => false, 'team_ids' => [], 'player_ids' => [] ];
+        if ( self::hasGlobalRead( $user_id ) ) return [ 'global' => true, 'team_ids' => [], 'player_ids' => [] ];
+
+        $team_ids = self::isStaffReader( $user_id ) ? self::coachedTeamIds( $user_id ) : [];
+        $players  = self::readablePlayerIds( $user_id );
+        foreach ( AuthorizationService::scoutLinkedReadablePlayerIds( $user_id, 'activities' ) as $player_id ) {
+            if ( ! in_array( $player_id, $players, true ) ) $players[] = $player_id;
+        }
+        return [
+            'global'     => false,
+            'team_ids'   => array_values( array_unique( array_map( 'intval', $team_ids ) ) ),
+            'player_ids' => array_map( 'intval', $players ),
+        ];
+    }
+
+    /**
+     * #4671 — {@see self::canRead()} for many activities at once: the scope
+     * resolved once and the player branch asked in one statement, so the
+     * cost does not grow with the number of activities.
+     *
+     * @param list<object> $activities `tt_activities` rows; `id` and `team_id` are read.
+     * @return list<int> the ids this user may read
+     */
+    public static function readableIds( int $user_id, array $activities ): array {
+        $scope = self::readScope( $user_id );
+        $out   = [];
+        $rest  = [];
+        foreach ( $activities as $activity ) {
+            $row = (array) $activity;
+            $id  = (int) ( $row['id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            $team_id = (int) ( $row['team_id'] ?? 0 );
+            if ( $scope['global'] || ( $team_id > 0 && in_array( $team_id, $scope['team_ids'], true ) ) ) {
+                $out[] = $id;
+            } else {
+                $rest[] = $id;
+            }
+        }
+        if ( $rest !== [] && $scope['player_ids'] !== [] ) {
+            $out = array_merge( $out, ( new ActivitiesRepository() )->idsVisibleToPlayers( $rest, $scope['player_ids'] ) );
+        }
+        return array_values( array_unique( $out ) );
+    }
+
+    /**
      * May this user read this activity? The per-record form of the rule
      * `GET /activities` applies to its rows.
      *

@@ -131,8 +131,21 @@ en Escape sluit de lijst terwijl je cursor in het veld blijft. **⌘K** /
 **Ctrl+K** springt naar het veld; de sneltoets is alleen een versnelling, want
 het veld staat in beeld en is aanklikbaar.
 
+Accenten en hoofdletters maken niet uit: *jose* vindt José. Elk woord dat je
+typt moet kloppen, dus *den b* vindt Daan den Besten. De beste resultaten staan
+bovenaan: een naam die begint met wat je typte staat boven een naam waar het
+alleen in voorkomt, en spelers komen vóór teams. Een paar verkortingen worden
+herkend:
+
+- **#7** vindt de spelers met rugnummer 7;
+- **O14** vindt de O14-teams en hun spelers (**MO14** alleen de meidenteams);
+- **12-10** vindt de activiteiten op 12 oktober van dit seizoen;
+- een weekdag zoals **zaterdag** of **saturday** vindt de activiteiten op
+  afgelopen en komende zaterdag.
+
 Je ziet alleen records waar je al toegang toe hebt. Zoeken verbreedt niet wat je
-mag bereiken; het maakt bereiken alleen sneller.
+mag bereiken; het maakt bereiken alleen sneller. Een record dat je niet mag
+openen telt ook niet mee.
 
 ## Voorbeeld — kijken zonder weg te gaan
 

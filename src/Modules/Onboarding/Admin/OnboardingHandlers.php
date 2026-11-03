@@ -620,6 +620,7 @@ class OnboardingHandlers {
             ]
         );
         $team_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'team', $team_id );
 
         $payload = [ 'team_name' => $name, 'age_group' => $age_group, 'team_id' => $team_id ];
         OnboardingState::recordPayload( 'first_team', $payload );

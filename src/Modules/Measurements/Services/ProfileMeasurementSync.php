@@ -178,6 +178,7 @@ class ProfileMeasurementSync {
         $current = $column === 'weight_kg' ? $row->weight_kg : $row->height_cm;
         if ( $current !== null && (int) $current === $rounded ) return false;
 
+        /* search-text-ok: no source column */
         return false !== $wpdb->update(
             $p . 'tt_players',
             [ $column => $rounded ],

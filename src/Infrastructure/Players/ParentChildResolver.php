@@ -228,6 +228,13 @@ final class ParentChildResolver {
     public static function children( int $parent_user_id ): array {
         if ( $parent_user_id <= 0 ) return [];
 
+        // Remembered while a scope decision runs (#4671): the per-player
+        // question asks this once for every candidate player.
+        return \TT\Infrastructure\Security\ScopeMemo::remember( 'children|' . $parent_user_id, static fn(): array => self::childrenUncached( $parent_user_id ) );
+    }
+
+    /** @return list<object> */
+    private static function childrenUncached( int $parent_user_id ): array {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_parents';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
@@ -254,7 +261,7 @@ final class ParentChildResolver {
             $parent_user_id, CurrentClub::id(),
             self::LINKED_STATUSES[0], self::LINKED_STATUSES[1], self::LINKED_STATUSES[2]
         ) );
-        return is_array( $rows ) ? $rows : [];
+        return is_array( $rows ) ? array_values( array_filter( $rows, 'is_object' ) ) : [];
     }
 
     /**

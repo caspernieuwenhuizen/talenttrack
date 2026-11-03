@@ -267,9 +267,10 @@ class MatrixGate {
         $p = $wpdb->prefix;
 
         if ( $scope_kind === self::SCOPE_PLAYER ) {
+            // The account's own player record in this academy only.
             $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
-                $user_id
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
             ) );
             if ( $self_player > 0 ) return $self_player;
 
@@ -534,9 +535,10 @@ class MatrixGate {
         $p = $wpdb->prefix;
 
         if ( $scope_kind === self::SCOPE_PLAYER ) {
+            // The account's own player record in this academy only.
             $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
-                $user_id
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
             ) );
             if ( $self_player > 0 ) return true;
 
@@ -590,11 +592,15 @@ class MatrixGate {
         }
 
         if ( $scope_kind === self::SCOPE_PLAYER ) {
-            // Player viewing self?
-            $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
-                $user_id
-            ) );
+            // Player viewing self? In this club only: the account's player
+            // record in another academy is not the one being asked about.
+            // Remembered while a scope decision runs (#4671): it does not
+            // depend on the target, and a list-form question asks it per
+            // target.
+            $self_player = (int) \TT\Infrastructure\Security\ScopeMemo::remember( 'self_player|' . $user_id, static fn(): int => (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
+            ) ) );
             if ( $self_player === $target_id ) return true;
 
             // Parent of the player? #3476 — one club-scoped implementation,

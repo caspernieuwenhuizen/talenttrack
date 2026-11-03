@@ -394,6 +394,7 @@ class PersonDeletionCascade {
             // The column is retired (#3572); once it is dropped there is
             // nothing to clear, and the delete must not fail on it.
             if ( MigrationHelpers::columnExists( $p . 'tt_players', 'parent_person_id' ) ) {
+                /* search-text-ok: no source column */
                 $sql_parent = "UPDATE {$p}tt_players
                                SET parent_person_id = NULL
                                WHERE parent_person_id IN ({$ph}) AND club_id = %d";

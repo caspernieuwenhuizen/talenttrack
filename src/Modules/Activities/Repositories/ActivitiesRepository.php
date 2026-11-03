@@ -968,6 +968,7 @@ final class ActivitiesRepository {
         if ( $ok === false ) return null;
 
         $id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $id );
 
         /**
          * #2731 — an activity row was written.
@@ -1019,6 +1020,10 @@ final class ActivitiesRepository {
             $data,
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
+
+        if ( $ok && ( array_key_exists( 'title', $data ) || array_key_exists( 'location', $data ) ) ) {
+            \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
+        }
 
         /** This event documented on {@see self::create()}. */
         if ( $ok ) do_action( 'tt_activity_saved', $activity_id, $data );
@@ -1084,6 +1089,7 @@ final class ActivitiesRepository {
         if ( $remaining === $locked ) return $locked;
 
         global $wpdb;
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_activities',
             [ 'sync_locked_fields' => SyncLockedFields::encode( $remaining ) ],
@@ -2014,24 +2020,60 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #3688 — the activities a player sees: their team's, plus any they
-     * are on the register of (a guest appearance included). Aliased on
-     * `s` for `tt_activities`; takes the player id three times.
+     * #3688 — the activities a set of players sees: their teams', plus any
+     * they are on the register of (a guest appearance included), on any
+     * alias of `tt_activities`.
      *
-     * One clause for the list (`searchForRest`, player-scoped) and the
-     * single-record check (`isVisibleToPlayer`), so the two cannot drift.
+     * The one clause for the player-scoped list (`searchForRest`), the
+     * single-record check (`isVisibleToPlayer`), the batched check
+     * (`idsVisibleToPlayers`) and search (#4671), so none of them can drift
+     * from the others. Both register kinds on purpose: a player picked for
+     * another team's squad (expected) must see that activity before anyone
+     * takes the register, and still see it after (actual).
+     *
+     * @param list<int> $player_ids
+     * @return array{sql:string, params:list<int>}
      */
-    private static function playerVisibilityClause(): string {
+    public static function playersVisibilityClause( array $player_ids, string $alias ): array {
+        $alias = preg_replace( '/[^a-zA-Z0-9_]/', '', $alias ) ?: 's';
+        $ids   = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [ 'sql' => '1=0', 'params' => [] ];
+
         global $wpdb;
-        $p = $wpdb->prefix;
-        // Both register kinds on purpose: a player picked for another
-        // team's squad (expected) must see that activity before anyone
-        // takes the register, and still see it after (actual).
+        $p  = $wpdb->prefix;
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         /* both-kinds-ok */
-        return "(
-                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
-                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
-            )";
+        return [
+            'sql'    => "(
+                {$alias}.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id IN ({$in}) AND pl.club_id = {$alias}.club_id )
+                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance av WHERE av.activity_id = {$alias}.id AND av.club_id = {$alias}.club_id AND ( av.player_id IN ({$in}) OR av.guest_player_id IN ({$in}) ) )
+            )",
+            'params' => array_merge( $ids, $ids, $ids ),
+        ];
+    }
+
+    /**
+     * #4671 — of these activities, the ones any of these players sees: the
+     * batched form of {@see self::isVisibleToPlayer()}, one statement.
+     *
+     * @param list<int> $activity_ids
+     * @param list<int> $player_ids
+     * @return list<int>
+     */
+    public function idsVisibleToPlayers( array $activity_ids, array $player_ids ): array {
+        $activity_ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $activity_ids === [] || $player_ids === [] ) return [];
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $clause = self::playersVisibilityClause( $player_ids, 's' );
+        $in     = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT s.id FROM {$p}tt_activities s
+              WHERE s.id IN ({$in}) AND s.club_id = %d AND {$clause['sql']}",
+            ...array_merge( $activity_ids, [ CurrentClub::id() ], $clause['params'] )
+        ) );
+        return array_values( array_map( 'intval', is_array( $ids ) ? $ids : [] ) );
     }
 
     /**
@@ -2044,13 +2086,13 @@ final class ActivitiesRepository {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
         global $wpdb;
         $p      = $wpdb->prefix;
-        $clause = self::playerVisibilityClause();
+        $clause = self::playersVisibilityClause( [ $player_id ], 's' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $hit = $wpdb->get_var( $wpdb->prepare(
             "SELECT 1 FROM {$p}tt_activities s
-              WHERE s.id = %d AND s.club_id = %d AND {$clause}
+              WHERE s.id = %d AND s.club_id = %d AND {$clause['sql']}
               LIMIT 1",
-            $activity_id, CurrentClub::id(), $player_id, $player_id, $player_id
+            $activity_id, CurrentClub::id(), ...$clause['params']
         ) );
         return $hit !== null;
     }
@@ -2136,11 +2178,9 @@ final class ActivitiesRepository {
         }
 
         if ( ! empty( $filter['player_id'] ) ) {
-            $pid = absint( $filter['player_id'] );
-            $where[]  = self::playerVisibilityClause();
-            $params[] = $pid;
-            $params[] = $pid;
-            $params[] = $pid;
+            $clause  = self::playersVisibilityClause( [ absint( $filter['player_id'] ) ], 's' );
+            $where[] = $clause['sql'];
+            $params  = array_merge( $params, $clause['params'] );
         }
         // #3687 — the activity-type filter, so "which matches are this
         // weekend" is one request rather than every activity plus a
@@ -2452,6 +2492,7 @@ final class ActivitiesRepository {
     public function setPlanState( int $activity_id, string $plan_state ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         return $wpdb->update(
             "{$p}tt_activities",
             [ 'plan_state' => $plan_state ],
@@ -2475,6 +2516,7 @@ final class ActivitiesRepository {
         $plan_state = $status_key === ActivityStatusKey::PLANNED ? 'scheduled' : $status_key;
         // #3081 — see `announceCancellation()`.
         $was_cancelled = $this->wasCancelledBefore( $activity_id, [ 'activity_status_key' => $status_key ] );
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [
@@ -2530,6 +2572,7 @@ final class ActivitiesRepository {
         $date = (string) ( $row->session_date ?? '' );
         if ( $date === '' || $date > current_time( 'Y-m-d' ) ) return false;
 
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [
@@ -2561,6 +2604,7 @@ final class ActivitiesRepository {
     public function setEvaluationSkipped( int $activity_id, int $skipped ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         return $wpdb->update(
             "{$p}tt_activities",
             [ 'evaluation_skipped' => $skipped ],

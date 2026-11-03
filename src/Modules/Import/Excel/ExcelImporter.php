@@ -395,6 +395,7 @@ final class ExcelImporter {
                 'notes'     => (string) ( $r['notes'] ?? '' ),
             ] );
             $id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'team', $id );
             if ( $id > 0 ) {
                 $team_id_by_key[ (string) $r['auto_key'] ] = $id;
                 $registry->tag( 'team', $id, [ 'source' => 'excel' ] );
@@ -412,6 +413,7 @@ final class ExcelImporter {
                 'email'      => (string) ( $r['email']      ?? '' ),
             ] );
             $id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'person', $id );
             if ( $id > 0 ) {
                 $person_id_by_key[ (string) $r['auto_key'] ] = $id;
                 $registry->tag( 'person', $id, [ 'source' => 'excel' ] );
@@ -448,6 +450,7 @@ final class ExcelImporter {
                 'status'         => (string) ( $r['status'] ?? 'active' ),
             ] );
             $id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $id );
             if ( $id > 0 ) {
                 $player_id_by_key[ (string) $r['auto_key'] ] = $id;
                 $registry->tag( 'player', $id, [ 'source' => 'excel' ] );
@@ -496,6 +499,7 @@ final class ExcelImporter {
                 'coach_id'            => 0,
             ] );
             $id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'activity', $id );
             if ( $id > 0 ) {
                 $activity_id_by_key[ (string) $r['auto_key'] ] = $id;
                 $registry->tag( 'activity', $id, [ 'source' => 'excel' ] );

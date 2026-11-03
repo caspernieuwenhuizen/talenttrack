@@ -98,6 +98,7 @@ final class PlayerAccountService {
         }
 
         $wpdb->query( $wpdb->prepare(
+            /* search-text-ok: no source column */
             "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = %d WHERE id = %d AND club_id = %d",
             $wp_user_id, $player_id, $club
         ) );
@@ -222,6 +223,7 @@ final class PlayerAccountService {
         }
 
         $wpdb->query( $wpdb->prepare(
+            /* search-text-ok: no source column */
             "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = NULL WHERE id = %d AND club_id = %d",
             $player_id, $club
         ) );

@@ -64,6 +64,31 @@ final class PlayerPhoto {
     }
 
     /**
+     * {@see self::url()} for many players, with every photo's media row read
+     * in one statement: a list of players costs the same whatever its size.
+     *
+     * @param array<int, object> $players player id => row from `tt_players`
+     *                                    (`photo_media_id`, `photo_url`).
+     * @return array<int, string> player id => gated URL, or '' when none.
+     */
+    public static function urls( array $players ): array {
+        $media_ids = [];
+        foreach ( $players as $player ) {
+            $media_id = (int) ( $player->photo_media_id ?? 0 );
+            if ( $media_id > 0 ) $media_ids[] = $media_id;
+        }
+        $media = ( new MediaRepository() )->findMany( $media_ids );
+
+        $out = [];
+        foreach ( $players as $player_id => $player ) {
+            $row  = $media[ (int) ( $player->photo_media_id ?? 0 ) ] ?? null;
+            $uuid = $row !== null ? (string) ( $row->uuid ?? '' ) : '';
+            $out[ (int) $player_id ] = $uuid !== '' ? MediaDelivery::url( $uuid ) : self::legacyUrl( $player );
+        }
+        return $out;
+    }
+
+    /**
      * The photo as a `data:` URI for print, PDF and export, or '' when
      * there is none.
      *

@@ -108,6 +108,7 @@ class DemoDataCleaner {
             foreach ( array_chunk( $player_ids, self::DELETE_CHUNK ) as $chunk ) {
                 $placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
                 $wpdb->query( $wpdb->prepare(
+                    /* search-text-ok: no source column */
                     "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = NULL WHERE id IN ({$placeholders}) AND club_id = %d",
                     ...array_merge( $chunk, [ CurrentClub::id() ] )
                 ) );

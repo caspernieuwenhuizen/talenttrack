@@ -107,6 +107,7 @@ class TeamGenerator implements GeneratorInterface {
                 'notes'     => 'Demo team',
             ] );
             $team_id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'team', $team_id );
 
             $this->registry->tag( 'team', $team_id, [
                 'age_group'  => $age_group,

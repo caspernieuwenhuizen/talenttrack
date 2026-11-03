@@ -845,6 +845,40 @@ paths:
     post: { tags: [personas], summary: Set active persona lens, responses: { '200': { description: OK } } }
     delete: { tags: [personas], summary: Clear active persona lens, responses: { '200': { description: OK } } }
 
+  /search:
+    get:
+      tags: [players]
+      summary: Search every kind the caller may open (#2458, #4671)
+      description: 'Any logged-in user. Each kind (view, player, team, person, activity, setting, help) is narrowed in SQL by club, demo scope and the caller''s own scope, then confirmed per row by the record''s own access check; counts use the same scope. Without `page` the header box shape `{ results: [ {type,id,label,sublabel,url} ] }` (at most 10, sections at most 3 while records match). With `page`: the envelope with `{ items, counts, understood, total }`; an item adds `player_id`, `team_id`, `photo_url` and up to two `actions` `{key,label,url}`. Records need 2 characters, sections and settings 1. Patterns: `#<n>` shirt number, `O<nn>`/`MO<nn>` age group, `dd-mm` a date this season, a weekday.'
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: types, schema: { type: string }, description: 'Comma-separated kinds. An unknown kind is 400 bad_filter with page.' }
+        - { in: query, name: team_id, schema: { type: integer }, description: 'With page. Not a positive id: 400 bad_filter.' }
+        - { in: query, name: from, schema: { type: string, format: date }, description: 'With page; activities. Unreadable: 400 bad_date.' }
+        - { in: query, name: to, schema: { type: string, format: date }, description: 'With page; activities. Unreadable: 400 bad_date.' }
+        - { in: query, name: page, schema: { type: integer, minimum: 1, maximum: 20 }, description: 'Selects the paged answer.' }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+      responses:
+        '200': { description: OK }
+        '400': { description: 'bad_filter or bad_date' }
+        '401': { description: Not logged in }
+
+  /me/recent:
+    get:
+      tags: [players]
+      summary: The records the caller opened last, re-checked (#4671)
+      description: 'At most 20, newest first: `{ items: [ …search items, opened_at ] }`. A record whose access was revoked, or which was archived, drops out and its row is deleted.'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } } }
+    post:
+      tags: [players]
+      summary: Note that the caller opened a record (#4671)
+      description: 'Body `{ type, id }`, type one of player, team, person, activity. A record the caller may not open answers 404 not_found, exactly as a missing one, and nothing is stored.'
+      responses:
+        '201': { description: Noted }
+        '400': { description: 'invalid_field or unknown_field' }
+        '404': { description: 'not_found' }
+
   /me/week:
     get:
       tags: [activities]

@@ -1202,6 +1202,7 @@ class PlayersRestController {
             ], 500 );
         }
         $id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'player', $id );
         // v3.76.2 — auto-tag demo-on rows so operator-created records
         // remain visible to demo-scoped queries.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $id );
@@ -1253,6 +1254,7 @@ class PlayersRestController {
 
         if ( $data !== [] ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $id );
             if ( $ok === false ) {
                 Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
                 return RestResponse::errors( [
@@ -1307,6 +1309,7 @@ class PlayersRestController {
         // `p.archived_at IS NULL`, so writing to `status` left the row in
         // the active list — operator clicked Delete and saw "nothing
         // happened". Mirrors `delete_team`'s archive shape (TeamsRestController).
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_players',
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],

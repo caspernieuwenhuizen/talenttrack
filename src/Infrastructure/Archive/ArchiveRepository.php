@@ -317,6 +317,7 @@ class ArchiveRepository {
                 $ph2 = implode( ',', array_fill( 0, count( $cascaded ), '%d' ) );
                 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
                 $wpdb->query( $wpdb->prepare(
+                    /* search-text-ok: no source column */
                     "UPDATE {$wpdb->prefix}tt_activities
                         SET archived_at = NULL, archived_by = NULL
                       WHERE id IN ({$ph2}) AND club_id = %d AND archived_at IS NOT NULL",
