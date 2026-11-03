@@ -39,7 +39,7 @@
 
 .tt-dashboard .tt-mmg-tab.is-active {
     background: var(--tt-primary, #1d7874);
-    color: var(--tt-on-primary, #fff);
+    color: var(--tt-color-on-primary, #fff);
 }
 
 /* ── list ──────────────────────────────────────────────────────────── */
