@@ -90,8 +90,10 @@ across views.
 
 A theme is a **token layer**, not a second set of surfaces:
 
-1. `assets/css/tokens.css` declares the neutral tokens on `.tt-root` (the body
-   class).
+1. `assets/css/tokens.css` declares the neutral tokens on `.tt-root`: a
+   wrapper the dashboard renders directly around `.tt-dashboard`, and the body
+   class. The wrapper is always there, so the tokens resolve whatever the
+   WordPress theme does and whether or not the custom CSS module is on.
 2. The theme sheet redeclares a subset on `.tt-dashboard`, a closer ancestor,
    so every surface inside the dashboard inherits the themed value with no
    per-view rule. This is the same cascade argument `tokens.css` itself makes
