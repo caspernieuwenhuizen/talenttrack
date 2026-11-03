@@ -8,7 +8,7 @@ use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Digest\AlertDigestQuery;
-use TT\Modules\Comms\CommsService;
+use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
@@ -135,7 +135,7 @@ final class AlertDigestCron {
         );
 
         try {
-            $results = ( new CommsService() )->send( $request );
+            $results = CommsDispatcher::service()->send( $request );
         } catch ( \Throwable $e ) {
             error_log( '[TalentTrack alerts] digest send failed for user ' . $user_id . ': ' . $e->getMessage() );
             return false;

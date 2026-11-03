@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Comms\CommsService;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
@@ -211,7 +210,7 @@ final class MassAnnouncementSender {
         $recipients = $this->audience( $scope, $team_id, $age_group );
         if ( $recipients === [] ) return [];
 
-        return ( new CommsService() )->preflight( new CommsRequest(
+        return CommsDispatcher::service()->preflight( new CommsRequest(
             self::TEMPLATE_KEY,
             MessageType::MASS_ANNOUNCEMENT,
             CurrentClub::id(),

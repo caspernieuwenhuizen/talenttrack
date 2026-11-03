@@ -53,7 +53,7 @@ final class DirectMessageSender {
         $recipient = self::recipientForPerson( $personId );
         if ( $recipient === null ) return [];
 
-        return ( new \TT\Modules\Comms\CommsService() )->preflight(
+        return CommsDispatcher::service()->preflight(
             new \TT\Modules\Comms\Domain\CommsRequest(
                 DirectMessageTemplate::KEY,
                 MessageType::DIRECT_MESSAGE,

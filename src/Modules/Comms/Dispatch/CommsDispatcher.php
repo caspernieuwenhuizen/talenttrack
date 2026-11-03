@@ -77,18 +77,27 @@ final class CommsDispatcher {
     private static $clock = null;
 
     /**
-     * The clock the send path reads for quiet hours and for the deferred
-     * queue. Null, the default, is the system clock. Tests freeze it here,
-     * because every sender reaches Comms through this class and none of
-     * them takes a clock of its own.
+     * The clock every dispatch reads for quiet hours and for the deferred
+     * queue: each send and each preflight that goes through `service()`.
+     * Null, the default, is the system clock.
      *
+     * Production never sets it. Tests freeze it here, because every sender
+     * reaches Comms through this class and none of them takes a clock of
+     * its own.
+     *
+     * @internal
      * @param (callable():int)|null $clock Unix timestamp source.
      */
     public static function useClock( ?callable $clock ): void {
         self::$clock = $clock;
     }
 
-    /** The Comms service a dispatch sends through, on the dispatcher's clock. */
+    /**
+     * The Comms service every send and preflight goes through, on the
+     * dispatcher's clock. Build a `CommsService` nowhere else:
+     * `CommsServiceChokepointTest` fails on a `new CommsService(` in `src/`
+     * outside this class and `DeferredSendSweep`.
+     */
     public static function service(): CommsService {
         if ( self::$clock === null ) return new CommsService();
         return new CommsService(
