@@ -269,7 +269,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 // "Name #7" with the foot pill at the right and the team
                 // underneath.
                 'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
-                'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+                'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary', 'mobile_plain' => true ],
                 'jersey_number'  => [ 'label' => __( '#',    'talenttrack' ), 'sortable' => true, 'mobile' => 'primary' ],
                 'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html', 'mobile' => 'badge' ],
                 // #4196 — no media consent column or filter here. Consent
