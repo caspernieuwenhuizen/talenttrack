@@ -400,7 +400,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
 
             foreach ( [ 'paper' => $paper, 'screen' => $screen ] as $out => $html ) {
                 $prefix = $out === 'screen' ? 'tt-d-' : '';
-                $this->assertSame( 1, preg_match( '/<table class="' . $prefix . 'tbl"><thead><tr>(.*?)<\/tr><\/thead><tbody>(.*?)<\/tbody>/s', $html, $m ), "{$layout} {$out}: no roster" );
+                $this->assertSame( 1, preg_match( '/<table class="' . $prefix . 'tbl tt-stack-table" role="table"><thead[^>]*><tr[^>]*>(.*?)<\/tr><\/thead><tbody[^>]*>(.*?)<\/tbody>/s', $html, $m ), "{$layout} {$out}: no roster" );
                 $heads = substr_count( $m[1], '<th' );
                 $rows  = array_filter( explode( '</tr>', $m[2] ), static fn( string $r ): bool => strpos( $r, '<tr' ) !== false );
                 $this->assertCount( 20, $rows, "{$layout} {$out}: a row per player" );
@@ -434,6 +434,31 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $this->assertNotFalse( $reset, 'the sheet cells are not reset' );
         $this->assertLessThan( (int) strpos( $css, '.tt-mr-doc .tt-d-tbl td{' ), $reset, 'the reset must come before the document\'s own rules' );
         $this->assertStringContainsString( '.tt-mr-doc .tt-mr-sheet :where(table){', $css );
+    }
+
+    /**
+     * #4810 — the ranked readings, the roster and the evaluation grid are on
+     * the stack-table primitive, always stacked, and the screen's sheets take
+     * it back off them from 1024px. The undo is screen-only: the stylesheet
+     * DomPDF prints never mentions the primitive.
+     */
+    public function test_the_stacked_tables_come_back_on_the_screen_sheets_only(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->withEvaluations( $this->report( 20 ), 'details', false ), 1 ), [ 'roster', 'evaluations', 'tests' ] );
+        $paper  = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+
+        foreach ( [ 'tbl', 'egrid', 'rd' ] as $table ) {
+            $this->assertStringContainsString( '<table class="' . $table . ' tt-stack-table" role="table">', $paper, "{$table}: not on the primitive" );
+        }
+        $style = (string) preg_replace( '/^.*<style>(.*?)<\/style>.*$/s', '$1', $paper );
+        $this->assertStringNotContainsString( 'tt-stack-table', $style, 'the printed stylesheet carries the screen undo' );
+
+        $css  = TeamMonthlyReportDocument::screenCss( 'B' );
+        $undo = strpos( $css, '.tt-mr-doc .tt-mr-sheet .tt-stack-table{display:table}' );
+        $this->assertNotFalse( $undo, 'the sheets do not bring the table back' );
+        $this->assertSame( 0, strpos( $css, '@media (min-width: 1024px){' ), 'the undo is for the wide sheets only' );
+        $this->assertLessThan( (int) strpos( $css, '.tt-mr-doc .tt-d-tbl td{' ), $undo, 'the document\'s own rules must follow the undo' );
+        $this->assertStringContainsString( '.tt-mr-doc .tt-mr-sheet .tt-stack-table>tbody>tr>td:empty,', $css );
+        $this->assertStringContainsString( '.tt-mr-doc .tt-mr-sheet .tt-stack-table>tbody>tr>td::before{content:none}', $css );
     }
 
     /**
@@ -575,13 +600,13 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
 
         $pack = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
         $this->assertStringContainsString( 'class="tstat"', $pack );
-        $this->assertStringContainsString( 'class="rd"', $pack );
+        $this->assertStringContainsString( 'class="rd tt-stack-table"', $pack );
         $this->assertStringContainsString( '12:54', $pack );
         $this->assertStringContainsString( 'class="avgline"', $pack );
 
         $one = TeamMonthlyReportPdfExporter::payload( $report, 'A', 'Pdf U13' )['html'];
         $this->assertStringContainsString( 'class="tstat"', $one );
-        $this->assertStringNotContainsString( 'class="rd"', $one, 'The one-pager prints the strip only.' );
+        $this->assertStringNotContainsString( 'class="rd tt-stack-table"', $one, 'The one-pager prints the strip only.' );
         $this->assertStringContainsString( '16:04', $one, 'With the worst reading in place of the history.' );
     }
 
@@ -603,7 +628,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $pages = explode( '<div class="page break">', $html );
         $this->assertCount( 4, $pages );
         $this->assertSame( 5, substr_count( $pages[2], 'class="a-red"' ), 'Page 3 lists all five players.' );
-        $this->assertSame( 3, substr_count( $pages[3], 'class="rd"' ), 'Page 4 has all three tests with their readings.' );
+        $this->assertSame( 3, substr_count( $pages[3], 'class="rd tt-stack-table"' ), 'Page 4 has all three tests with their readings.' );
 
         // A bigger squad runs page 4 over onto another sheet: still nothing
         // dropped, and the meter says the pack does not fit.
@@ -611,7 +636,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $big_fit = TeamMonthlyReportLayout::fit( $big, 'B' );
         $this->assertFalse( $big_fit['fits'] );
         $big_html = TeamMonthlyReportPdfExporter::payload( $big, 'B', 'Pdf U13' )['html'];
-        $this->assertSame( 3, substr_count( $big_html, 'class="rd"' ) );
+        $this->assertSame( 3, substr_count( $big_html, 'class="rd tt-stack-table"' ) );
         $this->assertSame( 5, substr_count( $big_html, 'class="a-red"' ) );
     }
 

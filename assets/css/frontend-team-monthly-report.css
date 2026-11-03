@@ -380,6 +380,30 @@
     .tt-mr-doc td,
     .tt-mr-doc th { text-align: left; vertical-align: middle; }
 
+    /* #4810 — the ranked readings, the roster and the evaluation grid are on
+       the stack-table primitive (always stacked; screenCss() brings the
+       table back from 1024px). It gives their header row its hidden-but-read
+       state and each figure its label. The rest of its line defaults are
+       taken back here, one step above its own selectors and below every
+       rule that lays out a table of the report, so each table keeps the
+       layout it has always had. */
+    .tt-mr-doc table:where(.tt-stack-table) > tbody > tr > td {
+        min-width: auto;
+        text-align: left;
+        overflow-wrap: normal;
+    }
+    .tt-mr-doc table:where(.tt-stack-table) > tbody > tr > td[colspan] { text-align: left; }
+    .tt-mr-doc table:where(.tt-stack-table) > tbody > tr > td::before {
+        flex: initial;
+        max-width: none;
+        text-align: inherit;
+    }
+    /* An empty cell keeps its place in the card (the primitive drops it):
+       an injury column with no injury still says "Injured". */
+    .tt-mr-doc .tt-d-rd.tt-stack-table > tbody > tr:not(.tt-d-avgline) > td:empty:not(.tt-d-bb),
+    .tt-mr-doc .tt-d-tbl.tt-stack-table > tbody > tr > td:empty:not(.tt-d-bar),
+    .tt-mr-doc .tt-d-egrid.tt-stack-table > tbody > tr > td:empty:not(.tt-d-jn) { display: block; }
+
     .tt-mr-sheet { margin: 0 0 var(--tt-sp-4); }
     .tt-mr-sheet__no { display: none; }
     .tt-mr-sheet__tag {
@@ -710,7 +734,8 @@
     .tt-mr-doc .tt-d-rd .tt-d-ch { grid-area: ch; text-align: right; }
     .tt-mr-doc .tt-d-rd .tt-d-pv { grid-area: pv; font-size: 0.8rem; color: var(--tt-muted); }
     .tt-mr-doc .tt-d-rd .tt-d-av { grid-area: av; text-align: right; font-size: 0.8rem; color: var(--tt-muted); }
-    .tt-mr-doc .tt-d-rd td[data-label]::before { content: attr(data-label) " "; }
+    /* The label (the primitive's) runs in front of the figure. */
+    .tt-mr-doc .tt-d-rd td[data-label]::before { margin-right: 0.28em; }
     .tt-mr-doc .tt-d-rd .tt-d-avgline { display: block; min-height: 0; padding: 0; border-bottom: 2px dashed var(--tt-ink); }
     .tt-mr-doc .tt-d-rd .tt-d-avgline td { display: none; }
     .tt-mr-doc .tt-d-pb {
@@ -736,7 +761,6 @@
     /* Player by player: each player a row, the figures labelled. Seven
        figures sit four and three (#4131), so none is left on a row of its
        own; a long label breaks rather than widening the card. */
-    .tt-mr-doc .tt-d-tbl thead { display: none; }
     .tt-mr-doc .tt-d-tbl,
     .tt-mr-doc .tt-d-tbl tbody { display: block; }
     .tt-mr-doc .tt-d-tbl tr {
@@ -750,7 +774,6 @@
     .tt-mr-doc .tt-d-tbl .tt-d-nm { grid-column: 1 / -1; min-height: 1.75rem; font-weight: 700; font-size: 1rem; }
     .tt-mr-doc .tt-d-tbl .tt-d-bar { display: none; }
     .tt-mr-doc .tt-d-tbl td[data-label]::before {
-        content: attr(data-label);
         display: block;
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -794,7 +817,6 @@
 
     /* The grid on a phone: a row per player, the category figures as chips
        under the name, the overall average beside it. */
-    .tt-mr-doc .tt-d-egrid thead { display: none; }
     .tt-mr-doc .tt-d-egrid,
     .tt-mr-doc .tt-d-egrid tbody { display: block; }
     .tt-mr-doc .tt-d-egrid tr {
@@ -810,7 +832,6 @@
     .tt-mr-doc .tt-d-egrid .tt-d-oa { grid-column: 4; grid-row: 1; text-align: right; font-weight: 800; }
     .tt-mr-doc .tt-d-egrid .tt-d-cat { padding: 4px 0; border-radius: 8px; background: var(--tt-bg-soft); }
     .tt-mr-doc .tt-d-egrid td[data-label]::before {
-        content: attr(data-label);
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;

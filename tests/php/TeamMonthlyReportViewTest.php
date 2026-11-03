@@ -137,7 +137,7 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'class="tt-d-kpi"', $html );
         $this->assertStringNotContainsString( 'class="tt-d-cov"', $html );
-        $this->assertStringNotContainsString( 'class="tt-d-tbl"', $html );
+        $this->assertStringNotContainsString( 'class="tt-d-tbl', $html );
     }
 
     /**
