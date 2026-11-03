@@ -1469,6 +1469,15 @@ class PlayersRestController {
         // the sensitive-field registry lets read them (#4690); the response
         // filter strips them again for anyone else. Asked here as well so a
         // read that discloses nothing is not audit-logged as one.
+        // #4716 — the club's own fields ask their own registry entry, the
+        // one definition the profile and the admin views read too.
+        if ( ! RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $player_id ) ) {
+            $out['custom_fields'] = (object) ( new CustomValuesRepository() )->getByEntityKeyed(
+                CustomFieldsRepository::ENTITY_PLAYER,
+                $player_id
+            );
+        }
+
         if ( RecordRedactor::isMasked( 'players', 'guardian_email', get_current_user_id(), $player_id ) ) {
             return $out;
         }
@@ -1476,10 +1485,6 @@ class PlayersRestController {
         $out['guardian_name']  = $pl->guardian_name ?: null;
         $out['guardian_email'] = $pl->guardian_email ?: null;
         $out['guardian_phone'] = $pl->guardian_phone ?: null;
-        $out['custom_fields']  = (object) ( new CustomValuesRepository() )->getByEntityKeyed(
-            CustomFieldsRepository::ENTITY_PLAYER,
-            $player_id
-        );
 
         $audit = Kernel::instance()->container()->get( 'audit' );
         if ( $audit instanceof AuditService ) {
