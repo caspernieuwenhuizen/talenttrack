@@ -179,8 +179,10 @@ final class SettingsRegistry {
     /**
      * #4671 — {@see self::entriesFor()} narrowed to the screens the viewer's
      * navigation offers them. An entry that opens a screen with a tile of its
-     * own is left out when that tile is not visible to the viewer: the matrix
-     * may grant the screen, but a persona whose navigation hides it
+     * own is left out when that tile is not visible to the viewer; one whose
+     * screen has no tile (reached only from the Configuration landing) is
+     * left out when the Configuration tile is not visible. The matrix may
+     * grant the screen, but a persona whose navigation hides it
      * (`hide_for_personas`) is never pointed at it from search. Owner
      * decision, 3 November 2026: the head of development does not get the
      * Configuration tile, so search lists no entry reached only through it.
@@ -200,12 +202,20 @@ final class SettingsRegistry {
             if ( $slug !== '' ) $tiled[ $slug ] = true;
         }
 
+        // Every entry is a card on the Configuration landing. A screen with a
+        // tile of its own is reached through that tile; one without (a
+        // sub-view such as the evaluation categories) only through the
+        // landing, so it needs the Configuration tile.
+        $landing = isset( $visible['configuration'] );
+
         $out = [];
         foreach ( self::entriesFor( $user_id ) as $entry ) {
             $query = (string) wp_parse_url( $entry['url'], PHP_URL_QUERY );
             parse_str( $query, $args );
             $view = isset( $args['tt_view'] ) && is_string( $args['tt_view'] ) ? $args['tt_view'] : '';
-            if ( $view !== '' && isset( $tiled[ $view ] ) && ! isset( $visible[ $view ] ) ) continue;
+            $own_tile = $view !== '' && isset( $tiled[ $view ] );
+            $reached  = $own_tile ? isset( $visible[ $view ] ) : $landing;
+            if ( ! $reached ) continue;
             $out[] = $entry;
         }
         return $out;

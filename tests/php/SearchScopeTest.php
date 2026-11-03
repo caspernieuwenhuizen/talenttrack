@@ -93,8 +93,17 @@ final class SearchScopeTest extends WP_UnitTestCase {
      */
     public function test_the_player_sql_clause_agrees_with_can_view_players(): void {
         global $wpdb;
+        $this->addCandidateSourcePersonas();
         $all = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_players WHERE club_id = %d", (int) CurrentClub::id() ) ) );
-        $this->assertGreaterThanOrEqual( 4, count( $all ) );
+        $this->assertGreaterThanOrEqual( 5, count( $all ) );
+
+        // Preconditions: each added source is reached, so its branch of the
+        // scope is exercised rather than agreeing on "nothing".
+        $this->assertTrue( AuthorizationService::canViewPlayers( $this->personas['scout'], [ $this->players['jose'] ] )[ $this->players['jose'] ] ?? false, 'the linked scout reads José' );
+        $this->assertContains( $this->players['trialist'], \TT\Infrastructure\Players\ParentChildResolver::childIds( $this->personas['trial_guardian'], \TT\Infrastructure\Players\ParentChildResolver::NEED_SCHEDULE ), 'the trialist is a candidate of their guardian' );
+        $this->resetSearchCaches();
+        $this->assertTrue( AuthorizationService::canViewPlayers( $this->personas['functional'], [ $this->players['far'] ] )[ $this->players['far'] ] ?? false, 'the functional-role manager reads team B' );
+        $this->resetSearchCaches();
 
         foreach ( $this->personas as $persona => $uid ) {
             wp_set_current_user( $uid );
@@ -106,6 +115,81 @@ final class SearchScopeTest extends WP_UnitTestCase {
             foreach ( $all as $pid ) {
                 $this->assertSame( ! empty( $rule[ $pid ] ), in_array( $pid, $by_sql, true ), "{$persona}, player {$pid}: the SQL clause and canViewPlayers disagree" );
             }
+        }
+    }
+
+    /**
+     * The activity confirm (`readableIds()`) is built from the same scope as
+     * the SQL, so it is held to the per-record rule (`canRead()`) instead:
+     * for every persona and every activity, the two agree. Two activities on
+     * team B are reached by a team A player only through the register, one as
+     * a squad member and one as a guest.
+     */
+    public function test_the_activity_confirm_agrees_with_can_read(): void {
+        global $wpdb;
+        $this->addCandidateSourcePersonas();
+        $club = (int) CurrentClub::id();
+        $this->activities['register'] = $this->activity( $this->team_b, 'Register only training', '2020-01-20' );
+        $this->activities['guest']    = $this->activity( $this->team_b, 'Guest only match', '2020-01-21', 'match' );
+        $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+            'club_id' => $club, 'activity_id' => $this->activities['register'], 'player_id' => $this->players['jose'],
+            'status' => 'Present', 'record_type' => 'actual',
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+            'club_id' => $club, 'activity_id' => $this->activities['guest'], 'player_id' => 0,
+            'guest_player_id' => $this->players['boot'], 'is_guest' => 1, 'status' => 'Present', 'record_type' => 'actual',
+        ] );
+
+        $rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, team_id FROM {$wpdb->prefix}tt_activities WHERE club_id = %d", $club ) );
+        $this->assertGreaterThanOrEqual( 4, count( $rows ) );
+
+        $reached = [];
+        foreach ( $this->personas as $persona => $uid ) {
+            wp_set_current_user( $uid );
+            $this->resetSearchCaches();
+            $confirmed = \TT\Modules\Activities\ActivityAccess::readableIds( $uid, $rows );
+            foreach ( $rows as $row ) {
+                $this->resetSearchCaches();
+                $id = (int) $row->id;
+                $this->assertSame(
+                    \TT\Modules\Activities\ActivityAccess::canRead( $uid, $row ),
+                    in_array( $id, $confirmed, true ),
+                    "{$persona}, activity {$id}: readableIds and canRead disagree"
+                );
+                if ( in_array( $id, $confirmed, true ) ) $reached[ $persona ][] = $id;
+            }
+        }
+        // Preconditions: the register-only and the guest-only branches answer.
+        $this->assertContains( $this->activities['register'], $reached['parent'] ?? [], 'José\'s guardian reads the activity he is on the register of' );
+        $this->assertContains( $this->activities['guest'], $reached['player'] ?? [], 'the player reads the activity they were a guest in' );
+        $this->assertNotContains( $this->activities['b'], $reached['parent'] ?? [], 'and not team B\'s own training' );
+    }
+
+    /**
+     * A hit the confirm drops is not counted either: `counts` and `total`
+     * follow the confirmed set, on a short page and on a full one.
+     */
+    public function test_counts_follow_the_confirm(): void {
+        $admin = $this->personas['admin'];
+        $jose  = $this->players['jose'];
+        // A scope defect, simulated: the rule refuses José while the SQL
+        // scope (global, for the admin) still fetches him.
+        $drop = static fn( $allowed, $user_id, $player_id ): bool => (bool) $allowed && (int) $player_id !== $jose;
+        add_filter( 'tt_auth_can_view_player', $drop, 10, 3 );
+        try {
+            $short = $this->paged( $admin, 'jose', [ 'types' => 'player' ] );
+            $this->assertNotContains( $jose, $this->idsOf( $short, 'player' ) );
+            $this->assertSame( count( $this->idsOf( $short, 'player' ) ), (int) $short['counts']['player'], 'a short page counts what it kept' );
+            $this->assertSame( (int) $short['counts']['player'], (int) $short['total'] );
+
+            // Last names after Pérez, so José ranks inside the first page.
+            for ( $i = 0; $i < 3; $i++ ) $this->player( $this->team_a, 'Jose', 'Zcountfill' . $i, 40 + $i );
+            $full = $this->paged( $admin, 'jose', [ 'types' => 'player', 'per_page' => '2' ] );
+            $this->assertNotContains( $jose, $this->idsOf( $full, 'player' ) );
+            $this->assertSame( 3, (int) $full['counts']['player'], 'a full page: the count less what the confirm dropped' );
+            $this->assertSame( 3, (int) $full['total'] );
+        } finally {
+            remove_filter( 'tt_auth_can_view_player', $drop, 10 );
         }
     }
 

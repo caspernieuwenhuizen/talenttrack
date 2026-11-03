@@ -7,6 +7,7 @@ use TT\Infrastructure\Players\PlayerVisibility;
 use TT\Infrastructure\Search\SearchQuery;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\ActivityAccess;
+use TT\Modules\Players\Services\PlayerPhoto;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -19,9 +20,13 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  *   - a viewer who may change evaluations academy-wide: the profile and the
  *     player report;
- *   - one who may write this player's evaluations (their team's coach): a
- *     new evaluation and the goals;
+ *   - one who may evaluate this player (the new-evaluation wizard's
+ *     capability and `AuthorizationService::canEvaluatePlayer()`): a new
+ *     evaluation, and the goals when `mayReadPlayerSection( …, 'goals' )`
+ *     holds, the profile otherwise;
  *   - otherwise the profile, and the report when they may read it.
+ *
+ * The photo comes from `PlayerPhoto`, the gated media-store URL.
  */
 final class PlayerSearchProvider extends RecordSearchProvider {
 
@@ -44,7 +49,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
     }
 
     protected function columns(): string {
-        return 'p.id, p.first_name, p.last_name, p.team_id, p.photo_url, t.name AS team_name';
+        return 'p.id, p.first_name, p.last_name, p.team_id, p.wp_user_id, p.photo_media_id, p.photo_url, t.name AS team_name';
     }
 
     protected function scope( int $user_id ): ?array {
@@ -111,8 +116,13 @@ final class PlayerSearchProvider extends RecordSearchProvider {
             'actions'  => [],
         ];
         if ( $team_id > 0 ) $hit['team_id'] = $team_id;
-        $photo = (string) ( $r['photo_url'] ?? '' );
-        if ( $photo !== '' ) $hit['photo_url'] = $photo;
+        // Internal: read by confirm() for the photo and the section check,
+        // never part of an item (SearchService::item() lists its keys).
+        $hit['tt_row'] = [
+            'wp_user_id'     => (int) ( $r['wp_user_id'] ?? 0 ),
+            'photo_media_id' => (int) ( $r['photo_media_id'] ?? 0 ),
+            'photo_url'      => (string) ( $r['photo_url'] ?? '' ),
+        ];
         return $hit;
     }
 
@@ -136,7 +146,32 @@ final class PlayerSearchProvider extends RecordSearchProvider {
         if ( $hits === [] ) return [];
         $allowed = AuthorizationService::canViewPlayers( $user_id, array_map( static fn( array $h ): int => (int) $h['id'], $hits ) );
         $kept    = array_values( array_filter( $hits, static fn( array $h ): bool => ! empty( $allowed[ (int) $h['id'] ] ) ) );
-        return $this->withActions( $user_id, $kept );
+        return $this->withPhotos( $this->withActions( $user_id, $kept ) );
+    }
+
+    /**
+     * The photo through the private media store (`PlayerPhoto`), the media
+     * rows of the whole list read in one statement.
+     *
+     * @param list<array<string,mixed>> $hits
+     * @return list<array<string,mixed>>
+     */
+    private function withPhotos( array $hits ): array {
+        $players = [];
+        foreach ( $hits as $hit ) {
+            $row = (array) ( $hit['tt_row'] ?? [] );
+            $players[ (int) $hit['id'] ] = (object) [
+                'photo_media_id' => (int) ( $row['photo_media_id'] ?? 0 ),
+                'photo_url'      => (string) ( $row['photo_url'] ?? '' ),
+            ];
+        }
+        $urls = $players === [] ? [] : PlayerPhoto::urls( $players );
+        foreach ( $hits as $i => $hit ) {
+            unset( $hits[ $i ]['tt_row'] );
+            $url = $urls[ (int) $hit['id'] ] ?? '';
+            if ( $url !== '' ) $hits[ $i ]['photo_url'] = $url;
+        }
+        return $hits;
     }
 
     /**
@@ -152,11 +187,27 @@ final class PlayerSearchProvider extends RecordSearchProvider {
             ? \TT\Modules\Analytics\Reports\PlayerReportAccess::canReadMany( $user_id, $ids )['read']
             : [];
 
-        $write_by_team = [];
-        $wizard        = null;
+        // A new evaluation and the goals are offered on the checks the target
+        // screens ask: the wizard's capability and the evaluation rule for
+        // the player, and the goals tab's section read.
+        $evaluate = [];
+        $goals    = [];
+        if ( ! $academywide && AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' ) ) {
+            $team_by_player = [];
+            foreach ( $hits as $hit ) $team_by_player[ (int) $hit['id'] ] = (int) ( $hit['team_id'] ?? 0 );
+            $evaluate = array_filter( AuthorizationService::canEvaluatePlayers( $user_id, $team_by_player ) );
+            $readers  = [];
+            foreach ( $hits as $hit ) {
+                $id = (int) $hit['id'];
+                if ( ! isset( $evaluate[ $id ] ) ) continue;
+                $readers[ $id ] = [ 'team_id' => (int) ( $hit['team_id'] ?? 0 ), 'wp_user_id' => (int) ( $hit['tt_row']['wp_user_id'] ?? 0 ) ];
+            }
+            $goals = $readers === [] ? [] : AuthorizationService::mayReadPlayerSections( $user_id, $readers, 'goals' );
+        }
+
+        $wizard = null;
         foreach ( $hits as $i => $hit ) {
             $id      = (int) $hit['id'];
-            $team_id = (int) ( $hit['team_id'] ?? 0 );
             $profile = [ 'key' => 'profile', 'label' => __( 'Profile', 'talenttrack' ), 'url' => (string) $hit['url'] ];
             $report  = ! empty( $reports[ $id ] )
                 ? [ 'key' => 'report', 'label' => __( 'Player report', 'talenttrack' ), 'url' => (string) add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'player-report', 'player_id' => $id ], $this->dashboard() ) /* tt-xview-ok */ ]
@@ -165,15 +216,14 @@ final class PlayerSearchProvider extends RecordSearchProvider {
             if ( $academywide ) {
                 $actions = array_filter( [ $profile, $report ] );
             } else {
-                if ( ! array_key_exists( $team_id, $write_by_team ) ) {
-                    $write_by_team[ $team_id ] = $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id );
-                }
-                if ( $write_by_team[ $team_id ] ) {
+                if ( isset( $evaluate[ $id ] ) ) {
                     // The entry point is resolved once; each player only adds its id.
                     $wizard ??= \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-evaluation', (string) add_query_arg( 'tt_view', 'evaluations', $this->dashboard() ), [ 'mode' => 'player' ] );
                     $actions = [
                         [ 'key' => 'new_evaluation', 'label' => __( 'New evaluation', 'talenttrack' ), 'url' => (string) add_query_arg( 'player_id', $id, $wizard ) ],
-                        [ 'key' => 'goals', 'label' => __( 'Goals', 'talenttrack' ), 'url' => (string) add_query_arg( 'tab', 'goals', (string) $hit['url'] ) ],
+                        ! empty( $goals[ $id ] )
+                            ? [ 'key' => 'goals', 'label' => __( 'Goals', 'talenttrack' ), 'url' => (string) add_query_arg( 'tab', 'goals', (string) $hit['url'] ) ]
+                            : $profile,
                     ];
                 } else {
                     $actions = array_filter( [ $profile, $report ] );

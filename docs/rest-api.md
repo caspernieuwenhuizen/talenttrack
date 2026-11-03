@@ -683,8 +683,8 @@ Permission: any logged-in user. **The gate is per kind, not per route**: each
 kind's provider (`Infrastructure\Search\SearchProvider`) narrows **in SQL** by
 club, demo scope and the caller's own scope before the `LIMIT`, then confirms
 every hit with the record's own access check. Counts are taken over the same
-scope, so a record the caller may not open is not counted, and a match outside
-the scope answers exactly like no match.
+scope and follow the confirm, so a record the caller may not open is not
+counted, and a match outside the scope answers exactly like no match.
 
 **Without `page`** the answer is the header box's, unchanged: at most 10
 results, sections at most 3 while records also match, `types` from `view`,
@@ -705,7 +705,7 @@ standard envelope:
   "items": [
     { "type": "player", "id": 42, "label": "Sem de Vries", "sublabel": "JO15-1",
       "url": "https://…/?tt_view=players&id=42", "player_id": 42, "team_id": 7,
-      "photo_url": "https://…/sem.jpg",
+      "photo_url": "https://…/wp-json/talenttrack/v1/media/<uuid>/file?_wpnonce=…",
       "actions": [ { "key": "new_evaluation", "label": "New evaluation", "url": "https://…" },
                    { "key": "goals", "label": "Goals", "url": "https://…" } ] }
   ],
@@ -721,7 +721,7 @@ standard envelope:
 | `team` | `tt_view_teams`, then every team for global `team` read, otherwise the caller's teams (`GET /teams`'s narrowing) | The same rule |
 | `person` | The people read right (`tt_view_people` or `tt_edit_people`), as `GET /people` | The same rule |
 | `activity` | `ActivityAccess::readScope()`: global read, the teams a staff reader coaches, and for a player, a guardian or a linked scout the activities of those players | `ActivityAccess::readableIds()` |
-| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them | — |
+| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile) | — |
 | `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
 
 - **Matching.** The text is folded (lower case, accents removed, so *jose*
@@ -743,15 +743,22 @@ standard envelope:
   silently dropped.
 - **`actions`**: at most two per player, only those the caller may use, decided
   by the checks the target screens ask. A caller who may change evaluations
-  academy-wide gets the profile and the player report; the player's team coach a
-  new evaluation and the goals; anyone else the profile, and the report when they
-  may read it. No role names.
+  academy-wide gets the profile and the player report. A caller who may evaluate
+  the player (the new-evaluation wizard's capability and
+  `AuthorizationService::canEvaluatePlayer()`) gets a new evaluation, and the
+  goals when `mayReadPlayerSection( …, 'goals' )` holds, the profile otherwise.
+  Anyone else gets the profile, and the report when they may read it. No role
+  names.
+- **`photo_url`**: the player's photo through the private media store
+  (`PlayerPhoto::url()`): a session-bound delivery URL, never an uploads path.
+  Absent when the player has no photo.
 - **Search text.** Matching reads the folded columns `search_title` /
   `search_text` on each searched table, from the row's own columns only (names,
   title and location, team name and age group). No contact detail, note or
   medical text is ever folded. Every write calls `SearchText::refresh()`; a sweep
-  on the workflow heartbeat folds what a write missed. A row not folded yet is
-  matched on its raw columns.
+  on the workflow heartbeat folds what a write missed, and after an upgrade folds
+  the backlog in batches of 500 until it is done or the tick's few seconds are
+  spent. A row not folded yet is matched on its raw columns.
 
 ### `GET /me/recent` and `POST /me/recent`
 

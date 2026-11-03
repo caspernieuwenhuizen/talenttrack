@@ -137,9 +137,9 @@ abstract class RecordSearchProvider implements SearchProvider {
         global $wpdb;
         $a    = $this->alias();
         $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $sql  = "SELECT {$this->columns()} {$this->from()} WHERE {$a}.id IN ({$in})";
+        $sql  = "SELECT {$this->columns()} {$this->from()} WHERE {$a}.club_id = %d AND {$a}.id IN ({$in})";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$ids ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, (int) CurrentClub::id(), ...$ids ) );
         $out  = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) $out[ (int) $row->id ] = $row;
         return $out;

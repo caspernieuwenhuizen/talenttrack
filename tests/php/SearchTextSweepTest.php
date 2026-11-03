@@ -50,13 +50,21 @@ final class SearchTextSweepTest extends WP_UnitTestCase {
         $this->assertSame( 0, $again['player']['folded'], 'idempotent' );
     }
 
-    public function test_the_sweep_is_bounded_per_tick(): void {
+    public function test_a_spent_budget_still_folds_one_batch_per_kind(): void {
+        for ( $i = 0; $i < 5; $i++ ) $this->player( 'Bound', 'Row' . $i );
+        $stats = ( new SearchTextSweep( 0.0, 2 ) )->runForCurrentClub();
+        $this->assertSame( 2, $stats['player']['folded'], 'one batch, then the budget stops it' );
+    }
+
+    public function test_the_backfill_loops_batches_until_the_backlog_is_done(): void {
         global $wpdb;
-        $before = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE search_v IS NULL" );
-        for ( $i = 0; $i < 3; $i++ ) $this->player( 'Bound', 'Row' . $i );
-        $stats =( new SearchTextSweep() )->runForCurrentClub();
-        $this->assertLessThanOrEqual( SearchTextSweep::BATCH, $stats['player']['folded'] );
-        $this->assertGreaterThanOrEqual( min( SearchTextSweep::BATCH, $before + 3 ), $stats['player']['folded'] );
+        for ( $i = 0; $i < 5; $i++ ) $this->player( 'Loop', 'Row' . $i );
+        $before = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND search_v IS NULL", CurrentClub::id() ) );
+        $this->assertGreaterThanOrEqual( 5, $before );
+
+        $stats = ( new SearchTextSweep( 60.0, 2 ) )->runForCurrentClub();
+        $this->assertSame( $before, $stats['player']['folded'], 'batches of 2 until none are left, in one tick' );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND search_v IS NULL", CurrentClub::id() ) ) );
     }
 
     public function test_the_migration_runs_twice_without_harm(): void {

@@ -2020,31 +2020,16 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #3688 — the activities a player sees: their team's, plus any they
-     * are on the register of (a guest appearance included). Aliased on
-     * `s` for `tt_activities`; takes the player id three times.
+     * #3688 — the activities a set of players sees: their teams', plus any
+     * they are on the register of (a guest appearance included), on any
+     * alias of `tt_activities`.
      *
-     * One clause for the list (`searchForRest`, player-scoped) and the
-     * single-record check (`isVisibleToPlayer`), so the two cannot drift.
-     */
-    private static function playerVisibilityClause(): string {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        // Both register kinds on purpose: a player picked for another
-        // team's squad (expected) must see that activity before anyone
-        // takes the register, and still see it after (actual).
-        /* both-kinds-ok */
-        return "(
-                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
-                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
-            )";
-    }
-
-    /**
-     * #4671 — {@see self::playerVisibilityClause()} for a set of players at
-     * once, on any alias: their teams' activities, plus any they are on the
-     * register of. The same two branches, so search and the activities list
-     * see the same activities for the same players.
+     * The one clause for the player-scoped list (`searchForRest`), the
+     * single-record check (`isVisibleToPlayer`), the batched check
+     * (`idsVisibleToPlayers`) and search (#4671), so none of them can drift
+     * from the others. Both register kinds on purpose: a player picked for
+     * another team's squad (expected) must see that activity before anyone
+     * takes the register, and still see it after (actual).
      *
      * @param list<int> $player_ids
      * @return array{sql:string, params:list<int>}
@@ -2101,13 +2086,13 @@ final class ActivitiesRepository {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
         global $wpdb;
         $p      = $wpdb->prefix;
-        $clause = self::playerVisibilityClause();
+        $clause = self::playersVisibilityClause( [ $player_id ], 's' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $hit = $wpdb->get_var( $wpdb->prepare(
             "SELECT 1 FROM {$p}tt_activities s
-              WHERE s.id = %d AND s.club_id = %d AND {$clause}
+              WHERE s.id = %d AND s.club_id = %d AND {$clause['sql']}
               LIMIT 1",
-            $activity_id, CurrentClub::id(), $player_id, $player_id, $player_id
+            $activity_id, CurrentClub::id(), ...$clause['params']
         ) );
         return $hit !== null;
     }
@@ -2193,11 +2178,9 @@ final class ActivitiesRepository {
         }
 
         if ( ! empty( $filter['player_id'] ) ) {
-            $pid = absint( $filter['player_id'] );
-            $where[]  = self::playerVisibilityClause();
-            $params[] = $pid;
-            $params[] = $pid;
-            $params[] = $pid;
+            $clause  = self::playersVisibilityClause( [ absint( $filter['player_id'] ) ], 's' );
+            $where[] = $clause['sql'];
+            $params  = array_merge( $params, $clause['params'] );
         }
         // #3687 — the activity-type filter, so "which matches are this
         // weekend" is one request rather than every activity plus a

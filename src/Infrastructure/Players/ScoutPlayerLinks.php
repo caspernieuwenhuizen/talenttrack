@@ -81,10 +81,14 @@ final class ScoutPlayerLinks {
     public static function playerIds( int $scout_user_id ): array {
         if ( $scout_user_id <= 0 ) return [];
 
-        $ids = array_merge( self::panelPlayerIds( $scout_user_id ), self::assignedPlayerIds( $scout_user_id ) );
-        if ( $ids === [] ) return [];
+        // Remembered while a scope decision runs (#4671): the per-player
+        // question asks this once for every candidate player.
+        return \TT\Infrastructure\Security\ScopeMemo::remember( 'scout_links|' . $scout_user_id, static function () use ( $scout_user_id ): array {
+            $ids = array_merge( self::panelPlayerIds( $scout_user_id ), self::assignedPlayerIds( $scout_user_id ) );
+            if ( $ids === [] ) return [];
 
-        return self::linkedOnly( array_values( array_unique( $ids ) ) );
+            return self::linkedOnly( array_values( array_unique( $ids ) ) );
+        } );
     }
 
     /**

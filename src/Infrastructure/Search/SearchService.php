@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Search;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Security\ScopeMemo;
 
 /**
  * SearchService (#4671) — runs a query over the providers and composes the
@@ -37,6 +38,16 @@ final class SearchService {
      * @return list<array{type:string, id:int, label:string, sublabel:string, url:string}>
      */
     public function headerResults( string $raw, array $types, int $user_id ): array {
+        // One scope decision per request: the per-player checks every kind
+        // asks read the viewer's own links once (ScopeMemo).
+        return ScopeMemo::run( fn(): array => $this->headerResultsInScope( $raw, $types, $user_id ) );
+    }
+
+    /**
+     * @param list<string> $types
+     * @return list<array{type:string, id:int, label:string, sublabel:string, url:string}>
+     */
+    private function headerResultsInScope( string $raw, array $types, int $user_id ): array {
         $types = $types === [] ? self::LEGACY_KINDS : $types;
         $query = new SearchQuery( $raw );
 
@@ -66,6 +77,14 @@ final class SearchService {
      * @return array{items:list<array<string,mixed>>, counts:array<string,int>, understood:list<array{pattern:string, value:string, label:string}>, total:int}
      */
     public function page( SearchQuery $query, array $types, int $page, int $per_page, int $user_id ): array {
+        return ScopeMemo::run( fn(): array => $this->pageInScope( $query, $types, $page, $per_page, $user_id ) );
+    }
+
+    /**
+     * @param list<string> $types
+     * @return array{items:list<array<string,mixed>>, counts:array<string,int>, understood:list<array{pattern:string, value:string, label:string}>, total:int}
+     */
+    private function pageInScope( SearchQuery $query, array $types, int $page, int $per_page, int $user_id ): array {
         $types = $types === [] ? SearchRegistry::kinds() : $types;
         $fetch = $page * $per_page;
 
@@ -82,8 +101,12 @@ final class SearchService {
             $raw  = $provider->match( $query, $user_id, $fetch );
             $kept = $this->confirmRaw( $provider, $raw, $user_id );
             // A page short of full holds every match; only a full one needs
-            // the count over the same scope.
-            $counts[ $kind ] = count( $raw ) < $fetch ? count( $raw ) : $provider->count( $query, $user_id );
+            // the count over the same scope. Either way the count follows the
+            // confirm: a hit it dropped is not counted.
+            $dropped         = count( $raw ) - count( $kept );
+            $counts[ $kind ] = count( $raw ) < $fetch
+                ? count( $kept )
+                : max( 0, $provider->count( $query, $user_id ) - $dropped );
             foreach ( $kept as $hit ) {
                 $hit['tt_kind_order'] = $order[ $kind ] ?? 99;
                 $hits[] = $hit;

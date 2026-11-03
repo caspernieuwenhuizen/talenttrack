@@ -119,7 +119,8 @@ final class SearchText {
         foreach ( array_chunk( $ids, 200 ) as $chunk ) {
             $in   = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
             $rows = $wpdb->get_results( $wpdb->prepare(
-                "SELECT {$columns} FROM {$table} WHERE id IN ({$in})",
+                "SELECT {$columns} FROM {$table} WHERE club_id = %d AND id IN ({$in})",
+                (int) \TT\Infrastructure\Tenancy\CurrentClub::id(),
                 ...$chunk
             ), ARRAY_A );
             $written += self::writeRows( $kind, is_array( $rows ) ? $rows : [] );

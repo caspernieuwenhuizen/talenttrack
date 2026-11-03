@@ -48,6 +48,27 @@ final class MediaRepository {
     }
 
     /**
+     * {@see self::find()} for many ids, in one statement.
+     *
+     * @param list<int> $ids
+     * @return array<int, object> media id => row; ids not found are absent.
+     */
+    public function findMany( array $ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE club_id = %d AND id IN ({$in})",
+            CurrentClub::id(),
+            ...$ids
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) $out[ (int) $row->id ] = $row;
+        return $out;
+    }
+
+    /**
      * Look up by uuid — the identity the REST surface exposes. Sequential
      * ids are not addressable from outside on purpose.
      */

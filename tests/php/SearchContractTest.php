@@ -66,6 +66,42 @@ final class SearchContractTest extends WP_UnitTestCase {
         $this->assertNotContains( 'new_evaluation', $parent );
     }
 
+    /**
+     * The goals action is offered on the goals tab's own check
+     * (`mayReadPlayerSection( …, 'goals' )`), not on the evaluations grant: a
+     * coach who still evaluates the player but no longer reads goals gets a
+     * new evaluation and no goals.
+     */
+    public function test_no_goals_action_without_the_goals_read(): void {
+        global $wpdb;
+        $coach = $this->personas['coach'];
+        $this->assertContains( 'goals', $this->actionKeys( $coach, $this->players['jose'] ), 'precondition: offered while the coach reads goals' );
+
+        $wpdb->delete( "{$wpdb->prefix}tt_authorization_matrix", [ 'persona' => 'head_coach', 'entity' => 'goals' ] );
+        $this->resetSearchCaches();
+        $this->assertFalse( \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection( $coach, $this->players['jose'], 'goals' ), 'precondition: the goals tab is closed to the coach' );
+
+        $keys = $this->actionKeys( $coach, $this->players['jose'] );
+        $this->assertContains( 'new_evaluation', $keys, 'the coach still evaluates the player' );
+        $this->assertNotContains( 'goals', $keys );
+    }
+
+    /**
+     * A new evaluation is offered on the wizard's capability and the
+     * evaluation rule for the player: a viewer refused by
+     * `canEvaluatePlayer()` is not offered one.
+     */
+    public function test_no_new_evaluation_where_the_rule_refuses_it(): void {
+        $coach = $this->personas['coach'];
+        $deny  = static fn(): bool => false;
+        add_filter( 'tt_auth_can_evaluate_player', $deny );
+        try {
+            $this->assertNotContains( 'new_evaluation', $this->actionKeys( $coach, $this->players['jose'] ) );
+        } finally {
+            remove_filter( 'tt_auth_can_evaluate_player', $deny );
+        }
+    }
+
     public function test_paging_walks_the_ranked_list(): void {
         for ( $i = 0; $i < 6; $i++ ) $this->player( $this->team_a, 'Pagetest', 'Number' . $i, 20 + $i );
         $one = $this->paged( $this->personas['admin'], 'pagetest', [ 'per_page' => '4', 'types' => 'player' ] );
@@ -106,17 +142,54 @@ final class SearchContractTest extends WP_UnitTestCase {
      * through it.
      */
     public function test_the_head_of_development_gets_no_setting_reached_only_through_configuration(): void {
-        $entries = \TT\Shared\Configuration\SettingsRegistry::navigableEntriesFor( $this->personas['hod'] );
-        foreach ( $entries as $entry ) {
-            $this->assertStringNotContainsString( 'tt_view=configuration', (string) $entry['url'], "{$entry['key']} is reached through Configuration" );
+        $hod     = $this->personas['hod'];
+        $visible = $this->visibleTileSlugs( $hod );
+        $this->assertNotContains( 'configuration', $visible, 'Precondition: the head of development has no Configuration tile.' );
+
+        // The invariant: every setting search offers opens a screen the
+        // viewer's own navigation has a tile for.
+        foreach ( \TT\Shared\Configuration\SettingsRegistry::navigableEntriesFor( $hod ) as $entry ) {
+            $view = $this->viewOf( (string) $entry['url'] );
+            $this->assertContains( $view, $visible, "{$entry['key']} opens {$view}, which the head of development's navigation does not offer" );
         }
-        $data = $this->paged( $this->personas['hod'], 'a', [ 'types' => 'setting', 'per_page' => '50' ] );
-        foreach ( $data['items'] as $item ) {
-            $this->assertStringNotContainsString( 'tt_view=configuration', (string) $item['url'] );
+        foreach ( $this->paged( $hod, 'a', [ 'types' => 'setting', 'per_page' => '50' ] )['items'] as $item ) {
+            $this->assertContains( $this->viewOf( (string) $item['url'] ), $visible, (string) $item['label'] );
         }
 
-        $admin_urls = array_column( \TT\Shared\Configuration\SettingsRegistry::navigableEntriesFor( $this->personas['admin'] ), 'url' );
-        $this->assertNotEmpty( array_filter( $admin_urls, static fn( string $u ): bool => strpos( $u, 'tt_view=configuration' ) !== false ), 'Precondition: an admin is offered Configuration entries.' );
+        // Precondition: the case is exercised. An admin is offered entries
+        // whose screen has no tile of its own (reached only from the
+        // landing), and the head of development could open at least one of
+        // them, so only the navigation rule leaves it out.
+        $tiled = [];
+        foreach ( \TT\Shared\Tiles\TileRegistry::allRegistered() as $tile ) {
+            $tiled[] = (string) ( $tile['view_slug'] ?? ( $tile['slug'] ?? '' ) );
+        }
+        $untiled_admin = [];
+        foreach ( \TT\Shared\Configuration\SettingsRegistry::navigableEntriesFor( $this->personas['admin'] ) as $entry ) {
+            $view = $this->viewOf( (string) $entry['url'] );
+            if ( ! in_array( $view, $tiled, true ) ) $untiled_admin[] = (string) $entry['key'];
+        }
+        $this->assertNotEmpty( $untiled_admin, 'Precondition: an admin is offered settings reached only from the Configuration landing.' );
+        $untiled_hod = [];
+        foreach ( \TT\Shared\Configuration\SettingsRegistry::entriesFor( $hod ) as $entry ) {
+            if ( ! in_array( $this->viewOf( (string) $entry['url'] ), $tiled, true ) ) $untiled_hod[] = (string) $entry['key'];
+        }
+        $this->assertNotEmpty( $untiled_hod, 'Precondition: the head of development may open a sub-view that has no tile (e.g. the evaluation categories).' );
+    }
+
+    /** @return list<string> */
+    private function visibleTileSlugs( int $user_id ): array {
+        $buckets = \TT\Shared\Tiles\TileRegistry::tilesForUser( $user_id );
+        $slugs   = [];
+        foreach ( array_merge( $buckets['work'], $buckets['setup'] ) as $tile ) {
+            $slugs[] = (string) ( $tile['view_slug'] ?? ( $tile['slug'] ?? '' ) );
+        }
+        return $slugs;
+    }
+
+    private function viewOf( string $url ): string {
+        parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+        return isset( $args['tt_view'] ) && is_string( $args['tt_view'] ) ? $args['tt_view'] : '';
     }
 
     /** @return list<string> */

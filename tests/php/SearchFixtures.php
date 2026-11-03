@@ -174,6 +174,56 @@ trait SearchFixtures {
         return $ids;
     }
 
+    /**
+     * The candidate sources `AuthorizationService::playerReadScope()` builds
+     * on that the six personas do not reach, as four more personas:
+     *
+     *  - `scout`: linked to José through the assignment list
+     *    (`ScoutPlayerLinks`), with no team;
+     *  - `trial_guardian`: the guardian of a child on trial, whom
+     *    `childIds( NEED_SCHEDULE )` admits as a candidate;
+     *  - `functional`: a team manager whose access to team B comes only from
+     *    a functional role (`FunctionalRoleGrants`), with no role-scope row;
+     *  - `ended_coach`: the head coach of team B whose assignment ended.
+     *
+     * Kept out of `searchSetUp()` so the tests that walk every persona with
+     * an expected answer per persona are unchanged.
+     */
+    private function addCandidateSourcePersonas(): void {
+        global $wpdb;
+        $club = (int) CurrentClub::id();
+
+        $scout = (int) self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        update_user_meta( $scout, 'tt_scout_player_ids', (string) wp_json_encode( [ $this->players['jose'] ] ) );
+        $this->personas['scout'] = $scout;
+
+        $this->players['trialist'] = $this->player( $this->team_b, 'Tim', 'Trialist', 30 );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'status' => 'trial' ], [ 'id' => $this->players['trialist'] ] );
+        $guardian = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        ( new ParentAccountService() )->linkToPlayer( $this->players['trialist'], $guardian );
+        $this->personas['trial_guardian'] = $guardian;
+
+        $manager = $this->persona( 'tt_staff', 'staff', 0, '' );
+        $person  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d", $manager ) );
+        $role_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s LIMIT 1", 'manager' ) );
+        if ( $role_id <= 0 ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_functional_roles", [ 'club_id' => $club, 'role_key' => 'manager', 'label' => 'Manager' ] );
+            $role_id = (int) $wpdb->insert_id;
+        }
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id' => $club, 'team_id' => $this->team_b, 'person_id' => $person, 'functional_role_id' => $role_id,
+        ] );
+        $this->personas['functional'] = $manager;
+
+        $ended  = $this->persona( 'tt_coach', 'head_coach', $this->team_b, 'head_coach' );
+        $person = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d", $ended ) );
+        $wpdb->update( "{$wpdb->prefix}tt_team_people", [ 'start_date' => '2019-07-01', 'end_date' => '2020-06-30' ], [ 'person_id' => $person ] );
+        $wpdb->update( "{$wpdb->prefix}tt_user_role_scopes", [ 'start_date' => '2019-07-01', 'end_date' => '2020-06-30' ], [ 'person_id' => $person ] );
+        $this->personas['ended_coach'] = $ended;
+
+        $this->resetSearchCaches();
+    }
+
     private function resetSearchCaches(): void {
         MatrixRepository::clearCache();
         MatrixGate::clearCache();
