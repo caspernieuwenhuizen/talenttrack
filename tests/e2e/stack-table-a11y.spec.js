@@ -29,6 +29,14 @@ async function readTable( page ) {
 	await page.waitForLoadState( 'load', { timeout: 30000 } );
 	const table = page.locator( 'table.tt-stack-table' ).first();
 	if ( ( await table.count() ) === 0 ) return null;
+	// On a phone the dashboard folds the widget away (GridRenderer's
+	// <details class="tt-pd-fold">, closed by script at load). Closed content
+	// is not in the accessibility tree; open it the way a user does.
+	const folded = page.locator( 'details.tt-pd-fold' ).filter( { has: page.locator( 'table.tt-stack-table' ) } ).first();
+	if ( ( await folded.count() ) > 0 && ! ( await folded.evaluate( ( el ) => /** @type {HTMLDetailsElement} */ ( el ).open ) ) ) {
+		await folded.locator( 'summary' ).first().click();
+		await expect( folded ).toHaveAttribute( 'open', '' );
+	}
 	await table.evaluate( ( el ) => el.setAttribute( 'data-tt-a11y-probe', '1' ) );
 
 	const domHeaders = await table.locator( 'th' ).evaluateAll( ( ths ) => ths.map( ( th ) => ( th.textContent || '' ).trim() ).filter( Boolean ) );
