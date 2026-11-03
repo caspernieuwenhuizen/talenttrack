@@ -37,6 +37,9 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
  */
 final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
 
+    /** A quiet-hours window that starts and ends at once, so it is never open. */
+    private const QUIET_SHUT = '03:00';
+
     private string $p;
     private int $club;
     private string $log_table;
@@ -62,8 +65,14 @@ final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
         // Pin the quiet-hours window shut: this template does not bypass
         // it, and a test that passes only outside office hours is not one.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        // #4837 — shut means empty. The window used to be 03:00–03:01,
+        // which is open for one minute a day, and the nightly CI run starts
+        // at 03:00 UTC: inside that minute the message is held, nothing
+        // reaches the channel and three cases fail. A window that starts
+        // and ends at the same minute holds nothing at any time of day
+        // (`QuietHoursPolicy::shouldDefer()`).
+        QueryHelpers::set_config( 'comms_quiet_hours_start', self::QUIET_SHUT );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', self::QUIET_SHUT );
 
         $wpdb->query( "DELETE FROM {$this->log_table}" );
     }
@@ -195,16 +204,40 @@ final class TrialPlayerWelcomeTriggerTest extends WP_UnitTestCase {
         $this->assertNull( $this->captured, 'a disabled template must not reach the channel' );
     }
 
+    /**
+     * #4837 — the window this file pins holds no message at any minute of
+     * the day, the date boundaries and the old 03:00 minute included, so no
+     * case here depends on when the suite runs.
+     */
+    public function test_the_pinned_quiet_hours_hold_nothing_at_any_time_of_day(): void {
+        $request = new \TT\Modules\Comms\Domain\CommsRequest( TrialPlayerWelcomeTemplate::KEY, MessageType::TRIAL_PLAYER_WELCOME, $this->club, 0, [] );
+        $this->assertFalse( MessageType::bypassesQuietHours( MessageType::TRIAL_PLAYER_WELCOME ), 'Precondition: the welcome is subject to quiet hours.' );
+        $tz      = wp_timezone();
+        foreach ( [ '23:59', '00:00', '00:01', '03:00', '03:00:30', '12:00' ] as $time ) {
+            $instant = ( new \DateTimeImmutable( '2026-09-14 ' . $time, $tz ) )->getTimestamp();
+            $policy  = new \TT\Modules\Comms\QuietHours\QuietHoursPolicy( static fn (): int => $instant );
+            $this->assertFalse( $policy->shouldDefer( $request ), "held at {$time}" );
+        }
+
+        // The edge of the case it pins: an open window does hold the message.
+        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $at_three = ( new \DateTimeImmutable( '2026-09-14 03:00:30', $tz ) )->getTimestamp();
+        $this->assertTrue( ( new \TT\Modules\Comms\QuietHours\QuietHoursPolicy( static fn (): int => $at_three ) )->shouldDefer( $request ), 'Precondition: the old pin was open at 03:00.' );
+    }
+
     // --- fixtures -------------------------------------------------------
 
     private function insertPlayer( int $age, string $first = 'Trial', string $last = 'Player' ): int {
         global $wpdb;
+        // Half a year past the birthday, so the age never turns over
+        // between the fixture and the send, whatever the date (#4837).
         $wpdb->insert( "{$this->p}tt_players", [
             'club_id'       => $this->club,
             'first_name'    => $first,
             'last_name'     => $last,
             'status'        => 'trial',
-            'date_of_birth' => gmdate( 'Y-m-d', strtotime( "-{$age} years" ) ),
+            'date_of_birth' => gmdate( 'Y-m-d', strtotime( "-{$age} years -6 months" ) ),
         ] );
         return (int) $wpdb->insert_id;
     }
