@@ -677,9 +677,18 @@ end, not only via rendered HTML.
 
 ### `GET /search`
 
-`?q=<string>&types=view,player,team,activity`
+`?q=<string>&types=…&team_id=&from=&to=&page=&per_page=`
 
-Permission: any logged-in user. **The gate is per row, not per route.**
+Permission: any logged-in user. **The gate is per kind, not per route**: each
+kind's provider (`Infrastructure\Search\SearchProvider`) narrows **in SQL** by
+club, demo scope and the caller's own scope before the `LIMIT`, then confirms
+every hit with the record's own access check. Counts are taken over the same
+scope, so a record the caller may not open is not counted, and a match outside
+the scope answers exactly like no match.
+
+**Without `page`** the answer is the header box's, unchanged: at most 10
+results, sections at most 3 while records also match, `types` from `view`,
+`player`, `team`, `activity`.
 
 ```json
 { "results": [
@@ -688,12 +697,75 @@ Permission: any logged-in user. **The gate is per row, not per route.**
 ] }
 ```
 
-| Type | Source | Filtering |
+**With `page`** (1 to 20) every kind is searched, ranked together, in the
+standard envelope:
+
+```json
+{ "success": true, "data": {
+  "items": [
+    { "type": "player", "id": 42, "label": "Sem de Vries", "sublabel": "JO15-1",
+      "url": "https://…/?tt_view=players&id=42", "player_id": 42, "team_id": 7,
+      "photo_url": "https://…/sem.jpg",
+      "actions": [ { "key": "new_evaluation", "label": "New evaluation", "url": "https://…" },
+                   { "key": "goals", "label": "Goals", "url": "https://…" } ] }
+  ],
+  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "setting": 0, "help": 0 },
+  "understood": [ { "pattern": "shirt_number", "value": "7", "label": "Shirt number 7" } ],
+  "total": 1 }, "errors": [] }
+```
+
+| Kind (`type`) | Narrowed by | Confirmed by |
 | --- | --- | --- |
-| `view` | `TileRegistry::tilesForUserGrouped()` | Inherited — capability, per-persona labels, `__hidden__`, module/feature gating |
-| `player` | `tt_players` prefilter | Every row through `AuthorizationService::canViewPlayer()` |
-| `team` | `tt_teams` | `tt_view_teams`, then narrowed in SQL to the caller's team scope — the same narrowing `GET /teams` applies (#3159) |
-| `activity` | `tt_activities` | `tt_view_activities` |
+| `view` (sections) | `TileRegistry::tilesForUserGrouped()` | Inherited: capability, persona labels, `__hidden__`, module and feature gating |
+| `player` | `PlayerVisibility::sqlClause()`, the SQL form of the player read rule | `AuthorizationService::canViewPlayers()` |
+| `team` | `tt_view_teams`, then every team for global `team` read, otherwise the caller's teams (`GET /teams`'s narrowing) | The same rule |
+| `person` | The people read right (`tt_view_people` or `tt_edit_people`), as `GET /people` | The same rule |
+| `activity` | `ActivityAccess::readScope()`: global read, the teams a staff reader coaches, and for a player, a guardian or a linked scout the activities of those players | `ActivityAccess::readableIds()` |
+| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them | — |
+| `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
+
+- **Matching.** The text is folded (lower case, accents removed, so *jose*
+  finds José); every word must match. Records need 2 characters, sections and
+  settings 1. Score per word: 60 at the start of a word in the title, 30 inside
+  it, 12 in the secondary text; 100 when the title is exactly the query;
+  players +15, teams +8, a record in the caller's own scope +10. Activities
+  rank recent first after the score. An activity type's name, in the caller's
+  language or as stored, matches activities of that type.
+- **Patterns**, returned in `understood`: `#<n>` a shirt number (players);
+  `O<nn>` / `MO<nn>` an age group (teams and players); `dd-mm` a date in the
+  current season (activities); a Dutch or English weekday, the last and the next
+  such day (activities). A kind that does not honour a pattern in the query
+  matches nothing for it.
+- **Filters** (with `page`): `team_id` narrows players, teams, people and
+  activities; `from` / `to` (`Y-m-d`) narrow activities. An unknown `types`
+  entry, a `team_id` that is not a positive id, or a `page` / `per_page` out of
+  range is `400 bad_filter`; an unreadable date is `400 bad_date`. Neither is
+  silently dropped.
+- **`actions`**: at most two per player, only those the caller may use, decided
+  by the checks the target screens ask. A caller who may change evaluations
+  academy-wide gets the profile and the player report; the player's team coach a
+  new evaluation and the goals; anyone else the profile, and the report when they
+  may read it. No role names.
+- **Search text.** Matching reads the folded columns `search_title` /
+  `search_text` on each searched table, from the row's own columns only (names,
+  title and location, team name and age group). No contact detail, note or
+  medical text is ever folded. Every write calls `SearchText::refresh()`; a sweep
+  on the workflow heartbeat folds what a write missed. A row not folded yet is
+  matched on its raw columns.
+
+### `GET /me/recent` and `POST /me/recent`
+
+The records the caller opened last, at most 20, newest first, in
+`tt_user_recent`. `POST {"type": "player", "id": 42}` (records only: `player`,
+`team`, `person`, `activity`) notes one and answers `201`. A record the caller
+may not open answers `404 not_found`, exactly as a missing one, and nothing is
+stored. An unknown `type` is `400 invalid_field`; an unknown field
+`400 unknown_field`.
+
+`GET` returns `{ items: [ …search items…, "opened_at": "2026-11-03T08:12:00+00:00" ] }`.
+Every item is re-checked through its kind's provider; a record whose access was
+revoked, or which was archived, drops out and its row is deleted. Rows go with
+the account when it is deleted.
 
 ### `GET /me/search` (#3806)
 

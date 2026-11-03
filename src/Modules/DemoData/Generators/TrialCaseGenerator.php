@@ -345,6 +345,7 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 'media_consent_by'    => null,
             ] );
             $player_id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $player_id );
             if ( $player_id <= 0 ) continue;
 
             do_action( 'tt_player_created', $player_id, [ 'team_id' => $team_id, 'status' => PlayerStatus::TRIAL ] );

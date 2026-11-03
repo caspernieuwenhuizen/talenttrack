@@ -71,6 +71,7 @@ final class ReviewStep implements WizardStepInterface {
         ] );
         if ( ! $ok ) return new \WP_Error( 'db_error', __( 'Could not create the team.', 'talenttrack' ) );
         $team_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'team', $team_id );
 
         // Map staff slots to tt_team_people via functional roles.
         $repo   = new FunctionalRolesRepository();
@@ -155,6 +156,7 @@ final class ReviewStep implements WizardStepInterface {
         ] );
         if ( ! $ok ) return 0;
         $person_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'person', $person_id );
         // v3.76.2 — auto-tag demo-on rows.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'person', $person_id );
         return $person_id;

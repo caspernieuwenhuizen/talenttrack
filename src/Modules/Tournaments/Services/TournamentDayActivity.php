@@ -103,6 +103,7 @@ final class TournamentDayActivity {
             return 0;
         }
         $activity_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
 
         // Tag demo-on rows so they stay visible to demo-scoped queries.
         if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
@@ -141,6 +142,7 @@ final class TournamentDayActivity {
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
     }
 
     /**

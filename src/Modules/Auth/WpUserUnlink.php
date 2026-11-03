@@ -39,6 +39,7 @@ final class WpUserUnlink {
 
         // Unlink players (keep the player record — it's a real player).
         $wpdb->query( $wpdb->prepare(
+            /* search-text-ok: no source column */
             "UPDATE {$p}tt_players SET wp_user_id = NULL WHERE wp_user_id = %d",
             $user_id
         ) );
@@ -61,5 +62,8 @@ final class WpUserUnlink {
             "DELETE FROM {$p}tt_player_parents WHERE parent_user_id = %d",
             $user_id
         ) );
+
+        // #4671 — what the account opened last goes with it.
+        \TT\Infrastructure\Search\RecentItems::forgetUser( $user_id );
     }
 }

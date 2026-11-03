@@ -333,10 +333,12 @@ class TeamsPage {
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         if ( $id ) {
             $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'team', $id );
         } else {
             $data['club_id'] = CurrentClub::id();
             $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
             $id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'team', $id );
             // v3.76.2 — auto-tag demo-on rows.
             \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $id );
         }

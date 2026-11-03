@@ -116,6 +116,7 @@ final class TeamSpondAccount implements SpondAccount {
     private function update( array $data ): void {
         global $wpdb;
         if ( $this->team_id <= 0 ) return;
+        /* search-text-ok: no source column */
         $wpdb->update(
             "{$wpdb->prefix}tt_teams",
             $data,

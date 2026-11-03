@@ -231,6 +231,7 @@ final class SpondSync {
                     $update + $correction + $unarchive,
                     [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ]
                 );
+                \TT\Infrastructure\Search\SearchText::refresh( 'activity', (int) $existing->id );
                 $updated++;
             } else {
                 $type_key = SpondTypeResolver::classify( $title, $notes, $is_match );
@@ -258,6 +259,7 @@ final class SpondSync {
                     'external_id'         => $uid,
                     'coach_id'            => $coach_id,
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time ) );
+                \TT\Infrastructure\Search\SearchText::refresh( 'activity', (int) $wpdb->insert_id );
                 if ( $wpdb->insert_id ) $created++;
             }
         }
@@ -413,6 +415,7 @@ final class SpondSync {
      */
     private static function persistAndReturn( int $team_id, array $summary ): array {
         global $wpdb;
+        /* search-text-ok: no source column */
         $wpdb->update(
             "{$wpdb->prefix}tt_teams",
             [

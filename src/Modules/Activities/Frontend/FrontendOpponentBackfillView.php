@@ -295,6 +295,7 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
                 $data['home_away'] = $venue;
             }
 
+            /* search-text-ok: no source column */
             $ok = $wpdb->update(
                 "{$wpdb->prefix}tt_activities",
                 $data,

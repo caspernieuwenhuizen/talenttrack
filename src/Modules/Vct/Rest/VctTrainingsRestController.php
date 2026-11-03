@@ -434,6 +434,7 @@ class VctTrainingsRestController {
                 (string) $session['md_context']
             ),
         ] );
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', (int) $wpdb->insert_id );
         return $ok !== false ? (int) $wpdb->insert_id : 0;
     }
 }

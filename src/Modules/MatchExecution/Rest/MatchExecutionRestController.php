@@ -1468,6 +1468,7 @@ class MatchExecutionRestController {
         if ( $activity_id <= 0 ) return;
         global $wpdb;
         $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [

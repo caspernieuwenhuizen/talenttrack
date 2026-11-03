@@ -398,6 +398,7 @@ class InvitationService {
             if ( $foot !== '' ) $update['preferred_foot'] = $foot;
 
             $wpdb->update( $wpdb->prefix . 'tt_players', $update, [ 'id' => $playerId, 'club_id' => CurrentClub::id() ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $playerId );
 
             // #1820 — the player's display name is system-owned: default
             // the WP display_name to "First Last" in title case from the
@@ -456,6 +457,7 @@ class InvitationService {
             }
 
             $wpdb->update( $wpdb->prefix . 'tt_people', $link, [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'person', $personId );
             // Functional-role assignment is left to whoever wires the
             // PeopleModule's assignment surface; the invitation only
             // records the *intent* via target_functional_role_key, the
@@ -557,6 +559,7 @@ class InvitationService {
         }
         if ( $fill !== [] ) {
             $wpdb->update( "{$p}tt_people", $fill, [ 'id' => $keptId, 'club_id' => $club ] );
+            \TT\Infrastructure\Search\SearchText::refresh( 'person', $keptId );
         }
 
         $assignments = $wpdb->get_results( $wpdb->prepare(

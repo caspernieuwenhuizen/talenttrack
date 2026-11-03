@@ -462,6 +462,66 @@ class AuthorizationService {
     }
 
     /**
+     * #4671 — {@see self::canViewPlayers()} as a scope instead of a verdict:
+     * which players this user may view, as the building blocks an SQL clause
+     * is made of. `PlayerVisibility::sqlClause()` turns it into SQL; a
+     * parity test holds the two to one rule.
+     *
+     *  - `global`: `players.view` without a scope. Every player.
+     *  - `team_ids`: the teams on which `players.view` holds at team scope.
+     *  - `player_ids`: the players on which `players.view_own_children` holds
+     *    at player scope (a guardian's children, a scout's linked players).
+     *  - and always the player whose account this is, which the SQL asks
+     *    as `wp_user_id`.
+     *
+     * The candidates are the scopes the user resolves to, the matrix's team
+     * and player answers, the guardian links and the scout links; each is
+     * then asked the very question `canViewPlayers()` asks of it, so a
+     * candidate the rule refuses never makes it in.
+     *
+     * @return array{global:bool, team_ids:list<int>, player_ids:list<int>}
+     */
+    public static function playerReadScope( int $user_id ): array {
+        $none = [ 'global' => false, 'team_ids' => [], 'player_ids' => [] ];
+        if ( $user_id <= 0 ) return $none;
+        if ( self::userHasPermission( $user_id, 'players.view' ) ) {
+            return [ 'global' => true, 'team_ids' => [], 'player_ids' => [] ];
+        }
+
+        $team_candidates   = [];
+        $player_candidates = [];
+        foreach ( self::resolveScopesForUser( $user_id ) as $scope ) {
+            $id = (int) ( $scope['scope_id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            if ( ( $scope['scope_type'] ?? '' ) === 'team' ) $team_candidates[ $id ] = true;
+            if ( ( $scope['scope_type'] ?? '' ) === 'player' ) $player_candidates[ $id ] = true;
+        }
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            foreach ( \TT\Modules\Authorization\MatrixGate::teamIdsFor( $user_id, 'players', 'read' ) as $team_id ) {
+                $team_candidates[ (int) $team_id ] = true;
+            }
+        }
+        foreach ( \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id, \TT\Infrastructure\Players\ParentChildResolver::NEED_SCHEDULE ) as $player_id ) {
+            $player_candidates[ (int) $player_id ] = true;
+        }
+        foreach ( \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id ) as $player_id ) {
+            $player_candidates[ (int) $player_id ] = true;
+        }
+
+        $team_ids = [];
+        foreach ( array_keys( $team_candidates ) as $team_id ) {
+            if ( self::userHasPermission( $user_id, 'players.view', 'team', (int) $team_id ) ) $team_ids[] = (int) $team_id;
+        }
+        $player_ids = [];
+        foreach ( array_keys( $player_candidates ) as $player_id ) {
+            if ( self::userHasPermission( $user_id, 'players.view_own_children', 'player', (int) $player_id ) ) $player_ids[] = (int) $player_id;
+        }
+        sort( $team_ids );
+        sort( $player_ids );
+        return [ 'global' => false, 'team_ids' => $team_ids, 'player_ids' => $player_ids ];
+    }
+
+    /**
      * {@see self::canViewPlayer()} for many players at once (#4568): the
      * same rules, with every player's team and account read in one
      * statement, and each answer seeded into the decision cache so a later

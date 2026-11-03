@@ -120,6 +120,7 @@ final class TrialDecisionPlayerStatusSubscriber {
         // Trap 2 — only a player still on trial moves. Recording the same
         // decision twice, or deciding on a player another path already
         // promoted, must not walk them backwards.
+        /* search-text-ok: no source column */
         $updated = (int) $wpdb->update(
             $wpdb->prefix . 'tt_players',
             [ 'status' => $status ],

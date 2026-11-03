@@ -198,6 +198,7 @@ class PeopleRepository {
         if ( $result === false ) return false;
 
         $id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'person', $id );
         // v3.76.2 — auto-tag demo-on rows so people created during a
         // demo (typically via the new-person wizard or the People REST
         // POST) stay visible alongside the seeded demo dataset.
@@ -249,6 +250,7 @@ class PeopleRepository {
 
         $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $result === false ) return false;
+        \TT\Infrastructure\Search\SearchText::refresh( 'person', $id );
 
         // #2962 — write the contact details through to the linked account,
         // so the address the admin just edited is the address mail actually

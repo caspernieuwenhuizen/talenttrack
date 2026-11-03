@@ -148,6 +148,7 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
                 unset( $index );
             }
 
+            /* search-text-ok: no source column */
             $wpdb->update(
                 "{$wpdb->prefix}tt_players",
                 [ 'date_joined' => (string) $spells[0]['joined_at'] ],

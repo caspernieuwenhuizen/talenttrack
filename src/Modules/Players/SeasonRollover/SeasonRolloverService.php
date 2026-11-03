@@ -189,6 +189,7 @@ final class SeasonRolloverService {
                 $from_age = (string) ( $team_meta[ $source_team_id ]['age_group'] ?? '' );
                 $to_age   = (string) ( $team_meta[ $target_team_id ]['age_group'] ?? '' );
 
+                /* search-text-ok: no source column */
                 $wpdb->update(
                     $players_table,
                     [ 'team_id' => $target_team_id ],

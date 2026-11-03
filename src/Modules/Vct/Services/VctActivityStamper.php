@@ -89,6 +89,7 @@ class VctActivityStamper {
             ];
 
         global $wpdb;
+        /* search-text-ok: no source column */
         $wpdb->update(
             $wpdb->prefix . 'tt_activities',
             $fields,
@@ -147,6 +148,7 @@ class VctActivityStamper {
         $activities = $wpdb->prefix . 'tt_activities';
 
         if ( $state === null ) {
+            /* search-text-ok: no source column */
             $ok = $wpdb->update(
                 $activities,
                 [ 'vct_cycle_manual' => 0 ],

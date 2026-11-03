@@ -243,6 +243,7 @@ final class ReviewStep implements WizardStepInterface {
             return new \WP_Error( 'db_error', __( 'The activity could not be saved.', 'talenttrack' ) );
         }
         $activity_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
 
         // v3.85.2 — was an inline demo-tag write that duplicated the
         // central helper's logic. Operator reported activities created

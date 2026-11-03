@@ -95,6 +95,7 @@ final class ActivityCoachAssignment {
             if ( (int) $team->heads !== 1 || (int) $team->wp_user_id <= 0 ) continue;
 
             $written += (int) $wpdb->query( $wpdb->prepare(
+                /* search-text-ok: no source column */
                 "UPDATE {$p}tt_activities
                     SET coach_id = %d
                   WHERE club_id = %d AND team_id = %d

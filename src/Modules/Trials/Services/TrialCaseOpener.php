@@ -166,6 +166,7 @@ class TrialCaseOpener {
 
         // The trial is now the player's state, not just a row about them.
         global $wpdb;
+        /* search-text-ok: no source column */
         $wpdb->update(
             $wpdb->prefix . 'tt_players',
             [ 'status' => PlayerStatus::TRIAL ],

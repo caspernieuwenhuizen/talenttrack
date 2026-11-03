@@ -111,6 +111,7 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
             return new \WP_Error( 'db_error', __( 'The draft could not be saved.', 'talenttrack' ) );
         }
         $activity_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
 
         return [ 'redirect_url' => add_query_arg( [
             'tt_view' => 'activities',

@@ -191,6 +191,7 @@ final class RateConfirmStep implements WizardStepInterface, ConditionalStepInter
             if ( ! empty( $state['_skip_closes_rating'] )
                 && \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
                 global $wpdb;
+                /* search-text-ok: no source column */
                 $wpdb->update(
                     $wpdb->prefix . 'tt_activities',
                     [ 'evaluation_skipped' => 1 ],

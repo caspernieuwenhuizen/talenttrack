@@ -105,6 +105,7 @@ class GuardianGenerator implements DependentGeneratorInterface {
                 // #4254 — PlayerGenerator records an on-file guardian for
                 // nearly every player. This child's guardian is the parent
                 // persona now, so the made-up one would contradict it.
+                /* search-text-ok: no source column */
                 $wpdb->update(
                     $wpdb->prefix . 'tt_players',
                     [ 'guardian_name' => null, 'guardian_email' => null, 'guardian_phone' => null ],

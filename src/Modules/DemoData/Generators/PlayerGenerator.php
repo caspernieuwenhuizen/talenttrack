@@ -196,6 +196,7 @@ class PlayerGenerator implements GeneratorInterface {
                     'guardian_email'      => $guardian['email'],
                 ] );
                 $player_id = (int) $wpdb->insert_id;
+                \TT\Infrastructure\Search\SearchText::refresh( 'player', $player_id );
 
                 // v3.91.7 — fire the same hook the runtime player-create
                 // path fires so JourneyEventSubscriber writes a
@@ -391,6 +392,7 @@ class PlayerGenerator implements GeneratorInterface {
                 'media_consent_by'    => $consented && $recorder > 0 ? $recorder : null,
             ] );
             $player_id = (int) $wpdb->insert_id;
+            \TT\Infrastructure\Search\SearchText::refresh( 'player', $player_id );
             if ( $player_id <= 0 ) continue;
 
             // The same two hooks the real create-then-release path fires, so

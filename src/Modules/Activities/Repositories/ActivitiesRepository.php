@@ -968,6 +968,7 @@ final class ActivitiesRepository {
         if ( $ok === false ) return null;
 
         $id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'activity', $id );
 
         /**
          * #2731 — an activity row was written.
@@ -1019,6 +1020,10 @@ final class ActivitiesRepository {
             $data,
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
+
+        if ( $ok && ( array_key_exists( 'title', $data ) || array_key_exists( 'location', $data ) ) ) {
+            \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
+        }
 
         /** This event documented on {@see self::create()}. */
         if ( $ok ) do_action( 'tt_activity_saved', $activity_id, $data );
@@ -1084,6 +1089,7 @@ final class ActivitiesRepository {
         if ( $remaining === $locked ) return $locked;
 
         global $wpdb;
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_activities',
             [ 'sync_locked_fields' => SyncLockedFields::encode( $remaining ) ],
@@ -2035,6 +2041,57 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #4671 — {@see self::playerVisibilityClause()} for a set of players at
+     * once, on any alias: their teams' activities, plus any they are on the
+     * register of. The same two branches, so search and the activities list
+     * see the same activities for the same players.
+     *
+     * @param list<int> $player_ids
+     * @return array{sql:string, params:list<int>}
+     */
+    public static function playersVisibilityClause( array $player_ids, string $alias ): array {
+        $alias = preg_replace( '/[^a-zA-Z0-9_]/', '', $alias ) ?: 's';
+        $ids   = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [ 'sql' => '1=0', 'params' => [] ];
+
+        global $wpdb;
+        $p  = $wpdb->prefix;
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        /* both-kinds-ok */
+        return [
+            'sql'    => "(
+                {$alias}.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id IN ({$in}) AND pl.club_id = {$alias}.club_id )
+                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance av WHERE av.activity_id = {$alias}.id AND av.club_id = {$alias}.club_id AND ( av.player_id IN ({$in}) OR av.guest_player_id IN ({$in}) ) )
+            )",
+            'params' => array_merge( $ids, $ids, $ids ),
+        ];
+    }
+
+    /**
+     * #4671 — of these activities, the ones any of these players sees: the
+     * batched form of {@see self::isVisibleToPlayer()}, one statement.
+     *
+     * @param list<int> $activity_ids
+     * @param list<int> $player_ids
+     * @return list<int>
+     */
+    public function idsVisibleToPlayers( array $activity_ids, array $player_ids ): array {
+        $activity_ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $activity_ids === [] || $player_ids === [] ) return [];
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $clause = self::playersVisibilityClause( $player_ids, 's' );
+        $in     = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT s.id FROM {$p}tt_activities s
+              WHERE s.id IN ({$in}) AND s.club_id = %d AND {$clause['sql']}",
+            ...array_merge( $activity_ids, [ CurrentClub::id() ], $clause['params'] )
+        ) );
+        return array_values( array_map( 'intval', is_array( $ids ) ? $ids : [] ) );
+    }
+
+    /**
      * #3688 — is this activity one the player sees in their activities
      * list? The per-record form of the player-scoped `searchForRest()`
      * filter. Archived activities count: whether it was your team's
@@ -2452,6 +2509,7 @@ final class ActivitiesRepository {
     public function setPlanState( int $activity_id, string $plan_state ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         return $wpdb->update(
             "{$p}tt_activities",
             [ 'plan_state' => $plan_state ],
@@ -2475,6 +2533,7 @@ final class ActivitiesRepository {
         $plan_state = $status_key === ActivityStatusKey::PLANNED ? 'scheduled' : $status_key;
         // #3081 — see `announceCancellation()`.
         $was_cancelled = $this->wasCancelledBefore( $activity_id, [ 'activity_status_key' => $status_key ] );
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [
@@ -2530,6 +2589,7 @@ final class ActivitiesRepository {
         $date = (string) ( $row->session_date ?? '' );
         if ( $date === '' || $date > current_time( 'Y-m-d' ) ) return false;
 
+        /* search-text-ok: no source column */
         $ok = $wpdb->update(
             "{$p}tt_activities",
             [
@@ -2561,6 +2621,7 @@ final class ActivitiesRepository {
     public function setEvaluationSkipped( int $activity_id, int $skipped ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        /* search-text-ok: no source column */
         return $wpdb->update(
             "{$p}tt_activities",
             [ 'evaluation_skipped' => $skipped ],

@@ -226,6 +226,7 @@ final class GuardianContactRequest {
 
         if ( ! empty( $update ) ) {
             global $wpdb;
+            /* search-text-ok: no source column */
             $wpdb->update(
                 $wpdb->prefix . 'tt_players',
                 $update,

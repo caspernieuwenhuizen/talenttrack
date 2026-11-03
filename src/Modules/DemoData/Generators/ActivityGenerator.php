@@ -216,6 +216,7 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     'other_label'         => null,
                 ] );
                 $activity_id = (int) $wpdb->insert_id;
+                \TT\Infrastructure\Search\SearchText::refresh( 'activity', $activity_id );
                 if ( ! $activity_id ) continue;
                 $this->registry->tag( 'activity', $activity_id, [ 'team_id' => $team_id ] );
                 $total++;

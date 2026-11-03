@@ -198,6 +198,7 @@ class RecordTestTrainingOutcomeForm implements FormInterface, CompletionStepInte
             'uuid'          => wp_generate_uuid4(),
         ] );
         $player_id = (int) $wpdb->insert_id;
+        \TT\Infrastructure\Search\SearchText::refresh( 'player', $player_id );
 
         // Auto-tag demo-on rows — mirror of FrontendTrialsManageView's
         // inline-create path. Without this, a prospect admitted from a

@@ -478,6 +478,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         // score" beside a scorers list. `home_score` is our goals, per
         // `MatchResultQuery`. Past fixtures are already `completed` from
         // ActivityGenerator, so only the scoreline is written here.
+        /* search-text-ok: no source column */
         $wpdb->update(
             "{$wpdb->prefix}tt_activities",
             [ 'home_score' => $home_goals, 'away_score' => $away_goals ],
