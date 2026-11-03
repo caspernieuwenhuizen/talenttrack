@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -577,27 +578,37 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 <?php if ( empty( $mains ) && empty( $by_parent ) && empty( $unrated_notes ) ) : ?>
                     <p class="tt-muted"><?php esc_html_e( 'No ratings recorded for this evaluation.', 'talenttrack' ); ?></p>
                 <?php else : ?>
+                    <?php
+                    // #4914 — a card per category on a phone, a table from 480px.
+                    // The category cell holds its label and its note, so they
+                    // sit in one value block beside the label.
+                    $c_cat    = __( 'Category', 'talenttrack' );
+                    $c_rating = __( 'Rating', 'talenttrack' );
+                    $cat_cell = StackTable::attrs( 'cell', $c_cat ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    $rat_cell = StackTable::attrs( 'cell', $c_rating );
+                    $value    = '<div class="' . esc_attr( StackTable::VALUE ) . '">';
+                    ?>
                     <div class="tt-table-wrap">
-                    <table class="tt-table tt-evd__ratings">
-                        <thead><tr>
-                            <th><?php esc_html_e( 'Category', 'talenttrack' ); ?></th>
-                            <th class="tt-evd__rating-col"><?php esc_html_e( 'Rating', 'talenttrack' ); ?></th>
+                    <table class="tt-table tt-evd__ratings <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_cat ); ?></th>
+                            <th class="tt-evd__rating-col"<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_rating ); ?></th>
                         </tr></thead>
-                        <tbody>
+                        <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php foreach ( $mains as $cat_id => $main ) :
                                 $label = (string) ( $main->category_label ?? $main->category_key ?? '—' );
                                 ?>
-                                <tr>
-                                    <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong><?php echo self::categoryNoteHtml( $notes, (int) $cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
-                                    <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
+                                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <td<?php echo $cat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong><?php echo self::categoryNoteHtml( $notes, (int) $cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></div></td>
+                                    <td class="tt-evd__rating-col"<?php echo $rat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
                                 </tr>
                                 <?php if ( ! empty( $by_parent[ $cat_id ] ) ) : ?>
                                     <?php foreach ( $by_parent[ $cat_id ] as $sub ) :
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
-                                        <tr class="tt-evd__sub">
-                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
-                                            <td class="tt-evd__rating-col tt-evd__sub-rating"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
+                                        <tr class="tt-evd__sub"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                            <td class="tt-evd__sub-label"<?php echo $cat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></div></td>
+                                            <td class="tt-evd__rating-col tt-evd__sub-rating"<?php echo $rat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -608,9 +619,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                 foreach ( $subs as $sub ) :
                                     $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                     ?>
-                                    <tr>
-                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
-                                        <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
+                                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                        <td<?php echo $cat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></div></td>
+                                        <td class="tt-evd__rating-col"<?php echo $rat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                     </tr>
                                 <?php endforeach;
                             endforeach; ?>
@@ -620,9 +631,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                     ? \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $note_cat->label ?? '' ), (int) $note_cat_id )
                                     : '#' . (int) $note_cat_id;
                                 ?>
-                                <tr class="tt-evd__unrated">
-                                    <td><?php echo esc_html( $note_label ); ?><?php echo self::categoryNoteHtml( $notes, (int) $note_cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
-                                    <td class="tt-evd__rating-col"><span aria-hidden="true">—</span><span class="screen-reader-text"><?php esc_html_e( 'Not rated', 'talenttrack' ); ?></span></td>
+                                <tr class="tt-evd__unrated"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <td<?php echo $cat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $value; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo esc_html( $note_label ); ?><?php echo self::categoryNoteHtml( $notes, (int) $note_cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></div></td>
+                                    <td class="tt-evd__rating-col"<?php echo $rat_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span aria-hidden="true">—</span><span class="screen-reader-text"><?php esc_html_e( 'Not rated', 'talenttrack' ); ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

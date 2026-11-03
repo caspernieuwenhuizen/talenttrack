@@ -35,7 +35,12 @@ final class StackTable {
      */
     public const VALUE = 'tt-stack-table__value';
 
-    private const PARTS = [ 'table', 'rowgroup', 'row', 'columnheader', 'cell' ];
+    /**
+     * `rowheader` is a body `<th scope="row">` (a team name heading its row).
+     * The primitive lays out `td` lines only, so a surface whose rows have
+     * one styles it as the card's title in its own sheet.
+     */
+    private const PARTS = [ 'table', 'rowgroup', 'row', 'columnheader', 'rowheader', 'cell' ];
 
     /**
      * The table's classes: the primitive and its breakpoint modifier.

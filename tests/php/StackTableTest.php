@@ -28,6 +28,7 @@ final class StackTableTest extends WP_UnitTestCase {
         $this->assertSame( ' role="rowgroup"', StackTable::attrs( 'rowgroup' ) );
         $this->assertSame( ' role="row"', StackTable::attrs( 'row' ) );
         $this->assertSame( ' role="columnheader"', StackTable::attrs( 'columnheader' ) );
+        $this->assertSame( ' role="rowheader"', StackTable::attrs( 'rowheader' ), 'a body <th scope="row">' );
         $this->assertSame( '', StackTable::attrs( 'banner' ), 'an unknown part writes nothing' );
     }
 

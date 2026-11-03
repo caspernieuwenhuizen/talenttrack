@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Pdp\Services\PdpPlanningService;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendPdpPlanningView (#0054) — HoD-facing planning matrix.
@@ -111,14 +112,21 @@ final class FrontendPdpPlanningView {
 
         $today = gmdate( 'Y-m-d' );
         echo '<div class="tt-pdp-matrix-card">';
-        echo '<table class="tt-table tt-pdp-table">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        // #4914 — a card per team on a phone, the matrix from 480px.
+        $c_team     = __( 'Team', 'talenttrack' );
         $max_blocks = (int) $matrix['max_blocks'];
+        $c_blocks   = [];
         for ( $b = 1; $b <= $max_blocks; $b++ ) {
-            echo '<th>' . esc_html( sprintf( __( 'Block %d', 'talenttrack' ), $b ) ) . '</th>';
+            $c_blocks[ $b ] = sprintf( __( 'Block %d', 'talenttrack' ), $b );
         }
-        echo '</tr></thead><tbody>';
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-pdp-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
+        for ( $b = 1; $b <= $max_blocks; $b++ ) {
+            echo '<th' . $th . '>' . esc_html( $c_blocks[ $b ] ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $matrix['teams'] as $team_id => $team ) {
             // #0063 — team name links to the frontend team detail.
@@ -126,9 +134,9 @@ final class FrontendPdpPlanningView {
                 (string) $team['name'],
                 \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $team_id )
             );
-            echo '<tr>';
-            echo '<td class="tt-pdp-team"><strong>' . $team_link . '</strong>'
-                . ' <small class="tt-pdp-team__roster">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td class="tt-pdp-team"' . StackTable::attrs( 'cell', $c_team ) . '><span class="' . esc_attr( StackTable::VALUE ) . '"><strong>' . $team_link . '</strong>'
+                . ' <small class="tt-pdp-team__roster">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></span></td>';
             for ( $b = 1; $b <= $max_blocks; $b++ ) {
                 $cell = $team['blocks'][ $b ] ?? null;
                 // v3.94.1 — drill-down lands on the per-player block view
@@ -140,7 +148,7 @@ final class FrontendPdpPlanningView {
                     'block'     => $b,
                     'season_id' => $season_id,
                 ], $base_url );
-                echo '<td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_blocks[ $b ] ) . '>';
                 if ( ! $cell || $cell['expected'] === 0 ) {
                     echo '<span class="tt-pdp-cell-empty">—</span>';
                 } else {

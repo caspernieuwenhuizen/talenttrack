@@ -929,6 +929,9 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; }
 .tt-table thead th { background: var(--tt-table-header-bg, var(--tt-primary, #0b3d2e)); color: var(--tt-table-header-text, #fff); text-align: left; padding: 10px 12px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .tt-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--tt-table-border, var(--tt-line)); background: #fff; }
+/* A .tt-table on the stack-table primitive: on a phone the label in front of
+   each value reads like the column header it stands in for. */
+.tt-table.tt-stack-table > tbody > tr > td::before { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--tt-muted); }
 /* #0075 Sprint 3 — striped rows (Tables-category token). Default
  * transparent so existing un-striped tables look identical until the
  * operator picks a colour in the editor. */
