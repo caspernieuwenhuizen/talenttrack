@@ -72,6 +72,17 @@
     white-space: nowrap;
 }
 
+/* #4918 — in a phone card (the stack-table primitive) a long status wraps
+   beside its label; the table keeps it on one line from 768px. */
+.tt-account-table.tt-stack-table--to-768 .tt-account-status {
+    white-space: normal;
+}
+@media (min-width: 768px) {
+    .tt-account-table.tt-stack-table--to-768 .tt-account-status {
+        white-space: nowrap;
+    }
+}
+
 .tt-account-status--ok {
     background: var(--tt-success-subtle, #e6f4ea);
     color: var(--tt-success, #2e7d4f);
