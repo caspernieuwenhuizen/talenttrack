@@ -141,7 +141,7 @@ class UpgradePanel {
 
         ob_start();
         ?>
-        <section class="tt-root tt-upgrade-panel tt-upgrade-panel--revoked" role="note">
+        <section class="tt-upgrade-panel tt-upgrade-panel--revoked" role="note">
             <p class="tt-upgrade-panel__eyebrow">
                 <span class="tt-upgrade-panel__lock" aria-hidden="true">&#128274;</span>
                 <?php esc_html_e( 'Link no longer active', 'talenttrack' ); ?>
@@ -175,7 +175,7 @@ class UpgradePanel {
 
         ob_start();
         ?>
-        <section class="tt-root tt-upgrade-panel tt-upgrade-panel--cap" role="note">
+        <section class="tt-upgrade-panel tt-upgrade-panel--cap" role="note">
             <p class="tt-upgrade-panel__title"><?php echo esc_html( $message ); ?></p>
             <p class="tt-upgrade-panel__body">
                 <?php esc_html_e( 'Nothing has been removed — everything already recorded stays exactly as it is. You just cannot add past the limit until the plan changes.', 'talenttrack' ); ?>
@@ -204,7 +204,7 @@ class UpgradePanel {
 
         ob_start();
         ?>
-        <section class="tt-root tt-upgrade-panel" role="note">
+        <section class="tt-upgrade-panel" role="note">
             <p class="tt-upgrade-panel__eyebrow">
                 <span class="tt-upgrade-panel__lock" aria-hidden="true">&#128274;</span>
                 <?php
@@ -257,7 +257,7 @@ class UpgradePanel {
 
         ob_start();
         ?>
-        <section class="tt-root tt-upgrade-panel tt-upgrade-panel--interrupted" role="note">
+        <section class="tt-upgrade-panel tt-upgrade-panel--interrupted" role="note">
             <p class="tt-upgrade-panel__eyebrow">
                 <span class="tt-upgrade-panel__lock" aria-hidden="true">&#128274;</span>
                 <?php

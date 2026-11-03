@@ -53,7 +53,7 @@ final class GuardianContactView {
         $row         = (array) $request;
         $player_name = GuardianContactRequest::playerName( (int) ( $row['target_player_id'] ?? 0 ) );
         ?>
-        <div class="tt-root tt-guardian-contact">
+        <div class="tt-guardian-contact">
             <h1 class="tt-guardian-contact-title">
                 <?php
                 printf(
@@ -122,7 +122,7 @@ final class GuardianContactView {
     }
 
     private static function renderNotice( string $title, string $body ): void {
-        echo '<div class="tt-root tt-guardian-contact">';
+        echo '<div class="tt-guardian-contact">';
         echo '<h1 class="tt-guardian-contact-title">' . esc_html( $title ) . '</h1>';
         echo '<p class="tt-guardian-contact-lead">' . esc_html( $body ) . '</p>';
         echo '</div>';
