@@ -38,6 +38,15 @@
  * Record pages are walked too (`RECORD_SURFACES`): the spec makes the record
  * over REST, opens it by id and removes it afterwards (#4738).
  *
+ * WHICH PERSONAS
+ *
+ * The admin walks every phone-reachable slug, the dashboard home and the
+ * record pages. A head coach and a scout (#4812) walk their own dashboard
+ * home and every phone-reachable surface it links to, because their
+ * dashboard presets carry controls the admin never sees. Their accounts are
+ * made over REST in `beforeAll` (`helpers/personas.js`), in Dutch, and
+ * deleted afterwards. Each persona has its own baseline.
+ *
  * WHICH WIDTHS
  *
  * The same walk runs once per phone project in `playwright.config.js`: 320,
@@ -61,6 +70,7 @@ const path = require( 'path' );
 const { uniqueName } = require( './helpers/admin' );
 const { rest } = require( './helpers/match-prep' );
 const { widestOffender } = require( './helpers/overflow' );
+const { WALKED_PERSONAS, createPersona, deletePersona } = require( './helpers/personas' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
@@ -139,17 +149,28 @@ function phoneReachableSurfaces() {
  * and not at 390 is a different allowance at each width, so one shared list
  * would hide a regression at whichever width it did not describe.
  *
+ * The admin's blocks sit under the top-level `widths`; every other persona
+ * the gate walks has its own under `personas.<key>.widths` (#4812), because
+ * a coach and an admin see different controls on the same page.
+ *
  * @param {number} width
+ * @param {string} persona `admin`, or a key from WALKED_PERSONAS
  * @returns {Record<string, { kinds: string[], reason: string }>}
  */
-function loadBaseline( width ) {
+function loadBaseline( width, persona ) {
 	try {
-		const widths = JSON.parse( fs.readFileSync( BASELINE_FILE, 'utf8' ) ).widths || {};
+		const file = JSON.parse( fs.readFileSync( BASELINE_FILE, 'utf8' ) );
+		const widths = persona === ADMIN
+			? file.widths || {}
+			: ( ( file.personas || {} )[ persona ] || {} ).widths || {};
 		return widths[ String( width ) ] || {};
 	} catch ( e ) {
 		return {};
 	}
 }
+
+/** The persona key of the seeded admin account. */
+const ADMIN = 'admin';
 
 /**
  * Surfaces that are expected to redirect for the gate's account (#4780),
@@ -459,6 +480,8 @@ const SURFACES = phoneReachableSurfaces();
 const recordIds = {};
 /** @type {string[]} REST paths of the records made for this run */
 const created = [];
+/** @type {Record<string, { id: number, state: string }|string>} persona key => account, or why there is none */
+const accounts = {};
 
 /**
  * A logged-in desktop page for the REST calls around the walk. The calls
@@ -495,9 +518,18 @@ test.describe( 'mobile viewport gate', () => {
 				: 'the dashboard shell carried no REST config';
 		}
 		await context.close();
+
+		// #4812 — the accounts the persona walks sign in with.
+		for ( const persona of WALKED_PERSONAS ) {
+			accounts[ persona.key ] = await createPersona( browser, testInfo.project.use.baseURL, persona );
+		}
 	} );
 
 	test.afterAll( async ( { browser }, testInfo ) => {
+		for ( const [ key, account ] of Object.entries( accounts ) ) {
+			if ( typeof account === 'object' ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
+			delete accounts[ key ];
+		}
 		if ( ! created.length ) return;
 		const { context, page } = await restPage( browser, testInfo );
 		for ( const restPath of created.slice().reverse() ) {
@@ -507,15 +539,21 @@ test.describe( 'mobile viewport gate', () => {
 		await context.close();
 	} );
 
-	test( 'no surface regresses beyond the recorded baseline', async ( { page } ) => {
-		expect(
-			SURFACES.length,
-			'parsed no surfaces out of config/mobile_surfaces.php — the manifest shape changed and this spec is blind'
-		).toBeGreaterThan( 50 );
-
+	/**
+	 * Walk `surfaces`, the dashboard home and (for the admin) the record
+	 * pages as one persona, and fail on anything the persona's baseline
+	 * does not allow.
+	 *
+	 * @param {import('@playwright/test').Page} page  a phone page signed in as the persona
+	 * @param {string} persona                        `admin` or a WALKED_PERSONAS key
+	 * @param {{ slug: string, cls: string }[]} surfaces
+	 * @param {boolean} withRecords                   walk RECORD_SURFACES too
+	 */
+	const walk = async ( page, persona, surfaces, withRecords ) => {
 		const viewport = page.viewportSize();
 		const width = viewport ? viewport.width : 0;
-		const baseline = loadBaseline( width );
+		const baseline = loadBaseline( width, persona );
+		const who = `${ width }px as ${ persona }`;
 
 		/** @type {Record<string, {kind: string, detail: string}[]>} */
 		const found = {};
@@ -605,7 +643,7 @@ test.describe( 'mobile viewport gate', () => {
 			return '';
 		};
 
-		for ( const { slug, cls } of SURFACES ) {
+		for ( const { slug, cls } of surfaces ) {
 			const why = await visit( slug, cls, `/?tt_view=${ slug }`, slug );
 			if ( why ) skipped.push( `${ slug } (${ why })` );
 		}
@@ -622,7 +660,7 @@ test.describe( 'mobile viewport gate', () => {
 		// A record page is never a legitimate skip. The spec made the
 		// record itself, so a record it cannot open means the walk is blind
 		// to it, which is the gap this was added to close.
-		for ( const record of RECORD_SURFACES ) {
+		for ( const record of withRecords ? RECORD_SURFACES : [] ) {
 			const id = recordIds[ record.key ];
 			const surface = SURFACES.find( ( s ) => s.slug === record.slug );
 			if ( typeof id !== 'number' ) {
@@ -669,19 +707,22 @@ test.describe( 'mobile viewport gate', () => {
 		}
 
 		if ( skipped.length ) {
-			console.log( `\nSkipped ${ skipped.length } surface(s), not measurable for this account:\n  ${ skipped.join( '\n  ' ) }` );
+			console.log( `\n[${ who }] Skipped ${ skipped.length } surface(s), not measurable for this account:\n  ${ skipped.join( '\n  ' ) }` );
 		}
 
 		// The same for an expected redirect that no longer happens: left in
 		// place it would quietly excuse the surface if it ever redirected
-		// again, and the page it lands on would go unmeasured.
-		const staleRedirects = Object.keys( EXPECTED_REDIRECTS ).filter( ( key ) => ! redirected.includes( key ) );
-		if ( staleRedirects.length ) {
-			console.log( `\n${ staleRedirects.length } EXPECTED_REDIRECTS entry(ies) no longer redirect at ${ width }px — remove them:\n  ${ staleRedirects.join( '\n  ' ) }` );
+		// again, and the page it lands on would go unmeasured. Only the
+		// admin walk visits every slug, so only it can tell.
+		if ( persona === ADMIN ) {
+			const staleRedirects = Object.keys( EXPECTED_REDIRECTS ).filter( ( key ) => ! redirected.includes( key ) );
+			if ( staleRedirects.length ) {
+				console.log( `\n[${ who }] ${ staleRedirects.length } EXPECTED_REDIRECTS entry(ies) no longer redirect — remove them:\n  ${ staleRedirects.join( '\n  ' ) }` );
+			}
 		}
 
 		if ( stale.length ) {
-			console.log( `\n${ stale.length } baseline entry(ies) no longer offend — remove them:\n  ${ stale.join( '\n  ' ) }` );
+			console.log( `\n[${ who }] ${ stale.length } baseline entry(ies) no longer offend — remove them:\n  ${ stale.join( '\n  ' ) }` );
 		}
 
 		// Emit the current state in the baseline's own shape, so adopting
@@ -697,8 +738,9 @@ test.describe( 'mobile viewport gate', () => {
 				reason: baseline[ key ] ? baseline[ key ].reason : '',
 			};
 		}
+		const block = { widths: { [ String( width ) ]: shape } };
 		console.log(
-			`\nCurrent offenders at ${ width }px, in mobile-baseline.json shape:\n${ JSON.stringify( { widths: { [ String( width ) ]: shape } }, null, 2 ) }`
+			`\n[${ who }] Current offenders, in mobile-baseline.json shape:\n${ JSON.stringify( persona === ADMIN ? block : { personas: { [ persona ]: block } }, null, 2 ) }`
 		);
 
 		// What each finding is, baselined or not. A baseline entry only
@@ -713,16 +755,17 @@ test.describe( 'mobile viewport gate', () => {
 			}
 		}
 		if ( details.length ) {
-			console.log( `\nFindings in detail:\n  ${ details.join( '\n  ' ) }` );
+			console.log( `\n[${ who }] Findings in detail:\n  ${ details.join( '\n  ' ) }` );
 		}
 
-		// The walk visits every slug, every record page and the dashboard
-		// home. Counting the home in the measured total but not in the
-		// visited one printed "94 of 94" on a run that skipped mfa-prompt.
-		const visited = SURFACES.length + RECORD_SURFACES.length + 1;
+		// The walk visits every slug it was given, every record page and the
+		// dashboard home. Counting the home in the measured total but not in
+		// the visited one printed "94 of 94" on a run that skipped mfa-prompt.
+		const records = withRecords ? RECORD_SURFACES.length : 0;
+		const visited = surfaces.length + records + 1;
 		console.log(
-			`\nMeasured ${ measured } of ${ visited } surface(s) at ${ width }px ` +
-			`(${ SURFACES.length } slugs, ${ RECORD_SURFACES.length } record page(s), the dashboard home); ` +
+			`\n[${ who }] Measured ${ measured } of ${ visited } surface(s) ` +
+			`(${ surfaces.length } slugs, ${ records } record page(s), the dashboard home); ` +
 			`${ skipped.length } skipped, ${ redirected.length } of them by an expected redirect.`
 		);
 
@@ -730,7 +773,7 @@ test.describe( 'mobile viewport gate', () => {
 		// which surfaces those were keeps "no density findings" honest: on
 		// an install with no data it means nothing was looked at.
 		console.log(
-			`\nList density measured on ${ withRows.length } native surface(s) with data rows (row count):${ withRows.length ? `\n  ${ withRows.join( '\n  ' ) }` : ' none' }`
+			`\n[${ who }] List density measured on ${ withRows.length } native surface(s) with data rows (row count):${ withRows.length ? `\n  ${ withRows.join( '\n  ' ) }` : ' none' }`
 		);
 
 		// Blindness first: a run that measured almost nothing has no
@@ -738,21 +781,142 @@ test.describe( 'mobile viewport gate', () => {
 		// green for months while measuring nothing (#4195).
 		expect(
 			unrendered.length,
-			`${ unrendered.length } surface(s) rendered no .tt-dashboard — /?tt_view= is not reaching the dashboard; check that the dashboard page is the static front page (tests/e2e/setup/dashboard-front-page.php). Unrendered: ${ unrendered.join( ', ' ) }`
+			`[${ who }] ${ unrendered.length } surface(s) rendered no .tt-dashboard — /?tt_view= is not reaching the dashboard; check that the dashboard page is the static front page (tests/e2e/setup/dashboard-front-page.php). Unrendered: ${ unrendered.join( ', ' ) }`
 		).toBeLessThanOrEqual( MAX_UNRENDERED );
 		expect(
 			measured,
-			`measured only ${ measured } of ${ SURFACES.length } surfaces — the walk is mostly skipping, which is a broken run, not a clean one`
-		).toBeGreaterThanOrEqual( Math.ceil( SURFACES.length * MIN_MEASURED_SHARE ) );
+			`[${ who }] measured only ${ measured } of ${ surfaces.length } surfaces — the walk is mostly skipping, which is a broken run, not a clean one`
+		).toBeGreaterThanOrEqual( Math.ceil( surfaces.length * MIN_MEASURED_SHARE ) );
 
 		expect(
 			unexplained,
-			`${ unexplained.length } baseline entry(ies) at ${ width }px have no reason: ${ unexplained.join( ', ' ) }`
+			`[${ who }] ${ unexplained.length } baseline entry(ies) have no reason: ${ unexplained.join( ', ' ) }`
 		).toEqual( [] );
 
 		expect(
 			regressions,
-			`New mobile viewport defects at ${ width }px on ${ regressions.length } surface(s) not in tests/e2e/mobile-baseline.json:\n  ${ regressions.join( '\n  ' ) }`
+			`[${ who }] New mobile viewport defects on ${ regressions.length } surface(s) not in tests/e2e/mobile-baseline.json:\n  ${ regressions.join( '\n  ' ) }`
 		).toEqual( [] );
+	};
+
+	test( 'no surface regresses beyond the recorded baseline', async ( { page } ) => {
+		expect(
+			SURFACES.length,
+			'parsed no surfaces out of config/mobile_surfaces.php — the manifest shape changed and this spec is blind'
+		).toBeGreaterThan( 50 );
+
+		await walk( page, ADMIN, SURFACES, true );
+	} );
+
+	// #4812 — the same walk as a head coach and as a scout. Each sees
+	// dashboard presets and controls the admin never does: the coach and
+	// scout widgets with their row links, for one.
+	for ( const persona of WALKED_PERSONAS ) {
+		test( `no surface regresses beyond the recorded baseline as ${ persona.key }`, async ( { browser }, testInfo ) => {
+			const account = accounts[ persona.key ];
+			expect( typeof account, `[${ persona.key }] no account to walk with: ${ account }` ).toBe( 'object' );
+			if ( typeof account !== 'object' ) return;
+
+			const context = await browser.newContext( phoneContext( testInfo, account.state ) );
+			const page = await context.newPage();
+			try {
+				await walk( page, persona.key, await surfacesOffered( page ), false );
+			} finally {
+				await context.close();
+			}
+		} );
+	}
+
+	// #4812 — the check the coach walk relies on, proved on the coach's own
+	// dashboard: a link 30px tall planted in the dashboard preset is a
+	// tap-target finding, under the coarse pointer the phone projects run.
+	test( 'a 30px-tall link in the coach dashboard preset is a tap-target finding', async ( { browser }, testInfo ) => {
+		const account = accounts.head_coach;
+		expect( typeof account, `no head coach account: ${ account }` ).toBe( 'object' );
+		if ( typeof account !== 'object' ) return;
+
+		const context = await browser.newContext( phoneContext( testInfo, account.state ) );
+		const page = await context.newPage();
+		try {
+			await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+			await hideAdminBar( page );
+			expect(
+				await page.locator( '.tt-dashboard .tt-pd-landing' ).count(),
+				'the head coach lands on the persona dashboard'
+			).toBeGreaterThan( 0 );
+
+			// The detail names the first five small targets only, so the
+			// proof is the count going up by one, not the name showing.
+			const smallCount = ( findings ) => {
+				const tap = findings.find( ( f ) => f.kind === 'tap-target' );
+				return tap ? Number( ( /^(\d+) under/.exec( tap.detail ) || [ '', '0' ] )[ 1 ] ) : 0;
+			};
+			const before = smallCount( await measure( page, 'native' ) );
+
+			await page.evaluate( () => {
+				const host = document.querySelector( '.tt-dashboard .tt-pd-widget' ) || document.querySelector( '.tt-dashboard .tt-pd-landing' );
+				const a = document.createElement( 'a' );
+				a.href = '#planted';
+				a.textContent = 'Planted';
+				// Inline !important outranks the coarse-pointer floor in the
+				// stylesheets, which is what makes this a real 30px target.
+				a.style.cssText = 'display:inline-block !important; width:160px !important; height:30px !important; min-height:0 !important; max-height:30px !important; padding:0 !important; line-height:30px !important;';
+				if ( host ) host.appendChild( a );
+			} );
+
+			expect( await page.locator( 'a[href="#planted"]' ).count(), 'the link was planted inside .tt-dashboard' ).toBe( 1 );
+			const after = await measure( page, 'native' );
+			expect( after.map( ( f ) => f.kind ), 'a tap-target finding' ).toContain( 'tap-target' );
+			expect( smallCount( after ), 'the planted 30px link is counted' ).toBe( before + 1 );
+		} finally {
+			await context.close();
+		}
 	} );
 } );
+
+/**
+ * The phone context options of the running project, for a context the spec
+ * opens itself under another account. Picked key by key rather than spread
+ * from the project, which also carries runner options a context refuses.
+ *
+ * @param {import('@playwright/test').TestInfo} testInfo
+ * @param {string} storageState
+ */
+function phoneContext( testInfo, storageState ) {
+	const use = testInfo.project.use;
+	return {
+		storageState,
+		baseURL: use.baseURL,
+		viewport: use.viewport,
+		deviceScaleFactor: use.deviceScaleFactor,
+		hasTouch: use.hasTouch,
+		isMobile: use.isMobile,
+		userAgent: use.userAgent,
+	};
+}
+
+/**
+ * The surfaces a persona's own dashboard offers (#4812): every `?tt_view=`
+ * its home links to, in the dashboard or the shell's navigation, that
+ * `config/mobile_surfaces.php` lists as phone-reachable. Walking the whole
+ * manifest as a coach would measure dozens of "not allowed" notices; this is
+ * what the coach can actually reach from where they land.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ slug: string, cls: string }[]>}
+ */
+async function surfacesOffered( page ) {
+	await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+	const linked = await page.$$eval( '.tt-dashboard a[href], .tt-shell-nav a[href]', ( links ) => links.map( ( a ) => {
+		try {
+			const url = new URL( a.getAttribute( 'href' ) || '', window.location.href );
+			if ( url.origin !== window.location.origin || url.searchParams.has( 'id' ) ) return '';
+			return url.searchParams.get( 'tt_view' ) || '';
+		} catch ( e ) {
+			return '';
+		}
+	} ) );
+	const wanted = new Set( linked.filter( Boolean ) );
+	return SURFACES.filter( ( s ) => wanted.has( s.slug ) );
+}
+

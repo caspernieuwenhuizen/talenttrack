@@ -1,0 +1,131 @@
+// @ts-check
+/**
+ * Short-lived persona accounts for the mobile gate (#4812).
+ *
+ * The CI instance has one seeded account, `admin`. The gate also has to see
+ * what a head coach and a scout see, so it makes those accounts itself over
+ * WordPress's own REST users route, with the dashboard's nonce, signs each
+ * in once to save its storage state, and deletes them afterwards. The same
+ * pattern as the gate's record pages: nothing depends on seed data or on
+ * another spec's leftovers.
+ *
+ * A `tt_coach` account with no team assignment resolves to the head coach
+ * persona (`PersonaResolver::resolveCoachPersona()`), which is the one the
+ * coach dashboard preset is built for. Each account is set to Dutch, the
+ * language the gate walks in (#4770).
+ */
+
+const fs = require( 'fs' );
+const path = require( 'path' );
+const { uniqueName } = require( './admin' );
+
+const AUTH_DIR = path.join( __dirname, '..', '.auth' );
+
+/**
+ * The personas the gate walks besides the admin. `role` is the WordPress
+ * role the account is made with; `key` names the persona in the baseline.
+ *
+ * @type {{ key: string, role: string }[]}
+ */
+const WALKED_PERSONAS = [
+	{ key: 'head_coach', role: 'tt_coach' },
+	{ key: 'scout', role: 'tt_scout' },
+];
+
+/**
+ * Call a WordPress core REST route (`wp/v2/...`) with the dashboard's nonce.
+ *
+ * @param {import('@playwright/test').Page} page a page on the dashboard
+ * @param {string} method
+ * @param {string} route  e.g. `users` or `users/12?force=true&reassign=1`
+ * @param {object|null} body
+ * @returns {Promise<{status:number, json:any}>}
+ */
+function coreRest( page, method, route, body ) {
+	return page.evaluate( async ( { method, route, body } ) => {
+		const cfg = window.TT || {};
+		const base = String( cfg.rest_url || '' ).replace( /talenttrack\/v1\/?$/, 'wp/v2/' );
+		const res = await fetch( base + route, {
+			method,
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+			body: body ? JSON.stringify( body ) : undefined,
+		} );
+		let json = null;
+		try { json = await res.json(); } catch ( _e ) { json = null; }
+		return { status: res.status, json };
+	}, { method, route, body } );
+}
+
+/**
+ * Make a persona account, sign it in once and save its storage state.
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string|undefined} baseURL
+ * @param {{ key: string, role: string }} persona
+ * @returns {Promise<{ id: number, state: string }|string>} the account, or why it could not be made
+ */
+async function createPersona( browser, baseURL, persona ) {
+	const admin = await browser.newContext( { storageState: 'tests/e2e/.auth/admin.json', baseURL } );
+	const page = await admin.newPage();
+	await page.goto( '/?tt_view=players' );
+	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	if ( ! ( await page.evaluate( () => !! ( window.TT && window.TT.rest_url && window.TT.rest_nonce ) ) ) ) {
+		await admin.close();
+		return 'the dashboard shell carried no REST config';
+	}
+
+	const login = uniqueName( 'e2e-' + persona.key ).replace( /[^a-z0-9-]/g, '' );
+	const password = 'Pw-' + uniqueName( 'gate' );
+	const res = await coreRest( page, 'POST', 'users', {
+		username: login,
+		email: login + '@example.test',
+		password,
+		roles: [ persona.role ],
+		locale: 'nl_NL',
+		name: 'E2E ' + persona.key,
+	} );
+	await admin.close();
+	const id = res.json && res.json.id ? Number( res.json.id ) : 0;
+	if ( ! id ) return `${ persona.role } account refused: HTTP ${ res.status } ${ res.json && res.json.code ? res.json.code : '' }`.trim();
+
+	const context = await browser.newContext( { baseURL } );
+	const login_page = await context.newPage();
+	await login_page.goto( '/wp-login.php' );
+	await login_page.fill( 'input[name="log"]', login );
+	await login_page.fill( 'input[name="pwd"]', password );
+	await Promise.all( [
+		login_page.waitForLoadState( 'load', { timeout: 30000 } ),
+		login_page.click( 'input#wp-submit' ),
+	] );
+	const signed_in = ( await context.cookies() ).some( ( c ) => c.name.startsWith( 'wordpress_logged_in' ) );
+	if ( ! signed_in ) {
+		await context.close();
+		return `${ persona.role } account made (id ${ id }) but could not sign in`;
+	}
+
+	if ( ! fs.existsSync( AUTH_DIR ) ) fs.mkdirSync( AUTH_DIR, { recursive: true } );
+	const state = path.join( AUTH_DIR, persona.key + '.json' );
+	await context.storageState( { path: state } );
+	await context.close();
+	return { id, state };
+}
+
+/**
+ * Delete a persona account made by `createPersona()`. Its content, if any,
+ * goes to the admin account (user 1 on wp-env).
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string|undefined} baseURL
+ * @param {number} id
+ */
+async function deletePersona( browser, baseURL, id ) {
+	const admin = await browser.newContext( { storageState: 'tests/e2e/.auth/admin.json', baseURL } );
+	const page = await admin.newPage();
+	await page.goto( '/?tt_view=players' );
+	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	await coreRest( page, 'DELETE', `users/${ id }?force=true&reassign=1`, null );
+	await admin.close();
+}
+
+module.exports = { WALKED_PERSONAS, createPersona, deletePersona, coreRest };
