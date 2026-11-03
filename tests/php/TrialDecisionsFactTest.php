@@ -37,11 +37,14 @@ final class TrialDecisionsFactTest extends WP_UnitTestCase {
         $this->trialCase( $player, null, null, null );
     }
 
-    public function test_the_fact_reads_decision_made_at_and_decision_made_by(): void {
+    public function test_the_fact_reads_decision_made_at_and_decision_made_by_under_its_keys(): void {
         $fact = FactRegistry::find( 'trial_decisions' );
         $this->assertNotNull( $fact );
         $this->assertSame( 'f.decision_made_at', $fact->timeColumn->expression );
-        $this->assertNotNull( $fact->dimension( 'decision_made_by' ), 'the decided-by dimension is the column' );
+        // The key stays `decided_by`, so saved filters and groupings keep resolving.
+        $dim = $fact->dimension( 'decided_by' );
+        $this->assertNotNull( $dim, 'the decided-by dimension keeps its key' );
+        $this->assertSame( 'f.decision_made_by', $dim->sqlExpression, 'and reads the column' );
     }
 
     public function test_the_period_filter_counts_the_decisions_in_the_window(): void {
@@ -61,14 +64,14 @@ final class TrialDecisionsFactTest extends WP_UnitTestCase {
         global $wpdb;
         $window = [ 'date_after' => '2019-03-01', 'date_before' => '2019-04-30' ];
 
-        $rows   = FactQuery::run( 'trial_decisions', [ 'decision_made_by' ], [ 'count' ], $window, FactScope::unrestricted() );
+        $rows   = FactQuery::run( 'trial_decisions', [ 'decided_by' ], [ 'count' ], $window, FactScope::unrestricted() );
         $this->assertSame( '', $wpdb->last_error );
         $counts = [];
-        foreach ( $rows as $r ) $counts[ (int) $r->decision_made_by ] = (int) $r->count;
+        foreach ( $rows as $r ) $counts[ (int) $r->decided_by ] = (int) $r->count;
         ksort( $counts );
         $this->assertSame( [ self::DECIDER_A => 2, self::DECIDER_B => 1 ], $counts );
 
-        $only = FactQuery::run( 'trial_decisions', [], [ 'count' ], $window + [ 'decision_made_by_eq' => self::DECIDER_B ], FactScope::unrestricted() );
+        $only = FactQuery::run( 'trial_decisions', [], [ 'count' ], $window + [ 'decided_by_eq' => self::DECIDER_B ], FactScope::unrestricted() );
         $this->assertSame( 1, (int) ( $only[0]->count ?? 0 ), 'filtering by who decided' );
     }
 
@@ -79,7 +82,7 @@ final class TrialDecisionsFactTest extends WP_UnitTestCase {
         $rows = FactQuery::rows( 'trial_decisions', $window, FactScope::unrestricted() );
         $this->assertSame( '', $wpdb->last_error );
         $this->assertCount( 3, $rows );
-        $this->assertSame( self::DECIDER_A, (int) $rows[0]->decision_made_by, 'newest decision first' );
+        $this->assertSame( self::DECIDER_A, (int) $rows[0]->decided_by, 'newest decision first' );
         $this->assertSame( 3, FactQuery::countRows( 'trial_decisions', $window, FactScope::unrestricted() ) );
     }
 
