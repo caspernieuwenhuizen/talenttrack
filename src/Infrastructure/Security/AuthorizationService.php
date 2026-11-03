@@ -816,7 +816,8 @@ class AuthorizationService {
     /**
      * #0077 M10 — true if the user is the head coach of the team the
      * given player belongs to. Joins tt_players → tt_people → tt_team_people
-     * with is_head_coach = 1. Used as the approval gate for player-created
+     * with is_head_coach = 1, on an assignment live today (start and end
+     * date inclusive). Used as the approval gate for player-created
      * goals (matches the PDP signoff trust pattern).
      */
     public static function isHeadCoachOfPlayer( int $user_id, int $player_id ): bool {
@@ -828,6 +829,7 @@ class AuthorizationService {
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         if ( $team_id <= 0 ) return false;
+        $today = current_time( 'Y-m-d' );
         $hit = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_team_people tp
@@ -835,9 +837,13 @@ class AuthorizationService {
               WHERE tp.team_id = %d
                 AND tp.club_id = %d
                 AND tp.is_head_coach = 1
+                AND ( tp.start_date IS NULL OR tp.start_date <= %s )
+                AND ( tp.end_date   IS NULL OR tp.end_date   >= %s )
                 AND pe.wp_user_id = %d",
             $team_id,
             \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            $today,
+            $today,
             $user_id
         ) );
         return $hit > 0;

@@ -29,7 +29,9 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
  *      (persona, entity, activity, scope_kind).
  *   3. If `scope_kind` is not `global`, verify the user actually holds
  *      that scope (e.g. for `team`, that they're assigned to
- *      `$scope_target_id` via tt_user_role_scopes).
+ *      `$scope_target_id` via tt_user_role_scopes). For the coach
+ *      personas the person's live assignment on that team must also be
+ *      of the persona's kind (PersonaResolver::coachPersonaHoldsTeam).
  *   4. Sprint 5 hook: short-circuit `false` if the entity's owning
  *      module is disabled. Wired here as a TODO comment until Sprint 5
  *      lands `ModuleRegistry::isEnabled()`.
@@ -611,6 +613,12 @@ class MatrixGate {
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
+            // A coach persona holds on a team only through the person's
+            // live assignment of that kind on it: head-coach rows on the
+            // team they head-coach, assistant rows on the team they
+            // assist. Read from the per-request cache, no query.
+            if ( ! PersonaResolver::coachPersonaHoldsTeam( $user_id, $persona, $target_id ) ) return false;
+
             // tt_user_role_scopes is keyed on person_id, not user_id.
             // Resolve via tt_people.wp_user_id (the canonical TT-person link).
             $person_id = (int) $wpdb->get_var( $wpdb->prepare(

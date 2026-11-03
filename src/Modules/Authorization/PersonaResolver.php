@@ -73,6 +73,15 @@ class PersonaResolver {
      */
     private static array $personas = [];
 
+    /**
+     * The coach's team assignments, read once per request with the
+     * personas and kept for `coachPersonaHoldsTeam()`, which asks per
+     * team-scoped check.
+     *
+     * @var array<int, list<array{team_id:int, head:bool, live:bool}>>
+     */
+    private static array $coach_rows = [];
+
     /** Whether `tt_team_people.is_head_coach` exists; asked once per request. */
     private static ?bool $head_coach_flag = null;
 
@@ -82,7 +91,8 @@ class PersonaResolver {
      * login.
      */
     public static function clearCache(): void {
-        self::$personas = [];
+        self::$personas   = [];
+        self::$coach_rows = [];
     }
 
     /**
@@ -126,10 +136,10 @@ class PersonaResolver {
      * Personas the user holds. Multi-persona users get multiple entries.
      *
      * #0033 Sprint 7: a `tt_coach` user is split into `head_coach` (when
-     * any `tt_team_people` row for the linked person has
+     * a `tt_team_people` row for the linked person that is live today has
      * `is_head_coach = 1`) or `assistant_coach` (otherwise). A user can
      * end up with both personas if they head-coach one team and assist
-     * another.
+     * another; `coachPersonaHoldsTeam()` then keeps each to its own team.
      *
      * @return string[]
      */
@@ -170,6 +180,13 @@ class PersonaResolver {
      * A user with multiple team assignments may be head of one team
      * and assistant on another; both personas get added.
      *
+     * Only assignments live today count (start and end date inclusive), so
+     * a head-coach assignment that ended, or one that has not started,
+     * does not make somebody a head coach now. A coach whose assignments
+     * have all ended or not yet started is read from all of them, so a
+     * former assistant stays an assistant rather than falling to the
+     * no-assignments default below.
+     *
      * A coach with no assignments still gets `head_coach` (defensive
      * default — better to over-grant than to lock them out during
      * the matrix bridge's dormant phase).
@@ -183,30 +200,17 @@ class PersonaResolver {
      * @return string[]
      */
     private static function resolveCoachPersona( int $user_id ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
+        $rows = self::coachRows( $user_id );
+        $live = array_values( array_filter( $rows, static fn( array $r ): bool => $r['live'] ) );
+        $read = $live !== [] ? $live : $rows;
 
         $has_head      = false;
         $has_assistant = false;
-
-        $person_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
-            $user_id
-        ) );
-        if ( ! empty( $person_ids ) && self::hasHeadCoachFlag() ) {
-            $tp_table     = "{$p}tt_team_people";
-            $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $rows = $wpdb->get_results( $wpdb->prepare(
-                "SELECT is_head_coach, COUNT(*) AS n
-                   FROM {$tp_table}
-                  WHERE person_id IN ({$placeholders})
-                  GROUP BY is_head_coach",
-                $person_ids
-            ) );
-            foreach ( (array) $rows as $r ) {
-                if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
-                if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
+        foreach ( $read as $r ) {
+            if ( $r['head'] ) {
+                $has_head = true;
+            } else {
+                $has_assistant = true;
             }
         }
 
@@ -214,6 +218,85 @@ class PersonaResolver {
         if ( $has_head )      $out[] = 'head_coach';
         if ( $has_assistant ) $out[] = 'assistant_coach';
         if ( empty( $out ) )  $out[] = 'head_coach'; // no team assignments — defensive default
+        return $out;
+    }
+
+    /**
+     * Does the coach persona hold on this team? `MatrixGate` asks it on
+     * every team-scoped check.
+     *
+     * The coach persona follows the person's current assignment on that
+     * team: `head_coach` needs a head-coach assignment on the team that is
+     * live today, `assistant_coach` an assistant assignment. A coach who
+     * heads one team and assists another holds both personas, and without
+     * this the head-coach rows would reach the team they assist.
+     *
+     * Applies only to somebody who holds team assignments at all. A user
+     * with none, whose team scope an operator granted directly, is
+     * answered by that scope alone, as before. Any other persona passes.
+     */
+    public static function coachPersonaHoldsTeam( int $user_id, string $persona, int $team_id ): bool {
+        if ( $persona !== 'head_coach' && $persona !== 'assistant_coach' ) return true;
+
+        $rows = self::coachRows( $user_id );
+        if ( $rows === [] ) return true;
+
+        $want_head = $persona === 'head_coach';
+        foreach ( $rows as $r ) {
+            if ( $r['live'] && $r['team_id'] === $team_id && $r['head'] === $want_head ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Every team assignment of the people linked to the user, with whether
+     * it is a head-coach assignment and whether it is live today. Read once
+     * per request.
+     *
+     * @return list<array{team_id:int, head:bool, live:bool}>
+     */
+    private static function coachRows( int $user_id ): array {
+        if ( $user_id <= 0 ) return [];
+        if ( ! isset( self::$coach_rows[ $user_id ] ) ) {
+            self::$coach_rows[ $user_id ] = self::loadCoachRows( $user_id );
+        }
+        return self::$coach_rows[ $user_id ];
+    }
+
+    /** @return list<array{team_id:int, head:bool, live:bool}> */
+    private static function loadCoachRows( int $user_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $person_ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
+            $user_id
+        ) );
+        if ( ! is_array( $person_ids ) || $person_ids === [] || ! self::hasHeadCoachFlag() ) return [];
+
+        $person_ids   = array_map( 'intval', $person_ids );
+        $tp_table     = "{$p}tt_team_people";
+        $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+        $today        = current_time( 'Y-m-d' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT team_id, is_head_coach,
+                    ( ( start_date IS NULL OR start_date <= %s )
+                  AND ( end_date   IS NULL OR end_date   >= %s ) ) AS is_live
+               FROM {$tp_table}
+              WHERE person_id IN ({$placeholders})",
+            array_merge( [ $today, $today ], $person_ids )
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $out[] = [
+                'team_id' => (int) $r->team_id,
+                'head'    => (int) $r->is_head_coach === 1,
+                'live'    => (int) $r->is_live === 1,
+            ];
+        }
         return $out;
     }
 
