@@ -123,15 +123,22 @@ final class MatchPrepPrintableRenderer {
         $reason_for    = $viewer_id === null
             ? null
             : \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $player_ids, (int) ( $activity->team_id ?? 0 ) );
+        // #4692 — the reason also follows the sensitive-field registry for a
+        // named viewer, resolved for the squad at once.
+        if ( $viewer_id !== null ) {
+            \TT\Infrastructure\Security\RecordRedactor::prime( $viewer_id, array_fill_keys( array_map( 'intval', $player_ids ), (int) ( $activity->team_id ?? 0 ) ) );
+        }
         foreach ( $availability as $a ) {
             $pid = (int) $a->player_id;
             if ( strcasecmp( (string) $a->status, 'Present' ) === 0 ) {
                 $available_ids[] = $pid;
             } else {
+                $shows = $reason_for === null
+                    || ( isset( $reason_for[ $pid ] ) && ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'attendance', 'reason', (int) $viewer_id, $pid ) );
                 $absent[] = [
                     'pid'    => $pid,
                     'status' => (string) $a->status,
-                    'reason' => ( $reason_for === null || isset( $reason_for[ $pid ] ) ) ? (string) ( $a->reason ?? '' ) : '',
+                    'reason' => $shows ? (string) ( $a->reason ?? '' ) : '',
                 ];
             }
         }

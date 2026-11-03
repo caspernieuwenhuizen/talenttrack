@@ -101,6 +101,22 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
         // future variant needs them.
         $roster = $repo->listRosterAttendance( $activity_id, false );
 
+        // #4692 — the register's note follows the sensitive-field registry:
+        // "Hidden" in its place for a reader it hides the note from.
+        $viewer = (int) $request->requesterUserId;
+        \TT\Infrastructure\Security\RecordRedactor::prime(
+            $viewer,
+            array_fill_keys( array_map( static fn( $r ): int => (int) ( ( (array) $r )['player_id'] ?? 0 ), $roster ), null )
+        );
+        foreach ( $roster as $i => $r ) {
+            $row = (array) $r;
+            if ( trim( (string) ( $row['att_notes'] ?? '' ) ) === '' ) continue;
+            if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'attendance', 'notes', $viewer, (int) ( $row['player_id'] ?? 0 ) ) ) {
+                $row['att_notes'] = \TT\Shared\Frontend\Components\MaskedValue::label();
+                $roster[ $i ]     = (object) $row;
+            }
+        }
+
         $html = self::renderHtml( $activity, $roster );
 
         return [

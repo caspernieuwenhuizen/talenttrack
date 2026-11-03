@@ -3239,7 +3239,9 @@ class ActivitiesRestController {
         return RestResponse::success( [
             'activity_id' => $id,
             'count'       => count( $out ),
-            'roster'      => $out,
+            // #4692 — the free-text note beside a planned status (why a
+            // player is not coming) follows the sensitive-field registry.
+            'roster'      => \TT\Infrastructure\Security\RecordRedactor::redactRows( 'attendance', array_values( $out ), get_current_user_id() ),
         ] );
     }
 
