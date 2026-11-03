@@ -62,7 +62,7 @@ final class PersonaResolverMemoTest extends WP_UnitTestCase {
         $assignments = 0;
         $schema      = 0;
         $count = static function ( string $sql ) use ( &$assignments, &$schema ): string {
-            if ( strpos( $sql, 'GROUP BY is_head_coach' ) !== false ) $assignments++;
+            if ( strpos( $sql, 'AS is_live' ) !== false ) $assignments++;
             if ( strpos( $sql, 'INFORMATION_SCHEMA.COLUMNS' ) !== false && strpos( $sql, 'is_head_coach' ) !== false ) $schema++;
             return $sql;
         };
