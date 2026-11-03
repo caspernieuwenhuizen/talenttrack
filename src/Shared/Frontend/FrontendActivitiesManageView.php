@@ -4583,7 +4583,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php if ( empty( $guests ) ) : ?>
                     <tr class="tt-attendance-row tt-attendance-row--empty" data-tt-guest-empty<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                        <td colspan="3" style="text-align:center; color:#5b6470; font-style:italic; padding:18px;">
+                        <td colspan="3"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php esc_html_e( 'No guests added yet.', 'talenttrack' ); ?>
                         </td>
                     </tr>

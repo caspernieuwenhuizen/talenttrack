@@ -519,6 +519,16 @@
     flex: 0 0 80px;
 }
 
+/* The guests table's "No guests added yet." row: one centred, muted line
+   at every width (it was an inline style on the cell). The table chain
+   outranks the cell padding rules above and in the breakpoints below. */
+.tt-dashboard .tt-attendance-table .tt-attendance-row--empty > td {
+    text-align: center;
+    color: var(--tt-muted);
+    font-style: italic;
+    padding: var(--tt-sp-4);
+}
+
 .tt-dashboard .tt-attendance-toolbar {
     padding: 12px 0;
     display: flex;
