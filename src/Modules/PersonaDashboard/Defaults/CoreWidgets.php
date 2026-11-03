@@ -98,7 +98,8 @@ final class CoreWidgets {
         // thread messages. Surfaces on the HoD dashboard as a
         // "what's been talked about" pulse alongside the KPI strip.
         // Five most recent non-deleted, non-system rows from
-        // `tt_thread_messages`. Cap-gated on `tt_view_threads`.
+        // `tt_thread_messages` the reader may see: each comment follows
+        // the threads rule, `ThreadAccess` (#4842).
         WidgetRegistry::register( new RecentCommentsWidget() );
 
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
