@@ -128,6 +128,8 @@ final class PlayerEvaluationsRestController extends BaseController {
         }
         // #4693 — the category notes follow the sensitive-field registry: a
         // reader it hides them from gets the ratings without any `note`.
+        // This is the route's only mask: its groups carry no `player_id`, so
+        // it has no registry route behind it.
         if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), (int) $r['id'] ) ) {
             $groups = self::withoutNotes( $groups );
         }

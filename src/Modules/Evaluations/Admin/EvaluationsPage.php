@@ -98,16 +98,18 @@ class EvaluationsPage {
             $like = '%' . $wpdb->esc_like( $f_search ) . '%';
             // #4693 — the search follows the same notes rule as the rows. A
             // club-wide list matches on the notes only for a reader who reads
-            // them on every player; the scoped list shows the reader's own
-            // teams and their own evaluations.
-            $notes_ok = $scoped_team_ids !== null
-                || \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $user_id );
+            // them on every player, a scoped list only when the reader reads
+            // them on every one of its teams. The reader's own evaluations
+            // match on their notes in any case: they wrote that text.
+            $notes_ok = $scoped_team_ids === null
+                ? \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $user_id )
+                : \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $user_id, array_values( array_map( 'intval', $scoped_team_ids ) ) );
             if ( $notes_ok ) {
                 $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
                 $params[] = $like; $params[] = $like; $params[] = $like;
             } else {
-                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s)';
-                $params[] = $like; $params[] = $like;
+                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( e.coach_id = %d AND e.notes LIKE %s ))';
+                $params[] = $like; $params[] = $like; $params[] = $user_id; $params[] = $like;
             }
         }
         if ( $f_date_from !== '' ) { $where[] = 'e.eval_date >= %s'; $params[] = $f_date_from; }

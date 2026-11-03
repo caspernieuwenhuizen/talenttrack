@@ -181,6 +181,22 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Bos', $this->adminSearch( $this->hod, 'worried' ), 'wp-admin: HoD still finds it' );
     }
 
+    /**
+     * A team-scoped coach on the player's team reads the notes and searches
+     * them: the record keeps `notes`, and the coach-scoped list's search on
+     * the notes word still finds the evaluation.
+     */
+    public function test_a_team_coach_keeps_the_notes_and_their_search(): void {
+        $coach = $this->makeHeadCoach();
+        $this->assertFalse( AuthorizationService::isStaffAcademyWide( $coach ), 'the fixture is team-scoped' );
+
+        $record = $this->record( $coach );
+        $this->assertSame( self::NOTES, $record['notes'] ?? null, 'the team coach keeps the notes' );
+        $this->assertSame( 1, $this->searchCount( $coach, 'worried', [] ), 'and the coach-scoped search on them' );
+        $this->assertTrue( RecordRedactor::readsOnTeams( 'evaluations', 'notes', $coach, [ $this->team ] ) );
+        $this->assertFalse( RecordRedactor::readsOnTeams( 'evaluations', 'notes', $this->observer, [ $this->team ] ), 'not the observer' );
+    }
+
     public function test_the_detail_view_shows_hidden_where_the_notes_would_be(): void {
         $hod = $this->renderDetail( $this->hod );
         $this->assertStringContainsString( 'worried about focus', $hod, 'HoD reads the notes' );
@@ -262,6 +278,33 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $html = (string) ob_get_clean();
         unset( $_GET['s'] );
         return $html;
+    }
+
+    /** A head coach of the player's team, built the way production builds one. */
+    private function makeHeadCoach(): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $role_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            'head_coach',
+            $this->club
+        ) );
+        $this->assertGreaterThan( 0, $role_id );
+
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Hoofd', 'last_name' => 'Trainer', 'role_type' => 'head_coach', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_team_people", [
+            'club_id' => $this->club, 'team_id' => $this->team, 'person_id' => $person_id, 'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id' => $this->club, 'person_id' => $person_id, 'role_id' => $role_id, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        AuthorizationService::flushCache();
+        return $uid;
     }
 
     private function renderDetail( int $user_id ): string {

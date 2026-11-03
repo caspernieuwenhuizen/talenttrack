@@ -127,6 +127,30 @@ final class RecordRedactor {
         return false;
     }
 
+    /**
+     * May this reader read this registered field on every player of these
+     * teams? True when {@see self::readsEverywhere()} is, or when every team
+     * passes the team half of the staff rule or, for the evaluation rules,
+     * the evaluations change right on that team. An empty list is false.
+     *
+     * @param list<int> $team_ids
+     */
+    public static function readsOnTeams( string $entity, string $field, int $user_id, array $team_ids ): bool {
+        if ( self::readsEverywhere( $entity, $field, $user_id ) ) return true;
+
+        $rule = self::fields( $entity )[ $field ] ?? null;
+        if ( $rule === null || $user_id <= 0 || $team_ids === [] ) return false;
+        if ( ! in_array( $rule, [ 'staff_for_player', 'staff_or_family', 'evaluation_notes', 'evaluation_comment' ], true ) ) return false;
+
+        foreach ( $team_ids as $team_id ) {
+            $team_id = (int) $team_id;
+            if ( AuthorizationService::isStaffOnTeam( $user_id, $team_id ) ) continue;
+            if ( ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) && self::writesEvaluationsOn( $user_id, $team_id ) ) continue;
+            return false;
+        }
+        return true;
+    }
+
     /** Is this registered field hidden from this reader, for this player? */
     public static function isMasked( string $entity, string $field, int $user_id, ?int $player_id ): bool {
         $rule = self::fields( $entity )[ $field ] ?? null;

@@ -277,10 +277,12 @@ class EvaluationsRestController {
         //   3. No-teams short-circuit only fires when the coach has
         //      ALSO authored zero evaluations (caught by counting
         //      `e.coach_id = current_user` rows separately).
+        $scope_team_ids = [];
         if ( ! self::hasGlobalEvaluationsAccess() && ! $player_file_access ) {
             $uid         = get_current_user_id();
             $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
             $team_ids    = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
+            $scope_team_ids = $team_ids;
             if ( empty( $team_ids ) ) {
                 // Still surface the coach's own authored evals even
                 // when they own zero teams (newly assigned coach, or
@@ -339,12 +341,14 @@ class EvaluationsRestController {
             // matches on the notes only when the reader may read them on
             // every row this list can show, so a match cannot say what a
             // hidden note contains.
-            if ( self::searchesNotes( $player_file_access, $player_filter_id ) ) {
+            if ( self::searchesNotes( $player_file_access, $player_filter_id, $scope_team_ids ) ) {
                 $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
                 $params[] = $like; $params[] = $like; $params[] = $like;
             } else {
-                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s)";
-                $params[] = $like; $params[] = $like;
+                // The reader's own evaluations still match on their notes:
+                // they wrote that text.
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( e.coach_id = %d AND e.notes LIKE %s ))";
+                $params[] = $like; $params[] = $like; $params[] = get_current_user_id(); $params[] = $like;
             }
         }
 
@@ -505,10 +509,12 @@ class EvaluationsRestController {
      * #4693 — may the list's search match on the notes? The rows the list can
      * show decide it: an academy-wide list needs a reader who reads notes on
      * every player; a single player's file needs that player's notes; the
-     * coach-scoped list shows the reader's own teams and their own
-     * evaluations, whose notes they read or wrote.
+     * coach-scoped list needs the notes on every one of the reader's teams.
+     * The reader's own evaluations match on their notes in any case.
+     *
+     * @param list<int> $scope_team_ids the coach-scoped list's teams
      */
-    private static function searchesNotes( bool $player_file_access, int $player_filter_id ): bool {
+    private static function searchesNotes( bool $player_file_access, int $player_filter_id, array $scope_team_ids ): bool {
         $uid = get_current_user_id();
         if ( self::hasGlobalEvaluationsAccess() ) {
             return \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $uid );
@@ -516,7 +522,7 @@ class EvaluationsRestController {
         if ( $player_file_access ) {
             return ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $uid, $player_filter_id );
         }
-        return true;
+        return \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $uid, $scope_team_ids );
     }
 
     /**
