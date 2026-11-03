@@ -34,8 +34,10 @@ return new class extends Migration {
             if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) ) !== $full ) continue;
             if ( $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM {$full} LIKE %s", 'name' ) ) === 'name' ) continue;
 
-            $wpdb->query( "ALTER TABLE {$full} ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT '' AFTER report_id" );
-            $wpdb->query(
+            // Through exec(), so a failed statement fails the migration at
+            // that statement instead of being recorded as applied.
+            $this->exec( "ALTER TABLE {$full} ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT '' AFTER report_id" );
+            $this->exec(
                 "UPDATE {$full} t
                    JOIN {$p}tt_reports r ON r.id = t.report_id AND r.club_id = t.club_id
                     SET t.name = r.name"

@@ -120,8 +120,21 @@ final class ReportDraftNameTest extends WP_UnitTestCase {
         $this->assertSame( 2, $both->get_data()['data']['draft']['revision'], 'one write for both fields' );
         $this->assertSame( 'attendance_per_week', $both->get_data()['data']['draft']['definition']['blocks'][0]['key'] );
 
+        $only_name = $this->send( 'PATCH', "reports/{$id}", [ 'name' => 'Rev 3' ] );
+        $this->assertSame( 'Rev 3', $only_name->get_data()['data']['draft']['name'] );
+        $this->assertSame( 'attendance_per_week', $only_name->get_data()['data']['draft']['definition']['blocks'][0]['key'] ?? null, 'a name-only write keeps the definition' );
+
         $only_def = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [] ] ] );
-        $this->assertSame( 'Rev 2', $only_def->get_data()['data']['draft']['name'], 'a definition write keeps the draft name' );
+        $this->assertSame( 'Rev 3', $only_def->get_data()['data']['draft']['name'], 'a definition write keeps the draft name' );
+    }
+
+    public function test_the_report_name_is_never_overwritten_once_published(): void {
+        $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role', 'name' => 'Live' ] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'One' ] )->get_status() );
+
+        // As if a co-builder published between a rename's read and its write.
+        ( new \TT\Modules\ReportStudio\Repositories\ReportsRepository() )->rename( $id, 'Leaked draft name' );
+        $this->assertSame( 'Live', ( new \TT\Modules\ReportStudio\Repositories\ReportsRepository() )->find( $id )['name'] ?? null );
     }
 
     public function test_restoring_a_version_brings_its_name_into_the_draft(): void {

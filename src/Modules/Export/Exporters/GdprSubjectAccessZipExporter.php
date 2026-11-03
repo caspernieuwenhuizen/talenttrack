@@ -206,7 +206,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             : [];
         $studio_drafts = TableExists::has( 'tt_report_drafts' ) && TableExists::has( 'tt_reports' )
             ? $wpdb->get_results( $wpdb->prepare(
-                "SELECT r.uuid AS report_uuid, d.user_id, d.definition_json, d.revision, d.updated_at
+                "SELECT r.uuid AS report_uuid, d.user_id, d.name, d.definition_json, d.revision, d.updated_at
                     FROM {$p}tt_report_drafts d
                     INNER JOIN {$p}tt_reports r ON r.id = d.report_id AND r.club_id = d.club_id
                     WHERE r.player_id = %d AND r.club_id = %d AND r.trashed_at IS NULL

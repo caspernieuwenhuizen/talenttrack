@@ -302,14 +302,19 @@ final class ReportsRepository {
         return $out;
     }
 
-    /** The report's own name: its published name, or its only name while it was never published. */
+    /**
+     * The name of a report that was never published, its only name (#4737).
+     * The condition is in the statement, so a co-builder publishing between
+     * the caller's read and this write cannot have a draft name reach the
+     * readers; a published report's name changes only through `publish()`.
+     */
     public function rename( int $report_id, string $name ): void {
         global $wpdb;
-        $wpdb->update(
-            $wpdb->prefix . 'tt_reports',
-            [ 'name' => $name, 'updated_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $report_id, 'club_id' => CurrentClub::id() ]
-        );
+        $wpdb->query( $wpdb->prepare(
+            "UPDATE {$wpdb->prefix}tt_reports SET name = %s, updated_at = %s
+              WHERE id = %d AND club_id = %d AND published_version_id IS NULL",
+            $name, current_time( 'mysql', true ), $report_id, CurrentClub::id()
+        ) );
     }
 
     /**
