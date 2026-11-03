@@ -11,9 +11,13 @@
  *
  * Without a modifier the table stays stacked at every width.
  *
+ *   .tt-stack-table--cards    each stacked row is a card (paper, border,
+ *                             radius); the card goes when the table returns
+ *
  * This sheet owns layout only: display, the label line, the empty-cell rule
- * and the visually hidden header row. Padding, borders, row chrome and the
- * label's typography belong to the surface's own sheet. It is the only
+ * and the visually hidden header row, plus the optional card modifier.
+ * Cell padding, borders and the label's typography belong to the surface's
+ * own sheet. It is the only
  * stylesheet that may write `content: attr(data-label)`; the stack-table
  * lint fails any other.
  *
@@ -46,6 +50,19 @@
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+}
+
+/* A header row with controls in it (a sort link) shows itself while one of
+   them has the keyboard focus, so focus never lands on something unseen. */
+.tt-stack-table > thead:focus-within {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 var(--tt-sp-2);
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
 }
 
 .tt-stack-table > tbody > tr > td {
@@ -84,6 +101,16 @@
     text-align: center;
 }
 .tt-stack-table > tbody > tr > td[colspan]::before { content: none; }
+
+/* Card chrome (--cards): each stacked row is a card. */
+.tt-stack-table--cards > tbody > tr {
+    box-sizing: border-box;
+    margin-bottom: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+}
 
 /* A cell with several parts (a name with its badge and subline, a status
    with its hint, an input with its actions) wraps them in one value block
@@ -125,6 +152,13 @@
     }
     .tt-stack-table--to-480 > tbody > tr > td[colspan] { text-align: center; }
     .tt-stack-table--to-480 > tbody > tr > td::before { content: none; }
+    .tt-stack-table--to-480.tt-stack-table--cards > tbody > tr {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: 0;
+        border-radius: 0;
+    }
 }
 
 /* ---- From 768px: the table, for --to-768 ---------------------------- */
@@ -157,4 +191,11 @@
     }
     .tt-stack-table--to-768 > tbody > tr > td[colspan] { text-align: center; }
     .tt-stack-table--to-768 > tbody > tr > td::before { content: none; }
+    .tt-stack-table--to-768.tt-stack-table--cards > tbody > tr {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: 0;
+        border-radius: 0;
+    }
 }

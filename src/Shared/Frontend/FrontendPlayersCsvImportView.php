@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Frontend\Components\StackTable;
+
 /**
  * FrontendPlayersCsvImportView — frontend players CSV bulk import.
  *
@@ -110,16 +112,16 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
                 <div data-tt-csv-header-warnings="1"></div>
                 <p data-tt-csv-preview-summary="1" class="tt-field-hint"></p>
                 <div class="tt-list-table-wrap">
-                    <table class="tt-list-table-table">
-                        <thead><tr>
-                            <th><?php esc_html_e( 'Row', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
+                    <table class="tt-list-table-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Row', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
                         </tr></thead>
-                        <tbody data-tt-csv-preview-body="1"></tbody>
+                        <tbody data-tt-csv-preview-body="1"<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>></tbody>
                     </table>
                 </div>
                 <div class="tt-form-actions" style="margin-top:12px;">

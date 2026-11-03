@@ -246,12 +246,13 @@
             var mobile = ' data-mobile="' + escapeHtml(col.mobile || 'detail') + '"';
             // #4235 — a link in this cell is plain text on a phone.
             if (col.mobile_plain) mobile += ' data-mobile-plain="1"';
-            tds += '<td data-label="' + escapeHtml(col.label) + '"' + mobile + empty + '>' + cell + '</td>';
+            // #4810 — the roles StackTable::attrs() writes on the server.
+            tds += '<td role="cell" data-label="' + escapeHtml(col.label) + '"' + mobile + empty + '>' + cell + '</td>';
         });
         if (Object.keys(config.row_actions).length) {
             var actionsHtml = renderRowActions(config.row_actions, row);
             var actionsEmpty = actionsHtml === '' ? ' data-empty="1"' : '';
-            tds += '<td class="tt-list-table-actions" data-label=""' + actionsEmpty + '>' + actionsHtml + '</td>';
+            tds += '<td class="tt-list-table-actions" role="cell" data-label=""' + actionsEmpty + '>' + actionsHtml + '</td>';
         }
         // v3.110.169 (#758) — row-link standard. When the preset
         // declares `row_url_key` and the row carries that key, stamp
@@ -267,6 +268,8 @@
             rowAttrs += ' data-row-href="' + escapeHtml(withBack(String(row[rowUrlKey]))) + '"';
             rowAttrs += ' role="link" tabindex="0"';
             rowClass = ' class="is-row-link"';
+        } else {
+            rowAttrs += ' role="row"';
         }
         return '<tr' + rowClass + rowAttrs + '>' + tds + '</tr>';
     }
@@ -360,7 +363,7 @@
                 // empty state lives in a plain wrapper, no <td colspan>.
                 tbody.innerHTML = '<div class="tt-list-table-empty">' + emptyContent + '</div>';
             } else {
-                tbody.innerHTML = '<tr class="tt-list-table-empty"><td colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + emptyContent + '</td></tr>';
+                tbody.innerHTML = '<tr class="tt-list-table-empty" role="row"><td role="cell" colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + emptyContent + '</td></tr>';
             }
             return;
         }
@@ -394,7 +397,7 @@
             tbody.innerHTML = '<div class="tt-list-table-error" data-tt-list-error="1">' + inner + '</div>';
         } else {
             var span = Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0);
-            tbody.innerHTML = '<tr class="tt-list-table-error" data-tt-list-error="1"><td colspan="' + span + '">' + inner + '</td></tr>';
+            tbody.innerHTML = '<tr class="tt-list-table-error" data-tt-list-error="1" role="row"><td role="cell" colspan="' + span + '">' + inner + '</td></tr>';
         }
         var summary = root.querySelector('[data-tt-list-summary="1"]');
         if (summary) summary.textContent = '';

@@ -17,6 +17,12 @@ final class StackTableTest extends WP_UnitTestCase {
         $this->assertSame( 'tt-stack-table', StackTable::classes( 600 ), 'only the standard breakpoints' );
     }
 
+    public function test_the_card_chrome_is_a_modifier(): void {
+        $this->assertSame( 'tt-stack-table tt-stack-table--to-768 tt-stack-table--cards', StackTable::classes( StackTable::TO_768, true ) );
+        $this->assertSame( 'tt-stack-table tt-stack-table--cards', StackTable::classes( StackTable::ALWAYS, true ) );
+        $this->assertStringNotContainsString( '--cards', StackTable::classes( StackTable::TO_480 ), 'no cards unless asked for' );
+    }
+
     public function test_each_part_gets_its_role(): void {
         $this->assertSame( ' role="table"', StackTable::attrs( 'table' ) );
         $this->assertSame( ' role="rowgroup"', StackTable::attrs( 'rowgroup' ) );

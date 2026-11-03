@@ -26,6 +26,16 @@
  *    badges (2), a line break (tr::after, 3), secondaries (4), details (5),
  *    row actions (6).
  *
+ * The stacking itself, the visually hidden header row, the label line and
+ * the row cards come from the stack-table primitive
+ * (components/stack-table.css; a list table carries
+ * `tt-stack-table tt-stack-table--to-768 tt-stack-table--cards`, #4810).
+ * This sheet keeps the list table's own look and the role layout above.
+ * The evidence tables (EvidencePanel, the player report) borrow the class
+ * without the primitive until they move onto it; the block marked
+ * "not yet on the primitive" keeps their stack, and its label line is
+ * written by frontend-pdp-evidence.css.
+ *
  * The parts of the list table that do not change with the viewport (row
  * actions, pager, footer, row-link cursor and focus ring, loading and
  * error rows) stay in frontend-admin.css.
@@ -40,18 +50,20 @@
 
 /* #4190 — the row cards are the boxes on a phone; the table draws none. */
 .tt-dashboard .tt-list-table-table {
-    display: block;
-    width: 100%;
     font-size: var(--tt-fs-sm);
     border: 0;
     background: none;
 }
 
-.tt-dashboard .tt-list-table-table thead { display: none; }
-
-.tt-dashboard .tt-list-table-table tbody { display: block; }
-
-.tt-dashboard .tt-list-table-table tr {
+/* Not yet on the primitive (the evidence tables). `:where()` keeps each
+   selector as specific as it was, so these tables stack as before. */
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) {
+    display: block;
+    width: 100%;
+}
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) thead { display: none; }
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) tbody { display: block; }
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) tr {
     display: block;
     box-sizing: border-box;
     margin-bottom: var(--tt-sp-2);
@@ -60,30 +72,34 @@
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-r-md);
 }
-
-.tt-dashboard .tt-list-table-table td {
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) td {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: var(--tt-sp-3);
     min-width: 0;
-    padding: 4px 0;
-    border: 0;
     text-align: right;
-    overflow-wrap: anywhere;
 }
-.tt-dashboard .tt-list-table-table td::before {
-    content: attr(data-label);
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) td::before {
     flex: 0 0 auto;
     max-width: 50%;
     text-align: left;
+}
+
+.tt-dashboard .tt-list-table-table td {
+    gap: var(--tt-sp-3);
+    padding: 4px 0;
+    border: 0;
+    /* As before the primitive: a long word breaks rather than widening the
+       table, on the phone and in the table from 768px. */
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-list-table-table td::before {
     font-weight: 600;
     font-size: var(--tt-fs-xs);
     color: var(--tt-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
-.tt-dashboard .tt-list-table-table td[data-label=""]::before { content: none; }
 
 /* #4190 — the actions line groups its buttons at the right. */
 .tt-dashboard .tt-list-table-table td.tt-list-table-actions {
@@ -148,7 +164,9 @@
     flex: 0 1 auto;
     padding: 0;
 }
-.tt-dashboard .tt-list-table-table td[data-mobile]::before { content: none; }
+/* Only a detail line and a second primary (the shirt number's "#") show
+   the primitive's label; every other role is its value alone. */
+.tt-dashboard .tt-list-table-table td[data-mobile]:not([data-mobile="detail"]):not([data-mobile="primary"] ~ [data-mobile="primary"])::before { content: none; }
 
 /* #4214 — the title takes the free width of its line and wraps inside it
    (basis 0, minmax(0,1fr) in grid terms), so a long title can no longer
@@ -175,9 +193,6 @@
 .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"] {
     font-weight: 400;
     color: var(--tt-muted);
-}
-.tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"]::before {
-    content: attr(data-label);
 }
 
 /* #4214 — top right: level with the title's first line when it wraps. */
@@ -206,8 +221,6 @@
     order: 5;
     flex-basis: 100%;
 }
-.tt-dashboard .tt-list-table-table td[data-mobile="detail"]::before { content: attr(data-label); }
-.tt-dashboard .tt-list-table-table td[data-mobile="detail"][data-label=""]::before { content: none; }
 
 .tt-dashboard .tt-list-table-table tr[data-row-id] > td.tt-list-table-actions {
     order: 6;
