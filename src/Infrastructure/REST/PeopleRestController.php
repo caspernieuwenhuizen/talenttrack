@@ -103,6 +103,11 @@ class PeopleRestController {
             );
         }
         $orderby = self::LIST_ORDERBY_WHITELIST[ $orderby_key ];
+        // #4715 — search and sort follow the same contact rule as the rows:
+        // they read the e-mail column only for a reader who may read every
+        // guardian's contact, so neither can say what a hidden address is.
+        $reads_email = \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() );
+        if ( $orderby_key === 'email' && ! $reads_email ) $orderby = 'p.last_name';
         $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
@@ -138,8 +143,13 @@ class PeopleRestController {
 
         if ( ! empty( $r['search'] ) ) {
             $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
-            $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            if ( $reads_email ) {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s OR p.email LIKE %s)';
+                $params[] = $like; $params[] = $like; $params[] = $like;
+            } else {
+                $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s)';
+                $params[] = $like; $params[] = $like;
+            }
         }
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;

@@ -108,7 +108,52 @@ final class PeopleContactMaskingTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( self::PHONE, $html );
     }
 
+    /**
+     * Search and sort follow the same rule as the rows: a search on the
+     * guardian's address does not find the guardian for the observer, and
+     * sorting on e-mail falls back to the last name; HoD's search does.
+     */
+    public function test_search_and_sort_follow_the_contact_rule(): void {
+        $this->assertNotContains( $this->guardian, $this->searchIds( $this->observer, 'ouder.4715' ), 'the observer finds nothing by the address' );
+        $this->assertContains( $this->guardian, $this->searchIds( $this->hod, 'ouder.4715' ), 'HoD still does' );
+        $this->assertContains( $this->guardian, $this->searchIds( $this->observer, 'Vos' ), 'a name search still works' );
+
+        wp_set_current_user( $this->observer );
+        AuthorizationService::flushCache();
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/people' );
+        $request->set_param( 'orderby', 'email' );
+        $this->assertSame( 200, $this->serve( $request )->get_status(), 'sorting on e-mail still answers' );
+
+        $this->assertStringNotContainsString( 'Ouder Vos', $this->renderAdminList( $this->observer, 'ouder.4715' ), 'wp-admin: no match for the observer' );
+        $this->assertStringContainsString( 'Ouder Vos', $this->renderAdminList( $this->hod, 'ouder.4715' ), 'wp-admin: HoD still finds them' );
+    }
+
+    /** D-48: a parent-type person with no linked child keeps their contact. */
+    public function test_an_unlinked_parent_keeps_their_contact(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Los', 'last_name' => 'Ouder', 'email' => 'los.4715@example.org',
+            'role_type' => 'parent', 'status' => 'active',
+        ] );
+        $unlinked = (int) $wpdb->insert_id;
+        AuthorizationService::flushCache();
+
+        $this->guardian = $unlinked;
+        $this->assertSame( 'los.4715@example.org', $this->listRow( $this->observer )['email'] ?? null, 'on the list' );
+        $this->assertStringContainsString( 'los.4715@example.org', $this->renderPerson( $this->observer ), 'on the person page' );
+    }
+
     // ---- fixtures ------------------------------------------------------
+
+    /** @return list<int> */
+    private function searchIds( int $user_id, string $search ): array {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/people' );
+        $request->set_param( 'search', $search );
+        $data = (array) json_decode( (string) wp_json_encode( $this->serve( $request )->get_data() ), true );
+        return array_map( static fn( $row ): int => (int) ( $row['id'] ?? 0 ), (array) ( $data['data']['rows'] ?? [] ) );
+    }
 
     private function serve( WP_REST_Request $request ): WP_REST_Response {
         $server   = rest_get_server();
@@ -141,11 +186,14 @@ final class PeopleContactMaskingTest extends WP_UnitTestCase {
         return (string) ob_get_clean();
     }
 
-    private function renderAdminList( int $user_id ): string {
+    private function renderAdminList( int $user_id, string $search = '' ): string {
         wp_set_current_user( $user_id );
         AuthorizationService::flushCache();
+        if ( $search !== '' ) $_GET['s'] = $search;
         ob_start();
         PeoplePage::render();
-        return (string) ob_get_clean();
+        $html = (string) ob_get_clean();
+        unset( $_GET['s'] );
+        return $html;
     }
 }

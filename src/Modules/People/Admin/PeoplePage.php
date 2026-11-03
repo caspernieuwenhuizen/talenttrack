@@ -140,9 +140,11 @@ class PeoplePage {
 
         if ( $view === 'active' ) {
             $people = $repo->list( [
-                'only_staff' => $only_staff,
-                'search'     => $search,
-                'status'     => $status !== '' ? $status : null,
+                'only_staff'   => $only_staff,
+                'search'       => $search,
+                // #4715 — the search follows the same contact rule as the rows.
+                'search_email' => \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() ),
+                'status'       => $status !== '' ? $status : null,
             ] );
         } else {
             global $wpdb; $p = $wpdb->prefix;

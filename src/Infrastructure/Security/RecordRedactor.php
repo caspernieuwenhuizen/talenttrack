@@ -117,8 +117,10 @@ final class RecordRedactor {
     public static function readsEverywhere( string $entity, string $field, int $user_id ): bool {
         $rule = self::fields( $entity )[ $field ] ?? null;
         if ( $rule === null ) return true;
-        if ( $user_id <= 0 || ! in_array( $rule, self::RULES, true ) || $rule === 'guardian_contact' ) return false;
+        if ( $user_id <= 0 || ! in_array( $rule, self::RULES, true ) ) return false;
 
+        // Academy-wide staff are staff for every child, so for every
+        // guardian's contact too.
         if ( AuthorizationService::isStaffAcademyWide( $user_id ) ) return true;
         if ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) {
             $gate = \TT\Modules\Authorization\MatrixGate::class;
