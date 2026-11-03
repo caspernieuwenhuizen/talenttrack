@@ -15,6 +15,7 @@ use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\EvidencePanel;
 use TT\Shared\Frontend\Components\JourneyActivityLink;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * PlayerReportPage (#3873, epic #3871) — the player report on screen, and the
@@ -705,28 +706,26 @@ final class PlayerReportPage {
             $c_cat    = __( 'Category', 'talenttrack' );
             $c_latest = _x( 'Latest', 'player report rating', 'talenttrack' );
             $c_avg    = _x( 'Average', 'player report rating', 'talenttrack' );
-            echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-                . '<th>' . esc_html( $c_cat ) . '</th><th>' . esc_html( $c_latest ) . '</th><th>' . esc_html( $c_avg ) . '</th>'
-                . '</tr></thead><tbody>';
+            echo EvidencePanel::tableOpen( [ $c_cat, $c_latest, $c_avg ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tableOpen() escapes.
             foreach ( $categories as $cat ) {
                 if ( ! is_array( $cat ) ) continue;
-                echo '<tr>'
-                    . '<td data-label="' . esc_attr( $c_cat ) . '">' . esc_html( (string) ( $cat['label'] ?? '' ) ) . '</td>'
-                    . '<td data-label="' . esc_attr( $c_latest ) . '">' . esc_html( self::rating( $cat['latest'] ?? null ) ) . '</td>'
-                    . '<td data-label="' . esc_attr( $c_avg ) . '">' . esc_html( self::rating( $cat['average'] ?? null ) ) . '</td>'
+                echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                    . '<td' . StackTable::attrs( 'cell', $c_cat ) . '>' . esc_html( (string) ( $cat['label'] ?? '' ) ) . '</td>'
+                    . '<td' . StackTable::attrs( 'cell', $c_latest ) . '>' . esc_html( self::rating( $cat['latest'] ?? null ) ) . '</td>'
+                    . '<td' . StackTable::attrs( 'cell', $c_avg ) . '>' . esc_html( self::rating( $cat['average'] ?? null ) ) . '</td>'
                     . '</tr>';
                 // #3989 — the detailed view: each rated subcategory, indented
                 // under the main category it belongs to.
                 foreach ( is_array( $cat['subcategories'] ?? null ) ? $cat['subcategories'] : [] as $sub ) {
                     if ( ! is_array( $sub ) ) continue;
-                    echo '<tr class="tt-pr-subcat">'
-                        . '<td data-label="' . esc_attr( $c_cat ) . '" class="tt-pr-subcat__label">' . esc_html( (string) ( $sub['label'] ?? '' ) ) . '</td>'
-                        . '<td data-label="' . esc_attr( $c_latest ) . '">' . esc_html( self::rating( $sub['latest'] ?? null ) ) . '</td>'
-                        . '<td data-label="' . esc_attr( $c_avg ) . '">' . esc_html( self::rating( $sub['average'] ?? null ) ) . '</td>'
+                    echo '<tr class="tt-pr-subcat"' . StackTable::attrs( 'row' ) . '>'
+                        . '<td class="tt-pr-subcat__label"' . StackTable::attrs( 'cell', $c_cat ) . '>' . esc_html( (string) ( $sub['label'] ?? '' ) ) . '</td>'
+                        . '<td' . StackTable::attrs( 'cell', $c_latest ) . '>' . esc_html( self::rating( $sub['latest'] ?? null ) ) . '</td>'
+                        . '<td' . StackTable::attrs( 'cell', $c_avg ) . '>' . esc_html( self::rating( $sub['average'] ?? null ) ) . '</td>'
                         . '</tr>';
                 }
             }
-            echo '</tbody></table></div>';
+            echo EvidencePanel::tableClose(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
         }
 
         $c_date     = __( 'Date', 'talenttrack' );
@@ -742,28 +741,26 @@ final class PlayerReportPage {
             if ( is_array( $e ) && ( array_key_exists( 'notes', $e ) || ! empty( $e['notes_hidden'] ) ) ) { $has_notes = true; break; }
         }
 
-        echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-            . '<th>' . esc_html( $c_date ) . '</th><th>' . esc_html( $c_rating ) . '</th>'
-            . '<th>' . esc_html( $c_assessor ) . '</th>'
-            . ( $has_notes ? '<th>' . esc_html( $c_notes ) . '</th>' : '' )
-            . '</tr></thead><tbody>';
+        $headers = [ $c_date, $c_rating, $c_assessor ];
+        if ( $has_notes ) $headers[] = $c_notes;
+        echo EvidencePanel::tableOpen( $headers ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tableOpen() escapes.
         foreach ( $evals as $e ) {
             if ( ! is_array( $e ) ) continue;
             $date  = TTDate::date( (string) ( $e['eval_date'] ?? '' ) );
             $url   = RecordLink::detailUrlForWithBack( 'evaluations', (int) ( $e['id'] ?? 0 ) );
             $notes = trim( wp_strip_all_tags( (string) ( $e['notes'] ?? '' ) ) );
             $who   = (string) ( $e['assessor_name'] ?? '' );
-            echo '<tr>'
-                . '<td data-label="' . esc_attr( $c_date ) . '">' . self::link( 'evaluations', $url, $date ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-                . '<td data-label="' . esc_attr( $c_rating ) . '">' . esc_html( self::rating( $e['rating'] ?? null ) ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_assessor ) . '">' . esc_html( $who !== '' ? $who : '—' ) . '</td>'
-                . ( $has_notes ? '<td data-label="' . esc_attr( $c_notes ) . '">'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . self::link( 'evaluations', $url, $date ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+                . '<td' . StackTable::attrs( 'cell', $c_rating ) . '>' . esc_html( self::rating( $e['rating'] ?? null ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_assessor ) . '>' . esc_html( $who !== '' ? $who : '—' ) . '</td>'
+                . ( $has_notes ? '<td' . StackTable::attrs( 'cell', $c_notes ) . '>'
                     // #4693 — notes the registry hides from this reader.
                     . ( ! empty( $e['notes_hidden'] ) ? \TT\Shared\Frontend\Components\MaskedValue::html() : esc_html( $notes !== '' ? $notes : '—' ) )
                     . '</td>' : '' )
                 . '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo EvidencePanel::tableClose(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
         self::sectionClose();
     }
 
@@ -908,21 +905,18 @@ final class PlayerReportPage {
             $c_plan = _x( 'Planned', 'player report pdp column', 'talenttrack' );
             $c_held = _x( 'Held', 'player report pdp column', 'talenttrack' );
             $c_sign = _x( 'Signed off', 'player report pdp column', 'talenttrack' );
-            echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-                . '<th>' . esc_html( $c_seq ) . '</th><th>' . esc_html( $c_plan ) . '</th>'
-                . '<th>' . esc_html( $c_held ) . '</th><th>' . esc_html( $c_sign ) . '</th>'
-                . '</tr></thead><tbody>';
+            echo EvidencePanel::tableOpen( [ $c_seq, $c_plan, $c_held, $c_sign ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tableOpen() escapes.
             foreach ( $convs as $c ) {
                 if ( ! is_array( $c ) ) continue;
                 $held = (string) ( $c['conducted_at'] ?? '' );
-                echo '<tr>'
-                    . '<td data-label="' . esc_attr( $c_seq ) . '">' . (int) ( $c['sequence'] ?? 0 ) . '</td>'
-                    . '<td data-label="' . esc_attr( $c_plan ) . '">' . esc_html( TTDate::date( (string) ( $c['scheduled_at'] ?? '' ) ) ) . '</td>'
-                    . '<td data-label="' . esc_attr( $c_held ) . '">' . esc_html( $held !== '' ? TTDate::date( $held ) : '—' ) . '</td>'
-                    . '<td data-label="' . esc_attr( $c_sign ) . '">' . esc_html( ! empty( $c['signed_off'] ) ? __( 'Yes', 'talenttrack' ) : '—' ) . '</td>'
+                echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                    . '<td' . StackTable::attrs( 'cell', $c_seq ) . '>' . (int) ( $c['sequence'] ?? 0 ) . '</td>'
+                    . '<td' . StackTable::attrs( 'cell', $c_plan ) . '>' . esc_html( TTDate::date( (string) ( $c['scheduled_at'] ?? '' ) ) ) . '</td>'
+                    . '<td' . StackTable::attrs( 'cell', $c_held ) . '>' . esc_html( $held !== '' ? TTDate::date( $held ) : '—' ) . '</td>'
+                    . '<td' . StackTable::attrs( 'cell', $c_sign ) . '>' . esc_html( ! empty( $c['signed_off'] ) ? __( 'Yes', 'talenttrack' ) : '—' ) . '</td>'
                     . '</tr>';
             }
-            echo '</tbody></table></div>';
+            echo EvidencePanel::tableClose(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
         }
 
         $actions = trim( wp_strip_all_tags( (string) ( $p['last_agreed_actions'] ?? '' ) ) );
@@ -966,21 +960,19 @@ final class PlayerReportPage {
         $c_date  = __( 'Date', 'talenttrack' );
         $c_match = __( 'Match', 'talenttrack' );
         $c_min   = __( 'Minutes', 'talenttrack' );
-        echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-            . '<th>' . esc_html( $c_date ) . '</th><th>' . esc_html( $c_match ) . '</th><th>' . esc_html( $c_min ) . '</th>'
-            . '</tr></thead><tbody>';
+        echo EvidencePanel::tableOpen( [ $c_date, $c_match, $c_min ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tableOpen() escapes.
         foreach ( $items as $match ) {
             if ( ! is_array( $match ) ) continue;
             $title = (string) ( $match['title'] ?? '' );
             if ( $title === '' ) $title = __( 'Match', 'talenttrack' );
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) ( $match['activity_id'] ?? 0 ) );
-            echo '<tr>'
-                . '<td data-label="' . esc_attr( $c_date ) . '">' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_match ) . '">' . self::link( 'activities', $url, $title ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-                . '<td data-label="' . esc_attr( $c_min ) . '">' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_match ) . '>' . self::link( 'activities', $url, $title ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+                . '<td' . StackTable::attrs( 'cell', $c_min ) . '>' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
                 . '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo EvidencePanel::tableClose(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
         self::sectionClose();
     }
 
@@ -999,11 +991,7 @@ final class PlayerReportPage {
         $c_date   = __( 'Date', 'talenttrack' );
         $c_change = _x( 'Change', 'monthly report tests column', 'talenttrack' );
         $c_score  = _x( 'Score', 'player report tests column', 'talenttrack' );
-        echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-            . '<th>' . esc_html( $c_test ) . '</th><th>' . esc_html( $c_result ) . '</th>'
-            . '<th>' . esc_html( $c_score ) . '</th>'
-            . '<th>' . esc_html( $c_date ) . '</th><th>' . esc_html( $c_change ) . '</th>'
-            . '</tr></thead><tbody>';
+        echo EvidencePanel::tableOpen( [ $c_test, $c_result, $c_score, $c_date, $c_change ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tableOpen() escapes.
         foreach ( $items as $row ) {
             if ( ! is_array( $row ) ) continue;
             $unit  = (string) ( $row['unit'] ?? '' );
@@ -1012,15 +1000,15 @@ final class PlayerReportPage {
             $shown = is_int( $value ) || is_float( $value )
                 ? trim( number_format_i18n( (float) $value, floor( (float) $value ) == $value ? 0 : 2 ) . ' ' . $unit )
                 : ( is_string( $text ) && $text !== '' ? $text : '—' );
-            echo '<tr>'
-                . '<td data-label="' . esc_attr( $c_test ) . '">' . esc_html( (string) ( $row['name'] ?? '' ) ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_result ) . '">' . esc_html( $shown ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_score ) . '">' . self::testScore( $row ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_date ) . '">' . esc_html( TTDate::date( (string) ( $row['date'] ?? '' ) ) ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_change ) . '">' . esc_html( self::testChange( $row ) ) . '</td>'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_test ) . '>' . esc_html( (string) ( $row['name'] ?? '' ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_result ) . '>' . esc_html( $shown ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_score ) . '>' . self::testScore( $row ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( TTDate::date( (string) ( $row['date'] ?? '' ) ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_change ) . '>' . esc_html( self::testChange( $row ) ) . '</td>'
                 . '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo EvidencePanel::tableClose(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
         self::sectionClose();
     }
 

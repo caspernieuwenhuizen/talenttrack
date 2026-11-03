@@ -62,48 +62,15 @@
     -webkit-overflow-scrolling: touch;
 }
 
-/* Base (360px): a table is not a table yet. Each row is a labelled card,
-   the header row is gone, and `data-label` on every cell stands in for the
-   column heading — the same reflow the shared list tables use, written the
-   other way round because this sheet is mobile-first (CLAUDE.md § 2). The
-   table layout is restored at 640px below. */
+/* Base (360px): a table is not a table yet. The tables are on the
+   stack-table primitive (EvidencePanel::tableOpen() writes
+   `tt-stack-table tt-stack-table--to-768 tt-stack-table--cards`): each row
+   is a labelled card and the header row is hidden visually, and the
+   primitive brings the table back from 768px. The list table's sheet gives
+   the label line its type. */
 .tt-evidence__table {
-    width: 100%;
     border-collapse: collapse;
-    display: block;
 }
-
-.tt-evidence__table thead { display: none; }
-
-.tt-evidence__table tbody,
-.tt-evidence__table tr,
-.tt-evidence__table td { display: block; width: 100%; }
-
-.tt-evidence__table tr {
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius, 8px);
-    background: var(--tt-paper, #fff);
-    margin-bottom: var(--tt-sp-2, 8px);
-    padding: var(--tt-sp-3, 12px);
-}
-
-.tt-evidence__table td {
-    padding: 2px 0;
-    display: flex;
-    justify-content: space-between;
-    gap: var(--tt-sp-3, 12px);
-    text-align: left;
-}
-
-.tt-evidence__table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-muted, #6a6d66);
-    flex: 0 0 auto;
-}
-
-.tt-evidence__table td[data-label=""]::before { content: none; }
 
 /* The per-category scores belong with the evaluation above them, so the
    card layout keeps them attached rather than making a second card. */
@@ -208,24 +175,16 @@
     .tt-evidence__stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-/* Wide enough for columns: back to a real table. */
-@media (min-width: 640px) {
-    .tt-evidence__table { display: table; }
-    .tt-evidence__table thead { display: table-header-group; }
-    .tt-evidence__table tbody { display: table-row-group; }
+/* The chips line starts where the row does, in the cards and in the table
+   (the primitive centres a cell that spans the row). */
+.tt-evidence__table.tt-stack-table > tbody > tr.tt-evidence__subrow > td { text-align: left; }
 
-    .tt-evidence__table tr {
-        display: table-row;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        margin-bottom: 0;
-        padding: 0;
-    }
+/* Wide enough for columns: the primitive's table, from 768px. */
+@media (min-width: 768px) {
+    .tt-evidence__stats { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 
     .tt-evidence__table th,
     .tt-evidence__table td {
-        display: table-cell;
         width: auto;
         text-align: left;
         vertical-align: top;
@@ -233,18 +192,12 @@
         border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
     }
 
-    .tt-evidence__table td::before { content: none; }
-
     .tt-evidence__table tr.tt-evidence__subrow { margin-top: 0; }
 
     .tt-evidence__table tr.tt-evidence__subrow td {
         border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
         padding-top: 0;
     }
-}
-
-@media (min-width: 768px) {
-    .tt-evidence__stats { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
 /* Print: the evidence page is a second sheet of a document somebody hands
@@ -255,7 +208,13 @@
    the PDF exporter renders through DomPDF, which resolves no viewport and
    ignores `@media print` outright. Without it the tables would come out of
    the exporter as the 360px card stack — readable, but not what a coach
-   hands to a parent. (#3304) */
+   hands to a parent. (#3304)
+
+   The print rules undo the stack-table primitive the way its own 768px
+   block does — the visually hidden header row included — at a weight above
+   every primitive selector, empty and spanning cells too, so a print never
+   drops a cell out of its column. EvidencePanel::css() inlines the
+   primitive ahead of this sheet for exactly that reason. */
 @media print {
     .tt-evidence__scroll { overflow-x: visible; }
     .tt-evidence__section { break-inside: avoid; }
@@ -267,8 +226,23 @@
 .tt-evidence--print .tt-evidence__section { break-inside: avoid; }
 .tt-evidence--print .tt-evidence__card { break-inside: avoid; }
 
-.tt-evidence--print .tt-evidence__table { display: table; }
-.tt-evidence--print .tt-evidence__table thead { display: table-header-group; }
+.tt-evidence--print .tt-evidence__table {
+    display: table;
+    width: 100%;
+}
+
+.tt-evidence--print .tt-evidence__table thead {
+    display: table-header-group;
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+}
+
 .tt-evidence--print .tt-evidence__table tbody { display: table-row-group; }
 
 .tt-evidence--print .tt-evidence__table tr {
@@ -276,21 +250,35 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    margin-bottom: 0;
+    margin: 0;
     padding: 0;
 }
 
 .tt-evidence--print .tt-evidence__table th,
-.tt-evidence--print .tt-evidence__table td {
+.tt-evidence--print .tt-evidence__table td,
+.tt-evidence--print .tt-evidence__table td:empty,
+.tt-evidence--print .tt-evidence__table td[data-empty],
+.tt-evidence--print .tt-evidence__table td[colspan] {
     display: table-cell;
     width: auto;
     text-align: left;
     vertical-align: top;
+    overflow-wrap: normal;
     padding: var(--tt-sp-2, 8px);
     border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
 }
 
+/* DomPDF reads no custom properties, so it drops the padding above; a data
+   cell keeps the spacing the PDF has always had (a header cell keeps
+   DomPDF's own). A browser takes the custom property, as before. */
+.tt-evidence--print .tt-evidence__table td {
+    padding: 2px 0;
+    padding: var(--tt-sp-2, 8px);
+}
+
 .tt-evidence--print .tt-evidence__table td::before { content: none; }
+
+.tt-evidence--print .tt-evidence__table tr.tt-evidence__subrow td { padding-top: 0; }
 
 .tt-evidence--print .tt-evidence__stats {
     display: table;

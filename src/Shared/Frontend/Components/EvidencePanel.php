@@ -39,25 +39,60 @@ use TT\Shared\Dates\TTDate;
  */
 final class EvidencePanel {
 
-    /** Enqueue the panel's stylesheet. Safe to call more than once. */
+    /** The sheets the panel needs, in load order: the tables stack through the primitive. */
+    private const SHEETS = [
+        'tt-stack-table'            => 'assets/css/components/stack-table.css',
+        'tt-frontend-pdp-evidence'  => 'assets/css/frontend-pdp-evidence.css',
+    ];
+
+    /** Enqueue the panel's stylesheets. Safe to call more than once. */
     public static function enqueue(): void {
-        wp_enqueue_style(
-            'tt-frontend-pdp-evidence',
-            TT_PLUGIN_URL . 'assets/css/frontend-pdp-evidence.css',
-            [],
-            TT_VERSION
-        );
+        $deps = [];
+        foreach ( self::SHEETS as $handle => $path ) {
+            wp_enqueue_style( $handle, TT_PLUGIN_URL . $path, $deps, TT_VERSION );
+            $deps = [ $handle ];
+        }
     }
 
     /**
-     * The panel's stylesheet as text, for a standalone document that has no
+     * The panel's stylesheets as text, for a standalone document that has no
      * `wp_head()` to enqueue into — the PDP print page and the PDF exporter
      * inline it into their own style block rather than keeping a second
-     * copy of these rules (#3304).
+     * copy of these rules (#3304). The one source of the panel's print CSS:
+     * the same sheets, in the same order, as {@see enqueue()}.
      */
     public static function css(): string {
-        $path = TT_PLUGIN_DIR . 'assets/css/frontend-pdp-evidence.css';
-        return is_readable( $path ) ? (string) file_get_contents( $path ) : '';
+        $css = '';
+        foreach ( self::SHEETS as $path ) {
+            $file = TT_PLUGIN_DIR . $path;
+            if ( is_readable( $file ) ) $css .= (string) file_get_contents( $file ) . "\n";
+        }
+        return $css;
+    }
+
+    /**
+     * Open an evidence table: the scroll container, the table on the
+     * stack-table primitive (cards on a phone, a table from 768px), its
+     * header row and the body. The panel and the player report build their
+     * tables through this, so the markup has one copy (#4810). Rows carry
+     * `StackTable::attrs( 'row' )` and their cells `StackTable::attrs( 'cell',
+     * $label )`; {@see tableClose()} ends it.
+     *
+     * @param list<string> $headers Column headings, plain text.
+     */
+    public static function tableOpen( array $headers ): string {
+        $out = '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table '
+            . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>'
+            . '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( $headers as $heading ) {
+            $out .= '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $heading ) . '</th>';
+        }
+        return $out . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+    }
+
+    /** Close a table opened with {@see tableOpen()}. */
+    public static function tableClose(): string {
+        return '</tbody></table></div>';
     }
 
     /**
@@ -156,12 +191,7 @@ final class EvidencePanel {
         $c_assessor = __( 'Assessor', 'talenttrack' );
         $c_notes    = __( 'Notes', 'talenttrack' );
 
-        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-            . '<th>' . esc_html( $c_date ) . '</th>'
-            . '<th>' . esc_html( $c_rating ) . '</th>'
-            . '<th>' . esc_html( $c_assessor ) . '</th>'
-            . '<th>' . esc_html( $c_notes ) . '</th>'
-            . '</tr></thead><tbody>';
+        $out .= self::tableOpen( [ $c_date, $c_rating, $c_assessor, $c_notes ] );
 
         foreach ( $rows as $row ) {
             $date  = TTDate::date( (string) ( $row['eval_date'] ?? '' ) );
@@ -183,16 +213,16 @@ final class EvidencePanel {
             $notes = trim( wp_strip_all_tags( (string) ( $row['notes'] ?? '' ) ) );
             if ( $notes === '' ) $notes = '—';
 
-            $out .= '<tr>'
-                . '<td data-label="' . esc_attr( $c_date ) . '">' . $cell . '</td>'
-                . '<td data-label="' . esc_attr( $c_rating ) . '">' . esc_html( $rating ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_assessor ) . '">' . esc_html( $assessor ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_notes ) . '">' . esc_html( $notes ) . '</td>'
+            $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . $cell . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_rating ) . '>' . esc_html( $rating ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_assessor ) . '>' . esc_html( $assessor ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_notes ) . '>' . esc_html( $notes ) . '</td>'
                 . '</tr>';
 
             $categories = is_array( $row['categories'] ?? null ) ? $row['categories'] : [];
             if ( $categories !== [] ) {
-                $out .= '<tr class="tt-evidence__subrow"><td colspan="4" data-label="">'
+                $out .= '<tr class="tt-evidence__subrow"' . StackTable::attrs( 'row' ) . '><td colspan="4"' . StackTable::attrs( 'cell' ) . '>'
                     . '<ul class="tt-evidence__chips">';
                 foreach ( $categories as $cat ) {
                     $cat_label = (string) ( $cat['label'] ?? '' );
@@ -206,7 +236,7 @@ final class EvidencePanel {
             }
         }
 
-        return $out . '</tbody></table></div>' . self::sectionClose();
+        return $out . self::tableClose() . self::sectionClose();
     }
 
     /**
@@ -259,11 +289,7 @@ final class EvidencePanel {
         $c_match = __( 'Match', 'talenttrack' );
         $c_min   = __( 'Minutes', 'talenttrack' );
 
-        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
-            . '<th>' . esc_html( $c_date ) . '</th>'
-            . '<th>' . esc_html( $c_match ) . '</th>'
-            . '<th>' . esc_html( $c_min ) . '</th>'
-            . '</tr></thead><tbody>';
+        $out .= self::tableOpen( [ $c_date, $c_match, $c_min ] );
 
         foreach ( $breakdown as $match ) {
             $title = (string) ( $match['title'] ?? '' );
@@ -275,14 +301,14 @@ final class EvidencePanel {
                 if ( $url !== '' ) $cell = RecordLink::inline( $title, $url );
             }
 
-            $out .= '<tr>'
-                . '<td data-label="' . esc_attr( $c_date ) . '">' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_match ) . '">' . $cell . '</td>'
-                . '<td data-label="' . esc_attr( $c_min ) . '">' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
+            $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_match ) . '>' . $cell . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_min ) . '>' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
                 . '</tr>';
         }
 
-        return $out . '</tbody></table></div>' . self::sectionClose();
+        return $out . self::tableClose() . self::sectionClose();
     }
 
     /**
