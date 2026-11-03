@@ -1,0 +1,145 @@
+/*
+ * stack-table.css — the stacked-label table primitive (#4810).
+ *
+ * Mobile-first (CLAUDE.md § 2). On a phone a `.tt-stack-table` is a list of
+ * blocks: one block per row, one "LABEL  value" line per cell, the label
+ * taken from the cell's `data-label`. A breakpoint modifier brings the table
+ * back from its own min-width:
+ *
+ *   .tt-stack-table--to-480   a table from 480px up
+ *   .tt-stack-table--to-768   a table from 768px up
+ *
+ * Without a modifier the table stays stacked at every width.
+ *
+ * This sheet owns layout only: display, the label line, the empty-cell rule
+ * and the visually hidden header row. Padding, borders, row chrome and the
+ * label's typography belong to the surface's own sheet. It is the only
+ * stylesheet that may write `content: attr(data-label)`; the stack-table
+ * lint fails any other.
+ *
+ * Markup comes from `\TT\Shared\Frontend\Components\StackTable::attrs()`,
+ * which writes explicit table roles. Changing `display` on table elements
+ * drops their implicit roles in some engines (WebKit / VoiceOver on iOS);
+ * the explicit roles keep the stacked table a table to a screen reader, and
+ * the header row stays in the accessibility tree because it is hidden
+ * visually, not with `display: none`.
+ */
+
+/* ---- Phone (base): stacked ------------------------------------------ */
+
+.tt-stack-table,
+.tt-stack-table > tbody,
+.tt-stack-table > tbody > tr {
+    display: block;
+    width: 100%;
+}
+
+.tt-stack-table > thead {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tt-stack-table > tbody > tr > td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.tt-stack-table > tbody > tr > td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 50%;
+    text-align: left;
+}
+
+/* A cell without a label is its value alone, at the end of the line. */
+.tt-stack-table > tbody > tr > td[data-label=""]::before { content: none; }
+.tt-stack-table > tbody > tr > td[data-label=""] { justify-content: flex-end; }
+
+/* A cell with nothing in it takes no line. */
+.tt-stack-table > tbody > tr > td:empty,
+.tt-stack-table > tbody > tr > td[data-empty] { display: none; }
+
+/* A cell spanning the row (an empty-state or message row) is one block. */
+.tt-stack-table > tbody > tr > td[colspan] {
+    display: block;
+    text-align: center;
+}
+.tt-stack-table > tbody > tr > td[colspan]::before { content: none; }
+
+/* ---- From 480px: the table, for --to-480 ---------------------------- */
+
+@media (min-width: 480px) {
+    .tt-stack-table--to-480 {
+        display: table;
+        border-collapse: collapse;
+    }
+    .tt-stack-table--to-480 > thead {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        clip-path: none;
+        white-space: normal;
+        display: table-header-group;
+    }
+    .tt-stack-table--to-480 > tbody { display: table-row-group; }
+    .tt-stack-table--to-480 > tbody > tr { display: table-row; }
+    .tt-stack-table--to-480 > tbody > tr > td,
+    .tt-stack-table--to-480 > tbody > tr > td:empty,
+    .tt-stack-table--to-480 > tbody > tr > td[data-empty],
+    .tt-stack-table--to-480 > tbody > tr > td[colspan] {
+        display: table-cell;
+        text-align: left;
+        overflow-wrap: normal;
+    }
+    .tt-stack-table--to-480 > tbody > tr > td[colspan] { text-align: center; }
+    .tt-stack-table--to-480 > tbody > tr > td::before { content: none; }
+}
+
+/* ---- From 768px: the table, for --to-768 ---------------------------- */
+
+@media (min-width: 768px) {
+    .tt-stack-table--to-768 {
+        display: table;
+        border-collapse: collapse;
+    }
+    .tt-stack-table--to-768 > thead {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        clip-path: none;
+        white-space: normal;
+        display: table-header-group;
+    }
+    .tt-stack-table--to-768 > tbody { display: table-row-group; }
+    .tt-stack-table--to-768 > tbody > tr { display: table-row; }
+    .tt-stack-table--to-768 > tbody > tr > td,
+    .tt-stack-table--to-768 > tbody > tr > td:empty,
+    .tt-stack-table--to-768 > tbody > tr > td[data-empty],
+    .tt-stack-table--to-768 > tbody > tr > td[colspan] {
+        display: table-cell;
+        text-align: left;
+        overflow-wrap: normal;
+    }
+    .tt-stack-table--to-768 > tbody > tr > td[colspan] { text-align: center; }
+    .tt-stack-table--to-768 > tbody > tr > td::before { content: none; }
+}

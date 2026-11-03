@@ -8,6 +8,7 @@ use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * DataTableWidget — compact table with up to N rows + a "see all" link.
@@ -81,7 +82,11 @@ class DataTableWidget extends AbstractWidget {
             . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'
             . '<a class="tt-pd-panel-more" href="' . esc_url( $see_all ) . '">' . esc_html__( 'See all', 'talenttrack' ) . '</a>'
             . '</div>'
-            . '<div class="tt-pd-table-wrap"><table class="tt-pd-table"><thead>' . $head . '</thead><tbody>' . $rows_html . '</tbody></table></div>';
+            . '<div class="tt-pd-table-wrap">'
+            . '<table class="tt-pd-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '>'
+            . '<thead' . StackTable::attrs( 'rowgroup' ) . '>' . $head . '</thead>'
+            . '<tbody' . StackTable::attrs( 'rowgroup' ) . '>' . $rows_html . '</tbody>'
+            . '</table></div>';
         return $this->wrap( $slot, $inner, 'data-table' );
     }
 
@@ -192,21 +197,21 @@ class DataTableWidget extends AbstractWidget {
         }
         // #4792 — every cell carries its column's label: below 480px the row
         // stacks into a block and the label stands before the value
-        // (persona-dashboard.css), so nothing hides behind a sideways scroll.
+        // (stack-table.css), so nothing hides behind a sideways scroll.
         $labels = array_values( array_map( 'strval', (array) $config['columns'] ) );
         $html   = '';
         foreach ( $rows as $row ) {
             $cells = '';
             foreach ( $row as $i => $cell ) {
-                $cells .= '<td data-label="' . esc_attr( $labels[ $i ] ?? '' ) . '">' . $cell . '</td>';
+                $cells .= '<td' . StackTable::attrs( 'cell', $labels[ $i ] ?? '' ) . '>' . $cell . '</td>';
             }
-            $html .= '<tr>' . $cells . '</tr>';
+            $html .= '<tr' . StackTable::attrs( 'row' ) . '>' . $cells . '</tr>';
         }
         return $html;
     }
 
     private function emptyRow( int $col_count, string $message ): string {
-        return '<tr><td colspan="' . $col_count . '" class="tt-pd-table-empty">'
+        return '<tr' . StackTable::attrs( 'row' ) . '><td colspan="' . $col_count . '" class="tt-pd-table-empty"' . StackTable::attrs( 'cell' ) . '>'
             . esc_html( $message )
             . '</td></tr>';
     }
@@ -215,8 +220,8 @@ class DataTableWidget extends AbstractWidget {
     private function renderHead( array $cols ): string {
         $cells = '';
         foreach ( $cols as $c ) {
-            $cells .= '<th>' . esc_html( $c ) . '</th>';
+            $cells .= '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c ) . '</th>';
         }
-        return '<tr>' . $cells . '</tr>';
+        return '<tr' . StackTable::attrs( 'row' ) . '>' . $cells . '</tr>';
     }
 }

@@ -182,10 +182,13 @@ final class PersonaLandingRenderer {
     }
 
     private static function enqueueAssets(): void {
+        // #4810 — the data-table widget stacks through the shared primitive;
+        // registered here too so the dashboard sheet can depend on it.
+        wp_enqueue_style( 'tt-stack-table', TT_PLUGIN_URL . 'assets/css/components/stack-table.css', [], TT_VERSION );
         wp_enqueue_style(
             'tt-persona-dashboard',
             TT_PLUGIN_URL . 'assets/css/persona-dashboard.css',
-            [ 'tt-public' ],
+            [ 'tt-public', 'tt-stack-table' ],
             TT_VERSION
         );
         wp_enqueue_script(

@@ -797,89 +797,50 @@
 .tt-pd-comments-author { font-weight: 500; }
 .tt-pd-comments-date { font-variant-numeric: tabular-nums; opacity: 0.85; }
 
-/* Data table — mobile-first (#4792). On a phone every row is a block with
-   one LABEL value line per cell, the label read from the cell's
-   `data-label` (the #4197 list-view pattern); from 480px up it is a table. */
+/* Data table (#4792). The stacking, the label line and the table from 480px
+   up come from the stack-table primitive (components/stack-table.css,
+   `tt-stack-table--to-480`); this is the widget's own look. */
 .tt-pd-table-wrap { overflow-x: auto; }
-.tt-pd-table {
-    display: block;
-    width: 100%;
-    font-size: 0.875rem;
-}
-.tt-pd-table thead { display: none; }
-.tt-pd-table tbody,
-.tt-pd-table tr { display: block; }
+.tt-pd-table { font-size: 0.875rem; }
 .tt-pd-table tr {
     padding: 0.5rem 0;
     border-bottom: 1px solid var(--tt-pd-divider);
 }
-.tt-pd-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.75rem;
-    min-width: 0;
-    padding: 0.25rem 0;
-    text-align: right;
-    overflow-wrap: anywhere;
-}
+.tt-pd-table td { padding: 0.25rem 0; }
 .tt-pd-table td::before {
-    content: attr(data-label);
-    flex: 0 0 auto;
-    max-width: 50%;
-    text-align: left;
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--tt-pd-text-muted);
     font-weight: 600;
 }
-.tt-pd-table td[data-label=""]::before,
-.tt-pd-table td.tt-pd-table-empty::before { content: none; }
-.tt-pd-table td[data-label=""] { justify-content: flex-end; }
 .tt-pd-table-empty { text-align: center; color: var(--tt-pd-text-muted); padding: 1rem 0; }
+.tt-pd-table td.tt-pd-table-empty { padding: 1rem 0; }
 
-/* #4817 — a row link (a player's name, "Open") is a tap target: the 36px
-   floor under a mouse, 48x48 under a finger, from the shared tokens. */
-.tt-pd-row-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tt-tap-min-fine);
-}
-@media (pointer: coarse) {
+/* #4817 — a row link (a player's name, "Open") is a tap target. Under a
+   finger it takes the 48x48 record-link floor in public.css (#2800). Under a
+   mouse it keeps the 36px floor, and the negative block margin (#4215) keeps
+   that band from growing the row. */
+@media (pointer: fine) {
     .tt-pd-row-link {
-        justify-content: center;
-        min-height: var(--tt-tap-min);
-        min-width: var(--tt-tap-min);
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--tt-tap-min-fine);
+        margin-block: calc((1lh - var(--tt-tap-min-fine)) / 2);
     }
 }
-.tt-pd-table td.tt-pd-table-empty { display: block; text-align: center; padding: 1rem 0; }
-/* #4811 — a cell with nothing in it takes no line in a stacked row. */
-.tt-pd-table td:empty { display: none; }
 
 @media (min-width: 480px) {
-    .tt-pd-table {
-        display: table;
-        border-collapse: collapse;
-    }
-    .tt-pd-table thead { display: table-header-group; }
-    .tt-pd-table tbody { display: table-row-group; }
     .tt-pd-table tr {
-        display: table-row;
         padding: 0;
         border-bottom: 0;
     }
     .tt-pd-table th,
     .tt-pd-table td {
-        display: table-cell;
         padding: 0.625rem 0.5rem;
         text-align: left;
         border-bottom: 1px solid var(--tt-pd-divider);
-        overflow-wrap: normal;
     }
-    .tt-pd-table td::before { content: none; }
-    /* In the table an empty cell still holds its column. */
-    .tt-pd-table td:empty { display: table-cell; }
     .tt-pd-table th {
         font-size: 0.6875rem;
         text-transform: uppercase;
@@ -887,7 +848,6 @@
         color: var(--tt-pd-text-muted);
         font-weight: 600;
     }
-    .tt-pd-table td.tt-pd-table-empty { display: table-cell; text-align: center; padding: 1rem 0; }
 }
 
 /* Team overview grid (#0073) */
