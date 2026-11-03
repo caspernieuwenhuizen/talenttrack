@@ -81,6 +81,11 @@ final class GridRenderer {
             $fold = $slot->mobile_priority >= self::MOBILE_FOLD_PRIORITY
                 && $slot->widget_id !== 'navigation_tile';
 
+            // #4844 — render first: a widget with nothing to show (no data,
+            // no right) gets no fold, or a phone shows an empty, titled one.
+            $html = $widget->render( $slot, $ctx );
+            if ( trim( $html ) === '' ) $fold = false;
+
             echo '<div class="' . esc_attr( $cls ) . '" style="' . esc_attr( $style ) . '" role="listitem">';
             if ( $fold ) {
                 // #4818 — the fold says what is inside it: the slot's own
@@ -91,7 +96,7 @@ final class GridRenderer {
                     . '<summary class="tt-pd-fold-summary">' . esc_html( $fold_label ) . '</summary>'
                     . '<div class="tt-pd-fold-body">';
             }
-            echo $widget->render( $slot, $ctx ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             if ( $fold ) {
                 echo '</div></details>';
             }

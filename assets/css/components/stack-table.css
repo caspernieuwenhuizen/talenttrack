@@ -60,6 +60,11 @@
 
 .tt-stack-table > tbody > tr > td::before {
     content: attr(data-label);
+    /* #4844 — the label is for the eye only: the empty alternative text
+       keeps a screen reader from reading it before the value, when the
+       column header already names the cell. A browser without the
+       alternative-text syntax keeps the line above. */
+    content: attr(data-label) / "";
     flex: 0 0 auto;
     max-width: 50%;
     text-align: left;

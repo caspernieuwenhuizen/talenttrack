@@ -2,11 +2,13 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\GridLayout;
 use TT\Modules\PersonaDashboard\Domain\PersonaTemplate;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Modules\PersonaDashboard\Frontend\GridRenderer;
+use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
 use TT\Modules\PersonaDashboard\Widgets\DataTableWidget;
 
 /**
@@ -24,6 +26,10 @@ final class DashboardFoldTitleTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        if ( $this->registered !== [] ) {
+            WidgetRegistry::clear();
+            foreach ( $this->registered as $widget ) WidgetRegistry::register( $widget );
+        }
         wp_set_current_user( 0 );
         parent::tear_down();
     }
@@ -44,9 +50,44 @@ final class DashboardFoldTitleTest extends WP_UnitTestCase {
     }
 
     public function test_the_type_name_is_the_fallback_when_there_is_no_title(): void {
+        $this->registerStub( 'tt_test_untitled', '<p>Inhoud</p>' );
+        $summaries = $this->summaries( [ new WidgetSlot( 'tt_test_untitled', '', 'L', 0, 0, 1, 25, true ) ] );
+        $this->assertSame( [ 'Stub widget type' ], $summaries );
+    }
+
+    /** #4844 — a widget with nothing to show leaves no fold on a phone. */
+    public function test_a_widget_that_renders_nothing_gets_no_fold(): void {
+        $this->registerStub( 'tt_test_empty', '' );
+        $this->registerStub( 'tt_test_full', '<p>Inhoud</p>' );
+
+        $html = $this->grid( [
+            new WidgetSlot( 'tt_test_empty', '', 'L', 0, 0, 1, 25, true, 'Leeg' ),
+            new WidgetSlot( 'tt_test_full', '', 'L', 0, 1, 1, 25, true, 'Vol' ),
+        ] );
+
+        $this->assertSame( 1, substr_count( $html, '<details class="tt-pd-fold"' ), 'only the widget with output folds' );
+        $this->assertStringNotContainsString( '>Leeg</summary>', $html );
+        $this->assertStringContainsString( '>Vol</summary>', $html );
+    }
+
+    public function test_an_unknown_data_table_preset_gets_no_fold(): void {
         $this->assertSame( '', ( new DataTableWidget() )->titleFor( new WidgetSlot( 'data_table', 'no_such_preset' ) ) );
-        $summaries = $this->summaries( [ $this->slot( 'no_such_preset', 0 ) ] );
-        $this->assertSame( [ ( new DataTableWidget() )->label() ], $summaries );
+        $this->assertSame( [], $this->summaries( [ $this->slot( 'no_such_preset', 0 ) ] ) );
+    }
+
+    /** @var array<string,\TT\Modules\PersonaDashboard\Domain\Widget> */
+    private array $registered = [];
+
+    private function registerStub( string $id, string $html ): void {
+        if ( $this->registered === [] ) $this->registered = WidgetRegistry::all();
+        WidgetRegistry::register( new class( $id, $html ) extends AbstractWidget {
+            private string $stub_id;
+            private string $html;
+            public function __construct( string $id, string $html ) { $this->stub_id = $id; $this->html = $html; }
+            public function id(): string { return $this->stub_id; }
+            public function label(): string { return 'Stub widget type'; }
+            public function render( WidgetSlot $slot, RenderContext $ctx ): string { return $this->html; }
+        } );
     }
 
     public function test_the_title_matches_the_widget_heading(): void {
@@ -71,11 +112,15 @@ final class DashboardFoldTitleTest extends WP_UnitTestCase {
      * @return list<string>
      */
     private function summaries( array $slots ): array {
+        preg_match_all( '#<summary class="tt-pd-fold-summary">([^<]*)</summary>#', $this->grid( $slots ), $m );
+        return array_map( 'html_entity_decode', $m[1] );
+    }
+
+    /** @param list<WidgetSlot> $slots */
+    private function grid( array $slots ): string {
         $template = new PersonaTemplate( 'academy_admin', 1, null, null, new GridLayout( $slots ) );
         ob_start();
         GridRenderer::render( $template, $this->ctx() );
-        $html = (string) ob_get_clean();
-        preg_match_all( '#<summary class="tt-pd-fold-summary">([^<]*)</summary>#', $html, $m );
-        return array_map( 'html_entity_decode', $m[1] );
+        return (string) ob_get_clean();
     }
 }

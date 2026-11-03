@@ -57,11 +57,12 @@ final class DashboardWidgetTitlesTest extends WP_UnitTestCase {
         $slot   = $this->slot( $widget_id, $source );
 
         $this->assertSame( $title, $widget->titleFor( $slot ) );
-        if ( $this->shownInGrid( $widget ) ) {
-            $this->assertSame( [ $title ], $this->summaries( [ $slot ] ) );
-        }
 
         $html = $widget->render( $slot, $this->ctx() );
+        if ( $this->shownInGrid( $widget ) ) {
+            // #4844 — a widget with nothing to show gets no fold at all.
+            $this->assertSame( $html === '' ? [] : [ $title ], $this->summaries( [ $slot ] ) );
+        }
         if ( $html !== '' ) {
             $this->assertStringContainsString( esc_html( $title ), $html, 'the heading reads the same title' );
         }
@@ -73,7 +74,8 @@ final class DashboardWidgetTitlesTest extends WP_UnitTestCase {
         $widget = $this->widget( $widget_id );
         $this->assertSame( 'Eigen titel', $widget->titleFor( $slot ) );
         if ( $this->shownInGrid( $widget ) ) {
-            $this->assertSame( [ 'Eigen titel' ], $this->summaries( [ $slot ] ) );
+            $empty = $widget->render( $slot, $this->ctx() ) === '';
+            $this->assertSame( $empty ? [] : [ 'Eigen titel' ], $this->summaries( [ $slot ] ) );
         }
     }
 
@@ -119,11 +121,12 @@ final class DashboardWidgetTitlesTest extends WP_UnitTestCase {
         $this->assertStringContainsString( esc_html( $title ), $widget->render( $slot, $this->ctx() ) );
     }
 
-    public function test_an_unknown_preset_falls_back_to_the_type_name(): void {
+    /** An unknown preset has no title and renders nothing, so it gets no fold (#4844). */
+    public function test_an_unknown_preset_has_no_title_and_no_fold(): void {
         foreach ( [ 'info_card', 'mini_player_list', 'action_card' ] as $widget_id ) {
             $widget = $this->widget( $widget_id );
             $this->assertSame( '', $widget->titleFor( $this->slot( $widget_id, 'no_such_preset' ) ), $widget_id );
-            $this->assertSame( [ $widget->label() ], $this->summaries( [ $this->slot( $widget_id, 'no_such_preset' ) ] ), $widget_id );
+            $this->assertSame( [], $this->summaries( [ $this->slot( $widget_id, 'no_such_preset' ) ] ), $widget_id );
         }
     }
 
