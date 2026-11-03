@@ -170,7 +170,8 @@ class PeopleRestController {
         }
 
         return RestResponse::success( [
-            'rows'     => $formatted,
+            // #4691 — a guardian's e-mail and phone follow the sensitive-field registry.
+            'rows'     => \TT\Infrastructure\Security\RecordRedactor::redactRows( 'people', $formatted, get_current_user_id() ),
             'total'    => $total,
             'page'     => $page,
             'per_page' => $per_page,
@@ -181,7 +182,9 @@ class PeopleRestController {
         $repo = new PeopleRepository();
         $person = $repo->find( absint( $r['id'] ) );
         if ( ! $person ) return RestResponse::error( 'not_found', __( 'Person not found.', 'talenttrack' ), 404 );
-        return RestResponse::success( self::fmtRow( $person, $repo ) );
+        return RestResponse::success( \TT\Infrastructure\Security\RecordRedactor::redact(
+            'people', self::fmtRow( $person, $repo ), get_current_user_id(), (int) ( $person->id ?? 0 )
+        ) );
     }
 
     /**

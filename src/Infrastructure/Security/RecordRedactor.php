@@ -25,14 +25,28 @@ final class RecordRedactor {
     /**
      * The rules a registry entry may name. A field naming any other rule is
      * hidden from everybody, so a typo in the registry fails closed.
+     *
+     *  - `staff_for_player`: {@see AuthorizationService::isStaffForPlayer()}.
+     *  - `staff_or_family`: staff for the player, the player themselves, or a
+     *    guardian linked to them.
+     *  - `guardian_contact`: on a person row (the id is the person's), the
+     *    contact of a guardian of a live linked child goes to the person
+     *    themselves and to staff for at least one of those children. A person
+     *    with no such child is not a guardian here and is left as it is.
      */
-    private const RULES = [ 'staff_for_player' ];
+    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact' ];
 
-    /** @var array<string, array{routes: list<string>, id_key: string, fields: array<string, string>}>|null */
+    /** @var array<string, bool> "user|person" => may read that person's guardian contact */
+    private static array $guardian = [];
+
+    /** @var array<string, array{routes: array<string, array{rows: string, id_key: string}>, id_key: string, fields: array<string, string>}>|null */
     private static ?array $registry = null;
 
-    /** @var array<string, bool> "user|rule|player" => may read */
+    /** @var array<string, bool> "user|staff_for_player|player" => staff */
     private static array $memo = [];
+
+    /** @var array<int, array<int, true>> user id => the players they are or are a guardian of */
+    private static array $family = [];
 
     /**
      * The registered fields of an entity, field => rule.
@@ -66,19 +80,15 @@ final class RecordRedactor {
      * player in it resolved together.
      *
      * @param list<array<string, mixed>> $rows
+     * @param string|null                $id_key The key holding the player id in these rows;
+     *                                           the entity's default when null.
      * @return list<array<string, mixed>>
      */
-    public static function redactRows( string $entity, array $rows, int $user_id ): array {
-        $id_key = self::registry()[ $entity ]['id_key'] ?? '';
+    public static function redactRows( string $entity, array $rows, int $user_id, ?string $id_key = null ): array {
+        $id_key = $id_key ?? ( self::registry()[ $entity ]['id_key'] ?? '' );
         if ( $id_key === '' || self::fields( $entity ) === [] ) return $rows;
 
-        $team_by_player = [];
-        foreach ( $rows as $row ) {
-            $pid = (int) ( $row[ $id_key ] ?? 0 );
-            if ( $pid <= 0 ) continue;
-            $team_by_player[ $pid ] = array_key_exists( 'team_id', $row ) && $id_key === 'id' ? (int) $row['team_id'] : null;
-        }
-        self::prime( $user_id, $team_by_player );
+        self::primeRows( $entity, $rows, $id_key, $user_id );
 
         $out = [];
         foreach ( $rows as $row ) {
@@ -95,8 +105,8 @@ final class RecordRedactor {
     }
 
     /**
-     * Resolve every rule for these players in one pass. A null team is read
-     * from `tt_players`, in one statement for all of them.
+     * Resolve the staff answer for these players in one pass. A null team is
+     * read from `tt_players`, in one statement for all of them.
      *
      * @param array<int, int|null> $team_by_player player id => team id, or null when unknown.
      */
@@ -133,10 +143,10 @@ final class RecordRedactor {
     }
 
     /**
-     * `rest_post_dispatch`: strip every registered field the reader may not
-     * read from a response whose matched route pattern the registry lists,
-     * wherever in the payload a row of that entity sits, in arrays, objects
-     * and `JsonSerializable` values alike.
+     * `rest_post_dispatch`: for a response whose matched route pattern the
+     * registry lists, strip every registered field the reader may not read
+     * from the rows at that route's row path. Arrays, objects and
+     * `JsonSerializable` values are walked alike and keep their JSON shape.
      *
      * @param mixed $result
      * @param mixed $server
@@ -153,22 +163,18 @@ final class RecordRedactor {
 
         $user_id = get_current_user_id();
         foreach ( self::registry() as $entity => $spec ) {
-            if ( ! in_array( $route, $spec['routes'], true ) ) continue;
+            if ( ! isset( $spec['routes'][ $route ] ) ) continue;
 
-            $data = $result->get_data();
+            $segments = self::segments( $spec['routes'][ $route ]['rows'] );
+            $id_key   = $spec['routes'][ $route ]['id_key'];
+            $data     = $result->get_data();
 
             $rows = [];
-            self::collectRows( $data, $spec['id_key'], array_keys( $spec['fields'] ), $rows );
+            self::collectAt( $data, $segments, $id_key, $rows );
             if ( $rows === [] ) continue;
+            self::primeRows( $entity, $rows, $id_key, $user_id );
 
-            $team_by_player = [];
-            foreach ( $rows as $row ) {
-                $pid = (int) $row[ $spec['id_key'] ];
-                $team_by_player[ $pid ] = array_key_exists( 'team_id', $row ) && $spec['id_key'] === 'id' ? (int) $row['team_id'] : null;
-            }
-            self::prime( $user_id, $team_by_player );
-
-            $result->set_data( self::redactNode( $entity, $data, $spec['id_key'], $user_id ) );
+            $result->set_data( self::redactAt( $entity, $data, $segments, $id_key, $user_id ) );
         }
         return $result;
     }
@@ -180,8 +186,60 @@ final class RecordRedactor {
         add_filter( 'rest_post_dispatch', [ __CLASS__, 'filterResponse' ], 10, 3 );
     }
 
+    /**
+     * Resolve `guardian_contact` for these person ids in one pass: one read
+     * of the people, one of their live children, and the staff answer once
+     * per distinct team.
+     *
+     * @param list<int> $person_ids
+     */
+    public static function primePeople( int $user_id, array $person_ids ): void {
+        $ask = [];
+        foreach ( $person_ids as $id ) {
+            $id = (int) $id;
+            if ( $id > 0 && ! isset( self::$guardian[ $user_id . '|' . $id ] ) ) $ask[ $id ] = $id;
+        }
+        if ( $ask === [] ) return;
+        if ( $user_id <= 0 ) {
+            foreach ( $ask as $id ) self::$guardian[ $user_id . '|' . $id ] = false;
+            return;
+        }
+
+        global $wpdb;
+        $in   = implode( ',', array_fill( 0, count( $ask ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, wp_user_id FROM {$wpdb->prefix}tt_people WHERE club_id = %d AND id IN ({$in})",
+            CurrentClub::id(),
+            ...array_values( $ask )
+        ) );
+        $account = [];
+        foreach ( (array) $rows as $r ) {
+            $account[ (int) ( $r->id ?? 0 ) ] = (int) ( $r->wp_user_id ?? 0 );
+        }
+
+        $children = \TT\Infrastructure\Players\ParentChildResolver::childTeamsForParents( array_values( array_filter( $account ) ) );
+        $teams    = [];
+        foreach ( $children as $by_player ) {
+            foreach ( $by_player as $pid => $team_id ) $teams[ $pid ] = $team_id;
+        }
+        self::prime( $user_id, $teams );
+
+        foreach ( $ask as $id ) {
+            $wp_user = $account[ $id ] ?? 0;
+            $kids    = $wp_user > 0 ? ( $children[ $wp_user ] ?? [] ) : [];
+            $allowed = $kids === [] || $wp_user === $user_id;
+            foreach ( array_keys( $kids ) as $pid ) {
+                if ( $allowed ) break;
+                $allowed = ! empty( self::$memo[ $user_id . '|staff_for_player|' . $pid ] );
+            }
+            self::$guardian[ $user_id . '|' . $id ] = $allowed;
+        }
+    }
+
     public static function flush(): void {
-        self::$memo = [];
+        self::$memo     = [];
+        self::$family   = [];
+        self::$guardian = [];
     }
 
     // Internals
@@ -190,7 +248,15 @@ final class RecordRedactor {
         if ( ! in_array( $rule, self::RULES, true ) ) return false;
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
 
-        $key = $user_id . '|' . $rule . '|' . $player_id;
+        if ( $rule === 'guardian_contact' ) {
+            // The id is a person's, not a player's.
+            self::primePeople( $user_id, [ $player_id ] );
+            return self::$guardian[ $user_id . '|' . $player_id ] ?? false;
+        }
+
+        if ( $rule === 'staff_or_family' && isset( self::familyOf( $user_id )[ $player_id ] ) ) return true;
+
+        $key = $user_id . '|staff_for_player|' . $player_id;
         if ( ! isset( self::$memo[ $key ] ) ) {
             self::$memo[ $key ] = AuthorizationService::isStaffForPlayer( $user_id, $player_id );
         }
@@ -199,6 +265,61 @@ final class RecordRedactor {
 
     private static function known( int $user_id, int $player_id ): bool {
         return isset( self::$memo[ $user_id . '|staff_for_player|' . $player_id ] );
+    }
+
+    /**
+     * The players this user is (their own record) or is a linked guardian
+     * of, from the canonical resolver: `AccountPlayerLinks::forUser()`,
+     * which applies the club, the player's status and the record lifecycle,
+     * so a guardian whose access ended (released, archived, binned) is not
+     * family here either. Read once per reader per request.
+     *
+     * @return array<int, true>
+     */
+    private static function familyOf( int $user_id ): array {
+        if ( isset( self::$family[ $user_id ] ) ) return self::$family[ $user_id ];
+
+        $links = \TT\Infrastructure\Players\AccountPlayerLinks::forUser( $user_id );
+        $set   = [];
+        if ( $links['player'] !== null && $links['player']['id'] > 0 ) {
+            $set[ $links['player']['id'] ] = true;
+        }
+        foreach ( $links['children'] as $child ) {
+            if ( $child['id'] > 0 && $child['access'] !== \TT\Infrastructure\Players\ParentChildResolver::ACCESS_NONE ) {
+                $set[ $child['id'] ] = true;
+            }
+        }
+        self::$family[ $user_id ] = $set;
+        return $set;
+    }
+
+    /** @param list<array<string, mixed>> $rows */
+    private static function primeRows( string $entity, array $rows, string $id_key, int $user_id ): void {
+        if ( in_array( 'guardian_contact', self::fields( $entity ), true ) ) {
+            $ids = [];
+            foreach ( $rows as $row ) $ids[] = (int) ( $row[ $id_key ] ?? 0 );
+            self::primePeople( $user_id, $ids );
+            return;
+        }
+
+        $team_by_player = [];
+        foreach ( $rows as $row ) {
+            $pid = (int) ( $row[ $id_key ] ?? 0 );
+            if ( $pid <= 0 ) continue;
+            // A row's own `team_id` is the player's only when the row is the
+            // player record itself.
+            $team_by_player[ $pid ] = $id_key === 'id' && array_key_exists( 'team_id', $row ) ? (int) $row['team_id'] : null;
+        }
+        self::prime( $user_id, $team_by_player );
+    }
+
+    /**
+     * `data.rows.*` => [ 'data', 'rows', '*' ]; an empty path is the top.
+     *
+     * @return list<string>
+     */
+    private static function segments( string $path ): array {
+        return $path === '' ? [] : explode( '.', $path );
     }
 
     /**
@@ -221,85 +342,94 @@ final class RecordRedactor {
     }
 
     /**
-     * A row is a node with a positive player id under `$id_key` and at
-     * least one registered field.
+     * The rows at the end of `$segments`: a node there with a positive id
+     * under `$id_key`.
      *
      * @param mixed                      $node
-     * @param list<string>               $fields
+     * @param list<string>               $segments
      * @param list<array<string, mixed>> $rows
      */
-    private static function collectRows( $node, string $id_key, array $fields, array &$rows ): void {
+    private static function collectAt( $node, array $segments, string $id_key, array &$rows ): void {
         $view = self::view( $node );
         if ( $view === null ) return;
-        if ( self::isRow( $view, $id_key, $fields ) ) {
-            /** @var array<string, mixed> $view */
-            $rows[] = $view;
+
+        if ( $segments === [] ) {
+            if ( self::isRow( $view, $id_key ) ) {
+                /** @var array<string, mixed> $view */
+                $rows[] = $view;
+            }
+            return;
         }
-        foreach ( $view as $child ) {
-            self::collectRows( $child, $id_key, $fields, $rows );
+
+        $head = array_shift( $segments );
+        if ( $head === '*' ) {
+            foreach ( $view as $child ) self::collectAt( $child, $segments, $id_key, $rows );
+        } elseif ( array_key_exists( $head, $view ) ) {
+            self::collectAt( $view[ $head ], $segments, $id_key, $rows );
         }
     }
 
     /**
-     * The node with every row in it redacted, of the same JSON shape: an
-     * array stays an array, an object stays an object (so an empty `{}`
-     * stays `{}`), and a `JsonSerializable` that needed no change is
-     * returned as it came.
+     * The node with the rows at `$segments` redacted, of the same JSON
+     * shape: an array stays an array, an object stays an object (so an
+     * empty `{}` stays `{}`), and a `JsonSerializable` that needed no change
+     * is returned as it came.
      *
-     * @param mixed $node
+     * @param mixed        $node
+     * @param list<string> $segments
      * @return mixed
      */
-    private static function redactNode( string $entity, $node, string $id_key, int $user_id ) {
-        if ( is_array( $node ) ) return self::redactArray( $entity, $node, $id_key, $user_id );
-        if ( $node instanceof \stdClass ) {
-            return (object) self::redactArray( $entity, get_object_vars( $node ), $id_key, $user_id );
-        }
-        if ( $node instanceof \JsonSerializable ) {
-            $raw = $node->jsonSerialize();
-            if ( ! is_array( $raw ) && ! $raw instanceof \stdClass ) return $node;
+    private static function redactAt( string $entity, $node, array $segments, string $id_key, int $user_id ) {
+        $view = self::view( $node );
+        if ( $view === null ) return $node;
 
-            $redacted = self::redactNode( $entity, $raw, $id_key, $user_id );
-            if ( wp_json_encode( $redacted ) === wp_json_encode( $raw ) ) return $node;
-
-            // An associative array encodes as an object; keep it one even
-            // when redaction leaves it empty.
-            if ( is_array( $raw ) && is_array( $redacted ) && ( $raw === [] || array_keys( $raw ) !== range( 0, count( $raw ) - 1 ) ) ) {
-                return (object) $redacted;
+        if ( $segments === [] ) {
+            $new = self::isRow( $view, $id_key )
+                ? self::redact( $entity, $view, $user_id, (int) $view[ $id_key ] )
+                : $view;
+        } else {
+            $head = array_shift( $segments );
+            $new  = $view;
+            if ( $head === '*' ) {
+                foreach ( $view as $key => $child ) {
+                    $new[ $key ] = self::redactAt( $entity, $child, $segments, $id_key, $user_id );
+                }
+            } elseif ( array_key_exists( $head, $view ) ) {
+                $new[ $head ] = self::redactAt( $entity, $view[ $head ], $segments, $id_key, $user_id );
             }
-            return $redacted;
         }
-        return $node;
+
+        return self::reshape( $node, $view, $new );
     }
 
     /**
-     * @param array<mixed> $node
-     * @return array<mixed>
+     * Put a walked node back in the form it arrived in.
+     *
+     * @param mixed        $original
+     * @param array<mixed> $view
+     * @param array<mixed> $new
+     * @return mixed
      */
-    private static function redactArray( string $entity, array $node, string $id_key, int $user_id ): array {
-        $fields = array_keys( self::fields( $entity ) );
-        if ( self::isRow( $node, $id_key, $fields ) ) {
-            /** @var array<string, mixed> $node */
-            $node = self::redact( $entity, $node, $user_id, (int) $node[ $id_key ] );
+    private static function reshape( $original, array $view, array $new ) {
+        if ( is_array( $original ) ) return $new;
+        if ( $original instanceof \stdClass ) return (object) $new;
+
+        // JsonSerializable: untouched when nothing changed, otherwise what it
+        // serialized to, as an object when that was an object.
+        if ( wp_json_encode( $new ) === wp_json_encode( $view ) ) return $original;
+        $raw = $original instanceof \JsonSerializable ? $original->jsonSerialize() : null;
+        if ( $raw instanceof \stdClass || $view === [] || array_keys( $view ) !== range( 0, count( $view ) - 1 ) ) {
+            return (object) $new;
         }
-        foreach ( $node as $key => $child ) {
-            $node[ $key ] = self::redactNode( $entity, $child, $id_key, $user_id );
-        }
-        return $node;
+        return $new;
     }
 
-    /**
-     * @param array<mixed> $node
-     * @param list<string> $fields
-     */
-    private static function isRow( array $node, string $id_key, array $fields ): bool {
-        if ( ! isset( $node[ $id_key ] ) || ! is_numeric( $node[ $id_key ] ) || (int) $node[ $id_key ] <= 0 ) return false;
-        foreach ( $fields as $field ) {
-            if ( array_key_exists( $field, $node ) ) return true;
-        }
-        return false;
+    /** @param array<mixed> $node */
+    private static function isRow( array $node, string $id_key ): bool {
+        return isset( $node[ $id_key ] ) && is_numeric( $node[ $id_key ] ) && (int) $node[ $id_key ] > 0;
     }
 
-    /** @return array<string, array{routes: list<string>, id_key: string, fields: array<string, string>}> */
+    /** @return array<string, array{routes: array<string, array{rows: string, id_key: string}>, id_key: string, fields: array<string, string>}> */
     private static function registry(): array {
         if ( self::$registry !== null ) return self::$registry;
         self::$registry = [];
@@ -313,9 +443,14 @@ final class RecordRedactor {
 
         foreach ( $raw as $entity => $spec ) {
             if ( ! is_array( $spec ) ) continue;
-            $routes = [];
-            foreach ( (array) ( $spec['routes'] ?? [] ) as $pattern ) {
-                if ( is_string( $pattern ) && $pattern !== '' ) $routes[] = $pattern;
+            $default_key = is_string( $spec['id_key'] ?? null ) && $spec['id_key'] !== '' ? $spec['id_key'] : 'player_id';
+            $routes      = [];
+            foreach ( (array) ( $spec['routes'] ?? [] ) as $pattern => $route ) {
+                if ( ! is_string( $pattern ) || $pattern === '' || ! is_array( $route ) || ! is_string( $route['rows'] ?? null ) ) continue;
+                $routes[ $pattern ] = [
+                    'rows'   => $route['rows'],
+                    'id_key' => is_string( $route['id_key'] ?? null ) && $route['id_key'] !== '' ? $route['id_key'] : $default_key,
+                ];
             }
             $fields = [];
             foreach ( (array) ( $spec['fields'] ?? [] ) as $field => $rule ) {
@@ -323,7 +458,7 @@ final class RecordRedactor {
             }
             self::$registry[ (string) $entity ] = [
                 'routes' => $routes,
-                'id_key' => is_string( $spec['id_key'] ?? null ) ? $spec['id_key'] : 'player_id',
+                'id_key' => $default_key,
                 'fields' => $fields,
             ];
         }

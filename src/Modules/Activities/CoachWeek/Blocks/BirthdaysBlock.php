@@ -42,8 +42,19 @@ final class BirthdaysBlock extends AttentionBlock {
             if ( ! checkdate( 2, 29, $year ) ) $window['02-29'] = $window['02-28'];
         }
 
+        // #4691 — a birthday is the date of birth without the year, and the
+        // year is visible to everyone, so a viewer the registry hides the
+        // date from gets no birthday either. Resolved for all players at once.
+        $players = self::players( $week );
+        $user_id = $week->userId;
+        \TT\Infrastructure\Security\RecordRedactor::prime(
+            $user_id,
+            array_map( static fn( array $p ): int => (int) $p['team_id'], $players )
+        );
+
         $out = [];
-        foreach ( self::players( $week ) as $pid => $player ) {
+        foreach ( $players as $pid => $player ) {
+            if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', $user_id, (int) $pid ) ) continue;
             $dob = $player['date_of_birth'];
             if ( preg_match( '/^\d{4}-(\d{2}-\d{2})/', $dob, $m ) !== 1 ) continue;
             if ( ! isset( $window[ $m[1] ] ) ) continue;

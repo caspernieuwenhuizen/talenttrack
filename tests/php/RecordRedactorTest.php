@@ -30,6 +30,8 @@ final class RecordRedactorTest extends WP_UnitTestCase {
     private const PHONE = '0619283746';
 
     private const RECORD_ROUTE = '/talenttrack/v1/players/(?P<id>\d+)';
+    private const LIST_ROUTE   = '/talenttrack/v1/players';
+    private const DOB          = '2012-04-01';
 
     private int $club     = 0;
     private int $team     = 0;
@@ -60,6 +62,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             'guardian_name'  => self::NAME,
             'guardian_email' => self::EMAIL,
             'guardian_phone' => self::PHONE,
+            'date_of_birth'  => self::DOB,
         ] );
         $this->player = (int) $wpdb->insert_id;
 
@@ -87,21 +90,48 @@ final class RecordRedactorTest extends WP_UnitTestCase {
 
     public function test_the_registry_names_the_guardian_fields(): void {
         $fields = RecordRedactor::fields( 'players' );
-        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'custom_fields' ] as $field ) {
+        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'parent_name', 'parent_link_html', 'custom_fields' ] as $field ) {
             $this->assertSame( 'staff_for_player', $fields[ $field ] ?? null, $field );
         }
+        $this->assertSame( 'staff_or_family', $fields['date_of_birth'] ?? null );
+        $this->assertArrayNotHasKey( 'birth_year', $fields, 'the birth year stays visible' );
         $this->assertSame( [], RecordRedactor::fields( 'no_such_entity' ) );
     }
 
     public function test_redact_drops_registered_fields_for_a_reader_without_the_right(): void {
         $row = RecordRedactor::redact( 'players', $this->row(), $this->observer, $this->player );
 
-        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'custom_fields' ] as $field ) {
+        foreach ( [ 'guardian_name', 'guardian_email', 'guardian_phone', 'custom_fields', 'date_of_birth' ] as $field ) {
             $this->assertArrayNotHasKey( $field, $row, $field );
         }
         $this->assertSame( 'Sem', $row['first_name'], 'an unregistered field is left alone' );
-        $this->assertSame( '2012-04-01', $row['date_of_birth'], 'an unregistered field is left alone' );
+        $this->assertSame( 2012, $row['birth_year'], 'the birth year is left alone' );
         $this->assertSame( 'kept', $row['something_else'], 'an unknown key is left alone' );
+    }
+
+    /**
+     * `staff_or_family`: the player and a linked guardian keep the date of
+     * birth, and still do not get the guardian contact, which is staff only.
+     */
+    public function test_the_player_and_a_linked_guardian_keep_the_date_of_birth(): void {
+        global $wpdb;
+        $player_user = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'wp_user_id' => $player_user ], [ 'id' => $this->player ] );
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_parents", [
+            'club_id' => $this->club, 'player_id' => $this->player, 'parent_user_id' => $parent,
+        ] );
+        AuthorizationService::flushCache();
+
+        foreach ( [ 'player' => $player_user, 'parent' => $parent ] as $label => $uid ) {
+            $row = RecordRedactor::redact( 'players', $this->row(), $uid, $this->player );
+            $this->assertSame( '2012-04-01', $row['date_of_birth'] ?? null, $label );
+            $this->assertArrayNotHasKey( 'guardian_email', $row, $label );
+        }
+
+        $other = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        AuthorizationService::flushCache();
+        $this->assertTrue( RecordRedactor::isMasked( 'players', 'date_of_birth', $other, $this->player ), 'an unlinked guardian' );
     }
 
     public function test_redact_keeps_registered_fields_for_a_reader_with_the_right(): void {
@@ -185,7 +215,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
      * an empty `custom_fields` is still `{}` and not `[]`.
      */
     public function test_object_rows_are_redacted_and_keep_their_shape(): void {
-        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player );
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players' );
         $object  = (object) array_merge( $this->row(), [ 'custom_fields' => new \stdClass() ] );
         $json    = new class( $this->row() ) implements \JsonSerializable {
             /** @var array<string, mixed> */
@@ -195,20 +225,43 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             /** @return array<string, mixed> */
             public function jsonSerialize(): array { return $this->row; }
         };
-        $payload = [ 'object' => $object, 'json' => $json, 'empty' => new \stdClass() ];
+        $payload = [ 'rows' => [ $object, $json, new \stdClass() ], 'total' => 3 ];
 
         wp_set_current_user( $this->observer );
-        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::RECORD_ROUTE ), rest_get_server(), $request )->get_data() );
+        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::LIST_ROUTE ), rest_get_server(), $request )->get_data() );
         $this->assertStringNotContainsString( self::EMAIL, $body, 'neither the stdClass nor the JsonSerializable row keeps the e-mail' );
         $decoded = (array) json_decode( $body, true );
-        $this->assertSame( 'Sem', $decoded['data']['object']['first_name'] );
-        $this->assertSame( 'Sem', $decoded['data']['json']['first_name'] );
-        $this->assertStringContainsString( '"empty":{}', $body, 'an empty object stays an object' );
+        $this->assertSame( 'Sem', $decoded['data']['rows'][0]['first_name'] );
+        $this->assertSame( 'Sem', $decoded['data']['rows'][1]['first_name'] );
+        $this->assertStringContainsString( ',{}]', $body, 'an empty object stays an object' );
 
         wp_set_current_user( $this->hod );
-        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::RECORD_ROUTE ), rest_get_server(), $request )->get_data() );
+        $body = (string) wp_json_encode( RecordRedactor::filterResponse( $this->response( $payload, self::LIST_ROUTE ), rest_get_server(), $request )->get_data() );
         $this->assertStringContainsString( '"custom_fields":{}', $body, 'an empty custom_fields stays {} for a reader who keeps it' );
         $this->assertSame( 2, substr_count( $body, self::EMAIL ), 'HoD keeps both' );
+    }
+
+    /**
+     * The registry names where a route's player rows sit, and the filter
+     * reads only there: a nested record of another kind with an `id` of its
+     * own is never asked the staff rule as if that id were a player's.
+     */
+    public function test_only_the_route_row_path_is_read_as_player_rows(): void {
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player );
+        $nested  = [ 'id' => 987654, 'guardian_email' => 'nested@example.org', 'date_of_birth' => '2000-01-01' ];
+        $row     = array_merge( $this->row(), [ 'related' => $nested ] );
+
+        wp_set_current_user( $this->observer );
+        $data = (array) RecordRedactor::filterResponse( $this->response( $row, self::RECORD_ROUTE ), rest_get_server(), $request )->get_data();
+        $out  = (array) $data['data'];
+        $this->assertArrayNotHasKey( 'guardian_email', $out, 'the record at the row path is redacted' );
+        $this->assertSame( $nested, $out['related'], 'a node outside the row path is left as it came' );
+
+        // A list route reads `data.rows.*`; the envelope itself is no row.
+        $list = $this->response( [ 'id' => $this->player, 'guardian_email' => self::EMAIL, 'rows' => [ $this->row() ] ], self::LIST_ROUTE );
+        $data = (array) RecordRedactor::filterResponse( $list, rest_get_server(), new WP_REST_Request( 'GET', '/talenttrack/v1/players' ) )->get_data();
+        $this->assertSame( self::EMAIL, $data['data']['guardian_email'], 'only the rows are read' );
+        $this->assertArrayNotHasKey( 'guardian_email', $data['data']['rows'][0] );
     }
 
     /**
@@ -236,6 +289,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             foreach ( [ self::NAME, self::EMAIL, self::PHONE ] as $value ) {
                 $this->assertStringNotContainsString( $value, $body, "{$path} hands the observer guardian contact" );
             }
+            $this->assertStringNotContainsString( self::DOB, $body, "{$path} hands the observer the date of birth" );
             if ( in_array( $response->get_matched_route(), [ '/talenttrack/v1/players', self::RECORD_ROUTE ], true ) ) {
                 foreach ( $fields as $field ) {
                     $this->assertStringNotContainsString( '"' . $field . '":', $body, "{$path} carries {$field}" );
@@ -243,6 +297,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             }
             if ( $path === '/talenttrack/v1/players/' . $this->player ) {
                 $reached = $response->get_status() === 200;
+                $this->assertStringContainsString( '"birth_year":2012', $body, 'the birth year stays on the record' );
             }
         }
 
@@ -253,6 +308,7 @@ final class RecordRedactorTest extends WP_UnitTestCase {
         AuthorizationService::flushCache();
         $body = (string) wp_json_encode( $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player ) )->get_data() );
         $this->assertStringContainsString( self::EMAIL, $body, 'HoD still gets the guardian on the record' );
+        $this->assertStringContainsString( self::DOB, $body, 'HoD still gets the date of birth' );
     }
 
     /** A list costs the same statements whatever its size: no query per player. */
@@ -323,7 +379,8 @@ final class RecordRedactorTest extends WP_UnitTestCase {
             'id'             => $this->player,
             'team_id'        => $this->team,
             'first_name'     => 'Sem',
-            'date_of_birth'  => '2012-04-01',
+            'date_of_birth'  => self::DOB,
+            'birth_year'     => 2012,
             'guardian_name'  => self::NAME,
             'guardian_email' => self::EMAIL,
             'guardian_phone' => self::PHONE,

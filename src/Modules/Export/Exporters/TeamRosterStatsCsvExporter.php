@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Export\Domain\ExportRequest;
@@ -165,13 +166,20 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
             __( 'Average rating',     'talenttrack' ),
         ];
 
+        // #4691 — the date of birth follows the sensitive-field registry,
+        // resolved for the roster at once; a cell it hides is left empty.
+        $team_by_player = [];
+        foreach ( $roster as $r ) $team_by_player[ (int) $r->id ] = $team_id;
+        RecordRedactor::prime( (int) $request->requesterUserId, $team_by_player );
+
         $rows = [];
         foreach ( $roster as $r ) {
+            $dob_hidden = RecordRedactor::isMasked( 'players', 'date_of_birth', (int) $request->requesterUserId, (int) $r->id );
             $rows[] = [
                 (int)    $r->id,
                 (string) ( $r->first_name ?? '' ),
                 (string) ( $r->last_name ?? '' ),
-                (string) ( $r->date_of_birth ?? '' ),
+                $dob_hidden ? '' : (string) ( $r->date_of_birth ?? '' ),
                 $r->jersey_number !== null ? (int) $r->jersey_number : '',
                 ExportValueFormatter::preferredFoot( $r->preferred_foot ?? '' ),
                 ExportValueFormatter::positions( $r->preferred_positions ?? '' ),

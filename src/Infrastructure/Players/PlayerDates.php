@@ -49,4 +49,18 @@ final class PlayerDates {
         if ( $value === '' || strpos( $value, self::ZERO_DATE ) === 0 ) return null;
         return $value;
     }
+
+    /**
+     * The year of a stored date of birth, or null. What a reader who may not
+     * see the full date still sees: the year places a player in an age band
+     * without identifying them.
+     *
+     * @param mixed $stored
+     */
+    public static function birthYear( $stored ): ?int {
+        $value = self::forOutput( $stored );
+        if ( $value === null || ! preg_match( '/^(\d{4})-\d{2}-\d{2}/', $value, $m ) ) return null;
+        $year = (int) $m[1];
+        return $year > 1900 ? $year : null;
+    }
 }

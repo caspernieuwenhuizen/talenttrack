@@ -52,6 +52,10 @@ class TeamPlayersPanel {
             // shared `PlayerStatusRenderer::enqueueStyles()` helper.
             \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
             $status_calc = new PlayerStatusCalculator();
+            // #4691 — who may read each date of birth, resolved for the roster at once.
+            $team_by_player = [];
+            foreach ( $players as $pl ) $team_by_player[ (int) ( $pl->id ?? 0 ) ] = $team_id;
+            \TT\Infrastructure\Security\RecordRedactor::prime( get_current_user_id(), $team_by_player );
             ?>
             <table class="widefat striped" style="max-width:900px;">
                 <thead>
@@ -84,7 +88,16 @@ class TeamPlayersPanel {
                             <td><?php echo $pl->jersey_number ? '#' . esc_html( (string) $pl->jersey_number ) : '—'; ?></td>
                             <td><?php echo $pos_str !== '' ? esc_html( $pos_str ) : '—'; ?></td>
                             <td><?php echo $foot !== '' ? esc_html( __( $foot, 'talenttrack' ) ) : '—'; ?></td>
-                            <td><?php echo ! empty( $pl->date_of_birth ) ? esc_html( (string) $pl->date_of_birth ) : '—'; ?></td>
+                            <td><?php
+                            // #4691 — the date of birth follows the sensitive-field registry.
+                            if ( empty( $pl->date_of_birth ) ) {
+                                echo '—';
+                            } elseif ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'date_of_birth', get_current_user_id(), (int) ( $pl->id ?? 0 ) ) ) {
+                                echo esc_html( \TT\Shared\Frontend\Components\MaskedValue::label() );
+                            } else {
+                                echo esc_html( (string) $pl->date_of_birth );
+                            }
+                            ?></td>
                             <td>
                                 <a href="<?php echo esc_url( $edit_url ); ?>" class="button button-small">
                                     <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
