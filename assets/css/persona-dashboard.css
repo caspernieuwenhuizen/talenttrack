@@ -264,7 +264,9 @@
     }
 }
 .tt-pd-cta-secondary:hover { background: #e5eaf0; }
+.tt-pd-cta-secondary:active { background: var(--tt-line); }
 .tt-pd-cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.tt-pd-cta-secondary:focus-visible { outline-color: var(--tt-pd-accent); }
 
 /* v3.110.119 — Hero secondary link (e.g. "Plan visits →") sits next
    to the primary CTA in the hero CTA row. Underline + readable on
