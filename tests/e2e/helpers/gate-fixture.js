@@ -84,12 +84,32 @@ function dataId( res ) {
 async function seedFixture( browser, baseURL, who ) {
 	/** @type {{ teamId: number, playerId: number, personId: number, personReused: boolean, assignmentId: number, prospectId: number, featureOn: boolean, coachMayRate: boolean, errors: string[], scoutErrors: string[] }} */
 	const made = { teamId: 0, playerId: 0, personId: 0, personReused: false, assignmentId: 0, prospectId: 0, featureOn: false, coachMayRate: false, errors: [], scoutErrors: [] };
+	try {
+		await seedSteps( browser, baseURL, who, made );
+	} catch ( e ) {
+		// A throw partway leaves whatever was made already: take it away
+		// before failing, since the caller never gets `made` to do it.
+		await removeFixture( browser, baseURL, made ).catch( () => [] );
+		throw e;
+	}
+	return made;
+}
 
-	const admin = await restContext( browser, baseURL, 'tests/e2e/.auth/admin.json' );
+/**
+ * The calls `seedFixture()` makes, recording each id in `made` as soon as
+ * it exists so a throw later on can still remove it.
+ *
+ * @param {import('@playwright/test').Browser} browser
+ * @param {string|undefined} baseURL
+ * @param {{ coachUserId: number, coachState: string, scoutState: string }} who
+ * @param {Awaited<ReturnType<typeof seedFixture>>} made
+ */
+async function seedSteps( browser, baseURL, who, made ) {
+	const admin =await restContext( browser, baseURL, 'tests/e2e/.auth/admin.json' );
 	try {
 		if ( ! admin.ready ) {
 			made.errors.push( 'the admin dashboard carried no REST config' );
-			return made;
+			return;
 		}
 		const page = admin.page;
 
@@ -104,7 +124,7 @@ async function seedFixture( browser, baseURL, who ) {
 		const headCoach = rows.find( ( r ) => r.role_key === 'head_coach' );
 		if ( ! headCoach ) {
 			made.errors.push( `no head_coach functional role: HTTP ${ roles.status }` );
-			return made;
+			return;
 		}
 
 		const person = await rest( page, 'POST', 'people', {
@@ -186,8 +206,6 @@ async function seedFixture( browser, baseURL, who ) {
 	} finally {
 		await scout.context.close();
 	}
-
-	return made;
 }
 
 /**
@@ -209,6 +227,15 @@ async function removeFixture( browser, baseURL, made ) {
 		if ( made.assignmentId ) {
 			const res = await rest( page, 'DELETE', `functional-roles/assignments/${ made.assignmentId }`, null );
 			if ( res.status !== 200 ) problems.push( `assignment ${ made.assignmentId } not deleted: HTTP ${ res.status }` );
+			// Asked by team while the team still exists: the list joins
+			// teams, so after the team delete it could not show the row.
+			if ( made.teamId ) {
+				const listed = await rest( page, 'GET', `functional-roles/assignments?team_id=${ made.teamId }`, null );
+				const left = ( listed.json && listed.json.data && listed.json.data.rows ? listed.json.data.rows : [] )
+					.filter( ( r ) => Number( r.id ) === made.assignmentId );
+				if ( listed.status !== 200 ) problems.push( `assignments of team ${ made.teamId } not listed: HTTP ${ listed.status }` );
+				if ( left.length ) problems.push( `assignment ${ made.assignmentId } is still listed` );
+			}
 		}
 
 		if ( made.playerId ) {
@@ -226,13 +253,6 @@ async function removeFixture( browser, baseURL, made ) {
 			if ( gone.status !== 200 ) problems.push( `team ${ made.teamId } not deleted: HTTP ${ gone.status }` );
 			const after = await rest( page, 'GET', `teams/${ made.teamId }`, null );
 			if ( after.status !== 404 ) problems.push( `team ${ made.teamId } still answers HTTP ${ after.status } after the delete` );
-		}
-
-		if ( made.assignmentId ) {
-			const listed = await rest( page, 'GET', `functional-roles/assignments?search=${ encodeURIComponent( PREFIX + 'Coach' ) }`, null );
-			const left = ( listed.json && listed.json.data && listed.json.data.rows ? listed.json.data.rows : [] )
-				.filter( ( r ) => Number( r.id ) === made.assignmentId );
-			if ( left.length ) problems.push( `assignment ${ made.assignmentId } is still listed` );
 		}
 
 		// REST cannot remove a staff record: it is archived. One the fixture

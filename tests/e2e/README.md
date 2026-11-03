@@ -167,9 +167,11 @@ so the fixture loads one admin page afterwards to clear it before the walk.
 Every name the fixture writes starts with `e2e-`. Each persona walk fails
 when the fixture is incomplete or when its home shows no `.tt-pd-row-link`.
 `afterAll` removes the fixture before the accounts, and fails if any of it
-is left as it should not be: the player goes archive, trash, recycle-bin
+is left as it should not be: the assignment is deleted first and must no
+longer be listed for its team; the player goes archive, trash, recycle-bin
 purge and must answer 404; the team goes through `DELETE /teams/{id}/permanent`
-and must answer 404; the assignment is deleted and must no longer be listed.
+and must answer 404. If setup throws partway, whatever it had made is
+removed before the error is passed on.
 REST has no route that removes a staff record or a prospect, so the staff
 record is archived and the prospect is left, both under the `e2e-` prefix.
 On CI the container goes with the job; locally, find them by the prefix.

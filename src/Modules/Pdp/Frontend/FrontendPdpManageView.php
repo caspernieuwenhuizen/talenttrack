@@ -542,7 +542,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         $columns = [
             // `mobile` — phone row roles (docs/mobile-patterns.md).
             'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'primary' ],
-            'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+            'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary', 'mobile_plain' => true ],
             'coverage'    => [ 'label' => __( 'PDP this season', 'talenttrack' ), 'render' => 'html', 'value_key' => 'coverage_html', 'mobile' => 'badge' ],
             'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html', 'mobile' => 'detail' ],
         ];
