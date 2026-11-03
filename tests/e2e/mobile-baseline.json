@@ -80,6 +80,7 @@
       "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
       "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the list its first player)." },
       "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). At 320px a card is about 191px." },
@@ -92,6 +93,7 @@
       "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
       "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the list its first player)." },
       "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
@@ -104,6 +106,7 @@
       "lost-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
       "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+      "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the list its first player)." },
       "potential-overview": { "kinds": [ "tap-target" ], "reason": "Six checkbox or radio inputs are 20x20." },
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
@@ -117,17 +120,26 @@
         "320": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         },
         "360": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         },
         "390": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         }
       }
     },
@@ -135,14 +147,17 @@
       "widths": {
         "320": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open (#4823), the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Until they are fixed this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         },
         "360": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open (#4823), the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Until they are fixed this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         },
         "390": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "dashboard#home": { "kinds": [ "tap-target" ], "reason": "With the widget folds open (#4823), the \"Toon alles\" (show all) link is 72x24 and the \"Bezoek plannen\" (plan a visit) action is 40px high. Until they are fixed this entry also hides the scout's row link, so the row-link revert proof runs on the head coach only." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
         }
       }

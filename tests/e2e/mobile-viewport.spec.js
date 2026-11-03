@@ -71,6 +71,7 @@ const { uniqueName } = require( './helpers/admin' );
 const { rest } = require( './helpers/match-prep' );
 const { widestOffender } = require( './helpers/overflow' );
 const { WALKED_PERSONAS, createPersona, deletePersona } = require( './helpers/personas' );
+const { seedFixture, removeFixture } = require( './helpers/gate-fixture' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
@@ -249,6 +250,27 @@ const RECORD_SURFACES = [
 async function hideAdminBar( page ) {
 	await page.addStyleTag( {
 		content: '#wpadminbar { display: none !important; } html { margin-top: 0 !important; }',
+	} );
+}
+
+/**
+ * Open every widget fold on the dashboard home (#4823).
+ *
+ * On a phone the dashboard closes its widget folds (`details.tt-pd-fold`,
+ * #1375) once the page has loaded, and what is inside a closed fold is not
+ * a tap target the checks count. The tables and their row links sit inside
+ * those folds, so the home is measured as a user sees it after opening
+ * each one: the fold's own summary is measured either way.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<number>} how many folds were opened
+ */
+async function openFolds( page ) {
+	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	return page.evaluate( () => {
+		const folds = Array.from( document.querySelectorAll( '.tt-dashboard details.tt-pd-fold' ) );
+		folds.forEach( ( d ) => { d.open = true; } );
+		return folds.length;
 	} );
 }
 
@@ -482,6 +504,8 @@ const recordIds = {};
 const created = [];
 /** @type {Record<string, { id: number, state?: string, error?: string }>} persona key => account; `state` only when it can be walked with */
 const accounts = {};
+/** @type {Awaited<ReturnType<typeof seedFixture>>|null} the rows made for the persona dashboards (#4823) */
+let fixture = null;
 
 /**
  * A logged-in desktop page for the REST calls around the walk. The calls
@@ -523,21 +547,47 @@ test.describe( 'mobile viewport gate', () => {
 		for ( const persona of WALKED_PERSONAS ) {
 			accounts[ persona.key ] = await createPersona( browser, testInfo.project.use.baseURL, persona, testInfo.project.name );
 		}
+
+		// #4823 — rows for the persona dashboards' tables, so their row
+		// links are measured. Needs both persona accounts.
+		const coach = accounts.head_coach;
+		const scout = accounts.scout;
+		fixture = coach && coach.state && scout && scout.state
+			? await seedFixture( browser, testInfo.project.use.baseURL, {
+				coachUserId: coach.id,
+				coachState: coach.state,
+				scoutState: scout.state,
+			} )
+			: null;
 	} );
 
 	test.afterAll( async ( { browser }, testInfo ) => {
+		// #4823 — the fixture goes first, while the accounts it hangs off
+		// still exist. Everything REST can remove must be gone; the staff
+		// record and the prospect, which it cannot, must carry the prefix.
+		// Asserted at the end, so a leftover never skips the account deletes.
+		/** @type {string[]} */
+		let left = [];
+		if ( fixture ) {
+			left = await removeFixture( browser, testInfo.project.use.baseURL, fixture );
+			fixture = null;
+		}
+
 		// Any account that was made is deleted, also one that could not sign in.
 		for ( const [ key, account ] of Object.entries( accounts ) ) {
 			if ( account.id > 0 ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
 			delete accounts[ key ];
 		}
-		if ( ! created.length ) return;
-		const { context, page } = await restPage( browser, testInfo );
-		for ( const restPath of created.slice().reverse() ) {
-			await rest( page, 'DELETE', restPath, {} );
+		if ( created.length ) {
+			const { context, page } = await restPage( browser, testInfo );
+			for ( const restPath of created.slice().reverse() ) {
+				await rest( page, 'DELETE', restPath, {} );
+			}
+			created.length = 0;
+			await context.close();
 		}
-		created.length = 0;
-		await context.close();
+
+		expect( left, `the gate's fixture was not cleaned up:\n  ${ left.join( '\n  ' ) }` ).toEqual( [] );
 	} );
 
 	/**
@@ -614,6 +664,7 @@ test.describe( 'mobile viewport gate', () => {
 			}
 
 			await hideAdminBar( page );
+			if ( key === HOME_SURFACE.key ) await openFolds( page );
 
 			// Every check reads the same settled page: a list's rows carry
 			// links and buttons of their own, and whether they had arrived
@@ -842,6 +893,21 @@ test.describe( 'mobile viewport gate', () => {
 					`[${ persona.key }] its home links to only ${ surfaces.length } phone-reachable surface(s), fewer than ${ persona.minSurfaces }: the walk is shrinking`
 				).toBeGreaterThanOrEqual( persona.minSurfaces );
 
+				// #4823 — the dashboard tables have rows, so the row links
+				// the walk measures on the home are real ones, not nothing.
+				expect( fixture, `[${ persona.key }] the dashboard fixture was not made` ).not.toBeNull();
+				const isCoach = persona.key === 'head_coach';
+				const fixtureErrors = fixture ? ( isCoach ? fixture.errors : fixture.scoutErrors ) : [];
+				expect( fixtureErrors, `[${ persona.key }] the dashboard fixture is incomplete` ).toEqual( [] );
+				if ( isCoach ) {
+					expect( fixture && fixture.featureOn, 'behaviour_rating is switched on' ).toBe( true );
+					expect( fixture && fixture.coachMayRate, 'the coach holds tt_rate_player_behaviour (behaviour-ratings answered 400, not 403)' ).toBe( true );
+				}
+				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+				const rowLinks = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
+				console.log( `\n[${ persona.key }] ${ rowLinks } row link(s) on the dashboard home` );
+				expect( rowLinks, `[${ persona.key }] the dashboard home shows no .tt-pd-row-link, so the walk is blind to them` ).toBeGreaterThan( 0 );
+
 				await walk( page, persona.key, surfaces, false );
 			} finally {
 				await context.close();
@@ -895,6 +961,64 @@ test.describe( 'mobile viewport gate', () => {
 			await context.close();
 		}
 	} );
+
+	// #4823 — the row links the fixture renders, measured against #4817's
+	// floor. #4819 added it to persona-dashboard.css; since #4830 the
+	// coarse-pointer half sits next to the record-link floor in public.css.
+	// Without it a row link is its line of text, 21px tall. This takes the
+	// floor away on the page and requires the row links to come back as a
+	// tap-target finding the persona's home baseline does not allow, so
+	// reverting the floor fails the gate. The baseline is per kind, and the
+	// scout's home already carries two other small targets, so the proof
+	// runs where a revert is the only tap-target on the home: the coach.
+	for ( const persona of WALKED_PERSONAS.filter( ( p ) => p.key === 'head_coach' ) ) {
+		test( `without the row-link rule, the ${ persona.key } dashboard's row links are tap-target findings`, async ( { browser }, testInfo ) => {
+			const account = accounts[ persona.key ];
+			const state = account && account.state;
+			expect( state, `[${ persona.key }] no account to walk with` ).toBeTruthy();
+			if ( ! state ) return;
+
+			const context = await browser.newContext( phoneContext( testInfo, state ) );
+			const page = await context.newPage();
+			try {
+				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+				await hideAdminBar( page );
+				await openFolds( page );
+				const links = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
+				expect( links, `[${ persona.key }] no row links to measure` ).toBeGreaterThan( 0 );
+
+				const tapCount = ( findings ) => {
+					const tap = findings.find( ( f ) => f.kind === 'tap-target' );
+					return tap ? Number( ( /^(\d+) under/.exec( tap.detail ) || [ '', '0' ] )[ 1 ] ) : 0;
+				};
+				const sizes = () => page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.map( ( el ) => {
+					const r = el.getBoundingClientRect();
+					return `${ Math.round( r.width ) }x${ Math.round( r.height ) }`;
+				} ) );
+
+				const kept = await sizes();
+				const before = tapCount( await measure( page, 'native' ) );
+				expect(
+					kept.every( ( s ) => s.split( 'x' ).every( ( n ) => Number( n ) >= 48 ) ),
+					`[${ persona.key }] with the floor in place every row link is at least 48x48: ${ kept.join( ', ' ) }`
+				).toBe( true );
+
+				// The page as a revert leaves it: no rule for the class, so
+				// the link is its line of text.
+				await page.addStyleTag( {
+					content: '.tt-pd-row-link { display: inline !important; min-height: 0 !important; min-width: 0 !important; justify-content: normal !important; }',
+				} );
+				const reverted = await sizes();
+				const findings = await measure( page, 'native' );
+				const allowed = ( loadBaseline( page.viewportSize().width, persona.key )[ HOME_SURFACE.key ] || { kinds: [] } ).kinds;
+				console.log( `\n[${ persona.key }] row links ${ kept.join( ', ' ) } with the floor, ${ reverted.join( ', ' ) } without; tap-target findings ${ before } then ${ tapCount( findings ) }` );
+				expect( tapCount( findings ), `[${ persona.key }] every reverted row link is counted as a tap-target finding` ).toBe( before + links );
+				expect( allowed, `[${ persona.key }] the baseline allows tap-target findings on the dashboard home, so a revert would pass` ).not.toContain( 'tap-target' );
+			} finally {
+				await context.close();
+			}
+		} );
+	}
 } );
 
 /**
