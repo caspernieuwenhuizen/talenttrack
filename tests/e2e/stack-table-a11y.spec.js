@@ -13,7 +13,11 @@ const { test, expect } = require( '@playwright/test' );
  * row hidden with `display: none` would pass a DOM check and fail here.
  *
  * Measured on the dashboard home's first data-table widget (the admin's
- * Recent audit events). Skips when the dashboard shows none.
+ * Recent audit events), and on the message log, a `.tt-table` that the
+ * legacy phone stack in frontend-mobile.css must leave alone (its
+ * `thead { display: none }` would drop the headers). The message log has a
+ * row from tests/e2e/setup/message-log-row.php. Each case skips when its
+ * page shows no table.
  */
 
 test.use( { storageState: 'tests/e2e/.auth/admin.json' } );
@@ -22,10 +26,11 @@ test.use( { storageState: 'tests/e2e/.auth/admin.json' } );
  * The accessibility tree's view of the first stack-table on the page.
  *
  * @param {import('@playwright/test').Page} page
+ * @param {string} url
  * @returns {Promise<{ headers: string[], domHeaders: string[], tables: number, rows: number, cells: number, cellNames: string[], domCells: { label: string, text: string }[] } | null>}
  */
-async function readTable( page ) {
-	await page.goto( '/' );
+async function readTable( page, url = '/' ) {
+	await page.goto( url );
 	await page.waitForLoadState( 'load', { timeout: 30000 } );
 	const table = page.locator( 'table.tt-stack-table' ).first();
 	if ( ( await table.count() ) === 0 ) return null;
@@ -75,6 +80,34 @@ async function readTable( page ) {
 	};
 }
 
+/**
+ * A stacked table on a phone: no visible header row, and to a screen reader
+ * a table with its column headers, rows, and cells read once.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {NonNullable<Awaited<ReturnType<typeof readTable>>>} ax
+ */
+async function expectStackedTable( page, ax ) {
+	// Stacked on screen: the header row takes no visible room.
+	const thead = await page.locator( 'table[data-tt-a11y-probe="1"] thead' ).boundingBox();
+	expect( thead && thead.height ).toBeLessThanOrEqual( 1 );
+
+	expect( ax.tables ).toBeGreaterThanOrEqual( 1 );
+	expect( ax.domHeaders.length ).toBeGreaterThan( 0 );
+	expect( ax.headers ).toEqual( ax.domHeaders );
+	expect( ax.rows ).toBeGreaterThanOrEqual( 2 );
+	expect( ax.cells ).toBeGreaterThanOrEqual( 1 );
+
+	// #4844 — each stacked cell is read once: the column header names it,
+	// and the label drawn in front of the value stays out of the cell's own
+	// name.
+	expect( ax.cellNames.length ).toBe( ax.domCells.length );
+	ax.domCells.forEach( ( cell, i ) => {
+		if ( cell.label === '' || cell.text.startsWith( cell.label ) ) return;
+		expect( ax.cellNames[ i ].startsWith( cell.label ), `cell ${ i } (${ cell.label }) reads its label` ).toBe( false );
+	} );
+}
+
 test.describe( 'Stack-table on a phone', () => {
 	test.use( { viewport: { width: 360, height: 780 }, hasTouch: true, isMobile: true } );
 
@@ -82,25 +115,16 @@ test.describe( 'Stack-table on a phone', () => {
 		const ax = await readTable( page );
 		test.skip( ax === null, 'no data-table widget on this dashboard' );
 		if ( ax === null ) return;
+		await expectStackedTable( page, ax );
+	} );
 
-		// Stacked on screen: the header row takes no visible room.
-		const thead = await page.locator( 'table.tt-stack-table thead' ).first().boundingBox();
-		expect( thead && thead.height ).toBeLessThanOrEqual( 1 );
-
-		expect( ax.tables ).toBeGreaterThanOrEqual( 1 );
-		expect( ax.domHeaders.length ).toBeGreaterThan( 0 );
-		expect( ax.headers ).toEqual( ax.domHeaders );
-		expect( ax.rows ).toBeGreaterThanOrEqual( 2 );
-		expect( ax.cells ).toBeGreaterThanOrEqual( 1 );
-
-		// #4844 — each stacked cell is read once: the column header names
-		// it, and the label drawn in front of the value stays out of the
-		// cell's own name.
-		expect( ax.cellNames.length ).toBe( ax.domCells.length );
-		ax.domCells.forEach( ( cell, i ) => {
-			if ( cell.label === '' || cell.text.startsWith( cell.label ) ) return;
-			expect( ax.cellNames[ i ].startsWith( cell.label ), `cell ${ i } (${ cell.label }) reads its label` ).toBe( false );
-		} );
+	// The message log is a .tt-table: below 480px frontend-mobile.css's
+	// legacy stack would hide its header row with display: none.
+	test( 'the message log keeps its headers below 480px', async ( { page } ) => {
+		const ax = await readTable( page, '/?tt_view=messages' );
+		test.skip( ax === null, 'the message log shows no table on this site' );
+		if ( ax === null ) return;
+		await expectStackedTable( page, ax );
 	} );
 } );
 

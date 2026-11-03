@@ -53,37 +53,42 @@
  * see frontend-team-stats.css).
  */
 @media (max-width: 480px) {
-    .tt-table {
+    /* #4810 — a table on the stack-table primitive stacks itself and keeps
+       its header row in the accessibility tree; this legacy stack must not
+       reach it (its `thead { display: none }` would drop the headers).
+       `:where()` keeps every selector's weight as it was, so the sheets that
+       override these rules for their own .tt-table still win. */
+    .tt-table:where(:not(.tt-stack-table)) {
         border: none;
     }
-    .tt-table thead {
+    .tt-table:where(:not(.tt-stack-table)) thead {
         display: none;
     }
-    .tt-table,
-    .tt-table tbody,
-    .tt-table tr,
-    .tt-table td {
+    .tt-table:where(:not(.tt-stack-table)),
+    .tt-table:where(:not(.tt-stack-table)) tbody,
+    .tt-table:where(:not(.tt-stack-table)) tr,
+    .tt-table:where(:not(.tt-stack-table)) td {
         display: block;
         width: 100%;
         box-sizing: border-box;
     }
-    .tt-table tr {
+    .tt-table:where(:not(.tt-stack-table)) tr {
         background: #fff;
         border: 1px solid #ddd;
         border-radius: 6px;
         margin-bottom: 10px;
         padding: 8px 12px;
     }
-    .tt-table td {
+    .tt-table:where(:not(.tt-stack-table)) td {
         padding: 4px 0 !important;
         border: none !important;
         font-size: 13px;
     }
-    .tt-table td:empty {
+    .tt-table:where(:not(.tt-stack-table)) td:empty {
         display: none;
     }
     /* Cells are separated by a thin divider... */
-    .tt-table td + td {
+    .tt-table:where(:not(.tt-stack-table)) td + td {
         border-top: 1px dashed var(--tt-line) !important;
         padding-top: 6px !important;
         margin-top: 4px;
@@ -93,12 +98,12 @@
        the value and a long value wraps under it. A cell it could not
        label (a spanning cell) keeps the divider. Tables that wrote their
        own `data-label`s style them in their own sheet. */
-    .tt-table[data-tt-labels="auto"] td + td[data-label] {
+    .tt-table:where(:not(.tt-stack-table))[data-tt-labels="auto"] td + td[data-label] {
         border-top: none !important;
         padding-top: 4px !important;
         margin-top: 0;
     }
-    .tt-table[data-tt-labels="auto"] td[data-label]::before {
+    .tt-table:where(:not(.tt-stack-table))[data-tt-labels="auto"] td[data-label]::before {
         content: attr(data-label);
         display: inline-block;
         min-width: 6.5rem;
