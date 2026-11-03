@@ -38,6 +38,14 @@ class KpiCardWidget extends AbstractWidget {
 
     public function defaultMobilePriority(): int { return 40; }
 
+    /** #4827 — the KPI's label, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        if ( $slot->data_source === '' ) return '';
+        $source = KpiDataSourceRegistry::get( $slot->data_source );
+        return $source !== null ? $source->label() : $slot->data_source;
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $source_id = $slot->data_source;
         if ( $source_id === '' ) return '';
@@ -47,9 +55,7 @@ class KpiCardWidget extends AbstractWidget {
             ? $source->compute( $ctx->user_id, $ctx->club_id )
             : KpiValue::unavailable();
 
-        $label = $slot->persona_label !== ''
-            ? $slot->persona_label
-            : ( $source !== null ? $source->label() : $source_id );
+        $label = $this->titleFor( $slot );
 
         $trend_cls = $kpi->trend !== null ? ' tt-pd-trend-' . sanitize_html_class( $kpi->trend ) : '';
         $sparkline = $this->sparkline( $kpi );

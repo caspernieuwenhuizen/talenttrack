@@ -56,6 +56,18 @@ class InfoCardWidget extends AbstractWidget {
 
     public function defaultMobilePriority(): int { return 30; }
 
+    /** #4827 — the heading, and the phone fold's summary. '' for an unknown preset. */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        switch ( $slot->data_source ) {
+            case 'coach_nudge':     return __( 'A note from your coach', 'talenttrack' );
+            case 'pending_pdp_ack': return __( 'PDP awaiting your acknowledgement', 'talenttrack' );
+            case 'next_activity':   return __( 'Up next', 'talenttrack' );
+            case 'license_status':  return __( 'License & modules', 'talenttrack' );
+        }
+        return '';
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $preset = $slot->data_source;
         if ( $preset === '' ) return '';
@@ -71,19 +83,19 @@ class InfoCardWidget extends AbstractWidget {
                 if ( $player_id <= 0 ) return '';
                 $nudge = PlayerNudge::latestFor( $player_id, $ctx->user_id );
                 if ( $nudge === null ) return '';
-                return $this->renderShell( $slot, __( 'A note from your coach', 'talenttrack' ), $nudge['text'] );
+                return $this->renderShell( $slot, $nudge['text'] );
             case 'pending_pdp_ack':
-                return $this->renderShell( $slot, __( 'PDP awaiting your acknowledgement', 'talenttrack' ), __( 'No conversations are waiting on you.', 'talenttrack' ) );
+                return $this->renderShell( $slot, __( 'No conversations are waiting on you.', 'talenttrack' ) );
             case 'next_activity':
-                return $this->renderShell( $slot, __( 'Up next', 'talenttrack' ), __( 'Nothing scheduled.', 'talenttrack' ) );
+                return $this->renderShell( $slot, __( 'Nothing scheduled.', 'talenttrack' ) );
             case 'license_status':
-                return $this->renderShell( $slot, __( 'License & modules', 'talenttrack' ), __( 'Pro · 12 modules active.', 'talenttrack' ) );
+                return $this->renderShell( $slot, __( 'Pro · 12 modules active.', 'talenttrack' ) );
         }
         return '';
     }
 
-    private function renderShell( WidgetSlot $slot, string $title, string $body ): string {
-        $title = $slot->persona_label !== '' ? $slot->persona_label : $title;
+    private function renderShell( WidgetSlot $slot, string $body ): string {
+        $title = $this->titleFor( $slot );
         $inner = '<div class="tt-pd-info-title">' . esc_html( $title ) . '</div>'
             . '<div class="tt-pd-info-body">' . esc_html( $body ) . '</div>';
         return $this->wrap( $slot, $inner, 'info' );

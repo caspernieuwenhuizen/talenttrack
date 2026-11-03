@@ -44,9 +44,14 @@ class RecentCommentsWidget extends AbstractWidget {
 
     public function capRequired(): string { return 'tt_view_threads'; }
 
+    /** #4827 — the heading, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : __( 'Recent comments & notes', 'talenttrack' );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $rows  = $this->fetchRows( $ctx->club_id );
-        $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'Recent comments & notes', 'talenttrack' );
+        $title = $this->titleFor( $slot );
 
         if ( empty( $rows ) ) {
             $inner = '<div class="tt-pd-panel-head"><span class="tt-pd-panel-title">' . esc_html( $title ) . '</span></div>'

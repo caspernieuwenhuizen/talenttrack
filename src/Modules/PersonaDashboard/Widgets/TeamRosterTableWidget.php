@@ -60,12 +60,41 @@ class TeamRosterTableWidget extends AbstractWidget {
 
     public function personaContext(): string { return PersonaContext::ACADEMY; }
 
+    /**
+     * #4827 — the heading, and the phone fold's summary: the slot's label,
+     * else the team's "Name (age group) roster", else "Team roster" when no
+     * team is set or it is gone.
+     */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        $config = $this->parseConfig( $slot->data_source );
+        return $this->titleWith( $slot, $config['team_id'] > 0 ? $this->findTeam( $config['team_id'], CurrentClub::id() ) : null );
+    }
+
+    private function titleWith( WidgetSlot $slot, ?\stdClass $team ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        if ( $team === null ) return __( 'Team roster', 'talenttrack' );
+        return sprintf(
+            /* translators: 1: team name, 2: age group */
+            __( '%1$s (%2$s) roster', 'talenttrack' ),
+            $team->name,
+            $team->age_group ?: '—'
+        );
+    }
+
+    private function findTeam( int $team_id, int $club_id ): ?\stdClass {
+        global $wpdb;
+        $team = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, name, age_group FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id, $club_id
+        ) );
+        return $team instanceof \stdClass ? $team : null;
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $config  = $this->parseConfig( $slot->data_source );
         $club_id = CurrentClub::id();
-        $title   = $slot->persona_label !== ''
-            ? $slot->persona_label
-            : __( 'Team roster', 'talenttrack' );
+        $title   = $this->titleWith( $slot, null );
 
         if ( $config['team_id'] <= 0 ) {
             $head = '<div class="tt-pd-panel-head">'
@@ -77,14 +106,8 @@ class TeamRosterTableWidget extends AbstractWidget {
             return $this->wrap( $slot, $head . $body );
         }
 
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, name, age_group FROM {$p}tt_teams WHERE id = %d AND club_id = %d",
-            $config['team_id'], $club_id
-        ) );
-        if ( ! $team ) {
+        $team = $this->findTeam( $config['team_id'], $club_id );
+        if ( $team === null ) {
             $head = '<div class="tt-pd-panel-head">'
                 . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'
                 . '</div>';
@@ -95,14 +118,7 @@ class TeamRosterTableWidget extends AbstractWidget {
         }
 
         $rows = $this->fetchRoster( $config['team_id'], $club_id, $config['days'] );
-        $title = $slot->persona_label !== ''
-            ? $slot->persona_label
-            : sprintf(
-                /* translators: 1: team name, 2: age group */
-                __( '%1$s (%2$s) roster', 'talenttrack' ),
-                $team->name,
-                $team->age_group ?: '—'
-            );
+        $title = $this->titleWith( $slot, $team );
 
         $head = '<div class="tt-pd-panel-head">'
             . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'

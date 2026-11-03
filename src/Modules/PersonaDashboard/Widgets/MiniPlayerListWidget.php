@@ -59,15 +59,25 @@ class MiniPlayerListWidget extends AbstractWidget {
 
     public function defaultMobilePriority(): int { return 45; }
 
-    public function render( WidgetSlot $slot, RenderContext $ctx ): string {
-        $preset_titles = [
+    /** @return array<string,string> preset => its title */
+    private static function presetTitles(): array {
+        return [
             'podium_top3'        => __( 'Podium · my team', 'talenttrack' ),
             'recent_evaluations' => __( 'Recent evaluations', 'talenttrack' ),
             'top_movers'         => __( 'Top movers · this month', 'talenttrack' ),
         ];
-        if ( ! isset( $preset_titles[ $slot->data_source ] ) ) return '';
+    }
 
-        $title = $slot->persona_label !== '' ? $slot->persona_label : (string) $preset_titles[ $slot->data_source ];
+    /** #4827 — the heading, and the phone fold's summary. '' for an unknown preset. */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        return self::presetTitles()[ $slot->data_source ] ?? '';
+    }
+
+    public function render( WidgetSlot $slot, RenderContext $ctx ): string {
+        if ( ! isset( self::presetTitles()[ $slot->data_source ] ) ) return '';
+
+        $title = $this->titleFor( $slot );
         $head  = '<div class="tt-pd-panel-head"><span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>';
         $head_close = '</div>';
 

@@ -47,11 +47,16 @@ class TaskListPanelWidget extends AbstractWidget {
 
     public function capRequired(): string { return 'tt_view_own_tasks'; }
 
+    /** #4827 — the heading, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : __( 'My tasks', 'talenttrack' );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $fetched = $this->fetchRows( $ctx->user_id );
         $rows    = $fetched['rows'];
         $total   = $fetched['total'];
-        $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'My tasks', 'talenttrack' );
+        $title = $this->titleFor( $slot );
         $see_all = $ctx->viewUrl( 'my-tasks' );
 
         $body = '';

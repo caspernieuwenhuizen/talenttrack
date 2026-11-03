@@ -61,6 +61,11 @@ class QuickActionsPanelWidget extends AbstractWidget {
      */
     public function dataSourceMultiple(): bool { return true; }
 
+    /** #4827 — the heading, and the phone fold's summary. */
+    public function titleFor( WidgetSlot $slot ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : __( 'Quick actions', 'talenttrack' );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $action = WidgetRegistry::get( 'action_card' );
         if ( $action === null ) return '';
@@ -74,7 +79,7 @@ class QuickActionsPanelWidget extends AbstractWidget {
         }
         if ( $items === '' ) return '';
 
-        $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'Quick actions', 'talenttrack' );
+        $title = $this->titleFor( $slot );
         $inner = '<div class="tt-pd-panel-title">' . esc_html( $title ) . '</div>'
             . '<div class="tt-pd-panel-grid">' . $items . '</div>';
         return $this->wrap( $slot, $inner, 'panel' );

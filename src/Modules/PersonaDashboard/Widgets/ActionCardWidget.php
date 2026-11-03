@@ -121,6 +121,12 @@ class ActionCardWidget extends AbstractWidget {
 
     public function defaultMobilePriority(): int { return 70; }
 
+    /** #4827 — the card's label, and the phone fold's summary. '' for an unknown action. */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        return isset( self::ACTIONS[ $slot->data_source ] ) ? self::actionLabel( $slot->data_source ) : '';
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $id = $slot->data_source;
         if ( ! isset( self::ACTIONS[ $id ] ) ) return '';
@@ -128,9 +134,7 @@ class ActionCardWidget extends AbstractWidget {
         // Every action declares its cap, so there is no cap-less case.
         if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), $action['cap'] ) ) return '';
 
-        $label = $slot->persona_label !== ''
-            ? $slot->persona_label
-            : self::actionLabel( (string) $id );
+        $label = $this->titleFor( $slot );
 
         // Build the URL — wizard-routed when the action has a `wizard`
         // slug registered, flat-form otherwise.

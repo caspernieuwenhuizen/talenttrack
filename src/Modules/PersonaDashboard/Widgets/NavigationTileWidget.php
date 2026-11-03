@@ -70,6 +70,23 @@ class NavigationTileWidget extends AbstractWidget {
 
     public function personaContext(): string { return PersonaContext::PLAYER_PARENT; }
 
+    /**
+     * #4827 — the tile's label, and the phone fold's summary (tiles are not
+     * folded today, but the title has one source). '' when the current user
+     * has no such tile.
+     */
+    public function titleFor( WidgetSlot $slot ): string {
+        if ( $slot->persona_label !== '' ) return $slot->persona_label;
+        if ( $slot->data_source === '' ) return '';
+        $tile = $this->findTile( $slot->data_source, get_current_user_id() );
+        return $tile === null ? '' : $this->titleFrom( $slot, $tile );
+    }
+
+    /** @param array<string,mixed> $tile */
+    private function titleFrom( WidgetSlot $slot, array $tile ): string {
+        return $slot->persona_label !== '' ? $slot->persona_label : (string) ( $tile['label'] ?? $slot->data_source );
+    }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $slug = $slot->data_source;
         if ( $slug === '' ) return '';
@@ -77,7 +94,7 @@ class NavigationTileWidget extends AbstractWidget {
         $tile = $this->findTile( $slug, $ctx->user_id );
         if ( $tile === null ) return '';
 
-        $label = $slot->persona_label !== '' ? $slot->persona_label : (string) ( $tile['label'] ?? $slug );
+        $label = $this->titleFrom( $slot, $tile );
         $desc  = (string) ( $tile['desc'] ?? $tile['description'] ?? '' );
         // #1373 — tiles registered with a url_callback (e.g. wizard
         // entry points) carry a pre-rendered url; plain tiles keep
