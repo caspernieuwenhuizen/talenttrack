@@ -233,7 +233,7 @@ final class TemplateGuide {
                 'family'    => self::FAMILY_TRANSACTIONAL,
                 'what'      => __( 'Tells the person who set up a scheduled report that it was not sent, because it refers to a field that no longer exists, and links to the schedule.', 'talenttrack' ),
                 'who'       => __( 'The person who set up the scheduled report.', 'talenttrack' ),
-                'when'      => __( 'The first time a scheduled run is skipped, and again only if it breaks again after being fixed.', 'talenttrack' ),
+                'when'      => __( 'The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed.', 'talenttrack' ),
                 'triggered' => true,
             ],
             'desktop_link' => [

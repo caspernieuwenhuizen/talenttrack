@@ -39,6 +39,12 @@ final class ScheduledReportNotSentTest extends WP_UnitTestCase {
     /** @var list<array<string,mixed>> */
     private array $mail = [];
 
+    /** @var list<string> */
+    private array $locales = [];
+
+    /** @var list<string>|null */
+    private ?array $availableLanguages = null;
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
@@ -49,14 +55,7 @@ final class ScheduledReportNotSentTest extends WP_UnitTestCase {
         // A KPI whose own filter names a field its fact does not have.
         KpiRegistry::register( new Kpi( self::BROKEN_KPI, 'Broken test KPI', 'goals', 'count', [ 'decided_by_eq' => 1 ] ) );
 
-        $this->owner = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'owner-4874@example.test' ] );
-        // A person in this club, so the schedule treats the address as the
-        // owner's account and reaches the KPI read.
-        $wpdb->insert( "{$wpdb->prefix}tt_people", [
-            'club_id' => (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), 'first_name' => 'Owner', 'last_name' => 'Schedule',
-            'role_type' => 'head_of_development', 'wp_user_id' => $this->owner, 'status' => 'active',
-        ] );
-        $this->flush();
+        $this->owner = $this->clubAccount( 'owner-4874@example.test' );
 
         TemplateRegistry::clear();
         ChannelAdapterRegistry::clear();
@@ -73,6 +72,14 @@ final class ScheduledReportNotSentTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         remove_filter( 'tt_comms_email_send', [ $this, 'captureSend' ], 10 );
+        remove_action( 'switch_locale', [ $this, 'captureLocale' ] );
+        while ( is_locale_switched() ) restore_previous_locale();
+        if ( $this->availableLanguages !== null ) {
+            $prop = new \ReflectionProperty( \WP_Locale_Switcher::class, 'available_languages' );
+            $prop->setAccessible( true );
+            $prop->setValue( $GLOBALS['wp_locale_switcher'], $this->availableLanguages );
+            $this->availableLanguages = null;
+        }
         $all = KpiRegistry::all();
         unset( $all[ self::BROKEN_KPI ] );
         KpiRegistry::clear();
@@ -120,6 +127,49 @@ final class ScheduledReportNotSentTest extends WP_UnitTestCase {
         $this->assertCount( 2, $this->noticesTo( 'owner-4874@example.test' ), 'the breakage after the clear is a new one' );
     }
 
+    public function test_an_owner_who_has_left_the_club_is_not_told(): void {
+        // A colleague still in the club receives the report, so the run
+        // reaches the KPI read and finds the missing field.
+        $colleague = $this->clubAccount( 'colleague-4874@example.test' );
+        $this->assertGreaterThan( 0, $colleague );
+        $id = $this->schedule( [ 'colleague-4874@example.test' ] );
+
+        // The owner has left: the account remains, the person in this club does not.
+        global $wpdb;
+        $wpdb->delete( "{$wpdb->prefix}tt_people", [ 'wp_user_id' => $this->owner ] );
+        $this->flush();
+
+        $this->runDue( $id );
+
+        $this->assertNotNull( $this->repo->findById( $id )['last_error'] ?? null, 'fixture: the run found the missing field' );
+        $this->assertSame( [], $this->noticesTo( 'owner-4874@example.test' ), 'an owner who has left is not mailed' );
+        $this->assertSame( 0, $this->loggedNotices(), 'nor told in-app' );
+    }
+
+    public function test_the_message_is_rendered_in_the_owners_language(): void {
+        // The test install ships no core language packs, so the switcher
+        // would refuse nl_NL; a real Dutch site has it.
+        $switcher = $GLOBALS['wp_locale_switcher'];
+        $prop     = new \ReflectionProperty( \WP_Locale_Switcher::class, 'available_languages' );
+        $prop->setAccessible( true );
+        $this->availableLanguages = (array) $prop->getValue( $switcher );
+        $prop->setValue( $switcher, array_values( array_unique( array_merge( $this->availableLanguages, [ 'nl_NL' ] ) ) ) );
+
+        update_user_meta( $this->owner, 'locale', 'nl_NL' );
+        $this->assertSame( 'en_US', determine_locale(), 'fixture: the run itself is English' );
+        add_action( 'switch_locale', [ $this, 'captureLocale' ] );
+
+        $this->runDue( $this->schedule() );
+
+        $this->assertCount( 1, $this->noticesTo( 'owner-4874@example.test' ) );
+        $this->assertContains( 'nl_NL', $this->locales, "the copy is written in the owner's language" );
+        $this->assertFalse( is_locale_switched(), 'and the run gets its own language back' );
+    }
+
+    public function captureLocale( string $locale ): void {
+        $this->locales[] = $locale;
+    }
+
     public function test_the_message_type_waits_for_quiet_hours(): void {
         $this->assertFalse( MessageType::isOperational( MessageType::SCHEDULED_REPORT_NOT_SENT ) );
         $this->assertFalse( MessageType::bypassesQuietHours( MessageType::SCHEDULED_REPORT_NOT_SENT ), 'unlike the delivery, it carries no file and can wait' );
@@ -127,15 +177,31 @@ final class ScheduledReportNotSentTest extends WP_UnitTestCase {
 
     // ---- helpers ------------------------------------------------------------
 
-    private function schedule(): int {
+    /** @param list<string> $recipients */
+    private function schedule( array $recipients = [ 'owner-4874@example.test' ] ): int {
         $id = $this->repo->create( [
             'name'       => 'Not sent 4874',
             'kpi_key'    => self::BROKEN_KPI,
             'frequency'  => ScheduledReportsRepository::FREQUENCY_WEEKLY_MONDAY,
-            'recipients' => [ 'owner-4874@example.test' ],
+            'recipients' => $recipients,
         ], $this->owner );
         $this->assertGreaterThan( 0, $id );
         return $id;
+    }
+
+    /**
+     * An account with a person in this club, so the schedule treats the
+     * address as that account and reaches the KPI read.
+     */
+    private function clubAccount( string $email ): int {
+        global $wpdb;
+        $user_id = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => $email ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), 'first_name' => 'Staff', 'last_name' => 'Schedule',
+            'role_type' => 'head_of_development', 'wp_user_id' => $user_id, 'status' => 'active',
+        ] );
+        $this->flush();
+        return $user_id;
     }
 
     private function runDue( int $id ): void {

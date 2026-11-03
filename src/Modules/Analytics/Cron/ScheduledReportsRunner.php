@@ -324,12 +324,13 @@ final class ScheduledReportsRunner {
      * #4874 — tell the schedule's owner it was not sent and why, with a link
      * to the schedule. In-app and by email as the owner's preferences allow,
      * in the owner's language, and held for quiet hours like any message.
+     * An owner who has left the club is not told.
      *
      * @param array<string,mixed> $schedule
      */
     private static function tellOwnerNotSent( array $schedule, string $field ): void {
         $owner = (int) ( $schedule['created_by'] ?? 0 );
-        if ( $owner <= 0 || get_userdata( $owner ) === false ) return;
+        if ( $owner <= 0 || ! self::inClub( $owner ) ) return;
 
         CommsDispatcher::dispatchSync(
             ScheduledReportNotSentTemplate::KEY,

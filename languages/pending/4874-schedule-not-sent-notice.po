@@ -25,8 +25,8 @@ msgid "The person who set up the scheduled report."
 msgstr "Degene die het geplande rapport heeft ingesteld."
 
 #: src/Modules/Comms/Template/TemplateGuide.php
-msgid "The first time a scheduled run is skipped, and again only if it breaks again after being fixed."
-msgstr "De eerste keer dat een geplande run wordt overgeslagen, en pas opnieuw als het na herstel weer misgaat."
+msgid "The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed."
+msgstr "De eerste keer dat een geplande run wordt overgeslagen. Het wordt pas opnieuw verstuurd als de planning weer misgaat na een geslaagde verzending, of nadat ze is gepauzeerd en hervat."
 
 #: src/Shared/Frontend/FrontendMySettingsView.php
 msgid "When a report you scheduled could not be sent"
