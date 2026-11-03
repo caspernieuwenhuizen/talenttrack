@@ -38,7 +38,8 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         // v3.92.1 — breadcrumb: when sub is set, render two-level chain
         // (Dashboard → Configuration → [sub]); otherwise just Dashboard
-        // → Configuration.
+        // → Configuration. #4788 — the Configuration crumb is a sub-form's
+        // way back; no sub-form adds its own back link (CLAUDE.md §5a).
         $config_label = __( 'Configuration', 'talenttrack' );
         if ( $sub !== '' ) {
             $sub_labels = [
@@ -77,7 +78,6 @@ class FrontendConfigurationView extends FrontendViewBase {
         switch ( $sub ) {
             case 'general':
                 self::renderHeader( __( 'General', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderGeneralForm();
                 return;
             // #1531 — Branding + Theme & fonts consolidated into one
@@ -87,72 +87,59 @@ class FrontendConfigurationView extends FrontendViewBase {
             case 'branding':
             case 'theme':
                 self::renderHeader( __( 'Appearance', 'talenttrack' ) );
-                self::renderSubBackLink();
                 wp_enqueue_media();
                 self::renderAppearanceForm();
                 return;
             case 'rating':
                 self::renderHeader( __( 'Rating scale', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderRatingForm();
                 return;
             case 'pdp-blocks':
                 // v3.110.191 — academy-configurable PDP cycle blocks.
                 self::renderHeader( __( 'PDP cycle blocks', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderPdpBlocksForm();
                 return;
             case 'pdp-prep-questions':
                 // #3305 (epic #3301) — the prompts a coach prepares a PDP
                 // conversation against, configured per conversation template.
                 self::renderHeader( __( 'PDP preparation questions', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderPdpPrepQuestionsForm();
                 return;
             case 'match-minutes':
                 // #1727 — central per-age-category default match minutes.
                 self::renderHeader( __( 'Match minutes', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderMatchMinutesForm();
                 return;
             case 'football-form':
                 // #3044 — the default form (6v6 / 8v8 / 11v11) per age group.
                 self::renderHeader( __( 'Football form', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderFootballFormForm();
                 return;
             case 'menus':
                 self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderMenusForm();
                 return;
             case 'profile-cards':
                 // #2207 — club-wide visibility of the player-profile cards.
                 self::renderHeader( __( 'Profile cards', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderProfileCardsForm();
                 return;
             case 'dashboard':
                 self::renderHeader( __( 'Default dashboard', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderDashboardForm();
                 return;
             case 'export':
                 // #2540 — download the current configuration as JSON.
                 self::renderHeader( __( 'Export configuration', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderExportForm();
                 return;
             case 'messages':
                 // #2603 — switch individual message templates off.
                 self::renderHeader( __( 'Messages', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderMessagesForm();
                 return;
             case 'mfa-policy':
                 // #4707 — the academy-wide two-step rule.
-                // No "All configuration" link: the breadcrumb's Configuration
-                // crumb and Cancel both lead back (CLAUDE.md §5a).
                 self::renderHeader( __( 'Require two-step verification', 'talenttrack' ) );
                 self::renderMfaPolicyForm();
                 return;
@@ -173,7 +160,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                     }
                 }
                 self::renderHeader( __( 'Lookups', 'talenttrack' ) );
-                self::renderSubBackLink();
                 self::renderLookupsIndex();
                 return;
         }
@@ -1423,11 +1409,6 @@ class FrontendConfigurationView extends FrontendViewBase {
         })();
         </script>
         <?php
-    }
-
-    private static function renderSubBackLink(): void {
-        $base = remove_query_arg( [ 'config_sub' ] );
-        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All configuration', 'talenttrack' ) . '</a></p>';
     }
 
     /**
