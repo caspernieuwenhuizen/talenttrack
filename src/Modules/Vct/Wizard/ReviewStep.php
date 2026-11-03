@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctSessionBlocksRepository;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
 use TT\Modules\Vct\Rules\AgeAdmissibilityRule;
@@ -66,6 +67,14 @@ final class ReviewStep implements WizardStepInterface {
     public function nextStep( array $state ): ?string { return null; }
 
     public function submit( array $state ) {
+        // #4784 — asked again where the write happens: the When step's
+        // check does not cover rights that changed since, or a post sent
+        // straight to this step with another team in the state.
+        $team_id = (int) ( $state['team_id'] ?? 0 );
+        if ( ! AuthorizationService::canPlanForTeam( get_current_user_id(), $team_id, 'create_delete' ) ) {
+            return new \WP_Error( 'forbidden', __( 'You do not have permission to plan VCT for this team.', 'talenttrack' ) );
+        }
+
         $payload = [
             'team_id'                    => (int)    ( $state['team_id']      ?? 0 ),
             'session_date'               => (string) ( $state['session_date'] ?? '' ),
