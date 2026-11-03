@@ -1049,6 +1049,71 @@ test.describe( 'mobile viewport gate', () => {
 		} );
 	}
 
+	// #4901 — a list table's header row is hidden on a phone, and shows while
+	// keyboard focus is inside it; its sort links are then on screen under a
+	// finger, so each one meets the floor.
+	test( 'a list table\'s sort links are full tap targets once focus shows the header', async ( { browser }, testInfo ) => {
+		const context = await browser.newContext( phoneContext( testInfo, 'tests/e2e/.auth/admin.json' ) );
+		const page = await context.newPage();
+		try {
+			await page.goto( '/?tt_view=players', { waitUntil: 'domcontentloaded' } );
+			await hideAdminBar( page );
+			await waitForListHydration( page );
+
+			const links = page.locator( '.tt-dashboard .tt-list-table-table thead .tt-list-table-sortable a' );
+			expect( await links.count(), 'the players list has sortable columns' ).toBeGreaterThan( 0 );
+
+			await links.first().focus();
+			const sizes = await links.evaluateAll( ( els ) => els.map( ( a ) => {
+				const r = a.getBoundingClientRect();
+				return { label: ( a.textContent || '' ).trim(), left: r.left, right: r.right, width: Math.round( r.width ), height: Math.round( r.height ) };
+			} ) );
+			console.log( `\n[${ page.viewportSize().width }px] sort links with focus in the header: ${ sizes.map( ( s ) => `"${ s.label }" ${ s.width }x${ s.height }` ).join( '; ' ) }` );
+			sizes.forEach( ( s ) => {
+				expect( s.width >= MIN_TAP && s.height >= MIN_TAP, `sort link "${ s.label }" is ${ s.width }x${ s.height }, under ${ MIN_TAP }px` ).toBe( true );
+			} );
+			// Neighbouring targets keep 8px between them (CLAUDE.md § 2).
+			for ( let i = 1; i < sizes.length; i++ ) {
+				const gap = Math.round( sizes[ i ].left - sizes[ i - 1 ].right );
+				expect( gap, `"${ sizes[ i - 1 ].label }" and "${ sizes[ i ].label }" are ${ gap }px apart` ).toBeGreaterThanOrEqual( 8 );
+			}
+		} finally {
+			await context.close();
+		}
+	} );
+
+	// The prospects overview keeps its header labels on one line, so the
+	// header row shown by focus is wider than a phone: it scrolls inside the
+	// list's own wrapper, and the page does not scroll sideways.
+	test( 'the prospects header shown by focus scrolls inside its wrapper, not the page', async ( { browser }, testInfo ) => {
+		const context = await browser.newContext( phoneContext( testInfo, 'tests/e2e/.auth/admin.json' ) );
+		const page = await context.newPage();
+		try {
+			await page.goto( '/?tt_view=prospects-overview', { waitUntil: 'domcontentloaded' } );
+			await hideAdminBar( page );
+			await waitForListHydration( page );
+
+			const links = page.locator( '.tt-dashboard .tt-prospects-overview .tt-list-table-table thead .tt-list-table-sortable a' );
+			expect( await links.count(), 'the prospects overview has sortable columns' ).toBeGreaterThan( 0 );
+			await links.first().focus();
+
+			const fit = await page.evaluate( () => {
+				const doc = document.documentElement;
+				const wrap = document.querySelector( '.tt-dashboard .tt-prospects-overview .tt-list-table-wrap' );
+				return {
+					page: doc.scrollWidth - doc.clientWidth,
+					wrapOverflow: wrap ? getComputedStyle( wrap ).overflowX : 'none',
+					wrapScroll: wrap ? wrap.scrollWidth - wrap.clientWidth : 0,
+				};
+			} );
+			console.log( `\n[${ page.viewportSize().width }px] prospects header shown: page overflow ${ fit.page }px, wrapper overflow-x ${ fit.wrapOverflow }, wrapper scrolls ${ fit.wrapScroll }px` );
+			expect( fit.page, 'the page scrolls sideways with the header shown' ).toBeLessThanOrEqual( 0 );
+			expect( [ 'auto', 'scroll' ], 'the wrapper is the scroll container' ).toContain( fit.wrapOverflow );
+		} finally {
+			await context.close();
+		}
+	} );
+
 	// #4864 — the walk clears the admin's flash queue before it starts, so it
 	// never meets a flash. This queues one (a new team with no head coach
 	// gets TeamStaffPrompt's warning), opens the dashboard and measures the
