@@ -314,10 +314,8 @@ class DashboardShortcode {
                 'saved'                => __( 'Saved.', 'talenttrack' ),
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
                 'network_error'        => __( 'Network error.', 'talenttrack' ),
-                'confirm_delete_goal'  => __( 'Delete this goal?', 'talenttrack' ),
                 'save_evaluation'      => __( 'Save', 'talenttrack' ),
                 'save_activity'        => __( 'Save', 'talenttrack' ),
-                'add_goal'             => __( 'Add goal', 'talenttrack' ),
                 'save'                 => __( 'Save', 'talenttrack' ),
                 'draft_prompt'         => __( 'You have unsaved changes from an earlier session — restore?', 'talenttrack' ),
                 'draft_restore'        => __( 'Restore', 'talenttrack' ),
@@ -351,9 +349,7 @@ class DashboardShortcode {
                 // #3 — confirm dialog + post-event flash strings.
                 'confirm_ok'                => __( 'OK', 'talenttrack' ),
                 'confirm_cancel'            => __( 'Cancel', 'talenttrack' ),
-                'confirm_delete_goal_title' => __( 'Delete goal?', 'talenttrack' ),
                 'delete_label'              => __( 'Delete', 'talenttrack' ),
-                'deleted_goal'              => __( 'Goal deleted.', 'talenttrack' ),
                 // #2023 — recycle-bin move: Undo banner + cascade-preview dialog.
                 'undo'              => __( 'Undo', 'talenttrack' ),
                 'cascade_none'      => __( 'No linked records.', 'talenttrack' ),
