@@ -797,27 +797,79 @@
 .tt-pd-comments-author { font-weight: 500; }
 .tt-pd-comments-date { font-variant-numeric: tabular-nums; opacity: 0.85; }
 
-/* Data table */
+/* Data table — mobile-first (#4792). On a phone every row is a block with
+   one LABEL value line per cell, the label read from the cell's
+   `data-label` (the #4197 list-view pattern); from 480px up it is a table. */
 .tt-pd-table-wrap { overflow-x: auto; }
 .tt-pd-table {
+    display: block;
     width: 100%;
-    border-collapse: collapse;
     font-size: 0.875rem;
 }
-.tt-pd-table th,
-.tt-pd-table td {
-    padding: 0.625rem 0.5rem;
-    text-align: left;
+.tt-pd-table thead { display: none; }
+.tt-pd-table tbody,
+.tt-pd-table tr { display: block; }
+.tt-pd-table tr {
+    padding: 0.5rem 0;
     border-bottom: 1px solid var(--tt-pd-divider);
 }
-.tt-pd-table th {
+.tt-pd-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.25rem 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+.tt-pd-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 50%;
+    text-align: left;
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--tt-pd-text-muted);
     font-weight: 600;
 }
+.tt-pd-table td[data-label=""]::before,
+.tt-pd-table td.tt-pd-table-empty::before { content: none; }
+.tt-pd-table td[data-label=""] { justify-content: flex-end; }
 .tt-pd-table-empty { text-align: center; color: var(--tt-pd-text-muted); padding: 1rem 0; }
+.tt-pd-table td.tt-pd-table-empty { display: block; text-align: center; padding: 1rem 0; }
+
+@media (min-width: 480px) {
+    .tt-pd-table {
+        display: table;
+        border-collapse: collapse;
+    }
+    .tt-pd-table thead { display: table-header-group; }
+    .tt-pd-table tbody { display: table-row-group; }
+    .tt-pd-table tr {
+        display: table-row;
+        padding: 0;
+        border-bottom: 0;
+    }
+    .tt-pd-table th,
+    .tt-pd-table td {
+        display: table-cell;
+        padding: 0.625rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--tt-pd-divider);
+        overflow-wrap: normal;
+    }
+    .tt-pd-table td::before { content: none; }
+    .tt-pd-table th {
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--tt-pd-text-muted);
+        font-weight: 600;
+    }
+    .tt-pd-table td.tt-pd-table-empty { display: table-cell; text-align: center; padding: 1rem 0; }
+}
 
 /* Team overview grid (#0073) */
 .tt-pd-team-grid {
