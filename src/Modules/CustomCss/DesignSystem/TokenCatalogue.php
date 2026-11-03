@@ -67,6 +67,7 @@ final class TokenCatalogue {
      *     max?: float|int,
      *     step?: float|int,
      *     options?: array<string,string>,
+     *     unit?: string,
      * }>
      */
     public static function all(): array {
@@ -90,6 +91,7 @@ final class TokenCatalogue {
      *     max?: float|int,
      *     step?: float|int,
      *     options?: array<string,string>,
+     *     unit?: string,
      * }>
      */
     public static function definitions(): array {

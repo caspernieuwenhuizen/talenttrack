@@ -5623,12 +5623,6 @@ parameters:
 			path: src/Modules/Configuration/Admin/FormSlugContract.php
 
 		-
-			message: '#^Method TT\\Modules\\CustomCss\\DesignSystem\\TokenCatalogue\:\:definitions\(\) should return list\<array\{key\: string, css_var\: string, category\: string, kind\: string, label\: string, default\: string, legacy_default\?\: string, min\?\: float\|int, \.\.\.\}\> but returns array\{array\{key\: ''primary_color'', css_var\: ''\-\-tt\-primary'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#0b3d2e''\}, array\{key\: ''primary_hover_color'', css_var\: ''\-\-tt\-primary\-hover'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#0a3327''\}, array\{key\: ''secondary_color'', css_var\: ''\-\-tt\-secondary'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#e8b624''\}, array\{key\: ''secondary_hover…'', css_var\: ''\-\-tt\-secondary\-hover'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#d1a31a''\}, array\{key\: ''accent_color'', css_var\: ''\-\-tt\-accent'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#1e88e5''\}, array\{key\: ''accent_hover_color'', css_var\: ''\-\-tt\-accent\-hover'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#1976d2''\}, array\{key\: ''focus_ring_color'', css_var\: ''\-\-tt\-focus\-ring'', category\: ''brand'', kind\: ''color'', label\: string, default\: ''\#1e88e5''\}, array\{key\: ''success_color'', css_var\: ''\-\-tt\-success'', category\: ''status'', kind\: ''color'', label\: string, default\: ''\#2f9e5e'', legacy_default\: ''\#00a32a''\}, \.\.\.\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php
-
-		-
 			message: '#^Access to an undefined property object\:\:\$byte_count\.$#'
 			identifier: property.notFound
 			count: 1
