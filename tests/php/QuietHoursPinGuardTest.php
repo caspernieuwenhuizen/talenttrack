@@ -11,14 +11,18 @@ use WP_UnitTestCase;
  * holds the message, nothing reaches the channel, and the tests fail for no
  * real reason.
  *
- * Two rules, over every literal window a test sets:
+ * The rules, over every quiet-hours value a test sets:
  *
  * - No one-minute window. It holds every send during that minute.
+ * - No window open for one minute either, such as 00:00-23:59. No window
+ *   covers the whole day, so a test that expects a hold freezes the clock
+ *   with `FrozenCommsClock` instead (#4861).
  * - An empty window (start equals end) comes from `QuietHoursClosed`, not
  *   a hand-rolled pair, so there is one fixture to read and to trust.
+ * - Every value is a literal, so the rules above can read it.
  *
  * A test about quiet hours themselves sets a wider window and freezes the
- * clock through `QuietHoursPolicy`'s constructor. Neither rule touches that.
+ * clock, through `FrozenCommsClock` or `QuietHoursPolicy`'s constructor.
  */
 final class QuietHoursPinGuardTest extends WP_UnitTestCase {
 
@@ -28,8 +32,8 @@ final class QuietHoursPinGuardTest extends WP_UnitTestCase {
 
     /**
      * The fixture on a frozen clock: nothing is held at any second checked,
-     * the 03:00 run start and both sides of midnight included, nor at any
-     * minute of the day.
+     * 03:00:04 and both sides of midnight included, nor at any minute of the
+     * day.
      */
     public function test_closed_quiet_hours_hold_nothing_at_any_time(): void {
         $this->closeQuietHours();
@@ -56,7 +60,7 @@ final class QuietHoursPinGuardTest extends WP_UnitTestCase {
             }
         }
 
-        $this->assertSame( [], $found, 'Close quiet hours with QuietHoursClosed::closeQuietHours().' );
+        $this->assertSame( [], $found, 'Close quiet hours with QuietHoursClosed, or freeze the clock with FrozenCommsClock.' );
     }
 
     public function test_the_guard_catches_the_old_pin_and_a_hand_rolled_empty_window(): void {
@@ -71,6 +75,13 @@ final class QuietHoursPinGuardTest extends WP_UnitTestCase {
                . "\\TT\\Infrastructure\\Query\\QueryHelpers::set_config( 'comms_quiet_hours_end', '00:00' );";
         $this->assertSame( [ 'hand-rolled empty window 00:00-00:00' ], self::violations( $empty ) );
 
+        $all_day = "set_config( 'comms_quiet_hours_start', '00:00' ); set_config( 'comms_quiet_hours_end', '23:59' );";
+        $this->assertSame( [ 'one-minute gap 00:00-23:59' ], self::violations( $all_day ) );
+
+        $variable = "QueryHelpers::set_config( 'comms_quiet_hours_start', \$start );\n"
+                  . "QueryHelpers::set_config( 'comms_quiet_hours_end', self::SHUT );";
+        $this->assertSame( [ 'non-literal start value $start', 'non-literal end value self::SHUT' ], self::violations( $variable ) );
+
         $deliberate = "set_config( 'comms_quiet_hours_start', '21:00' ); set_config( 'comms_quiet_hours_end', '07:00' );";
         $this->assertSame( [], self::violations( $deliberate ) );
     }
@@ -82,7 +93,7 @@ final class QuietHoursPinGuardTest extends WP_UnitTestCase {
      */
     private static function violations( string $src ): array {
         preg_match_all(
-            "/set_config\\(\\s*'comms_quiet_hours_(start|end)'\\s*,\\s*'(\\d{1,2}:\\d{2})'/",
+            "/set_config\\(\\s*'comms_quiet_hours_(start|end)'\\s*,\\s*([^,)]+?)\\s*\\)/",
             $src,
             $m,
             PREG_SET_ORDER
@@ -91,14 +102,20 @@ final class QuietHoursPinGuardTest extends WP_UnitTestCase {
         $out   = [];
         $start = null;
         foreach ( $m as $call ) {
+            if ( ! preg_match( "/^'(\\d{1,2}:\\d{2})'$/", $call[2], $literal ) ) {
+                $out[] = "non-literal {$call[1]} value {$call[2]}";
+                if ( $call[1] === 'start' ) $start = null;
+                continue;
+            }
             if ( $call[1] === 'start' ) {
-                $start = $call[2];
+                $start = $literal[1];
                 continue;
             }
             if ( $start === null ) continue;
-            $end   = $call[2];
+            $end   = $literal[1];
             $width = ( self::minutes( $end ) - self::minutes( $start ) + 1440 ) % 1440;
             if ( $width === 1 ) $out[] = "one-minute window {$start}-{$end}";
+            if ( $width === 1439 ) $out[] = "one-minute gap {$start}-{$end}";
             if ( $width === 0 ) $out[] = "hand-rolled empty window {$start}-{$end}";
             $start = null;
         }

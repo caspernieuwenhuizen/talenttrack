@@ -27,6 +27,8 @@ use TT\Modules\Comms\Template\TemplateRegistry;
  */
 final class CommsReachabilityTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
+
     private string $table;
 
     public function set_up(): void {
@@ -49,9 +51,9 @@ final class CommsReachabilityTest extends WP_UnitTestCase {
 
     public function test_an_unreachable_recipient_is_recorded_as_such_inside_quiet_hours(): void {
         $this->registerSpies();
-        $this->setQuietHours( '00:00', '23:59' );
+        $this->freezeCommsClockAt( '23:59:30' );
 
-        $results = ( new CommsService() )->send( $this->quietHoursRequest( [ $this->unreachable() ] ) );
+        $results = $this->commsService()->send( $this->quietHoursRequest( [ $this->unreachable() ] ) );
 
         $this->assertSame( CommsResult::STATUS_QUIET_HOURS, $results[0]->status, 'the status is unchanged' );
         $this->assertFalse( $results[0]->reachable );
@@ -78,9 +80,9 @@ final class CommsReachabilityTest extends WP_UnitTestCase {
 
     public function test_a_reachable_recipient_held_until_morning_is_not_flagged(): void {
         $this->registerSpies();
-        $this->setQuietHours( '00:00', '23:59' );
+        $this->freezeCommsClockAt( '23:59:30' );
 
-        ( new CommsService() )->send( $this->quietHoursRequest( [ $this->reachable() ] ) );
+        $this->commsService()->send( $this->quietHoursRequest( [ $this->reachable() ] ) );
 
         $row = $this->onlyRow();
         $this->assertSame( CommsResult::STATUS_QUIET_HOURS, $row->status );
@@ -110,11 +112,11 @@ final class CommsReachabilityTest extends WP_UnitTestCase {
             $wpdb->query( "DELETE FROM {$this->table}" );
 
             $this->registerSpies();
-            $this->setQuietHours( '00:00', '23:59' );
+            $this->freezeCommsClockAt( '23:59:30' );
             $recipient = $which === 'reachable' ? $this->reachable() : $this->unreachable();
 
-            $preflight = ( new CommsService() )->preflight( $this->quietHoursRequest( [ $recipient ] ) );
-            ( new CommsService() )->send( $this->quietHoursRequest( [ $recipient ] ) );
+            $preflight = $this->commsService()->preflight( $this->quietHoursRequest( [ $recipient ] ) );
+            $this->commsService()->send( $this->quietHoursRequest( [ $recipient ] ) );
 
             $logged = $this->onlyRow()->reachable;
             $this->assertNotNull( $logged, 'a per-recipient path always establishes the fact' );
@@ -192,11 +194,6 @@ final class CommsReachabilityTest extends WP_UnitTestCase {
     /** @param Recipient[] $recipients */
     private function quietHoursRequest( array $recipients ): CommsRequest {
         return new CommsRequest( 'reach_template', 'reach_template', 1, 0, $recipients, [], null, false );
-    }
-
-    private function setQuietHours( string $start, string $end ): void {
-        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_start', $start );
-        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_end', $end );
     }
 
     /** A guardian the academy holds nothing for: no account, no address, no phone. */

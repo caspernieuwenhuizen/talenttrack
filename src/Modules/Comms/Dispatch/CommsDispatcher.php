@@ -10,6 +10,8 @@ use TT\Modules\Comms\CommsService;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
 use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
+use TT\Modules\Comms\Queue\DeferredSendQueue;
 
 /**
  * CommsDispatcher (#0066, v3.110.18) — event-driven action hook.
@@ -71,6 +73,33 @@ final class CommsDispatcher {
 
     public const ACTION_HOOK = 'tt_comms_dispatch';
 
+    /** @var (callable():int)|null */
+    private static $clock = null;
+
+    /**
+     * The clock the send path reads for quiet hours and for the deferred
+     * queue. Null, the default, is the system clock. Tests freeze it here,
+     * because every sender reaches Comms through this class and none of
+     * them takes a clock of its own.
+     *
+     * @param (callable():int)|null $clock Unix timestamp source.
+     */
+    public static function useClock( ?callable $clock ): void {
+        self::$clock = $clock;
+    }
+
+    /** The Comms service a dispatch sends through, on the dispatcher's clock. */
+    public static function service(): CommsService {
+        if ( self::$clock === null ) return new CommsService();
+        return new CommsService(
+            null,
+            new QuietHoursPolicy( self::$clock ),
+            null,
+            null,
+            new DeferredSendQueue( self::$clock )
+        );
+    }
+
     public static function init(): void {
         add_action( self::ACTION_HOOK, [ __CLASS__, 'handle' ], 10, 4 );
     }
@@ -120,7 +149,7 @@ final class CommsDispatcher {
         $request = self::buildRequest( $template_key, $payload, $recipients, $options );
 
         try {
-            return ( new CommsService() )->send( $request );
+            return self::service()->send( $request );
         } catch ( \Throwable $e ) {
             // Comms is best-effort — an exception here mustn't break the
             // caller's flow. But a Throwable escaping CommsService means

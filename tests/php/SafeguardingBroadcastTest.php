@@ -36,6 +36,8 @@ use TT\Modules\Invitations\PlayerParentsRepository;
  */
 final class SafeguardingBroadcastTest extends WP_UnitTestCase {
 
+    use FrozenCommsClock;
+
     private string $log;
     private int $admin;
     private int $parent;
@@ -105,8 +107,7 @@ final class SafeguardingBroadcastTest extends WP_UnitTestCase {
 
     /** The other half of "operational": the clock does not hold it either. */
     public function test_it_is_sent_during_quiet_hours(): void {
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '00:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '23:59' );
+        $this->freezeCommsClockAt( '00:00:30' );
 
         $results = ( new SafeguardingBroadcastSender() )->send(
             'Ground closed',
