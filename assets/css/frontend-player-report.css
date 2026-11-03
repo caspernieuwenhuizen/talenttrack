@@ -130,13 +130,30 @@ button.tt-pr-order__move {
 
 /*
  * Evaluations with subcategories (#3989): a subcategory row sits indented
- * under its main category, a step quieter. Written above the list-table
- * and evidence-table cell padding (phone cards, the table from 768px and
- * print), which would otherwise reset the indent.
+ * under its main category, a step quieter. Below 768px each row is a card
+ * with one line per cell, so the whole card moves in; the stacked row is
+ * full width, so its width goes back to auto or the margin would overflow.
+ * From 768px the row is a table row again and the label cell carries the
+ * indent, written above the list-table and evidence-table cell padding.
  */
+.tt-evidence__table tr.tt-pr-subcat {
+	margin-inline-start: var(--tt-sp-5, 1.5rem);
+	width: auto;
+}
+
 .tt-evidence__table tr.tt-pr-subcat > td.tt-pr-subcat__label {
-	padding-inline-start: var(--tt-sp-5, 1.5rem);
 	color: var(--tt-muted);
+}
+
+@media (min-width: 768px) {
+	.tt-evidence__table tr.tt-pr-subcat {
+		margin-inline-start: 0;
+		width: auto;
+	}
+
+	.tt-evidence__table tr.tt-pr-subcat > td.tt-pr-subcat__label {
+		padding-inline-start: var(--tt-sp-5, 1.5rem);
+	}
 }
 
 /*
