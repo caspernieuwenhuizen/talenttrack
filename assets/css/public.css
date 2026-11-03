@@ -1200,7 +1200,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 
 /* #0056 — site-wide `touch-action: manipulation` for the most-tapped
    classes. Kills the 300ms tap delay + accidental double-tap zoom. */
-.tt-btn, .tt-btn-sm, .tt-tile, .tt-pager-link,
+.tt-btn, .tt-btn-sm, .tt-tile, .tt-pager-link, .tt-pd-row-link,
 input[type="checkbox"], input[type="radio"] {
     touch-action: manipulation;
 }
@@ -1220,16 +1220,19 @@ input[type="checkbox"], input[type="radio"] {
        from any list in the product, and it was the most-missed target in
        the audit: 760 rows across 27 surfaces, measuring about 115x19px.
        inline-flex so the min-height applies to an inline element without
-       taking it out of the text flow of the cell it sits in. */
-    .tt-record-link {
+       taking it out of the text flow of the cell it sits in.
+       #4810 — the dashboard table's row link opens a record too and takes
+       the same floor, read from the tap token. */
+    .tt-record-link,
+    .tt-pd-row-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 48px;
+        min-height: var(--tt-tap-min, 48px);
         /* Some record links carry very short text — a shirt number, an
            initial — and measured 18px wide once the height was right. The
            floor is both dimensions, not just the tall one. */
-        min-width: 48px;
+        min-width: var(--tt-tap-min, 48px);
     }
 
     /* #2800 — checkboxes and radios sat at the 13x13 user-agent default;

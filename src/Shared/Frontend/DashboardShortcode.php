@@ -107,6 +107,9 @@ class DashboardShortcode {
         // Loaded with the hydrator below, on every view, because any view
         // may render a FrontendListTable.
         wp_enqueue_style( 'tt-list-table', TT_PLUGIN_URL . 'assets/css/components/list-table.css', [ 'tt-frontend-admin' ], TT_VERSION );
+        // #4810 — the stacked-label table primitive (StackTable), loaded
+        // wherever the list table is.
+        wp_enqueue_style( 'tt-stack-table', TT_PLUGIN_URL . 'assets/css/components/stack-table.css', [], TT_VERSION );
         // #1690 — shared frontend "app chrome": restyles the global header
         // into the top bar + persona chip, and ships the reusable KPI tile.
         wp_enqueue_style( 'tt-frontend-app-chrome', TT_PLUGIN_URL . 'assets/css/frontend-app-chrome.css', [ 'tt-public', 'tt-frontend-admin' ], TT_VERSION );

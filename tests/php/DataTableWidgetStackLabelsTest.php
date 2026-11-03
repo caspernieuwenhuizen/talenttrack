@@ -46,10 +46,13 @@ final class DataTableWidgetStackLabelsTest extends WP_UnitTestCase {
             new RenderContext( 1, 1, 'academy_admin', home_url( '/' ) )
         );
 
-        preg_match_all( '#<td data-label="([^"]*)">([^<]*)</td>#', $html, $m );
+        preg_match_all( '#<td role="cell" data-label="([^"]*)">([^<]*)</td>#', $html, $m );
         $this->assertSame( array_merge( $labels, $labels ), $m[1], 'two rows, each cell with its header as data-label' );
         $this->assertSame( array_merge( $row, $row ), $m[2] );
-        $this->assertStringContainsString( '<table class="tt-pd-table">', $html );
+        // #4810 — the table is the stack-table primitive, with explicit roles.
+        $this->assertStringContainsString( '<table class="tt-pd-table tt-stack-table tt-stack-table--to-480" role="table">', $html );
+        $this->assertSame( count( $labels ), substr_count( $html, '<th role="columnheader">' ) );
+        $this->assertSame( 3, substr_count( $html, '<tr role="row">' ), 'the header row and two data rows' );
     }
 
     public function test_the_empty_row_carries_no_label(): void {
@@ -60,8 +63,8 @@ final class DataTableWidgetStackLabelsTest extends WP_UnitTestCase {
             new RenderContext( 1, 1, 'academy_admin', home_url( '/' ) )
         );
 
-        $this->assertStringContainsString( 'class="tt-pd-table-empty"', $html );
-        $this->assertStringNotContainsString( 'data-label', $html );
+        $this->assertStringContainsString( 'class="tt-pd-table-empty" role="cell" data-label=""', $html );
+        $this->assertSame( 1, substr_count( $html, 'data-label=' ), 'only the empty cell, with no label' );
     }
 
     /** @param list<list<string>> $rows */

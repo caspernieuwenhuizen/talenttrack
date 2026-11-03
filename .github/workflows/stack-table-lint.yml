@@ -1,0 +1,95 @@
+name: Stack-table primitive
+
+# #4810 — the stacked-label table (each cell a "LABEL  value" line on a
+# phone, the label from `data-label`) lives in one place:
+# assets/css/components/stack-table.css, with StackTable::attrs() writing
+# the markup. It used to be written out by hand in nine stylesheets, each a
+# little different. This fails any stylesheet outside the primitive that
+# writes `content: attr(data-label)`.
+#
+# MIGRATING lists the sheets that still carry their own copy. Each moves onto
+# the primitive in its own PR and leaves this list in the same PR; the list
+# only shrinks. A new copy anywhere else fails at once.
+
+on:
+  pull_request:
+    paths:
+      - 'assets/css/**'
+      - '.github/workflows/stack-table-lint.yml'
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: One stack-table primitive
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fail on a data-label line outside the primitive
+        shell: bash
+        run: |
+          set -e
+
+          PRIMITIVE='assets/css/components/stack-table.css'
+          MIGRATING=(
+            'assets/css/components/list-table.css'
+            'assets/css/frontend-activities-manage.css'
+            'assets/css/frontend-backups.css'
+            'assets/css/frontend-message-log.css'
+            'assets/css/frontend-mobile.css'
+            'assets/css/frontend-pdp-evidence.css'
+            'assets/css/frontend-season-rollover.css'
+            'assets/css/frontend-team-monthly-report.css'
+          )
+
+          if [ ! -f "$PRIMITIVE" ]; then
+            echo "::error file=$PRIMITIVE::The stack-table primitive is missing."
+            exit 1
+          fi
+
+          HITS=$(grep -rlE 'content:[[:space:]]*attr\([[:space:]]*data-label[[:space:]]*\)' --include='*.css' assets/css || true)
+
+          BAD=()
+          for f in $HITS; do
+            [ "$f" = "$PRIMITIVE" ] && continue
+            allowed=0
+            for m in "${MIGRATING[@]}"; do
+              [ "$f" = "$m" ] && allowed=1
+            done
+            [ "$allowed" = 1 ] && continue
+            BAD+=( "$f" )
+          done
+
+          STALE=()
+          for m in "${MIGRATING[@]}"; do
+            if ! echo "$HITS" | grep -qxF "$m"; then
+              STALE+=( "$m" )
+            fi
+          done
+
+          if [ ${#BAD[@]} -gt 0 ]; then
+            for f in "${BAD[@]}"; do
+              echo "::error file=$f::Writes content: attr(data-label) outside the stack-table primitive."
+            done
+            echo ""
+            echo "Use the primitive instead: add 'tt-stack-table tt-stack-table--to-480'"
+            echo "(or --to-768) to the table through StackTable::classes(), write the"
+            echo "roles and data-label with StackTable::attrs(), and keep only the"
+            echo "surface's own padding, borders and label typography in its sheet."
+            echo "See assets/css/components/stack-table.css and #4810."
+            exit 1
+          fi
+
+          if [ ${#STALE[@]} -gt 0 ]; then
+            for f in "${STALE[@]}"; do
+              echo "::error file=.github/workflows/stack-table-lint.yml::$f no longer writes its own data-label line; remove it from MIGRATING."
+            done
+            exit 1
+          fi
+
+          echo "OK — the data-label line is written only by the primitive (${#MIGRATING[@]} sheet(s) still migrating)."
