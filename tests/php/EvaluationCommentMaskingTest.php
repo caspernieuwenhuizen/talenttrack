@@ -164,6 +164,23 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * The list's search follows the same notes rule: a word that appears
+     * only in the staff notes finds nothing for the observer, while the
+     * same list still answers a search on the player's name; HoD's search
+     * on the word still finds the evaluation.
+     */
+    public function test_the_list_search_follows_the_notes_rule(): void {
+        foreach ( [ 'player file' => [ 'player_id' => $this->player ], 'whole list' => [] ] as $label => $params ) {
+            $this->assertSame( 0, $this->searchCount( $this->observer, 'worried', $params ), "{$label}: the observer finds nothing in the notes" );
+            $this->assertSame( 1, $this->searchCount( $this->hod, 'worried', $params ), "{$label}: HoD still finds the evaluation" );
+        }
+        $this->assertSame( 1, $this->searchCount( $this->observer, 'Lars', [ 'player_id' => $this->player ] ), 'the observer still searches player names' );
+
+        $this->assertStringNotContainsString( 'Bos', $this->adminSearch( $this->observer, 'worried' ), 'wp-admin: no match for the observer' );
+        $this->assertStringContainsString( 'Bos', $this->adminSearch( $this->hod, 'worried' ), 'wp-admin: HoD still finds it' );
+    }
+
     public function test_the_detail_view_shows_hidden_where_the_notes_would_be(): void {
         $hod = $this->renderDetail( $this->hod );
         $this->assertStringContainsString( 'worried about focus', $hod, 'HoD reads the notes' );
@@ -221,6 +238,30 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $this->assertSame( 200, $response->get_status(), 'user ' . $user_id . ' reads the evaluation' );
         $data = (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
         return (array) ( $data['data'] ?? [] );
+    }
+
+    /** @param array<string, int> $params */
+    private function searchCount( int $user_id, string $search, array $params ): int {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/evaluations' );
+        $request->set_param( 'search', $search );
+        foreach ( $params as $key => $value ) $request->set_param( $key, $value );
+        $response = $this->serve( $request );
+        $this->assertSame( 200, $response->get_status() );
+        $data = (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
+        return count( (array) ( $data['data']['rows'] ?? [] ) );
+    }
+
+    private function adminSearch( int $user_id, string $search ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['s'] = $search;
+        ob_start();
+        \TT\Modules\Evaluations\Admin\EvaluationsPage::render_page();
+        $html = (string) ob_get_clean();
+        unset( $_GET['s'] );
+        return $html;
     }
 
     private function renderDetail( int $user_id ): string {

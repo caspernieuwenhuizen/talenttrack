@@ -591,6 +591,14 @@ class AuthorizationService {
     }
 
     /**
+     * Is this user staff for every player in the academy: the academy-wide
+     * half of {@see self::isStaffForPlayer()}, without a player to ask about.
+     */
+    public static function isStaffAcademyWide( int $user_id ): bool {
+        return $user_id > 0 && self::staffAcademyWide( $user_id );
+    }
+
+    /**
      * The global half of the staff rule: a role that may change players
      * academy-wide, or an academy-wide role assigned to this person in
      * `tt_user_role_scopes` that reads players (a head of development

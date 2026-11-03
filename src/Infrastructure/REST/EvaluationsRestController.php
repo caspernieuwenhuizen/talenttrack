@@ -334,9 +334,18 @@ class EvaluationsRestController {
         }
 
         if ( ! empty( $r['search'] ) ) {
-            $like     = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
-            $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            // #4693 — the search follows the same notes rule as the rows: it
+            // matches on the notes only when the reader may read them on
+            // every row this list can show, so a match cannot say what a
+            // hidden note contains.
+            if ( self::searchesNotes( $player_file_access, $player_filter_id ) ) {
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
+                $params[] = $like; $params[] = $like; $params[] = $like;
+            } else {
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s)";
+                $params[] = $like; $params[] = $like;
+            }
         }
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
@@ -490,6 +499,24 @@ class EvaluationsRestController {
             'detail_url'      => $eval_url,
             // #2023 — archived_at + trashed_at via the shared lifecycle helper.
         ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
+    }
+
+    /**
+     * #4693 — may the list's search match on the notes? The rows the list can
+     * show decide it: an academy-wide list needs a reader who reads notes on
+     * every player; a single player's file needs that player's notes; the
+     * coach-scoped list shows the reader's own teams and their own
+     * evaluations, whose notes they read or wrote.
+     */
+    private static function searchesNotes( bool $player_file_access, int $player_filter_id ): bool {
+        $uid = get_current_user_id();
+        if ( self::hasGlobalEvaluationsAccess() ) {
+            return \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $uid );
+        }
+        if ( $player_file_access ) {
+            return ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $uid, $player_filter_id );
+        }
+        return true;
     }
 
     /**

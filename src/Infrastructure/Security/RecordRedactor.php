@@ -108,6 +108,25 @@ final class RecordRedactor {
         return $out;
     }
 
+    /**
+     * May this reader read this registered field on every player in the
+     * academy? For a query that would otherwise match on the field's content
+     * across rows it cannot redact one by one, such as a free-text search.
+     * Family readers never qualify: their reach is their own children.
+     */
+    public static function readsEverywhere( string $entity, string $field, int $user_id ): bool {
+        $rule = self::fields( $entity )[ $field ] ?? null;
+        if ( $rule === null ) return true;
+        if ( $user_id <= 0 || ! in_array( $rule, self::RULES, true ) || $rule === 'guardian_contact' ) return false;
+
+        if ( AuthorizationService::isStaffAcademyWide( $user_id ) ) return true;
+        if ( $rule === 'evaluation_notes' || $rule === 'evaluation_comment' ) {
+            $gate = \TT\Modules\Authorization\MatrixGate::class;
+            return $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL );
+        }
+        return false;
+    }
+
     /** Is this registered field hidden from this reader, for this player? */
     public static function isMasked( string $entity, string $field, int $user_id, ?int $player_id ): bool {
         $rule = self::fields( $entity )[ $field ] ?? null;
