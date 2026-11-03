@@ -6,17 +6,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * The element that carries the design tokens (#4772).
  *
- * `tokens.css` and the theme sheets declare every token on `.tt-root`,
- * never `:root`, so the active WordPress theme is left alone. That class
- * used to come only from the custom CSS module's `body_class` filter, so
+ * `tokens.css` declares every neutral token on `.tt-root`, never
+ * `:root`, so the active WordPress theme is left alone. That class used
+ * to come only from the custom CSS module's `body_class` filter, so
  * switching that module off, or a theme that never calls `body_class()`,
  * left every token undefined at once.
  *
  * The shell now owns it. Each TalentTrack entry point that enqueues
  * `tokens.css` puts its output inside a `.tt-root` wrapper of its own
- * (`wrap()`), and the body class is added here, from core, as a
- * convenience for custom CSS written against `body.tt-root`. A nested
- * `.tt-root` is harmless: the token sheets give it the same values.
+ * (`wrap()`), and the body class is added here, from core, for custom CSS
+ * that targets `body.tt-root` for anything but tokens.
+ *
+ * Every `.tt-root` re-sets the token defaults. Two consequences:
+ *
+ * - A token override written on `body.tt-root` no longer reaches the
+ *   page, because the wrapper is closer and sets the default again.
+ *   Operators write token overrides on `.tt-root`, which matches the
+ *   wrapper as well (docs/custom-css.md).
+ * - A `.tt-root` placed inside `.tt-dashboard` is not harmless: the theme
+ *   sheets redeclare their tokens on `.tt-dashboard`, and a `.tt-root`
+ *   below it resets them to the defaults for everything it contains. The
+ *   wrapper therefore goes outside `.tt-dashboard`, never within it.
  */
 final class TokenRoot {
 
