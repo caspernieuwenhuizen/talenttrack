@@ -544,10 +544,12 @@ test.describe( 'mobile viewport gate', () => {
 		// #4823 — the fixture goes first, while the accounts it hangs off
 		// still exist. Everything REST can remove must be gone; the staff
 		// record and the prospect, which it cannot, must carry the prefix.
+		// Asserted at the end, so a leftover never skips the account deletes.
+		/** @type {string[]} */
+		let left = [];
 		if ( fixture ) {
-			const left = await removeFixture( browser, testInfo.project.use.baseURL, fixture );
+			left = await removeFixture( browser, testInfo.project.use.baseURL, fixture );
 			fixture = null;
-			expect( left, `the gate's fixture was not cleaned up:\n  ${ left.join( '\n  ' ) }` ).toEqual( [] );
 		}
 
 		// Any account that was made is deleted, also one that could not sign in.
@@ -555,13 +557,16 @@ test.describe( 'mobile viewport gate', () => {
 			if ( account.id > 0 ) await deletePersona( browser, testInfo.project.use.baseURL, account.id );
 			delete accounts[ key ];
 		}
-		if ( ! created.length ) return;
-		const { context, page } = await restPage( browser, testInfo );
-		for ( const restPath of created.slice().reverse() ) {
-			await rest( page, 'DELETE', restPath, {} );
+		if ( created.length ) {
+			const { context, page } = await restPage( browser, testInfo );
+			for ( const restPath of created.slice().reverse() ) {
+				await rest( page, 'DELETE', restPath, {} );
+			}
+			created.length = 0;
+			await context.close();
 		}
-		created.length = 0;
-		await context.close();
+
+		expect( left, `the gate's fixture was not cleaned up:\n  ${ left.join( '\n  ' ) }` ).toEqual( [] );
 	} );
 
 	/**
@@ -869,9 +874,13 @@ test.describe( 'mobile viewport gate', () => {
 				// #4823 — the dashboard tables have rows, so the row links
 				// the walk measures on the home are real ones, not nothing.
 				expect( fixture, `[${ persona.key }] the dashboard fixture was not made` ).not.toBeNull();
-				expect( fixture ? fixture.errors : [], `[${ persona.key }] the dashboard fixture is incomplete` ).toEqual( [] );
-				expect( fixture && fixture.featureOn, 'behaviour_rating is switched on' ).toBe( true );
-				expect( fixture && fixture.coachMayRate, 'the coach holds tt_rate_player_behaviour (behaviour-ratings answered 400, not 403)' ).toBe( true );
+				const isCoach = persona.key === 'head_coach';
+				const fixtureErrors = fixture ? ( isCoach ? fixture.errors : fixture.scoutErrors ) : [];
+				expect( fixtureErrors, `[${ persona.key }] the dashboard fixture is incomplete` ).toEqual( [] );
+				if ( isCoach ) {
+					expect( fixture && fixture.featureOn, 'behaviour_rating is switched on' ).toBe( true );
+					expect( fixture && fixture.coachMayRate, 'the coach holds tt_rate_player_behaviour (behaviour-ratings answered 400, not 403)' ).toBe( true );
+				}
 				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
 				const rowLinks = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
 				console.log( `\n[${ persona.key }] ${ rowLinks } row link(s) on the dashboard home` );

@@ -82,8 +82,8 @@ function dataId( res ) {
  * @param {{ coachUserId: number, coachState: string, scoutState: string }} who
  */
 async function seedFixture( browser, baseURL, who ) {
-	/** @type {{ teamId: number, playerId: number, personId: number, assignmentId: number, prospectId: number, featureOn: boolean, coachMayRate: boolean, errors: string[] }} */
-	const made = { teamId: 0, playerId: 0, personId: 0, assignmentId: 0, prospectId: 0, featureOn: false, coachMayRate: false, errors: [] };
+	/** @type {{ teamId: number, playerId: number, personId: number, personReused: boolean, assignmentId: number, prospectId: number, featureOn: boolean, coachMayRate: boolean, errors: string[], scoutErrors: string[] }} */
+	const made = { teamId: 0, playerId: 0, personId: 0, personReused: false, assignmentId: 0, prospectId: 0, featureOn: false, coachMayRate: false, errors: [], scoutErrors: [] };
 
 	const admin = await restContext( browser, baseURL, 'tests/e2e/.auth/admin.json' );
 	try {
@@ -115,6 +115,13 @@ async function seedFixture( browser, baseURL, who ) {
 			status: 'active',
 		} );
 		made.personId = dataId( person );
+		// The coach account already has an active staff record (the 409 of
+		// #4019's one-account-one-person rule names it): use that one.
+		if ( ! made.personId && person.status === 409 ) {
+			const err = person.json && Array.isArray( person.json.errors ) ? person.json.errors[ 0 ] : null;
+			made.personId = err && err.details && err.details.person_id ? Number( err.details.person_id ) : 0;
+			made.personReused = made.personId > 0;
+		}
 		if ( ! made.personId ) made.errors.push( `staff record refused: HTTP ${ person.status }` );
 
 		const team = await rest( page, 'POST', 'teams', { name: uniqueName( PREFIX + 'team' ) } );
@@ -144,6 +151,12 @@ async function seedFixture( browser, baseURL, who ) {
 			made.playerId = dataId( player );
 			if ( ! made.playerId ) made.errors.push( `player refused: HTTP ${ player.status }` );
 		}
+
+		// Creating the team queues TeamStaffPrompt's "no head coach yet"
+		// flash for the admin, shown on its next page: whichever surface the
+		// walk opens first. Load one page so the walk starts with none.
+		await page.goto( '/' );
+		await page.waitForLoadState( 'load', { timeout: 30000 } );
 	} finally {
 		await admin.context.close();
 	}
@@ -169,7 +182,7 @@ async function seedFixture( browser, baseURL, who ) {
 			last_name: uniqueName( PREFIX + 'gate' ),
 		} );
 		made.prospectId = prospect.json && prospect.json.data && prospect.json.data.prospect_id ? Number( prospect.json.data.prospect_id ) : 0;
-		if ( ! made.prospectId ) made.errors.push( `prospect refused: HTTP ${ prospect.status }` );
+		if ( ! made.prospectId ) made.scoutErrors.push( `prospect refused: HTTP ${ prospect.status }` );
 	} finally {
 		await scout.context.close();
 	}
@@ -222,12 +235,17 @@ async function removeFixture( browser, baseURL, made ) {
 			if ( left.length ) problems.push( `assignment ${ made.assignmentId } is still listed` );
 		}
 
-		// REST cannot remove a staff record: it is archived, under the prefix.
+		// REST cannot remove a staff record: it is archived. One the fixture
+		// made carries the prefix; one it reused is the coach account's own,
+		// which goes with that account.
 		if ( made.personId ) {
-			await rest( page, 'DELETE', `people/${ made.personId }`, null );
-			const after = await rest( page, 'GET', `people/${ made.personId }`, null );
-			const name = after.json && after.json.data ? String( after.json.data.first_name || '' ) : '';
-			if ( after.status === 200 && ! name.startsWith( PREFIX ) ) problems.push( `staff record ${ made.personId } is left without the ${ PREFIX } prefix` );
+			const archived = await rest( page, 'DELETE', `people/${ made.personId }`, null );
+			if ( archived.status !== 200 ) problems.push( `staff record ${ made.personId } not archived: HTTP ${ archived.status }` );
+			if ( ! made.personReused ) {
+				const after = await rest( page, 'GET', `people/${ made.personId }`, null );
+				const name = after.json && after.json.data ? String( after.json.data.first_name || '' ) : '';
+				if ( after.status === 200 && ! name.startsWith( PREFIX ) ) problems.push( `staff record ${ made.personId } is left without the ${ PREFIX } prefix` );
+			}
 		}
 
 		// Nor a prospect: it is left, under the prefix.
