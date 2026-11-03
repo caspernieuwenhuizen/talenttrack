@@ -27,10 +27,8 @@
         saved: 'Saved.',
         error_generic: 'Error.',
         network_error: 'Network error.',
-        confirm_delete_goal: 'Delete this goal?',
         save_evaluation: 'Save Evaluation',
         save_activity: 'Save Activity',
-        add_goal: 'Add Goal',
         save: 'Save'
     };
 
@@ -152,7 +150,6 @@
         switch (formId) {
             case 'tt-eval-form':    return i18n.save_evaluation;
             case 'tt-activity-form': return i18n.save_activity;
-            case 'tt-goal-form':    return i18n.add_goal;
             default:                return i18n.save;
         }
     }
@@ -352,13 +349,6 @@
             });
         });
 
-        // Goal status inline update — PATCH /goals/{id}/status
-        on('.tt-dashboard .tt-goal-status-select', 'change', function() {
-            var id = this.getAttribute('data-goal-id');
-            if (!id) return;
-            restRequest('goals/' + encodeURIComponent(id) + '/status', 'PATCH', { status: this.value });
-        });
-
         // Generic record delete — DELETE <data-rest-path>
         //
         // Any inline delete button can declare:
@@ -418,39 +408,6 @@
                     danger:       true
                 }).then(function(ok) { if (ok) doDelete(); });
             } else if (window.confirm(confirmMsg)) {
-                doDelete();
-            }
-        });
-
-        // Goal delete — DELETE /goals/{id}
-        on('.tt-dashboard .tt-goal-delete', 'click', function(e) {
-            e.preventDefault();
-            var btn = this;
-            var id = btn.getAttribute('data-goal-id');
-            if (!id) return;
-            var doDelete = function() {
-                restRequest('goals/' + encodeURIComponent(id), 'DELETE', null).then(function(res) {
-                    if (res.ok && res.json && res.json.success) {
-                        if (window.ttFlash && window.ttFlash.addNear) {
-                            window.ttFlash.addNear(btn, 'success', i18n.deleted_goal || 'Goal deleted.');
-                        }
-                        var row = btn.closest('tr');
-                        if (row) {
-                            row.style.transition = 'opacity 0.25s';
-                            row.style.opacity = '0';
-                            setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 260);
-                        }
-                    }
-                });
-            };
-            if (typeof window.ttConfirm === 'function') {
-                window.ttConfirm({
-                    title:        i18n.confirm_delete_goal_title || 'Delete goal?',
-                    message:      i18n.confirm_delete_goal || 'Are you sure you want to delete this goal?',
-                    confirmLabel: i18n.delete_label || 'Delete',
-                    danger:       true
-                }).then(function(ok) { if (ok) doDelete(); });
-            } else if (window.confirm(i18n.confirm_delete_goal || 'Delete this goal?')) {
                 doDelete();
             }
         });
