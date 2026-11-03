@@ -816,7 +816,14 @@ class EvaluationsPage {
                     <table class="form-table">
                         <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) $eval->eval_date ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th><td><?php echo esc_html( $eval->type_name ?: '—' ); ?></td></tr>
-                        <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><?php echo nl2br( esc_html( $eval->notes ?: '—' ) ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><?php
+                        // #4693 — the notes follow the sensitive-field registry.
+                        if ( ! empty( $eval->notes ) && \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', get_current_user_id(), (int) ( $eval->player_id ?? 0 ) ) ) {
+                            echo esc_html( \TT\Shared\Frontend\Components\MaskedValue::label() );
+                        } else {
+                            echo nl2br( esc_html( $eval->notes ?: '—' ) );
+                        }
+                        ?></td></tr>
                     </table>
 
                     <h3 style="margin-top:24px;"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>

@@ -1,0 +1,242 @@
+<?php
+namespace TT\Tests\Php;
+
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+use WP_UnitTestCase;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
+use TT\Infrastructure\Security\RolesService;
+use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\Export\Domain\ExportRequest;
+use TT\Modules\Export\ExporterRegistry;
+use TT\Shared\Frontend\FrontendEvaluationsView;
+
+/**
+ * #4693 — the coach's written words about a minor follow the
+ * sensitive-field registry. The staff-only notes go to staff for the player
+ * and whoever may write the player's evaluations; the player feedback and
+ * the category notes go to those and the family. The read-only observer,
+ * who reads evaluations academy-wide, keeps the ratings, dates, type and
+ * evaluator, and gets none of the words.
+ *
+ * Every refusal is paired with a reader who keeps the text, and the
+ * observer's read of the evaluation is asserted first.
+ */
+final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
+
+    private const NOTES    = 'Staff note 4693: worried about focus at home';
+    private const FEEDBACK = 'Feedback 4693: keep your head up after a mistake';
+    private const CATEGORY = 'Category note 4693: scanning before receiving';
+
+    private int $club     = 0;
+    private int $team     = 0;
+    private int $player   = 0;
+    private int $eval     = 0;
+    private int $observer = 0;
+    private int $hod      = 0;
+    private int $parent   = 0;
+
+    public function set_up(): void {
+        parent::set_up();
+        global $wpdb, $wp_rest_server;
+        $p          = $wpdb->prefix;
+        $this->club = (int) CurrentClub::id();
+
+        $roles = new RolesService();
+        $roles->installRoles();
+        $roles->ensureCapabilities();
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => $this->club, 'name' => 'JO16-1' ] );
+        $this->team = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_players", [
+            'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => 'Lars', 'last_name' => 'Bos', 'status' => 'active',
+        ] );
+        $this->player = (int) $wpdb->insert_id;
+
+        $this->observer = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        $this->hod      = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        $this->parent   = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$p}tt_player_parents", [
+            'club_id' => $this->club, 'player_id' => $this->player, 'parent_user_id' => $this->parent,
+        ] );
+
+        $wpdb->insert( "{$p}tt_evaluations", [
+            'club_id'         => $this->club,
+            'player_id'       => $this->player,
+            'coach_id'        => $this->hod,
+            'eval_date'       => gmdate( 'Y-m-d', strtotime( '-3 days' ) ),
+            'notes'           => self::NOTES,
+            'player_feedback' => self::FEEDBACK,
+        ] );
+        $this->eval = (int) $wpdb->insert_id;
+
+        $wpdb->insert( "{$p}tt_eval_categories", [
+            'club_id' => $this->club, 'category_key' => 'zz_mask_4693', 'label' => 'Scanning', 'parent_id' => null, 'display_order' => 901, 'is_active' => 1,
+        ] );
+        $category = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_eval_ratings", [
+            'club_id' => $this->club, 'evaluation_id' => $this->eval, 'category_id' => $category, 'rating' => 7.0,
+        ] );
+        $wpdb->insert( "{$p}tt_eval_category_notes", [
+            'club_id' => $this->club, 'evaluation_id' => $this->eval, 'category_id' => $category, 'note' => self::CATEGORY,
+        ] );
+        AuthorizationService::flushCache();
+
+        $wp_rest_server = new WP_REST_Server();
+        do_action( 'rest_api_init' );
+
+        $this->assertTrue( AuthorizationService::canViewPlayer( $this->observer, $this->player ), 'the observer reads the player' );
+        $this->assertTrue(
+            AuthorizationService::canReadPlayerSection( $this->observer, $this->player, 'evaluations' ),
+            'and the evaluations; what is hidden below is the words, not the record'
+        );
+    }
+
+    public function tear_down(): void {
+        global $wp_rest_server;
+        $wp_rest_server = null;
+        unset( $_GET['id'], $_GET['action'] );
+        wp_set_current_user( 0 );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        parent::tear_down();
+    }
+
+    public function test_the_registry_names_the_comment_fields(): void {
+        $fields = RecordRedactor::fields( 'evaluations' );
+        $this->assertSame( 'evaluation_notes', $fields['notes'] ?? null );
+        $this->assertSame( 'evaluation_notes', $fields['notes_excerpt'] ?? null );
+        $this->assertSame( 'evaluation_comment', $fields['player_feedback'] ?? null );
+        $this->assertSame( 'evaluation_comment', $fields['category_notes'] ?? null );
+        foreach ( [ 'eval_date', 'avg_rating', 'coach_name', 'eval_type_id' ] as $kept ) {
+            $this->assertArrayNotHasKey( $kept, $fields, "{$kept} stays visible" );
+        }
+    }
+
+    public function test_the_evaluation_record_keeps_the_words_for_the_readers_they_are_for(): void {
+        $observer = $this->record( $this->observer );
+        $this->assertSame( $this->eval, (int) ( $observer['id'] ?? 0 ), 'the observer gets the evaluation' );
+        $this->assertArrayHasKey( 'eval_date', $observer );
+        foreach ( [ 'notes', 'player_feedback', 'category_notes' ] as $field ) {
+            $this->assertArrayNotHasKey( $field, $observer, $field );
+        }
+
+        $hod = $this->record( $this->hod );
+        $this->assertSame( self::NOTES, $hod['notes'] ?? null, 'HoD keeps the staff notes' );
+        $this->assertSame( self::FEEDBACK, $hod['player_feedback'] ?? null );
+
+        $parent = $this->record( $this->parent );
+        $this->assertArrayNotHasKey( 'notes', $parent, 'staff-only notes never reach the family' );
+        $this->assertSame( self::FEEDBACK, $parent['player_feedback'] ?? null, 'the family keeps the feedback' );
+        $this->assertStringContainsString( self::CATEGORY, (string) wp_json_encode( $parent['category_notes'] ?? [] ) );
+    }
+
+    /** The contract: no evaluation route hands the observer a comment. */
+    public function test_no_evaluation_route_hands_the_observer_a_comment(): void {
+        $paths = [
+            '/talenttrack/v1/evaluations',
+            '/talenttrack/v1/evaluations/' . $this->eval,
+            '/talenttrack/v1/players/' . $this->player . '/evaluations',
+            '/talenttrack/v1/players/' . $this->player . '/evaluations/' . $this->eval . '/detail',
+        ];
+        foreach ( $paths as $path ) {
+            $request = new WP_REST_Request( 'GET', $path );
+            if ( strpos( $path, '/players/' ) !== false ) $request->set_param( 'scope', 'all' );
+
+            wp_set_current_user( $this->observer );
+            AuthorizationService::flushCache();
+            $response = $this->serve( $request );
+            $this->assertSame( 200, $response->get_status(), "the observer reaches {$path}" );
+            $body = (string) wp_json_encode( $response->get_data() );
+            foreach ( [ 'Staff note 4693', 'Feedback 4693', 'Category note 4693' ] as $text ) {
+                $this->assertStringNotContainsString( $text, $body, "{$path} hands the observer a comment" );
+            }
+
+            wp_set_current_user( $this->hod );
+            AuthorizationService::flushCache();
+            $body = (string) wp_json_encode( $this->serve( $request )->get_data() );
+            $this->assertMatchesRegularExpression( '/4693/', $body, "HoD still gets the words on {$path}" );
+        }
+    }
+
+    public function test_the_detail_view_shows_hidden_where_the_notes_would_be(): void {
+        $hod = $this->renderDetail( $this->hod );
+        $this->assertStringContainsString( 'worried about focus', $hod, 'HoD reads the notes' );
+        $this->assertStringContainsString( 'scanning before receiving', $hod );
+
+        $html = $this->renderDetail( $this->observer );
+        $this->assertStringContainsString( 'Scanning', $html, 'the observer sees the ratings' );
+        $this->assertStringContainsString( 'tt-masked-value', $html, '"Hidden" where the notes would be' );
+        $this->assertStringNotContainsString( 'worried about focus', $html );
+        $this->assertStringNotContainsString( 'scanning before receiving', $html );
+    }
+
+    public function test_the_player_report_reads_the_observer_without_the_notes(): void {
+        $from = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+        $to   = gmdate( 'Y-m-d' );
+
+        AuthorizationService::flushCache();
+        $hod = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $this->player, $from, $to, [ 'ratings' ], $this->hod );
+        $this->assertNotNull( $hod );
+        $this->assertStringContainsString( 'worried about focus', (string) wp_json_encode( $hod ), 'the staff report is unchanged' );
+
+        AuthorizationService::flushCache();
+        $observer = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $this->player, $from, $to, [ 'ratings' ], $this->observer );
+        $this->assertNotNull( $observer );
+        $this->assertSame( 'internal', $observer['audience'] ?? null, 'the observer reads the internal report' );
+        $body = (string) wp_json_encode( $observer );
+        $this->assertStringNotContainsString( 'worried about focus', $body );
+        $this->assertStringContainsString( '"notes_hidden":true', $body, 'the report knows notes were there' );
+        $this->assertStringContainsString( '"rating"', $body, 'the ratings stay' );
+    }
+
+    public function test_the_evaluations_file_leaves_the_words_out_for_the_observer(): void {
+        $this->assertStringContainsString( 'worried about focus', $this->csvBody( $this->hod ) );
+        $observer = $this->csvBody( $this->observer );
+        $this->assertStringContainsString( 'Lars', $observer, 'the observer gets the rows' );
+        $this->assertStringNotContainsString( 'worried about focus', $observer );
+        $this->assertStringNotContainsString( 'scanning before receiving', $observer );
+    }
+
+    // ---- fixtures ------------------------------------------------------
+
+    private function serve( WP_REST_Request $request ): WP_REST_Response {
+        $server   = rest_get_server();
+        $response = rest_ensure_response( $server->dispatch( $request ) );
+        $response = apply_filters( 'rest_post_dispatch', $response, $server, $request );
+        $this->assertInstanceOf( WP_REST_Response::class, $response );
+        return $response;
+    }
+
+    /** @return array<string, mixed> */
+    private function record( int $user_id ): array {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $response = $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/evaluations/' . $this->eval ) );
+        $this->assertSame( 200, $response->get_status(), 'user ' . $user_id . ' reads the evaluation' );
+        $data = (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
+        return (array) ( $data['data'] ?? [] );
+    }
+
+    private function renderDetail( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['id'] = (string) $this->eval;
+        ob_start();
+        FrontendEvaluationsView::render( $user_id, user_can( $user_id, 'administrator' ) );
+        return (string) ob_get_clean();
+    }
+
+    private function csvBody( int $user_id ): string {
+        AuthorizationService::flushCache();
+        $exporter = ExporterRegistry::get( 'player_evaluations' );
+        $this->assertNotNull( $exporter );
+        $result = $exporter->collect( new ExportRequest( 'player_evaluations', 'csv', $this->club, $user_id, null, [ 'team_id' => $this->team ] ) );
+        return (string) wp_json_encode( $result['rows'] ?? [] );
+    }
+}

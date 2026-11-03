@@ -462,6 +462,15 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $ratings = ( new \TT\Infrastructure\Evaluations\EvalRatingsRepository() )->getForEvaluation( $eval_id );
         $notes   = ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluation( $eval_id );
 
+        // #4693 — the coach's written words follow the sensitive-field
+        // registry. A reader it hides them from gets the ratings, and
+        // "Hidden" once where the notes would be.
+        $eval_player   = (int) ( $eval->player_id ?? 0 );
+        $notes_hidden  = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', get_current_user_id(), $eval_player );
+        $cat_hidden    = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), $eval_player );
+        $words_were    = ( $notes_hidden && ! empty( $eval->notes ) ) || ( $cat_hidden && $notes !== [] );
+        if ( $cat_hidden ) $notes = [];
+
         // Group ratings: mains first, then subs nested under their parent.
         $by_parent = [];
         $mains     = [];
@@ -621,7 +630,10 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     </div>
                 <?php endif; ?>
 
-                <?php if ( ! empty( $eval->notes ) ) : ?>
+                <?php if ( $words_were ) : ?>
+                    <h3 class="tt-evd__h3 tt-evd__h3--notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></h3>
+                    <p class="tt-evd__notes"><?php \TT\Shared\Frontend\Components\MaskedValue::render(); ?></p>
+                <?php elseif ( ! empty( $eval->notes ) ) : ?>
                     <h3 class="tt-evd__h3 tt-evd__h3--notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></h3>
                     <p class="tt-evd__notes"><?php echo esc_html( (string) $eval->notes ); ?></p>
                 <?php endif; ?>

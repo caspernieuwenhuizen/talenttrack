@@ -227,7 +227,7 @@ final class EvidencePacket {
             'status'          => $verdict->toArray(),
             'behaviour'       => self::behaviour( $player_id, $from, $to ),
             'potential'       => self::potential( $player_id, $from, $to ),
-            'evaluations'     => self::evaluations( $player_id, $club_id, $from, $to ),
+            'evaluations'     => self::evaluationsFor( self::evaluations( $player_id, $club_id, $from, $to ), $player_id, $viewer_user_id ),
             'attendance'      => self::attendance( $player_id, $club_id, $from, $to ),
             'minutes'         => self::minutes( $player_id, $from, $to ),
             'goals'           => self::goals( $player_id, $from, $to ),
@@ -299,6 +299,30 @@ final class EvidencePacket {
             $set = substr( (string) ( $row->set_at ?? '' ), 0, 10 );
             return $set >= $from && $set <= $to;
         } ) );
+    }
+
+    /**
+     * #4693 — the player report's path (an int viewer) follows the
+     * sensitive-field registry: a reader it hides evaluation notes from gets
+     * each evaluation without `notes`, and `notes_hidden` where there were
+     * some, so the report can say "Hidden" there. The PDP path (null) reads
+     * as before; its readers are the file's coach and the head of academy.
+     *
+     * @param list<array<string,mixed>> $evaluations
+     * @return list<array<string,mixed>>
+     */
+    private static function evaluationsFor( array $evaluations, int $player_id, ?int $viewer_user_id ): array {
+        if ( $viewer_user_id === null ) return $evaluations;
+        if ( ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $viewer_user_id, $player_id ) ) return $evaluations;
+
+        $out = [];
+        foreach ( $evaluations as $evaluation ) {
+            $had = trim( (string) ( $evaluation['notes'] ?? '' ) ) !== '';
+            unset( $evaluation['notes'] );
+            if ( $had ) $evaluation['notes_hidden'] = true;
+            $out[] = $evaluation;
+        }
+        return $out;
     }
 
     /**

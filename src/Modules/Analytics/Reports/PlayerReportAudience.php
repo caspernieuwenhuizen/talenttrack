@@ -61,7 +61,11 @@ final class PlayerReportAudience {
         PlayerReportBlock::TESTS,
     ];
 
-    /** Personas whose reading of a player report is a staff reading. */
+    /**
+     * Personas who read the internal report. The read-only observer is among
+     * them for the blocks, not as staff: the evaluation notes in it follow the
+     * sensitive-field registry (#4693), which leaves them out for that seat.
+     */
     private const STAFF_PERSONAS = [
         'head_of_development', 'academy_admin', 'head_coach', 'assistant_coach',
         'team_manager', 'readonly_observer', 'staff',

@@ -94,6 +94,7 @@ final class PlayerEvaluationsRestController extends BaseController {
 
             $items[] = [
                 'id'              => $eid,
+                'player_id'       => $player_id,
                 'eval_date'       => (string) ( $row->eval_date ?? '' ),
                 'type'            => $type,
                 'type_localised'  => $type_localised,
@@ -112,7 +113,8 @@ final class PlayerEvaluationsRestController extends BaseController {
             'season'         => $window['season_name'],
             'from'           => $window['from'],
             'to'             => $window['to'],
-            'items'          => $items,
+            // #4693 — the coach's feedback follows the sensitive-field registry.
+            'items'          => \TT\Infrastructure\Security\RecordRedactor::redactRows( 'evaluations', $items, get_current_user_id() ),
             'earlier_count'  => $reader->countOutside( $player_id, $scope ),
         ], 200 );
     }
@@ -124,6 +126,23 @@ final class PlayerEvaluationsRestController extends BaseController {
             // an id cannot be probed.
             return new WP_REST_Response( [ 'code' => 'not_found' ], 404 );
         }
+        // #4693 — the category notes follow the sensitive-field registry: a
+        // reader it hides them from gets the ratings without any `note`.
+        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), (int) $r['id'] ) ) {
+            $groups = self::withoutNotes( $groups );
+        }
         return new WP_REST_Response( [ 'groups' => $groups ], 200 );
+    }
+
+    /**
+     * @param array<mixed> $node
+     * @return array<mixed>
+     */
+    private static function withoutNotes( array $node ): array {
+        unset( $node['note'] );
+        foreach ( $node as $key => $child ) {
+            if ( is_array( $child ) ) $node[ $key ] = self::withoutNotes( $child );
+        }
+        return $node;
     }
 }

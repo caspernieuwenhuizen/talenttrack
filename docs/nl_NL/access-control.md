@@ -178,7 +178,7 @@ Gebruiksgevallen:
 | **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
 | **Spelers** — het dossier en profiel van elke speler, zonder de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
 | **Personen** — de stafgids | Een stafdossier bewerken |
-| **Evaluaties** — de beoordelingen die trainers vastleggen | Een evaluatie schrijven of delen |
+| **Evaluaties** — de beoordelingen die trainers vastleggen: cijfers, datums, soort en beoordelaar, zonder de geschreven notities, feedback aan de speler of categorienotities | Een evaluatie schrijven of delen |
 | **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
 | **Doelen** — de ontwikkeldoelen van spelers | Een doel stellen of afsluiten |
 | **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
@@ -237,9 +237,11 @@ De velden die nu geregistreerd zijn:
 | --- | --- | --- |
 | `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `parent_name`, `parent_link_html`, `custom_fields` | Staf van de speler (`staff_for_player`): een stafrol bij het team van de speler, een rol die academiebreed spelers mag wijzigen, of een academiebrede roltoewijzing die spelers leest |
 | `players` | `date_of_birth` (`birth_year` blijft) | Staf van de speler, de speler zelf of een gekoppelde ouder (`staff_or_family`); een ouder van wie de toegang tot het kind is beëindigd telt niet mee |
+| `evaluations` | `notes`, `notes_excerpt` (de notities alleen voor staf) | Staf van de speler, of wie de evaluaties van de speler mag schrijven: het wijzigrecht op `evaluations`, academiebreed of op het team van de speler (`evaluation_notes`) |
+| `evaluations` | `player_feedback`, `category_notes` | Die, en de speler en een gekoppelde ouder (`evaluation_comment`) |
 | `people` | `email`, `email_link_html`, `phone` van een ouder | De ouder zelf, of staf van ten minste één van diens gekoppelde kinderen (`guardian_contact`); een persoon zonder gekoppeld kind valt hier niet onder |
 
-De spelersroutes dragen deze velden op het dossier en in de lijst; de rijen van het potentieeloverzicht dragen `date_of_birth` onder `player_id`; de personenroutes dragen de contactgegevens van ouders. Het kaartje bij een speler (peek) toont de volledige datum aan wie die mag lezen en het geboortejaar aan alle anderen.
+De spelersroutes dragen deze velden op het dossier en in de lijst; de rijen van het potentieeloverzicht dragen `date_of_birth` onder `player_id`; de personenroutes dragen de contactgegevens van ouders. Het kaartje bij een speler (peek) toont de volledige datum aan wie die mag lezen en het geboortejaar aan alle anderen. De evaluatieroutes (`/evaluations`, `/evaluations/{id}`, `/players/{id}/evaluations` en het detail daarvan), de evaluatieschermen, het spelersrapport en de evaluatie-exports dragen de evaluatievelden; de cijfers, datums, soort en beoordelaar blijven voor iedereen die de evaluatie leest. Waar een geschreven notitie verborgen is, staat op het scherm en in het spelersrapport **Verborgen** op die plek. De alleen-lezen waarnemer leest het interne spelersrapport, zonder de notities.
 
 ### Een gevoelig veld toevoegen
 

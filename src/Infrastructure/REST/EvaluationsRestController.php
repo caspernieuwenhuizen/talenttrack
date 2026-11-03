@@ -372,7 +372,12 @@ class EvaluationsRestController {
         $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
         return RestResponse::success( [
-            'rows'     => array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
+            // #4693 — the coach's written words follow the sensitive-field registry.
+            'rows'     => \TT\Infrastructure\Security\RecordRedactor::redactRows(
+                'evaluations',
+                array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
+                get_current_user_id()
+            ),
             'total'    => $total,
             'page'     => $page,
             'per_page' => $per_page,
@@ -576,7 +581,9 @@ class EvaluationsRestController {
         $out                   = (array) $e;
         $out['category_notes'] = (object) ( new EvalCategoryNotesRepository() )->forEvaluation( (int) $r['id'] );
 
-        return RestResponse::success( $out );
+        // #4693 — the notes, the player feedback and the category notes
+        // follow the sensitive-field registry; ratings and the rest stay.
+        return RestResponse::success( \TT\Infrastructure\Security\RecordRedactor::redact( 'evaluations', $out, $uid, $player_id ) );
     }
 
     /**

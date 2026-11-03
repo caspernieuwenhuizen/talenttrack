@@ -184,8 +184,19 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface, ScopeGate
             ? ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->perMainForEvaluations( array_map( static fn( $r ) => (int) $r->id, $evaluations ) )
             : [];
 
+        // #4693 — the notes and the category notes follow the sensitive-field
+        // registry, resolved for every player in the file at once; a cell it
+        // hides is left empty.
+        $viewer = (int) $request->requesterUserId;
+        \TT\Infrastructure\Security\RecordRedactor::prime(
+            $viewer,
+            array_fill_keys( array_map( static fn( $r ): int => (int) ( ( (array) $r )['player_id'] ?? 0 ), $evaluations ), null )
+        );
+
         $rows = [];
         foreach ( $evaluations as $e ) {
+            $notes_hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $viewer, (int) $e->player_id );
+            $cat_hidden   = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', $viewer, (int) $e->player_id );
             $row = [
                 (int)    $e->id,
                 (string) $e->eval_date,
@@ -205,9 +216,9 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface, ScopeGate
                 $sum = $agg[ $eid ][ $cid ][0] ?? null;
                 $n   = $agg[ $eid ][ $cid ][1] ?? 0;
                 $row[] = $n > 0 ? round( (float) $sum / $n, 2 ) : '';
-                $row[] = $cat_notes[ $eid ][ $cid ] ?? '';
+                $row[] = $cat_hidden ? '' : ( $cat_notes[ $eid ][ $cid ] ?? '' );
             }
-            $row[] = (string) ( $e->notes ?? '' );
+            $row[] = $notes_hidden ? '' : (string) ( $e->notes ?? '' );
             $rows[] = $row;
         }
 

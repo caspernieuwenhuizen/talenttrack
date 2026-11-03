@@ -181,7 +181,7 @@ Use cases:
 | **Teams** — every squad, its roster and its details | Change anything about a team |
 | **Players** — every player's record and profile, without the guardian contact on it | Add, edit or remove a player |
 | **People** — the staff directory | Edit a staff record |
-| **Evaluations** — the assessments coaches record | Write or share an evaluation |
+| **Evaluations** — the assessments coaches record: ratings, dates, type and evaluator, without the written notes, player feedback or category notes | Write or share an evaluation |
 | **Activities** — the training and match calendar | Plan, edit or cancel anything |
 | **Goals** — the development goals set for players | Set or close a goal |
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
@@ -240,9 +240,11 @@ The fields registered so far:
 | --- | --- | --- |
 | `players` | `guardian_name`, `guardian_email`, `guardian_phone`, `parent_name`, `parent_link_html`, `custom_fields` | Staff for the player (`staff_for_player`): a staff role on the player's team, a role that may change players academy-wide, or an academy-wide role assignment that reads players |
 | `players` | `date_of_birth` (`birth_year` stays) | Staff for the player, the player themselves, or a linked parent (`staff_or_family`); a parent whose access to the child has ended is not counted |
+| `evaluations` | `notes`, `notes_excerpt` (the staff-only notes) | Staff for the player, or whoever may write the player's evaluations: the `evaluations` change right globally or on the player's team (`evaluation_notes`) |
+| `evaluations` | `player_feedback`, `category_notes` | Those, and the player and a linked parent (`evaluation_comment`) |
 | `people` | `email`, `email_link_html`, `phone` of a guardian | The guardian themselves, or staff for at least one of their linked children (`guardian_contact`); a person with no linked child is not affected |
 
-The player routes carry these on the record and the list; the potential overview's rows carry `date_of_birth` under `player_id`; the people routes carry the guardian contact. The player peek card shows the full date to a reader who may read it and the birth year to everyone else.
+The player routes carry these on the record and the list; the potential overview's rows carry `date_of_birth` under `player_id`; the people routes carry the guardian contact. The player peek card shows the full date to a reader who may read it and the birth year to everyone else. The evaluation routes (`/evaluations`, `/evaluations/{id}`, `/players/{id}/evaluations` and its detail), the evaluation screens, the player report and the evaluation exports carry the evaluation fields; the ratings, dates, type and evaluator stay for every reader of the evaluation. Where a written note is hidden, the screen and the player report say **Hidden** in its place. The read-only observer reads the internal player report, without the notes.
 
 ### Adding a sensitive field
 
