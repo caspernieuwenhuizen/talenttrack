@@ -425,6 +425,7 @@
     }
 }
 .tt-dashboard .tt-flash .tt-flash-dismiss:hover { opacity: 1; }
+.tt-dashboard .tt-flash .tt-flash-dismiss:active { opacity: 1; }
 .tt-dashboard .tt-flash .tt-flash-dismiss:focus-visible {
     opacity: 1;
     outline: 2px solid currentColor;
