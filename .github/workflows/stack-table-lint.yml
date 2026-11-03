@@ -42,7 +42,6 @@ jobs:
             'assets/css/frontend-backups.css'
             'assets/css/frontend-mobile.css'
             'assets/css/frontend-pdp-evidence.css'
-            'assets/css/frontend-season-rollover.css'
             'assets/css/frontend-team-monthly-report.css'
           )
 
