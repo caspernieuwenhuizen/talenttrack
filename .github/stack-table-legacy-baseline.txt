@@ -1,9 +1,10 @@
-# Frontend PHP lines that print a `.tt-table` without the stack-table
-# primitive: tables that still rely on frontend-mobile.css's legacy phone
-# stack (#4810 decision, migration epic #4908). One line per file:
+# Frontend PHP and JS lines that write a `tt-table` class without the
+# stack-table primitive: tables that still rely on frontend-mobile.css's
+# legacy phone stack (#4810 decision, migration epic #4908). One line per file:
 # "<path> <count>". The stack-table lint fails a count above this (a new
 # legacy table) and a count below it (lower the number here), so the
 # baseline stays exact and only falls. Regenerate the list the lint prints.
+assets/js/frontend-attendance-report.js 1
 src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php 1
 src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php 1
 src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php 1

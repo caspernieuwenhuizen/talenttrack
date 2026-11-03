@@ -13,8 +13,8 @@ name: Stack-table primitive
 # tables move, under epic #4908:
 # https://github.com/caspernieuwenhuizen/talenttrack/issues/4810#issuecomment-6599880029
 #
-# The second step counts those tables: the frontend PHP lines that print a
-# `.tt-table` without the primitive, against the exact baseline in
+# The second step counts those tables: the frontend PHP and JS lines that
+# write a `tt-table` class without the primitive, against the exact baseline in
 # .github/stack-table-legacy-baseline.txt. A new one fails; one that moves
 # fails until the baseline is lowered, so the count only falls.
 
@@ -23,6 +23,7 @@ on:
     paths:
       - 'assets/css/**'
       - 'src/**/*.php'
+      - 'assets/js/**'
       - '.github/stack-table-legacy-baseline.txt'
       - '.github/workflows/stack-table-lint.yml'
   push:
@@ -92,14 +93,18 @@ jobs:
 
           BASELINE='.github/stack-table-legacy-baseline.txt'
 
-          # A frontend line that prints a `.tt-table` class (not
-          # `.tt-table-wrap` and the like) without the primitive. wp-admin
-          # pages are out: the legacy stack does not load there.
+          # A frontend line that writes `tt-table` as a quoted class token
+          # (not `tt-table-wrap` and the like, not the `.tt-table` of a
+          # selector or a comment) without the primitive: in PHP markup,
+          # whether the class is written in place or built in a variable or
+          # array, and in a table a script builds. wp-admin pages are out:
+          # the legacy stack does not load there.
+          TOKEN="[\"' ]tt-table([\"' ]|\$)"
           legacy_lines() {
-            grep -rnE 'class=.*tt-table([^-[:alnum:]_]|$)' --include='*.php' src \
-              | grep -vE '^src/Modules/[^/]+/Admin/' \
-              | grep -v -e 'tt-stack-table' -e 'StackTable::classes(' \
-              || true
+            {
+              grep -rnE "$TOKEN" --include='*.php' src | grep -vE '^src/Modules/[^/]+/Admin/' || true
+              grep -rnE "$TOKEN" --include='*.js' assets/js || true
+            } | grep -v -e 'tt-stack-table' -e 'StackTable::classes(' || true
           }
 
           CURRENT=$(legacy_lines | cut -d: -f1 | LC_ALL=C sort | uniq -c | awk '{ print $2 " " $1 }')
