@@ -7,6 +7,7 @@ use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\KpiResolver;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
@@ -147,10 +148,11 @@ class FrontendAnalyticsView extends FrontendViewBase {
             echo '<div class="tt-analytics-grid">';
             foreach ( $academy_kpis as $key => $kpi ) {
                 $value = KpiResolver::value( $key, [], \TT\Modules\Analytics\Domain\FactScope::forUser( get_current_user_id() ) );
-                $explore_url = add_query_arg(
+                // #4859 — the explorer's back pill leads back to Analytics.
+                $explore_url = BackLink::appendTo( add_query_arg(
                     [ 'tt_view' => 'explore', 'kpi' => $key ],
                     WizardEntryPoint::dashboardBaseUrl()
-                );
+                ) );
                 self::renderCard( $kpi, $value, $explore_url );
             }
             echo '</div>';

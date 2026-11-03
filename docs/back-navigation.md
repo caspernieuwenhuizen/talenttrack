@@ -155,6 +155,12 @@ Per-entity labels:
 | `pdp` | "Back to <Player>'s PDP" |
 | `evaluations` | "Back to Evaluation: <Player> (<date>)" |
 | `people` | "Back to <First Last>" |
+| `analytics` | "Back to <First Last>" or "Back to <Team name>", read from `entity_type=player\|team` and `entity_id` |
+
+On the Analytics page the record is the selected entity, not `id`. The
+name comes from the same lookup, with the same check that the viewer
+may see the record. When they may not, or nothing is selected, the
+label is "Back to Analytics".
 
 ## Never build a `tt_view` URL on `home_url()`
 

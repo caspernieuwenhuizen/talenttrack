@@ -240,6 +240,12 @@ gevonden kan worden (verwijderd, andere club, ontbrekende id) valt
 het terug op het lijstniveau "Terug naar Spelers". Wanneer `tt_view`
 helemaal ontbreekt geeft het "Terug naar Dashboard" terug.
 
+De pagina Analytics met een speler of team geselecteerd
+(`tt_view=analytics&entity_type=player|team&entity_id=N`) noemt die
+speler of dat team, via dezelfde opzoeking en dezelfde controle of de
+kijker het record mag zien. Mag hij dat niet, of is er niets
+geselecteerd, dan is het label "Terug naar Analytics".
+
 ## Bouw een `tt_view`-URL nooit op `home_url()`
 
 <!-- audience: developer -->
