@@ -133,6 +133,11 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
   korte regel met een vaste set velden, en medische gegevens: één moment van
   vastleggen, en Annuleren betekent dat er niets is weggeschreven.
 - Configuratieschermen en keuzelijsten.
+- **Tweestapsverificatie verplichten** onder Configuratie → Mensen & toegang
+  (zie [Beveiliging](security-operator-guide.md)). Eén set vinkjes is één
+  beleid, en het raakt elk account in een aangevinkte rol bij de volgende keer
+  inloggen, dus het wordt één keer vastgelegd, bij Opslaan, en Annuleren laat
+  het beleid zoals het was.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.
 

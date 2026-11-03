@@ -1,0 +1,20 @@
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Choose which roles must set up two-factor authentication. A change applies to everyone in that role from their next login."
+msgstr "Kies welke rollen tweestapsverificatie moeten instellen. Een wijziging geldt voor iedereen in die rol vanaf de volgende keer inloggen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Roles that must set up two-factor authentication"
+msgstr "Rollen die tweestapsverificatie moeten instellen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "No accounts with this role"
+msgstr "Geen accounts met deze rol"
+
+#. translators: 1: accounts in this role without two-factor authentication, 2: all accounts in this role.
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%1$d of %2$d not set up yet"
+msgstr "%1$d van %2$d nog niet ingesteld"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Everyone in a ticked role who has not set it up yet will be asked to enable two-factor authentication at their next login."
+msgstr "Iedereen in een aangevinkte rol die het nog niet heeft ingesteld, wordt bij de volgende keer inloggen gevraagd tweestapsverificatie aan te zetten."

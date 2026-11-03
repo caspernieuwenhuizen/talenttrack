@@ -113,18 +113,8 @@ final class MfaActionHandlers {
         $raw_personas = isset( $_POST['personas'] ) && is_array( $_POST['personas'] )
             ? array_map( 'sanitize_key', wp_unslash( $_POST['personas'] ) )
             : [];
-        $valid_keys = array_keys( MfaSettings::operatorSelectablePersonas() );
-        $clean      = array_values( array_intersect( $valid_keys, $raw_personas ) );
-
-        $settings = new MfaSettings();
-        $before   = $settings->requiredPersonas();
-        $settings->setRequiredPersonas( $clean );
-
-        MfaAuditEvents::record(
-            MfaAuditEvents::REQUIRED_PERSONAS_CHANGED,
-            get_current_user_id(),
-            [ 'before' => $before, 'after' => $clean ]
-        );
+        // #4707 — the same save the Configuration form and REST use.
+        ( new \TT\Modules\Mfa\Settings\MfaPolicyService() )->save( $raw_personas, get_current_user_id() );
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => 'tt-account', 'tab' => 'mfa', 'tt_msg' => 'mfa_personas_saved' ],

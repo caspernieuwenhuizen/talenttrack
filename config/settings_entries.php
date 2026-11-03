@@ -282,7 +282,7 @@ return [
             'keywords'    => _x( 'permissions, rights, authorization, roles, access, matrix', 'settings search keywords', 'talenttrack' ),
         ],
         [
-            'key' => 'mfa-required', 'section' => 'people_access', 'admin_page' => 'tt-account', 'args' => [ 'tab' => 'mfa' ], 'cap' => 'tt_edit_settings',
+            'key' => 'mfa-required', 'section' => 'people_access', 'sub' => 'mfa-policy', 'cap' => 'tt_edit_settings',
             'module'      => 'TT\\Modules\\Mfa\\MfaModule',
             'label'       => __( 'Require two-step verification', 'talenttrack' ),
             'description' => __( 'Which roles must sign in with a second factor.', 'talenttrack' ),
