@@ -22,7 +22,7 @@ test.use( { storageState: 'tests/e2e/.auth/admin.json' } );
  * The accessibility tree's view of the first stack-table on the page.
  *
  * @param {import('@playwright/test').Page} page
- * @returns {Promise<{ headers: string[], domHeaders: string[], tables: number, rows: number, cells: number } | null>}
+ * @returns {Promise<{ headers: string[], domHeaders: string[], tables: number, rows: number, cells: number, cellNames: string[], domCells: { label: string, text: string }[] } | null>}
  */
 async function readTable( page ) {
 	await page.goto( '/' );
@@ -40,6 +40,10 @@ async function readTable( page ) {
 	await table.evaluate( ( el ) => el.setAttribute( 'data-tt-a11y-probe', '1' ) );
 
 	const domHeaders = await table.locator( 'th' ).evaluateAll( ( ths ) => ths.map( ( th ) => ( th.textContent || '' ).trim() ).filter( Boolean ) );
+	const domCells = await table.locator( 'tbody td' ).evaluateAll( ( tds ) => tds.map( ( td ) => ( {
+		label: td.getAttribute( 'data-label' ) || '',
+		text: ( td.textContent || '' ).replace( /\s+/g, ' ' ).trim(),
+	} ) ) );
 
 	const cdp = await page.context().newCDPSession( page );
 	await cdp.send( 'DOM.enable' );
@@ -66,6 +70,8 @@ async function readTable( page ) {
 		domHeaders: domHeaders.map( fold ),
 		rows: sub[ 1 ].length,
 		cells: sub[ 2 ].length,
+		cellNames: sub[ 2 ].map( ( n ) => fold( ( n.name && n.name.value ) || '' ) ),
+		domCells: domCells.map( ( c ) => ( { label: fold( c.label ), text: fold( c.text ) } ) ),
 	};
 }
 
@@ -86,6 +92,15 @@ test.describe( 'Stack-table on a phone', () => {
 		expect( ax.headers ).toEqual( ax.domHeaders );
 		expect( ax.rows ).toBeGreaterThanOrEqual( 2 );
 		expect( ax.cells ).toBeGreaterThanOrEqual( 1 );
+
+		// #4844 — each stacked cell is read once: the column header names
+		// it, and the label drawn in front of the value stays out of the
+		// cell's own name.
+		expect( ax.cellNames.length ).toBe( ax.domCells.length );
+		ax.domCells.forEach( ( cell, i ) => {
+			if ( cell.label === '' || cell.text.startsWith( cell.label ) ) return;
+			expect( ax.cellNames[ i ].startsWith( cell.label ), `cell ${ i } (${ cell.label }) reads its label` ).toBe( false );
+		} );
 	} );
 } );
 
