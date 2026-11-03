@@ -1,0 +1,17 @@
+/*
+ * Custom CSS → History: the snapshot table (#4918).
+ *
+ * The table is on the stack-table primitive: a card per snapshot on a phone,
+ * a table from 768px. Its width cap and the actions row used to be inline
+ * styles on the markup. The actions cell is a flex row at every width, as
+ * the inline style made it.
+ */
+
+.tt-dashboard .tt-css-history {
+    max-width: 980px;
+}
+
+.tt-dashboard .tt-css-history > tbody > tr > td.tt-css-history__actions {
+    display: flex;
+    gap: 6px;
+}

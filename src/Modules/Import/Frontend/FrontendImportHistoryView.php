@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Import\ImportBatchRegistry;
 use TT\Modules\Import\ImportUndoService;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -44,28 +45,36 @@ class FrontendImportHistoryView extends FrontendViewBase {
         }
 
         ?>
-        <table class="tt-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'File', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Imported', 'talenttrack' ); ?></th>
-                    <?php // "By" alone reads as either a person or a date; say which. ?>
-                    <th><?php echo esc_html( _x( 'By', 'who ran the import', 'talenttrack' ) ); ?></th>
-                    <th><?php esc_html_e( 'Records', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+        <?php
+        // #4918 — a card per import on a phone, the table from 768px.
+        $c_file     = __( 'File', 'talenttrack' );
+        $c_imported = __( 'Imported', 'talenttrack' );
+        // "By" alone reads as either a person or a date; say which.
+        $c_by       = _x( 'By', 'who ran the import', 'talenttrack' );
+        $c_records  = __( 'Records', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        ?>
+        <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_file ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_imported ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_by ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_records ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
             <?php foreach ( $batches as $batch ) :
                 $counts  = ImportUndoService::describeCounts( $batch['counts'] );
                 $edited  = ImportUndoService::editedSince( (string) $batch['batch_key'], (string) $batch['created_at'] );
                 ?>
-                <tr>
-                    <td><?php echo esc_html( $batch['source_filename'] !== '' ? $batch['source_filename'] : __( '(unnamed file)', 'talenttrack' ) ); ?></td>
-                    <td><?php echo esc_html( (string) $batch['created_at'] ); ?></td>
-                    <td><?php echo esc_html( self::userName( (int) $batch['created_by'] ) ); ?></td>
-                    <td><?php echo esc_html( $counts ); ?></td>
-                    <td>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <td<?php echo StackTable::attrs( 'cell', $c_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $batch['source_filename'] !== '' ? $batch['source_filename'] : __( '(unnamed file)', 'talenttrack' ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_imported ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $batch['created_at'] ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_by ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( self::userName( (int) $batch['created_by'] ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_records ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $counts ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                         <?php if ( $counts === '' ) : ?>
                             <small><?php esc_html_e( 'Already undone', 'talenttrack' ); ?></small>
                         <?php else : ?>
@@ -98,7 +107,7 @@ class FrontendImportHistoryView extends FrontendViewBase {
                                 </p>
                             <?php endif; ?>
                         <?php endif; ?>
-                    </td>
+                    </div></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

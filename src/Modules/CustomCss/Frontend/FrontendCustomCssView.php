@@ -11,6 +11,7 @@ use TT\Modules\CustomCss\Sanitizer\CssSanitizer;
 use TT\Modules\CustomCss\Templates\StarterTemplates;
 use TT\Modules\CustomCss\VisualEditor;
 use TT\Shared\Frontend\BrandFonts;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -801,25 +802,33 @@ class FrontendCustomCssView extends FrontendViewBase {
             return;
         }
 
-        echo '<table class="tt-table" style="width:100%; max-width:980px;"><thead><tr>';
-        echo '<th>' . esc_html__( 'When', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Kind', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Saved by', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Size', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4918 — a card per snapshot on a phone, the table from 768px. The
+        // width cap and the actions row live in frontend-custom-css.css now.
+        wp_enqueue_style( 'tt-frontend-custom-css', TT_PLUGIN_URL . 'assets/css/frontend-custom-css.css', [], TT_VERSION );
+        $c_when  = __( 'When', 'talenttrack' );
+        $c_kind  = __( 'Kind', 'talenttrack' );
+        $c_saved = __( 'Saved by', 'talenttrack' );
+        $c_size  = __( 'Size', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-css-history ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_when ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_kind ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_saved ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_size ) . '</th>';
+        echo '<th' . $th . '>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $r ) {
             $u = get_userdata( (int) $r->saved_by_user_id );
             $author = $u ? (string) $u->display_name : '#' . (int) $r->saved_by_user_id;
             $kind = $r->kind === CustomCssRepository::KIND_PRESET
                 ? '★ ' . esc_html( (string) ( $r->preset_name ?? '' ) )
                 : esc_html__( 'auto', 'talenttrack' );
-            echo '<tr>';
-            echo '<td>' . esc_html( (string) $r->saved_at ) . '</td>';
-            echo '<td>' . $kind . '</td>';
-            echo '<td>' . esc_html( $author ) . '</td>';
-            echo '<td>' . esc_html( size_format( (int) $r->byte_count ) ) . '</td>';
-            echo '<td style="display:flex; gap:6px;">';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_when ) . '>' . esc_html( (string) $r->saved_at ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_kind ) . '>' . $kind . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_saved ) . '>' . esc_html( $author ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_size ) . '>' . esc_html( size_format( (int) $r->byte_count ) ) . '</td>';
+            echo '<td class="tt-css-history__actions"' . StackTable::attrs( 'cell' ) . '>';
             echo '<form method="post" style="display:inline;">';
             wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
             echo '<input type="hidden" name="tt_css_action" value="revert">';

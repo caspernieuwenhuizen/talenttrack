@@ -7,6 +7,7 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendSeasonsView (#1481) — frontend Seasons manager. Brings the
@@ -72,33 +73,41 @@ class FrontendSeasonsView extends FrontendViewBase {
         ?>
         <div class="tt-admin-card">
             <div class="tt-table-wrap">
-            <table class="tt-table">
-                <thead><tr>
-                    <th><?php esc_html_e( 'Season', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Starts', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Ends', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Current', 'talenttrack' ); ?></th>
-                    <th class="tt-col-actions"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+            <?php
+            // #4918 — a card per season on a phone, the table from 768px.
+            $c_season  = __( 'Season', 'talenttrack' );
+            $c_starts  = __( 'Starts', 'talenttrack' );
+            $c_ends    = __( 'Ends', 'talenttrack' );
+            $c_current = __( 'Current', 'talenttrack' );
+            $th        = StackTable::attrs( 'columnheader' );
+            ?>
+            <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_season ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_starts ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_ends ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_current ); ?></th>
+                    <th class="tt-col-actions"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr></thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $seasons as $s ) :
                     $sid        = (int) $s->id;
                     $is_current = (int) $s->is_current === 1;
                     $referenced = self::isReferenced( $repo, $sid );
                     $edit_url   = add_query_arg( [ 'tt_view' => 'seasons', 'action' => 'edit', 'id' => $sid ], self::dashboardUrl() );
                     ?>
-                    <tr<?php echo $is_current ? ' class="tt-row-current"' : ''; ?>>
-                        <td><strong><?php echo esc_html( (string) $s->name ); ?></strong></td>
-                        <td><?php echo esc_html( TTDate::date( (string) $s->start_date ) ); ?></td>
-                        <td><?php echo esc_html( TTDate::date( (string) $s->end_date ) ); ?></td>
-                        <td>
+                    <tr<?php echo $is_current ? ' class="tt-row-current"' : ''; ?><?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_season ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><strong><?php echo esc_html( (string) $s->name ); ?></strong></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_starts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( TTDate::date( (string) $s->start_date ) ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_ends ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( TTDate::date( (string) $s->end_date ) ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_current ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php if ( $is_current ) : ?>
                                 <span class="tt-badge-current"><?php esc_html_e( 'Current', 'talenttrack' ); ?></span>
                             <?php else : ?>
                                 —
                             <?php endif; ?>
                         </td>
-                        <td class="tt-col-actions">
+                        <td class="tt-col-actions"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                             <a class="tt-btn tt-btn-secondary tt-btn-sm tt-seasons-action" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                             <?php if ( ! $is_current ) : ?>
                                 <button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-seasons-action" data-tt-season-current="<?php echo esc_attr( (string) $sid ); ?>"><?php esc_html_e( 'Set current', 'talenttrack' ); ?></button>
@@ -108,7 +117,7 @@ class FrontendSeasonsView extends FrontendViewBase {
                             <?php elseif ( ! $is_current && $referenced ) : ?>
                                 <span class="tt-in-use-hint" title="<?php esc_attr_e( 'Has linked records — edit instead of deleting.', 'talenttrack' ); ?>"><?php esc_html_e( 'In use', 'talenttrack' ); ?></span>
                             <?php endif; ?>
-                        </td>
+                        </div></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

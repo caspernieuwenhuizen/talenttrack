@@ -10,6 +10,7 @@ use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Invitations\InvitationStatus;
 use TT\Modules\Invitations\InvitationsRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -120,31 +121,43 @@ class InvitationsConfigView extends FrontendViewBase {
             <?php return; ?>
         <?php endif; ?>
 
-        <table class="tt-table" style="width:100%;">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Kind', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Target', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Inviter', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Created', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Expires', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+        <?php
+        // #4918 — a card per invitation on a phone, the table from 768px.
+        // (`.tt-table` is full width already; the inline width it carried
+        // said nothing new.)
+        $c_kind    = __( 'Kind', 'talenttrack' );
+        $c_target  = __( 'Target', 'talenttrack' );
+        $c_inviter = __( 'Inviter', 'talenttrack' );
+        $c_created = __( 'Created', 'talenttrack' );
+        $c_expires = __( 'Expires', 'talenttrack' );
+        $c_status  = __( 'Status', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
+        ?>
+        <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_kind ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_target ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_inviter ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_created ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_expires ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
             <?php
             $service = new InvitationService();
             foreach ( $rows as $row ) :
                 $accept_url = $service->acceptanceUrl( (string) $row->token );
                 ?>
-                <tr>
-                    <td><?php echo esc_html( InvitationKind::label( (string) $row->kind ) ); ?></td>
-                    <td><?php echo esc_html( self::targetLabel( $row ) ); ?></td>
-                    <td><?php echo esc_html( self::userName( (int) $row->created_by ) ); ?></td>
-                    <td><?php echo esc_html( (string) $row->created_at ); ?></td>
-                    <td><?php echo esc_html( (string) $row->expires_at ); ?></td>
-                    <td>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <td<?php echo StackTable::attrs( 'cell', $c_kind ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( InvitationKind::label( (string) $row->kind ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_target ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( self::targetLabel( $row ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_inviter ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( self::userName( (int) $row->created_by ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_created ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row->created_at ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_expires ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row->expires_at ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                         <?php
                         echo esc_html( InvitationStatus::label( (string) $row->status ) );
                         // #2964 — "pending" now covers two different things:
@@ -155,8 +168,8 @@ class InvitationsConfigView extends FrontendViewBase {
                             echo ' — <strong>' . esc_html__( 'not sent yet', 'talenttrack' ) . '</strong>';
                         }
                         ?>
-                    </td>
-                    <td>
+                    </span></td>
+                    <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                         <?php if ( self::isUnsent( $row ) && current_user_can( 'tt_send_invitation' ) ) : ?>
                             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-inv-send-form">
                                 <?php wp_nonce_field( 'tt_invitation_send' ); ?>
@@ -194,7 +207,7 @@ class InvitationsConfigView extends FrontendViewBase {
                                 );
                             ?></small>
                         <?php endif; ?>
-                    </td>
+                    </div></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

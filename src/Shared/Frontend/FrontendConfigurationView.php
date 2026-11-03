@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Activities\Services\CoachWeek;
 use TT\Shared\Frontend\BrandFonts;
 use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendConfigurationView — frontend mirror of the wp-admin
@@ -3067,6 +3068,7 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     private static function renderDashboardForm(): void {
+        wp_enqueue_style( 'tt-frontend-dashboard-config', TT_PLUGIN_URL . 'assets/css/frontend-dashboard-config.css', [], TT_VERSION );
         $current = QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
         $is_persona = $current !== '0';
 
@@ -3124,21 +3126,26 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php esc_html_e( "Optional. Force a specific dashboard for a single persona — useful for testing one persona at a time on a real install without flipping the whole site. \"Inherit\" follows the global default above.", 'talenttrack' ); ?>
                 </p>
                 <div class="tt-table-wrap">
-                <table class="tt-table" style="width:100%; max-width: 520px;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;"><?php esc_html_e( 'Persona', 'talenttrack' ); ?></th>
-                            <th style="text-align:left; width:200px;"><?php esc_html_e( 'Dashboard', 'talenttrack' ); ?></th>
+                <?php
+                // #4918 — a card per persona on a phone, the table from 480px.
+                $c_persona   = __( 'Persona', 'talenttrack' );
+                $c_dashboard = __( 'Dashboard', 'talenttrack' );
+                ?>
+                <table class="tt-table tt-persona-dash-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_persona ); ?></th>
+                            <th class="tt-persona-dash-table__choice"<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_dashboard ); ?></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <?php foreach ( $personas as $key => $label ) :
                             $cur = $per_persona[ $key ];
                             $name = 'config[persona_dashboard.' . $key . '.enabled]';
                             ?>
-                            <tr>
-                                <td><?php echo esc_html( $label ); ?></td>
-                                <td>
+                            <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <td<?php echo StackTable::attrs( 'cell', $c_persona ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $label ); ?></td>
+                                <td<?php echo StackTable::attrs( 'cell', $c_dashboard ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <select name="<?php echo esc_attr( $name ); ?>" class="tt-input">
                                         <option value=""  <?php selected( $cur, '' );  ?>><?php esc_html_e( 'Inherit (use global default)', 'talenttrack' ); ?></option>
                                         <option value="1" <?php selected( $cur, '1' ); ?>><?php esc_html_e( 'Persona dashboard', 'talenttrack' ); ?></option>
