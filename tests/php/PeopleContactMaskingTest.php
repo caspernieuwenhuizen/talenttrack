@@ -128,6 +128,37 @@ final class PeopleContactMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Ouder Vos', $this->renderAdminList( $this->hod, 'ouder.4715' ), 'wp-admin: HoD still finds them' );
     }
 
+    /** The edit forms hold the contact: they are for a reader who may edit people. */
+    public function test_the_edit_forms_are_for_people_editors_only(): void {
+        $hod = $this->renderFrontendEdit( $this->hod );
+        $this->assertStringContainsString( 'name="email"', $hod, 'HoD gets the form' );
+        $this->assertStringContainsString( self::EMAIL, $hod );
+
+        $observer = $this->renderFrontendEdit( $this->observer );
+        $this->assertStringNotContainsString( 'name="email"', $observer, 'no form for the observer' );
+        $this->assertStringNotContainsString( self::EMAIL, $observer );
+        $this->assertStringContainsString( 'tt-masked-value', $observer, 'the read-only person page instead' );
+
+        $this->assertStringContainsString( self::EMAIL, $this->renderAdminEdit( $this->hod ), 'wp-admin: HoD gets the form' );
+        $admin = $this->renderAdminEdit( $this->observer );
+        $this->assertStringNotContainsString( 'name="email"', $admin );
+        $this->assertStringNotContainsString( self::EMAIL, $admin );
+    }
+
+    /** The mail composer neither shows nor sends to an address the rule hides. */
+    public function test_the_mail_composer_follows_the_contact_rule(): void {
+        $this->assertStringContainsString( self::EMAIL, $this->renderCompose( $this->hod ), 'HoD sees the recipient' );
+
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        AuthorizationService::flushCache();
+        if ( ! user_can( $coach, 'tt_send_email' ) ) {
+            $this->markTestSkipped( 'no sender without staff access to the child in this fixture' );
+        }
+        $html = $this->renderCompose( $coach );
+        $this->assertStringNotContainsString( self::EMAIL, $html, 'a sender who does not work with the child' );
+        $this->assertStringNotContainsString( 'tt-mail-subject', $html, 'and no form to send from' );
+    }
+
     /** D-48: a parent-type person with no linked child keeps their contact. */
     public function test_an_unlinked_parent_keeps_their_contact(): void {
         global $wpdb;
@@ -184,6 +215,41 @@ final class PeopleContactMaskingTest extends WP_UnitTestCase {
         ob_start();
         FrontendPersonDetailView::render( $this->guardian, $user_id, user_can( $user_id, 'administrator' ) );
         return (string) ob_get_clean();
+    }
+
+    private function renderFrontendEdit( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $this->guardian;
+        ob_start();
+        \TT\Shared\Frontend\FrontendPeopleManageView::render( $user_id, user_can( $user_id, 'administrator' ) );
+        $html = (string) ob_get_clean();
+        unset( $_GET['action'], $_GET['id'] );
+        return $html;
+    }
+
+    private function renderAdminEdit( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $this->guardian;
+        ob_start();
+        PeoplePage::render();
+        $html = (string) ob_get_clean();
+        unset( $_GET['action'], $_GET['id'] );
+        return $html;
+    }
+
+    private function renderCompose( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['person_id'] = (string) $this->guardian;
+        ob_start();
+        \TT\Shared\Frontend\FrontendMailComposeView::render( $user_id, user_can( $user_id, 'administrator' ) );
+        $html = (string) ob_get_clean();
+        unset( $_GET['person_id'] );
+        return $html;
     }
 
     private function renderAdminList( int $user_id, string $search = '' ): string {

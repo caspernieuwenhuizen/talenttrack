@@ -72,6 +72,14 @@ final class FrontendMailComposeView extends FrontendViewBase {
             return;
         }
 
+        // #4715 — a guardian's address follows the sensitive-field registry:
+        // a sender it is hidden from neither sees it nor mails it from here.
+        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), $person_id ) ) {
+            self::renderHeader( __( 'Compose email', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to do that.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // POST handler — fall through to render after on success so the
         // user sees the confirmation banner inline rather than a redirect.
         $sent_ok = null;

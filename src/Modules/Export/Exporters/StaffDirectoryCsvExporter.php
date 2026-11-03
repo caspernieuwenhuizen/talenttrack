@@ -90,14 +90,25 @@ final class StaffDirectoryCsvExporter implements ExporterInterface {
             __( 'Teams',      'talenttrack' ),
         ];
 
+        // #4715 — the contact columns follow the sensitive-field registry,
+        // not the role type alone: a staff member who is also a guardian of a
+        // child keeps their address only for a reader the guardian rule
+        // allows. Resolved for the whole file at once; a hidden cell is empty.
+        $viewer = (int) $request->requesterUserId;
+        \TT\Infrastructure\Security\RecordRedactor::primePeople(
+            $viewer,
+            array_values( array_map( static fn( $r ): int => (int) ( ( (array) $r )['id'] ?? 0 ), $rows_raw ) )
+        );
+
         $rows = [];
         foreach ( $rows_raw as $r ) {
+            $hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', $viewer, (int) $r->id );
             $rows[] = [
                 (int)    $r->id,
                 (string) ( $r->first_name ?? '' ),
                 (string) ( $r->last_name ?? '' ),
-                (string) ( $r->email ?? '' ),
-                (string) ( $r->phone ?? '' ),
+                $hidden ? '' : (string) ( $r->email ?? '' ),
+                $hidden ? '' : (string) ( $r->phone ?? '' ),
                 ExportValueFormatter::roleType( $r->role_type ?? '' ),
                 ExportValueFormatter::personStatus( $r->status ?? '' ),
                 (string) ( $r->teams ?? '' ),

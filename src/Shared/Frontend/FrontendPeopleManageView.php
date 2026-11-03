@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -56,6 +57,16 @@ class FrontendPeopleManageView extends FrontendViewBase {
 
         $people_label = __( 'People', 'talenttrack' );
         $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $people_label ) ];
+
+        // #4715 — the form is for a reader who may edit people: it holds the
+        // person's contact and a list of the club's accounts. Anyone else
+        // gets the read-only person page (or the list, for a new person).
+        $may_edit = AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_people' );
+        if ( ! $may_edit && $id > 0 ) {
+            FrontendPersonDetailView::render( $id, $user_id, $is_admin );
+            return;
+        }
+        if ( ! $may_edit && $action === 'new' ) $action = '';
 
         if ( $action === 'new' ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New person', 'talenttrack' ), $parent_crumb );
@@ -169,11 +180,22 @@ class FrontendPeopleManageView extends FrontendViewBase {
             "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE wp_user_id > 0 AND club_id = %d",
             CurrentClub::id()
         ) );
+        // #4715 — only the accounts this club's policy governs (its members,
+        // plus logins with no club yet, so a new account can be linked), not
+        // the accounts of another club; and their addresses only for a
+        // reader who may read every guardian's contact.
+        $club_accounts = \TT\Infrastructure\Tenancy\ClubMembership::userIdsGovernedBy( CurrentClub::id() );
+        $own_account   = (int) ( $person->wp_user_id ?? 0 );
+        if ( $own_account > 0 ) $club_accounts[] = $own_account;
+        // `include` overrides `exclude` in WP_User_Query, so the player-linked
+        // accounts are taken out here.
+        $club_accounts = array_values( array_unique( array_diff( $club_accounts, array_map( 'intval', $linked_to_player ) ) ) );
+        $show_email    = \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'people', 'email', get_current_user_id() );
         $wp_users = get_users( [
             'fields'  => [ 'ID', 'display_name', 'user_email' ],
             'orderby' => 'display_name',
             'order'   => 'ASC',
-            'exclude' => $linked_to_player,
+            'include' => $club_accounts !== [] ? $club_accounts : [ 0 ],
         ] );
 
         ?>
@@ -211,7 +233,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
                     <select id="tt-person-wp-user" class="tt-input" name="wp_user_id">
                         <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
                         <?php foreach ( $wp_users as $u ) :
-                            $label = $u->display_name . ( $u->user_email ? ' (' . $u->user_email . ')' : '' );
+                            $label = $u->display_name . ( $show_email && $u->user_email ? ' (' . $u->user_email . ')' : '' );
                             ?>
                             <option value="<?php echo (int) $u->ID; ?>" <?php selected( (int) ( $person->wp_user_id ?? 0 ), (int) $u->ID ); ?>>
                                 <?php echo esc_html( $label ); ?>

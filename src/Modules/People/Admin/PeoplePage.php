@@ -104,6 +104,12 @@ class PeoplePage {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id     = isset( $_GET['id'] ) ? absint( wp_unslash( (string) $_GET['id'] ) ) : 0;
 
+        // #4715 — the form holds a person's contact; it is for a reader who
+        // may edit people.
+        if ( ( $action === 'new' || $action === 'edit' ) && ! current_user_can( 'tt_edit_people' ) ) {
+            echo '<div class="wrap"><p>' . esc_html__( 'You do not have permission to do that.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         if ( $action === 'new' ) {
             self::renderForm( null );
             return;
