@@ -315,6 +315,19 @@
     .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a,
     .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile-plain] a { pointer-events: auto; }
 }
+/* A sort link is a tap target wherever it shows under a finger: in the table
+   on a touch tablet, and on a phone while keyboard focus has the hidden
+   header row on screen. */
+@media (pointer: coarse) {
+    .tt-dashboard .tt-list-table-table .tt-list-table-sortable a {
+        display: inline-flex;
+        align-items: center;
+        min-width: var(--tt-tap-min);
+        min-height: var(--tt-tap-min);
+        touch-action: manipulation;
+    }
+}
+
 /* The #2800 record-link floor returns with the table on touch tablets. */
 @media (min-width: 768px) and (pointer: coarse) {
     .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link {

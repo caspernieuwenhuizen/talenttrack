@@ -1049,6 +1049,34 @@ test.describe( 'mobile viewport gate', () => {
 		} );
 	}
 
+	// #4901 — a list table's header row is hidden on a phone, and shows while
+	// keyboard focus is inside it; its sort links are then on screen under a
+	// finger, so each one meets the floor.
+	test( 'a list table\'s sort links are full tap targets once focus shows the header', async ( { browser }, testInfo ) => {
+		const context = await browser.newContext( phoneContext( testInfo, 'tests/e2e/.auth/admin.json' ) );
+		const page = await context.newPage();
+		try {
+			await page.goto( '/?tt_view=players', { waitUntil: 'domcontentloaded' } );
+			await hideAdminBar( page );
+			await waitForListHydration( page );
+
+			const links = page.locator( '.tt-dashboard .tt-list-table-table thead .tt-list-table-sortable a' );
+			expect( await links.count(), 'the players list has sortable columns' ).toBeGreaterThan( 0 );
+
+			await links.first().focus();
+			const sizes = await links.evaluateAll( ( els ) => els.map( ( a ) => {
+				const r = a.getBoundingClientRect();
+				return { label: ( a.textContent || '' ).trim(), width: Math.round( r.width ), height: Math.round( r.height ) };
+			} ) );
+			console.log( `\n[${ page.viewportSize().width }px] sort links with focus in the header: ${ sizes.map( ( s ) => `"${ s.label }" ${ s.width }x${ s.height }` ).join( '; ' ) }` );
+			sizes.forEach( ( s ) => {
+				expect( s.width >= MIN_TAP && s.height >= MIN_TAP, `sort link "${ s.label }" is ${ s.width }x${ s.height }, under ${ MIN_TAP }px` ).toBe( true );
+			} );
+		} finally {
+			await context.close();
+		}
+	} );
+
 	// #4864 — the walk clears the admin's flash queue before it starts, so it
 	// never meets a flash. This queues one (a new team with no head coach
 	// gets TeamStaffPrompt's warning), opens the dashboard and measures the
