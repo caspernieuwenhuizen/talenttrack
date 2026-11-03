@@ -125,8 +125,7 @@ test.describe( 'Stack-table on a phone', () => {
 		// The setup writes the row this table needs; without it the case
 		// would pass by skipping, so it fails instead.
 		expect( ax, 'the message log shows no table: tests/e2e/setup/message-log-row.php wrote no row' ).not.toBeNull();
-		if ( ax === null ) return;
-		await expectStackedTable( page, ax );
+		await expectStackedTable( page, /** @type {NonNullable<typeof ax>} */ ( ax ) );
 	} );
 } );
 
