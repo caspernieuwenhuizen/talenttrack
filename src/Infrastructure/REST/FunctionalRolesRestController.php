@@ -500,6 +500,37 @@ class FunctionalRolesRestController {
         ];
     }
 
+    /**
+     * #4905 — an assignment's dates decide which teams its holder works
+     * with today, so each is empty or a real calendar date as `Y-m-d`.
+     * Anything else is refused by name before anything is written.
+     */
+    private static function refusedDate( \WP_REST_Request $r ): ?\WP_REST_Response {
+        foreach ( [ 'start_date', 'end_date' ] as $field ) {
+            if ( ! self::isDateOrEmpty( (string) ( $r[ $field ] ?? '' ) ) ) {
+                return RestResponse::error(
+                    'invalid_field',
+                    __( 'Dates must be a real date in the form YYYY-MM-DD.', 'talenttrack' ),
+                    400,
+                    [ 'field' => $field ]
+                );
+            }
+        }
+        return null;
+    }
+
+    /** Empty, or a real calendar date written as `Y-m-d`. */
+    private static function isDateOrEmpty( string $raw ): bool {
+        $value = trim( $raw );
+        return $value === '' || \TT\Modules\Evaluations\EvaluationDateRule::isDate( $value );
+    }
+
+    /** A checked date field as stored: the date, or null when empty. */
+    private static function dateOrNull( \WP_REST_Request $r, string $field ): ?string {
+        $value = trim( (string) ( $r[ $field ] ?? '' ) );
+        return $value === '' ? null : $value;
+    }
+
     public static function create_assignment( \WP_REST_Request $r ) {
         // #3816 — a key this route does not take is refused by name rather
         // than read by nothing.
@@ -509,8 +540,10 @@ class FunctionalRolesRestController {
         $team_id   = absint( $r['team_id'] ?? 0 );
         $person_id = absint( $r['person_id'] ?? 0 );
         $role_id   = absint( $r['functional_role_id'] ?? 0 );
-        $start     = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) ) ?: null;
-        $end       = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) ) ?: null;
+        $refused = self::refusedDate( $r );
+        if ( $refused !== null ) return $refused;
+        $start     = self::dateOrNull( $r, 'start_date' );
+        $end       = self::dateOrNull( $r, 'end_date' );
 
         if ( $team_id <= 0 || $person_id <= 0 || $role_id <= 0 ) {
             return RestResponse::error(
@@ -562,8 +595,10 @@ class FunctionalRolesRestController {
             return RestResponse::error( 'missing_fields', __( 'A functional role is required.', 'talenttrack' ), 400 );
         }
 
-        $start = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) ) ?: null;
-        $end   = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) ) ?: null;
+        $refused = self::refusedDate( $r );
+        if ( $refused !== null ) return $refused;
+        $start = self::dateOrNull( $r, 'start_date' );
+        $end   = self::dateOrNull( $r, 'end_date' );
 
         $repo = new PeopleRepository();
         if ( $repo->findAssignment( $assignment_id ) === null ) {
