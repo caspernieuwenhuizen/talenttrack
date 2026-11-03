@@ -282,7 +282,7 @@ class EvaluationsRestController {
             $uid         = get_current_user_id();
             $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
             $team_ids    = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
-            $scope_team_ids = $team_ids;
+            $scope_team_ids = array_values( $team_ids );
             if ( empty( $team_ids ) ) {
                 // Still surface the coach's own authored evals even
                 // when they own zero teams (newly assigned coach, or
