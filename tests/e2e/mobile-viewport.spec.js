@@ -254,6 +254,27 @@ async function hideAdminBar( page ) {
 }
 
 /**
+ * Open every widget fold on the dashboard home (#4823).
+ *
+ * On a phone the dashboard closes its widget folds (`details.tt-pd-fold`,
+ * #1375) once the page has loaded, and what is inside a closed fold is not
+ * a tap target the checks count. The tables and their row links sit inside
+ * those folds, so the home is measured as a user sees it after opening
+ * each one: the fold's own summary is measured either way.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<number>} how many folds were opened
+ */
+async function openFolds( page ) {
+	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	return page.evaluate( () => {
+		const folds = Array.from( document.querySelectorAll( '.tt-dashboard details.tt-pd-fold' ) );
+		folds.forEach( ( d ) => { d.open = true; } );
+		return folds.length;
+	} );
+}
+
+/**
  * Wait for every `FrontendListTable` on the page to finish loading (#4232).
  *
  * The list fills its body over REST after first paint. Measuring before
@@ -643,6 +664,7 @@ test.describe( 'mobile viewport gate', () => {
 			}
 
 			await hideAdminBar( page );
+			if ( key === HOME_SURFACE.key ) await openFolds( page );
 
 			// Every check reads the same settled page: a list's rows carry
 			// links and buttons of their own, and whether they had arrived
@@ -959,28 +981,37 @@ test.describe( 'mobile viewport gate', () => {
 			try {
 				await page.goto( '/', { waitUntil: 'domcontentloaded' } );
 				await hideAdminBar( page );
+				await openFolds( page );
 				const links = await page.locator( '.tt-dashboard .tt-pd-row-link' ).count();
 				expect( links, `[${ persona.key }] no row links to measure` ).toBeGreaterThan( 0 );
 
-				const small = await page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.filter( ( el ) => {
+				const tapCount = ( findings ) => {
+					const tap = findings.find( ( f ) => f.kind === 'tap-target' );
+					return tap ? Number( ( /^(\d+) under/.exec( tap.detail ) || [ '', '0' ] )[ 1 ] ) : 0;
+				};
+				const sizes = () => page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.map( ( el ) => {
 					const r = el.getBoundingClientRect();
-					return r.height < 48 || r.width < 48;
-				} ).length );
-				expect( small, `[${ persona.key }] with #4817's rule in place every row link is at least 48x48` ).toBe( 0 );
+					return `${ Math.round( r.width ) }x${ Math.round( r.height ) }`;
+				} ) );
 
-				// What the page looks like with #4819 reverted: no rule for
-				// the class, so the link is inline text.
+				const kept = await sizes();
+				const before = tapCount( await measure( page, 'native' ) );
+				expect(
+					kept.every( ( s ) => s.split( 'x' ).every( ( n ) => Number( n ) >= 48 ) ),
+					`[${ persona.key }] with the floor in place every row link is at least 48x48: ${ kept.join( ', ' ) }`
+				).toBe( true );
+
+				// The page as a revert leaves it: no rule for the class, so
+				// the link is its line of text.
 				await page.addStyleTag( {
 					content: '.tt-pd-row-link { display: inline !important; min-height: 0 !important; min-width: 0 !important; justify-content: normal !important; }',
 				} );
-				const reverted = await page.$$eval( '.tt-dashboard .tt-pd-row-link', ( els ) => els.map( ( el ) => Math.round( el.getBoundingClientRect().height ) ) );
-				expect( Math.max( ...reverted ), `[${ persona.key }] a reverted row link is under 48px tall` ).toBeLessThan( 48 );
-
+				const reverted = await sizes();
 				const findings = await measure( page, 'native' );
 				const allowed = ( loadBaseline( page.viewportSize().width, persona.key )[ HOME_SURFACE.key ] || { kinds: [] } ).kinds;
-				expect( findings.map( ( f ) => f.kind ), `[${ persona.key }] the reverted row links are a tap-target finding` ).toContain( 'tap-target' );
+				console.log( `\n[${ persona.key }] row links ${ kept.join( ', ' ) } with the floor, ${ reverted.join( ', ' ) } without; tap-target findings ${ before } then ${ tapCount( findings ) }` );
+				expect( tapCount( findings ), `[${ persona.key }] every reverted row link is counted as a tap-target finding` ).toBe( before + links );
 				expect( allowed, `[${ persona.key }] the baseline allows tap-target findings on the dashboard home, so a revert would pass` ).not.toContain( 'tap-target' );
-				console.log( `\n[${ persona.key }] reverted row links measure ${ reverted.join( ', ' ) }px tall; finding: ${ ( findings.find( ( f ) => f.kind === 'tap-target' ) || { detail: '' } ).detail }` );
 			} finally {
 				await context.close();
 			}

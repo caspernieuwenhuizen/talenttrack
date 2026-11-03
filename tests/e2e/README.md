@@ -157,6 +157,13 @@ the accounts exist:
 - for the scout (`my_recent_prospects`): one prospect, logged by the scout
   itself.
 
+On a phone the dashboard closes its widget folds (`details.tt-pd-fold`)
+after load, and nothing inside a closed fold is measured, so the walk opens
+every fold on the dashboard home before it measures. If the coach account
+already has an active staff record, the fixture uses it rather than make a
+second. Creating the team queues a "no head coach yet" flash for the admin,
+so the fixture loads one admin page afterwards to clear it before the walk.
+
 Every name the fixture writes starts with `e2e-`. Each persona walk fails
 when the fixture is incomplete or when its home shows no `.tt-pd-row-link`.
 `afterAll` removes the fixture before the accounts, and fails if any of it

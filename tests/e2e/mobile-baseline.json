@@ -120,17 +120,26 @@
         "320": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         },
         "360": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         },
         "390": {
           "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
           "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
-          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." },
+          "pdp": { "kinds": [ "tap-target" ], "reason": "The team link on the PDP list is 185x18: the fixture's player (#4823) is the coach's first." },
+          "players": { "kinds": [ "tap-target" ], "reason": "The team link in a player card's secondary line is 185x18 and still takes the tap: it is not one of the mobile_plain cells the row link lets taps through (#4823 gave the coach its first player)." },
+          "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). The fixture's team (#4823) is the coach's first." }
         }
       }
     },
