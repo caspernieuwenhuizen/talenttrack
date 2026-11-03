@@ -12,6 +12,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -161,22 +162,30 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         // teams; with one team selected it repeats the same value on every row.
         $show_team = $team_id <= 0;
 
+        // #4915 — a card per player up to 768px, where the table fits.
+        $c_player   = __( 'Player', 'talenttrack' );
+        $c_team     = __( 'Team', 'talenttrack' );
+        $c_bmi      = __( 'BMI', 'talenttrack' );
+        $c_change   = __( 'Change', 'talenttrack' );
+        $c_measured = __( 'Measured', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        $value      = '<span class="' . esc_attr( StackTable::VALUE ) . '">';
         echo '<div class="tt-table-scroll">';
-        echo '<table class="tt-table tt-bmi-table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<table class="tt-table tt-bmi-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_player ) . '</th>';
         if ( $show_team ) {
-            echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+            echo '<th scope="col"' . $th . '>' . esc_html( $c_team ) . '</th>';
         }
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-date">' . esc_html__( 'Measured', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_bmi ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_change ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-date"' . $th . '>' . esc_html( $c_measured ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $name = trim( (string) $row['first_name'] . ' ' . (string) $row['last_name'] );
 
-            echo '<tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
 
             // The name opens the player's BMI trend — the drilldown this
             // table exists to reach. The profile is one link further, from
@@ -186,31 +195,33 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
             printf(
-                '<td class="tt-bmi-cell-player"><a class="tt-bmi-player-link" href="%s">%s</a></td>',
+                '<td class="tt-bmi-cell-player"%s><a class="tt-bmi-player-link" href="%s">%s</a></td>',
+                StackTable::attrs( 'cell', $c_player ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 esc_url( $trend_url ),
                 esc_html( $name )
             );
             if ( $show_team ) {
-                echo '<td>' . esc_html( (string) $row['team_name'] ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_team ) . '>' . esc_html( (string) $row['team_name'] ) . '</td>';
             }
 
             if ( $row['bmi'] === null ) {
                 // One empty cell spanning the figures, with the reason, rather
                 // than three dashes that look like zeroes.
-                echo '<td colspan="3" class="tt-bmi-cell-empty">'
+                echo '<td colspan="3" class="tt-bmi-cell-empty"' . StackTable::attrs( 'cell' ) . '>'
                     . esc_html__( 'No height and weight recorded close enough together', 'talenttrack' )
                     . '</td>';
                 echo '</tr>';
                 continue;
             }
 
-            echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $row['bmi'], 1 ) ) . '</td>';
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_bmi ) . '>' . esc_html( number_format_i18n( (float) $row['bmi'], 1 ) ) . '</td>';
+
+            // The figure and its muted second line are one value on a phone.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_change ) . '>' . $value . BmiBlock::changeCellHtml( $row['delta_bmi'], $row['previous_date'] ) . '</span></td>';
 
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
-            echo '<td class="tt-bmi-cell-num">' . BmiBlock::changeCellHtml( $row['delta_bmi'], $row['previous_date'] ) . '</td>';
-
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
-            echo '<td class="tt-bmi-cell-date">' . BmiBlock::measuredCellHtml( (string) $row['date'], (int) $row['gap_days'] ) . '</td>';
+            echo '<td class="tt-bmi-cell-date"' . StackTable::attrs( 'cell', $c_measured ) . '>' . $value . BmiBlock::measuredCellHtml( (string) $row['date'], (int) $row['gap_days'] ) . '</span></td>';
 
             echo '</tr>';
         }
@@ -245,29 +256,37 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
             return;
         }
 
+        // #4915 — a card per measurement up to 768px, where the table fits.
+        $c_date   = __( 'Date', 'talenttrack' );
+        $c_height = __( 'Height', 'talenttrack' );
+        $c_weight = __( 'Weight', 'talenttrack' );
+        $c_bmi    = __( 'BMI', 'talenttrack' );
+        $c_change = __( 'Change', 'talenttrack' );
+        $c_gap    = __( 'Gap', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-scroll">';
-        echo '<table class="tt-table tt-bmi-table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Height', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Weight', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Gap', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table tt-bmi-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_date ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_height ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_weight ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_bmi ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_change ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num"' . $th . '>' . esc_html( $c_gap ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( array_reverse( $series ) as $point ) {
-            echo '<tr>';
-            echo '<td class="tt-bmi-cell-date">' . esc_html( BmiBlock::date( (string) $point['date'] ) ) . '</td>';
-            echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['height_cm'], 1 ) ) . ' cm</td>';
-            echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['weight_kg'], 1 ) ) . ' kg</td>';
-            echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['bmi'], 1 ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td class="tt-bmi-cell-date"' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( BmiBlock::date( (string) $point['date'] ) ) . '</td>';
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_height ) . '>' . esc_html( number_format_i18n( (float) $point['height_cm'], 1 ) ) . ' cm</td>';
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_weight ) . '>' . esc_html( number_format_i18n( (float) $point['weight_kg'], 1 ) ) . ' kg</td>';
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_bmi ) . '>' . esc_html( number_format_i18n( (float) $point['bmi'], 1 ) ) . '</td>';
 
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
-            echo '<td class="tt-bmi-cell-num">' . BmiBlock::changeCellHtml( $point['delta_bmi'], $point['previous_date'] ) . '</td>';
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_change ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">' . BmiBlock::changeCellHtml( $point['delta_bmi'], $point['previous_date'] ) . '</span></td>';
 
             $gap = (int) $point['gap_days'];
-            echo '<td class="tt-bmi-cell-num">' . esc_html(
+            echo '<td class="tt-bmi-cell-num"' . StackTable::attrs( 'cell', $c_gap ) . '>' . esc_html(
                 $gap === 0
                     ? __( 'same day', 'talenttrack' )
                     : sprintf(

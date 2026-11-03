@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendCohortTransitionsView — HoD-facing cohort query.
@@ -145,16 +146,23 @@ class FrontendCohortTransitionsView {
                 </p>
                 <div class="tt-report-card">
                 <div class="tt-cohort-table-wrap">
-                <table class="tt-table tt-cohort-table">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Detail', 'talenttrack' ); ?></th>
-                            <th></th>
+                <?php
+                // #4915 — a card per transition on a phone, the table from 480px.
+                $c_player = __( 'Player', 'talenttrack' );
+                $c_date   = __( 'Date', 'talenttrack' );
+                $c_detail = __( 'Detail', 'talenttrack' );
+                $th       = StackTable::attrs( 'columnheader' );
+                ?>
+                <table class="tt-table tt-cohort-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_player ); ?></th>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_date ); ?></th>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_detail ); ?></th>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <?php foreach ( $rows as $row ) :
                             $name = trim( ( $row->first_name ?? '' ) . ' ' . ( $row->last_name ?? '' ) );
                             $journey_url = add_query_arg( [
@@ -162,11 +170,11 @@ class FrontendCohortTransitionsView {
                                 'player_id' => (int) ( $row->player_id ?? 0 ),
                             ], remove_query_arg( [ 'event_type', 'from', 'to', 'team_id' ] ) );
                         ?>
-                            <tr>
-                                <td><?php echo esc_html( $name ); ?></td>
-                                <td><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $row->event_date ?? '' ) ) ); ?></td>
-                                <td><?php echo esc_html( (string) ( $row->summary ?? '' ) ); ?></td>
-                                <td>
+                            <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <td<?php echo StackTable::attrs( 'cell', $c_player ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $name ); ?></td>
+                                <td<?php echo StackTable::attrs( 'cell', $c_date ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $row->event_date ?? '' ) ) ); ?></td>
+                                <td<?php echo StackTable::attrs( 'cell', $c_detail ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $row->summary ?? '' ) ); ?></td>
+                                <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <a href="<?php echo esc_url( $journey_url ); ?>" class="tt-btn tt-btn-secondary">
                                         <?php esc_html_e( 'Open journey', 'talenttrack' ); ?>
                                     </a>

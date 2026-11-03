@@ -9,6 +9,7 @@ use TT\Modules\Development\IdeaType;
 use TT\Modules\Development\TrackRepository;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -101,19 +102,27 @@ class IdeaSubmitView extends FrontendViewBase {
 
         <?php if ( ! empty( $mine ) ) : ?>
             <h3 class="tt-ideas-section-head"><?php esc_html_e( 'My recent submissions', 'talenttrack' ); ?></h3>
-            <table class="tt-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Submitted', 'talenttrack' ); ?></th>
+            <?php
+            // #4915 — a card per idea on a phone, the table from 480px.
+            $c_title     = __( 'Title', 'talenttrack' );
+            $c_type      = __( 'Type', 'talenttrack' );
+            $c_status    = __( 'Status', 'talenttrack' );
+            $c_submitted = __( 'Submitted', 'talenttrack' );
+            $th          = StackTable::attrs( 'columnheader' );
+            ?>
+            <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_title ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_type ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_submitted ); ?></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $mine as $row ) : ?>
-                    <tr>
-                        <td>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_title ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                             <strong><?php echo esc_html( (string) $row->title ); ?></strong>
                             <?php if ( (string) $row->status === IdeaStatus::REJECTED && ! empty( $row->rejection_note ) ) : ?>
                                 <br><small class="tt-ideas-note--reject"><?php echo esc_html( (string) $row->rejection_note ); ?></small>
@@ -121,10 +130,10 @@ class IdeaSubmitView extends FrontendViewBase {
                             <?php if ( (string) $row->status === IdeaStatus::PROMOTED && ! empty( $row->promoted_filename ) ) : ?>
                                 <br><small class="tt-ideas-note--ok"><?php echo esc_html( (string) $row->promoted_filename ); ?></small>
                             <?php endif; ?>
-                        </td>
-                        <td><?php echo esc_html( IdeaType::label( (string) $row->type ) ); ?></td>
-                        <td><span class="tt-ideas-chip <?php echo esc_attr( self::statusChipClass( (string) $row->status ) ); ?>"><?php echo esc_html( IdeaStatus::authorFacingLabel( (string) $row->status ) ); ?></span></td>
-                        <td><?php echo esc_html( (string) $row->created_at ); ?></td>
+                        </span></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( IdeaType::label( (string) $row->type ) ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-ideas-chip <?php echo esc_attr( self::statusChipClass( (string) $row->status ) ); ?>"><?php echo esc_html( IdeaStatus::authorFacingLabel( (string) $row->status ) ); ?></span></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_submitted ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row->created_at ); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
