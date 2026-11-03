@@ -7,6 +7,7 @@ use TT\Infrastructure\Evaluations\PlayerEvaluationsReader;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\RatingPillComponent;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendMyEvaluationsView — the player's "My evaluations" tile.
@@ -77,13 +78,19 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             )
             . '</p>';
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table">';
-        echo '<thead><tr>'
-            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+        $c_date   = __( 'Date', 'talenttrack' );
+        $c_player = __( 'Player', 'talenttrack' );
+        $c_type   = __( 'Type', 'talenttrack' );
+        $c_match  = __( 'Match', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
+        // #4914 — a card per evaluation on a phone, a table from 480px.
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+            . '<th' . $th . '>' . esc_html( $c_date ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_player ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_type ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_match ) . '</th>'
+            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $evals as $e ) {
             $player_name = trim( ( (string) ( $e->first_name ?? '' ) ) . ' ' . ( (string) ( $e->last_name ?? '' ) ) );
             if ( $player_name === '' ) $player_name = '—';
@@ -96,15 +103,15 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                 $match_text = (string) $e->opponent;
                 if ( ! empty( $e->game_result ) ) $match_text .= ' (' . (string) $e->game_result . ')';
             }
-            echo '<tr>';
-            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td>';
-            echo '<td><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
             // #806 — pre-localised by EvaluationsRepository so bypass
             // becomes structurally impossible. Falls back to the raw
             // type_name when the lookup row is missing.
             $type_disp = ! empty( $e->type_name_localised ) ? $e->type_name_localised : ( $e->type_name ?? '—' );
-            echo '<td>' . esc_html( (string) $type_disp ) . '</td>';
-            echo '<td>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_type ) . '>' . esc_html( (string) $type_disp ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_match ) . '>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

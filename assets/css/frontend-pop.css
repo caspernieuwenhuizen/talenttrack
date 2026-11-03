@@ -1020,7 +1020,6 @@
     border-radius: var(--tt-radius);
 }
 .tt-table.tt-pdp-team-coverage__table {
-    min-width: 40rem;
     border-collapse: separate;
     border-spacing: 0;
 }

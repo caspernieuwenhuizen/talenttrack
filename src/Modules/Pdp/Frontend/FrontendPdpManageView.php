@@ -633,15 +633,23 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         echo '<section class="tt-pdp-team-coverage">';
         echo '<h2 class="tt-pdp-team-coverage__title">' . esc_html__( 'PDP coverage by team', 'talenttrack' ) . '</h2>';
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Players', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'With a plan', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Talked to', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Booked in 4 weeks', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Signed by a parent', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4914 — a card per team (the team its title) on a phone and a
+        // tablet in portrait; the table from 768px.
+        $c_players = __( 'Players', 'talenttrack' );
+        $c_plan    = __( 'With a plan', 'talenttrack' );
+        $c_talked  = __( 'Talked to', 'talenttrack' );
+        $c_booked  = __( 'Booked in 4 weeks', 'talenttrack' );
+        $c_signed  = __( 'Signed by a parent', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_players ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_plan ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_talked ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_booked ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_signed ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $team_id = (int) $row['team_id'];
@@ -658,29 +666,31 @@ class FrontendPdpManageView extends FrontendViewBase {
                     RecordLink::dashboardUrl()
                 );
                 $cell = RecordLink::inline( $name, BackLink::appendTo( $url ) );
-                echo '<tr>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '>';
             } else {
                 // The unplaced bucket: a place to look, not a team to chase.
                 $cell = '<span class="tt-pdp-team-coverage__unplaced">' . esc_html( $name !== '' ? $name : __( 'No team', 'talenttrack' ) ) . '</span>';
-                echo '<tr class="tt-pdp-team-coverage__row--unplaced">';
+                echo '<tr class="tt-pdp-team-coverage__row--unplaced"' . StackTable::attrs( 'row' ) . '>';
             }
 
-            echo '<th scope="row">' . $cell . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
-            echo self::coverageCountCell( $players ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . $cell . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
+            echo self::coverageCountCell( $players, $c_players ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             echo self::coverageShareCell(
                 (int) $row['covered'],
                 $players,
                 /* translators: 1: players with a development plan, 2: players in the team. */
-                __( '%1$d of %2$d players have a plan', 'talenttrack' )
+                __( '%1$d of %2$d players have a plan', 'talenttrack' ),
+                $c_plan
             ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             echo self::coverageShareCell(
                 (int) $row['conducted'],
                 $players,
                 /* translators: 1: players who have had a development talk, 2: players in the team. */
-                __( '%1$d of %2$d players have been talked to', 'talenttrack' )
+                __( '%1$d of %2$d players have been talked to', 'talenttrack' ),
+                $c_talked
             ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
-            echo self::coverageCountCell( (int) $row['scheduled_soon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
-            echo self::coverageCountCell( (int) $row['parent_acked'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageCountCell( (int) $row['scheduled_soon'], $c_booked ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageCountCell( (int) $row['parent_acked'], $c_signed ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             echo '</tr>';
         }
 
@@ -694,9 +704,9 @@ class FrontendPdpManageView extends FrontendViewBase {
      * stand out; it is not a warning colour, because coverage is not a
      * verdict.
      */
-    private static function coverageCountCell( int $n ): string {
+    private static function coverageCountCell( int $n, string $label ): string {
         $cls = $n === 0 ? ' class="tt-pdp-team-coverage__zero"' : '';
-        return '<td' . $cls . '>' . esc_html( (string) $n ) . '</td>';
+        return '<td' . $cls . StackTable::attrs( 'cell', $label ) . '>' . esc_html( (string) $n ) . '</td>';
     }
 
     /**
@@ -704,16 +714,17 @@ class FrontendPdpManageView extends FrontendViewBase {
      * its own value and needs no inline width; a team with no players gets
      * no bar, since there is no share to show.
      */
-    private static function coverageShareCell( int $n, int $players, string $label_format ): string {
+    private static function coverageShareCell( int $n, int $players, string $label_format, string $label ): string {
         $cls  = $n === 0 ? ' class="tt-pdp-team-coverage__zero"' : '';
-        $html = '<td' . $cls . '><span class="tt-pdp-team-coverage__ratio">'
+        // The ratio and its bar are one value beside the label on a phone.
+        $html = '<td' . $cls . StackTable::attrs( 'cell', $label ) . '><span class="' . esc_attr( StackTable::VALUE ) . '"><span class="tt-pdp-team-coverage__ratio">'
             . esc_html( (string) $n )
             . '<span class="tt-pdp-team-coverage__of"> / ' . esc_html( (string) $players ) . '</span></span>';
         if ( $players > 0 ) {
             $html .= '<progress class="tt-pdp-cov__bar" value="' . esc_attr( (string) min( $n, $players ) ) . '" max="' . esc_attr( (string) $players ) . '"'
                 . ' aria-label="' . esc_attr( sprintf( $label_format, $n, $players ) ) . '"></progress>';
         }
-        return $html . '</td>';
+        return $html . '</span></td>';
     }
 
     /**

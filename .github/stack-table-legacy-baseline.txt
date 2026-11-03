@@ -24,8 +24,6 @@ src/Modules/License/Frontend/FrontendPlanView.php 2
 src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php 1
 src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php 2
 src/Modules/Methodology/Frontend/MethodologyView.php 2
-src/Modules/Pdp/Frontend/FrontendPdpManageView.php 1
-src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php 1
 src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php 1
 src/Modules/Reports/Frontend/FrontendScoutHistoryView.php 1
 src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php 2
@@ -43,10 +41,8 @@ src/Modules/Wizards/TeamBlueprint/ReviewStep.php 1
 src/Shared/Frontend/Components/MinutesBreakdown.php 1
 src/Shared/Frontend/FrontendAuditLogView.php 5
 src/Shared/Frontend/FrontendConfigurationView.php 1
-src/Shared/Frontend/FrontendEvaluationsView.php 1
 src/Shared/Frontend/FrontendFunctionalRolesView.php 1
 src/Shared/Frontend/FrontendMigrationsView.php 2
-src/Shared/Frontend/FrontendMyEvaluationsView.php 1
 src/Shared/Frontend/FrontendPeopleManageView.php 1
 src/Shared/Frontend/FrontendReportDetailView.php 2
 src/Shared/Frontend/FrontendSeasonsView.php 1

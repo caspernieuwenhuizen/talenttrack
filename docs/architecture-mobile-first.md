@@ -87,7 +87,8 @@ A table that turns into labelled cards on a phone uses the stacked-table primiti
 **Markup.** Build the table through `\TT\Shared\Frontend\Components\StackTable`:
 
 - `StackTable::classes( $to, $cards )` gives the classes. `$to` is `StackTable::TO_480`, `StackTable::TO_768` or `StackTable::ALWAYS`; `$cards` adds the card chrome.
-- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'cell', $label )` writes the explicit role on every part, and the `data-label` on a cell. Changing `display` on table elements drops their implicit roles in some engines, so a renderer that leaves the roles out loses the table to a screen reader.
+- `StackTable::attrs( 'table' | 'rowgroup' | 'row' | 'columnheader' | 'rowheader' | 'cell', $label )` writes the explicit role on every part, and the `data-label` on a cell. Changing `display` on table elements drops their implicit roles in some engines, so a renderer that leaves the roles out loses the table to a screen reader.
+- `rowheader` is a body `<th scope="row">` that names its row, such as a team. On a phone the primitive makes it a block of its own at the top of the card, and the table brings it back as a cell. The surface sheet gives it the title look.
 - A cell with several parts (a name with its badge, a status with its hint) wraps them in one `StackTable::VALUE` block, so they stack beside the label.
 - A JS-rendered table writes the same attributes the helper does (see `frontend-list-table.js`).
 

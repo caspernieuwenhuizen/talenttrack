@@ -102,6 +102,11 @@
 }
 .tt-stack-table > tbody > tr > td[colspan]::before { content: none; }
 
+/* A row header (StackTable::attrs( 'rowheader' ), a body `<th scope="row">`)
+   heads its card: a block of its own above the label lines. The surface
+   sheet gives it the title look. */
+.tt-stack-table > tbody > tr > th[role="rowheader"] { display: block; }
+
 /* Card chrome (--cards): each stacked row is a card. */
 .tt-stack-table--cards > tbody > tr {
     box-sizing: border-box;
@@ -151,6 +156,7 @@
         overflow-wrap: normal;
     }
     .tt-stack-table--to-480 > tbody > tr > td[colspan] { text-align: center; }
+    .tt-stack-table--to-480 > tbody > tr > th[role="rowheader"] { display: table-cell; }
     .tt-stack-table--to-480 > tbody > tr > td::before { content: none; }
     .tt-stack-table--to-480.tt-stack-table--cards > tbody > tr {
         margin: 0;
@@ -190,6 +196,7 @@
         overflow-wrap: normal;
     }
     .tt-stack-table--to-768 > tbody > tr > td[colspan] { text-align: center; }
+    .tt-stack-table--to-768 > tbody > tr > th[role="rowheader"] { display: table-cell; }
     .tt-stack-table--to-768 > tbody > tr > td::before { content: none; }
     .tt-stack-table--to-768.tt-stack-table--cards > tbody > tr {
         margin: 0;
