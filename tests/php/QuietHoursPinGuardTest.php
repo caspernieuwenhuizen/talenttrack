@@ -7,9 +7,9 @@ use WP_UnitTestCase;
  * #4846: no test pins quiet hours to a window that the wall clock can open.
  *
  * Ten test files pinned the window "shut" at 03:00-03:01. That is a real
- * one-minute window, and the nightly CI run starts at 03:00 UTC. A message
- * sent in that minute is held, nothing reaches the channel, and the tests
- * fail for no real reason.
+ * one-minute window. A CI run that reaches those tests during that minute
+ * holds the message, nothing reaches the channel, and the tests fail for no
+ * real reason.
  *
  * Two rules, over every literal window a test sets:
  *

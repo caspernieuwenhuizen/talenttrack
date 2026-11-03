@@ -26,10 +26,12 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * guardians are never notified, staff of another team are never notified,
  * and a person who muted notifications is not sent anything.
  *
- * Quiet hours are pinned to an empty window in `set_up()`, so no test here
- * depends on the hour it runs at (#4838).
+ * Quiet hours are closed in `set_up()`, so no test here depends on the hour
+ * it runs at (#4838).
  */
 final class PlayerThreadNotificationTest extends WP_UnitTestCase {
+
+    use QuietHoursClosed;
 
     private int $team_id    = 0;
     private int $other_team = 0;
@@ -60,11 +62,8 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
 
         // Notifications are held during quiet hours (21:00-07:00 by
         // default), so without this every positive delivery here failed
-        // whenever the suite ran at night. An equal start and end is an
-        // empty window: it holds nothing at any minute of the day, so the
-        // wall clock cannot decide these tests.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', self::NEVER_QUIET );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', self::NEVER_QUIET );
+        // whenever the suite ran at night.
+        $this->closeQuietHours();
 
         TemplateRegistry::clear();
         ChannelAdapterRegistry::clear();
@@ -116,8 +115,6 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
         wp_set_current_user( 0 );
         parent::tear_down();
     }
-
-    private const NEVER_QUIET = '00:00';
 
     /**
      * @param mixed               $accepted

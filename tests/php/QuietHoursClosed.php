@@ -15,7 +15,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  * an empty window: `QuietHoursPolicy::shouldDefer()` holds nothing at any
  * minute of the day, so the wall clock cannot decide the test. A narrow
  * window such as 03:00-03:01 is not the same thing. It holds every message
- * sent during that minute, and the nightly run starts at 03:00 UTC.
+ * sent during that minute, and a run that reaches the test then fails.
  *
  * `QuietHoursPinGuardTest` keeps one-minute windows out of the suite and
  * sends a hand-rolled empty window here.
