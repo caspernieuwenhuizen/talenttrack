@@ -45,19 +45,25 @@ final class PlayerEventsRepository {
 
     /**
      * Journey entry types that describe a record of their own, and the read
-     * right that record asks: `[ entity, parent section ]`. The section, when
-     * set, is the child's own sharing switch a linked parent also needs (a
-     * no-op for the player and for staff). A type not listed here passes on
-     * the journey right alone.
+     * right that record asks: `[ entity, parent section, family ]`.
+     *
+     * - The section, when set, is the child's own sharing switch a linked
+     *   parent also needs (a no-op for the player and for staff).
+     * - `family` true: the player themselves and their linked parents (with
+     *   the child's journey shared) see the entry without holding the
+     *   entity, reduced to its type and date. That is the family section of
+     *   the map; it never opens the record the entry describes.
+     *
+     * A type not listed here passes on the journey right alone.
      */
     public const ENTRY_RIGHTS = [
-        JourneyEventType::TRIAL_STARTED        => [ 'trial_cases', null ],
-        JourneyEventType::TRIAL_ENDED          => [ 'trial_cases', null ],
-        JourneyEventType::SUSPENSION_STARTED   => [ 'player_suspensions', null ],
-        JourneyEventType::SUSPENSION_ENDED     => [ 'player_suspensions', null ],
-        JourneyEventType::INJURY_STARTED       => [ 'player_injuries', null ],
-        JourneyEventType::INJURY_ENDED         => [ 'player_injuries', null ],
-        JourneyEventType::PDP_VERDICT_RECORDED => [ 'pdp_verdict', 'pdp' ],
+        JourneyEventType::TRIAL_STARTED        => [ 'trial_cases', null, true ],
+        JourneyEventType::TRIAL_ENDED          => [ 'trial_cases', null, true ],
+        JourneyEventType::SUSPENSION_STARTED   => [ 'player_suspensions', null, false ],
+        JourneyEventType::SUSPENSION_ENDED     => [ 'player_suspensions', null, false ],
+        JourneyEventType::INJURY_STARTED       => [ 'player_injuries', null, false ],
+        JourneyEventType::INJURY_ENDED         => [ 'player_injuries', null, false ],
+        JourneyEventType::PDP_VERDICT_RECORDED => [ 'pdp_verdict', 'pdp', false ],
     ];
 
     /**
@@ -65,12 +71,15 @@ final class PlayerEventsRepository {
      * read right of the record it describes: an entry whose type is in
      * `ENTRY_RIGHTS` shows only to a reader who holds that entity's read for
      * the entry's player (and, for a linked parent, the child's switch where
-     * one is named). Every other entry passes unchanged.
+     * one is named). A family-marked entry also shows to the player and their
+     * linked parents, as its type and date only. Every other entry passes
+     * unchanged.
      *
      * Visibility rungs decide medical and safeguarding entries in SQL; this
      * is the entity rule on top, applied by every surface that shows journey
      * entries to a reader. A reader of 0 (an unattended render) holds no
-     * right, so it gets none of the mapped entries.
+     * right, so it gets none of the mapped entries. Entries left out here are
+     * not counted anywhere: a count would say the record exists.
      *
      * @param list<object> $rows      Each with `event_type`, and `player_id` unless `$player_id` is given.
      * @param int|null     $player_id The player every row belongs to, for rows read without the column.
@@ -79,10 +88,11 @@ final class PlayerEventsRepository {
     public static function readableBy( int $user_id, array $rows, ?int $player_id = null ): array {
         $out     = [];
         $allowed = [];
+        $family  = [];
         foreach ( $rows as $row ) {
             $type = (string) ( $row->event_type ?? '' );
             if ( isset( self::ENTRY_RIGHTS[ $type ] ) ) {
-                [ $entity, $section ] = self::ENTRY_RIGHTS[ $type ];
+                [ $entity, $section, $family_visible ] = self::ENTRY_RIGHTS[ $type ];
                 $pid = $player_id ?? (int) ( $row->player_id ?? 0 );
                 $key = $entity . '|' . $pid;
                 if ( ! isset( $allowed[ $key ] ) ) {
@@ -90,11 +100,51 @@ final class PlayerEventsRepository {
                         && AuthorizationService::canReadPlayerSection( $user_id, $pid, $entity )
                         && ( $section === null || AuthorizationService::parentCanViewSection( $user_id, $pid, $section ) );
                 }
-                if ( ! $allowed[ $key ] ) continue;
+                if ( ! $allowed[ $key ] ) {
+                    if ( ! $family_visible ) continue;
+                    if ( ! isset( $family[ $pid ] ) ) {
+                        $family[ $pid ] = self::isFamilyOf( $user_id, $pid );
+                    }
+                    if ( ! $family[ $pid ] ) continue;
+                    $row = self::familyView( $row );
+                }
             }
             $out[] = $row;
         }
         return $out;
+    }
+
+    /**
+     * The player themselves, or a linked parent who may read the child's
+     * journey and whose child shares it with them.
+     */
+    private static function isFamilyOf( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+
+        $own = \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id );
+        if ( $own !== null && (int) ( $own->id ?? 0 ) === $player_id ) return true;
+
+        return \TT\Infrastructure\Players\ParentChildResolver::guardianAllows( $user_id, $player_id, 'player_timeline', 'read' )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'journey' );
+    }
+
+    /**
+     * A family-visible entry as the family reads it: the type and the date.
+     * The summary becomes the plain event name, and the payload, the source
+     * record and the activity are dropped, so no decision, reason, note or
+     * letter travels with it.
+     */
+    private static function familyView( object $row ): object {
+        $fields = get_object_vars( $row );
+
+        $fields['summary'] = (string) ( $fields['event_type'] ?? '' ) === JourneyEventType::TRIAL_ENDED
+            ? __( 'Trial ended', 'talenttrack' )
+            : __( 'Trial started', 'talenttrack' );
+        $fields['payload']          = '{}';
+        $fields['source_entity_id'] = null;
+        if ( array_key_exists( 'activity', $fields ) ) $fields['activity'] = null;
+
+        return (object) $fields;
     }
 
     /**
