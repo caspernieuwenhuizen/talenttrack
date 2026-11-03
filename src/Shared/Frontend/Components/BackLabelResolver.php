@@ -37,7 +37,7 @@ final class BackLabelResolver {
         // detail page; otherwise it falls back to "Back to Analytics".
         if ( $tt_view === 'analytics' ) {
             $entity_views = [ 'player' => 'players', 'team' => 'teams' ];
-            $type         = isset( $params['entity_type'] ) ? (string) $params['entity_type'] : '';
+            $type         = isset( $params['entity_type'] ) && is_string( $params['entity_type'] ) ? $params['entity_type'] : '';
             $entity_id    = isset( $params['entity_id'] ) ? (int) $params['entity_id'] : 0;
             if ( isset( $entity_views[ $type ] ) && $entity_id > 0 ) {
                 $name = self::entityName( $entity_views[ $type ], $entity_id );
