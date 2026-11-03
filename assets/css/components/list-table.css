@@ -28,9 +28,13 @@
  *
  * The stacking itself, the visually hidden header row, the label line and
  * the row cards come from the stack-table primitive
- * (components/stack-table.css; every list table carries
+ * (components/stack-table.css; a list table carries
  * `tt-stack-table tt-stack-table--to-768 tt-stack-table--cards`, #4810).
  * This sheet keeps the list table's own look and the role layout above.
+ * The evidence tables (EvidencePanel, the player report) borrow the class
+ * without the primitive until they move onto it; the block marked
+ * "not yet on the primitive" keeps their stack, and its label line is
+ * written by frontend-pdp-evidence.css.
  *
  * The parts of the list table that do not change with the viewport (row
  * actions, pager, footer, row-link cursor and focus ring, loading and
@@ -51,10 +55,43 @@
     background: none;
 }
 
+/* Not yet on the primitive (the evidence tables). `:where()` keeps each
+   selector as specific as it was, so these tables stack as before. */
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) {
+    display: block;
+    width: 100%;
+}
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) thead { display: none; }
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) tbody { display: block; }
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) tr {
+    display: block;
+    box-sizing: border-box;
+    margin-bottom: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+}
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    min-width: 0;
+    text-align: right;
+}
+.tt-dashboard .tt-list-table-table:where(:not(.tt-stack-table)) td::before {
+    flex: 0 0 auto;
+    max-width: 50%;
+    text-align: left;
+}
+
 .tt-dashboard .tt-list-table-table td {
     gap: var(--tt-sp-3);
     padding: 4px 0;
     border: 0;
+    /* As before the primitive: a long word breaks rather than widening the
+       table, on the phone and in the table from 768px. */
+    overflow-wrap: anywhere;
 }
 .tt-dashboard .tt-list-table-table td::before {
     font-weight: 600;

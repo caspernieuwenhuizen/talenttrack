@@ -156,12 +156,12 @@ final class EvidencePanel {
         $c_assessor = __( 'Assessor', 'talenttrack' );
         $c_notes    = __( 'Notes', 'talenttrack' );
 
-        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_date ) . '</th>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_rating ) . '</th>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_assessor ) . '</th>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_notes ) . '</th>'
-            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
+            . '<th>' . esc_html( $c_date ) . '</th>'
+            . '<th>' . esc_html( $c_rating ) . '</th>'
+            . '<th>' . esc_html( $c_assessor ) . '</th>'
+            . '<th>' . esc_html( $c_notes ) . '</th>'
+            . '</tr></thead><tbody>';
 
         foreach ( $rows as $row ) {
             $date  = TTDate::date( (string) ( $row['eval_date'] ?? '' ) );
@@ -183,16 +183,16 @@ final class EvidencePanel {
             $notes = trim( wp_strip_all_tags( (string) ( $row['notes'] ?? '' ) ) );
             if ( $notes === '' ) $notes = '—';
 
-            $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
-                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . $cell . '</td>'
-                . '<td' . StackTable::attrs( 'cell', $c_rating ) . '>' . esc_html( $rating ) . '</td>'
-                . '<td' . StackTable::attrs( 'cell', $c_assessor ) . '>' . esc_html( $assessor ) . '</td>'
-                . '<td' . StackTable::attrs( 'cell', $c_notes ) . '>' . esc_html( $notes ) . '</td>'
+            $out .= '<tr>'
+                . '<td data-label="' . esc_attr( $c_date ) . '">' . $cell . '</td>'
+                . '<td data-label="' . esc_attr( $c_rating ) . '">' . esc_html( $rating ) . '</td>'
+                . '<td data-label="' . esc_attr( $c_assessor ) . '">' . esc_html( $assessor ) . '</td>'
+                . '<td data-label="' . esc_attr( $c_notes ) . '">' . esc_html( $notes ) . '</td>'
                 . '</tr>';
 
             $categories = is_array( $row['categories'] ?? null ) ? $row['categories'] : [];
             if ( $categories !== [] ) {
-                $out .= '<tr class="tt-evidence__subrow"' . StackTable::attrs( 'row' ) . '><td colspan="4"' . StackTable::attrs( 'cell' ) . '>'
+                $out .= '<tr class="tt-evidence__subrow"><td colspan="4" data-label="">'
                     . '<ul class="tt-evidence__chips">';
                 foreach ( $categories as $cat ) {
                     $cat_label = (string) ( $cat['label'] ?? '' );
@@ -259,11 +259,11 @@ final class EvidencePanel {
         $c_match = __( 'Match', 'talenttrack' );
         $c_min   = __( 'Minutes', 'talenttrack' );
 
-        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_date ) . '</th>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_match ) . '</th>'
-            . '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $c_min ) . '</th>'
-            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+        $out .= '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
+            . '<th>' . esc_html( $c_date ) . '</th>'
+            . '<th>' . esc_html( $c_match ) . '</th>'
+            . '<th>' . esc_html( $c_min ) . '</th>'
+            . '</tr></thead><tbody>';
 
         foreach ( $breakdown as $match ) {
             $title = (string) ( $match['title'] ?? '' );
@@ -275,10 +275,10 @@ final class EvidencePanel {
                 if ( $url !== '' ) $cell = RecordLink::inline( $title, $url );
             }
 
-            $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
-                . '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
-                . '<td' . StackTable::attrs( 'cell', $c_match ) . '>' . $cell . '</td>'
-                . '<td' . StackTable::attrs( 'cell', $c_min ) . '>' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
+            $out .= '<tr>'
+                . '<td data-label="' . esc_attr( $c_date ) . '">' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</td>'
+                . '<td data-label="' . esc_attr( $c_match ) . '">' . $cell . '</td>'
+                . '<td data-label="' . esc_attr( $c_min ) . '">' . (int) ( $match['minutes'] ?? 0 ) . '</td>'
                 . '</tr>';
         }
 
