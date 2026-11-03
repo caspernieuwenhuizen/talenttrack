@@ -1440,7 +1440,9 @@ answered `403 forbidden` on a report that was not published to scouts.
 **The read routes also need `report_studio` read** at any scope (shown as
 *read* below): builders hold it, and the team manager holds it at team scope.
 The read-only observer does not, so the Studio is closed to that seat: every
-route answers it `403`, and a report cannot be published to it.
+route answers it `403`, and a report cannot be published to it. Any caller
+without `report_studio` read, the scout included, is answered `403` on these
+routes, not an empty list.
 
 | Route | Cap | What |
 | --- | --- | --- |

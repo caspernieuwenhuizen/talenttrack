@@ -56,7 +56,11 @@ class ReportStudioModule implements ModuleInterface {
             TileRegistry::register( [
                 'module_class' => self::class,
                 'view_slug'    => 'report-studio',
-                'entity'       => 'report_studio',
+                // #4695 — no `entity`: a tile's matrix gate asks entity read,
+                // and `report_studio` read now also means "reads a report
+                // published to me" (the team manager). The builder tile is
+                // decided by `cap`, which the matrix answers as
+                // `report_studio` create/delete.
                 'group'        => 'analytics',
                 'kind'         => 'work',
                 'order'        => 29,

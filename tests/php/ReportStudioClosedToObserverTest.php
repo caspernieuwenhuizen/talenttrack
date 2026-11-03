@@ -65,6 +65,11 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
         $this->tiles_were = TileRegistry::allRegistered();
         TileRegistry::clear();
         \TT\Shared\CoreSurfaceRegistration::register();
+        // The Studio's tile is registered by its module at boot, not by the
+        // core surfaces, so bring it back for the tile assertions.
+        foreach ( $this->tiles_were as $tile ) {
+            if ( ( $tile['view_slug'] ?? '' ) === 'report-studio' ) TileRegistry::register( $tile );
+        }
 
         $config           = new ConfigService();
         $this->matrix_was = (string) $config->get( 'tt_authorization_active', '' );
@@ -140,7 +145,7 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'data-tt-rv', $page );
 
         wp_set_current_user( $this->observer );
-        $slugs = array_column( TileRegistry::tilesForUser( $this->observer ), 'view_slug' );
+        $slugs = $this->tileSlugs( $this->observer );
         $this->assertNotContains( 'report-studio', $slugs, 'no Report Studio tile' );
     }
 
@@ -175,6 +180,26 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
 
         $this->assertContains( $id, array_column( SharedWithMe::forReader( ReportReader::for( $this->manager ) ), 'id' ) );
         $this->assertStringContainsString( 'data-tt-rv', $this->renderView( $this->manager, $id ) );
+    }
+
+    /**
+     * The builder tile is offered only to whoever the canvas answers: Studio
+     * read alone, the team manager's in either shape, does not offer it.
+     */
+    public function test_the_studio_tile_is_offered_to_builders_only(): void {
+        $staff_manager = $this->staffWithManagerRole();
+        $this->assertTrue( ReportReader::for( $staff_manager )->readsStudio(), 'Precondition: the Manager role reads the Studio.' );
+        $this->assertTrue( ReportReader::for( $this->manager )->readsStudio(), 'Precondition: the team manager reads the Studio.' );
+
+        $tile = function ( int $uid ): bool {
+            wp_set_current_user( $uid );
+            return in_array( 'report-studio', $this->tileSlugs( $uid ), true );
+        };
+        $this->assertTrue( $tile( $this->coach ), 'the head coach builds' );
+        $this->assertTrue( $tile( $this->hod ), 'the head of development builds' );
+        $this->assertFalse( $tile( $this->manager ), 'the team manager persona reads and does not build' );
+        $this->assertFalse( $tile( $staff_manager ), 'the Manager functional role reads and does not build' );
+        $this->assertFalse( $tile( $this->observer ), 'the observer neither reads nor builds' );
     }
 
     public function test_builders_are_unchanged(): void {
@@ -230,6 +255,40 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
                 'club_id' => $club, 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
             ] );
         }
+        $this->flush();
+        return $uid;
+    }
+
+    /** @return list<string> the view slugs of every tile this user is offered */
+    private function tileSlugs( int $uid ): array {
+        $this->flush();
+        $buckets = TileRegistry::tilesForUser( $uid );
+        return array_values( array_map( 'strval', array_column( array_merge( $buckets['work'], $buckets['setup'] ), 'view_slug' ) ) );
+    }
+
+    /** A `staff` account holding the Manager functional role on the team. */
+    private function staffWithManagerRole(): int {
+        global $wpdb;
+        $club = (int) CurrentClub::id();
+        $uid  = (int) self::factory()->user->create( [ 'role' => 'tt_staff' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $club, 'first_name' => 'Studio', 'last_name' => 'Manager' . $uid,
+            'role_type' => 'staff', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+
+        $role = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            'manager', $club
+        ) );
+        if ( $role <= 0 ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_functional_roles", [ 'club_id' => $club, 'role_key' => 'manager', 'label' => 'Manager' ] );
+            $role = (int) $wpdb->insert_id;
+        }
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id' => $club, 'team_id' => $this->team, 'person_id' => $person,
+            'functional_role_id' => $role, 'role_in_team' => 'manager',
+        ] );
         $this->flush();
         return $uid;
     }
