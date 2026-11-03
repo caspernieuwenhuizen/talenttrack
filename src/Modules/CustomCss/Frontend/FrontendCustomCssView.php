@@ -828,7 +828,8 @@ class FrontendCustomCssView extends FrontendViewBase {
             echo '<td' . StackTable::attrs( 'cell', $c_kind ) . '>' . $kind . '</td>';
             echo '<td' . StackTable::attrs( 'cell', $c_saved ) . '>' . esc_html( $author ) . '</td>';
             echo '<td' . StackTable::attrs( 'cell', $c_size ) . '>' . esc_html( size_format( (int) $r->byte_count ) ) . '</td>';
-            echo '<td class="tt-css-history__actions"' . StackTable::attrs( 'cell' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell' ) . '>';
+            echo '<div class="' . esc_attr( StackTable::VALUE ) . ' tt-css-history__actions">';
             echo '<form method="post" style="display:inline;">';
             wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
             echo '<input type="hidden" name="tt_css_action" value="revert">';
@@ -841,6 +842,7 @@ class FrontendCustomCssView extends FrontendViewBase {
             echo '<input type="hidden" name="history_id" value="' . esc_attr( (string) $r->id ) . '">';
             echo '<button type="submit" class="tt-btn tt-btn-link" style="color:#a02828;">' . esc_html__( 'Delete', 'talenttrack' ) . '</button>';
             echo '</form>';
+            echo '</div>';
             echo '</td>';
             echo '</tr>';
         }
