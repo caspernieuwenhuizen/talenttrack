@@ -187,7 +187,7 @@ Use cases:
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
 | **Settings** — the configuration screens, read-only | Change any setting |
 | **Tournament records** — each player's own tournament history | Plan a tournament or share out minutes |
-| **Training libraries** — the exercise library, the VCT library and each player's VCT workload | Change a library or plan training |
+| **The exercise library** — the drills coaches build trainings from | Change the library or plan training |
 | **The academy's reference data** — seasons, methodology, football actions, evaluation categories and weights, the rating scale, holidays, the help pages | Change any of it |
 
 The rule behind the list: an observer reads everything that is not sensitive, and a sensitive field on a record it reads is masked, shown as "Hidden" on screen and left out of the API answer.

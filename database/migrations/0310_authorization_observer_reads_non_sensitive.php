@@ -37,8 +37,6 @@ return new class extends Migration {
         'seasons',
         'methodology',
         'football_actions',
-        'vct_library',
-        'vct_workload',
         'exercises',
         'evaluation_categories',
         'category_weights',

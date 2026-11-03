@@ -184,7 +184,7 @@ Gebruiksgevallen:
 | **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
 | **Instellingen** — de configuratieschermen, alleen-lezen | Een instelling wijzigen |
 | **Toernooihistorie** — de eigen toernooihistorie van elke speler | Een toernooi plannen of speeltijd verdelen |
-| **Trainingsbibliotheken** — de oefenbibliotheek, de VCT-bibliotheek en de VCT-belasting van elke speler | Een bibliotheek wijzigen of training plannen |
+| **De oefenbibliotheek** — de oefeningen waarmee trainers een training opbouwen | De bibliotheek wijzigen of training plannen |
 | **De referentiegegevens van de academie** — seizoenen, methodiek, voetbalhandelingen, evaluatiecategorieën en hun gewichten, de beoordelingsschaal, vakanties, de helppagina's | Er iets aan wijzigen |
 
 De regel achter de lijst: een waarnemer leest alles wat niet gevoelig is, en een gevoelig veld op een record dat hij leest wordt afgeschermd: op het scherm staat "Verborgen" en in het API-antwoord ontbreekt het veld.

@@ -32,6 +32,15 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        // Reading the categories is not editing them: the add, edit, move
+        // and delete controls, and the forms, go only to who may change
+        // them. Everyone else gets the list, read-only.
+        $can_edit = current_user_can( 'tt_edit_evaluation_categories' );
+        if ( ! $can_edit ) {
+            $action = '';
+            $id     = 0;
+        }
+
         $eval_cat_label = __( 'Evaluation categories', 'talenttrack' );
         if ( $action === 'new' || $id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -60,15 +69,17 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
         }
 
         self::renderHeader( __( 'Evaluation categories', 'talenttrack' ) );
-        self::renderTree();
+        self::renderTree( $can_edit );
     }
 
-    private static function renderTree(): void {
+    private static function renderTree( bool $can_edit ): void {
         $base = remove_query_arg( [ 'action', 'id' ] );
         $new_url = add_query_arg( [ 'tt_view' => 'eval-categories', 'action' => 'new' ], $base ); /* tt-xview-ok — same view */
 
         echo '<p style="margin:0 0 var(--tt-sp-3); display:flex; gap:8px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add category', 'talenttrack' ) . '</a>';
+        if ( $can_edit ) {
+            echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add category', 'talenttrack' ) . '</a>';
+        }
 
         // #2977 — was a link into wp-admin. The weights now have a frontend
         // surface, so this stays on the frontend. Gated through CrossViewLink
@@ -108,7 +119,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
             $children = is_array( $main->children ?? null ) ? $main->children : [];
             $is_first = $main_idx === 0;
             $is_last  = $main_idx === $main_count - 1;
-            self::renderNode( (object) (array) $main, $base, true, $is_first, $is_last );
+            self::renderNode( (object) (array) $main, $base, true, $is_first, $is_last, $can_edit );
             if ( $children ) {
                 echo '<ul style="list-style:none; padding-left:24px; margin:0 0 var(--tt-sp-3);">';
                 $sub_count = count( $children );
@@ -116,7 +127,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
                     $sf = $sub_idx === 0;
                     $sl = $sub_idx === $sub_count - 1;
                     echo '<li>';
-                    self::renderNode( (object) (array) $child, $base, false, $sf, $sl );
+                    self::renderNode( (object) (array) $child, $base, false, $sf, $sl, $can_edit );
                     echo '</li>';
                 }
                 echo '</ul>';
@@ -127,18 +138,25 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
         echo '</div>';
     }
 
-    private static function renderNode( object $cat, string $base, bool $is_main, bool $is_first, bool $is_last ): void {
+    private static function renderNode( object $cat, string $base, bool $is_main, bool $is_first, bool $is_last, bool $can_edit ): void {
         $edit_url = add_query_arg( [ 'tt_view' => 'eval-categories', 'id' => (int) $cat->id ], $base );
         $css = $is_main ? 'font-weight:600;' : 'color:var(--tt-muted);';
         $inactive = empty( $cat->is_active );
         ?>
         <div class="tt-eval-cat-row" data-cat-id="<?php echo (int) $cat->id; ?>" style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px dashed var(--tt-line);">
+            <?php if ( $can_edit ) : ?>
             <span style="display:inline-flex; gap:4px;">
                 <button type="button" class="tt-list-table-action" data-tt-eval-cat-move="up"   <?php disabled( $is_first ); ?>>↑</button>
                 <button type="button" class="tt-list-table-action" data-tt-eval-cat-move="down" <?php disabled( $is_last  ); ?>>↓</button>
             </span>
+            <?php endif; ?>
             <span style="<?php echo esc_attr( $css ); ?>">
-                <a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->label, (int) $cat->id ) ); ?></a>
+                <?php $label = EvalCategoriesRepository::displayLabel( (string) $cat->label, (int) $cat->id ); ?>
+                <?php if ( $can_edit ) : ?>
+                <a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( $label ); ?></a>
+                <?php else : ?>
+                <?php echo esc_html( $label ); ?>
+                <?php endif; ?>
                 <code style="margin-left:6px; font-size:var(--tt-fs-xs); color:var(--tt-muted);"><?php echo esc_html( (string) $cat->category_key ); ?></code>
                 <?php if ( ! empty( $cat->is_system ) ) : ?>
                     <span class="tt-badge" style="margin-left:6px; padding:1px 6px; background:var(--tt-bg-soft); border:1px solid var(--tt-line); border-radius:999px; font-size:var(--tt-fs-xs); color:var(--tt-muted);"><?php esc_html_e( 'system', 'talenttrack' ); ?></span>
@@ -147,12 +165,14 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
                     <span class="tt-badge" style="margin-left:6px; padding:1px 6px; background:var(--tt-warning-soft); border:1px solid var(--tt-warning); border-radius:999px; font-size:var(--tt-fs-xs); color:#7c5a00;"><?php esc_html_e( 'inactive', 'talenttrack' ); ?></span>
                 <?php endif; ?>
             </span>
+            <?php if ( $can_edit ) : ?>
             <span style="margin-left:auto; display:inline-flex; gap:4px;">
                 <a class="tt-list-table-action" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                 <?php if ( empty( $cat->is_system ) ) : ?>
                     <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-eval-cat-delete="<?php echo (int) $cat->id; ?>"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
                 <?php endif; ?>
             </span>
+            <?php endif; ?>
         </div>
         <?php
     }

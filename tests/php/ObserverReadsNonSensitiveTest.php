@@ -62,6 +62,8 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         'coach_player_list_panel' => 'its masking (#4691)',
         'compare'                 => 'its masking (#4691)',
         'vct'                     => 'its own review',
+        'vct_library'             => 'vct',
+        'vct_workload'            => 'vct',
         'training_plan'           => 'its own review',
         'training_exposure'       => 'its own review',
         'tournaments'             => 'its own review',
@@ -475,6 +477,44 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         wp_set_current_user( $this->coach );
         $mine = $repo->create( [ 'run_id' => $run, 'player_id' => $guest, 'note' => 'Obsread my note.' ] );
         $this->assertSame( 200, $this->deleteStatus( $mine ), 'the author removes their own note' );
+    }
+
+    /**
+     * Reading the evaluation categories is not editing them: the reader
+     * gets the list without the add, move, edit and delete controls, and
+     * no form even when the URL asks for one. The editor gets all of it.
+     */
+    public function test_the_evaluation_categories_list_is_read_only_for_a_reader(): void {
+        $this->assertNotEmpty( ( new \TT\Infrastructure\Evaluations\EvalCategoriesRepository() )->getTree( false ), 'precondition: the install has categories' );
+        $this->assertTrue( user_can( $this->observer, 'tt_view_evaluation_categories' ), 'precondition: the reader reads them' );
+        $this->assertFalse( user_can( $this->observer, 'tt_edit_evaluation_categories' ), 'precondition: the reader does not edit them' );
+
+        wp_set_current_user( $this->observer );
+        $list = $this->evalCategoriesView( [] );
+        $this->assertStringContainsString( 'tt-eval-cat-row', $list, 'the categories are listed' );
+        $this->assertStringNotContainsString( 'Add category', $list );
+        $this->assertStringNotContainsString( 'data-tt-eval-cat-move', $list );
+        $this->assertStringNotContainsString( 'data-tt-eval-cat-delete', $list );
+        $this->assertStringNotContainsString( 'action=new', html_entity_decode( $list, ENT_QUOTES ) );
+
+        $form = $this->evalCategoriesView( [ 'action' => 'new' ] );
+        $this->assertStringNotContainsString( 'tt-eval-cat-form', $form, 'no form behind the URL either' );
+        $this->assertStringContainsString( 'tt-eval-cat-row', $form, 'the list instead' );
+
+        $editor = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $editor );
+        $this->assertStringContainsString( 'Add category', $this->evalCategoriesView( [] ) );
+        $this->assertStringContainsString( 'tt-eval-cat-form', $this->evalCategoriesView( [ 'action' => 'new' ] ) );
+    }
+
+    /** @param array<string,string> $get */
+    private function evalCategoriesView( array $get ): string {
+        $_GET = array_merge( [ 'tt_view' => 'eval-categories' ], $get );
+        ob_start();
+        \TT\Shared\Frontend\FrontendEvalCategoriesView::render( get_current_user_id(), false );
+        $html = (string) ob_get_clean();
+        $_GET = [];
+        return $html;
     }
 
     private function deleteStatus( int $observation_id ): int {

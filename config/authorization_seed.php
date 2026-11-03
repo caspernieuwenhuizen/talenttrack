@@ -1229,8 +1229,8 @@ return array_merge(
     // reads everything that is not sensitive, and sensitive fields are
     // masked through `RecordRedactor` (`config/sensitive_fields.php`).
     // The second block below is the non-sensitive set: each player's
-    // tournament record, the VCT library and workload, the exercise
-    // library, and the academy's own reference data (methodology, seasons,
+    // tournament record, the exercise library, and the academy's own
+    // reference data (methodology, seasons,
     // evaluation categories, the rating scale, holidays, the help pages).
     // Existing installs get it through migration 0310, which leaves a cell
     // an academy changed alone.
@@ -1258,6 +1258,8 @@ return array_merge(
     //     the PDP verdict entry, and PDP stays closed;
     //   - `player_behaviour_ratings`: free-text notes on a child's
     //     behaviour, with no masking registered;
+    //   - `vct_library` and `vct_workload`: no surface opens on either
+    //     alone (the workload routes also ask `vct`, which follows above);
     //   - left as they were: `team_chemistry` and its panel (#1922),
     //     `analytics` (it reads through the measure engine, not the masked
     //     surfaces), `lookups` (D-15), `player_suspensions`, `rate_cards`,
@@ -1295,8 +1297,6 @@ return array_merge(
         'seasons'                 => [ 'r', 'global', $mod_pdp ],
         'methodology'             => [ 'r', 'global', $mod_methodology ],
         'football_actions'        => [ 'r', 'global', $mod_methodology ],
-        'vct_library'             => [ 'r', 'global', $mod_vct ],
-        'vct_workload'            => [ 'r', 'global', $mod_vct ],
         'exercises'               => [ 'r', 'global', $mod_exercises ],
         'evaluation_categories'   => [ 'r', 'global', $mod_evals ],
         'category_weights'        => [ 'r', 'global', $mod_evals ],
