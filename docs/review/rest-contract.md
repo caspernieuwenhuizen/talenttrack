@@ -27,6 +27,14 @@ the same answer the page shows. The narrative reference is
       no status code changes for a case that already exists. A breaking
       change bumps the namespace (`talenttrack/v2`) instead of mutating
       `talenttrack/v1`.
+
+      **One exception: a wrong answer is not a contract.** A `200` that
+      answered for the wrong rows (a filter or key that was skipped, so the
+      figure counted more than the caller asked about) may become a `400` on
+      v1 as a bug fix, without a namespace bump, because no client can rely
+      on a wrong number. The PR documents the refusal in `docs/rest-api.md`
+      and `docs/openapi.yaml` and says what the route answered before. A
+      `200` that answered correctly is never turned into a refusal on v1.
 - [ ] **Documented.** Every new route, field, query parameter and error code
       is in `docs/rest-api.md` in the same PR, and in `docs/openapi.yaml`
       where the route is listed there.
@@ -35,6 +43,11 @@ the same answer the page shows. The narrative reference is
       codes:
       - `400 invalid_field`, `unknown_field`, `missing_fields`, `bad_filter`
         or `bad_date`, with `details`;
+      - `400 unknown_dimension` for an analytics key (a fact, a measure, a
+        dimension or a filter) that the fact neither declares nor aliases,
+        with `details.fact`, `details.key` and `details.kind`. It is not
+        `bad_filter`: that one is an unreadable value on a list route, and
+        this one is a key the analytics engine does not know;
       - `402` for a plan refusal and `403` for a permission refusal
         (rest-api.md, "Plan refusals are 402");
       - `404 not_found` for a record that does not exist or is not visible
