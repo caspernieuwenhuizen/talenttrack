@@ -176,13 +176,42 @@ final class ReportBlocksRestTest extends WP_UnitTestCase {
     }
 
     /**
+     * The preview is the canvas's and asks the build right (#4695), so it is
+     * sent as a head coach of the manager's team: the same team scope.
+     *
      * @param array<string,mixed> $body
      */
     private function preview( string $key, array $body ): \WP_REST_Response {
+        $was = get_current_user_id();
+        wp_set_current_user( $this->builder() );
         $req = new WP_REST_Request( 'POST', '/talenttrack/v1/report-blocks/' . $key . '/preview' );
         $req->set_header( 'Content-Type', 'application/json' );
         $req->set_body( (string) wp_json_encode( $body ) );
-        return rest_do_request( $req );
+        $res = rest_do_request( $req );
+        wp_set_current_user( $was );
+        return $res;
+    }
+
+    private int $builder = 0;
+
+    private function builder(): int {
+        if ( $this->builder > 0 ) return $this->builder;
+        global $wpdb;
+        $club          = (int) CurrentClub::id();
+        $this->builder = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $club, 'first_name' => 'Rest', 'last_name' => 'Coach', 'role_type' => 'head_coach',
+            'wp_user_id' => $this->builder, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id' => $club, 'team_id' => $this->team_a, 'person_id' => $person, 'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'club_id' => $club, 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team_a,
+        ] );
+        $this->flush();
+        return $this->builder;
     }
 
     private function flush(): void {

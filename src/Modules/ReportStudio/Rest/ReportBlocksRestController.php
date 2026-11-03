@@ -22,6 +22,10 @@ use WP_REST_Response;
  *   GET  /report-blocks                 the blocks this reader may place
  *   POST /report-blocks/{key}/preview   one block's data for a context
  *
+ * The list follows the Studio's read gate (`ReportsRestController::
+ * permReadStudio()`), because the viewer names its blocks from it; the
+ * preview is the canvas's and asks the build right.
+ *
  * Both answer 402 without the `report_studio` plan feature: the Studio holds
  * no stored records yet, so there is nothing to keep readable and the whole
  * surface locks. The preview writes nothing; the subject is checked on every
@@ -43,7 +47,9 @@ final class ReportBlocksRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_blocks' ],
-                'permission_callback' => self::permCanFeature( 'tt_view_reports', 'report_studio' ),
+                // The viewer reads the block names from here, so a reader
+                // keeps it; the observer does not (#4695).
+                'permission_callback' => ReportsRestController::permReadStudio(),
                 'args'                => [
                     'scope'    => [ 'type' => 'string', 'description' => 'me, player, team, group or academy. Omit for every scope. Same as filter[scope]. Any other value is refused with 400 bad_filter.' ],
                     'audience' => [ 'type' => 'string', 'description' => 'internal, scout or family; internal when omitted. Same as filter[audience]. Any other value is refused with 400 bad_filter.' ],
@@ -55,7 +61,8 @@ final class ReportBlocksRestController extends BaseController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'preview' ],
-                'permission_callback' => self::permCanFeature( 'tt_view_reports', 'report_studio' ),
+                // Only the canvas previews a block (#4695).
+                'permission_callback' => self::permCanFeature( 'tt_build_reports', 'report_studio' ),
                 'args'                => self::previewArgs(),
             ],
         ] );

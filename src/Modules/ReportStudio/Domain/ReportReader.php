@@ -38,6 +38,8 @@ final class ReportReader {
 
     private ?bool $publishes = null;
 
+    private ?bool $reads_studio = null;
+
     private bool $report_teams_loaded = false;
 
     /** @var list<int>|null */
@@ -75,6 +77,19 @@ final class ReportReader {
      */
     public function buildsReports(): bool {
         return $this->builds ??= $this->userId > 0 && user_can( $this->userId, 'tt_build_reports' );
+    }
+
+    /**
+     * `report_studio` read at any scope, asked once (#4695). Every Studio
+     * read asks it, on top of `tt_view_reports`: that capability bridges to
+     * `reports` read, which the read-only observer holds club-wide, so on
+     * its own it cannot tell a team manager reading a report published to
+     * them from an observer the Studio is closed to.
+     */
+    public function readsStudio(): bool {
+        return $this->reads_studio ??= $this->userId > 0
+            && ( user_can( $this->userId, 'manage_options' )
+                || MatrixGate::canAnyScope( $this->userId, 'report_studio', MatrixGate::READ ) );
     }
 
     /** `tt_publish_reports`, asked once. */

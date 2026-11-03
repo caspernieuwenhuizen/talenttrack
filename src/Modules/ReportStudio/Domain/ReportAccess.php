@@ -20,8 +20,11 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
  *
  * A recipient reads a published report when they hold one of the persona keys
  * it is published to **and** can read its subject (`canReadSubject()`).
- * Holding `reports` read is not enough: a scout holds it club-wide. Each
- * block's subject is checked again when the data is read.
+ * Holding `reports` read is not enough: a scout holds it club-wide. A
+ * recipient also holds `report_studio` read at some scope
+ * (`ReportReader::readsStudio()`), which the read-only observer never does:
+ * the Studio is closed to that seat (#4695). Each block's subject is checked
+ * again when the data is read.
  *
  * Every method takes a `ReportReader`, so a list resolves each question once.
  *
@@ -29,10 +32,14 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
  */
 final class ReportAccess {
 
-    /** The personas a report may be published to. Families read snapshots, never a live report. */
+    /**
+     * The personas a report may be published to. Families read snapshots,
+     * never a live report, and the read-only observer reads none: the Studio
+     * is closed to that seat (#4695).
+     */
     public const PUBLISHABLE_PERSONAS = [
         'head_of_development', 'academy_admin', 'head_coach', 'assistant_coach',
-        'team_manager', 'readonly_observer', 'staff',
+        'team_manager', 'staff',
     ];
 
     /**
@@ -192,7 +199,7 @@ final class ReportAccess {
      * @param list<string> $persona_keys
      */
     public static function readsAs( ReportReader $reader, array $report, array $persona_keys ): bool {
-        if ( $reader->userId <= 0 ) return false;
+        if ( $reader->userId <= 0 || ! $reader->readsStudio() ) return false;
         $held = $reader->personas();
         if ( $held === [] || array_intersect( $held, $persona_keys ) === [] ) return false;
         return self::canReadSubject( $reader, $report );

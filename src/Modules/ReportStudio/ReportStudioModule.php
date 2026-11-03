@@ -49,14 +49,24 @@ class ReportStudioModule implements ModuleInterface {
             add_action( 'init', $register, 20 );
         }
 
-        // #4571 — the Studio itself, a tile under Reports for the people
-        // who build reports. The feature key hides it while the Studio is
-        // switched off.
+        self::registerTile();
+    }
+
+    /**
+     * #4571 — the Studio itself, a tile under Reports for the people who
+     * build reports. The feature key hides it while the Studio is switched
+     * off. Public so a test can register the tile it asserts on.
+     */
+    public static function registerTile(): void {
         if ( class_exists( TileRegistry::class ) ) {
             TileRegistry::register( [
                 'module_class' => self::class,
                 'view_slug'    => 'report-studio',
-                'entity'       => 'report_studio',
+                // #4695 — no `entity`: a tile's matrix gate asks entity read,
+                // and `report_studio` read now also means "reads a report
+                // published to me" (the team manager). The builder tile is
+                // decided by `cap`, which the matrix answers as
+                // `report_studio` create/delete.
                 'group'        => 'analytics',
                 'kind'         => 'work',
                 'order'        => 29,

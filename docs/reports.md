@@ -657,7 +657,7 @@ The rules between the choices:
 - Sharing with the family needs a report written for the family.
 - Publishing for a role needs a subject each reader chooses or follows (or the academy), and the right to publish.
 
-Building needs the **Report Studio: build reports** permission; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **Add report** button is hidden.
+Building needs the **Report Studio: build and read reports** permission at create/delete; publishing for a role needs **Report Studio: publish to a role**. The wizard is the only screen that creates a report: when it is switched off under **Administration → Wizards**, the **Add report** button is hidden.
 
 ## Report Studio — building a report
 
@@ -687,3 +687,5 @@ A report someone published for your role appears on the Reports launcher under *
 - On a phone the blocks stack one under the other.
 
 A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
+
+The Report Studio is closed to the read-only observer: no report is published to that role, and an observer opens none.

@@ -745,8 +745,9 @@ De Report Studio bewaart rapporten en dashboards die een bouwer uit blokken same
 | --- | --- | --- |
 | `report_studio` (aanmaken/verwijderen) | `tt_build_reports` | **Hoofdtrainer** en **assistent-trainer** op **team**-scope; **hoofd opleiding** en **academy-beheerder** op **global**-scope |
 | `report_publishing` (aanmaken/verwijderen) | `tt_publish_reports` | Alleen **hoofd opleiding** en **academy-beheerder**, op **global**-scope |
+| `report_studio` (lezen) | een Studio-rapport lezen | De bouwers hierboven, en de **teammanager** op **team**-scope |
 
-Niemand anders krijgt ze: niet de teammanager, de scout, de waarnemer, de speler of de ouder.
+Niemand anders krijgt ze: niet de scout, de waarnemer, de speler of de ouder. De teammanager leest de rapporten die voor hem zijn gepubliceerd en bouwt er geen, want bouwen vraagt aanmaken/verwijderen.
 
 Wat de scope betekent:
 
@@ -758,7 +759,11 @@ Wat de scope betekent:
 
 **Een gepubliceerd rapport lezen.** Een gebruiker leest een gepubliceerd rapport als hij een van de persona's heeft waarvoor het is gepubliceerd en kan lezen waar het over gaat, en elk blok controleert daarbij nog steeds zijn onderwerp. Een coach die het team verlaat, ziet het rapport niet meer, ook niet in de lijst. Lezen op `reports` alleen is niet genoeg: een scout heeft dat voor alle teams en kan toch geen rapport openen dat niet voor scouts is gepubliceerd.
 
-Bestaande installaties krijgen de rijen van beide entiteiten met de update die de opslag van de Studio toevoegt (migratie `0307_report_studio_storage`). Die schrijft de rijen uit de seed met `INSERT IGNORE`, dus een rij die een beheerder heeft aangepast blijft ongemoeid en een tweede run schrijft niets.
+**Elke Studio-leesactie vraagt ook `report_studio` lezen**, op welke scope ook: de rapportenlijst, één rapport, de gegevens ervan, de onderwerpen waarnaar een lezer mag wisselen, de bloknamen, de weergave en "Met mij gedeeld". Lezen op `reports` kan een teammanager niet onderscheiden van de alleen-lezen waarnemer, die het voor de hele club heeft.
+
+**Gesloten voor de alleen-lezen waarnemer.** De waarnemer heeft geen rij op `report_studio` en geen op `report_publishing`, krijgt `403` op elke Studio-route en ziet onder "Met mij gedeeld" geen Studio-rapport. Een rapport kan niet voor de waarnemer worden gepubliceerd.
+
+Bestaande installaties krijgen de rijen van beide entiteiten met de update die de opslag van de Studio toevoegt (migratie `0307_report_studio_storage`). Die schrijft de rijen uit de seed met `INSERT IGNORE`, dus een rij die een beheerder heeft aangepast blijft ongemoeid en een tweede run schrijft niets. Migratie `0315_report_studio_closed_to_observer` voegt het leesrecht van de teammanager op dezelfde manier toe en laat een cel die je academie al heeft ingesteld ongemoeid. Ze verwijdert ook elke rij van de waarnemer op de twee entiteiten en elke publicatie voor de persona waarnemer. Een rapport dat voor de waarnemer en voor andere rollen was gepubliceerd, blijft gepubliceerd voor die andere rollen.
 
 ## De functionele-rol-as (#3257, #3433)
 

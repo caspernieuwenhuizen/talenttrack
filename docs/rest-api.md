@@ -1293,9 +1293,12 @@ subcategories.
 The Studio builds reports and dashboards out of **blocks**. A block composes
 one shared read (a report query or the analytics `FactQuery`) and returns
 data, never HTML, so a block shows the same figure as the report it comes
-from. Both routes need `tt_view_reports`, the `report_studio` feature switched
-on (`403` otherwise) and the `report_studio` plan feature (`402
-license_required` otherwise, on every verb).
+from. `GET /report-blocks` needs `tt_view_reports` and `report_studio` read
+at any scope, the Studio's read gate, because the reader's view names its
+blocks from it. `POST /report-blocks/{key}/preview` is the canvas's and needs
+`tt_build_reports`. Both need the `report_studio` feature switched on (`403`
+otherwise) and the `report_studio` plan feature (`402 license_required`
+otherwise, on every verb). The read-only observer is answered `403` on both.
 
 ### `GET /report-blocks?scope=&audience=`
 
@@ -1434,21 +1437,28 @@ opened at that point. A coach who leaves the team stops reaching the report:
 `tt_view_reports` alone opens nothing: a scout holds it club-wide and is
 answered `403 forbidden` on a report that was not published to scouts.
 
+**The read routes also need `report_studio` read** at any scope (shown as
+*read* below): builders hold it, and the team manager holds it at team scope.
+The read-only observer does not, so the Studio is closed to that seat: every
+route answers it `403`, and a report cannot be published to it. Any caller
+without `report_studio` read, the scout included, is answered `403` on these
+routes, not an empty list.
+
 | Route | Cap | What |
 | --- | --- | --- |
-| `GET /reports` | `tt_view_reports` | Reports I own and reports published to a persona I hold. |
+| `GET /reports` | `tt_view_reports` + *read* | Reports I own and reports published to a persona I hold. |
 | `POST /reports` | `tt_build_reports` | Create from the starting choices. |
-| `GET /reports/{id}` | `tt_view_reports` | One report. An editor also gets their `draft` and the `persona_keys`. |
+| `GET /reports/{id}` | `tt_view_reports` + *read* | One report. An editor also gets their `draft` and the `persona_keys`. |
 | `PATCH /reports/{id}` | `tt_build_reports` | My draft and the name, partially. |
 | `DELETE /reports/{id}` | `tt_build_reports` | Archive. |
 | `POST /reports/{id}/restore` | `tt_build_reports` | Un-archive (`404` when the report is not archived). |
 | `POST /reports/{id}/draft` | `tt_build_reports` | My draft becomes a version's definition. |
 | `GET /reports/{id}/versions` | `tt_build_reports` | The versions, newest first, without their definitions. |
 | `POST /reports/{id}/versions` | `tt_build_reports` | Publish my draft as the next version. |
-| `GET /reports/{id}/data` | `tt_view_reports` | Every block's data, for me. |
+| `GET /reports/{id}/data` | `tt_view_reports` + *read* | Every block's data, for me. |
 | `GET /reports/{id}/reach` | `tt_build_reports` | How many people publishing to personas reaches. |
 | `GET /reports/subject-options` | `tt_build_reports` | The teams and players I build reports about. |
-| `GET /reports/{id}/subjects` | `tt_view_reports` | The subjects I may switch a report I read to. |
+| `GET /reports/{id}/subjects` | `tt_view_reports` + *read* | The subjects I may switch a report I read to. |
 
 An editor-only route answers a recipient `403 forbidden` and anyone else the
 same; a report that does not exist in the club is `404 not_found`.
@@ -1558,8 +1568,8 @@ with `details.field = "note"`. An empty list
 publishes the report for its builder only, which `tt_build_reports` allows.
 Reaching a persona needs `tt_publish_reports` (`403 forbidden_publish`) and a
 report made for a role (`sharing: role`); persona keys are staff personas
-only, because a family reads a shared snapshot, never a live report (`400
-invalid_field` with the allowed keys). Version numbers are unique per report
+only, because a family reads a shared snapshot, never a live report, and
+never the read-only observer (`400 invalid_field` with the allowed keys). Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
 version_conflict`, and no duplicate is written. A deadlock or lock wait
 timeout on the locking read or the version insert, which two first publishes

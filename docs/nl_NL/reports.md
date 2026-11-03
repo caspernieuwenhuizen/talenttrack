@@ -697,7 +697,7 @@ De regels tussen de keuzes:
 - Delen met het gezin vraagt een rapport dat voor het gezin is geschreven.
 - Publiceren voor een rol vraagt een onderwerp dat elke lezer kiest of volgt (of de academie), en het recht om te publiceren.
 
-Bouwen vraagt de bevoegdheid **Report Studio: rapporten bouwen**; publiceren voor een rol vraagt **Report Studio: voor een rol publiceren**. De wizard is het enige scherm dat een rapport aanmaakt: staat hij uit onder **Beheer → Wizards**, dan is de knop **Rapport toevoegen** verborgen.
+Bouwen vraagt de bevoegdheid **Report Studio: rapporten bouwen en lezen** op aanmaken/verwijderen; publiceren voor een rol vraagt **Report Studio: voor een rol publiceren**. De wizard is het enige scherm dat een rapport aanmaakt: staat hij uit onder **Beheer → Wizards**, dan is de knop **Rapport toevoegen** verborgen.
 
 ## Report Studio — een rapport bouwen
 
@@ -727,3 +727,5 @@ Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapporteno
 - Op een telefoon staan de blokken onder elkaar.
 
 Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.
+
+De Report Studio is gesloten voor de alleen-lezen waarnemer: er wordt geen rapport voor die rol gepubliceerd en een waarnemer opent er geen.
