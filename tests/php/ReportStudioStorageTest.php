@@ -38,6 +38,11 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
         ( require dirname( __DIR__, 2 ) . self::MIGRATION )->up();
         $first = $count();
         ( require dirname( __DIR__, 2 ) . self::MIGRATION )->up();
+        // The test suite turns CREATE TABLE into a temporary table, which
+        // shadows the installed one with 0307's columns; the later migration
+        // on those tables (0311, the draft and version names) follows it, as
+        // it does on an install.
+        ( require dirname( __DIR__, 2 ) . '/database/migrations/0311_report_draft_names.php' )->up();
 
         $this->assertSame( $first, $count(), 'a second run writes no matrix rows' );
         foreach ( [ 'tt_reports', 'tt_report_drafts', 'tt_report_versions', 'tt_report_publications' ] as $table ) {

@@ -1,0 +1,3 @@
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Changed since publish"
+msgstr "Gewijzigd sinds publicatie"

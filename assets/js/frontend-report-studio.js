@@ -149,8 +149,10 @@
 	function load() {
 		api('GET', reportPath()).then(function (report) {
 			state.report = report;
-			state.name = report.name || '';
 			var draft = report.draft || { definition: { blocks: [] }, revision: 0 };
+			// The builder edits their draft's name; `report.name` is the
+			// published one readers see (#4737).
+			state.name = typeof draft.name === 'string' ? draft.name : (report.name || '');
 			state.blocks = draft.definition && Array.isArray(draft.definition.blocks) ? copy(draft.definition.blocks) : [];
 			state.revision = draft.revision || 0;
 			state.audience = report.audience;
@@ -382,9 +384,18 @@
 		return t.block;
 	}
 
+	/** "Changed since publish" while the draft's name is not the one readers see. */
+	function renderNameChanged() {
+		var marker = $('[data-tt-rs-name-changed]');
+		var report = state.report;
+		if (!marker || !report) return;
+		marker.hidden = !report.published_version_id || state.name === (report.name || '');
+	}
+
 	function renderAll() {
 		var name = $('[data-tt-rs-name]');
 		if (name && document.activeElement !== name) name.value = state.name;
+		renderNameChanged();
 		renderLibrary();
 		renderCanvas();
 		renderUndo();
@@ -737,6 +748,7 @@
 			state.history.push(before);
 			if (state.history.length > MAX_HISTORY) state.history.shift();
 			state.blocks = r.draft && r.draft.definition ? copy(r.draft.definition.blocks || []) : [];
+			if (r.draft && typeof r.draft.name === 'string') state.name = r.draft.name;
 			state.revision = r.draft ? r.draft.revision : state.revision;
 			dialog.close();
 			renderAll();
@@ -792,6 +804,10 @@
 				return api('POST', reportPath('/versions'), { note: note.value.trim(), persona_keys: keys() });
 			}).then(function (r) {
 				report.persona_keys = r.persona_keys;
+				// The published name is now the draft's.
+				report.name = state.name;
+				report.published_version_id = report.published_version_id || r.version_no;
+				renderNameChanged();
 				dialog.close();
 				notice(fmt(t.published, r.version_no), false);
 			})['catch'](function (err) { error.textContent = err.message; });
@@ -874,6 +890,7 @@
 					if (state.history.length > MAX_HISTORY) state.history.shift();
 				}
 				state.name = name.value;
+				renderNameChanged();
 				renderUndo();
 				saver.change();
 			});
