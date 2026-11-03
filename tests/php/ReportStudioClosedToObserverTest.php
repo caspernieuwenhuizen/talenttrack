@@ -66,10 +66,8 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
         TileRegistry::clear();
         \TT\Shared\CoreSurfaceRegistration::register();
         // The Studio's tile is registered by its module at boot, not by the
-        // core surfaces, so bring it back for the tile assertions.
-        foreach ( $this->tiles_were as $tile ) {
-            if ( ( $tile['view_slug'] ?? '' ) === 'report-studio' ) TileRegistry::register( $tile );
-        }
+        // core surfaces, so register it here for the tile assertions.
+        \TT\Modules\ReportStudio\ReportStudioModule::registerTile();
 
         $config           = new ConfigService();
         $this->matrix_was = (string) $config->get( 'tt_authorization_active', '' );

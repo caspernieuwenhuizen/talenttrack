@@ -49,9 +49,15 @@ class ReportStudioModule implements ModuleInterface {
             add_action( 'init', $register, 20 );
         }
 
-        // #4571 — the Studio itself, a tile under Reports for the people
-        // who build reports. The feature key hides it while the Studio is
-        // switched off.
+        self::registerTile();
+    }
+
+    /**
+     * #4571 — the Studio itself, a tile under Reports for the people who
+     * build reports. The feature key hides it while the Studio is switched
+     * off. Public so a test can register the tile it asserts on.
+     */
+    public static function registerTile(): void {
         if ( class_exists( TileRegistry::class ) ) {
             TileRegistry::register( [
                 'module_class' => self::class,
