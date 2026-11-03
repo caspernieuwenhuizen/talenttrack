@@ -136,6 +136,25 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                             <td><?php echo esc_html( $role_label ); ?></td>
                         </tr>
                     <?php endif; ?>
+                    <?php
+                    // #4715 — a guardian's e-mail and phone follow the
+                    // sensitive-field registry: "Hidden" for a reader who
+                    // does not work with one of their children.
+                    $contact_hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'people', 'email', get_current_user_id(), $person_id );
+                    if ( $contact_hidden && ( $email !== '' || $phone !== '' ) ) : ?>
+                        <?php if ( $email !== '' ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Email', 'talenttrack' ); ?></th>
+                            <td><?php \TT\Shared\Frontend\Components\MaskedValue::render(); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if ( $phone !== '' ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Phone', 'talenttrack' ); ?></th>
+                            <td><?php \TT\Shared\Frontend\Components\MaskedValue::render(); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                    <?php else : ?>
                     <?php if ( $email !== '' ) :
                         $compose_url = add_query_arg(
                             [ 'tt_view' => 'mail-compose', 'person_id' => $person_id ],
@@ -152,6 +171,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                             <th scope="row"><?php esc_html_e( 'Phone', 'talenttrack' ); ?></th>
                             <td><a href="tel:<?php echo esc_attr( $phone ); ?>"><?php echo esc_html( $phone ); ?></a></td>
                         </tr>
+                    <?php endif; ?>
                     <?php endif; ?>
                     <?php if ( ! empty( $person->status ) ) : ?>
                         <tr>
