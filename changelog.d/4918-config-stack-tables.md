@@ -8,4 +8,6 @@ Several of these ran off the right of the screen on a phone; none of them do
 now. A screen reader hears each one as a table with its column headers. The
 dashboard per persona is a table again from 480 pixels wide, and the others
 from 768 pixels wide, because their columns do not fit before that. On a
-tablet and a desktop nothing changes.
+tablet held upright the invitations table no longer pushes the page
+sideways: it scrolls inside its own box. Otherwise nothing changes on a
+tablet or a desktop.
