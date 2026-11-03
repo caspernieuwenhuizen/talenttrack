@@ -83,6 +83,10 @@ final class PlayerEvaluationsRestController extends BaseController {
         $scope     = (string) $r['scope'];
         $reader    = new PlayerEvaluationsReader();
 
+        // #4693 — whether a row has a breakdown to open is answered without
+        // the category notes for a reader they are hidden from.
+        $notes_shown = ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), $player_id );
+
         $items = [];
         foreach ( $reader->listForPlayer( $player_id, $scope ) as $row ) {
             $eid  = (int) ( $row->id ?? 0 );
@@ -103,7 +107,7 @@ final class PlayerEvaluationsRestController extends BaseController {
                 'game_result'     => (string) ( $row->game_result ?? '' ),
                 'player_feedback' => (string) ( $row->player_feedback ?? '' ),
                 'main_ratings'    => $reader->mainPills( $eid ),
-                'has_detail'      => $reader->hasDetail( $eid ),
+                'has_detail'      => $reader->hasDetail( $eid, $notes_shown ),
             ];
         }
 
@@ -120,17 +124,19 @@ final class PlayerEvaluationsRestController extends BaseController {
     }
 
     public static function detail( WP_REST_Request $r ): WP_REST_Response {
-        $groups = ( new PlayerEvaluationsReader() )->detail( (int) $r['id'], (int) $r['evaluation_id'] );
+        // #4693 — the category notes follow the sensitive-field registry: a
+        // reader it hides them from gets the ratings without any `note`, and
+        // without the groups and subs that exist only because of one.
+        // This is the route's only mask: its groups carry no `player_id`, so
+        // it has no registry route behind it.
+        $hidden = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), (int) $r['id'] );
+        $groups = ( new PlayerEvaluationsReader() )->detail( (int) $r['id'], (int) $r['evaluation_id'], ! $hidden );
         if ( $groups === null ) {
             // Same answer for "does not exist" and "is not this player's", so
             // an id cannot be probed.
             return new WP_REST_Response( [ 'code' => 'not_found' ], 404 );
         }
-        // #4693 — the category notes follow the sensitive-field registry: a
-        // reader it hides them from gets the ratings without any `note`.
-        // This is the route's only mask: its groups carry no `player_id`, so
-        // it has no registry route behind it.
-        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), (int) $r['id'] ) ) {
+        if ( $hidden ) {
             $groups = self::withoutNotes( $groups );
         }
         return new WP_REST_Response( [ 'groups' => $groups ], 200 );

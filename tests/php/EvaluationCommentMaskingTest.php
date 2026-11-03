@@ -197,6 +197,45 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $this->assertFalse( RecordRedactor::readsOnTeams( 'evaluations', 'notes', $this->observer, [ $this->team ] ), 'not the observer' );
     }
 
+    /** The rate card's chart carries the category notes for staff only. */
+    public function test_the_rate_card_leaves_the_category_notes_out_for_the_observer(): void {
+        $this->assertStringContainsString( 'scanning before receiving', $this->renderRateCard( $this->hod ), 'HoD sees the note behind the point' );
+        $observer = $this->renderRateCard( $this->observer );
+        $this->assertStringContainsString( 'Scanning', $observer, 'the observer gets the chart' );
+        $this->assertStringNotContainsString( 'scanning before receiving', $observer );
+    }
+
+    /** The wp-admin edit form is for a reader who may write the evaluation. */
+    public function test_the_admin_edit_form_is_not_a_way_round_the_mask(): void {
+        $hod = $this->renderAdmin( $this->hod, 'edit' );
+        $this->assertStringContainsString( 'name="notes"', $hod, 'HoD gets the form' );
+        $this->assertStringContainsString( 'worried about focus', $hod );
+
+        $observer = $this->renderAdmin( $this->observer, 'edit' );
+        $this->assertStringNotContainsString( 'name="notes"', $observer, 'no form for a reader who may not write' );
+        $this->assertStringNotContainsString( 'worried about focus', $observer );
+        $this->assertStringContainsString( 'Hidden', $observer, 'the masked record view instead' );
+    }
+
+    /**
+     * The player detail route drops the groups that exist only because of a
+     * note, and `has_detail` is answered without the notes, for a reader the
+     * category notes are hidden from.
+     */
+    public function test_the_player_detail_route_leaves_no_note_only_groups(): void {
+        foreach ( [ 'HoD' => [ $this->hod, 1, true ], 'observer' => [ $this->observer, 0, false ] ] as $label => [ $uid, $groups, $has_detail ] ) {
+            wp_set_current_user( $uid );
+            AuthorizationService::flushCache();
+            $detail = (array) $this->serve( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/evaluations/' . $this->eval . '/detail' ) )->get_data();
+            $this->assertCount( $groups, (array) ( $detail['groups'] ?? [] ), "{$label}: the note-only group" );
+
+            $request = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/evaluations' );
+            $request->set_param( 'scope', 'all' );
+            $list = (array) json_decode( (string) wp_json_encode( $this->serve( $request )->get_data() ), true );
+            $this->assertSame( $has_detail, $list['items'][0]['has_detail'] ?? null, "{$label}: has_detail" );
+        }
+    }
+
     public function test_the_detail_view_shows_hidden_where_the_notes_would_be(): void {
         $hod = $this->renderDetail( $this->hod );
         $this->assertStringContainsString( 'worried about focus', $hod, 'HoD reads the notes' );
@@ -267,6 +306,26 @@ final class EvaluationCommentMaskingTest extends WP_UnitTestCase {
         $this->assertSame( 200, $response->get_status() );
         $data = (array) json_decode( (string) wp_json_encode( $response->get_data() ), true );
         return count( (array) ( $data['data']['rows'] ?? [] ) );
+    }
+
+    private function renderRateCard( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        ob_start();
+        \TT\Modules\Stats\Admin\PlayerRateCardView::render( $this->player, [], admin_url( 'admin.php?page=tt-rate-cards' ) );
+        return (string) ob_get_clean();
+    }
+
+    private function renderAdmin( int $user_id, string $action ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['action'] = $action;
+        $_GET['id']     = (string) $this->eval;
+        ob_start();
+        \TT\Modules\Evaluations\Admin\EvaluationsPage::render_page();
+        $html = (string) ob_get_clean();
+        unset( $_GET['action'], $_GET['id'] );
+        return $html;
     }
 
     private function adminSearch( int $user_id, string $search ): string {

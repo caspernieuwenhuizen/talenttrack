@@ -176,9 +176,13 @@ final class PlayerEvaluationsReader {
      * Each group and sub carries its category note (#3949), '' for none; a
      * sub that was not rated but has a note carries a null rating.
      *
+     * `$with_notes` false (#4693) reads the breakdown as a reader the
+     * sensitive-field registry hides the category notes from: no note, and no
+     * group or sub that exists only because of one.
+     *
      * @return list<array{label: string, note: string, subs: list<array{label: string, rating: float|null, note: string}>}>|null
      */
-    public function detail( int $player_id, int $eval_id ): ?array {
+    public function detail( int $player_id, int $eval_id, bool $with_notes = true ): ?array {
         if ( $player_id <= 0 || $eval_id <= 0 ) return null;
 
         $full = QueryHelpers::get_evaluation( $eval_id );
@@ -195,7 +199,7 @@ final class PlayerEvaluationsReader {
 
         // #3949 — the category notes ride along. This detail is only served
         // to a reader the route already let see the evaluation.
-        $notes = ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id );
+        $notes = $with_notes ? ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id ) : [];
 
         $groups = [];
         $seen   = [];
@@ -250,11 +254,15 @@ final class PlayerEvaluationsReader {
         return array_values( $groups );
     }
 
-    /** Whether an evaluation has any breakdown to open — decides if the toggle renders. */
-    public function hasDetail( int $eval_id ): bool {
+    /**
+     * Whether an evaluation has any breakdown to open — decides if the toggle
+     * renders. `$with_notes` false (#4693) leaves the category notes out of
+     * the question, for a reader they are hidden from.
+     */
+    public function hasDetail( int $eval_id, bool $with_notes = true ): bool {
         global $wpdb;
         // #3949 — a category note is something to open as well.
-        if ( ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id ) ) return true;
+        if ( $with_notes && ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id ) ) return true;
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT 1 FROM {$wpdb->prefix}tt_eval_ratings r
                JOIN {$wpdb->prefix}tt_eval_categories c ON c.id = r.category_id AND c.club_id = r.club_id

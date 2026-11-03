@@ -41,9 +41,22 @@ class EvaluationsPage {
                 . '<p>' . esc_html__( 'You do not have access to this evaluation.', 'talenttrack' ) . '</p></div>';
             return;
         }
+        // #4693 — the edit form follows the same rule as the frontend edit
+        // branch: reading is the floor and writing needs `canEvaluatePlayer`.
+        // A reader who may not write gets the record view, which follows the
+        // sensitive-field registry, instead of a form holding the notes.
+        if ( $action === 'edit' && $id > 0 && ! self::mayEditEvaluation( $id ) ) { self::render_view( $id ); return; }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $action === 'edit' ? $id : 0 ); return; }
         if ( $action === 'view' && $id ) { self::render_view( $id ); return; }
         self::render_list();
+    }
+
+    /** #4693 — may this user edit this evaluation: `canEvaluatePlayer` on its player. */
+    private static function mayEditEvaluation( int $eval_id ): bool {
+        $eval = QueryHelpers::get_evaluation( $eval_id );
+        if ( ! $eval ) return true; // "not found" is the form's own answer.
+        $player_id = (int) ( $eval->player_id ?? 0 );
+        return $player_id <= 0 || AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id );
     }
 
     /**
@@ -99,17 +112,23 @@ class EvaluationsPage {
             // #4693 — the search follows the same notes rule as the rows. A
             // club-wide list matches on the notes only for a reader who reads
             // them on every player, a scoped list only when the reader reads
-            // them on every one of its teams. The reader's own evaluations
-            // match on their notes in any case: they wrote that text.
-            $notes_ok = $scoped_team_ids === null
+            // them on every one of its teams, and then on those teams only:
+            // the reader's own evaluations of a player who has since moved
+            // team are in the list, and their notes may be hidden from them.
+            $scope_ids = $scoped_team_ids === null ? [] : array_values( array_map( 'intval', $scoped_team_ids ) );
+            $notes_ok  = $scoped_team_ids === null
                 ? \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'evaluations', 'notes', $user_id )
-                : \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $user_id, array_values( array_map( 'intval', $scoped_team_ids ) ) );
-            if ( $notes_ok ) {
+                : \TT\Infrastructure\Security\RecordRedactor::readsOnTeams( 'evaluations', 'notes', $user_id, $scope_ids );
+            if ( ! $notes_ok ) {
+                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s)';
+                $params[] = $like; $params[] = $like;
+            } elseif ( $scope_ids !== [] ) {
+                $in       = implode( ',', array_fill( 0, count( $scope_ids ), '%d' ) );
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( pl.team_id IN ($in) AND e.notes LIKE %s ))";
+                $params   = array_merge( $params, [ $like, $like ], $scope_ids, [ $like ] );
+            } else {
                 $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
                 $params[] = $like; $params[] = $like; $params[] = $like;
-            } else {
-                $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( e.coach_id = %d AND e.notes LIKE %s ))';
-                $params[] = $like; $params[] = $like; $params[] = $user_id; $params[] = $like;
             }
         }
         if ( $f_date_from !== '' ) { $where[] = 'e.eval_date >= %s'; $params[] = $f_date_from; }

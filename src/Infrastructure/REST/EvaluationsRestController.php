@@ -341,14 +341,19 @@ class EvaluationsRestController {
             // matches on the notes only when the reader may read them on
             // every row this list can show, so a match cannot say what a
             // hidden note contains.
-            if ( self::searchesNotes( $player_file_access, $player_filter_id, $scope_team_ids ) ) {
+            if ( ! self::searchesNotes( $player_file_access, $player_filter_id, $scope_team_ids ) ) {
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s)";
+                $params[] = $like; $params[] = $like;
+            } elseif ( $scope_team_ids !== [] ) {
+                // The coach-scoped list also shows the reader's own
+                // evaluations of players who have since moved team; their
+                // notes match only on the teams the rule was asked for.
+                $in       = implode( ',', array_fill( 0, count( $scope_team_ids ), '%d' ) );
+                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( pl.team_id IN ($in) AND e.notes LIKE %s ))";
+                $params   = array_merge( $params, [ $like, $like ], $scope_team_ids, [ $like ] );
+            } else {
                 $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
                 $params[] = $like; $params[] = $like; $params[] = $like;
-            } else {
-                // The reader's own evaluations still match on their notes:
-                // they wrote that text.
-                $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR ( e.coach_id = %d AND e.notes LIKE %s ))";
-                $params[] = $like; $params[] = $like; $params[] = get_current_user_id(); $params[] = $like;
             }
         }
 
@@ -509,8 +514,8 @@ class EvaluationsRestController {
      * #4693 — may the list's search match on the notes? The rows the list can
      * show decide it: an academy-wide list needs a reader who reads notes on
      * every player; a single player's file needs that player's notes; the
-     * coach-scoped list needs the notes on every one of the reader's teams.
-     * The reader's own evaluations match on their notes in any case.
+     * coach-scoped list needs the notes on every one of the reader's teams,
+     * and matches them on those teams only.
      *
      * @param list<int> $scope_team_ids the coach-scoped list's teams
      */
