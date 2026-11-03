@@ -806,6 +806,42 @@ times and no location still peeks cleanly, as a date and a type.
 editing inside a panel means a second save path and a stale-parent problem, on a
 surface whose job is orientation rather than data entry.
 
+## Two-factor policy (#4707)
+
+### `GET /settings/mfa-policy`
+
+Which roles must enrol a second factor, academy-wide, with how many accounts
+each role reaches. Permission: `tt_edit_settings` (403 otherwise).
+
+```json
+{
+  "success": true,
+  "data": {
+    "personas": [
+      { "key": "academy_admin", "label": "Academy admin", "required": true, "total": 2, "unenrolled": 0 },
+      { "key": "scout", "label": "Scout", "required": false, "total": 3, "unenrolled": 2 }
+    ]
+  },
+  "errors": []
+}
+```
+
+Every selectable role is listed in a fixed order. `total` counts the accounts
+holding the role (an account with two roles counts under both, as the login
+gate treats it) and `unenrolled` those without a completed enrolment. Counts
+only: no user is named or identified.
+
+### `PUT /settings/mfa-policy`
+
+Body `{ "personas": [ "academy_admin", "scout" ] }`, required. The list
+replaces the stored policy: keys that are not selectable roles are dropped,
+and an empty list (or `[ "" ]`, which the form sends when nothing is ticked)
+turns enforcement off rather than reverting to the default. Permission:
+`tt_edit_settings`. The write goes through the same service as the wp-admin
+operator form, so it stores the same value, and records
+`mfa.required_personas_changed` in the audit log with the roles before and
+after. Returns the same shape as `GET`.
+
 ## Settings entries (#4670, epic #4668)
 
 ### `GET /settings-entries`

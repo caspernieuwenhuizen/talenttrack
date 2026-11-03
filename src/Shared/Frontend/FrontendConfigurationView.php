@@ -62,6 +62,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'export'        => __( 'Export configuration', 'talenttrack' ),
                 // #2603 — per-template on/off for outgoing messages.
                 'messages'      => __( 'Messages', 'talenttrack' ),
+                // #4707 — which roles must enrol a second factor.
+                'mfa-policy'    => __( 'Require two-step verification', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -146,6 +148,13 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'Messages', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderMessagesForm();
+                return;
+            case 'mfa-policy':
+                // #4707 — the academy-wide two-step rule.
+                // No "All configuration" link: the breadcrumb's Configuration
+                // crumb and Cancel both lead back (CLAUDE.md §5a).
+                self::renderHeader( __( 'Require two-step verification', 'talenttrack' ) );
+                self::renderMfaPolicyForm();
                 return;
             case 'lookups':
                 // v3.74.3 — #5: per-category frontend editor. When
@@ -2494,6 +2503,69 @@ class FrontendConfigurationView extends FrontendViewBase {
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * #4707 — the academy-wide two-step rule: which roles must enrol.
+     *
+     * Save model B (explicit Save + Cancel, CLAUDE.md §6): one short form,
+     * one commit, and Cancel returns to the Configuration landing. What is
+     * stored, the counts and the audit row all come from
+     * `MfaPolicyService`; this method paints. Counts only, never names.
+     */
+    private static function renderMfaPolicyForm(): void {
+        if ( ! current_user_can( \TT\Modules\Mfa\Rest\MfaPolicyRestController::CAP ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        wp_enqueue_style( 'tt-frontend-mfa-policy', TT_PLUGIN_URL . 'assets/css/frontend-mfa-policy.css', [], TT_VERSION );
+        wp_enqueue_script( 'tt-frontend-mfa-policy', TT_PLUGIN_URL . 'assets/js/frontend-mfa-policy.js', [], TT_VERSION, true );
+
+        $rows        = ( new \TT\Modules\Mfa\Settings\MfaPolicyService() )->overview();
+        $show_notice = false;
+        foreach ( $rows as $row ) {
+            if ( $row['required'] && $row['unenrolled'] > 0 ) $show_notice = true;
+        }
+
+        echo '<form class="tt-ajax-form tt-mfa-policy" data-rest-path="settings/mfa-policy" data-rest-method="PUT" data-redirect-after-save="reload" data-tt-mfa-policy>';
+        echo '<p class="tt-mfa-policy__intro">' . esc_html__( 'Choose which roles must set up two-step verification. A change applies to everyone in that role from their next login.', 'talenttrack' ) . '</p>';
+        // An empty value keeps `personas` in the request when nothing is
+        // ticked, so "no role" is saved as no role rather than read as absent.
+        echo '<input type="hidden" name="personas[]" value="" />';
+        echo '<fieldset class="tt-mfa-policy__set">';
+        echo '<legend class="tt-mfa-policy__legend">' . esc_html__( 'Roles that must set up two-step verification', 'talenttrack' ) . '</legend>';
+        foreach ( $rows as $row ) {
+            $id = 'tt-mfa-policy-' . sanitize_html_class( $row['key'] );
+            echo '<div class="tt-mfa-policy__row">';
+            echo '<input type="checkbox" class="tt-mfa-policy__check" id="' . esc_attr( $id ) . '" name="personas[]" value="' . esc_attr( $row['key'] ) . '"'
+                . ' data-tt-mfa-unenrolled="' . esc_attr( (string) $row['unenrolled'] ) . '"' . checked( $row['required'], true, false ) . ' />';
+            echo '<label class="tt-mfa-policy__label" for="' . esc_attr( $id ) . '">';
+            echo '<span class="tt-mfa-policy__name">' . esc_html( $row['label'] ) . '</span>';
+            echo '<span class="tt-mfa-policy__count">';
+            if ( $row['total'] === 0 ) {
+                esc_html_e( 'No accounts with this role', 'talenttrack' );
+            } else {
+                echo esc_html( sprintf(
+                    /* translators: 1: accounts in this role without two-step verification, 2: all accounts in this role. */
+                    __( '%1$d of %2$d not set up yet', 'talenttrack' ),
+                    $row['unenrolled'],
+                    $row['total']
+                ) );
+            }
+            echo '</span>';
+            echo '</label>';
+            echo '</div>';
+        }
+        echo '</fieldset>';
+        echo '<p class="tt-mfa-policy__notice" data-tt-mfa-policy-notice role="status"' . ( $show_notice ? '' : ' hidden' ) . '>'
+            . esc_html__( 'Everyone in a ticked role who has not set it up yet will be asked to set up two-step verification at their next login.', 'talenttrack' )
+            . '</p>';
+        echo '<p class="tt-form-msg" role="status" aria-live="polite"></p>';
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the helper escapes its own output.
+            'cancel_url' => remove_query_arg( [ 'config_sub' ] ),
+        ] );
+        echo '</form>';
     }
 
     /**

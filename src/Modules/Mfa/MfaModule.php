@@ -62,6 +62,8 @@ class MfaModule implements ModuleInterface {
         // stay on the prompt. Handling them any later means redirecting
         // after the headers have gone out, which blanks the page.
         MfaChallengeHandler::init();
+        // #4707 — the academy-wide policy, readable and writable without wp-admin.
+        \TT\Modules\Mfa\Rest\MfaPolicyRestController::init();
 
         // #1392 — break-glass recovery surfaces.
         // wp-cli command group (`wp tt mfa status|disable|reset`);

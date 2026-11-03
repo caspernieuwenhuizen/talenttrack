@@ -126,6 +126,10 @@ first in tab order and Save on the right where the thumb finds it.
   known set of fields, and medical data: one commit point, and Cancel means
   nothing was written.
 - Configuration screens and lookup lists.
+- **Require two-step verification** under Configuration → People & access
+  (see [Security](security-operator-guide.md)). One set of ticks is one
+  policy, and it reaches every account in a ticked role at their next login,
+  so it commits once, on Save, and Cancel leaves the policy as it was.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.
 

@@ -1,0 +1,92 @@
+/*
+ * TalentTrack — the academy-wide two-factor rule on the Configuration page
+ * (#4707). Mobile-first: one column at 360px, each role row a 48px target
+ * with the checkbox itself at least 48px wide.
+ */
+
+.tt-mfa-policy {
+	display: grid;
+	gap: var(--tt-sp-3);
+	max-width: 40rem;
+	min-width: 0;
+}
+
+.tt-mfa-policy__intro {
+	margin: 0;
+	color: var(--tt-ink-soft);
+}
+
+.tt-mfa-policy__set {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	min-width: 0;
+}
+
+.tt-mfa-policy__legend {
+	margin-bottom: var(--tt-sp-2);
+	font-weight: 600;
+	color: var(--tt-ink);
+}
+
+.tt-mfa-policy__row {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-2);
+	min-height: var(--tt-tap-min);
+	border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-mfa-policy__check {
+	flex: none;
+	width: var(--tt-tap-min);
+	height: var(--tt-tap-min);
+	margin: 0;
+	accent-color: var(--tt-primary);
+	touch-action: manipulation;
+}
+
+.tt-mfa-policy__check:focus-visible {
+	outline: 2px solid var(--tt-link);
+	outline-offset: 2px;
+}
+
+.tt-mfa-policy__label {
+	display: grid;
+	gap: 0.125rem;
+	flex: 1;
+	min-width: 0;
+	min-height: var(--tt-tap-min);
+	align-content: center;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-mfa-policy__name {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.tt-mfa-policy__count {
+	font-size: var(--tt-fs-sm);
+	color: var(--tt-muted);
+}
+
+.tt-mfa-policy__notice {
+	margin: 0;
+	padding: var(--tt-sp-3);
+	color: var(--tt-info-ink);
+	background: var(--tt-info-subtle);
+	border-radius: var(--tt-radius);
+}
+
+.tt-mfa-policy__notice[hidden] {
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.tt-mfa-policy__label {
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+	}
+}
