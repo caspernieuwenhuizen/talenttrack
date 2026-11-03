@@ -40,11 +40,14 @@ final class StackTable {
     /**
      * The table's classes: the primitive and its breakpoint modifier.
      */
-    public static function classes( int $to = self::TO_480 ): string {
+    public static function classes( int $to = self::TO_480, bool $cards = false ): string {
+        $out = 'tt-stack-table';
         if ( $to === self::TO_480 || $to === self::TO_768 ) {
-            return 'tt-stack-table tt-stack-table--to-' . $to;
+            $out .= ' tt-stack-table--to-' . $to;
         }
-        return 'tt-stack-table';
+        // Each stacked row drawn as a card (the list tables' look).
+        if ( $cards ) $out .= ' tt-stack-table--cards';
+        return $out;
     }
 
     /**

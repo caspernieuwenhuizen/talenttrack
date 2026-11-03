@@ -244,12 +244,12 @@ class FrontendListTable {
                 </div>
             <?php else : ?>
             <div class="tt-list-table-wrap">
-                <table class="tt-list-table-table" data-tt-list-table-el="1">
-                    <thead><tr><?php foreach ( $columns as $key => $col ) : self::renderColumnHeader( (string) $key, $col, $state ); endforeach; ?>
-                        <?php if ( $row_actions ) : ?><th class="tt-list-table-actions-col"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th><?php endif; ?>
+                <table class="tt-list-table-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>" data-tt-list-table-el="1"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php foreach ( $columns as $key => $col ) : self::renderColumnHeader( (string) $key, $col, $state ); endforeach; ?>
+                        <?php if ( $row_actions ) : ?><th class="tt-list-table-actions-col"<?php echo StackTable::attrs( 'columnheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th><?php endif; ?>
                     </tr></thead>
-                    <tbody data-tt-list-body="1">
-                        <tr class="tt-list-table-loading" data-tt-list-loading="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php echo $loading_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_html__() above. ?></td></tr>
+                    <tbody data-tt-list-body="1"<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <tr class="tt-list-table-loading" data-tt-list-loading="1"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $loading_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_html__() above. ?></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -710,7 +710,7 @@ class FrontendListTable {
         $label = (string) ( $col['label'] ?? $key );
         $sortable = ! empty( $col['sortable'] );
         if ( ! $sortable ) {
-            printf( '<th>%s</th>', esc_html( $label ) );
+            printf( '<th%s>%s</th>', StackTable::attrs( 'columnheader' ), esc_html( $label ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             return;
         }
         $is_active = ( $state['orderby'] === $key );
@@ -721,9 +721,10 @@ class FrontendListTable {
         ] ) );
         $arrow = $is_active ? ( $state['order'] === 'asc' ? '↑' : '↓' ) : '';
         printf(
-            '<th class="tt-list-table-sortable %s" data-tt-list-sort="%s"><a href="%s">%s <span aria-hidden="true">%s</span></a></th>',
+            '<th class="tt-list-table-sortable %s" data-tt-list-sort="%s"%s><a href="%s">%s <span aria-hidden="true">%s</span></a></th>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             $is_active ? 'is-active' : '',
             esc_attr( $key ),
+            StackTable::attrs( 'columnheader' ),
             $href,
             esc_html( $label ),
             esc_html( $arrow )

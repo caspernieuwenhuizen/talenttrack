@@ -132,6 +132,8 @@
 
         (data.preview || []).forEach(function(p) {
             var tr = document.createElement('tr');
+            // #4810 — the roles StackTable::attrs() writes on the server.
+            tr.setAttribute('role', 'row');
             var d = p.data || {};
 
             // `messages` is the exercise importer's shape, `errors` the
@@ -146,21 +148,21 @@
             var statusClass = p.status === 'error' ? 'tt-flash-error' : (p.status === 'warning' ? 'tt-flash-warning' : 'tt-flash-success');
 
             var cells =
-                '<td data-label="' + escapeHtml(i18n.csv_col_row    || 'Row')    + '">' + escapeHtml(p.row_number) + '</td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_status || 'Status') + '"><span class="tt-flash tt-csv-status ' + statusClass + '">' + escapeHtml(statusLabel) + '</span></td>';
+                '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_row    || 'Row')    + '">' + escapeHtml(p.row_number) + '</td>' +
+                '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_status || 'Status') + '"><span class="tt-flash tt-csv-status ' + statusClass + '">' + escapeHtml(statusLabel) + '</span></td>';
 
             if (fields) {
                 fields.forEach(function(f) {
-                    cells += '<td data-label="' + escapeHtml(f.label || f.key) + '">' + escapeHtml(d[f.key] || '') + '</td>';
+                    cells += '<td role="cell" data-label="' + escapeHtml(f.label || f.key) + '">' + escapeHtml(d[f.key] || '') + '</td>';
                 });
             } else {
                 cells +=
-                    '<td data-label="' + escapeHtml(i18n.csv_col_player || 'Player') + '">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
-                    '<td data-label="' + escapeHtml(i18n.csv_col_dob    || 'DOB')    + '">' + escapeHtml(d.date_of_birth || '') + '</td>' +
-                    '<td data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>';
+                    '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_player || 'Player') + '">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
+                    '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_dob    || 'DOB')    + '">' + escapeHtml(d.date_of_birth || '') + '</td>' +
+                    '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>';
             }
 
-            cells += '<td data-label="' + escapeHtml(i18n.csv_col_notes || 'Notes') + '">' + escapeHtml(note) + '</td>';
+            cells += '<td role="cell" data-label="' + escapeHtml(i18n.csv_col_notes || 'Notes') + '">' + escapeHtml(note) + '</td>';
             tr.innerHTML = cells;
             tbody.appendChild(tr);
         });

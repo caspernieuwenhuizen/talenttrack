@@ -17,6 +17,7 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -1094,17 +1095,17 @@ class FrontendPdpManageView extends FrontendViewBase {
         // conducted, signed_off) + parent/player ack pills so coaches see
         // who still needs to acknowledge.
         echo '<h2 style="font-size:16px; margin:18px 0 8px;">' . esc_html__( 'Conversations', 'talenttrack' ) . '</h2>';
-        echo '<table class="tt-list-table-table">';
-        echo '<thead><tr>';
-        echo '<th>#</th>';
-        echo '<th>' . esc_html_x( 'Template', 'PDP conversation template', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '<table class="tt-list-table-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>#</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html_x( 'Template', 'PDP conversation template', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
         // #1852 — visibility only (never a gate): has the player added a
         // self-reflection ahead of the talk?
-        echo '<th>' . esc_html__( 'Self-review', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Self-review', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         // v3.110.191 — pass today + full list into derivedConvStatus()
         // so it can compute 'to_be_planned' / 'future'.
         $today = gmdate( 'Y-m-d' );
@@ -1140,20 +1141,20 @@ class FrontendPdpManageView extends FrontendViewBase {
             // against an empty pseudo-element: "1 / Begin seizoen / 2026-09-30
             // / GEPLAND / Nog niet" with nothing naming the columns. The
             // labels are the same translated strings the <th>s use.
-            echo '<tr class="is-row-link" data-row-href="' . esc_url( $url ) . '">';
-            echo '<td data-label="#">' . (int) $c->sequence . '</td>';
+            echo '<tr class="is-row-link" data-row-href="' . esc_url( $url ) . '"' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', '#' ) . '>' . (int) $c->sequence . '</td>';
             // #3299 — `tt-record-link`, like every other record link in the
             // app. The bare anchor fell through to the active theme's link
             // styling — blue and underlined next to the status badges in the
             // same row. The class's rule resets colour and decoration with
             // `!important` precisely so a hostile theme cannot re-underline it
             // (#1792).
-            echo '<td data-label="' . esc_attr_x( 'Template', 'PDP conversation template', 'talenttrack' ) . '">'
+            echo '<td' . StackTable::attrs( 'cell', _x( 'Template', 'PDP conversation template', 'talenttrack' ) ) . '>'
                 . '<a class="tt-record-link" href="' . esc_url( $url ) . '">'
                 . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
-            echo '<td data-label="' . esc_attr__( 'Scheduled', 'talenttrack' ) . '">'
+            echo '<td' . StackTable::attrs( 'cell', __( 'Scheduled', 'talenttrack' ) ) . '>'
                 . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Status', 'talenttrack' ) . '">'
+            echo '<td' . StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ) . '>'
                 . '<span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span>'
                 . ( $derived === 'not_held' ? self::notHeldDetail( $c ) : '' )
                 . '</td>';
@@ -1172,7 +1173,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 $sr_class = 'tt-pdp-selfreview--none';
                 $sr_label = __( '—', 'talenttrack' );
             }
-            echo '<td data-label="' . esc_attr__( 'Self-review', 'talenttrack' ) . '">'
+            echo '<td' . StackTable::attrs( 'cell', __( 'Self-review', 'talenttrack' ) ) . '>'
                 . '<span class="tt-pdp-selfreview ' . esc_attr( $sr_class ) . '">' . esc_html( $sr_label ) . '</span></td>';
             // v3.110.197 (#809) — the "awaiting" state used to render as
             // a middle-dot character (`·`) which the pilot read as a
@@ -1180,7 +1181,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             // yet". Replace with the hourglass icon so the state reads
             // at a glance: role glyph + hourglass = pending, role glyph
             // + checkmark = signed.
-            echo '<td data-label="' . esc_attr__( 'Acks', 'talenttrack' ) . '">';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Acks', 'talenttrack' ) ) . '>';
             $parent_ok = ! empty( $c->parent_ack_at );
             $player_ok = ! empty( $c->player_ack_at );
             $hourglass = \TT\Shared\Icons\IconRenderer::render( 'hourglass', [

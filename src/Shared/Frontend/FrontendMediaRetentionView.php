@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Media\MediaKind;
 use TT\Modules\Media\Retention\MediaRetentionService;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendMediaRetentionView (#2666, epic #2589) — the media a retention
@@ -88,31 +89,32 @@ class FrontendMediaRetentionView extends FrontendViewBase {
             return;
         }
 
-        echo '<table class="tt-list-table-table tt-media-retention">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Media', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<table class="tt-list-table-table tt-media-retention ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Media', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         // #3031 — contextualised. The bare "Left" msgid also has to serve
         // the `foot_option` lookup value, which LookupTranslator::name()
         // hands to __() as its last fallback. One msgid cannot mean both
         // "departed" and "left foot": Dutch renders them "Vertrokken" and
         // "Links", and whichever was translated first won everywhere.
-        echo '<th>' . esc_html_x( 'Left', 'date a player left the academy', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html_x( 'Left', 'date a player left the academy', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $title = (string) $row['title'];
             if ( $title === '' ) $title = MediaKind::label( (string) $row['kind'] );
 
-            echo '<tr data-role="retention-row" data-link-id="' . (int) $row['link_id'] . '">';
+            echo '<tr data-role="retention-row" data-link-id="' . (int) $row['link_id'] . '"' . StackTable::attrs( 'row' ) . '>';
 
-            echo '<td><span class="tt-media-retention__title">' . esc_html( $title ) . '</span> ';
+            // #4810 — each cell names its column on a phone (it had no label).
+            echo '<td' . StackTable::attrs( 'cell', __( 'Media', 'talenttrack' ) ) . '><span class="tt-media-retention__title">' . esc_html( $title ) . '</span> ';
             echo '<span class="tt-media-retention__kind">' . esc_html( MediaKind::label( (string) $row['kind'] ) ) . '</span></td>';
 
-            echo '<td>' . esc_html( (string) $row['player_name'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ) . '>' . esc_html( (string) $row['player_name'] ) . '</td>';
 
-            echo '<td>' . esc_html( (string) $row['departed_on'] );
+            echo '<td' . StackTable::attrs( 'cell', _x( 'Left', 'date a player left the academy', 'talenttrack' ) ) . '>' . esc_html( (string) $row['departed_on'] );
             if ( ! empty( $row['estimated'] ) ) {
                 // Honest about a weaker date rather than presenting a guess
                 // as a fact — it only affects when the row appears, since
@@ -123,7 +125,7 @@ class FrontendMediaRetentionView extends FrontendViewBase {
             }
             echo '</td>';
 
-            echo '<td class="tt-media-retention__actions">';
+            echo '<td class="tt-media-retention__actions"' . StackTable::attrs( 'cell', __( 'Decision', 'talenttrack' ) ) . '>';
             echo '<button type="button" class="tt-btn tt-btn-danger" data-role="retention-remove">'
                 . esc_html__( 'Remove', 'talenttrack' ) . '</button> ';
             echo '<button type="button" class="tt-btn tt-btn-secondary" data-role="retention-keep">'
@@ -146,13 +148,13 @@ class FrontendMediaRetentionView extends FrontendViewBase {
             'talenttrack'
         ) . '</p>';
 
-        echo '<table class="tt-list-table-table tt-media-retention tt-media-retention--held">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Media', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Reason', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-list-table-table tt-media-retention tt-media-retention--held ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Media', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Reason', 'talenttrack' ) . '</th>';
+        echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $title = (string) $row->title;
@@ -160,11 +162,11 @@ class FrontendMediaRetentionView extends FrontendViewBase {
 
             $name = trim( (string) $row->first_name . ' ' . (string) $row->last_name );
 
-            echo '<tr data-role="retention-row" data-link-id="' . (int) $row->link_id . '">';
-            echo '<td>' . esc_html( $title ) . '</td>';
-            echo '<td>' . esc_html( $name ) . '</td>';
-            echo '<td>' . esc_html( (string) $row->retention_hold_reason ) . '</td>';
-            echo '<td><button type="button" class="tt-btn tt-btn-secondary" data-role="retention-release">'
+            echo '<tr data-role="retention-row" data-link-id="' . (int) $row->link_id . '"' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Media', 'talenttrack' ) ) . '>' . esc_html( $title ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Player', 'talenttrack' ) ) . '>' . esc_html( $name ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Reason', 'talenttrack' ) ) . '>' . esc_html( (string) $row->retention_hold_reason ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', __( 'Decision', 'talenttrack' ) ) . '><button type="button" class="tt-btn tt-btn-secondary" data-role="retention-release">'
                 . esc_html__( 'Put back in the queue', 'talenttrack' ) . '</button></td>';
             echo '</tr>';
         }
