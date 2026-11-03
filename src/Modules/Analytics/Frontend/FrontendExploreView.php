@@ -133,11 +133,11 @@ class FrontendExploreView extends FrontendViewBase {
 
         echo '<div class="tt-explore">';
 
-        // Header — KPI label + back link.
+        // Header — the KPI label. #4845 — no back link of its own: the
+        // breadcrumb's Analytics crumb and the tt_back pill are the way back
+        // (CLAUDE.md §5a).
         echo '<div class="tt-explore-head">';
         echo '<h2>' . esc_html( $kpi->label ) . '</h2>';
-        $back_url = WizardEntryPoint::dashboardBaseUrl();
-        echo '<a href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         // Filter chips.
