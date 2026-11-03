@@ -587,7 +587,10 @@ class PeopleRepository {
      *
      * Behaviour:
      *  - If at least one `tt_team_people` row remains for the pair, ensure
-     *    a single `tt_user_role_scopes` row exists.
+     *    a single mirror row (`role_id = 0`) exists, dated with the
+     *    envelope of the pair's assignments (`assignmentEnvelope()`, #4721).
+     *    Every team-scope reader filters on those dates, so an assignment
+     *    that ended or has not started is out of scope with no cron job.
      *  - Otherwise, remove the scope row.
      *
      * `role_id` on the scope row is set to 0. `MatrixGate::userHasScope`
@@ -601,16 +604,14 @@ class PeopleRepository {
         $p = $wpdb->prefix;
         if ( $team_id <= 0 || $person_id <= 0 ) return;
 
-        $remaining = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_team_people
-              WHERE person_id = %d AND team_id = %d AND club_id = %d",
-            $person_id, $team_id, CurrentClub::id()
-        ) );
+        $envelope = self::assignmentEnvelope( $team_id, $person_id );
 
-        if ( $remaining > 0 ) {
+        if ( $envelope !== null ) {
+            // #4721 — only the mirror row (`role_id = 0`) is this method's.
+            // A scope row an operator wrote and dated keeps its own dates.
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM {$p}tt_user_role_scopes
-                  WHERE person_id = %d AND scope_type = 'team' AND scope_id = %d AND club_id = %d
+                  WHERE person_id = %d AND scope_type = 'team' AND scope_id = %d AND club_id = %d AND role_id = 0
                   LIMIT 1",
                 $person_id, $team_id, CurrentClub::id()
             ) );
@@ -621,9 +622,21 @@ class PeopleRepository {
                     'role_id'    => 0,
                     'scope_type' => 'team',
                     'scope_id'   => $team_id,
-                    'start_date' => null,
-                    'end_date'   => null,
+                    'start_date' => $envelope['start'],
+                    'end_date'   => $envelope['end'],
                 ] );
+            } else {
+                $wpdb->update(
+                    "{$p}tt_user_role_scopes",
+                    [ 'start_date' => $envelope['start'], 'end_date' => $envelope['end'] ],
+                    [
+                        'club_id'    => CurrentClub::id(),
+                        'person_id'  => $person_id,
+                        'role_id'    => 0,
+                        'scope_type' => 'team',
+                        'scope_id'   => $team_id,
+                    ]
+                );
             }
             return;
         }
@@ -643,6 +656,43 @@ class PeopleRepository {
         if ( is_int( $deleted ) && $deleted > 0 ) {
             do_action( 'tt_role_revoked', 0, $person_id, 0, 'team', $team_id );
         }
+    }
+
+    /**
+     * #4721 — the dates the mirror row carries: the envelope of the pair's
+     * assignments. The start is open (null) when any assignment has no start,
+     * otherwise the earliest; the end is open when any has no end, otherwise
+     * the latest. Null when the pair holds no assignment.
+     *
+     * One row per pair means two separate assignments on the same team are
+     * in scope for the gap between them as well. The product owner accepted
+     * that (2 November 2026); an exact answer needs a scope row per
+     * assignment.
+     *
+     * @return array{start:?string, end:?string}|null
+     */
+    public static function assignmentEnvelope( int $team_id, int $person_id ): ?array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(*) AS n,
+                    SUM( CASE WHEN start_date IS NULL THEN 1 ELSE 0 END ) AS open_starts,
+                    MIN( start_date ) AS first_start,
+                    SUM( CASE WHEN end_date IS NULL THEN 1 ELSE 0 END ) AS open_ends,
+                    MAX( end_date ) AS last_end
+               FROM {$p}tt_team_people
+              WHERE person_id = %d AND team_id = %d AND club_id = %d",
+            $person_id, $team_id, CurrentClub::id()
+        ), ARRAY_A );
+        if ( ! is_array( $row ) || (int) ( $row['n'] ?? 0 ) <= 0 ) return null;
+
+        $first = $row['first_start'] ?? null;
+        $last  = $row['last_end'] ?? null;
+        return [
+            'start' => (int) ( $row['open_starts'] ?? 0 ) > 0 || $first === null ? null : (string) $first,
+            'end'   => (int) ( $row['open_ends'] ?? 0 ) > 0 || $last === null ? null : (string) $last,
+        ];
     }
 
     // Internal helpers

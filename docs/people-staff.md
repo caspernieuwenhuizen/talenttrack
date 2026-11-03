@@ -64,6 +64,8 @@ From the **Teams** edit page, add a person with a functional role. The person ca
 
 Every assignment is also listed under **Functional roles → Assignments**, with an optional **End date** for closing one off without removing it.
 
+An assignment counts from its start date through its end date. Before it starts and after it ends, the team is not among the person's teams: it drops out of their team lists, their players and what they may open, on that day, with nothing to run. When a person holds more than one assignment on the same team, the team counts from the earliest start to the latest end.
+
 ## Changing someone's role on a team
 
 When an assistant coach takes over as head coach, edit the assignment rather than removing and re-creating it:
