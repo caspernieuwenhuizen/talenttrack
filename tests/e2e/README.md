@@ -115,6 +115,33 @@ gate. A listed redirect that no longer happens is reported as stale ("remove
 them"), as a stale baseline entry is. The run's summary counts the slugs,
 the record pages and the home it visited, and how many it skipped.
 
+**Personas.** The gate walks as three accounts, in Dutch, at each width:
+
+| Persona | Account | What it walks |
+| --- | --- | --- |
+| `admin` | the seeded `admin / password` | every phone-reachable slug, the dashboard home, the record pages |
+| `head_coach` | a `tt_coach` account the spec makes | its dashboard home, and every phone-reachable surface that home links to |
+| `scout` | a `tt_scout` account the spec makes | the same, for the scout |
+
+The head coach and scout accounts are made in `beforeAll` over WordPress's
+REST users route (`helpers/personas.js`), signed in once to save their
+storage state, set to `nl_NL`, and deleted in `afterAll`. A `tt_coach` with
+no team resolves to the head coach persona. Their dashboards carry presets
+and controls the admin never sees, such as the coach and scout widgets'
+row links, which is why they are walked at all. Each persona walk first
+checks that its home's `data-tt-pd-persona` is the persona it is named
+after, prints the surfaces its home links to, and fails when there are fewer
+than that persona's `minSurfaces` (`helpers/personas.js`): the walk is
+decided by those links, so losing them must not shrink it silently. An
+account that was made is deleted in `afterAll` even when it could not sign
+in, and a refused delete is logged. Storage state is saved per persona and
+project. The gate reports per
+persona and width (`[360px as head_coach] …`), and each persona has its own
+baseline under `personas.<key>.widths` in `mobile-baseline.json`; the
+admin's stays under the top-level `widths`. A separate test plants a 30px
+link in the head coach's dashboard preset and checks that the tap-target
+check counts it.
+
 **The dashboard home** has no `tt_view`, so the slug walk never reaches it.
 It is measured at every width under the key `dashboard#home`, and like a
 record page it may not be skipped.

@@ -65,7 +65,13 @@
     "'dashboard#home', and the entry moved there (from PR #4793's first run).",
     "",
     "#4792: the data-table widgets stack their rows below 480px, so the",
-    "dashboard home's wide-table entry at 320 and 360px is gone."
+    "dashboard home's wide-table entry at 320 and 360px is gone.",
+    "",
+    "#4812: 'widths' is the admin's walk. 'personas' holds the head coach's and",
+    "the scout's, each walking its own dashboard home and the phone-reachable",
+    "surfaces it links to. Seeded from PR #4815's first run: the same causes as",
+    "the admin's entries, with smaller help indexes; neither dashboard home has",
+    "a finding in CI's empty data."
   ],
   "widths": {
     "320": {
@@ -78,7 +84,7 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards, not table rows (owner decision, 2026-10-04). At 320px a card is about 191px." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
     },
     "360": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
@@ -90,7 +96,7 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
     },
     "390": {
       "courses": { "kinds": [ "tap-target" ], "reason": "The course title link (\"Periodiseren in voetbaltaal\") is 236x25." },
@@ -102,7 +108,44 @@
       "reset-password": { "kinds": [ "tap-target" ], "reason": "The \"Terug naar inloggen\" (back to sign in) link is 120x16." },
       "teams": { "kinds": [ "row-height" ], "reason": "Accepted by design: the teams list shows cards of about 171px, not table rows (owner decision, 2026-10-04)." },
       "training-photo": { "kinds": [ "tap-target" ], "reason": "The \"Zelf een trainingsplan maken\" (build a training plan by hand) link is 205x17." },
-      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The \"admin\" user link is 35x15." }
+      "usage-stats": { "kinds": [ "tap-target" ], "reason": "The user links in the sign-in list are 15px high: the admin, and the head coach and scout accounts the persona walks sign in with (#4812)." }
+    }
+  },
+  "personas": {
+    "head_coach": {
+      "widths": {
+        "320": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+        },
+        "360": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+        },
+        "390": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 42 help topic links a head coach sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." },
+          "my-tasks": { "kinds": [ "tap-target" ], "reason": "The row checkbox is 24x24." }
+        }
+      }
+    },
+    "scout": {
+      "widths": {
+        "320": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
+        },
+        "360": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
+        },
+        "390": {
+          "docs": { "kinds": [ "tap-target" ], "reason": "The 47 help topic links a scout sees in the index are 29px high." },
+          "my-settings": { "kinds": [ "tap-target" ], "reason": "Sixteen checkboxes are 24x24." }
+        }
+      }
     }
   }
 }
