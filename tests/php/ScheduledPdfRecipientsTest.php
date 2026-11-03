@@ -32,6 +32,8 @@ use TT\Modules\Comms\Templates\ScheduledReportTemplate;
  */
 final class ScheduledPdfRecipientsTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private ScheduledReportsRepository $repo;
     private int $team_a = 0;
     private int $team_b = 0;
@@ -73,8 +75,7 @@ final class ScheduledPdfRecipientsTest extends WP_UnitTestCase {
         TemplateRegistry::register( new ScheduledReportTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $this->repo = new ScheduledReportsRepository();
         $this->sent = [];

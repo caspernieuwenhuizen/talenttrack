@@ -29,6 +29,8 @@ use TT\Modules\Export\Exporters\PlayerReportPdfDocument;
  */
 final class PlayerReportScheduleTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private int $owner = 0;
     private int $team  = 0;
     private ScheduledReportsRepository $repo;
@@ -59,8 +61,7 @@ final class PlayerReportScheduleTest extends WP_UnitTestCase {
         TemplateRegistry::register( new ScheduledReportTemplate() );
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $this->sent = [];
         add_filter( 'tt_comms_email_send', [ $this, 'captureSend' ], 10, 2 );

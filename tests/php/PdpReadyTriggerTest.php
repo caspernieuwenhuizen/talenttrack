@@ -30,6 +30,8 @@ use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
  */
 final class PdpReadyTriggerTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private string $p;
     private int $club;
     private string $log_table;
@@ -55,8 +57,7 @@ final class PdpReadyTriggerTest extends WP_UnitTestCase {
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
         // Pin the quiet-hours window shut: `pdp_ready` does not bypass it,
         // and a test that passes only outside office hours is not a test.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $wpdb->query( "DELETE FROM {$this->log_table}" );
     }

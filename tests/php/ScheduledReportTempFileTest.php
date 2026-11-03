@@ -31,6 +31,8 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 final class ScheduledReportTempFileTest extends WP_UnitTestCase {
 
+    use QuietHoursClosed;
+
     private const KPI_KEY = 'tt_test_report_kpi';
 
     private ScheduledReportsRepository $repo;
@@ -80,8 +82,7 @@ final class ScheduledReportTempFileTest extends WP_UnitTestCase {
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
         // Pin the quiet-hours window shut so the wall clock cannot decide
         // whether this test sends.
-        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
-        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        $this->closeQuietHours();
 
         $this->repo = new ScheduledReportsRepository();
 
