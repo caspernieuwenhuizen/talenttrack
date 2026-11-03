@@ -32,6 +32,21 @@ final class BackLabelResolver {
         if ( $tt_view === '' ) {
             return __( 'Back to Dashboard', 'talenttrack' );
         }
+        // #4859 — the Analytics page with a player or team selected names
+        // that record, through the same visibility-checked lookup as its
+        // detail page; otherwise it falls back to "Back to Analytics".
+        if ( $tt_view === 'analytics' ) {
+            $entity_views = [ 'player' => 'players', 'team' => 'teams' ];
+            $type         = isset( $params['entity_type'] ) ? (string) $params['entity_type'] : '';
+            $entity_id    = isset( $params['entity_id'] ) ? (int) $params['entity_id'] : 0;
+            if ( isset( $entity_views[ $type ] ) && $entity_id > 0 ) {
+                $name = self::entityName( $entity_views[ $type ], $entity_id );
+                if ( $name !== '' ) {
+                    /* translators: %s = entity display name (player, team, activity title, …) */
+                    return sprintf( __( 'Back to %s', 'talenttrack' ), $name );
+                }
+            }
+        }
         if ( $id > 0 ) {
             $name = self::entityName( $tt_view, $id );
             if ( $name !== '' ) {

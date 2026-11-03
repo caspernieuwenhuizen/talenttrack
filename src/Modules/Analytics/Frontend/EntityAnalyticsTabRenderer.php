@@ -8,6 +8,7 @@ use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\KpiResolver;
+use TT\Shared\Frontend\Components\BackLink;
 
 /**
  * EntityAnalyticsTabRenderer — reusable KPI grid for entity profiles
@@ -59,7 +60,9 @@ final class EntityAnalyticsTabRenderer {
                 ? [ $entity_filter_key => $entity_id ]
                 : [];
             $value = KpiResolver::value( $key, $extra_filters, FactScope::forUser( get_current_user_id() ) );
-            $explore_url = add_query_arg(
+            // #4859 — carries the page the card sits on, so the explorer's
+            // back pill names this player or team.
+            $explore_url = BackLink::appendTo( add_query_arg(
                 array_merge(
                     [ 'tt_view' => 'explore', 'kpi' => $key ],
                     $entity_filter_key !== null ? [ 'filter_' . $entity_filter_key => $entity_id ] : []
@@ -67,7 +70,7 @@ final class EntityAnalyticsTabRenderer {
                 ( class_exists( '\\TT\\Shared\\Wizards\\WizardEntryPoint' )
                     ? \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
                     : home_url( '/' ) )
-            );
+            ) );
             self::renderCard( $kpi, $value, $explore_url );
         }
         echo '</div>';
