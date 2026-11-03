@@ -100,6 +100,9 @@ class BrandStyles {
         foreach ( self::COLOR_TOKENS as $key => $token ) {
             $value = (string) $cfg->get( $key, '' );
             if ( ! self::isChosen( $key, $value ) ) continue;
+            // A focus colour too faint to see writes no token at all:
+            // `--tt-focus-ring` is drawn from directly (frontend-eval-form.css).
+            if ( $key === 'color_focus' && ! $focus_own ) continue;
             $decls[] = $token . ':' . esc_attr( $value );
             if ( $key === 'primary_color' ) {
                 $decls[] = '--tt-primary-rgb:' . esc_attr( self::hexToRgb( $value ) );

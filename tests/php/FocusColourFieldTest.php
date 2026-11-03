@@ -61,6 +61,7 @@ final class FocusColourFieldTest extends WP_UnitTestCase {
         $this->cfg()->set( 'primary_color', '#7a1fa2' );
         $this->cfg()->set( 'color_focus', '#ffeb3b' );
         $this->assertStringNotContainsString( '--tt-focus-color', BrandStyles::css(), 'a dark primary needs no shade' );
+        $this->assertStringNotContainsString( '--tt-focus-ring:#ffeb3b', BrandStyles::css(), 'the eval form draws from the ring token' );
 
         $this->cfg()->set( 'primary_color', '#ffd54f' );
         $css = BrandStyles::css();

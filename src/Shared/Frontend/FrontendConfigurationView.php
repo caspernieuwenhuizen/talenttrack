@@ -1770,7 +1770,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                                     && ! \TT\Shared\Frontend\BrandStyles::isVisibleFocusColor( $focus_saved );
                                 ?>
                                 <p class="tt-field-hint"><?php esc_html_e( 'Colour of the outline around the active field or button (keyboard)', 'talenttrack' ); ?></p>
-                                <p class="tt-field-error" role="status" data-tt-config-warning="color_focus"<?php echo $focus_faint ? '' : ' hidden'; ?>><?php esc_html_e( 'This colour is hard to see as a focus outline.', 'talenttrack' ); ?></p>
+                                <p class="tt-field-warning" role="status" data-tt-config-warning="color_focus"<?php echo $focus_faint ? '' : ' hidden'; ?>><?php esc_html_e( 'This colour is hard to see as a focus outline.', 'talenttrack' ); ?></p>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
