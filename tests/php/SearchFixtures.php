@@ -184,7 +184,8 @@ trait SearchFixtures {
      *    `childIds( NEED_SCHEDULE )` admits as a candidate;
      *  - `functional`: a team manager whose access to team B comes only from
      *    a functional role (`FunctionalRoleGrants`), with no role-scope row;
-     *  - `ended_coach`: the head coach of team B whose assignment ended.
+     *  - `ended_coach`: the head coach of team B whose `tt_team_people`
+     *    assignment ended while the team-scope row stays open.
      *
      * Kept out of `searchSetUp()` so the tests that walk every persona with
      * an expected answer per persona are unchanged.
@@ -217,8 +218,10 @@ trait SearchFixtures {
 
         $ended  = $this->persona( 'tt_coach', 'head_coach', $this->team_b, 'head_coach' );
         $person = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d", $ended ) );
+        // Only the assignment ends; the team-scope row stays open, so the
+        // coach role's binding to the current assignment (#4892) is what
+        // decides, not an ended scope row.
         $wpdb->update( "{$wpdb->prefix}tt_team_people", [ 'start_date' => '2019-07-01', 'end_date' => '2020-06-30' ], [ 'person_id' => $person ] );
-        $wpdb->update( "{$wpdb->prefix}tt_user_role_scopes", [ 'start_date' => '2019-07-01', 'end_date' => '2020-06-30' ], [ 'person_id' => $person ] );
         $this->personas['ended_coach'] = $ended;
 
         $this->resetSearchCaches();

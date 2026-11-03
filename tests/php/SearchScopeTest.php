@@ -104,6 +104,11 @@ final class SearchScopeTest extends WP_UnitTestCase {
         $this->resetSearchCaches();
         $this->assertTrue( AuthorizationService::canViewPlayers( $this->personas['functional'], [ $this->players['far'] ] )[ $this->players['far'] ] ?? false, 'the functional-role manager reads team B' );
         $this->resetSearchCaches();
+        $this->assertFalse(
+            \TT\Modules\Authorization\MatrixGate::can( $this->personas['ended_coach'], 'players', \TT\Modules\Authorization\MatrixGate::READ, \TT\Modules\Authorization\MatrixGate::SCOPE_TEAM, $this->team_b ),
+            'the coach whose assignment ended holds no coach grant on team B, though the scope row is open'
+        );
+        $this->resetSearchCaches();
 
         foreach ( $this->personas as $persona => $uid ) {
             wp_set_current_user( $uid );
