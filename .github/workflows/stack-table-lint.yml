@@ -38,7 +38,6 @@ jobs:
           PRIMITIVE='assets/css/components/stack-table.css'
           MIGRATING=(
             'assets/css/components/list-table.css'
-            'assets/css/frontend-backups.css'
             'assets/css/frontend-mobile.css'
             'assets/css/frontend-pdp-evidence.css'
             'assets/css/frontend-team-monthly-report.css'
