@@ -1019,6 +1019,44 @@ test.describe( 'mobile viewport gate', () => {
 			}
 		} );
 	}
+
+	// #4864 — the walk clears the admin's flash queue before it starts, so it
+	// never meets a flash. This queues one (a new team with no head coach
+	// gets TeamStaffPrompt's warning), opens the dashboard and measures the
+	// close control the way the walk measures any tap target.
+	test( 'a flash message close control is a full tap target', async ( { browser }, testInfo ) => {
+		const context = await browser.newContext( phoneContext( testInfo, 'tests/e2e/.auth/admin.json' ) );
+		const page = await context.newPage();
+		let teamId = 0;
+		try {
+			await page.goto( '/', { waitUntil: 'load' } );
+			const team = await rest( page, 'POST', 'teams', { name: uniqueName( 'e2e-flash' ) } );
+			teamId = team.json && team.json.data && team.json.data.id ? Number( team.json.data.id ) : 0;
+			expect( teamId, `team refused: HTTP ${ team.status }` ).toBeGreaterThan( 0 );
+
+			await page.goto( '/', { waitUntil: 'domcontentloaded' } );
+			await hideAdminBar( page );
+			const close = page.locator( '.tt-dashboard .tt-flash .tt-flash-dismiss' ).first();
+			await expect( close, 'the queued flash renders with its close control' ).toBeVisible();
+			expect( await close.getAttribute( 'aria-label' ), 'the close control has a name' ).toBeTruthy();
+			expect( await close.getAttribute( 'style' ), 'the close control carries no inline style' ).toBeNull();
+
+			const box = await close.boundingBox();
+			const size = box ? `${ Math.round( box.width ) }x${ Math.round( box.height ) }` : 'none';
+			console.log( `\n[${ page.viewportSize().width }px] flash close control ${ size }` );
+			expect( box && box.width >= 48 && box.height >= 48, `the close control is at least 48x48 under a finger: ${ size }` ).toBe( true );
+
+			const findings = await measure( page, 'native' );
+			const tap = findings.find( ( f ) => f.kind === 'tap-target' );
+			expect( tap ? tap.detail : '', 'the tap-target check does not count the close control' ).not.toContain( '"×"' );
+		} finally {
+			if ( teamId ) {
+				await rest( page, 'DELETE', `teams/${ teamId }`, {} );
+				await rest( page, 'DELETE', `teams/${ teamId }/permanent`, {} );
+			}
+			await context.close();
+		}
+	} );
 } );
 
 /**

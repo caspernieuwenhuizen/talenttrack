@@ -163,6 +163,9 @@ every fold on the dashboard home before it measures. If the coach account
 already has an active staff record, the fixture uses it rather than make a
 second. Creating the team queues a "no head coach yet" flash for the admin,
 so the fixture loads one admin page afterwards to clear it before the walk.
+A separate test queues that flash on purpose, opens the dashboard and
+requires its close control to be at least 48x48, named and without inline
+style (#4864).
 
 Every name the fixture writes starts with `e2e-`. Each persona walk fails
 when the fixture is incomplete or when its home shows no `.tt-pd-row-link`.

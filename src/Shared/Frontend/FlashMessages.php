@@ -126,7 +126,7 @@ class FlashMessages {
             printf(
                 '<div class="tt-flash tt-flash-%1$s" data-tt-flash-id="%2$s" style="display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:6px; border:1px solid %3$s; background:%4$s; color:%5$s; font-size:14px;">' .
                     '<span style="flex:1;">%6$s</span>' .
-                    '<a href="%7$s" aria-label="%8$s" style="color:inherit; text-decoration:none; opacity:0.7;">×</a>' .
+                    '<a class="tt-flash-dismiss" href="%7$s" aria-label="%8$s">×</a>' .
                 '</div>',
                 esc_attr( $type ),
                 esc_attr( (string) $msg['id'] ),
@@ -135,7 +135,7 @@ class FlashMessages {
                 esc_attr( $colors['text'] ),
                 esc_html( (string) $msg['message'] ),
                 $dismiss_url,
-                esc_attr__( 'Dismiss', 'talenttrack' )
+                esc_attr__( 'Close message', 'talenttrack' )
             );
         }
         echo '</div>';

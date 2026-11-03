@@ -399,19 +399,38 @@
     min-height: 44px;
     align-self: center;
 }
+/* #4864 — the close control of every flash, the server-rendered link and
+   the button flash.js builds: 36px under a mouse, 48x48 under a finger. */
 .tt-dashboard .tt-flash .tt-flash-dismiss {
     flex: 0 0 auto;
-    min-width: 44px;
-    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--tt-tap-min-fine);
+    min-height: var(--tt-tap-min-fine);
     background: none;
     border: 0;
     cursor: pointer;
     font-size: 1.1rem;
     line-height: 1;
     color: inherit;
+    text-decoration: none;
     opacity: 0.7;
+    touch-action: manipulation;
+}
+@media (pointer: coarse) {
+    .tt-dashboard .tt-flash .tt-flash-dismiss {
+        min-width: var(--tt-tap-min);
+        min-height: var(--tt-tap-min);
+    }
 }
 .tt-dashboard .tt-flash .tt-flash-dismiss:hover { opacity: 1; }
+.tt-dashboard .tt-flash .tt-flash-dismiss:focus-visible {
+    opacity: 1;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: var(--tt-r-sm);
+}
 
 /* Component-specific styles */
 
@@ -1486,7 +1505,7 @@
     display: inline-block;
     height: 1em;
     width: 100%;
-    border-radius: var(--tt-r-sm, 4px);
+    border-radius: var(--tt-r-sm);
     background: linear-gradient(90deg, var(--tt-bg-soft, #f2f4f5) 25%, var(--tt-line, #d6dadd) 50%, var(--tt-bg-soft, #f2f4f5) 75%);
     background-size: 200% 100%;
     animation: tt-skeleton-pulse 1.2s ease-in-out infinite;
