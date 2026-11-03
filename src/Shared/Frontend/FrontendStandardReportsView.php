@@ -1576,7 +1576,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN (%s,%s) AND {$date_col} BETWEEN %s AND %s", $club_id, ActivityTypeKey::GAME, ActivityTypeKey::LEGACY_GAME, $from, $to ) );
         $evals_win     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date BETWEEN %s AND %s", $club_id, $from, $to ) );
         $prospects_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
-        $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
+        $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decision_made_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
 
         // #2345 — the Explorer drill advertises the same From the report shows.
         $explore_url = ExplorerUrl::build(
@@ -1677,7 +1677,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         // #2345 — shared FilterBar + season-default window replaces the fixed
         // rolling 12 months. `$to_dt` bounds the datetime columns (created_at /
-        // decided_at) through end-of-day so the last day is inclusive.
+        // decision_made_at) through end-of-day so the last day is inclusive.
         $win    = self::resolveReportWindow();
         $from   = $win['from'];
         $to     = $win['to'];
@@ -1689,10 +1689,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // Funnel stages: prospects → trial_cases opened → decided.
         $prospects     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
         $cases_opened  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
-        $cases_decided = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NOT NULL AND decided_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
+        $cases_decided = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decision_made_at IS NOT NULL AND decision_made_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
         // #2347 — opened-but-undecided cases in the same created_at window,
         // so the Per-decision table can reconcile to Trial cases opened.
-        $cases_pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NULL AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
+        $cases_pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decision_made_at IS NULL AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
         // #2347 — select the scout user ID too, so each scout name can link
         // to their Scout Report Card.
         $by_scout = $wpdb->get_results( $wpdb->prepare(
@@ -1706,12 +1706,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $club_id, $from, $to_dt
         ) );
         // #2347 — the Per-decision breakdown is scoped by `created_at` (the
-        // same window as `cases_opened`) rather than `decided_at`, so the
+        // same window as `cases_opened`) rather than `decision_made_at`, so the
         // decided rows plus the Pending row reconcile to Trial cases opened.
         $by_decision = $wpdb->get_results( $wpdb->prepare(
             "SELECT decision, COUNT(*) AS n
                FROM {$wpdb->prefix}tt_trial_cases
-              WHERE club_id = %d AND decided_at IS NOT NULL
+              WHERE club_id = %d AND decision_made_at IS NOT NULL
                 AND created_at BETWEEN %s AND %s
               GROUP BY decision
               ORDER BY n DESC",
@@ -1748,7 +1748,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 'num'   => $cases_opened > 0 ? (int) round( ( $cases_decided / $cases_opened ) * 100 ) . '%' : '0%',
                 'label' => __( 'Decision rate', 'talenttrack' ),
                 // #2347 — the numerator (cases decided) is scoped by
-                // `decided_at`, the denominator (cases opened) by
+                // `decision_made_at`, the denominator (cases opened) by
                 // `created_at`; make the window mix explicit so the figure
                 // isn't read as a same-cohort rate.
                 'sub'   => __( 'Decided (by decision date) ÷ opened (by open date)', 'talenttrack' ),
@@ -1846,7 +1846,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $cases_admitted = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases
               WHERE club_id = %d AND opened_by = %d AND decision = 'admit'
-                AND decided_at BETWEEN %s AND %s",
+                AND decision_made_at BETWEEN %s AND %s",
             $club_id, $scout_id, $from, $to_dt
         ) );
         $hit_rate = $cases_opened > 0 ? (int) round( ( $cases_admitted / $cases_opened ) * 100 ) : 0;

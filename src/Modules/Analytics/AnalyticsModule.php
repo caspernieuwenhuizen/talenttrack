@@ -254,13 +254,13 @@ class AnalyticsModule implements ModuleInterface {
             tableAlias: 'f',
             dimensions: [
                 new Dimension( 'decision',    __( 'Decision', 'talenttrack' ), Dimension::TYPE_ENUM ),
-                new Dimension( 'decided_by',  __( 'Decided by', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users' ),
-                new Dimension( 'month',       __( 'Month', 'talenttrack' ),    Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.decided_at, '%Y-%m')" ),
+                new Dimension( 'decision_made_by', __( 'Decided by', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users' ),
+                new Dimension( 'month',       __( 'Month', 'talenttrack' ),    Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.decision_made_at, '%Y-%m')" ),
             ],
             measures: [
                 new Measure( 'count', __( 'Count', 'talenttrack' ), Measure::AGG_COUNT ),
             ],
-            timeColumn:  new DateTimeColumn( 'f.decided_at' ),
+            timeColumn:  new DateTimeColumn( 'f.decision_made_at' ),
             entityScope: 'player',
             // No team column to narrow on: club-wide readers only (#4568).
             readEntity:  'trial_cases',
