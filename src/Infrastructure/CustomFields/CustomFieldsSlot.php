@@ -65,9 +65,10 @@ class CustomFieldsSlot {
     /**
      * Detail-page read-only view: outputs an "Additional information"
      * section with one row per non-empty custom field value. Emits
-     * nothing if the entity has no populated values.
+     * nothing if the entity has no populated values. `$masked` keeps the
+     * labels and prints "Hidden" for every value (#4716).
      */
-    public static function renderReadonly( string $entity_type, int $entity_id ): void {
+    public static function renderReadonly( string $entity_type, int $entity_id, bool $masked = false ): void {
         if ( $entity_id <= 0 ) return;
 
         $groups = self::loadFields( $entity_type );
@@ -101,7 +102,13 @@ class CustomFieldsSlot {
                     $v = $row['value']; ?>
                     <tr>
                         <th style="width:40%;"><?php echo esc_html( (string) $f->label ); ?></th>
-                        <td><?php echo CustomFieldRenderer::display( $f, $v ); /* already escaped */ ?></td>
+                        <td><?php
+                        // #4716 — `$masked`: the value is hidden from this
+                        // reader by the sensitive-field registry; the label stays.
+                        echo $masked
+                            ? esc_html( \TT\Shared\Frontend\Components\MaskedValue::label() )
+                            : CustomFieldRenderer::display( $f, $v ); /* already escaped */
+                        ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

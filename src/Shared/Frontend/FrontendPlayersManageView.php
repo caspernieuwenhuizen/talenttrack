@@ -859,9 +859,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
     }
 
     private static function renderCustomFieldsBlock( int $player_id ): void {
-        // #4691 — the club's own fields follow the sensitive-field registry,
-        // as on the REST record and the wp-admin record view.
-        if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $player_id ) ) return;
+        // #4691 / #4716 — the club's own fields follow the sensitive-field
+        // registry, as on the REST record and the wp-admin record view: a
+        // reader it hides them from sees each label with "Hidden".
+        $masked = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $player_id );
 
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         if ( empty( $fields ) ) return;
@@ -881,7 +882,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $v = $values[ (string) $f->field_key ] ?? null;
             if ( $v === null || $v === '' ) continue;
             echo '<dt>' . esc_html( (string) $f->label ) . '</dt>';
-            echo '<dd>' . CustomFieldRenderer::display( $f, $v ) . '</dd>';
+            echo '<dd>' . ( $masked ? \TT\Shared\Frontend\Components\MaskedValue::html() : CustomFieldRenderer::display( $f, $v ) ) . '</dd>';
         }
         echo '</dl>';
         echo '</div>';

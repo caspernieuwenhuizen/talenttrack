@@ -593,9 +593,12 @@ class PlayersPage {
                         <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><?php echo esc_html( LabelTranslator::playerStatus( (string) $player->status ) ); ?></td></tr>
                     </table>
                     <?php
-                    if ( ! RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $id ) ) {
-                        CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_PLAYER, $id );
-                    }
+                    // #4716 — "Hidden" for each value the registry hides from this reader.
+                    CustomFieldsSlot::renderReadonly(
+                        CustomFieldsRepository::ENTITY_PLAYER,
+                        $id,
+                        RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $id )
+                    );
                     ?>
                 </div>
                 <div style="flex:1;min-width:320px;">
