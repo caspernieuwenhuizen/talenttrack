@@ -66,7 +66,7 @@ final class TokenCatalogue {
      *     min?: float|int,
      *     max?: float|int,
      *     step?: float|int,
-     *     options?: array<string,string>,
+     *     options?: array<int|string, string>,
      *     unit?: string,
      * }>
      */
@@ -90,7 +90,7 @@ final class TokenCatalogue {
      *     min?: float|int,
      *     max?: float|int,
      *     step?: float|int,
-     *     options?: array<string,string>,
+     *     options?: array<int|string, string>,
      *     unit?: string,
      * }>
      */
