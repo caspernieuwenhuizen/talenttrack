@@ -174,10 +174,13 @@ REST has no route that removes a staff record or a prospect, so the staff
 record is archived and the prospect is left, both under the `e2e-` prefix.
 On CI the container goes with the job; locally, find them by the prefix.
 
-A further test per persona takes #4817's row-link floor away on the page
+A further test, for the head coach, takes #4817's row-link floor away on the page
 (the coarse-pointer `.tt-pd-row-link` rule in `public.css`; the state a
 revert of #4819 leaves) and requires the row links to come
 back as a tap-target finding the persona's home baseline does not allow.
+The baseline is per kind, and the scout's home already allows tap-target
+findings for two other links, so the proof cannot run on the scout until
+those are fixed.
 
 **The dashboard home** has no `tt_view`, so the slug walk never reaches it.
 It is measured at every width under the key `dashboard#home`, and like a
