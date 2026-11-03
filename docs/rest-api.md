@@ -1795,6 +1795,17 @@ it as "Match · against X · date" and link a match observation to its match
 analysis, falling back to the activity, and to plain text for a reader who
 may open neither.
 
+### `GET /journey/cohort-transitions`
+
+**Permission:** read on the `cohort_transitions` entity at global scope,
+the rule the Cohort transitions screen applies (`QueryHelpers::user_has_global_entity_read`:
+the settings edit right and a site administrator pass, everyone else asks
+the matrix), and the `cohort_transitions` feature switched on. The settings
+view right plays no part. A reader without the entity read gets `403`
+whatever their settings rights; with the feature off the route answers `403`
+for everyone. Query: `event_type`, `from` and `to` are required (`400
+missing_fields` otherwise), `team_id` is optional.
+
 ## Suspensions (#4103)
 
 A suspension lasts a **number of matches**, counted from `started_on`. Which matches it covers and when it is served are derived by `Infrastructure\Journey\SuspensionService`, which the rendered views call too:

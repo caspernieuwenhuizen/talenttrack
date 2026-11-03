@@ -10,6 +10,7 @@ use TT\Infrastructure\Journey\InjuryOverviewScope;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\InjuryStatus;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 
 /**
@@ -116,7 +117,18 @@ class PlayerJourneyRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'cohort_transitions' ],
-                'permission_callback' => self::permCanFeature( 'tt_view_settings', 'cohort_transitions' ),
+                // #4794 — the cohort is the `cohort_transitions` entity, read
+                // at global scope: the rule `FrontendCohortTransitionsView`
+                // applies, so the screen and its API answer the same
+                // question. The feature switch still closes both.
+                'permission_callback' => static function (): bool {
+                    if ( class_exists( '\\TT\\Core\\FeatureRegistry' )
+                        && ! \TT\Core\FeatureRegistry::isEnabled( 'cohort_transitions' )
+                    ) {
+                        return false;
+                    }
+                    return QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'cohort_transitions' );
+                },
             ],
         ] );
 
