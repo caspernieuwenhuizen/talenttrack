@@ -48,11 +48,20 @@ final class CohortTransitionsRouteGateTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    public function test_the_observer_is_refused_whatever_its_settings_rights(): void {
+    /**
+     * The observer is seeded the cohort read (#4795). An academy that
+     * revokes it leaves a reader who still holds the settings view right,
+     * and that right opens nothing here.
+     */
+    public function test_a_reader_without_the_cohort_read_is_refused_whatever_its_settings_rights(): void {
+        global $wpdb;
         $observer = $this->persona( 'tt_readonly_observer' );
-        $this->assertTrue( user_can( $observer, 'tt_view_settings' ), 'precondition: the seat holds the settings view right' );
-
         wp_set_current_user( $observer );
+        $this->assertSame( 200, $this->status(), 'precondition: the seeded observer reads the cohort' );
+
+        $wpdb->delete( "{$wpdb->prefix}tt_authorization_matrix", [ 'persona' => 'readonly_observer', 'entity' => 'cohort_transitions' ] );
+        $this->flush();
+        $this->assertTrue( user_can( $observer, 'tt_view_settings' ), 'precondition: the seat holds the settings view right' );
         $this->assertSame( 403, $this->status() );
     }
 

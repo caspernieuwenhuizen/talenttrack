@@ -101,7 +101,8 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
 
         $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/measurements" ) );
         $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/injuries" ) );
-        $this->assertSame( 403, $this->status( "/talenttrack/v1/players/{$this->playerA}/timeline" ) );
+        // #4795 — the journey opens to the observer academy-wide.
+        $this->assertSame( 200, $this->status( "/talenttrack/v1/players/{$this->playerA}/timeline" ) );
 
         foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status', 'prospects' ] as $entity ) {
             $this->assertFalse(

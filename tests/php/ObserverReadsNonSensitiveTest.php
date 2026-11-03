@@ -194,11 +194,12 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
             if ( ( $row['persona'] ?? '' ) !== 'readonly_observer' ) continue;
             $seeded[] = (string) $row['entity'];
         }
-        $expected = array_merge( self::HELD_BEFORE, $this->granted() );
+        // #4795 — the journey and cohort rows, brought by migration 0312.
+        $expected = array_merge( self::HELD_BEFORE, $this->granted(), [ 'player_timeline', 'cohort_transitions' ] );
         sort( $seeded );
         sort( $expected );
 
-        $this->assertSame( $expected, $seeded, 'the seed and 0310::ENTITIES have drifted apart' );
+        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312) have drifted apart' );
         $this->assertSame( [], array_intersect( $this->granted(), self::CLOSED ) );
         $this->assertSame( [], array_intersect( $this->granted(), array_keys( self::WITH_THEIR_MASKING ) ) );
     }

@@ -1,0 +1,3 @@
+# Head of development reads settings; the observer reads the journey and cohort transitions (#4795)
+
+The head of development holds the settings view right on a matrix-active install, as on a dormant one, and changes no setting; the System section and the access matrix stay closed. The read-only observer reads every player's journey without PDP verdict entries, and cohort transitions while the feature is on. Existing installs get the three rows through migration 0312, which leaves every cell an academy already changed as it is. The rule that decides a changed cell is shared by the matrix top-up migrations.

@@ -60,7 +60,14 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
      */
     private function nonSensitiveEntities(): array {
         $migration = require dirname( __DIR__, 2 ) . '/database/migrations/0310_authorization_observer_reads_non_sensitive.php';
-        return array_values( (array) constant( get_class( $migration ) . '::ENTITIES' ) );
+        $entities  = array_values( (array) constant( get_class( $migration ) . '::ENTITIES' ) );
+
+        // #4795 — and the observer cells 0312 brings.
+        $journey = require dirname( __DIR__, 2 ) . '/database/migrations/0312_authorization_hod_settings_observer_journey.php';
+        foreach ( (array) constant( get_class( $journey ) . '::CELLS' ) as [ $persona, $entity ] ) {
+            if ( $persona === 'readonly_observer' ) $entities[] = (string) $entity;
+        }
+        return $entities;
     }
 
     /**
