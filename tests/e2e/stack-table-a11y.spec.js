@@ -16,8 +16,8 @@ const { test, expect } = require( '@playwright/test' );
  * Recent audit events), and on the message log, a `.tt-table` that the
  * legacy phone stack in frontend-mobile.css must leave alone (its
  * `thead { display: none }` would drop the headers). The message log has a
- * row from tests/e2e/setup/message-log-row.php. Each case skips when its
- * page shows no table.
+ * row from tests/e2e/setup/message-log-row.php, so its case fails when the
+ * log shows no table; the dashboard cases skip when it shows no widget.
  */
 
 test.use( { storageState: 'tests/e2e/.auth/admin.json' } );
@@ -122,7 +122,9 @@ test.describe( 'Stack-table on a phone', () => {
 	// legacy stack would hide its header row with display: none.
 	test( 'the message log keeps its headers below 480px', async ( { page } ) => {
 		const ax = await readTable( page, '/?tt_view=messages' );
-		test.skip( ax === null, 'the message log shows no table on this site' );
+		// The setup writes the row this table needs; without it the case
+		// would pass by skipping, so it fails instead.
+		expect( ax, 'the message log shows no table: tests/e2e/setup/message-log-row.php wrote no row' ).not.toBeNull();
 		if ( ax === null ) return;
 		await expectStackedTable( page, ax );
 	} );

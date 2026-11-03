@@ -26,8 +26,9 @@ $tt_e2e_table = $wpdb->prefix . 'tt_comms_log';
 $tt_e2e_uuid  = '00000000-0000-4000-8000-000000004810';
 
 if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tt_e2e_table ) ) !== $tt_e2e_table ) {
+	// Fail the setup step rather than let the spec run without its row.
 	fwrite( STDERR, "tt_comms_log is missing; no message log row written.\n" );
-	return;
+	exit( 1 );
 }
 
 $tt_e2e_exists = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$tt_e2e_table} WHERE uuid = %s", $tt_e2e_uuid ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -52,4 +53,8 @@ $wpdb->insert( $tt_e2e_table, [
 	'created_at'        => current_time( 'mysql', true ),
 ] );
 
-echo $wpdb->insert_id > 0 ? "Message log row written.\n" : 'Message log row not written: ' . $wpdb->last_error . "\n";
+if ( $wpdb->insert_id <= 0 ) {
+	fwrite( STDERR, 'Message log row not written: ' . $wpdb->last_error . "\n" );
+	exit( 1 );
+}
+echo "Message log row written.\n";
