@@ -127,6 +127,22 @@ final class CustomPlayerFieldsMaskingTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Second contact', $html, 'the empty field shows its label too' );
     }
 
+    /** The read-only slot applies the rule itself, whoever calls it. */
+    public function test_the_read_only_slot_decides_for_itself(): void {
+        $render = function ( int $user_id ): string {
+            wp_set_current_user( $user_id );
+            AuthorizationService::flushCache();
+            ob_start();
+            \TT\Infrastructure\CustomFields\CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_PLAYER, $this->player );
+            return (string) ob_get_clean();
+        };
+        $this->assertStringContainsString( 'peanuts', $render( $this->hod ) );
+        $html = $render( $this->observer );
+        $this->assertStringNotContainsString( 'peanuts', $html );
+        $this->assertStringContainsString( 'Medical note', $html );
+        $this->assertStringContainsString( 'Second contact', $html );
+    }
+
     // ---- fixtures ------------------------------------------------------
 
     /** @return array<string, mixed> */

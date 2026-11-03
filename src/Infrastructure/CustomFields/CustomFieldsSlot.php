@@ -3,6 +3,7 @@ namespace TT\Infrastructure\CustomFields;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Shared\Frontend\CustomFieldRenderer;
 
 /**
@@ -65,12 +66,16 @@ class CustomFieldsSlot {
     /**
      * Detail-page read-only view: outputs an "Additional information"
      * section with one row per non-empty custom field value. Emits
-     * nothing if the entity has no populated values. `$masked` (#4716) lists
-     * every active field's label with "Hidden", filled or not, and never
-     * reads the values.
+     * nothing if the entity has no populated values. Player fields follow
+     * the sensitive-field registry (#4716): for a reader it hides them from,
+     * every active field's label is listed with "Hidden", filled or not, and
+     * the values are never read. The slot asks the registry itself, so no
+     * caller can leave the rule out.
      */
-    public static function renderReadonly( string $entity_type, int $entity_id, bool $masked = false ): void {
+    public static function renderReadonly( string $entity_type, int $entity_id ): void {
         if ( $entity_id <= 0 ) return;
+        $masked = $entity_type === CustomFieldsRepository::ENTITY_PLAYER
+            && RecordRedactor::isMasked( 'players', 'custom_fields', get_current_user_id(), $entity_id );
 
         $groups = self::loadFields( $entity_type );
         // A masked reader gets every active field's label with "Hidden": the
