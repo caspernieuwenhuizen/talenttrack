@@ -111,7 +111,9 @@ never filed under the wrong page's key. Redirects the gate's account always
 hits are listed in `EXPECTED_REDIRECTS` in the spec, each with its target
 and a reason. Today that is `mfa-prompt`, which sends an admin with no
 pending challenge to the dashboard home. An unlisted redirect fails the
-gate.
+gate. A listed redirect that no longer happens is reported as stale ("remove
+them"), as a stale baseline entry is. The run's summary counts the slugs,
+the record pages and the home it visited, and how many it skipped.
 
 **The dashboard home** has no `tt_view`, so the slug walk never reaches it.
 It is measured at every width under the key `dashboard#home`, and like a

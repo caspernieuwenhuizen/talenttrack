@@ -528,6 +528,8 @@ test.describe( 'mobile viewport gate', () => {
 		/** @type {string[]} */
 		const withRows = [];
 		let measured = 0;
+		/** @type {string[]} keys that took a redirect listed in EXPECTED_REDIRECTS */
+		const redirected = [];
 
 		/**
 		 * Load one surface and measure it. Returns why it was skipped, or
@@ -561,6 +563,7 @@ test.describe( 'mobile viewport gate', () => {
 				const where = landed ? `?tt_view=${ landed }` : 'the dashboard home';
 				const expected = EXPECTED_REDIRECTS[ key ];
 				if ( expected && expected.to === landed ) {
+					redirected.push( key );
 					return `redirected to ${ where }, as expected: ${ expected.reason }`;
 				}
 				regressions.push( `${ key }: redirected to ${ where } unexpectedly, so it was not measured. List it in EXPECTED_REDIRECTS with a reason, or fix the redirect.` );
@@ -669,6 +672,14 @@ test.describe( 'mobile viewport gate', () => {
 			console.log( `\nSkipped ${ skipped.length } surface(s), not measurable for this account:\n  ${ skipped.join( '\n  ' ) }` );
 		}
 
+		// The same for an expected redirect that no longer happens: left in
+		// place it would quietly excuse the surface if it ever redirected
+		// again, and the page it lands on would go unmeasured.
+		const staleRedirects = Object.keys( EXPECTED_REDIRECTS ).filter( ( key ) => ! redirected.includes( key ) );
+		if ( staleRedirects.length ) {
+			console.log( `\n${ staleRedirects.length } EXPECTED_REDIRECTS entry(ies) no longer redirect at ${ width }px — remove them:\n  ${ staleRedirects.join( '\n  ' ) }` );
+		}
+
 		if ( stale.length ) {
 			console.log( `\n${ stale.length } baseline entry(ies) no longer offend — remove them:\n  ${ stale.join( '\n  ' ) }` );
 		}
@@ -705,7 +716,15 @@ test.describe( 'mobile viewport gate', () => {
 			console.log( `\nFindings in detail:\n  ${ details.join( '\n  ' ) }` );
 		}
 
-		console.log( `\nMeasured ${ measured } of ${ SURFACES.length + RECORD_SURFACES.length } surface(s) at ${ width }px, ${ RECORD_SURFACES.length } of them record page(s).` );
+		// The walk visits every slug, every record page and the dashboard
+		// home. Counting the home in the measured total but not in the
+		// visited one printed "94 of 94" on a run that skipped mfa-prompt.
+		const visited = SURFACES.length + RECORD_SURFACES.length + 1;
+		console.log(
+			`\nMeasured ${ measured } of ${ visited } surface(s) at ${ width }px ` +
+			`(${ SURFACES.length } slugs, ${ RECORD_SURFACES.length } record page(s), the dashboard home); ` +
+			`${ skipped.length } skipped, ${ redirected.length } of them by an expected redirect.`
+		);
 
 		// Density can only be judged where a list actually has rows. Saying
 		// which surfaces those were keeps "no density findings" honest: on
