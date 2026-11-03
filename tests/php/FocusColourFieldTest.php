@@ -106,7 +106,7 @@ final class FocusColourFieldTest extends WP_UnitTestCase {
 
         $this->assertTrue( $data['success'] );
         $this->assertSame( 1, $data['data']['keys_written'], 'the value is saved either way' );
-        $this->assertSame( $value, $this->cfg()->get( 'color_focus', '' ) );
+        $this->assertSame( $value, \TT\Infrastructure\Query\QueryHelpers::get_config( 'color_focus', '' ) );
 
         $fields = array_column( $data['data']['warnings'], 'field' );
         $this->assertSame( $warns, in_array( 'color_focus', $fields, true ) );
