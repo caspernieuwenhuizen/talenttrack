@@ -1,0 +1,3 @@
+# Configuration: the breadcrumb is the way back from every sub-form (#4788)
+
+The Configuration sub-forms printed an extra "All configuration" link under their header, and a lookup category printed "All lookups". Both are gone. The way back is the breadcrumb, which every sub-form already showed as Dashboard / Configuration / the sub-form. A lookup category now shows Dashboard / Configuration / Lookups / the category, with Lookups linking back to the list of lookups. The last crumb of the wp-admin menus, Default dashboard and Lookups pages now uses the page's own translated name, instead of an English word taken from the address.
