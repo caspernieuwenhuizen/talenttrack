@@ -54,5 +54,5 @@ Dezelfde gegevens zijn alleen-lezen beschikbaar via `GET /wp-json/talenttrack/v1
 ## Zie ook
 
 - [Configuratie — Algemeen](configuration-general.md)
-- [Configuratie — Lookups](configuration-lookups.md) (het canonieke-taalcontrolehulpmiddel schrijft `lookup.needs_review`-items hierheen)
+- [Configuratie — Keuzelijsten](configuration-lookups.md) (het canonieke-taalcontrolehulpmiddel schrijft `lookup.needs_review`-items hierheen)
 - [Toegangsbeheer](access-control.md)

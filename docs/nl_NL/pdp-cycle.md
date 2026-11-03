@@ -153,7 +153,7 @@ Een doel kan nu gekoppeld worden aan één of meer methodische entiteiten:
 - een **principe** (bv. *opbouwen vanaf achteren*)
 - een **voetbalhandeling** (bv. *passen onder druk*)
 - een **positie** (bv. *nummer 8*)
-- een **spelerswaarde** (toewijding, leerbaarheid, leiderschap, veerkracht, communicatie, werkethiek, fairplay, ambitie — bewerkbaar via Configuratie → Lookups)
+- een **spelerswaarde** (toewijding, leerbaarheid, leiderschap, veerkracht, communicatie, werkethiek, fairplay, ambitie — bewerkbaar via Configuratie → Keuzelijsten)
 
 De koppelingen verschijnen op het spelerprofiel en in de printsjabloon; ze maken queries mogelijk als "alle doelen gekoppeld aan *veerkracht* in de academie" of "elke speler die werkt aan *opbouwen vanaf achteren*".
 
@@ -167,7 +167,7 @@ De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: fot
 
 ## Configuratie
 
-- **Configuratie → Lookups → Spelers­waarden** — bewerk de waarde-woordenlijst.
+- **Configuratie → Keuzelijsten → Spelers­waarden** — bewerk de waarde-woordenlijst.
 - **Hoofdmenu → Seizoenen** — lijst, toevoegen, huidig instellen. Een nieuw huidig seizoen instellen activeert de carryover.
 - **Configuratie → Systeem** — *POP-cyclusstandaard* (2 / 3 / 4) en de *Print: standaard bewijs meenemen*-knop.
 - **Per-team override** — op de team-bewerk­pagina kun je *POP-cyclus­grootte* afwijkend instellen.

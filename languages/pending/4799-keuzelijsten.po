@@ -1,0 +1,58 @@
+# Retranslations (#4799): "Keuzelijsten" is the one Dutch word for the
+# lookups area, replacing "Lookuplijsten" and "Lookups". The English msgids
+# stay. Technical names keep their English form: the `_Lookups` sheet of
+# the Excel template and the entity slugs in the matrix filter hint.
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+#: src/Modules/DataBrowser/SemanticRegistry.php
+#: src/Shared/Configuration/ConfigurationSurfaces.php
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Lookups"
+msgstr "Keuzelijsten"
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Site-wide settings, lookups, branding, theme, rating scale."
+msgstr "Site-brede instellingen, keuzelijsten, branding, thema, beoordelingsschaal."
+
+#: src/Modules/Backup/PresetRegistry.php
+msgid ""
+"Everything: Standard plus lookups, custom-field definitions and values, "
+"evaluation categories and weights, audit log, usage stats, demo tags and "
+"config. Largest archive, slowest to restore."
+msgstr ""
+"Alles: Standaard plus keuzelijsten, definities en waarden van aangepaste "
+"velden, evaluatiecategorieën en gewichten, auditlog, gebruiksstatistieken, "
+"demo-tags en config. Grootste archief, langzaamst te herstellen."
+
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Lookups & reference data"
+msgstr "Keuzelijsten & naslaggegevens"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php
+msgid ""
+"Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
+"documentation-only. Configure those via the wp-admin Configuration screens. "
+"They are included here so you can see what categories / weights / lookups "
+"your imported data will key into."
+msgstr ""
+"Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn "
+"alleen documentatie. Configureer ze via de wp-admin Configuratie-schermen. "
+"Ze staan hier zodat je ziet op welke categorieën / wegingen / keuzelijsten "
+"je import zich aansluit."
+
+#: src/Shared/Configuration/ConfigurationSurfaces.php
+#: src/Shared/Frontend/FrontendLookupNormalisationView.php
+msgid "Lookup canonical-language review"
+msgstr "Canonieke-taal revisie voor keuzelijsten"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Lookups, branding, authorization, system settings."
+msgstr "Keuzelijsten, branding, autorisatie en systeeminstellingen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"No football forms configured yet. Add them under Lookups, then come back to "
+"set a default per age category."
+msgstr ""
+"Nog geen speelvormen ingesteld. Voeg ze toe onder Keuzelijsten en kom "
+"daarna terug om per leeftijdscategorie een standaard te kiezen."

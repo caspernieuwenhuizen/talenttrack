@@ -82,7 +82,7 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 - Schema-migratie 0122 — 10 nieuwe tabellen. **`tt_vct_exercises` bevat de catalogus niet meer** — zie [Eén oefeningenbibliotheek](#een-oefeningenbibliotheek) hieronder.
 - Schema-migratie 0123 — `tt_player_phv_flags` voor de belastingbeperking per speler — vernoemd naar de groeispurt (peak height velocity) waarvoor de tabel oorspronkelijk is aangelegd.
 - Schema-migratie 0140 — breidt belastingbeperkingen uit met `reason_key` + `intensity_ceiling`.
-- Seed-migraties 0124 (lookups + vertalingen voor nl_NL/fr/de/es) + 0125 (leeftijdsprofielen + sessie-templates + fase-profielen).
+- Seed-migraties 0124 (keuzelijsten + vertalingen voor nl_NL/fr/de/es) + 0125 (leeftijdsprofielen + sessie-templates + fase-profielen).
 - Rules engine + 8 passes + repositories onder [src/Modules/Vct/](../../src/Modules/Vct/).
 - REST endpoints onder `/wp-json/talenttrack/v1/vct/...`.
 - Workflow task template `VctWorkloadAggregationTaskTemplate` voor nachtelijke aggregatie.

@@ -30,7 +30,7 @@ Het veld **Speelvorm** op het team staat standaard op *Volg de leeftijdscategori
 
 De speelvorm bepaalt welke opstellingen de blauwdruk van dat team aanbiedt. Een team dat 6 tegen 6 speelt krijgt zesmansopstellingen te zien en kan geen elftalopstelling krijgen.
 
-TalentTrack levert 6 tegen 6, 8 tegen 8 en 11 tegen 11 mee. Speelt jouw bond 4 tegen 4, 7 tegen 7 of 9 tegen 9, voeg die dan toe onder **Configuratie → Lookuplijsten → Speelvormen**; daarna zijn ze overal beschikbaar, ook bij de standaarden per leeftijdscategorie.
+TalentTrack levert 6 tegen 6, 8 tegen 8 en 11 tegen 11 mee. Speelt jouw bond 4 tegen 4, 7 tegen 7 of 9 tegen 9, voeg die dan toe onder **Configuratie → Keuzelijsten → Speelvormen**; daarna zijn ze overal beschikbaar, ook bij de standaarden per leeftijdscategorie.
 
 ### De Teams-lijst (v4.40.0 — #1614)
 
