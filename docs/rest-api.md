@@ -1555,16 +1555,47 @@ The blocks:
   activities, attendance_pct, reason }`, worst first, `reason` the
   translated why (`AttendanceFlagService::reasonText()`); plus `threshold`
   and `late_threshold`, the configured flag thresholds.
-
-Both attendance blocks answer to the **attendance** read, the gate of the
-attendance reports and `GET /reports/attendance-at-risk`, not to the reports
-read: a team's block needs `AuthorizationService::canReadTeamAttendance()` for
-that team, the academy's flags need attendance read on every team
-(`attendanceReadableTeamIds()` is null). Without it the block is not listed and
-a preview is `404 not_found`.
+- `category_averages` (player, team, #4572): `breakdown: "category"`. For a
+  team (staff only) the team monthly report's evaluations section at its
+  summary level: `rows` of `{ category, average, change, lowest, highest }`
+  in the category tree's order, plus `squad_avg` (the "Squad rating" tile),
+  `squad_avg_delta`, `evaluated` and `squad`. For a player (every audience)
+  the player report's ratings: `rows` of `{ category, average, latest,
+  count }`, plus `evaluation_count` and `average`. Never an evaluation's
+  notes.
+- `progress_radar` (player, staff only, #4572):
+  `PlayerRadarQuery::progressForPlayer()` over the last five evaluations,
+  whenever they were. `categories` (the main categories' labels) and `rows`
+  of `{ eval_date, values }`, oldest first, `values` in the order of
+  `categories`, `null` where the evaluation did not rate a category (the read
+  gives 0, below every rating scale).
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.
+
+**Each block answers to the read of the route that owns its figure**, on top
+of the report's own subject check (the reports read):
+
+- Both attendance blocks to the **attendance** read, the gate of the
+  attendance reports and `GET /reports/attendance-at-risk`: a team's block
+  needs `AuthorizationService::canReadTeamAttendance()` for that team, the
+  academy's flags need attendance read on every team
+  (`attendanceReadableTeamIds()` is null).
+- The evaluation blocks on a **player** to the **evaluations** read, the gate
+  of `players/{id}/evaluations` and of the player report's ratings:
+  `AuthorizationService::mayReadPlayerSection( …, 'evaluations' )`.
+- `category_averages` on a **team** to the team's reports read alone, through
+  the subject check, as the team monthly report's evaluations section does: a
+  reader of the team's reports (an assistant coach included) sees the squad's
+  averages, not any one player's ratings.
+
+**404, not 403, by design.** A block the reader may not read is answered
+`404 not_found` on a preview, the same answer as a block with no data, and
+`GET /report-blocks` lists it under `unavailable` with that same reason
+("There is no data for this block yet."), never under `blocks`. The subject
+itself is still refused with `403` when the reader may not open it at all.
+Answering as "no data" keeps a reader from learning, block by block, which
+sections of a player or team they are kept out of.
 
 A draft is also refused with `400 invalid_field` (`details.block` the index)
 when a block does not fit the report's scope or audience, for example the key

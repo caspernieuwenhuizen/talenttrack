@@ -107,6 +107,10 @@ final class FrontendReportView extends FrontendViewBase {
                 'flagThresholds'  => __( 'Flagged at %1$s missed activities or %2$s late arrivals.', 'talenttrack' ),
                 /* translators: 1: first day, 2: last day of the period */
                 'noneFlagged'     => __( 'No player was flagged on attendance between %1$s and %2$s.', 'talenttrack' ),
+                /* translators: %s: the squad's average rating */
+                'squadRating'   => __( 'Squad rating: %s.', 'talenttrack' ),
+                /* translators: 1: the player's average rating, 2: number of evaluations */
+                'overallRating' => __( 'Average over all ratings: %1$s, from %2$s evaluations.', 'talenttrack' ),
                 'block'        => _x( 'Block', 'report studio', 'talenttrack' ),
                 'notAvailable' => __( 'Not available to you.', 'talenttrack' ),
                 'empty'        => __( 'This report has no blocks yet.', 'talenttrack' ),
