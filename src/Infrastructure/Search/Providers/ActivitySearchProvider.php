@@ -135,7 +135,32 @@ final class ActivitySearchProvider extends RecordSearchProvider {
         if ( $hits === [] ) return [];
         $rows = array_map( static fn( array $h ): object => (object) [ 'id' => (int) $h['id'], 'team_id' => (int) ( $h['team_id'] ?? 0 ) ], $hits );
         $ok   = ActivityAccess::readableIds( $user_id, $rows );
-        return array_values( array_filter( $hits, static fn( array $h ): bool => in_array( (int) $h['id'], $ok, true ) ) );
+        return $this->withChild( $user_id, array_values( array_filter( $hits, static fn( array $h ): bool => in_array( (int) $h['id'], $ok, true ) ) ) );
+    }
+
+    /**
+     * #4673 — for a guardian, the child each activity belongs to, on the hit
+     * and in its link, so a parent of two lands on the right child's page.
+     *
+     * @param list<array<string,mixed>> $hits
+     * @return list<array<string,mixed>>
+     */
+    private function withChild( int $user_id, array $hits ): array {
+        if ( $hits === [] ) return $hits;
+        $teams = [];
+        foreach ( $hits as $hit ) $teams[ (int) $hit['id'] ] = (int) ( $hit['team_id'] ?? 0 );
+        $child = \TT\Infrastructure\Search\SearchViewer::childForActivities( $user_id, $teams );
+        if ( $child === [] ) return $hits;
+        // A coach who is also a parent keeps the staff link; the child is
+        // still on the hit, which `GET /me/search` reads.
+        $staff = $this->isStaff( $user_id );
+        foreach ( $hits as $i => $hit ) {
+            $player_id = $child[ (int) $hit['id'] ] ?? 0;
+            if ( $player_id <= 0 ) continue;
+            $hits[ $i ]['player_id'] = $player_id;
+            if ( ! $staff ) $hits[ $i ]['url'] = (string) add_query_arg( 'player_id', $player_id, (string) $hit['url'] );
+        }
+        return $hits;
     }
 
     /**
@@ -143,14 +168,18 @@ final class ActivitySearchProvider extends RecordSearchProvider {
      * activities page.
      */
     private function url( int $user_id, int $activity_id ): string {
-        static $staff = [];
-        if ( ! isset( $staff[ $user_id ] ) ) {
-            $staff[ $user_id ] = ActivityAccess::isStaffReader( $user_id ) || ActivityAccess::hasGlobalRead( $user_id );
-        }
-        if ( $staff[ $user_id ] ) {
+        if ( $this->isStaff( $user_id ) ) {
             return $this->detailUrl( 'activities', $activity_id );
         }
         return (string) add_query_arg( [ 'tt_view' => 'my-activities', 'id' => $activity_id ], $this->dashboard() );
+    }
+
+    /** @var array<int,bool> */
+    private array $staff = [];
+
+    /** Does this viewer open the staff activity page? */
+    private function isStaff( int $user_id ): bool {
+        return $this->staff[ $user_id ] ??= ( ActivityAccess::isStaffReader( $user_id ) || ActivityAccess::hasGlobalRead( $user_id ) );
     }
 
     /**

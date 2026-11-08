@@ -136,6 +136,17 @@ final class SearchService {
     }
 
     /**
+     * One kind's confirmed hits, best first, with the fields a composer of
+     * its own shape reads (`date`, `player_id`). `GET /me/search` is built
+     * from these.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function hits( SearchQuery $query, string $kind, int $user_id, int $limit ): array {
+        return ScopeMemo::run( fn(): array => $this->confirmed( $kind, $query, $user_id, $limit ) );
+    }
+
+    /**
      * A provider's matches, confirmed.
      *
      * @return list<array<string,mixed>>

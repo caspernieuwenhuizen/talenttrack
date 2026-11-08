@@ -717,11 +717,14 @@ standard envelope:
 | Kind (`type`) | Narrowed by | Confirmed by |
 | --- | --- | --- |
 | `view` (sections) | `TileRegistry::tilesForUserGrouped()` | Inherited: capability, persona labels, `__hidden__`, module and feature gating |
-| `player` | `PlayerVisibility::sqlClause()`, the SQL form of the player read rule | `AuthorizationService::canViewPlayers()` |
+| `player` | `PlayerVisibility::sqlClause()`, the SQL form of the player read rule; for a player who is not staff also their own team's roster (`TeamRoster::memberOfClause()`: active, live), as My Team lists it | `AuthorizationService::canViewPlayers()`; a teammate by the same roster rule, returned with the name and a `?tt_view=teammate` link only |
 | `team` | `tt_view_teams`, then every team for global `team` read, otherwise the caller's teams (`GET /teams`'s narrowing) | The same rule |
 | `person` | The people read right (`tt_view_people` or `tt_edit_people`), as `GET /people` | The same rule |
 | `activity` | `ActivityAccess::readScope()`: global read, the teams a staff reader coaches, and for a player, a guardian or a linked scout the activities of those players | `ActivityAccess::readableIds()` |
-| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile) | — |
+| `evaluation` | The caller's own record and their linked children's (`SearchViewer::playerIdsReading( …, 'evaluations' )`: development-record access, the guardian's matrix access and the child's own visibility switch). Staff are not served yet | The same list |
+| `goal` | As `evaluation`, for `goals` | The same list |
+| `message` | A parent's own inbox (`recipient_user_id`) | The same rule |
+| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile). Nothing for a parent or a player | — |
 | `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
 
 - **Matching.** The text is folded (lower case, accents removed, so *jose*
@@ -732,10 +735,17 @@ standard envelope:
   rank recent first after the score. An activity type's name, in the caller's
   language or as stored, matches activities of that type.
 - **Patterns**, returned in `understood`: `#<n>` a shirt number (players);
-  `O<nn>` / `MO<nn>` an age group (teams and players); `dd-mm` a date in the
-  current season (activities); a Dutch or English weekday, the last and the next
-  such day (activities). A kind that does not honour a pattern in the query
+  `O<nn>` / `MO<nn>` an age group (teams and players); `dd-mm`, or a day and a
+  Dutch or English month name (`3 nov`), a date in the current season;
+  `yyyy-mm-dd` or `dd-mm-yyyy` that date; a Dutch or English weekday, the last
+  and the next such day. The dates are honoured by activities, evaluations,
+  goals and messages. A kind that does not honour a pattern in the query
   matches nothing for it.
+- **Family kinds.** Evaluations, goals and messages have no folded columns:
+  the rows in the caller's scope are read newest first (at most 500, narrowed by
+  the dates in SQL) and the words matched with the same fold and score. An
+  evaluation is found by its type in the caller's language (`LookupTranslator`)
+  or as stored, and by the opponent.
 - **Filters** (with `page`): `team_id` narrows players, teams, people and
   activities; `from` / `to` (`Y-m-d`) narrow activities. An unknown `types`
   entry, a `team_id` that is not a positive id, or a `page` / `per_page` out of
@@ -747,8 +757,13 @@ standard envelope:
   the player (the new-evaluation wizard's capability and
   `AuthorizationService::canEvaluatePlayer()`) gets a new evaluation, and the
   goals when `mayReadPlayerSection( …, 'goals' )` holds, the profile otherwise.
-  Anyone else gets the profile, and the report when they may read it. No role
-  names.
+  Anyone else gets the profile, and the report when they may read it. A parent
+  or a player who is not staff (`tt_view_players`) gets none. No role names.
+- **`player_id` on an activity** for a guardian: the child the activity
+  belongs to (on its team, otherwise on its register), also carried in its
+  `url` for a family viewer, so a parent of two lands on the right child.
+- **`sublabel` of an evaluation or goal** starts with the child's first name
+  when the caller has more than one child.
 - **`photo_url`**: the player's photo through the private media store
   (`PlayerPhoto::url()`): a session-bound delivery URL, never an uploads path.
   Absent when the player has no photo.
@@ -778,13 +793,16 @@ the account when it is deleted.
 
 `?q=<string>`
 
-The parent's search, and a different question from the one above: not "what
-in the academy matches this" filtered down, but "what in **my own
-children's** records matches this". `ParentSearchService` resolves the
-caller's children through the guardian link first and bounds every query by
-those player ids, so there is no global index to forget to filter. A caller
-with no linked child gets an empty result, not an error — whether anybody is
-linked to them is not something a status code should disclose.
+The parent's search, kept as an alias in its old shape (#4673). The rows come
+from `GET /search`: its `activity`, `evaluation`, `goal` and `message` kinds,
+at most 10 of each, which bound every query by the caller's own children (or
+own inbox) before anything is fetched. `ParentSearchService` composes them
+into the shape below and sorts upcoming first, soonest first, then the most
+recent. Only the caller's own children's records are returned: for a coach
+who is also a parent, the activities of the teams they coach (which carry no
+child) are left out. A caller with no linked child gets an empty result, not an error —
+whether anybody is linked to them is not something a status code should
+disclose. New callers use `GET /search`.
 
 Permission: any logged-in user. Four record types, by title and by date:
 activities the child is on (including future ones), evaluations, goals, and
@@ -795,7 +813,7 @@ the caller's own inbox messages. Fewer than two characters returns nothing.
   "children": [ { "id": 577, "name": "Sem de Vries" } ],
   "results": [
     { "type": "activity", "id": 6810, "player_id": 577,
-      "title": "Training dinsdag 3 nov (O11)", "subtitle": "O11-1 · Trainingsveld",
+      "title": "Training dinsdag 3 nov (O11)", "subtitle": "3 nov 2026 · O11-1",
       "date": "2026-11-03", "url": "https://…/?tt_view=my-activities&id=6810&player_id=577" }
   ],
   "total": 1 }

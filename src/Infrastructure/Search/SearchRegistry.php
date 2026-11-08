@@ -4,6 +4,9 @@ namespace TT\Infrastructure\Search;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Search\Providers\ActivitySearchProvider;
+use TT\Infrastructure\Search\Providers\EvaluationSearchProvider;
+use TT\Infrastructure\Search\Providers\GoalSearchProvider;
+use TT\Infrastructure\Search\Providers\MessageSearchProvider;
 use TT\Infrastructure\Search\Providers\HelpSearchProvider;
 use TT\Infrastructure\Search\Providers\PersonSearchProvider;
 use TT\Infrastructure\Search\Providers\PlayerSearchProvider;
@@ -16,7 +19,8 @@ use TT\Infrastructure\Search\Providers\TeamSearchProvider;
  * hits of equal score are listed.
  *
  * Phase 1 kinds: sections (`view`), players, teams, people, activities,
- * settings and help topics. A kind added later registers a
+ * settings and help topics. #4673 added the family's evaluations, goals and
+ * messages. A kind added later registers a
  * {@see SearchProvider} here and inherits the whole contract: scoped in SQL,
  * confirmed per row, counted over the same scope.
  */
@@ -35,6 +39,9 @@ final class SearchRegistry {
                 new TeamSearchProvider(),
                 new PersonSearchProvider(),
                 new ActivitySearchProvider(),
+                new EvaluationSearchProvider(),
+                new GoalSearchProvider(),
+                new MessageSearchProvider(),
                 new SettingSearchProvider(),
                 new HelpSearchProvider(),
             ] as $provider ) {

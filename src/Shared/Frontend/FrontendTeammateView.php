@@ -58,7 +58,10 @@ class FrontendTeammateView extends FrontendViewBase {
         // is the trial-group pseudo-team) gets a confusing 403 when
         // tapping their own FIFA card.
         $is_self = $mate && (int) ( $mate->wp_user_id ?? 0 ) === $viewer_user_id && $viewer_user_id > 0;
-        if ( ! $mate || ( ! $is_self && ( (int) $mate->team_id !== $viewer_team_id || $viewer_team_id <= 0 ) ) ) {
+        // The teammate card follows the roster, like My Team: a member of
+        // the viewer's team who is active and live, not merely a record
+        // that carries the team id (a trialist, a released player).
+        if ( ! $mate || ( ! $is_self && ! \TT\Infrastructure\Teams\TeamRoster::isMember( $teammate_id, $viewer_team_id ) ) ) {
             echo '<p>' . esc_html__( 'This player is not on your team.', 'talenttrack' ) . '</p>';
             return;
         }

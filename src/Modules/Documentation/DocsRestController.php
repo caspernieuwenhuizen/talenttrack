@@ -76,7 +76,7 @@ class DocsRestController {
     }
 
     public static function getOne( \WP_REST_Request $req ): \WP_REST_Response {
-        $slug    = (string) $req->get_param( 'slug' );
+        $slug    = HelpTopics::canonicalSlug( (string) $req->get_param( 'slug' ) );
         $topics  = HelpTopics::all();
         if ( ! isset( $topics[ $slug ] ) ) {
             return new \WP_REST_Response( [ 'message' => __( 'Topic not found.', 'talenttrack' ) ], 404 );

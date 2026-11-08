@@ -234,6 +234,8 @@ trait SearchFixtures {
         AuthorizationService::flushCache();
         PlayerVisibility::flush();
         SearchRegistry::reset();
+        \TT\Infrastructure\Search\SearchViewer::flush();
+        \TT\Infrastructure\Search\Providers\EvaluationSearchProvider::flush();
         wp_cache_flush();
         foreach ( [ TileRegistry::class, DashboardShortcode::class ] as $class ) {
             $prop = new \ReflectionProperty( $class, 'matrix_active_cache' );

@@ -18,6 +18,8 @@ final class SettingSearchProvider extends MemorySearchProvider {
     public function kind(): string { return 'setting'; }
 
     protected function entries( int $user_id ): array {
+        // #4673 — settings and modules never come back for a parent or a player.
+        if ( \TT\Infrastructure\Search\SearchViewer::isFamily( $user_id ) ) return [];
         $out = [];
         foreach ( SettingsRegistry::navigableEntriesFor( $user_id ) as $entry ) {
             $out[] = [

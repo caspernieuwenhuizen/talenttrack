@@ -30,7 +30,8 @@ class FrontendDocsView extends FrontendViewBase {
         $topics = HelpTopics::visibleFor( $user_id );
         $groups = HelpTopics::groups();
 
-        $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
+        // A retired topic's slug opens the topic that replaced it.
+        $requested = isset( $_GET['topic'] ) ? HelpTopics::canonicalSlug( sanitize_key( (string) $_GET['topic'] ) ) : '';
         $slug      = HelpTopics::defaultSlug();
         if ( isset( $topics[ $requested ] ) ) {
             $slug = $requested;
