@@ -7,7 +7,7 @@ use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
-use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportFigures;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
@@ -21,9 +21,11 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * - For a team: `GoalsRepository::openCountsForTeam()`, the team monthly
  *   report's roster column, for every squad player in shirt order.
  *
- * Gated on the goals read, the gate of `players/{id}/goals`, not the reports
- * read. Goals are on the family allowlist and off the scout's, so a player's
- * count may reach the family and never a scout.
+ * Each scope follows the route that owns its figure: a player's count the
+ * goals read on that player, as `players/{id}/goals` asks; the team's the
+ * team's reports read, as the monthly report's squad list. Goals are on the
+ * family allowlist and off the scout's, so a player's count may reach the
+ * family and never a scout.
  */
 final class OpenGoalsBlock implements ReportBlock {
 
@@ -80,7 +82,7 @@ final class OpenGoalsBlock implements ReportBlock {
             $total += $n;
             $rows[] = [
                 'player_id'  => (int) $pid,
-                'name'       => trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) ),
+                'name'       => TeamReportFigures::name( $player ),
                 'open_goals' => $n,
             ];
         }
@@ -89,19 +91,20 @@ final class OpenGoalsBlock implements ReportBlock {
     }
 
     /**
-     * The goals read for this subject: the player's goals section, or the
-     * goals read on the team. A listing names no subject, so it asks for the
-     * goals capability.
+     * The read this subject's goal figure answers to: the player's goals
+     * section for a player (a listing names no player, so it asks for the
+     * goals capability); for a team, nothing beyond the subject check.
      */
     public static function readsGoals( ReportContext $context ): bool {
         if ( $context->scope === ReportContext::SCOPE_PLAYER ) {
+            // The section pair the goals routes ask: the goals read on the
+            // player and, for a linked parent, the child's own switch.
             return $context->playerId > 0
-                ? AuthorizationService::canReadPlayerSection( $context->userId, $context->playerId, 'goals' )
+                ? AuthorizationService::mayReadPlayerSection( $context->userId, $context->playerId, 'goals' )
                 : user_can( $context->userId, 'tt_view_goals' );
         }
-        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
-        if ( $context->teamId <= 0 ) return user_can( $context->userId, 'tt_view_goals' );
-        return MatrixGate::can( $context->userId, 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL )
-            || MatrixGate::can( $context->userId, 'goals', MatrixGate::READ, MatrixGate::SCOPE_TEAM, $context->teamId );
+        // The team's count is the team monthly report's squad-list column,
+        // which the team's reports read opens (the subject check).
+        return $context->scope === ReportContext::SCOPE_TEAM;
     }
 }

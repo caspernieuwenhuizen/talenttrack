@@ -144,7 +144,7 @@ final class ReportStudioGoalsPdpBlocksTest extends WP_UnitTestCase {
         $observer = $this->makePersona( 'tt_readonly_observer', 'readonly_observer', $this->team_a );
 
         foreach ( [ $this->hod, $this->manager, $observer ] as $user ) {
-            $goals = AuthorizationService::canReadPlayerSection( $user, $this->pa1, 'goals' );
+            $goals = AuthorizationService::mayReadPlayerSection( $user, $this->pa1, 'goals' );
             $out   = BlockEngine::preview( 'open_goals', $this->player( $this->pa1 ), [], $user );
             $this->assertSame( $goals, is_array( $out ), "open goals follow the goals read for user {$user}" );
         }
@@ -158,6 +158,38 @@ final class ReportStudioGoalsPdpBlocksTest extends WP_UnitTestCase {
 
         // The edge: the team manager plans PDP talks for their team.
         $this->assertIsArray( BlockEngine::preview( 'pdp_conversations', $this->team( $this->team_a ), [], $this->manager ) );
+    }
+
+    public function test_each_goal_block_follows_the_route_that_owns_its_figure(): void {
+        // The team manager reads the team's reports; take the goals read off
+        // the persona in the matrix, so only that is missing.
+        global $wpdb;
+        $wpdb->delete( "{$wpdb->prefix}tt_authorization_matrix", [ 'persona' => 'team_manager', 'entity' => 'goals' ] );
+        $this->flush();
+
+        $this->assertFalse( AuthorizationService::mayReadPlayerSection( $this->manager, $this->pa1, 'goals' ), 'Precondition: no goals read on the player.' );
+        $subject = \TT\Modules\ReportStudio\Domain\ReportSubjectAccess::check( ReportContext::fromInput( $this->team( $this->team_a ), $this->manager ) );
+        $this->assertInstanceOf( ReportContext::class, $subject, 'Precondition: the reports read still opens the team.' );
+
+        // A player's goals ask the goals read on the player: refused, not listed.
+        foreach ( [ 'open_goals', 'goals_completed' ] as $key ) {
+            $out = BlockEngine::preview( $key, $this->player( $this->pa1 ), [], $this->manager );
+            $this->assertInstanceOf( StudioError::class, $out, "{$key} on a player" );
+            $this->assertSame( 404, $out->status, "{$key} on a player" );
+        }
+        $listed_player = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( 'player', PlayerReportAudience::INTERNAL, $this->manager ) ) );
+        $this->assertNotContains( 'open_goals', $listed_player );
+        $this->assertNotContains( 'goals_completed', $listed_player );
+
+        // The team's count is the monthly report's squad-list column: the
+        // team's reports read opens it, as it opens that report.
+        $team   = BlockEngine::preview( 'open_goals', $this->team( $this->team_a ), [], $this->manager );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'roster' ], $this->manager );
+        $this->assertIsArray( $team );
+        $this->assertSame( array_sum( array_map( 'intval', array_column( $report['data']['roster']['rows'], 'open_goals' ) ) ), $team['data']['total'] );
+
+        // The edge: the head of development, who holds the goals read, gets the player's.
+        $this->assertIsArray( BlockEngine::preview( 'goals_completed', $this->player( $this->pa1 ), [], $this->hod ) );
     }
 
     public function test_a_scout_never_gets_goals_and_a_family_never_gets_the_planning_matrix(): void {

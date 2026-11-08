@@ -712,7 +712,7 @@ For a team, the averages follow the team monthly report: whoever may read the te
 - **Goals completed so far**: how many goals one player has completed, the same number as their own goals overview. Also today's count. A family may see it; a scout never.
 - **PDP conversations held against planned**: the PDP planning page's row for one team in the current season, block by block: the squad, the talks planned, held and marked as not held, and each block's window. It follows the season's blocks, not the report's period. Staff only, and only for someone who may open PDP planning for that team.
 
-The goals blocks need the right to read the player's goals, as their Goals tab does; reading the team's reports is not enough.
+For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
 
 ## Report Studio — reading a shared report
 

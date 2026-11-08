@@ -1546,8 +1546,11 @@ The blocks:
   countActiveForPlayer()`; for a team (staff only)
   `GoalsRepository::openCountsForTeam()` as `rows` of `{ player_id, name,
   open_goals }` for every squad player in shirt order, plus `total`. Answers
-  to the goals read: `AuthorizationService::canReadPlayerSection( …,
-  'goals' )` for a player, the `goals` read on the team for a team.
+  to the read of the route that owns each figure: for a player the goals
+  read, `AuthorizationService::mayReadPlayerSection( …, 'goals' )` (the
+  section read and the child's own switch, as `players/{id}/goals` asks); for
+  a team the team's reports read alone, through the subject check, as the
+  monthly report's squad list.
 - `goals_completed` (player; internal and family, #4572): `value` =
   `GoalsRepository::countCompletedForPlayer()`, today's count. The goals read
   as above.

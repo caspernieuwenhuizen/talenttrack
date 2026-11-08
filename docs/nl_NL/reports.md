@@ -752,7 +752,7 @@ Voor een team volgen de gemiddelden het maandrapport van het team: wie de rappor
 - **Tot nu toe behaalde doelen**: hoeveel doelen één speler heeft behaald, hetzelfde aantal als in zijn eigen doelenoverzicht. Ook het aantal van vandaag. Een gezin mag het zien; een scout nooit.
 - **POP-gesprekken gehouden tegenover gepland**: de rij van de POP-planningspagina voor één team in het huidige seizoen, blok voor blok: de selectie, de geplande, gehouden en als niet gehouden gemarkeerde gesprekken, en het venster van elk blok. Het volgt de blokken van het seizoen, niet de periode van het rapport. Alleen voor staf, en alleen voor wie de POP-planning van dat team mag openen.
 
-De doelenblokken vragen het recht om de doelen van de speler te lezen, zoals zijn tabblad Doelen; de rapporten van het team mogen lezen is niet genoeg.
+Voor een speler vragen de doelenblokken het recht om de doelen van die speler te lezen, zoals zijn tabblad Doelen. Voor een team volgen de openstaande doelen de selectielijst van het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze.
 
 ## Report Studio — een gedeeld rapport lezen
 
