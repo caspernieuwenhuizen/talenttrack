@@ -945,7 +945,9 @@ final class LegacyTeamMonthlyReport {
         ];
 
         foreach ( $activities as $a ) {
-            $record['played']++;
+            // #4572 — the one played-match rule, a deliberate change to the
+            // figure, made here so it shows as a change to the "before".
+            if ( ! empty( $a['played'] ) || $a['outcome'] !== '' ) $record['played']++;
             if ( $a['outcome'] === '' ) {
                 $record['without_score']++;
                 continue;

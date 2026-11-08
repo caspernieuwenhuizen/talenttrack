@@ -14,6 +14,8 @@ use TT\Modules\ReportStudio\Blocks\GoalsCompletedBlock;
 use TT\Modules\ReportStudio\Blocks\HeadingBlock;
 use TT\Modules\ReportStudio\Blocks\KeyFiguresBlock;
 use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
+use TT\Modules\ReportStudio\Blocks\MatchResultsBlock;
+use TT\Modules\ReportStudio\Blocks\TeamStatisticsBlock;
 use TT\Modules\ReportStudio\Blocks\MinutesPerMatchBlock;
 use TT\Modules\ReportStudio\Blocks\MinutesShareBlock;
 use TT\Modules\ReportStudio\Blocks\OpenGoalsBlock;
@@ -60,6 +62,8 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new OpenGoalsBlock() );
         BlockRegistry::register( new GoalsCompletedBlock() );
         BlockRegistry::register( new PdpConversationsBlock() );
+        BlockRegistry::register( new MatchResultsBlock() );
+        BlockRegistry::register( new TeamStatisticsBlock() );
         BlockRegistry::register( new OwnQuestionBlock() );
         ReportBlocksRestController::init();
         ReportsRestController::init();

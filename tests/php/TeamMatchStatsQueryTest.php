@@ -158,7 +158,9 @@ final class TeamMatchStatsQueryTest extends WP_UnitTestCase {
 
         $record = $this->stats()['record'];
 
-        $this->assertSame( 1, $record['played'], 'only the fixture with a result counts as played' );
+        // #4572 — "Played" is the reports' played-match rule: a past match
+        // nobody typed a result into was still played.
+        $this->assertSame( 2, $record['played'], 'both fixtures were played, the one without a result too' );
         $this->assertSame( 1, $record['without_a_score'] );
         $this->assertSame( 0, $record['drawn'], 'a missing result is not a draw' );
         $this->assertSame( 1, $record['won'] );

@@ -755,6 +755,12 @@ Voor een team volgen de gemiddelden het maandrapport van het team: wie de rappor
 - **POP-gesprekken gehouden tegenover gepland**: de rij van de POP-planningspagina voor één team in het huidige seizoen, blok voor blok: de selectie, de geplande, gehouden en als niet gehouden gemarkeerde gesprekken, en het venster van elk blok. Het volgt de blokken van het seizoen, niet de periode van het rapport. Alleen voor staf, en alleen voor wie de POP-planning van dat team mag openen.
 
 Voor een speler vragen de doelenblokken het recht om de doelen van die speler te lezen, zoals zijn tabblad Doelen. Voor een team volgen de openstaande doelen de selectielijst van het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze.
+**Wedstrijden**
+
+- **Uitslagen**: elke wedstrijd van het team in de periode met de datum, thuis of uit, de tegenstander en de uitslag, zoals het wedstrijdonderdeel van het maandrapport van het team ze toont, met de balans eronder. Toernooien blijven erbuiten, en het blok zegt hoeveel. Een wedstrijd zonder uitslag zegt dat, in plaats van 0–0 te tonen. Alleen voor staf.
+- **Teamstatistieken**: de balans van het team over de periode, zoals het tabblad Statistieken van het team die toont: gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen, doelsaldo, keren de nul gehouden, en de gespeelde wedstrijden zonder uitslag. Het vraagt het recht om het team te lezen, zoals het tabblad Statistieken. Alleen voor staf.
+
+**Gespeeld** is overal hetzelfde getal: de wedstrijden die afgerond zijn, in het verleden liggen of vastgelegde minuten hebben. Het maandrapport, het tabblad Statistieken en beide blokken tellen het op dezelfde manier.
 
 **Je eigen vraag**
 

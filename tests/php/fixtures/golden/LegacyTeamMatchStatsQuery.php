@@ -208,7 +208,8 @@ final class LegacyTeamMatchStatsQuery {
         /** @var list<object>|null $rows */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
+            "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score,
+                    ( " . \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' ) . " ) AS is_played
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
                 AND a.club_id = %d
@@ -273,8 +274,12 @@ final class LegacyTeamMatchStatsQuery {
 
         foreach ( $fixtures as $fixture ) {
             $result = $this->frame( $fixture );
+            // #4572 — the one played-match rule, a deliberate change to the
+            // figure, made here so it shows as a change to the "before": a
+            // played fixture without a score is played too.
             if ( $result === null ) {
                 $out['without_a_score']++;
+                if ( ! empty( $fixture->is_played ) ) $out['played']++;
                 continue;
             }
 

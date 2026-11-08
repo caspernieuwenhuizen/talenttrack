@@ -1008,7 +1008,13 @@ statistics tab and a non-WordPress front end cannot disagree about a record.
   tournaments**. A goal at a tournament is still that player's goal.
 
 **A match with no score recorded** lands in `record.without_a_score` and counts
-toward neither `played` nor W/D/L — a silent 0–0 would make the record wrong.
+toward no W/D/L — a silent 0–0 would make the record wrong. Since #4572
+`played` is the reports' one played-match rule (`MinutesQuery::
+playedMatchSql()`: completed, in the past, or carrying recorded minutes), the
+figure the team monthly report prints under the same label, so a played match
+without a score counts toward `played` as well as `without_a_score`. Before
+#4572 `played` here counted scored matches only, and the monthly report every
+fixture in its window.
 Only fixtures whose date has passed are considered, so next week's league game
 is not a missing result.
 
@@ -1588,6 +1594,18 @@ The blocks:
   of `{ eval_date, values }`, oldest first, `values` in the order of
   `categories`, `null` where the evaluation did not rate a category (the read
   gives 0, below every rating scale).
+- `match_results` (team, staff only, #4572): the team monthly report's match
+  section (`MatchesComposer`). `rows` of `{ match_date, venue, opponent,
+  score }` for every fixture in the period, tournaments left out, `venue` the
+  one-letter home/away chip and `score` "3–1" or "no score recorded"; plus
+  `record` (the section's, `TeamMatchRecord`), `tournaments_excluded` and
+  `note`.
+- `team_statistics` (team, staff only, #4572): `TeamMatchStatsQuery::
+  forTeam()`'s `record` as one row `{ played, won, drawn, lost, goals_for,
+  goals_against, goal_difference, clean_sheets, without_a_score }`, plus
+  `tournaments_excluded` and `note`. Answers to the team read, as
+  `GET /teams/{id}/stats` does: `tt_view_teams` (or `tt_edit_teams`) and
+  `AllTeamsScope::canReadTeam()`.
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.

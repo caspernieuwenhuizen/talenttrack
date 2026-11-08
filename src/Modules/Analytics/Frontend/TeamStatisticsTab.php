@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Reports\TeamMatchRecord;
 use TT\Modules\Analytics\Reports\TeamMatchStatsQuery;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
@@ -212,18 +213,9 @@ final class TeamStatisticsTab {
             ) ) . '</p>';
         }
 
-        $tournaments = (int) ( $record['tournaments_excluded'] ?? 0 );
-        if ( $tournaments > 0 ) {
-            echo '<p class="tt-ts-note">' . esc_html( sprintf(
-                /* translators: %d: number of tournaments in the period */
-                _n(
-                    '%d tournament this period is not included — a tournament is a multi-game day.',
-                    '%d tournaments this period are not included — a tournament is a multi-game day.',
-                    $tournaments,
-                    'talenttrack'
-                ),
-                $tournaments
-            ) ) . '</p>';
+        $note = TeamMatchRecord::tournamentsNote( (int) ( $record['tournaments_excluded'] ?? 0 ) );
+        if ( $note !== '' ) {
+            echo '<p class="tt-ts-note">' . esc_html( $note ) . '</p>';
         }
 
         self::sectionClose();

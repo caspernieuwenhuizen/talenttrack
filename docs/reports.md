@@ -715,6 +715,12 @@ For a team, the averages follow the team monthly report: whoever may read the te
 - **PDP conversations held against planned**: the PDP planning page's row for one team in the current season, block by block: the squad, the talks planned, held and marked as not held, and each block's window. It follows the season's blocks, not the report's period. Staff only, and only for someone who may open PDP planning for that team.
 
 For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
+**Matches**
+
+- **Results**: every match of the team in the period with the date, home or away, the opponent and the score, as the team monthly report's match section lists them, with the record under it. Tournaments are left out, and the block says how many. A match without a score says so instead of showing 0–0. Staff only.
+- **Team statistics**: the team's record over the period, as the team's Statistics tab shows it: played, won, drawn, lost, goals for and against, goal difference, clean sheets, and the played matches without a score. It needs the right to read the team, as the Statistics tab does. Staff only.
+
+**Played** is one figure everywhere: the matches that are completed, in the past, or have minutes recorded. The monthly report, the Statistics tab and both blocks count it the same way.
 
 **Your own question**
 

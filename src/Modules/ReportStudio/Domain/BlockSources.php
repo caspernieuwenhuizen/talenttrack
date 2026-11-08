@@ -47,6 +47,10 @@ final class BlockSources {
                 return __( 'The goals the player has completed so far, the same number as the player\'s own goals overview. Not limited to the period.', 'talenttrack' );
             case 'pdp_conversations':
                 return __( 'The PDP planning page\'s figures for this team in the current season, block by block. It follows the season\'s blocks, not the report\'s period.', 'talenttrack' );
+            case 'match_results':
+                return __( 'Every match in the period with its score, and the record over them, the same as the team monthly report. Tournaments are left out.', 'talenttrack' );
+            case 'team_statistics':
+                return __( 'The team\'s record over the period, the same figures as the team\'s statistics tab.', 'talenttrack' );
             case 'own_question':
                 return __( 'The data and the measure you pick, read the way the analytics explorer reads them.', 'talenttrack' );
         }

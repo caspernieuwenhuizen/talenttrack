@@ -241,18 +241,18 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
 
     /**
      * The monthly report's record and the statistics tab's record are one
-     * read. They word "played" differently — the report counts every
-     * fixture, the tab only the scored ones — and agree on everything else.
+     * read, and since #4572 "Played" has one meaning on both: the reports'
+     * played-match rule. They agree on every figure.
      */
     public function test_the_two_match_records_agree(): void {
         $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'matches' ] )['data']['matches']['record'];
         $tab     = ( new TeamMatchStatsQuery() )->forTeam( $this->team, [ 'from' => self::FROM, 'to' => self::TO ] )['record'];
 
-        foreach ( [ 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
+        foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
             $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
         }
         $this->assertSame( $monthly['without_score'], $tab['without_a_score'] );
-        $this->assertSame( $monthly['played'], $tab['played'] + $tab['without_a_score'] );
+        $this->assertSame( $tab['won'] + $tab['drawn'] + $tab['lost'] + $tab['without_a_score'], $tab['played'], 'every 2020 fixture was played' );
 
         // Precondition: the fixture has wins, a loss, a draw and a gap.
         $this->assertSame( [ 2, 1, 1, 1 ], [ $tab['won'], $tab['lost'], $tab['drawn'], $tab['without_a_score'] ] );

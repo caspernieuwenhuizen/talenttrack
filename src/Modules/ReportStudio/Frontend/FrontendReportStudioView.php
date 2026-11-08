@@ -285,6 +285,19 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'planned'           => _x( 'Planned', 'report studio column', 'talenttrack' ),
             'conducted'         => _x( 'Held', 'report studio column', 'talenttrack' ),
             'not_held'          => _x( 'Not held', 'report studio column', 'talenttrack' ),
+            'match_date'        => _x( 'Date', 'report studio column', 'talenttrack' ),
+            'venue'             => _x( 'H/A', 'report studio column: home or away', 'talenttrack' ),
+            'opponent'          => _x( 'Opponent', 'report studio column', 'talenttrack' ),
+            'score'             => _x( 'Score', 'report studio column', 'talenttrack' ),
+            'played'            => _x( 'Played', 'monthly report match record', 'talenttrack' ),
+            'won'               => _x( 'Won', 'monthly report match record', 'talenttrack' ),
+            'drawn'             => _x( 'Drawn', 'monthly report match record', 'talenttrack' ),
+            'lost'              => _x( 'Lost', 'monthly report match record', 'talenttrack' ),
+            'goals_for'         => _x( 'Goals for', 'monthly report match record', 'talenttrack' ),
+            'goals_against'     => _x( 'Goals against', 'monthly report match record', 'talenttrack' ),
+            'goal_difference'   => __( 'Goal difference', 'talenttrack' ),
+            'clean_sheets'      => __( 'Clean sheets', 'talenttrack' ),
+            'without_a_score'   => _x( 'No score recorded', 'report studio column', 'talenttrack' ),
             'share_pct'         => _x( 'Share %', 'report studio column', 'talenttrack' ),
             'minutes'           => _x( 'Minutes', 'report studio column', 'talenttrack' ),
             'session_date'      => _x( 'Date', 'report studio column', 'talenttrack' ),
@@ -371,6 +384,8 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'squadRating'   => __( 'Squad rating: %s.', 'talenttrack' ),
             /* translators: 1: the player's average rating, 2: number of evaluations */
             'overallRating' => __( 'Average over all ratings: %1$s, from %2$s evaluations.', 'talenttrack' ),
+            /* translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against, 7: signed goal difference */
+            'recordLine'  => __( 'Played %1$d · W %2$d D %3$d L %4$d · %5$d–%6$d (%7$s)', 'talenttrack' ),
             /* translators: %s: how full the page is, in percent */
             'onePage'     => __( 'One A4 page, %s%% full.', 'talenttrack' ),
             /* translators: 1: number of pages, 2: how full the last page is, in percent */
