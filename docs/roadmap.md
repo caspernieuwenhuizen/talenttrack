@@ -14,7 +14,7 @@ tracker issue, with the value an academy gets from it. An epic moves to
 "shipped" when every child has shipped; a line that has been "later" for two
 cycles is either moved up or removed.
 
-Last reviewed: 2026-11-02.
+Last reviewed: 2026-11-08.
 
 ## Direction
 
@@ -47,7 +47,7 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| Release v4.146.0 | The pilot academies get the Report Studio storage, the match preparation access rule, tournament squads that follow the planner, 48 px touch targets on the grids, and the report fixes | Thirty changes merged on main, more passing the review gates; the release comes to the owner for a yes |
+| Next release | Two finished pieces held back from v4.147.0: Configuratie tables on phones (#4933) and one two-step setup per account (#4894, waits on an owner decision) | Development paused for the owner's weekly budget; resumes after the reset |
 | Configuratie by task with search, phase 1 ([#4669](https://github.com/caspernieuwenhuizen/talenttrack/issues/4669), [#4670](https://github.com/caspernieuwenhuizen/talenttrack/issues/4670), [#4671](https://github.com/caspernieuwenhuizen/talenttrack/issues/4671), [#4672](https://github.com/caspernieuwenhuizen/talenttrack/issues/4672), [#4673](https://github.com/caspernieuwenhuizen/talenttrack/issues/4673)) | Settings in ten task sections, each once; one search box in every layout and on the phone, over players, teams, staff, activities, help and settings, for staff, parents and players | Ships as one release (owner decision) |
 
 ## Later
@@ -78,6 +78,8 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Epic | Released |
 | --- | --- |
+| Configuratie by task, keyed tile groups, the read-only observer's staff rule and masking, journey entries that follow each record's read right, phone tables that stack, 48 px dashboard links, reports that refuse unknown fields, and the mobile gate in Dutch: 117 changes | v4.147.0 |
+| Report Studio storage, match preparation under one access rule, tournament squads that follow the planner, 48 px grid targets, report fixes | v4.146.0 |
 | Report Studio foundation: block registry, measure engine and shared composers ([#4568](https://github.com/caspernieuwenhuizen/talenttrack/issues/4568), [#4590](https://github.com/caspernieuwenhuizen/talenttrack/issues/4590)) | v4.145.0 |
 | Quality sweep: Dutch on every screen and an i18n gate, 48 px touch targets, Spond keeps a coach's corrections, minutes checks per match, goals and assists capped at the score | v4.144.0 |
 | The coach's week on the landing page ([#4379](https://github.com/caspernieuwenhuizen/talenttrack/issues/4379)) | v4.143.0 |
