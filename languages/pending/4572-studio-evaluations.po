@@ -1,0 +1,67 @@
+#: src/Modules/ReportStudio/Blocks/CategoryAveragesBlock.php:35
+msgid "Average per main category"
+msgstr "Gemiddelde per hoofdcategorie"
+
+#: src/Modules/ReportStudio/Blocks/ProgressRadarBlock.php:35
+msgid "Progress over the last five evaluations"
+msgstr "Ontwikkeling over de laatste vijf evaluaties"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Evaluation ratings per main category of the academy's methodology, the same figures as the team monthly report and the player report. Scores only, never a coach's written notes."
+msgstr "Evaluatiecijfers per hoofdcategorie van de methodiek van de academie, dezelfde cijfers als in het maandrapport van het team en het spelersrapport. Alleen cijfers, nooit de geschreven opmerkingen van een trainer."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The player's last five evaluations, whenever they were, as the progress and radar report shows them."
+msgstr "De laatste vijf evaluaties van de speler, wanneer die ook waren, zoals het rapport ontwikkeling en radar ze toont."
+
+#. translators: %s: the squad's average rating
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:332
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+msgid "Squad rating: %s."
+msgstr "Selectiebeoordeling: %s."
+
+#. translators: 1: the player's average rating, 2: number of evaluations
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:334
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:100
+msgid "Average over all ratings: %1$s, from %2$s evaluations."
+msgstr "Gemiddelde over alle cijfers: %1$s, uit %2$s evaluaties."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Category"
+msgstr "Categorie"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column"
+msgid "Average"
+msgstr "Gemiddeld"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Change"
+msgstr "Verschil"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "Lowest"
+msgstr "Laagste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column"
+msgid "Highest"
+msgstr "Hoogste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Latest"
+msgstr "Laatste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Evaluation"
+msgstr "Evaluatie"

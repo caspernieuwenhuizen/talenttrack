@@ -166,6 +166,10 @@
 			attendanceNotes(box, data, t);
 			return box;
 		}
+		if (d.key === 'progress_radar') {
+			box.appendChild(progress(data, opts));
+			return box;
+		}
 		var cols = Object.keys(rows[0]).filter(function (k) { return k !== 'player_id' && k !== 'key'; });
 		var wrap = el('div', 'tt-rs-table-wrap');
 		var table = el('table', 'tt-rs-table');
@@ -186,6 +190,7 @@
 		if (data.truncated) box.appendChild(el('p', 'tt-rs-block-msg', t.truncated));
 		target(box, data, t);
 		attendanceNotes(box, data, t);
+		ratingNotes(box, data, t);
 		return box;
 	}
 
@@ -214,6 +219,46 @@
 		if (data.threshold != null && t.flagThresholds) {
 			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.flagThresholds, data.threshold, data.late_threshold)));
 		}
+	}
+
+	/** The squad rating, or a player's overall average, under a ratings table (#4572). */
+	function ratingNotes(box, data, t) {
+		if (data.squad_avg != null && t.squadRating) {
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.squadRating, data.squad_avg)));
+		}
+		if (data.average != null && data.evaluation_count && t.overallRating) {
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.overallRating, data.average, data.evaluation_count)));
+		}
+	}
+
+	/**
+	 * The progress block (#4572): one row per evaluation, one column per main
+	 * category, a dash where a category was not rated.
+	 */
+	function progress(data, opts) {
+		var t = opts.i18n || {};
+		var cats = Array.isArray(data.categories) ? data.categories : [];
+		var wrap = el('div', 'tt-rs-table-wrap');
+		var table = el('table', 'tt-rs-table');
+		var thead = el('thead');
+		var hr = el('tr');
+		hr.appendChild(el('th', null, (opts.columns && opts.columns.eval_date) || t.value));
+		cats.forEach(function (c) { hr.appendChild(el('th', null, c)); });
+		thead.appendChild(hr);
+		table.appendChild(thead);
+		var tbody = el('tbody');
+		data.rows.forEach(function (r) {
+			var tr = el('tr');
+			tr.appendChild(el('td', null, day(r.eval_date)));
+			cats.forEach(function (c, i) {
+				var v = Array.isArray(r.values) ? r.values[i] : null;
+				tr.appendChild(el('td', null, v == null ? '–' : String(v)));
+			});
+			tbody.appendChild(tr);
+		});
+		table.appendChild(tbody);
+		wrap.appendChild(table);
+		return wrap;
 	}
 
 	window.TT.ReportBlocks = { body: body, fmt: fmt, day: day, untitled: untitled };

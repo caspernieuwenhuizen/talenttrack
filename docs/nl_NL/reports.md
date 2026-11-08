@@ -739,6 +739,10 @@ Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetz
 - **Spelers gemarkeerd op aanwezigheid**: de risicolijst van het aanwezigheidsrapport, voor een team of voor de hele academie. Een speler staat erop als hij zoveel activiteiten miste als de markeringsdrempel voor aanwezigheid in de configuratie, of zo vaak te laat was als de drempel voor te laat komen. Per speler staat erbij waarom, slechtste eerst, en onder de lijst staan beide drempels. Het is niet de lijn van 70 procent uit het maandrapport van het team. Alleen voor staf.
 
 Beide aanwezigheidsblokken vragen het recht om de aanwezigheid van het team te lezen, hetzelfde recht dat de aanwezigheidsrapporten vragen; de rapporten van een team mogen lezen is niet genoeg. De lijst van de academie vraagt dat recht voor elk team.
+**Evaluaties**
+
+- **Gemiddelde per hoofdcategorie**: de hoofdcategorieën van de methodiek van de academie, in hun volgorde. Voor een team zoals het evaluatieonderdeel van het maandrapport van het team ze toont: per categorie het gemiddelde van de selectie, de verandering ten opzichte van de periode ervoor, en het laagste en hoogste gemiddelde van een speler, met onder de tabel de selectiebeoordeling, hetzelfde cijfer als de tegel "Selectiebeoordeling" in het rapport. Voor een speler zoals de beoordelingen in het spelersrapport ze tonen: per categorie het gemiddelde en het laatste cijfer in de periode, en hoeveel evaluaties die categorie beoordeelden. Alleen cijfers, nooit de geschreven opmerkingen van een trainer, dus een gezin en een scout mogen de eigen gemiddelden van een speler zien.
+- **Ontwikkeling over de laatste vijf evaluaties**: de laatste vijf evaluaties van één speler per hoofdcategorie, zoals het rapport ontwikkeling en radar ze toont. Het toont de laatste evaluaties, wanneer die ook waren, niet alleen die in de periode. Een categorie die een evaluatie niet beoordeelde, toont een streepje. Alleen voor staf.
 
 ## Report Studio — een gedeeld rapport lezen
 

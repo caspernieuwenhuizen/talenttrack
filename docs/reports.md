@@ -699,6 +699,10 @@ Each block shows the same figure as the report it comes from, for the same subje
 - **Players flagged on attendance**: the attendance report's at-risk list, for a team or for the whole academy. A player is on it when they missed as many activities as the attendance flag threshold in the configuration, or were late as often as the lateness threshold. It says why for each player, worst first, and names both thresholds under the list. It is not the team monthly report's line at 70 percent. Staff only.
 
 Both attendance blocks need the right to read the team's attendance, the same right the attendance reports ask; reading a team's reports is not enough. The academy's list needs it for every team.
+**Evaluations**
+
+- **Average per main category**: the main categories of the academy's methodology, in their order. For a team, as the team monthly report's evaluations section shows them: each category's squad average, its change against the period before, and the lowest and highest player average, with the squad rating under the table, the same figure as the report's "Squad rating" tile. For a player, as the player report's ratings show them: each category's average and latest rating in the period, and how many evaluations rated it. Scores only, never a coach's written notes, so a family and a scout may see a player's own averages.
+- **Progress over the last five evaluations**: one player's last five evaluations per main category, as the progress and radar report shows them. It shows the latest evaluations whenever they were, not only those in the period. A category an evaluation did not rate shows a dash. Staff only.
 
 ## Report Studio — reading a shared report
 

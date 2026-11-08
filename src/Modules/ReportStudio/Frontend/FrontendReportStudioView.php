@@ -293,6 +293,14 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'suspended'         => _x( 'Suspended', 'report studio column', 'talenttrack' ),
             'team_name'         => _x( 'Team', 'report studio column', 'talenttrack' ),
             'reason'            => _x( 'Why flagged', 'report studio column', 'talenttrack' ),
+            'category'          => _x( 'Category', 'report studio column', 'talenttrack' ),
+            'average'           => _x( 'Average', 'report studio column', 'talenttrack' ),
+            'change'            => _x( 'Change', 'report studio column', 'talenttrack' ),
+            'lowest'            => _x( 'Lowest', 'report studio column', 'talenttrack' ),
+            'highest'           => _x( 'Highest', 'report studio column', 'talenttrack' ),
+            'latest'            => _x( 'Latest', 'report studio column', 'talenttrack' ),
+            'count'             => _x( 'Evaluations', 'report studio column', 'talenttrack' ),
+            'eval_date'         => _x( 'Evaluation', 'report studio column', 'talenttrack' ),
             'label'             => _x( 'Group', 'report studio column', 'talenttrack' ),
             'value'             => _x( 'Value', 'report studio column', 'talenttrack' ),
         ];
@@ -351,6 +359,10 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'flagThresholds'  => __( 'Flagged at %1$s missed activities or %2$s late arrivals.', 'talenttrack' ),
             /* translators: 1: first day, 2: last day of the period */
             'noneFlagged'     => __( 'No player was flagged on attendance between %1$s and %2$s.', 'talenttrack' ),
+            /* translators: %s: the squad's average rating */
+            'squadRating'   => __( 'Squad rating: %s.', 'talenttrack' ),
+            /* translators: 1: the player's average rating, 2: number of evaluations */
+            'overallRating' => __( 'Average over all ratings: %1$s, from %2$s evaluations.', 'talenttrack' ),
             /* translators: %s: how full the page is, in percent */
             'onePage'     => __( 'One A4 page, %s%% full.', 'talenttrack' ),
             /* translators: 1: number of pages, 2: how full the last page is, in percent */
