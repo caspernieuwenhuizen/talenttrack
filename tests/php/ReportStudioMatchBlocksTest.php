@@ -91,6 +91,33 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( 1, $tab['without_a_score'] );
     }
 
+    /**
+     * The boundary between the two reads: the tab reads fixtures up to and
+     * including today, the rule calls a match played when it is completed,
+     * before today, or has minutes. A match today, still planned, with no
+     * minutes, is therefore a fixture without a score and not played.
+     */
+    public function test_a_planned_match_today_without_minutes_is_not_played(): void {
+        global $wpdb;
+        $tab_before = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+
+        // Today as the database reads it, the date `CURDATE()` compares with.
+        $today = (string) $wpdb->get_var( 'SELECT CURDATE()' );
+        $this->matchOn( $this->team_a, $today, 'Oranje', 'home', null, null, 'planned' );
+        $this->flush();
+
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team_a, $this->from, $this->to, [ 'matches' ] )['data']['matches']['record'];
+        $tab     = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+
+        $this->assertSame( $tab_before['played'], $tab['played'], 'a planned match today without minutes is not played' );
+        $this->assertSame( 4, $tab['played'] );
+        $this->assertSame( $tab_before['without_a_score'] + 1, $tab['without_a_score'], 'the tab lists it among the fixtures without a score' );
+        foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
+            $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
+        }
+        $this->assertSame( $tab['without_a_score'] + 1, $monthly['without_score'] );
+    }
+
     public function test_the_results_equal_the_monthly_reports_match_section(): void {
         $block  = $this->preview( 'match_results', $this->team( $this->team_a ) );
         $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, $this->from, $this->to, [ 'matches' ] )['data']['matches'];
@@ -204,8 +231,12 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
 
     /** A game `$days` from today, scored or not. */
     private function match( int $team_id, int $days, string $opponent, string $home_away, ?int $ours, ?int $theirs, string $status = 'completed' ): int {
+        return $this->matchOn( $team_id, gmdate( 'Y-m-d', time() + $days * DAY_IN_SECONDS ), $opponent, $home_away, $ours, $theirs, $status );
+    }
+
+    /** A game on this date, scored or not. */
+    private function matchOn( int $team_id, string $date, string $opponent, string $home_away, ?int $ours, ?int $theirs, string $status = 'completed' ): int {
         global $wpdb;
-        $date = gmdate( 'Y-m-d', time() + $days * DAY_IN_SECONDS );
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id' => $this->club, 'team_id' => $team_id, 'title' => 'Match ' . $date, 'session_date' => $date,
             'activity_type_key' => 'game', 'activity_status_key' => $status, 'plan_state' => $status === 'completed' ? 'completed' : 'planned',

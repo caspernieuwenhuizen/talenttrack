@@ -43,8 +43,8 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  *
  * A deliberate change to a figure updates the frozen copy in the same PR, so
  * the change is visible in review as a change to the "before". The frozen
- * copies are deleted when #4572 merges; the per-block comparisons then move
- * to stored JSON snapshots.
+ * copies are deleted when the id-tokenising snapshot harness lands (#4958);
+ * the per-block comparisons then move to stored JSON snapshots.
  *
  * Dates are in 2020, so nothing depends on the runner's clock, apart from the
  * one fixture dated next week that pins the statistics tab's "date has
