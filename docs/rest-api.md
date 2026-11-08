@@ -1541,6 +1541,22 @@ The blocks:
   `available_minutes`, `matches`, `target_pct` and `median_share_pct`; for a
   player (every audience) `value` (their share, percent), `minutes`,
   `available_minutes`, `matches` and `target_pct`, and no average.
+- `open_goals` (player, team; internal and family, #4572): today's count, not
+  the period's. For a player `value` = `GoalsRepository::
+  countActiveForPlayer()`; for a team (staff only)
+  `GoalsRepository::openCountsForTeam()` as `rows` of `{ player_id, name,
+  open_goals }` for every squad player in shirt order, plus `total`. Answers
+  to the goals read: `AuthorizationService::canReadPlayerSection( …,
+  'goals' )` for a player, the `goals` read on the team for a team.
+- `goals_completed` (player; internal and family, #4572): `value` =
+  `GoalsRepository::countCompletedForPlayer()`, today's count. The goals read
+  as above.
+- `pdp_conversations` (team, staff only, #4572): the team's row of
+  `PdpPlanningService::buildMatrix()` for `PdpPlanningService::
+  currentSeasonId()`, as `GET /pdp-planning` answers it: `rows` of `{ block,
+  window_start, window_end, expected, planned, conducted, not_held }` and
+  `season_id`. Capability `tt_view_pdp_planning`, and the team must be one
+  `PdpPlanningService::accessibleTeamIds()` allows.
 - `attendance_per_week` (player, team, group, academy): the attendance
   measures grouped by ISO week, on the rows the attendance reports count.
 - `attendance_per_player` (team, staff only, #4572): the team monthly

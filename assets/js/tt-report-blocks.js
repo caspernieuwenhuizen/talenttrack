@@ -201,7 +201,7 @@
 	/** A cell's text: a date column reads as a date (#4572). */
 	function cell(c, v) {
 		if (v == null) return '–';
-		if (/(^|_)date$/.test(c)) return day(String(v));
+		if (/(^|_)date$|^window_(start|end)$/.test(c)) return v === '' ? '–' : day(String(v));
 		return String(v);
 	}
 

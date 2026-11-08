@@ -41,6 +41,12 @@ final class BlockSources {
                 return __( 'Evaluation ratings per main category of the academy\'s methodology, the same figures as the team monthly report and the player report. Scores only, never a coach\'s written notes.', 'talenttrack' );
             case 'progress_radar':
                 return __( 'The player\'s last five evaluations, whenever they were, as the progress and radar report shows them.', 'talenttrack' );
+            case 'open_goals':
+                return __( 'The goals that are open today, the same number as the player\'s Goals tab and the team monthly report\'s squad list. Not limited to the period.', 'talenttrack' );
+            case 'goals_completed':
+                return __( 'The goals the player has completed so far, the same number as the player\'s own goals overview. Not limited to the period.', 'talenttrack' );
+            case 'pdp_conversations':
+                return __( 'The PDP planning page\'s figures for this team in the current season, block by block. It follows the season\'s blocks, not the report\'s period.', 'talenttrack' );
             case 'own_question':
                 return __( 'The data and the measure you pick, read the way the analytics explorer reads them.', 'talenttrack' );
         }
