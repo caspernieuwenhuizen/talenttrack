@@ -299,10 +299,7 @@ class MatrixGate {
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
-            $person_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d LIMIT 1",
-                $user_id
-            ) );
+            $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return null;
 
             $today = current_time( 'Y-m-d' );
@@ -378,17 +375,19 @@ class MatrixGate {
      */
     private static function assignedTeamIds( int $user_id ): array {
         global $wpdb;
+        $person_id = self::personIdOf( $user_id );
+        if ( $person_id <= 0 ) return [];
+
         $p     = $wpdb->prefix;
         $today = current_time( 'Y-m-d' );
         $ids   = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT s.scope_id
                FROM {$p}tt_user_role_scopes s
-               JOIN {$p}tt_people pe ON pe.id = s.person_id
-              WHERE pe.wp_user_id = %d
+              WHERE s.person_id = %d
                 AND s.scope_type = 'team'
                 AND ( s.start_date IS NULL OR s.start_date <= %s )
                 AND ( s.end_date   IS NULL OR s.end_date   >= %s )",
-            $user_id, $today, $today
+            $person_id, $today, $today
         ) );
         return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ), static fn( int $v ): bool => $v > 0 ) );
     }
@@ -561,10 +560,7 @@ class MatrixGate {
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
-            $person_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d LIMIT 1",
-                $user_id
-            ) );
+            $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return false;
 
             $today = current_time( 'Y-m-d' );
@@ -626,11 +622,7 @@ class MatrixGate {
             if ( ! PersonaResolver::coachPersonaHoldsTeam( $user_id, $persona, $target_id ) ) return false;
 
             // tt_user_role_scopes is keyed on person_id, not user_id.
-            // Resolve via tt_people.wp_user_id (the canonical TT-person link).
-            $person_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d LIMIT 1",
-                $user_id
-            ) );
+            $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return false;
 
             $today = current_time( 'Y-m-d' );
@@ -648,6 +640,16 @@ class MatrixGate {
         }
 
         return false;
+    }
+
+    /**
+     * #4955 — the person row a role scope is read from: the active, newest
+     * row of the account in the current club, as every other authorization
+     * read takes it (`AuthorizationService::getPersonIdByUserId()`, #1104).
+     * 0 when there is none. Memoised there per request.
+     */
+    private static function personIdOf( int $user_id ): int {
+        return (int) \TT\Infrastructure\Security\AuthorizationService::getPersonIdByUserId( $user_id );
     }
 
     /**
