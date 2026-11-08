@@ -352,11 +352,17 @@
 		return map;
 	}
 
+	// The paged routes answer in the { success, data, errors } envelope.
+	function payload(body) {
+		return (body && body.data) || {};
+	}
+
 	function sSearch(q) {
 		var seq = ++sSeq;
 		api('search?page=1&per_page=50&q=' + encodeURIComponent(q))
-			.then(function (data) {
+			.then(function (body) {
 				if (seq !== sSeq) return;
+				var data = payload(body);
 				var kinds = byKind(data && data.items);
 				var counts = (data && data.counts) || {};
 				var groups = GROUPS.map(function (g) {
@@ -388,9 +394,9 @@
 	function sRecent() {
 		var seq = ++sSeq;
 		api('me/recent')
-			.then(function (data) {
+			.then(function (body) {
 				if (seq !== sSeq) return null;
-				var items = ((data && data.items) || []).slice(0, RECENT_SHOWN);
+				var items = (payload(body).items || []).slice(0, RECENT_SHOWN);
 				if (items.length) {
 					sShow([{ kind: 'recent', title: t('search_recent', 'Recently opened'), items: items, query: '' }], '', '');
 					return null;

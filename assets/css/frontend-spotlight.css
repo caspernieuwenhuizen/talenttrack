@@ -251,7 +251,7 @@ html.tt-search-sheet-open body {
     min-width: 0;
 }
 
-.tt-dashboard .tt-spotlight__row--player .tt-spotlight__action:first-of-type {
+.tt-dashboard .tt-spotlight__row--player .tt-spotlight__result + .tt-spotlight__action {
     margin-inline-start: 2.6rem;
 }
 
@@ -326,14 +326,21 @@ html.tt-search-sheet-open body {
     font-weight: 700;
 }
 
-@media (min-width: 480px) {
+/* The panel is as wide as the field in the header, which can be narrower
+   than the phone sheet, so the row reads the panel's width, not the
+   viewport's. */
+.tt-dashboard .tt-spotlight-panel {
+    container-type: inline-size;
+}
+
+@container (min-width: 30rem) {
     .tt-dashboard .tt-spotlight__row {
         flex-wrap: nowrap;
     }
     .tt-dashboard .tt-spotlight__result {
         flex: 1 1 auto;
     }
-    .tt-dashboard .tt-spotlight__row--player .tt-spotlight__action:first-of-type {
+    .tt-dashboard .tt-spotlight__row--player .tt-spotlight__result + .tt-spotlight__action {
         margin-inline-start: 0;
     }
 }
@@ -357,6 +364,13 @@ html.tt-search-sheet-open body {
         margin-inline: auto;
     }
 
+    /* The classic header's actions cluster does not grow, so the form is
+       given a width rather than left at the input's intrinsic one. */
+    .tt-dashboard.tt-shell-classic .tt-spotlight-form {
+        flex: 0 1 auto;
+        width: min(28rem, 40vw);
+    }
+
     .tt-dashboard .tt-spotlight-bar {
         display: flex;
         align-items: center;
@@ -377,9 +391,13 @@ html.tt-search-sheet-open body {
         outline-offset: 2px;
     }
 
+    /* At least 26rem wide, so a player row keeps its name beside its two
+       actions when the field itself is narrow (768 to 1023px). */
     .tt-dashboard .tt-spotlight-panel {
         position: absolute;
-        inset-inline: 0;
+        inset-inline-start: 0;
+        width: 100%;
+        min-width: min(26rem, calc(100vw - 2rem));
         top: calc(100% + 6px);
         z-index: 1400;
         max-height: min(70vh, 560px);

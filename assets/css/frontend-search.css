@@ -163,6 +163,11 @@
     padding: 0 0.6rem 0.4rem;
 }
 
+.tt-search-page__actions .tt-btn {
+    flex: 0 0 auto;
+    width: auto;
+}
+
 /* ---- Pager and tips ------------------------------------------------ */
 
 .tt-search-page__pager {
