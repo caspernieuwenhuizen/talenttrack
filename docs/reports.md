@@ -704,7 +704,7 @@ Both attendance blocks need the right to read the team's attendance, the same ri
 - **Average per main category**: the main categories of the academy's methodology, in their order. For a team, as the team monthly report's evaluations section shows them: each category's squad average, its change against the period before, and the lowest and highest player average, with the squad rating under the table, the same figure as the report's "Squad rating" tile. For a player, as the player report's ratings show them: each category's average and latest rating in the period, and how many evaluations rated it. Scores only, never a coach's written notes, so a family and a scout may see a player's own averages.
 - **Progress over the last five evaluations**: one player's last five evaluations per main category, as the progress and radar report shows them. It shows the latest evaluations whenever they were, not only those in the period. A category an evaluation did not rate shows a dash. Staff only.
 
-Both evaluation blocks need the right to read evaluations, for that player or across that team, the same right their Evaluations tab asks; reading a team's reports is not enough. A block you may not read is not offered, and reads as having no data.
+For a team, the averages follow the team monthly report: whoever may read the team's reports sees them, an assistant coach included. For a player, both evaluation blocks need the right to read that player's evaluations, as the player report and the player's Evaluations tab do. A block you may not read is not offered, and reads as having no data.
 
 ## Report Studio — reading a shared report
 

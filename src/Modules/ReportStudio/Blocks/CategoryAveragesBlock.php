@@ -53,25 +53,28 @@ final class CategoryAveragesBlock implements ReportBlock {
     }
 
     /**
-     * The evaluations read, the gate of `players/{id}/evaluations`, not the
-     * reports read: a player's section as this reader may see it, or the
-     * section on the team. A listing names no subject.
+     * The gate of the route that owns each figure. For a team, the squad's
+     * averages are the team monthly report's evaluations section, which the
+     * team's reports read opens (the subject check), so nothing more is
+     * asked. For a player, the player report's ratings ask the evaluations
+     * read on that player, and so does this block.
      */
     public function available( ReportContext $context ): bool {
-        return self::readsEvaluations( $context );
+        if ( $context->scope === ReportContext::SCOPE_TEAM ) return true;
+        return self::readsPlayerEvaluations( $context );
     }
 
-    /** The evaluations read for this context's subject, shared with the progress block. */
-    public static function readsEvaluations( ReportContext $context ): bool {
-        if ( $context->scope === ReportContext::SCOPE_PLAYER ) {
-            return $context->playerId > 0
-                ? AuthorizationService::mayReadPlayerSection( $context->userId, $context->playerId, 'evaluations' )
-                : user_can( $context->userId, 'tt_view_evaluations' );
-        }
-        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
-        return $context->teamId > 0
-            ? AuthorizationService::canReadTeamSection( $context->userId, $context->teamId, 'evaluations' )
-            : AuthorizationService::teamSectionReadableTeamIds( $context->userId, 'evaluations' ) !== [];
+    /**
+     * The evaluations read on the player, the gate of
+     * `players/{id}/evaluations` and the player report's ratings: the
+     * section read and, for a linked parent, the child's own switch. A
+     * listing names no player. Shared with the progress block.
+     */
+    public static function readsPlayerEvaluations( ReportContext $context ): bool {
+        if ( $context->scope !== ReportContext::SCOPE_PLAYER ) return false;
+        return $context->playerId > 0
+            ? AuthorizationService::mayReadPlayerSection( $context->userId, $context->playerId, 'evaluations' )
+            : user_can( $context->userId, 'tt_view_evaluations' );
     }
 
     public function externalKeys(): array {

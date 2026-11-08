@@ -175,35 +175,37 @@ final class ReportStudioEvaluationBlocksTest extends WP_UnitTestCase {
         $this->assertInstanceOf( StudioError::class, $team );
     }
 
-    public function test_the_blocks_answer_to_the_evaluations_read_not_the_reports_read(): void {
+    public function test_each_block_answers_to_the_read_of_the_route_that_owns_its_figure(): void {
         // The assistant coach reads the team's reports and holds no
-        // evaluations read (#1060): the subject opens, the figures do not.
+        // evaluations read (#1060).
         $assistant = $this->assistantCoachOf( $this->team_a );
-        $this->assertFalse( AuthorizationService::canReadTeamSection( $assistant, $this->team_a, 'evaluations' ), 'Precondition: no evaluations read on the team.' );
         $this->assertFalse( AuthorizationService::mayReadPlayerSection( $assistant, $this->pa1, 'evaluations' ), 'Precondition: no evaluations read on the player.' );
         $subject = \TT\Modules\ReportStudio\Domain\ReportSubjectAccess::check( ReportContext::fromInput( $this->team( $this->team_a ), $assistant ) );
         $this->assertInstanceOf( ReportContext::class, $subject, 'Precondition: the reports read opens the team.' );
 
-        $cases = [
-            [ 'category_averages', $this->team( $this->team_a ) ],
-            [ 'category_averages', $this->player( $this->pa1 ) ],
-            [ 'progress_radar', $this->player( $this->pa1 ) ],
-        ];
-        foreach ( $cases as [ $key, $context ] ) {
-            $out = BlockEngine::preview( $key, $context, [], $assistant );
-            $this->assertInstanceOf( StudioError::class, $out, "{$key} on {$context['scope']}" );
-            $this->assertSame( 404, $out->status, "{$key} on {$context['scope']}" );
-        }
-        foreach ( [ 'team', 'player' ] as $scope ) {
-            $listed = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( $scope, PlayerReportAudience::INTERNAL, $assistant ) ) );
-            $this->assertNotContains( 'category_averages', $listed, $scope );
-            $this->assertNotContains( 'progress_radar', $listed, $scope );
-        }
+        // The squad's averages are the monthly report's evaluations section:
+        // the team's reports read opens them, as it opens that section.
+        $team   = BlockEngine::preview( 'category_averages', $this->team( $this->team_a ), [], $assistant );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'evaluations' ], $assistant );
+        $this->assertIsArray( $team, 'the team averages for a reader of the team\'s reports' );
+        $this->assertSame( array_column( $report['data']['evaluations']['categories'], 'avg' ), array_column( $team['data']['rows'], 'average' ) );
+        $listed_team = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( 'team', PlayerReportAudience::INTERNAL, $assistant ) ) );
+        $this->assertContains( 'category_averages', $listed_team );
 
-        // The edge: the evaluations read is what opens them.
-        $this->assertTrue( AuthorizationService::canReadTeamSection( $this->hod, $this->team_a, 'evaluations' ) );
+        // A player's ratings ask the evaluations read on the player, as the
+        // player report does: refused, and not listed.
+        foreach ( [ 'category_averages', 'progress_radar' ] as $key ) {
+            $out = BlockEngine::preview( $key, $this->player( $this->pa1 ), [], $assistant );
+            $this->assertInstanceOf( StudioError::class, $out, "{$key} on a player" );
+            $this->assertSame( 404, $out->status, "{$key} on a player" );
+        }
+        $listed_player = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( 'player', PlayerReportAudience::INTERNAL, $assistant ) ) );
+        $this->assertNotContains( 'category_averages', $listed_player );
+        $this->assertNotContains( 'progress_radar', $listed_player );
+
+        // The edge: the evaluations read on the player is what opens them.
         $this->assertTrue( AuthorizationService::mayReadPlayerSection( $this->hod, $this->pa1, 'evaluations' ) );
-        $this->assertIsArray( BlockEngine::preview( 'category_averages', $this->team( $this->team_a ), [], $this->hod ) );
+        $this->assertIsArray( BlockEngine::preview( 'category_averages', $this->player( $this->pa1 ), [], $this->hod ) );
         $this->assertIsArray( BlockEngine::preview( 'progress_radar', $this->player( $this->pa1 ), [], $this->hod ) );
     }
 

@@ -52,7 +52,7 @@ final class ProgressRadarBlock implements ReportBlock {
 
     /** The evaluations read on the player, as the averages block asks it. */
     public function available( ReportContext $context ): bool {
-        return $context->scope === ReportContext::SCOPE_PLAYER && CategoryAveragesBlock::readsEvaluations( $context );
+        return CategoryAveragesBlock::readsPlayerEvaluations( $context );
     }
 
     public function externalKeys(): array {

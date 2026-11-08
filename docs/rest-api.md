@@ -1581,10 +1581,13 @@ of the report's own subject check (the reports read):
   needs `AuthorizationService::canReadTeamAttendance()` for that team, the
   academy's flags need attendance read on every team
   (`attendanceReadableTeamIds()` is null).
-- Both evaluation blocks to the **evaluations** read, the gate of
-  `players/{id}/evaluations`: on a player
-  `AuthorizationService::mayReadPlayerSection( …, 'evaluations' )`, on a team
-  `AuthorizationService::canReadTeamSection( …, 'evaluations' )`.
+- The evaluation blocks on a **player** to the **evaluations** read, the gate
+  of `players/{id}/evaluations` and of the player report's ratings:
+  `AuthorizationService::mayReadPlayerSection( …, 'evaluations' )`.
+- `category_averages` on a **team** to the team's reports read alone, through
+  the subject check, as the team monthly report's evaluations section does: a
+  reader of the team's reports (an assistant coach included) sees the squad's
+  averages, not any one player's ratings.
 
 **404, not 403, by design.** A block the reader may not read is answered
 `404 not_found` on a preview, the same answer as a block with no data, and
