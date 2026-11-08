@@ -1,3 +1,0 @@
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
-msgid "Report Studio: build and read reports"
-msgstr "Report Studio: rapporten bouwen en lezen"

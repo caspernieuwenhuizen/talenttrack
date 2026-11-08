@@ -1,3 +1,0 @@
-# Wizards: the step total never goes up while you move forward (#4744)
-
-A wizard's "Step X of Y" counter could grow halfway through a run. The evaluation wizard counted only the mode step until you picked "Evaluate an activity" or "Evaluate 1 player", and the new-player wizard left out the trial step until you chose trial. A step that depends on an answer you haven't given yet now counts until that answer rules it out. The total can only go down as you move forward, for example when you pick a branch. It goes up only when you go back and change an earlier answer that brings a step back. Steps are skipped exactly as before; only the counter changed.

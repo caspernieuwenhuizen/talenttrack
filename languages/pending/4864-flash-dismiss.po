@@ -1,4 +1,0 @@
-#: src/Shared/Frontend/DashboardShortcode.php:348
-#: src/Shared/Frontend/FlashMessages.php:138
-msgid "Close message"
-msgstr "Melding sluiten"

@@ -3984,15 +3984,15 @@ msgstr "Geen canonieke waarde opgegeven of voorgesteld voor deze rij."
 
 #: src/Infrastructure/REST/LookupNormalisationRestController.php:112
 msgid "Canonical value must come from the list for this lookup type."
-msgstr "De canonieke waarde moet uit de lijst voor dit lookup-type komen."
+msgstr "De canonieke waarde moet uit de lijst voor dit keuzelijsttype komen."
 
 #: src/Infrastructure/REST/LookupNormalisationRestController.php:124
 msgid "The lookup row no longer exists."
-msgstr "De lookup-rij bestaat niet meer."
+msgstr "De keuzelijstrij bestaat niet meer."
 
 #: src/Infrastructure/REST/LookupNormalisationRestController.php:127
 msgid "Lookup type changed since this drift was flagged."
-msgstr "Het lookup-type is gewijzigd sinds deze afwijking werd gemarkeerd."
+msgstr "Het keuzelijsttype is gewijzigd sinds deze afwijking werd gemarkeerd."
 
 #: src/Infrastructure/REST/LookupsRestController.php:124
 msgid "Text is required."
@@ -4013,15 +4013,15 @@ msgstr ""
 # #0052 PR-B/PR-C — REST gap closure + auth portability + asset/cron/openapi
 #: src/Infrastructure/REST/LookupsRestController.php:228
 msgid "Could not create lookup value."
-msgstr "Lookup-waarde kon niet worden aangemaakt."
+msgstr "Keuzelijstwaarde kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/LookupsRestController.php:257
 msgid "Could not update lookup value."
-msgstr "Lookup-waarde kon niet worden bijgewerkt."
+msgstr "Keuzelijstwaarde kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/LookupsRestController.php:270
 msgid "Could not delete lookup value."
-msgstr "Lookup-waarde kon niet worden verwijderd."
+msgstr "Keuzelijstwaarde kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:177
 #: src/Infrastructure/REST/MeasurementsRestController.php:253
@@ -14376,7 +14376,7 @@ msgstr "Instellingen (overkoepelend)"
 #: src/Shared/Configuration/ConfigurationSurfaces.php:158
 #: src/Shared/Frontend/FrontendConfigurationView.php:165
 msgid "Lookups"
-msgstr "Lookuplijsten"
+msgstr "Keuzelijsten"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:123
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:61
@@ -15299,7 +15299,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:287
 msgid "Site-wide settings, lookups, branding, theme, rating scale."
-msgstr "Site-brede instellingen, lookups, branding, thema, beoordelingsschaal."
+msgstr "Site-brede instellingen, keuzelijsten, branding, thema, beoordelingsschaal."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:288
 msgid "Persona resolver, capability matrix, role assignments."
@@ -17337,9 +17337,9 @@ msgid ""
 "evaluation categories and weights, audit log, usage stats, demo tags and "
 "config. Largest archive, slowest to restore."
 msgstr ""
-"Alles: Standaard plus lookups, definities en waarden van aangepaste velden, "
-"evaluatiecategorieën en gewichten, auditlog, gebruiksstatistieken, demo-tags "
-"en config. Grootste archief, langzaamst te herstellen."
+"Alles: Standaard plus keuzelijsten, definities en waarden van aangepaste "
+"velden, evaluatiecategorieën en gewichten, auditlog, gebruiksstatistieken, "
+"demo-tags en config. Grootste archief, langzaamst te herstellen."
 
 #: src/Modules/Backup/PresetRegistry.php:101
 msgid "Use the table list below. Only the tables you list are backed up."
@@ -19760,7 +19760,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:237
 msgid "Lookups & reference data"
-msgstr "Lookups & naslag­gegevens"
+msgstr "Keuzelijsten & naslaggegevens"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:240
 msgid "The kinds of evaluation a coach can record (Training, Match, etc.)."
@@ -22748,7 +22748,7 @@ msgstr "Trainingen en wedstrijden — de activiteiten waaraan spelers deelnemen.
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:69
 msgid "Training or match. Value from the activity_type lookup."
-msgstr "Training of wedstrijd. Waarde uit de opzoeklijst activity_type."
+msgstr "Training of wedstrijd. Waarde uit de keuzelijst activity_type."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:70
 msgid "Free-text description of the activity."
@@ -22772,7 +22772,7 @@ msgstr "De speler die wordt beoordeeld."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:80
 msgid "Kind of evaluation. Value from the eval_type lookup."
-msgstr "Soort beoordeling. Waarde uit de opzoeklijst eval_type."
+msgstr "Soort beoordeling. Waarde uit de keuzelijst eval_type."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:85
 msgid "The rating dimensions (Technical, Tactical, Physical…)."
@@ -22845,7 +22845,7 @@ msgstr "De aan- of afwezige speler."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:119
 msgid "Present, absent, injured… from the attendance lookup."
-msgstr "Aanwezig, afwezig, geblesseerd… uit de opzoeklijst aanwezigheid."
+msgstr "Aanwezig, afwezig, geblesseerd… uit de keuzelijst aanwezigheid."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:123
 msgid ""
@@ -27816,8 +27816,8 @@ msgid ""
 msgstr ""
 "Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn "
 "alleen documentatie. Configureer ze via de wp-admin Configuratie-schermen. "
-"Ze staan hier zodat je ziet op welke categorieën / wegingen / lookups je "
-"import zich aansluit."
+"Ze staan hier zodat je ziet op welke categorieën / wegingen / keuzelijsten "
+"je import zich aansluit."
 
 #: src/Modules/Import/Excel/TemplateBuilder.php:168
 msgid "Required vs. optional columns"
@@ -29262,7 +29262,7 @@ msgstr ""
 #: src/Modules/Wizards/Goal/PlayerStep.php:80
 #: src/Shared/Frontend/Components/ComparisonSlotPicker.php:82
 msgid "— Pick a team —"
-msgstr "— Kies een ploeg —"
+msgstr "— Kies een team —"
 
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:76
 msgid "Which player got injured?"
@@ -38931,7 +38931,7 @@ msgid ""
 "Lookups."
 msgstr ""
 "Kies de dichtstbijzijnde match. Nieuwe leeftijdscategorieën kunnen worden "
-"toegevoegd onder Configuratie → Opzoeklijsten."
+"toegevoegd onder Configuratie → Keuzelijsten."
 
 #. translators: %s is the WP display name + email of the current user
 #. translators: %s is the WP display name + email of the current user.
@@ -45569,7 +45569,7 @@ msgid ""
 "descriptions, colors), then upload the edited file here to apply the changes "
 "back to this install."
 msgstr ""
-"Download een controlesjabloon met elke geseede opzoekwaarde, "
+"Download een controlesjabloon met elke geseede keuzelijstwaarde, "
 "evaluatiecategorie en rollabel. Bewerk offline (vertalingen, "
 "sorteervolgorde, beschrijvingen, kleuren) en upload het bewerkte bestand "
 "hier om de wijzigingen terug toe te passen op deze installatie."
@@ -55593,7 +55593,7 @@ msgstr "Toon of verberg de oudere wp-admin menu-items."
 #: src/Shared/Configuration/ConfigurationSurfaces.php:182
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:42
 msgid "Lookup canonical-language review"
-msgstr "Canonieke-taal revisie voor lookups"
+msgstr "Canonieke-taal revisie voor keuzelijsten"
 
 #. translators: %d is the number of lookup rows pending canonical-language review.
 #: src/Shared/Configuration/ConfigurationSurfaces.php:185
@@ -55605,11 +55605,11 @@ msgid_plural ""
 "%d lookup rows drifted from their canonical English internal key. Review "
 "each suggestion and accept the rewrite, or skip."
 msgstr[0] ""
-"%d lookup-rij wijkt af van de canonieke Engelse interne sleutel. Bekijk het "
-"voorstel en accepteer de herschrijving, of sla over."
+"%d keuzelijstrij wijkt af van de canonieke Engelse interne sleutel. Bekijk "
+"het voorstel en accepteer de herschrijving, of sla over."
 msgstr[1] ""
-"%d lookup-rijen wijken af van de canonieke Engelse interne sleutel. Bekijk "
-"elk voorstel en accepteer de herschrijving, of sla over."
+"%d keuzelijstrijen wijken af van de canonieke Engelse interne sleutel. "
+"Bekijk elk voorstel en accepteer de herschrijving, of sla over."
 
 #: src/Shared/Configuration/ConfigurationSurfaces.php:198
 msgid ""
@@ -56136,7 +56136,7 @@ msgstr "Groepeer ideeën tot een spelersontwikkelings-roadmap."
 
 #: src/Shared/CoreSurfaceRegistration.php:1479
 msgid "Lookups, branding, authorization, system settings."
-msgstr "Lookups, branding, autorisatie en systeeminstellingen."
+msgstr "Keuzelijsten, branding, autorisatie en systeeminstellingen."
 
 #: src/Shared/CoreSurfaceRegistration.php:1512
 msgid "Academy holiday periods shown on every team planner."
@@ -59068,7 +59068,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:579
 msgid "Lookup values"
-msgstr "Opzoekwaarden"
+msgstr "Keuzelijstwaarden"
 
 #. translators: %d = number of lookup values
 #: src/Shared/Frontend/FrontendConfigurationView.php:586
@@ -59115,7 +59115,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:741
 msgid "Edit lookup value"
-msgstr "Opzoekwaarde bewerken"
+msgstr "Keuzelijstwaarde bewerken"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:746
 #: src/Shared/Frontend/FrontendConfigurationView.php:957
@@ -59205,7 +59205,7 @@ msgstr "Beschrijving in %s"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:997
 msgid "Lookup rows"
-msgstr "Opzoekregels"
+msgstr "Keuzelijstregels"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1006
 msgid "No items yet. Use \"+ Add new\" to seed the first row."
@@ -59214,7 +59214,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1061
 msgid "Lookup editor"
-msgstr "Opzoekbewerker"
+msgstr "Keuzelijsteditor"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1064
 #: src/Shared/Frontend/FrontendConfigurationView.php:1298
@@ -59699,7 +59699,7 @@ msgid ""
 "No football forms configured yet. Add them under Lookups, then come back to "
 "set a default per age category."
 msgstr ""
-"Nog geen speelvormen ingesteld. Voeg ze toe onder Lookuplijsten en kom "
+"Nog geen speelvormen ingesteld. Voeg ze toe onder Keuzelijsten en kom "
 "daarna terug om per leeftijdscategorie een standaard te kiezen."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2354
@@ -61060,7 +61060,7 @@ msgid ""
 "No drifted lookup values remain. Every row matches its canonical English "
 "internal key."
 msgstr ""
-"Er zijn geen afgedreven lookup-waarden meer. Elke rij komt overeen met de "
+"Er zijn geen afgedreven keuzelijstwaarden meer. Elke rij komt overeen met de "
 "canonieke Engelse interne sleutel."
 
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:68
@@ -61068,8 +61068,8 @@ msgid ""
 "One lookup value drifted from its canonical English internal key. Review the "
 "suggestion and accept the rewrite, or skip to leave the value as-is."
 msgstr ""
-"Eén lookup-waarde wijkt af van de canonieke Engelse interne sleutel. Bekijk "
-"het voorstel en accepteer de herschrijving, of sla over om de waarde "
+"Eén keuzelijstwaarde wijkt af van de canonieke Engelse interne sleutel. "
+"Bekijk het voorstel en accepteer de herschrijving, of sla over om de waarde "
 "ongewijzigd te laten."
 
 #. translators: %d is the number of drifted lookup rows pending review.
@@ -61079,8 +61079,8 @@ msgid ""
 "%d lookup values drifted from their canonical English internal key. Review "
 "each suggestion and accept the rewrite, or skip to leave the value as-is."
 msgstr ""
-"%d lookup-waarden wijken af van de canonieke Engelse interne sleutel. Bekijk "
-"elk voorstel en accepteer de herschrijving, of sla over om de waarde "
+"%d keuzelijstwaarden wijken af van de canonieke Engelse interne sleutel. "
+"Bekijk elk voorstel en accepteer de herschrijving, of sla over om de waarde "
 "ongewijzigd te laten."
 
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:85
@@ -70044,7 +70044,7 @@ msgstr "Een rapport dat wordt gemaild of met het gezin wordt gedeeld, is in rije
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "A report published for a role is chosen when opened or follows the viewer, so each reader sees their own subject."
-msgstr "Een rapport dat voor een rol is gepubliceerd, wordt bij het openen gekozen of volgt de kijker, zodat elke lezer zijn eigen onderwerp ziet."
+msgstr "Een rapport dat voor een rol is gepubliceerd, wordt bij het openen gekozen of volgt wie het opent, zodat elke lezer zijn eigen onderwerp ziet."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "You may build this report for yourself, not publish it for a role."
@@ -70052,7 +70052,7 @@ msgstr "Je mag dit rapport voor jezelf bouwen, niet voor een rol publiceren."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "Only a report about me, a player or a team can follow the viewer."
-msgstr "Alleen een rapport over mij, een speler of een team kan de kijker volgen."
+msgstr "Alleen een rapport over mezelf, een speler of een team kan volgen wie het opent."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "Choose which period the report rolls with."
@@ -70080,7 +70080,7 @@ msgstr "Een rapport is een rapport of een dashboard."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "The subject is fixed, chosen when opened, or follows the viewer."
-msgstr "Het onderwerp ligt vast, wordt bij het openen gekozen of volgt de kijker."
+msgstr "Het onderwerp ligt vast, wordt bij het openen gekozen of volgt wie het opent."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "The period is fixed, rolling, or chosen when opened."
@@ -70173,7 +70173,7 @@ msgstr "Alleen iemand die rapporten publiceert, schrijft er een voor een scout."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "A report about me always follows the viewer."
-msgstr "Een rapport over mij volgt altijd de kijker."
+msgstr "Een rapport over mezelf volgt altijd wie het opent."
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgid "A report about the whole academy is always fixed."
@@ -70214,7 +70214,7 @@ msgstr "Een dashboard"
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgctxt "report studio scope"
 msgid "Me"
-msgstr "Ikzelf"
+msgstr "Mezelf"
 
 #: src/Modules/ReportStudio/Domain/ReportStartRules.php
 msgctxt "report studio scope"
@@ -70386,7 +70386,7 @@ msgstr "Wanneer en hoe"
 
 #: src/Modules/ReportStudio/Wizard/WhenStep.php
 msgid "Which period does it cover?"
-msgstr "Welke periode beslaat het?"
+msgstr "Over welke periode gaat het?"
 
 #: src/Modules/ReportStudio/Wizard/WhenStep.php
 msgid "For a rolling period"
@@ -70693,6 +70693,913 @@ msgstr "Verborgen voor jouw rol"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php
 msgid "You can view this, but not change it."
 msgstr "Je kunt dit bekijken, maar niet wijzigen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Report not found"
+msgstr "Rapport niet gevonden"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This report does not exist, or it was removed."
+msgstr "Dit rapport bestaat niet, of het is verwijderd."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "You may not change this report."
+msgstr "Je mag dit rapport niet wijzigen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Untitled report"
+msgstr "Rapport zonder naam"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "You have not made a report yet."
+msgstr "Je hebt nog geen rapport gemaakt."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Report name"
+msgstr "Naam van het rapport"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Versions"
+msgstr "Versies"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Share and schedule"
+msgstr "Delen en plannen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make PDF"
+msgstr "PDF maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Sharing, scheduling and the PDF come in a later release."
+msgstr "Delen, plannen en de PDF komen in een latere release."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio view switch"
+msgid "View"
+msgstr "Weergave"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Screen"
+msgstr "Scherm"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "A4"
+msgstr "A4"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Report blocks"
+msgstr "Blokken van het rapport"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Search blocks"
+msgstr "Blokken zoeken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Using a version puts it in your draft. Publish to make it live."
+msgstr "Een versie gebruiken zet hem in je concept. Publiceer om hem live te zetten."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Publish this report"
+msgstr "Dit rapport publiceren"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Publish for"
+msgstr "Publiceren voor"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "What changed"
+msgstr "Wat er veranderd is"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Week"
+msgstr "Week"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Attendance %"
+msgstr "Aanwezigheid %"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Present"
+msgstr "Aanwezig"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Absent"
+msgstr "Afwezig"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Minutes"
+msgstr "Minuten"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Starts"
+msgstr "Basisplaatsen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Minutes available"
+msgstr "Beschikbare minuten"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Group"
+msgstr "Groep"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio column"
+msgid "Value"
+msgstr "Waarde"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "The report could not be loaded. Reload the page to try again."
+msgstr "Het rapport kon niet worden geladen. Herlaad de pagina om het opnieuw te proberen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This report was changed in another tab. Loading the newest version…"
+msgstr "Dit rapport is in een ander tabblad gewijzigd. De nieuwste versie wordt geladen…"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This report was changed in another tab, so the newest version is loaded."
+msgstr "Dit rapport is in een ander tabblad gewijzigd, dus de nieuwste versie is geladen."
+
+#. translators: %s: block name
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%s added."
+msgstr "%s toegevoegd."
+
+#. translators: 1: block name, 2: its new position
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s moved to place %2$s."
+msgstr "%1$s verplaatst naar plek %2$s."
+
+#. translators: %s: block name
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%s removed."
+msgstr "%s verwijderd."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio"
+msgid "Block"
+msgstr "Blok"
+
+#. translators: %s: block name
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Drag %s onto the report"
+msgstr "Sleep %s naar het rapport"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "No blocks match your search."
+msgstr "Geen blokken passen bij je zoekopdracht."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Add a block to start the report."
+msgstr "Voeg een blok toe om het rapport te beginnen."
+
+#. translators: %d: page number
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Page %d"
+msgstr "Pagina %d"
+
+#. translators: 1: block name, 2: its position, 3: how many blocks
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s, block %2$s of %3$s"
+msgstr "%1$s, blok %2$s van %3$s"
+
+#. translators: %s: block name
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Drag to move %s"
+msgstr "Sleep om %s te verplaatsen"
+
+#. translators: %s: block name
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Change %s"
+msgstr "%s wijzigen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make full width"
+msgstr "Volle breedte maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make half width"
+msgstr "Halve breedte maken"
+
+#. translators: 1: first day, 2: last day of the period
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Nothing recorded between %1$s and %2$s."
+msgstr "Niets vastgelegd tussen %1$s en %2$s."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Only the first rows are shown."
+msgstr "Alleen de eerste rijen worden getoond."
+
+#. translators: %s: how full the page is, in percent
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "One A4 page, %s%% full."
+msgstr "Eén A4-pagina, %s%% vol."
+
+#. translators: 1: number of pages, 2: how full the last page is, in percent
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s A4 pages; the last is %2$s%% full."
+msgstr "%1$s A4-pagina's; de laatste is %2$s%% vol."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This block has no settings."
+msgstr "Dit blok heeft geen instellingen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Who sees it"
+msgstr "Wie het ziet"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Where the figures come from"
+msgstr "Waar de cijfers vandaan komen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Read as"
+msgstr "Lezen als"
+
+#. translators: 1: version number, 2: date published
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Version %1$s, %2$s"
+msgstr "Versie %1$s, %2$s"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Use this version"
+msgstr "Deze versie gebruiken"
+
+#. translators: %s: version number
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Version %s is now your draft."
+msgstr "Versie %s is nu je concept."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Only you will read this version."
+msgstr "Alleen jij leest deze versie."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Counting who it reaches…"
+msgstr "Tellen wie het bereikt…"
+
+#. translators: 1: number of people, 2: the roles
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "This reaches %1$s person: %2$s."
+msgstr "Dit bereikt %1$s persoon: %2$s."
+
+#. translators: 1: number of people, 2: the roles
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "This reaches %1$s people: %2$s."
+msgstr "Dit bereikt %1$s mensen: %2$s."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Say what changed in this version."
+msgstr "Zeg wat er in deze versie veranderd is."
+
+#. translators: %s: version number
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Version %s is published."
+msgstr "Versie %s is gepubliceerd."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "Minutes from the match line-ups, the same figures as the team monthly report."
+msgstr "Minuten uit de wedstrijdopstellingen, dezelfde cijfers als in het maandrapport van het team."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "Attendance taken at trainings and matches, counted the way the attendance reports count it."
+msgstr "Aanwezigheid bij trainingen en wedstrijden, geteld zoals de aanwezigheidsrapporten tellen."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "The data and the measure you pick, read the way the analytics explorer reads them."
+msgstr "De gegevens en de maat die je kiest, gelezen zoals de analyseverkenner ze leest."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "Figures TalentTrack already holds."
+msgstr "Cijfers die TalentTrack al heeft."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "A family may see this block, without other players' figures."
+msgstr "Een gezin mag dit blok zien, zonder de cijfers van andere spelers."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+msgid "Staff only: a family never sees this block."
+msgstr "Alleen voor staf: een gezin ziet dit blok nooit."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "A block is full or half width."
+msgstr "Een blok is volle of halve breedte."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "This report is written for one audience."
+msgstr "Dit rapport is voor één publiek geschreven."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+msgid "This block does not fit what the report is about."
+msgstr "Dit blok past niet bij waar het rapport over gaat."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+msgid "This block is for staff only."
+msgstr "Dit blok is alleen voor staf."
+
+#: src/Modules/ReportStudio/Rest/ReportBlocksRestController.php
+msgid "There is no data for this block yet."
+msgstr "Er zijn nog geen gegevens voor dit blok."
+
+#: src/Modules/ReportStudio/ReportStudioModule.php
+msgid "Build your own report or dashboard from blocks that show the same figures as the reports."
+msgstr "Bouw je eigen rapport of dashboard uit blokken die dezelfde cijfers tonen als de rapporten."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Not available to you."
+msgstr "Niet beschikbaar voor jou."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "This report has no blocks yet."
+msgstr "Dit rapport heeft nog geen blokken."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Shared with me"
+msgstr "Met mij gedeeld"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1586
+msgid "Find a setting"
+msgstr "Zoek een instelling"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1588
+msgid "For example logo, weighting or Spond"
+msgstr "Bijvoorbeeld logo, weging of Spond"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1592
+msgid "No setting matches. Try another word, such as \"colour\" or \"rights\"."
+msgstr "Geen instelling gevonden. Probeer een ander woord, zoals \"kleur\" of \"rechten\"."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1596
+msgid "There are no settings you can change."
+msgstr "Er zijn geen instellingen die jij kunt wijzigen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1618
+msgid "(opens wp-admin)"
+msgstr "(opent wp-admin)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1626
+msgctxt "switched-off module"
+msgid "off"
+msgstr "uit"
+
+#: config/settings_entries.php:36
+msgid "What is the academy called, how does it look, and how does the season run?"
+msgstr "Hoe heet de academie, hoe ziet ze eruit en hoe loopt het seizoen?"
+
+#: config/settings_entries.php:37
+msgid "What do we record for each player and team?"
+msgstr "Welke gegevens houden we bij per speler en team?"
+
+#: config/settings_entries.php:38
+msgid "How do we assess and develop players?"
+msgstr "Hoe beoordelen en ontwikkelen we spelers?"
+
+#: config/settings_entries.php:39
+msgid "How do we plan and record training and matches?"
+msgstr "Hoe plannen en registreren we trainingen en wedstrijden?"
+
+#: config/settings_entries.php:40
+msgid "Which values appear in the lists?"
+msgstr "Welke waarden staan in de lijsten?"
+
+#: config/settings_entries.php:41
+msgid "Who may see and do what?"
+msgstr "Wie mag wat zien en doen?"
+
+#: config/settings_entries.php:42
+msgid "What do we send to whom, and which tasks run automatically?"
+msgstr "Wat sturen we naar wie, en welke taken lopen automatisch?"
+
+#: config/settings_entries.php:43
+msgid "How do we bring data in and keep it safe?"
+msgstr "Hoe halen we gegevens binnen en houden we ze veilig?"
+
+#: config/settings_entries.php:44
+msgid "What is switched on, and what is in our plan?"
+msgstr "Wat staat aan, en wat zit in ons pakket?"
+
+#: config/settings_entries.php:45
+msgid "For the administrator: logs and technical tools."
+msgstr "Voor de beheerder: logboeken en techniek."
+
+#: config/settings_entries.php
+msgid "Extra fields on player and team records, for what your academy tracks beyond the standard ones."
+msgstr "Extra velden op speler- en teamdossiers, voor wat jouw academie bijhoudt naast de standaardvelden."
+
+#: config/settings_entries.php
+msgid "The criteria coaches rate in an evaluation, and their subcategories."
+msgstr "De criteria die trainers in een evaluatie beoordelen, en hun subcategorieën."
+
+#: config/settings_entries.php
+msgid "How much each evaluation category counts toward the overall rating, per age group."
+msgstr "Hoe zwaar elke evaluatiecategorie meetelt in het totaalcijfer, per leeftijdsgroep."
+
+#: config/settings_entries.php
+msgid "Lookup values whose internal key drifted from English. Review each suggestion and accept the rewrite, or skip."
+msgstr "Keuzelijstwaarden waarvan de interne sleutel van het Engels is afgeweken. Bekijk elk voorstel en neem de aanpassing over, of sla die over."
+
+#: config/settings_entries.php
+msgid "Require two-step verification"
+msgstr "Tweestapsverificatie verplichten"
+
+#: config/settings_entries.php
+msgid "Which roles must sign in with a second factor."
+msgstr "Welke rollen met een tweede factor moeten inloggen."
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "language, locale, timezone, date, week, navigation layout"
+msgstr "taal, locale, tijdzone, datum, week, navigatie-indeling, language, timezone"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "logo, colours, colors, branding, theme, fonts, crest, academy name"
+msgstr "logo, kleuren, huisstijl, thema, lettertypen, embleem, naam academie, colours, branding, theme"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "css, styling, stylesheet, branding"
+msgstr "css, opmaak, stijl, huisstijl, styling, branding"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "season, year, period, current season"
+msgstr "seizoen, jaar, periode, huidig seizoen, season"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "holidays, break, closed, calendar, team planner"
+msgstr "vakantie, vrij, gesloten, kalender, teamplanner, holidays"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "rollover, new season, move up, promote, age group"
+msgstr "overgang, nieuw seizoen, doorschuiven, leeftijdsgroep, rollover"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "dashboard, landing page, start page, home, tiles"
+msgstr "dashboard, startpagina, home, tegels, landing page"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "dashboard, layout, widgets, persona, editor"
+msgstr "dashboard, indeling, widgets, persona, editor, layout"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "widget, chart, kpi, dashboard"
+msgstr "widget, grafiek, kpi, dashboard, chart"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "onboarding, first run, getting started, wizard"
+msgstr "installatie, eerste keer, aan de slag, wizard, onboarding"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "custom fields, extra fields, player record, team record"
+msgstr "eigen velden, extra velden, spelerdossier, teamdossier, custom fields"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "profile, cards, player page"
+msgstr "profiel, kaarten, profielkaart, spelerpagina, profile, cards"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "status, traffic light, thresholds, methodology"
+msgstr "status, stoplicht, drempels, methodiek, traffic light"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "roles, coach, assistant, team manager, staff"
+msgstr "rollen, trainer, assistent, teammanager, staf, roles"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "trial, tracks, steps"
+msgstr "stage, proeftraining, trajecten, stappen, trial"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "trial, letters, templates"
+msgstr "stage, proeftraining, brieven, sjablonen, trial, letters"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "import, csv, spreadsheet, bulk, players"
+msgstr "importeren, csv, spreadsheet, bulk, spelers, import"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "evaluation, categories, criteria"
+msgstr "evaluatie, categorieën, criteria, evaluation"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "weighting, weights, overall rating, age group"
+msgstr "weging, gewicht, totaalcijfer, leeftijdsgroep, weighting, weights"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "rating, scale, scores, marks"
+msgstr "beoordeling, schaal, cijfers, scores, rating, scale"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "pdp, cycle, blocks, conversations"
+msgstr "pop, pdp, cyclus, blokken, gesprekken"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "pdp, preparation, questions, conversation"
+msgstr "pop, pdp, voorbereiding, vragen, gesprek"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "tests, measurements, target bands"
+msgstr "tests, metingen, streefbanden, measurements"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "chemistry, team, combinations"
+msgstr "chemie, team, samenwerking, combinaties, chemistry"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "methodology, vocabulary, principles, terms"
+msgstr "methodiek, vocabulaire, principes, begrippen, methodology"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "minutes, playing time, match length, halves"
+msgstr "minuten, speeltijd, wedstrijdduur, helften, minutes"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "vct, periodisation, workload, training days"
+msgstr "vct, periodisering, belasting, trainingsdagen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "spond, calendar, sync, integration"
+msgstr "spond, agenda, kalender, koppeling, synchronisatie"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "strava, running, integration"
+msgstr "strava, hardlopen, koppeling"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "lookups, dropdowns, lists, values, vocabulary"
+msgstr "keuzelijsten, lijsten, waarden, vocabulaire, lookups"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "availability, attendance, present, absent, injured, excused"
+msgstr "beschikbaarheid, aanwezigheid, aanwezig, afwezig, geblesseerd, afgemeld, availability"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "football form, a side, 11v11, 8v8, 6v6"
+msgstr "voetbalvorm, speelvorm, 11 tegen 11, 11v11, 8v8, 6v6"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "language, translation, review, lookups"
+msgstr "taal, vertaling, controle, keuzelijsten, taalcontrole"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "accounts, logins, users, parents, link"
+msgstr "accounts, inloggen, gebruikers, ouders, koppelen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "invitations, invite, email text"
+msgstr "uitnodigingen, uitnodigen, e-mailtekst, invite"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "permissions, rights, authorization, roles, access, matrix"
+msgstr "rechten, autorisatie, rollen, toegang, matrix, permissions"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "2fa, two-factor, two-step, mfa, security, login"
+msgstr "2fa, tweestaps, tweestapsverificatie, mfa, beveiliging, inloggen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "email, notifications, sender, push, messages"
+msgstr "e-mail, mail, meldingen, afzender, push, berichten, notificaties"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "workflow, tasks, reminders, templates"
+msgstr "workflow, taken, herinneringen, sjablonen"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "translation, deepl, google, language"
+msgstr "vertaling, vertalen, deepl, google, taal"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "backup, restore, migration"
+msgstr "back-up, backup, herstellen, terugzetten, migratie"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "export, json, configuration, snapshot"
+msgstr "export, exporteren, json, configuratie, momentopname"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "recycle bin, trash, deleted, restore"
+msgstr "prullenbak, verwijderd, herstellen, trash"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "import, history, undo"
+msgstr "import, geschiedenis, ongedaan maken"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "media, photos, videos, retention"
+msgstr "media, foto's, video's, bewaren, bewaartermijn"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "modules, features, switch on, switch off"
+msgstr "modules, functies, aanzetten, uitzetten"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "features, status, what is on"
+msgstr "functies, status, wat staat aan, features"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wizards, step by step, new record"
+msgstr "wizards, stap voor stap, nieuw dossier"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "plan, licence, subscription, restrictions, tier"
+msgstr "pakket, licentie, abonnement, beperkingen, plan"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "audit, log, changes, history"
+msgstr "audit, log, wijzigingen, geschiedenis"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "messages, log, sent, email"
+msgstr "berichten, logboek, verzonden, e-mail"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "data, browser, tables, raw"
+msgstr "gegevens, data, browser, tabellen, ruw"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "migrations, database, schema"
+msgstr "migraties, database, schema"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wp-admin, menus, wordpress"
+msgstr "wp-admin, menu's, wordpress"
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "wordpress, wp-admin"
+msgstr "wordpress, wp-admin"
+
+#: src/Infrastructure/Search/SearchQuery.php
+#, php-format
+msgid "Shirt number %d"
+msgstr "Rugnummer %d"
+
+#: src/Infrastructure/Search/SearchQuery.php
+#, php-format
+msgid "Age group %s"
+msgstr "Leeftijdsgroep %s"
+
+#: src/Infrastructure/Search/SearchQuery.php
+#, php-format
+msgid "On %s"
+msgstr "Op %s"
+
+#: src/Infrastructure/Search/SearchQuery.php
+#, php-format
+msgid "Last %1$s and next %2$s"
+msgstr "Afgelopen %1$s en komende %2$s"
+
+#: src/Infrastructure/REST/SearchRestController.php
+msgid "That kind of record cannot be kept as recent."
+msgstr "Dat soort record wordt niet als recent bewaard."
+
+#: src/Infrastructure/REST/SearchRestController.php
+msgid "That record id cannot be read."
+msgstr "Dat record-id is niet te lezen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Each recipient is checked every time the report is sent. An account receives it only when it may read this team's reports. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run."
+msgstr "Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt het rapport alleen als het de rapporten van dit team mag lezen. Een adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de verzending bij het geplande rapport."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Each recipient is checked every time the report is sent. An account receives it only when it may read the report about every player in it, so parents and players do not receive it with the standard permissions. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run."
+msgstr "Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt het rapport alleen als het het rapport over elke speler erin mag lezen, dus met de standaardrechten ontvangen ouders en spelers het niet. Een adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de verzending bij het geplande rapport."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Report Studio: build and read reports"
+msgstr "Report Studio: rapporten bouwen en lezen"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1061
+msgctxt "player facts label"
+msgid "DOB"
+msgstr "Geboren"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1075
+msgctxt "player facts label"
+msgid "Joined"
+msgstr "Lid sinds"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1107
+msgctxt "player facts label"
+msgid "Avg rating"
+msgstr "Gem. cijfer"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1120
+msgctxt "player facts label"
+msgid "Attended"
+msgstr "Aanwezig"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1147
+msgctxt "player facts label"
+msgid "Goals scored"
+msgstr "Gescoord"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1162
+msgctxt "player facts label"
+msgid "Tests"
+msgstr "Metingen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Choose which roles must set up two-step verification. A change applies to everyone in that role from their next login."
+msgstr "Kies welke rollen tweestapsverificatie moeten instellen. Een wijziging geldt voor iedereen in die rol vanaf de volgende keer inloggen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Roles that must set up two-step verification"
+msgstr "Rollen die tweestapsverificatie moeten instellen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "No accounts with this role"
+msgstr "Geen accounts met deze rol"
+
+#. translators: 1: accounts in this role without two-step verification, 2: all accounts in this role.
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%1$d of %2$d not set up yet"
+msgstr "%1$d van %2$d nog niet ingesteld"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Everyone in a ticked role who has not set it up yet will be asked to set up two-step verification at their next login."
+msgstr "Iedereen in een aangevinkte rol die het nog niet heeft ingesteld, wordt bij de volgende keer inloggen gevraagd tweestapsverificatie aan te zetten."
+
+#: src/Modules/Export/ExportGate.php
+msgid "Your account cannot download files."
+msgstr "Met je account kun je geen bestanden downloaden."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "File downloads"
+msgstr "Bestanden downloaden"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Changed since publish"
+msgstr "Gewijzigd sinds publicatie"
+
+#: src/Modules/Wizards/Team/StaffStep.php
+msgid "Choose a staff member from the list."
+msgstr "Kies een stafmedewerker uit de lijst."
+
+#. translators: 1: the staff slot, e.g. "Head coach"; 2: what is wrong with its value.
+#: src/Modules/Wizards/Team/StaffStep.php
+#, php-format
+msgctxt "wizard field error"
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Strava club console"
+msgstr "Strava-clubconsole"
+
+#: src/Shared/Configuration/ConfigurationSurfaces.php
+msgid "See which players in your teams have connected their Strava accounts."
+msgstr "Bekijk welke spelers in je teams hun Strava-account hebben gekoppeld."
+
+#: src/Infrastructure/Journey/PlayerEventsRepository.php
+msgid "Trial ended"
+msgstr "Stage afgerond"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1771
+msgid "Colour of the outline around the active field or button (keyboard)"
+msgstr "Kleur van de rand rond het actieve veld of de knop (toetsenbord)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1772
+#: src/Infrastructure/REST/ConfigRestController.php:400
+msgid "This colour is hard to see as a focus outline."
+msgstr "Deze kleur is slecht zichtbaar als focusrand."
+
+#. translators: %s: the name of the field that no longer exists
+#: src/Modules/Analytics/Domain/UnknownFactKeyException.php
+#, php-format
+msgid "This refers to a field that no longer exists: %s."
+msgstr "Dit verwijst naar een veld dat niet meer bestaat: %s."
+
+#. translators: %s: the name of the field that no longer exists
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+#, php-format
+msgid "This block refers to a field that no longer exists: %s."
+msgstr "Dit blok verwijst naar een veld dat niet meer bestaat: %s."
+
+#: src/Shared/Frontend/DashboardShortcode.php:348
+#: src/Shared/Frontend/FlashMessages.php:138
+msgid "Close message"
+msgstr "Melding sluiten"
+
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid "Scheduled report not sent"
+msgstr "Gepland rapport niet verstuurd"
+
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid "Your scheduled report wasn't sent"
+msgstr "Je geplande rapport is niet verstuurd"
+
+#: src/Modules/Comms/Templates/ScheduledReportNotSentTemplate.php
+msgid ""
+"Your scheduled report \"{schedule_name}\" was not sent, because it refers to a field that no longer exists: {field_name}. Nothing is sent until the schedule is fixed.\n"
+"\n"
+"Open the schedule: {schedule_url}"
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" is niet verstuurd, omdat het verwijst naar een veld dat niet meer bestaat: {field_name}. Er wordt niets verstuurd tot het schema is aangepast.\n"
+"\n"
+"Open het schema: {schedule_url}"
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Tells the person who set up a scheduled report that it was not sent, because it refers to a field that no longer exists, and links to the schedule."
+msgstr "Laat degene die een gepland rapport heeft ingesteld weten dat het niet is verstuurd, omdat het verwijst naar een veld dat niet meer bestaat, met een link naar het schema."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The person who set up the scheduled report."
+msgstr "Degene die het geplande rapport heeft ingesteld."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed."
+msgstr "De eerste keer dat een geplande run wordt overgeslagen. Het wordt pas opnieuw verstuurd als de planning weer misgaat na een geslaagde verzending, of nadat ze is gepauzeerd en hervat."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "When a report you scheduled could not be sent"
+msgstr "Als een rapport dat je hebt ingepland niet verstuurd kon worden"
 
 #~ msgid "All states"
 #~ msgstr "Alle statussen"

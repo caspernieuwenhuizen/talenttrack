@@ -1,3 +1,0 @@
-#: src/Infrastructure/Journey/PlayerEventsRepository.php
-msgid "Trial ended"
-msgstr "Stage afgerond"

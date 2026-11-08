@@ -1,7 +1,0 @@
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Each recipient is checked every time the report is sent. An account receives it only when it may read this team's reports. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run."
-msgstr "Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt het rapport alleen als het de rapporten van dit team mag lezen. Een adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de verzending bij het geplande rapport."
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Each recipient is checked every time the report is sent. An account receives it only when it may read the report about every player in it, so parents and players do not receive it with the standard permissions. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run."
-msgstr "Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt het rapport alleen als het het rapport over elke speler erin mag lezen, dus met de standaardrechten ontvangen ouders en spelers het niet. Een adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de verzending bij het geplande rapport."
