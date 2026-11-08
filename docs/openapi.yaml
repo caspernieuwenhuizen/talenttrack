@@ -387,6 +387,7 @@ paths:
       parameters:
         - { in: query, name: scope, required: false, schema: { type: string, enum: [me, player, team, group, academy] } }
         - { in: query, name: audience, required: false, schema: { type: string, enum: [internal, scout, family] } }
+        - { in: query, name: layout, required: false, schema: { type: string, enum: [rows, grid] } }
       responses:
         '200': { description: OK }
         '400': { description: bad_filter — an unknown scope or audience }

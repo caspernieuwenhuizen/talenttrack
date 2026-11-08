@@ -95,6 +95,10 @@ final class FrontendReportView extends FrontendViewBase {
                 'nothing'      => __( 'Nothing recorded between %1$s and %2$s.', 'talenttrack' ),
                 'truncated'    => __( 'Only the first rows are shown.', 'talenttrack' ),
                 'value'        => _x( 'Value', 'report studio column', 'talenttrack' ),
+                /* translators: 1: first day, 2: last day of the period */
+                'periodRange'  => __( '%1$s to %2$s', 'talenttrack' ),
+                /* translators: %s: the change, for example "+4 pts" */
+                'sincePrevious' => __( '%s against the period before', 'talenttrack' ),
                 'block'        => _x( 'Block', 'report studio', 'talenttrack' ),
                 'notAvailable' => __( 'Not available to you.', 'talenttrack' ),
                 'empty'        => __( 'This report has no blocks yet.', 'talenttrack' ),

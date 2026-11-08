@@ -716,6 +716,18 @@ Een rapport bevat hooguit 40 blokken.
 
 **Versies en publiceren.** **Publiceren** maakt van je concept een versie. Het vraagt wat er veranderd is, en bij een rapport voor een rol vraagt het voor welke rollen je het publiceert en zegt het hoeveel mensen dat bereikt. **Versies** toont de gepubliceerde versies; **Deze versie gebruiken** zet er een terug in je concept, en de volgende publicatie maakt hem weer live.
 
+## Report Studio — de blokken
+
+Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetzelfde onderwerp en dezelfde periode. Een blok dat alleen voor staf is, krijgt een gezin of een scout nooit te zien.
+
+**Opmaak en tekst**
+
+- **Briefhoofd**: het team of de speler, de periode en de clubkleuren. Voor een team noemt het de leeftijdsgroep, de hoofdtrainer, de grootte van de selectie en hoeveel activiteiten de periode had, zoals het maandrapport van het team; voor een speler het team en de hoofdtrainer, zoals het spelersrapport. Een gezin en een scout mogen het briefhoofd van een speler zien.
+- **Kerncijfers**: de hoofdcijfers van het maandrapport van het team (activiteiten, aanwezigheid, het mediane aandeel speelminuten, hoeveel spelers beoordeeld zijn, de teambeoordeling en hoeveel spelers aandacht nodig hebben), elk met de verandering ten opzichte van de periode ervoor. Alleen voor een team, en alleen voor staf.
+- **Kop**: een titel tussen blokken.
+- **Tekst**: een kop en een alinea over het rapport, bijvoorbeeld waar het voor is of hoe je het leest. Het is platte tekst, hooguit 2.000 tekens. Schrijf hier niet over een speler: een notitie over een speler hoort bij een momentopname.
+- **Pagina-einde**: het blok erna begint op een nieuwe pagina als het rapport wordt afgedrukt. Alleen voor een rapport in rijen; de A4-weergave toont waar de nieuwe pagina begint.
+
 ## Report Studio — een gedeeld rapport lezen
 
 Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.
@@ -725,6 +737,7 @@ Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapporteno
 - **De periode** is die waarvoor het rapport is gemaakt. Wordt hij bij het openen gekozen, kies dan een van de periodes: vorige week, vorige maand, deze maand of dit seizoen.
 - **Een blok dat je niet mag zien** meldt "Niet beschikbaar voor jou." en toont geen cijfers. Contactgegevens van een gezin waar je niet mee werkt, worden nooit getoond.
 - Op een telefoon staan de blokken onder elkaar.
+- Een briefhoofd, een kop en een tekst staan er zonder bloknaam erboven, en een pagina-einde werkt alleen op papier.
 
 Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.
 

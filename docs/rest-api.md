@@ -1379,13 +1379,16 @@ blocks from it. `POST /report-blocks/{key}/preview` is the canvas's and needs
 otherwise) and the `report_studio` plan feature (`402 license_required`
 otherwise, on every verb). The read-only observer is answered `403` on both.
 
-### `GET /report-blocks?scope=&audience=`
+### `GET /report-blocks?scope=&audience=&layout=`
 
 The blocks the caller may place. `scope` is `me`, `player`, `team`, `group` or
 `academy` (omit it for every scope); `audience` is `internal` (default),
-`scout` or `family`. Both are also accepted as `filter[scope]` /
-`filter[audience]`, the nested value winning. **An unknown value is `400
-bad_filter`**, never dropped.
+`scout` or `family`; `layout` is the report's layout, `rows` or `grid` (omit
+it for no layout check). All three are also accepted as `filter[scope]` /
+`filter[audience]` / `filter[layout]`, the nested value winning. **An unknown
+value is `400 bad_filter`**, never dropped. A block bound to other layouts
+(the page break is for `rows` only) is listed under `unavailable` with that
+reason.
 
 A block is listed only when its scopes and audiences fit, the caller holds its
 `capability`, and it can return data for the caller (`available`). A caller
@@ -1414,7 +1417,8 @@ for. The payload carries capabilities and keys, never role names.
       "reason": "This block does not fit what the report is about." } ] }
 ```
 
-Option types are `enum`, `bool`, `int`, `measure` and `breakdown`. A
+Option types are `enum`, `bool`, `int`, `measure`, `breakdown` and `text`
+(#4572: plain text, tags stripped, at most `max` characters). A
 `depends_on` option's `choices` are grouped by the value of the option it
 names. `source` and `family` say, in plain words, where a block's figures
 come from and whether a family may see it. `unavailable` lists every other
@@ -1475,8 +1479,25 @@ An unknown block, or one with no data for this subject, is `404 not_found`.
             "rows": [ { "week": "2026-W36", "attendance_pct": 88.5, "present": 23, "absent": 3 } ] } }
 ```
 
-The three blocks:
+The blocks:
 
+- `letterhead` (player, team; every audience for a player): the team monthly
+  report's or the player report's letterhead composer, as that report returns
+  it, plus `subject` (`team` or `player`) and `brand` (`primary`, `tint`,
+  `number`: the `ReportBrandColour` values a printed report carries).
+- `key_figures` (team, staff only): the team monthly report's KPI composer as
+  `figures`, a list of `{ key, label, value, of, unit, delta, delta_unit }` in
+  the report's tile order, plus `previous`, the window each delta is taken
+  against. `unit` is `percent`, `count_of` (`value` of `of`) or empty.
+- `heading` (every scope and audience): `{ heading }`, from the `heading`
+  text option (at most 120 characters).
+- `text` (every scope and audience): `{ heading, text }`, from two text
+  options (120 and 2,000 characters). Text about the document; a note about a
+  player lives on a snapshot.
+- `page_break` (every scope and audience, `rows` layout only): no data. In
+  `GET /reports/{id}/data` it takes no height in `page_fit`, and the block
+  after it opens a new page (its id is in `breaks`). A draft holding it on a
+  `grid` report is refused with `400 invalid_field`.
 - `playing_time` (team, staff only): minutes, matches and starts per player,
   read through the minutes query the team monthly report uses.
 - `attendance_per_week` (player, team, group, academy): the attendance

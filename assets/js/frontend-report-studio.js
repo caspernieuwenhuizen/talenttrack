@@ -158,7 +158,7 @@
 			state.audience = report.audience;
 			startSaver();
 			return Promise.all([
-				api('GET', 'report-blocks', null, { scope: report.scope, audience: report.audience }),
+				api('GET', 'report-blocks', null, { scope: report.scope, audience: report.audience, layout: report.layout }),
 				api('GET', 'reports/start-options', null, { kind: report.kind, scope: report.scope }).catch(function () { return null; }),
 				(report.scope === 'player' || report.scope === 'team') && report.binding !== 'viewer'
 					? api('GET', 'reports/subject-options').catch(function () { return null; })
@@ -582,6 +582,15 @@
 				if (o.max != null) input.max = o.max;
 				input.value = values[o.key] != null ? values[o.key] : '';
 				input.addEventListener('change', function () { setOption(block.id, o.key, input.value === '' ? '' : parseInt(input.value, 10)); });
+			} else if (o.type === 'text') {
+				// A long text gets a text area; a heading one line (#4572).
+				var long = o.max != null && o.max > 200;
+				input = el(long ? 'textarea' : 'input', 'tt-input');
+				if (long) input.rows = 5;
+				else input.type = 'text';
+				if (o.max != null) input.maxLength = o.max;
+				input.value = values[o.key] != null ? values[o.key] : '';
+				input.addEventListener('change', function () { setOption(block.id, o.key, input.value); });
 			} else {
 				input = el('select', 'tt-input');
 				var choices = o.depends_on ? (o.choices[values[o.depends_on]] || []) : o.choices;

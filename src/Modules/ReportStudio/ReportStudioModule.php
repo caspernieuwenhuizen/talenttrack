@@ -6,8 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\ReportStudio\Blocks\AttendancePerWeekBlock;
+use TT\Modules\ReportStudio\Blocks\HeadingBlock;
+use TT\Modules\ReportStudio\Blocks\KeyFiguresBlock;
+use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
 use TT\Modules\ReportStudio\Blocks\OwnQuestionBlock;
+use TT\Modules\ReportStudio\Blocks\PageBreakBlock;
 use TT\Modules\ReportStudio\Blocks\PlayingTimeBlock;
+use TT\Modules\ReportStudio\Blocks\TextBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
@@ -28,6 +33,11 @@ class ReportStudioModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
+        BlockRegistry::register( new LetterheadBlock() );
+        BlockRegistry::register( new KeyFiguresBlock() );
+        BlockRegistry::register( new HeadingBlock() );
+        BlockRegistry::register( new TextBlock() );
+        BlockRegistry::register( new PageBreakBlock() );
         BlockRegistry::register( new PlayingTimeBlock() );
         BlockRegistry::register( new AttendancePerWeekBlock() );
         BlockRegistry::register( new OwnQuestionBlock() );

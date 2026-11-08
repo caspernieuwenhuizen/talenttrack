@@ -1,0 +1,68 @@
+#: src/Modules/ReportStudio/Blocks/LetterheadBlock.php:38
+msgctxt "report studio block"
+msgid "Letterhead"
+msgstr "Briefhoofd"
+
+#: src/Modules/ReportStudio/Blocks/KeyFiguresBlock.php:29
+msgctxt "report studio block"
+msgid "Key figures"
+msgstr "Kerncijfers"
+
+#: src/Modules/ReportStudio/Blocks/HeadingBlock.php:21
+msgctxt "report studio block"
+msgid "Heading"
+msgstr "Kop"
+
+#: src/Modules/ReportStudio/Blocks/TextBlock.php:31
+msgctxt "report studio block"
+msgid "Text"
+msgstr "Tekst"
+
+#: src/Modules/ReportStudio/Blocks/PageBreakBlock.php:26
+msgctxt "report studio block"
+msgid "Page break"
+msgstr "Pagina-einde"
+
+#: src/Modules/ReportStudio/Blocks/TextBlock.php:49
+msgid "Text about this report (not about a player)"
+msgstr "Tekst over dit rapport (niet over een speler)"
+
+#: src/Modules/ReportStudio/Blocks/PageBreakBlock.php:62
+msgid "A page break is for a report laid out in rows."
+msgstr "Een pagina-einde is voor een rapport in rijen."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:18
+msgid "The team or the player, the period and the club colours, the same heading as the team monthly report and the player report."
+msgstr "Het team of de speler, de periode en de clubkleuren: hetzelfde briefhoofd als in het maandrapport van het team en het spelersrapport."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:20
+msgid "The headline figures of the team monthly report, each against the period before."
+msgstr "De hoofdcijfers van het maandrapport van het team, elk ten opzichte van de periode ervoor."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:23
+msgid "Text you write about this report. A note about a player does not belong here."
+msgstr "Tekst die je zelf schrijft over dit rapport. Een notitie over een speler hoort hier niet."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:25
+msgid "Starts a new page when the report is printed."
+msgstr "Begint een nieuwe pagina als het rapport wordt afgedrukt."
+
+#. translators: 1: first day, 2: last day of the period
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:327
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+msgid "%1$s to %2$s"
+msgstr "%1$s tot en met %2$s"
+
+#. translators: %s: the change, for example "+4 pts"
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:329
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:100
+msgid "%s against the period before"
+msgstr "%s ten opzichte van de periode ervoor"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:330
+msgid "Open the settings to write the text."
+msgstr "Open de instellingen om de tekst te schrijven."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:331
+msgid "The next block starts on a new page when printed."
+msgstr "Het volgende blok begint op een nieuwe pagina bij afdrukken."

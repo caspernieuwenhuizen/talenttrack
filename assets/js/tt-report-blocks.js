@@ -4,7 +4,8 @@
  * same way.
  *
  *   TT.ReportBlocks.body(block, {
- *       i18n:    { loading, nothing, truncated, value },
+ *       i18n:    { loading, nothing, truncated, value, periodRange, sincePrevious,
+ *                  emptyText, pageBreakNote },  // the last two only on the canvas
  *       columns: { week: 'Week', … },   // column headings, from the server
  *       catalog: { key: blockFromGetReportBlocks },
  *       context: dataResponse.context,
@@ -64,6 +65,61 @@
 		return (opts.columns && opts.columns[c]) || t.value;
 	}
 
+	function signed(v) {
+		var n = Number(v);
+		return (n > 0 ? '+' : '') + String(v);
+	}
+
+	function figureValue(f) {
+		if (f.value == null) return '–';
+		if (f.unit === 'count_of') return f.of > 0 ? String(f.value) + '/' + String(f.of) : '–';
+		return String(f.value) + (f.unit === 'percent' ? '%' : '');
+	}
+
+	/** Blocks that are not a figure or a table (#4572), drawn by key. */
+	var RENDERERS = {
+		letterhead: function (box, data, opts) {
+			var t = opts.i18n || {};
+			var head = el('header', 'tt-rs-letterhead');
+			head.appendChild(el(opts.headingTag || 'h3', 'tt-rs-letterhead-title', data.name || data.team_name || ''));
+			var meta = [data.subject === 'player' ? data.team_name : '', data.age_group, data.head_coach]
+				.filter(function (s) { return !!s; }).join(' · ');
+			if (meta) head.appendChild(el('p', 'tt-rs-letterhead-meta', meta));
+			if (data.from && data.to) head.appendChild(el('p', 'tt-rs-letterhead-meta', fmt(t.periodRange, day(data.from), day(data.to))));
+			box.appendChild(head);
+		},
+		key_figures: function (box, data, opts) {
+			var t = opts.i18n || {};
+			var list = el('ul', 'tt-rs-kpis');
+			(Array.isArray(data.figures) ? data.figures : []).forEach(function (f) {
+				var li = el('li', 'tt-rs-kpi');
+				li.appendChild(el('span', 'tt-rs-kpi-value', figureValue(f)));
+				li.appendChild(el('span', 'tt-rs-kpi-label', f.label || ''));
+				if (f.delta != null) {
+					li.appendChild(el('span', 'tt-rs-kpi-delta', fmt(t.sincePrevious, signed(f.delta) + (f.delta_unit ? ' ' + f.delta_unit : ''))));
+				}
+				list.appendChild(li);
+			});
+			box.appendChild(list);
+		},
+		heading: function (box, data, opts) {
+			var t = opts.i18n || {};
+			if (data.heading) box.appendChild(el(opts.headingTag || 'h3', 'tt-rs-heading', data.heading));
+			else if (t.emptyText) box.appendChild(el('p', 'tt-rs-block-msg', t.emptyText));
+		},
+		text: function (box, data, opts) {
+			var t = opts.i18n || {};
+			if (data.heading) box.appendChild(el(opts.headingTag || 'h3', 'tt-rs-heading', data.heading));
+			if (data.text) box.appendChild(el('p', 'tt-rs-text', data.text));
+			if (!data.heading && !data.text && t.emptyText) box.appendChild(el('p', 'tt-rs-block-msg', t.emptyText));
+		},
+		page_break: function (box, data, opts) {
+			var t = opts.i18n || {};
+			box.classList.add('tt-rs-break-body');
+			if (t.pageBreakNote) box.appendChild(el('p', 'tt-rs-block-msg', t.pageBreakNote));
+		}
+	};
+
 	function body(d, opts) {
 		opts = opts || {};
 		var t = opts.i18n || {};
@@ -82,6 +138,10 @@
 			return box;
 		}
 		var data = d.data || {};
+		if (Object.prototype.hasOwnProperty.call(RENDERERS, d.key)) {
+			RENDERERS[d.key](box, data, opts);
+			return box;
+		}
 		if (data.value !== undefined && !Array.isArray(data.rows)) {
 			var fig = el('p', 'tt-rs-figure');
 			fig.appendChild(el('span', 'tt-rs-figure-value', data.value == null ? '–' : String(data.value) + (data.unit === 'percent' ? '%' : '')));
@@ -116,5 +176,9 @@
 		return box;
 	}
 
-	window.TT.ReportBlocks = { body: body, fmt: fmt, day: day };
+	/** Blocks that are their own heading, so a reader sees no block name above them. */
+	var UNTITLED = ['letterhead', 'heading', 'text', 'page_break'];
+	function untitled(key) { return UNTITLED.indexOf(key) !== -1; }
+
+	window.TT.ReportBlocks = { body: body, fmt: fmt, day: day, untitled: untitled };
 })();

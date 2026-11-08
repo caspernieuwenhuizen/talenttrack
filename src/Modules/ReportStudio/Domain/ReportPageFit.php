@@ -18,21 +18,30 @@ use TT\Modules\Analytics\Reports\PlayerReportLayout;
 final class ReportPageFit {
 
     /**
-     * @param list<array{id:string, width:string, rows:int}> $blocks in canvas order
+     * A page break (`break: true`, #4572) takes no height and moves the row
+     * after it to a new page.
+     *
+     * @param list<array{id:string, width:string, rows:int, break?:bool}> $blocks in canvas order
      * @return array{pages:int, fill:list<int>, breaks:list<string>}
      */
     public static function estimate( array $blocks ): array {
-        $rows  = [];
-        $count = count( $blocks );
+        $rows   = [];
+        $count  = count( $blocks );
+        $forced = false;
         for ( $i = 0; $i < $count; $i++ ) {
-            $block  = $blocks[ $i ];
+            $block = $blocks[ $i ];
+            if ( ! empty( $block['break'] ) ) {
+                $forced = true;
+                continue;
+            }
             $height = PlayerReportLayout::sectionHeight( $block['rows'] );
             $next   = $blocks[ $i + 1 ] ?? null;
-            if ( $block['width'] === ReportDefinition::WIDTH_HALF && $next !== null && $next['width'] === ReportDefinition::WIDTH_HALF ) {
+            if ( $block['width'] === ReportDefinition::WIDTH_HALF && $next !== null && empty( $next['break'] ) && $next['width'] === ReportDefinition::WIDTH_HALF ) {
                 $height = max( $height, PlayerReportLayout::sectionHeight( $next['rows'] ) );
                 $i++;
             }
-            $rows[] = [ 'id' => $block['id'], 'height' => $height ];
+            $rows[] = [ 'id' => $block['id'], 'height' => $height, 'forced' => $forced ];
+            $forced = false;
         }
 
         $letterhead = PlayerReportLayout::letterheadHeight();
@@ -43,7 +52,7 @@ final class ReportPageFit {
         $breaks = [];
         $used   = $letterhead;
         foreach ( $rows as $row ) {
-            if ( $used > 0.0 && $used + $row['height'] > $page ) {
+            if ( $used > 0.0 && ( $row['forced'] || $used + $row['height'] > $page ) ) {
                 $fill[]   = self::percent( $used, $page );
                 $breaks[] = $row['id'];
                 $used     = 0.0;

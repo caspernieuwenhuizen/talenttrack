@@ -121,13 +121,17 @@
 		var blocks = data ? data.blocks || [] : [];
 		if (data && !blocks.length) list.appendChild(el('li', 'tt-rs-empty', t.empty));
 		blocks.forEach(function (b) {
+			// A page break only acts on paper (#4572).
+			if (b.key === 'page_break') return;
 			var li = el('li', 'tt-rs-block tt-rs-block--' + (b.width === 'half' ? 'half' : 'full'));
 			var art = el('article', 'tt-rs-card');
-			var head = el('header', 'tt-rs-card-head');
-			head.appendChild(el('h2', 'tt-rs-card-title', label(b.key)));
-			art.appendChild(head);
+			if (!window.TT.ReportBlocks.untitled(b.key) || b.error) {
+				var head = el('header', 'tt-rs-card-head');
+				head.appendChild(el('h2', 'tt-rs-card-title', label(b.key)));
+				art.appendChild(head);
+			}
 			art.appendChild(window.TT.ReportBlocks.body(b, {
-				i18n: t, columns: cfg.columns, catalog: state.catalog, context: data.context, errorText: t.notAvailable
+				i18n: t, columns: cfg.columns, catalog: state.catalog, context: data.context, errorText: t.notAvailable, headingTag: 'h2'
 			}));
 			li.appendChild(art);
 			list.appendChild(li);

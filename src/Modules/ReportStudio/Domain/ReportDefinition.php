@@ -30,11 +30,12 @@ final class ReportDefinition {
 
     /**
      * The definition to store, or why it cannot be. Null, an empty string or
-     * an empty object clears the definition.
+     * an empty object clears the definition. `$layout` is the report's
+     * layout: a block bound to other layouts is refused (#4572).
      *
      * @return array{blocks:list<array{id:string, key:string, options:array<mixed>, width:string}>}|StudioError
      */
-    public static function normalise( mixed $raw ): array|StudioError {
+    public static function normalise( mixed $raw, ?string $layout = null ): array|StudioError {
         if ( $raw === null || $raw === '' || $raw === [] ) return [ 'blocks' => [] ];
         if ( ! is_array( $raw ) ) return self::invalid( __( 'The definition must be an object.', 'talenttrack' ) );
 
@@ -65,6 +66,9 @@ final class ReportDefinition {
             $registry = BlockRegistry::find( $key );
             if ( $registry === null ) {
                 return self::invalid( __( 'There is no block with that key.', 'talenttrack' ) );
+            }
+            if ( $layout !== null && $registry instanceof LayoutBound && ! in_array( $layout, $registry->layouts(), true ) ) {
+                return new StudioError( 'invalid_field', $registry->layoutReason(), 400, [ 'field' => 'definition', 'block' => $i ] );
             }
             $options = $block['options'] ?? [];
             if ( ! is_array( $options ) ) return self::invalid( __( 'The options must be an object.', 'talenttrack' ) );
