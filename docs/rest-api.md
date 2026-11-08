@@ -1790,7 +1790,10 @@ never a live report; the read-only observer reads none; and since #4903 the
 generic `staff` persona is not a key either, so a report reaches the roles
 that work with the player or team by name (`400 invalid_field` with
 `details.field = "persona_keys"` and the allowed keys). Migration 0318
-removed the publications to `staff` made before. Version numbers are unique per report
+removes the publications to `staff` made before. Until it has run, such a
+row reaches nobody: a reader is a recipient only through the publishable
+personas they hold, and `GET /reports/{id}` lists only publishable keys in
+`persona_keys`, so the editor never sends `staff` back. Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
 version_conflict`, and no duplicate is written. A deadlock or lock wait
 timeout on the locking read or the version insert, which two first publishes
