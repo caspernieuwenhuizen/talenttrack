@@ -1820,7 +1820,10 @@ through a functional role. These are the two questions a recipient is asked
 when they open it.
 Editors only. `{ "count": 7, "personas": [ { "key": "head_coach", "label":
 "Head coach" } ] }`. A persona that cannot be published to is `400
-bad_filter`. The Studio's publish confirm shows this number.
+bad_filter`. The Studio's publish confirm shows this number. The count asks
+every holder the recipient rule itself (`ReportAccess::readersAmong()`),
+with what the rule rests on read once for all of them, so it runs the same
+number of statements for three holders as for sixty.
 
 ### `GET /reports/{id}/subjects`
 

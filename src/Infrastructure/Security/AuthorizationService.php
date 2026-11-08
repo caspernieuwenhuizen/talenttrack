@@ -564,18 +564,7 @@ class AuthorizationService {
         }
         if ( $ids === [] ) return [];
 
-        $rows = [];
-        if ( $user_id > 0 ) {
-            global $wpdb;
-            $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-            /** @var array<int,object> $found */
-            $found = $wpdb->get_results( $wpdb->prepare(
-                "SELECT id, team_id, wp_user_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
-                CurrentClub::id(),
-                ...array_values( $ids )
-            ) );
-            foreach ( (array) $found as $r ) $rows[ (int) ( $r->id ?? 0 ) ] = $r;
-        }
+        $rows = $user_id > 0 ? self::playerRows( array_values( $ids ) ) : [];
 
         $out = [];
         foreach ( $ids as $pid ) {
@@ -1177,17 +1166,40 @@ class AuthorizationService {
         if ( $user_id <= 0 ) return null;
         if ( array_key_exists( $user_id, self::$cache_person ) ) return self::$cache_person[ $user_id ];
 
+        self::primePersonIds( [ $user_id ] );
+        return self::$cache_person[ $user_id ] ?? null;
+    }
+
+    /**
+     * #4742 — `getPersonIdByUserId()` for a set of accounts, in one
+     * statement, kept in the same per-request cache.
+     *
+     * @param list<int> $user_ids
+     */
+    public static function primePersonIds( array $user_ids ): void {
+        $missing = [];
+        foreach ( $user_ids as $id ) {
+            $id = (int) $id;
+            if ( $id > 0 && ! array_key_exists( $id, self::$cache_person ) ) $missing[ $id ] = $id;
+        }
+        if ( $missing === [] ) return;
+
         global $wpdb;
-        $row = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people
-              WHERE wp_user_id = %d AND status = 'active' AND club_id = %d
-              ORDER BY id DESC
-              LIMIT 1",
-            $user_id, CurrentClub::id()
+        $in = implode( ',', array_fill( 0, count( $missing ), '%d' ) );
+        // The newest active row per account: `MAX(id)` is the `ORDER BY id
+        // DESC LIMIT 1` of the single read, for every account at once.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT wp_user_id, MAX(id) AS id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id IN ({$in}) AND status = 'active' AND club_id = %d
+              GROUP BY wp_user_id",
+            ...array_merge( array_values( $missing ), [ CurrentClub::id() ] )
         ) );
-        $person_id = $row ? (int) $row : null;
-        self::$cache_person[ $user_id ] = $person_id;
-        return $person_id;
+        $found = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) && (int) ( $r->id ?? 0 ) > 0 ) $found[ (int) ( $r->wp_user_id ?? 0 ) ] = (int) ( $r->id ?? 0 );
+        }
+        foreach ( $missing as $id ) self::$cache_person[ $id ] = $found[ $id ] ?? null;
     }
 
     /**
@@ -1294,8 +1306,7 @@ class AuthorizationService {
 
         // Source 1: tt_user_role_scopes (data-driven)
         if ( $person_id ) {
-            $repo = new AuthorizationRepository();
-            foreach ( $repo->getActiveScopesForPerson( $person_id ) as $row ) {
+            foreach ( self::activeScopesOf( $person_id ) as $row ) {
                 $scopes[] = [
                     'role_key'    => $row['role_key'],
                     'scope_type'  => $row['scope_type'],
@@ -1316,8 +1327,7 @@ class AuthorizationService {
         // mapped to both head_coach and physio auth roles), so this loop
         // can emit multiple scope entries for a single team assignment.
         if ( $person_id ) {
-            $fn_repo = new FunctionalRolesRepository();
-            $assignments = $fn_repo->getFunctionalRoleAssignmentsForPerson( $person_id );
+            $assignments = self::functionalAssignmentsOf( $person_id );
 
             // Cache auth role ids per functional role id within this call
             // to avoid a query per assignment when the same functional role
@@ -1334,7 +1344,7 @@ class AuthorizationService {
                 if ( $fn_role_id <= 0 ) continue;
 
                 if ( ! array_key_exists( $fn_role_id, $auth_role_ids_cache ) ) {
-                    $auth_role_ids_cache[ $fn_role_id ] = $fn_repo->getAuthRoleIdsForFunctionalRole( $fn_role_id );
+                    $auth_role_ids_cache[ $fn_role_id ] = self::authRoleIdsOf( $fn_role_id );
                 }
                 $auth_role_ids = $auth_role_ids_cache[ $fn_role_id ];
                 if ( empty( $auth_role_ids ) ) continue;
@@ -1368,16 +1378,8 @@ class AuthorizationService {
         // If this WP user is linked to a tt_players row, grant the player
         // role scoped to that player. Not stored in tt_user_role_scopes —
         // derived at runtime.
-        global $wpdb;
-        // #1772 — ORDER BY id DESC hardens determinism (the
-        // UNIQUE (club_id, wp_user_id) index makes >1 linked player
-        // impossible going forward; the ordering keeps the derived scope
-        // stable even on an install that hasn't run the dedupe yet).
-        $player_ids_i_am = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active' AND club_id = %d ORDER BY id DESC",
-            $user_id, CurrentClub::id()
-        ) );
-        if ( is_array( $player_ids_i_am ) && ! empty( $player_ids_i_am ) ) {
+        $player_ids_i_am = self::ownActivePlayerIds( $user_id );
+        if ( ! empty( $player_ids_i_am ) ) {
             $perms_player = self::getPermissionsForRoleKey( 'player' );
             foreach ( $player_ids_i_am as $pid ) {
                 $scopes[] = [
@@ -1437,6 +1439,207 @@ class AuthorizationService {
 
         self::$cache_scopes[ $user_id ] = $scopes;
         return $scopes;
+    }
+
+    /**
+     * The person's active role scopes, as `AuthorizationRepository` reads
+     * them. Remembered while a scope decision runs; a bulk check primes it.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function activeScopesOf( int $person_id ): array {
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = ScopeMemo::remember( 'role_scopes|' . $person_id, static fn(): array => ( new AuthorizationRepository() )->getActiveScopesForPerson( $person_id ) );
+        return $rows;
+    }
+
+    /**
+     * The person's functional-role assignments. Remembered while a scope
+     * decision runs; a bulk check primes it.
+     *
+     * @return array<int, object>
+     */
+    private static function functionalAssignmentsOf( int $person_id ): array {
+        /** @var array<int, object> $rows */
+        $rows = ScopeMemo::remember( 'fn_assignments|' . $person_id, static fn(): array => ( new FunctionalRolesRepository() )->getFunctionalRoleAssignmentsForPerson( $person_id ) );
+        return $rows;
+    }
+
+    /**
+     * The auth roles a functional role maps to. Remembered while a scope
+     * decision runs; a bulk check primes it.
+     *
+     * @return array<int, int>
+     */
+    private static function authRoleIdsOf( int $functional_role_id ): array {
+        /** @var array<int, int> $ids */
+        $ids = ScopeMemo::remember( 'fn_auth_roles|' . $functional_role_id, static fn(): array => ( new FunctionalRolesRepository() )->getAuthRoleIdsForFunctionalRole( $functional_role_id ) );
+        return $ids;
+    }
+
+    /**
+     * The account's active player records in this club, newest first (#1772:
+     * the order keeps the derived scope stable on an install that has not
+     * run the dedupe). Remembered while a scope decision runs.
+     *
+     * @return list<int>
+     */
+    private static function ownActivePlayerIds( int $user_id ): array {
+        /** @var list<int> $ids */
+        $ids = ScopeMemo::remember( 'own_active_players|' . $user_id, static fn(): array => self::loadOwnActivePlayerIds( [ $user_id ] )[ $user_id ] ?? [] );
+        return $ids;
+    }
+
+    /**
+     * @param list<int> $user_ids
+     * @return array<int, list<int>> user id => player ids, newest first; an account with none is absent
+     */
+    private static function loadOwnActivePlayerIds( array $user_ids ): array {
+        if ( $user_ids === [] ) return [];
+        global $wpdb;
+        $in = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT wp_user_id, id FROM {$wpdb->prefix}tt_players
+              WHERE wp_user_id IN ({$in}) AND status = 'active' AND club_id = %d
+              ORDER BY wp_user_id ASC, id DESC",
+            ...array_merge( array_map( 'intval', $user_ids ), [ CurrentClub::id() ] )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) ) $out[ (int) ( $r->wp_user_id ?? 0 ) ][] = (int) ( $r->id ?? 0 );
+        }
+        return $out;
+    }
+
+    /**
+     * A player's team and account, as the player rules read them. Inside a
+     * scope decision every player is read once; outside one, every call
+     * reads. Returns `id`, `team_id` and `wp_user_id` per player id; a player
+     * outside the club is absent.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, object>
+     */
+    private static function playerRows( array $player_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
+        $club    = (int) CurrentClub::id();
+        $out     = [];
+        $missing = [];
+        foreach ( $ids as $id ) {
+            if ( ! ScopeMemo::has( 'player_row|' . $id ) ) {
+                $missing[] = $id;
+                continue;
+            }
+            $row = ScopeMemo::get( 'player_row|' . $id );
+            if ( is_object( $row ) ) $out[ $id ] = $row;
+        }
+        if ( $missing === [] ) return $out;
+
+        global $wpdb;
+        $in = implode( ',', array_fill( 0, count( $missing ), '%d' ) );
+        /** @var array<int,object>|null $found */
+        $found = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, team_id, wp_user_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
+            $club,
+            ...$missing
+        ) );
+        $read = [];
+        foreach ( (array) $found as $r ) {
+            $read[ (int) ( $r->id ?? 0 ) ] = $r;
+        }
+        foreach ( $missing as $id ) {
+            if ( isset( $read[ $id ] ) ) $out[ $id ] = $read[ $id ];
+            // A player outside the club is remembered as absent too.
+            ScopeMemo::prime( 'player_row|' . $id, $read[ $id ] ?? null );
+        }
+        return $out;
+    }
+
+    /**
+     * #4742 — read, once for a set of accounts, every source
+     * `canViewPlayer()` and the matrix rest on, and leave each account's
+     * answer in the memo the single check reads:
+     *
+     *   - the matrix's sources (`MatrixGate::primeUsers()`): personas, person
+     *     rows, live team scopes, functional-role grants, own player record,
+     *     guardian links;
+     *   - the role scopes and their permissions, the functional-role
+     *     assignments and the auth roles they map to, and the account's own
+     *     active player records, which `resolveScopesForUser()` assembles.
+     *
+     * A fixed number of statements whatever the size of the set. Call it
+     * inside a `ScopeMemo` window; the bulk checks open one.
+     *
+     * @param list<int> $user_ids
+     */
+    public static function primeUsers( array $user_ids ): void {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $user_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return;
+
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            \TT\Modules\Authorization\MatrixGate::primeUsers( $ids );
+        } else {
+            self::primePersonIds( $ids );
+            \TT\Infrastructure\Players\ParentChildResolver::primeChildren( $ids );
+        }
+        if ( ! ScopeMemo::active() ) return;
+
+        $own = self::loadOwnActivePlayerIds( $ids );
+        foreach ( $ids as $id ) ScopeMemo::prime( 'own_active_players|' . $id, $own[ $id ] ?? [] );
+
+        $persons = [];
+        foreach ( $ids as $id ) {
+            $person = self::$cache_person[ $id ] ?? null;
+            if ( $person !== null && $person > 0 ) $persons[ $person ] = $person;
+        }
+        if ( $persons === [] ) return;
+        $persons = array_values( $persons );
+
+        $scopes = ( new AuthorizationRepository() )->getActiveScopesForPersons( $persons );
+        foreach ( $persons as $person ) ScopeMemo::prime( 'role_scopes|' . $person, $scopes[ $person ] ?? [] );
+
+        $fn_repo     = new FunctionalRolesRepository();
+        $assignments = $fn_repo->getFunctionalRoleAssignmentsForPersons( $persons );
+        $fn_roles    = [];
+        foreach ( $persons as $person ) {
+            ScopeMemo::prime( 'fn_assignments|' . $person, $assignments[ $person ] ?? [] );
+            foreach ( $assignments[ $person ] ?? [] as $a ) {
+                $fn_role = (int) ( $a->functional_role_id ?? 0 );
+                if ( $fn_role > 0 ) $fn_roles[ $fn_role ] = $fn_role;
+            }
+        }
+        if ( $fn_roles !== [] ) {
+            $auth = $fn_repo->getAuthRoleIdsForFunctionalRoles( array_values( $fn_roles ) );
+            foreach ( $fn_roles as $fn_role ) ScopeMemo::prime( 'fn_auth_roles|' . $fn_role, $auth[ $fn_role ] ?? [] );
+        }
+    }
+
+    /**
+     * #4742 — `canViewPlayer()` for a set of accounts: the ones who may view
+     * the player, ascending. The sources are read once for the set
+     * (`primeUsers()`), then each account is asked `canViewPlayer()`,
+     * unchanged: the capability shortcuts, both authorities, and the
+     * `tt_auth_can_view_player` and `tt_auth_check_result` filters and the
+     * `tt_auth_check` action, per account as always. A filter that queries
+     * costs what it costs; that is outside this bound.
+     *
+     * @param list<int> $user_ids
+     * @return list<int>
+     */
+    public static function usersWhoCanViewPlayer( array $user_ids, int $player_id ): array {
+        return ScopeMemo::run( static function () use ( $user_ids, $player_id ): array {
+            self::primeUsers( $user_ids );
+            self::playerRows( [ $player_id ] );
+            $out = [];
+            foreach ( array_unique( array_map( 'intval', $user_ids ) ) as $id ) {
+                if ( $id > 0 && self::canViewPlayer( $id, $player_id ) ) $out[] = $id;
+            }
+            sort( $out );
+            return $out;
+        } );
     }
 
     /**
@@ -1505,20 +1708,14 @@ class AuthorizationService {
     }
 
     private static function getPlayerTeamId( int $player_id ): ?int {
-        global $wpdb;
-        $tid = $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
-            $player_id, CurrentClub::id()
-        ) );
-        return $tid ? (int) $tid : null;
+        $row = self::playerRows( [ $player_id ] )[ $player_id ] ?? null;
+        $tid = $row !== null ? (int) ( $row->team_id ?? 0 ) : 0;
+        return $tid > 0 ? $tid : null;
     }
 
     private static function isPlayerOwnRecord( int $user_id, int $player_id ): bool {
-        global $wpdb;
-        $uid = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
-            $player_id, CurrentClub::id()
-        ) );
+        $row = self::playerRows( [ $player_id ] )[ $player_id ] ?? null;
+        $uid = $row !== null ? (int) ( $row->wp_user_id ?? 0 ) : 0;
         return $uid > 0 && $uid === $user_id;
     }
 }

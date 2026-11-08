@@ -152,6 +152,39 @@ class PersonaResolver {
         return self::$personas[ $user_id ];
     }
 
+    /**
+     * #4742 — `personasFor()` for a set of accounts: the accounts and their
+     * roles read once, and the team assignments of the coaches among them in
+     * one statement, then `personasFor()` per account, unchanged. What is
+     * read is left in the per-request memos, so the matrix's later
+     * questions about these accounts read nothing again.
+     *
+     * @param list<int> $user_ids
+     * @return array<int, string[]> user id => personas
+     */
+    public static function personasForMany( array $user_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $user_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
+        $missing = array_values( array_filter( $ids, static fn( int $id ): bool => ! isset( self::$personas[ $id ] ) ) );
+        if ( $missing !== [] ) {
+            cache_users( $missing );
+            $coaches = [];
+            foreach ( $missing as $id ) {
+                $user = get_user_by( 'id', $id );
+                if ( $user instanceof \WP_User && in_array( 'tt_coach', $user->roles, true ) && ! isset( self::$coach_rows[ $id ] ) ) $coaches[] = $id;
+            }
+            if ( $coaches !== [] ) {
+                $rows = self::loadCoachRowsMany( $coaches );
+                foreach ( $coaches as $id ) self::$coach_rows[ $id ] = $rows[ $id ] ?? [];
+            }
+        }
+
+        $out = [];
+        foreach ( $ids as $id ) $out[ $id ] = self::personasFor( $id );
+        return $out;
+    }
+
     /** @return string[] */
     private static function resolvePersonas( int $user_id ): array {
         $user = get_user_by( 'id', $user_id );
@@ -279,36 +312,41 @@ class PersonaResolver {
 
     /** @return list<array{team_id:int, head:bool, live:bool, ended_on:string}> */
     private static function loadCoachRows( int $user_id ): array {
+        return self::loadCoachRowsMany( [ $user_id ] )[ $user_id ] ?? [];
+    }
+
+    /**
+     * The team assignments of every person linked to each of these accounts
+     * in the current club, in one statement. An account with none is absent.
+     *
+     * @param list<int> $user_ids
+     * @return array<int, list<array{team_id:int, head:bool, live:bool, ended_on:string}>>
+     */
+    private static function loadCoachRowsMany( array $user_ids ): array {
+        if ( $user_ids === [] || ! self::hasHeadCoachFlag() ) return [];
+
         global $wpdb;
-        $p    = $wpdb->prefix;
-        $club = \TT\Infrastructure\Tenancy\CurrentClub::id();
-
-        $person_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d AND club_id = %d",
-            $user_id, $club
-        ) );
-        if ( ! is_array( $person_ids ) || $person_ids === [] || ! self::hasHeadCoachFlag() ) return [];
-
-        $person_ids   = array_map( 'intval', $person_ids );
-        $tp_table     = "{$p}tt_team_people";
-        $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+        $p            = $wpdb->prefix;
+        $club         = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
         $today        = current_time( 'Y-m-d' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT team_id, is_head_coach, end_date,
-                    ( ( start_date IS NULL OR start_date <= %s )
-                  AND ( end_date   IS NULL OR end_date   >= %s ) ) AS is_live
-               FROM {$tp_table}
-              WHERE club_id = %d
-                AND person_id IN ({$placeholders})",
-            array_merge( [ $today, $today, $club ], $person_ids )
+            "SELECT pe.wp_user_id, tp.team_id, tp.is_head_coach, tp.end_date,
+                    ( ( tp.start_date IS NULL OR tp.start_date <= %s )
+                  AND ( tp.end_date   IS NULL OR tp.end_date   >= %s ) ) AS is_live
+               FROM {$p}tt_team_people tp
+               JOIN {$p}tt_people pe ON pe.id = tp.person_id AND pe.club_id = %d
+              WHERE tp.club_id = %d
+                AND pe.wp_user_id IN ({$placeholders})",
+            array_merge( [ $today, $today, $club, $club ], array_map( 'intval', $user_ids ) )
         ) );
         if ( ! is_array( $rows ) ) return [];
 
         $out = [];
         foreach ( $rows as $r ) {
-            $end   = is_string( $r->end_date ) ? $r->end_date : '';
-            $out[] = [
+            $end = is_string( $r->end_date ) ? $r->end_date : '';
+            $out[ (int) $r->wp_user_id ][] = [
                 'team_id'  => (int) $r->team_id,
                 'head'     => (int) $r->is_head_coach === 1,
                 'live'     => (int) $r->is_live === 1,

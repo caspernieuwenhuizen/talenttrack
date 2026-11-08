@@ -239,9 +239,41 @@ final class FunctionalRoleGrants {
     }
 
     /**
+     * #4742 — read the assignments of a set of accounts in one statement and
+     * keep them in the per-request cache, so the gate's later questions about
+     * these accounts read nothing again.
+     *
+     * @param list<int> $user_ids
+     */
+    public static function primeAssignments( array $user_ids ): void {
+        $missing = [];
+        foreach ( $user_ids as $id ) {
+            $id = (int) $id;
+            if ( $id > 0 && ! isset( self::$assignments[ $id ] ) ) $missing[ $id ] = $id;
+        }
+        if ( $missing === [] ) return;
+
+        $rows = self::loadAssignmentsMany( array_values( $missing ) );
+        foreach ( $missing as $id ) self::$assignments[ $id ] = $rows[ $id ] ?? [];
+    }
+
+    /**
      * @return list<array{team_id:int, role_key:string, live:bool}>
      */
     private static function loadAssignments( int $user_id ): array {
+        return self::loadAssignmentsMany( [ $user_id ] )[ $user_id ] ?? [];
+    }
+
+    /**
+     * The functional-role assignments of each of these accounts, read in one
+     * statement. An account with none is absent.
+     *
+     * @param list<int> $user_ids
+     * @return array<int, list<array{team_id:int, role_key:string, live:bool}>>
+     */
+    private static function loadAssignmentsMany( array $user_ids ): array {
+        if ( $user_ids === [] ) return [];
+
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -253,22 +285,16 @@ final class FunctionalRoleGrants {
         // Every linked person row, not just the first. A duplicate
         // `tt_people` row must not silently decide whether somebody is a
         // physio.
-        $person_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
-            $user_id
-        ) );
-        if ( ! is_array( $person_ids ) || $person_ids === [] ) return [];
-        $person_ids = array_map( 'intval', $person_ids );
-
-        $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
-        $params       = array_merge( $person_ids, [ CurrentClub::id() ] );
+        $placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
+        $params       = array_merge( array_map( 'intval', $user_ids ), [ CurrentClub::id() ] );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT tp.team_id, tp.start_date, tp.end_date, fr.role_key
+            "SELECT pe.wp_user_id, tp.team_id, tp.start_date, tp.end_date, fr.role_key
                FROM {$tp_table} tp
                INNER JOIN {$fr_table} fr ON fr.id = tp.functional_role_id
-              WHERE tp.person_id IN ({$placeholders})
+               INNER JOIN {$p}tt_people pe ON pe.id = tp.person_id
+              WHERE pe.wp_user_id IN ({$placeholders})
                 AND tp.club_id = %d
                 AND tp.functional_role_id IS NOT NULL",
             $params
@@ -284,7 +310,7 @@ final class FunctionalRoleGrants {
             $start = is_string( $row->start_date ) ? $row->start_date : '';
             $end   = is_string( $row->end_date ) ? $row->end_date : '';
 
-            $out[] = [
+            $out[ (int) $row->wp_user_id ][] = [
                 'team_id'  => $team_id,
                 'role_key' => (string) $row->role_key,
                 'live'     => ( $start === '' || $start <= $today ) && ( $end === '' || $end >= $today ),
