@@ -121,15 +121,34 @@ verborgen dat eerder wel bereikbaar was.
 
 ## Zoeken — spring naar alles
 
-Typ direct in het zoekveld in de bovenbalk — er opent geen venster eerst.
-Passende secties, spelers, teams en activiteiten verschijnen eronder terwijl je
-typt. Klik je in het veld, dan zie je eerst de secties die je kunt bereiken, dus
-het werkt ook als startpunt.
+Het zoekveld staat in de bovenbalk van **beide indelingen**, Klassiek en
+App-shell. Het hoort bij de balk, niet bij de pagina waar je bent, dus het staat
+op elk scherm op dezelfde plek.
 
-Pijltjestoetsen lopen door de resultaten, Enter opent het gemarkeerde resultaat
-en Escape sluit de lijst terwijl je cursor in het veld blijft. **⌘K** /
-**Ctrl+K** springt naar het veld; de sneltoets is alleen een versnelling, want
-het veld staat in beeld en is aanklikbaar.
+Typ er direct in — er opent geen venster eerst. Resultaten verschijnen eronder
+terwijl je typt, gegroepeerd in deze volgorde: spelers, teams, activiteiten,
+mensen, instellingen, onderdelen en help. Elke groep toont de beste paar (vier
+spelers, drie van de rest) met een link *Alle* naar de volledige lijst, en de
+letters die je typte staan vet. Een spelersregel toont de foto of initialen, het
+team en maximaal twee snelle acties, zoals *Nieuwe evaluatie*, als je die mag
+gebruiken.
+
+Een leeg veld toont de spelers, teams en activiteiten die je het laatst opende.
+Heb je nog niets geopend, dan zie je de onderdelen die je kunt bereiken, dus het
+werkt ook als startpunt.
+
+Pijltjestoetsen lopen door de resultaten, Enter opent het gekozen resultaat en
+Enter zonder keuze opent de volledige resultatenpagina. Escape sluit de lijst en
+een tweede Escape maakt het veld leeg. **⌘K** / **Ctrl+K** springt naar het
+veld; de sneltoets is alleen een versnelling, want het veld staat in beeld en is
+aanklikbaar.
+
+**Op een telefoon** staat in de bovenbalk een zoekknop in plaats van het veld.
+Die opent het zoeken over het hele scherm, met het veld klaar om te typen; de
+sluitknop, Escape en de terugknop van je telefoon sluiten het weer.
+
+De volledige resultatenpagina, met filters op soort, team en seizoen, staat
+beschreven in [Zoeken](search.md).
 
 Accenten en hoofdletters maken niet uit: *jose* vindt José. Elk woord dat je
 typt moet kloppen, dus *den b* vindt Daan den Besten. De beste resultaten staan

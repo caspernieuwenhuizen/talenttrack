@@ -1,0 +1,213 @@
+/*
+ * frontend-search.css (#4672) — the results page, `?tt_view=search&q=`.
+ *
+ * Mobile-first: at 360px the field and the filters stack, the kind filter
+ * is one horizontal row of chips that scrolls sideways, and each result is
+ * one full-width tap target. From 768px the field and filters share a row.
+ */
+
+.tt-search-page__form {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+}
+
+.tt-search-page__form .tt-input {
+    width: 100%;
+    min-height: var(--tt-tap-min, 48px);
+    /* 16px or iOS zooms the page on focus. */
+    font-size: 1rem;
+}
+
+.tt-search-page__form .tt-btn {
+    touch-action: manipulation;
+}
+
+.tt-search-page__hint,
+.tt-search-page__understood {
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+    color: var(--tt-ink-soft);
+}
+
+/* ---- Kind chips ---------------------------------------------------- */
+
+.tt-search-page__kinds {
+    display: flex;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+    padding: 0 0 var(--tt-sp-1, 0.25rem);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+}
+
+.tt-search-page__kinds li {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.tt-search-page__kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0 0.9rem;
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    text-decoration: none;
+    white-space: nowrap;
+    touch-action: manipulation;
+}
+
+.tt-search-page__kind:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-search-page__kind.is-current {
+    border-color: var(--tt-primary);
+    background: var(--tt-primary);
+    color: var(--tt-color-on-primary);
+}
+
+.tt-search-page__count {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    opacity: .8;
+}
+
+/* ---- Results ------------------------------------------------------- */
+
+.tt-search-page__results {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-search-page__result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0;
+    padding: var(--tt-sp-1, 0.25rem);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper);
+}
+
+.tt-search-page__link {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 0.75rem);
+    min-width: 0;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-ink);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-search-page__link:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-search-page__link:focus-visible {
+    outline: 2px solid var(--tt-focus-color, var(--tt-primary));
+    outline-offset: 2px;
+}
+
+.tt-search-page__avatar {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tt-search-page__avatar--initials {
+    display: grid;
+    place-items: center;
+    background: var(--tt-primary);
+    color: var(--tt-color-on-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.tt-search-page__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tt-search-page__label {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.tt-search-page__meta {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft);
+}
+
+.tt-search-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 0.5rem);
+    padding: 0 0.6rem 0.4rem;
+}
+
+.tt-search-page__actions .tt-btn {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+/* ---- Pager and tips ------------------------------------------------ */
+
+.tt-search-page__pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: var(--tt-sp-4, 1rem) 0 0;
+}
+
+.tt-search-page__page {
+    color: var(--tt-ink-soft);
+}
+
+.tt-search-page__tips {
+    margin: 0;
+    padding-inline-start: 1.2rem;
+    color: var(--tt-ink-soft);
+}
+
+.tt-search-page__tips li + li {
+    margin-top: var(--tt-sp-1, 0.25rem);
+}
+
+@media (min-width: 768px) {
+    .tt-search-page__form {
+        grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(10rem, 1fr));
+        align-items: end;
+    }
+
+    .tt-search-page__result {
+        flex-wrap: nowrap;
+    }
+
+    .tt-search-page__link {
+        flex: 1 1 auto;
+    }
+
+    .tt-search-page__actions {
+        flex-wrap: nowrap;
+        padding: 0 0.4rem 0 0;
+    }
+}

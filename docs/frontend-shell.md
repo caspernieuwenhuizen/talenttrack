@@ -118,15 +118,32 @@ nothing that was reachable has been hidden.
 
 ## Search — jump to anything
 
-Type straight into the search box in the top bar — no window opens first.
-Matching sections, players, teams and activities appear underneath as you type.
-Clicking into the box shows the sections you can reach before you type anything,
-so it works as a launcher too.
+The search box is in the top bar in **both layouts**, Classic and App shell. It
+is part of the bar, not of the page you are on, so it is in the same place on
+every screen.
 
-Arrow keys move through the results, Enter opens the highlighted one, and Escape
-closes the list while leaving your cursor in the box. **⌘K** / **Ctrl+K** jumps
-to the box; the shortcut is only ever a shortcut, since the box is on screen and
-clickable without it.
+Type straight into it — no window opens first. Results appear underneath as you
+type, grouped in this order: players, teams, activities, people, settings,
+sections and help. Each group shows its best few (four players, three of the
+rest) with an *All* link to the full list, and the letters you typed are shown in
+bold. A player row carries the photo or initials, the team and up to two quick
+actions, such as *New evaluation*, when you are allowed to use them.
+
+An empty box shows the players, teams and activities you opened last. With
+nothing opened yet it shows the sections you can reach, so it works as a
+launcher too.
+
+Arrow keys move through the results, Enter opens the selected one, and Enter
+with nothing selected opens the full results page. Escape closes the list, and a
+second Escape clears the box. **⌘K** / **Ctrl+K** jumps to the box; the shortcut
+is only ever a shortcut, since the box is on screen and clickable without it.
+
+**On a phone** the top bar has a search button instead of the box. It opens the
+search as a full screen with the box ready to type in; the close button, Escape
+and your phone's Back button all close it again.
+
+The full results page, with filters for kind, team and season, is described in
+[Search](search.md).
 
 Accents and capitals don't matter: *jose* finds José. Every word you type has to
 match, so *den b* finds Daan den Besten. The best matches come first: a name

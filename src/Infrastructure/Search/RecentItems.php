@@ -22,6 +22,18 @@ final class RecentItems {
 
     private const TABLE = 'tt_user_recent';
 
+    /** The dashboard views that open one record, and the kind each opens. */
+    private const VIEW_KINDS = [ 'players' => 'player', 'teams' => 'team', 'activities' => 'activity' ];
+
+    /**
+     * Note that a dashboard page opened a record (`?tt_view=players&id=N`).
+     * False for any other view, and as `record()` otherwise.
+     */
+    public function recordView( int $user_id, string $view, int $id ): bool {
+        $kind = self::VIEW_KINDS[ $view ] ?? '';
+        return $kind !== '' && $this->record( $user_id, $kind, $id );
+    }
+
     /**
      * Note that a user opened a record. False when the kind holds no
      * records, or the record does not exist or is not one the user may open

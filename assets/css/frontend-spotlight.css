@@ -1,48 +1,103 @@
 /*
- * frontend-spotlight.css — command palette + peek panel (#2458).
+ * frontend-spotlight.css — the header search (#2531, #4672) and the peek
+ * panel (#2458).
  *
- * Loaded only under the `app` shell, alongside frontend-app-shell.css.
+ * Loaded in both shells: the search is shell chrome in each. The peek panel
+ * is app shell only and its script decides that; its rules start at the
+ * sidebar breakpoint, because below 1024px the script navigates instead.
  *
- * Mobile-first per CLAUDE.md §2. The palette is genuinely useful on a
- * phone — typing a name beats scrolling a list — so its base rules are
- * the real ones. The peek panel is the opposite: below 1024px the script
- * falls through to normal navigation, because a panel covering 90% of a
- * 360px viewport is just a page with extra steps. Its rules therefore
- * start at the sidebar breakpoint.
+ * Mobile-first per CLAUDE.md §2. On a phone the header carries a 48px search
+ * button and the form is the full-screen sheet it opens. From 768px the form
+ * sits in the header and the results hang under it.
  */
 
 /* ================================================================
- * Inline search (#2531)
+ * The phone entry point
  * ============================================================== */
-/*
- * The header field is the search. #2458's modal palette is gone — its
- * scrim, panel and focus trap with it — and the results now hang off the
- * field itself.
- *
- * Mobile-first: at 360px the field is the full width of the row and the
- * results panel spans the viewport under it. From 768px it grows into the
- * header's free space, centred between the breadcrumb and the account menu.
- */
 
+.tt-dashboard .tt-spotlight-open {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: var(--tt-tap-min, 48px);
+    height: var(--tt-tap-min, 48px);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-color-on-primary);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-spotlight-open:active {
+    background: rgba(255, 255, 255, .16);
+}
+
+.tt-dashboard .tt-spotlight-open:focus-visible {
+    outline: 2px solid var(--tt-color-on-primary);
+    outline-offset: 2px;
+}
+
+/* Below 768px the form exists only as the sheet. */
 .tt-dashboard .tt-spotlight-form {
-    position: relative;
+    display: none;
+}
+
+/* ================================================================
+ * The sheet (phone)
+ * ============================================================== */
+
+.tt-dashboard .tt-spotlight-form.is-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    overscroll-behavior: contain;
+}
+
+.tt-dashboard .tt-spotlight-form.is-sheet .tt-spotlight-bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 0.75rem;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: var(--tt-radius, 8px);
-    background: rgba(255, 255, 255, .08);
-    color: #fff;
+    flex: 0 0 auto;
+    padding: 0.5rem;
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    background: var(--tt-primary);
+    color: var(--tt-color-on-primary);
 }
 
-.tt-dashboard .tt-spotlight-form:focus-within {
-    background: rgba(255, 255, 255, .16);
-    border-color: rgba(255, 255, 255, .38);
+.tt-dashboard .tt-spotlight-form.is-sheet .tt-spotlight-input {
+    min-height: var(--tt-tap-min, 48px);
 }
+
+.tt-dashboard .tt-spotlight-form.is-sheet .tt-spotlight-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tt-dashboard .tt-spotlight-form.is-sheet .tt-spotlight-panel[hidden] {
+    display: block;
+}
+
+.tt-dashboard .tt-spotlight-form.is-sheet .tt-spotlight-close {
+    display: inline-grid;
+}
+
+/* The page under the sheet stays where it was. */
+html.tt-search-sheet-open,
+html.tt-search-sheet-open body {
+    overflow: hidden;
+}
+
+/* ================================================================
+ * The field
+ * ============================================================== */
 
 /* Magnifier drawn in CSS — one less request, and it inherits the colour. */
 .tt-spotlight-form__icon {
@@ -90,10 +145,28 @@
     appearance: none;
 }
 
-/* The form owns the focus ring, since the input's own outline is removed. */
-.tt-dashboard .tt-spotlight-form:focus-within {
-    outline: 2px solid var(--tt-secondary, #e8b624);
-    outline-offset: 2px;
+.tt-dashboard .tt-spotlight-close {
+    display: none;
+    flex: 0 0 auto;
+    place-items: center;
+    width: var(--tt-tap-min, 48px);
+    height: var(--tt-tap-min, 48px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--tt-radius, 8px);
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-spotlight-close:active {
+    background: rgba(255, 255, 255, .16);
+}
+
+.tt-dashboard .tt-spotlight-close:focus-visible {
+    outline: 2px solid var(--tt-color-on-primary);
+    outline-offset: -2px;
 }
 
 .tt-spotlight-trigger__hint {
@@ -106,162 +179,233 @@
     opacity: .7;
 }
 
-/* ---- Results, anchored under the field ---------------------------- */
-.tt-dashboard .tt-spotlight-results {
-    position: absolute;
-    inset-inline: 0;
-    top: calc(100% + 6px);
-    z-index: 1400;
-    margin: 0;
-    padding: 0.25rem;
-    list-style: none;
-    max-height: min(60vh, 460px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    background: var(--tt-paper, #fff);
-    color: var(--tt-ink, #0e1a14);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    box-shadow: var(--tt-shadow-lg, 0 18px 48px rgba(0, 0, 0, .28));
+/* ================================================================
+ * The results
+ * ============================================================== */
+
+.tt-dashboard .tt-spotlight-panel {
+    color: var(--tt-ink);
+    background: var(--tt-paper);
 }
 
-.tt-dashboard .tt-spotlight-results[hidden] {
+.tt-dashboard .tt-spotlight-panel[hidden],
+.tt-dashboard .tt-spotlight-results[hidden],
+.tt-dashboard .tt-spotlight-understood[hidden],
+.tt-dashboard .tt-spotlight__empty[hidden] {
     display: none;
 }
 
-.tt-dashboard .tt-spotlight__item {
-    list-style: none;
+.tt-dashboard .tt-spotlight-results {
+    padding: 0.25rem;
 }
 
-.tt-dashboard .tt-spotlight__result {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    min-height: 48px;
-    padding: 0.5rem 0.7rem;
-    border-radius: var(--tt-radius, 8px);
-    color: inherit;
-    text-decoration: none;
+.tt-dashboard .tt-spotlight-understood {
+    margin: 0;
+    padding: 0.6rem 0.9rem 0.2rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft);
 }
 
-/* Highlight follows the keyboard, so it must not depend on :hover. */
-.tt-dashboard .tt-spotlight__item.is-active .tt-spotlight__result,
-.tt-dashboard .tt-spotlight__result:hover {
-    background: var(--tt-bg-soft, #f4f6f3);
+.tt-dashboard .tt-spotlight__empty {
+    margin: 0;
+    padding: 0.9rem;
+    color: var(--tt-ink-soft);
 }
 
-.tt-dashboard .tt-spotlight__kind {
-    flex: 0 0 auto;
-    min-width: 62px;
-    font-size: 0.68rem;
+.tt-dashboard .tt-spotlight__group + .tt-spotlight__group {
+    margin-top: 0.25rem;
+    border-top: 1px solid var(--tt-line-soft, var(--tt-line));
+}
+
+.tt-dashboard .tt-spotlight__group-title {
+    padding: 0.6rem 0.7rem 0.25rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: .06em;
     text-transform: uppercase;
-    color: var(--tt-ink-soft, #6a6d66);
+    color: var(--tt-ink-soft);
+}
+
+/* A player row's actions wrap under the name on a phone, so the name keeps
+   the width and every target keeps its 48px. */
+.tt-dashboard .tt-spotlight__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tt-dashboard .tt-spotlight__option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--tt-radius, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-spotlight__result {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-spotlight__row--player .tt-spotlight__result + .tt-spotlight__action {
+    margin-inline-start: 2.6rem;
+}
+
+.tt-dashboard .tt-spotlight__action {
+    flex: 0 0 auto;
+    border: 1px solid var(--tt-line);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-primary-ink, var(--tt-primary));
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-spotlight__all {
+    justify-content: flex-end;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-link, var(--tt-primary));
+}
+
+/* The highlight follows the keyboard, so it must not depend on :hover; a
+   tap gets the same state through :active. */
+.tt-dashboard .tt-spotlight__option.is-active,
+.tt-dashboard .tt-spotlight__option:active,
+.tt-dashboard .tt-spotlight__option:hover {
+    background: var(--tt-bg-soft);
+}
+
+.tt-dashboard .tt-spotlight__option.is-active {
+    box-shadow: inset 3px 0 0 var(--tt-primary);
+}
+
+.tt-dashboard .tt-spotlight__avatar {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tt-dashboard .tt-spotlight__avatar--initials {
+    display: grid;
+    place-items: center;
+    background: var(--tt-primary);
+    color: var(--tt-color-on-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.tt-dashboard .tt-spotlight__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .tt-dashboard .tt-spotlight__label {
-    flex: 1 1 auto;
-    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .tt-dashboard .tt-spotlight__sub {
-    flex: 0 0 auto;
     font-size: 0.8rem;
-    color: var(--tt-ink-soft, #6a6d66);
+    color: var(--tt-ink-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.tt-dashboard .tt-spotlight__empty {
-    padding: 0.9rem 0.7rem;
-    color: var(--tt-ink-soft, #6a6d66);
-    list-style: none;
+.tt-dashboard .tt-spotlight__mark {
+    background: none;
+    color: inherit;
+    font-weight: 700;
 }
 
-/* #2802 — below the tablet breakpoint the field collapses to a 48px icon.
- * Inline, it was 221-275px of a 361px header: the single largest item in
- * the actions cluster and the reason the app-shell header both overflowed
- * sideways and wrapped to three rows.
- *
- * The input itself is the 48px target rather than a button that opens one,
- * so a tap focuses it — and spotlight.js already opens the results list on
- * `focus`. No new JavaScript, and the field still works with JS off. The
- * magnifier is positioned over the input with `pointer-events: none` so a
- * tap anywhere in the box reaches the input beneath it.
- */
-@media (max-width: 767px) {
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form {
-        flex: 0 0 auto;
-        /* 50, not 48, in both directions: the 1px border is inside the box,
-           so a 48px form gives the input a 46px content box — two pixels
-           under the floor in the dimension nobody thinks to check. */
-        width: 50px;
-        min-height: 50px;
-        padding: 0;
-        justify-content: center;
-    }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form .tt-spotlight-form__icon {
-        position: absolute;
-        inset-inline-start: 50%;
-        inset-block-start: 50%;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-    }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-input {
-        width: 100%;
-        /* `stretch` rather than a fixed height: the form's 1px border eats
-           into its content box, so a hard 48px left the input measuring 46
-           and two pixels under the floor. Stretching fills whatever the
-           content box actually is. */
-        align-self: stretch;
-        /* Collapsed, the field carries no visible text — the magnifier is
-           the whole affordance. Both come back when it takes focus. */
-        color: transparent;
-    }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-input::placeholder {
-        color: transparent;
-    }
+/* The panel is as wide as the field in the header, which can be narrower
+   than the phone sheet, so the row reads the panel's width, not the
+   viewport's. */
+.tt-dashboard .tt-spotlight-panel {
+    container-type: inline-size;
+}
 
-    /* Focused, the field takes the whole bar as an overlay rather than a
-       new row. A new row is not available: the cluster is held `nowrap` so
-       the header stays one line, and `flex: 1 1 100%` inside a nowrap
-       container just overflows it by the width it wanted (measured 81px at
-       360). Covering the bar is also the familiar phone pattern — search
-       takes over the chrome while you are in it, and Escape gives it back. */
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within {
-        position: absolute;
-        inset-inline: 0.9rem;
-        inset-block-start: 50%;
-        transform: translateY(-50%);
-        width: auto;
-        z-index: 2;
-        padding: 0 0.75rem;
-        justify-content: flex-start;
-        /* Opaque so it hides the controls underneath rather than blending
-           into them; the bar's own green keeps it looking part of the bar. */
-        background-color: var(--tt-primary, #0b3d2e);
+@container (min-width: 30rem) {
+    .tt-dashboard .tt-spotlight__row {
+        flex-wrap: nowrap;
     }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-form__icon {
-        position: static;
-        transform: none;
+    .tt-dashboard .tt-spotlight__result {
+        flex: 1 1 auto;
     }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-input {
-        color: inherit;
-    }
-    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-input::placeholder {
-        color: currentColor;
-        opacity: .65;
+    .tt-dashboard .tt-spotlight__row--player .tt-spotlight__result + .tt-spotlight__action {
+        margin-inline-start: 0;
     }
 }
+
+/* ================================================================
+ * In the header (768px and up)
+ * ============================================================== */
 
 @media (min-width: 768px) {
+    .tt-dashboard .tt-spotlight-open {
+        display: none;
+    }
+
     .tt-dashboard .tt-spotlight-form {
-        /* #2531 — roughly double the 420px the trigger used to cap at. The
-           results list carries player and team names, which are long. */
+        display: block;
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 0;
+        /* #2531 — the results carry player and team names, which are long. */
         max-width: 840px;
         margin-inline: auto;
+    }
+
+    /* The classic header's actions cluster does not grow, so the form is
+       given a width rather than left at the input's intrinsic one. */
+    .tt-dashboard.tt-shell-classic .tt-spotlight-form {
+        flex: 0 1 auto;
+        width: min(28rem, 40vw);
+    }
+
+    .tt-dashboard .tt-spotlight-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        padding: 0 0.75rem;
+        border: 1px solid rgba(255, 255, 255, .18);
+        border-radius: var(--tt-radius, 8px);
+        background: rgba(255, 255, 255, .08);
+        color: var(--tt-color-on-primary);
+    }
+
+    /* The bar owns the focus ring, since the input's own outline is removed. */
+    .tt-dashboard .tt-spotlight-bar:focus-within {
+        background: rgba(255, 255, 255, .16);
+        border-color: rgba(255, 255, 255, .38);
+        outline: 2px solid var(--tt-secondary);
+        outline-offset: 2px;
+    }
+
+    /* At least 26rem wide, so a player row keeps its name beside its two
+       actions when the field itself is narrow (768 to 1023px). */
+    .tt-dashboard .tt-spotlight-panel {
+        position: absolute;
+        inset-inline-start: 0;
+        width: 100%;
+        min-width: min(26rem, calc(100vw - 2rem));
+        top: calc(100% + 6px);
+        z-index: 1400;
+        max-height: min(70vh, 560px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border: 1px solid var(--tt-line);
+        border-radius: var(--tt-radius-lg, 14px);
+        box-shadow: var(--tt-shadow-lg);
     }
 }
 
