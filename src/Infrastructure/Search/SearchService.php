@@ -73,20 +73,26 @@ final class SearchService {
     /**
      * The paged answer.
      *
-     * @param list<string> $types
+     * `$item_kinds` narrows the items to those kinds while `counts` still
+     * covers every kind in `$types`: a page filtered to one kind that also
+     * shows a count per kind, in one pass. Null takes items from every kind.
+     *
+     * @param list<string>      $types
+     * @param list<string>|null $item_kinds
      * @return array{items:list<array<string,mixed>>, counts:array<string,int>, understood:list<array{pattern:string, value:string, label:string}>, total:int}
      */
-    public function page( SearchQuery $query, array $types, int $page, int $per_page, int $user_id ): array {
-        return ScopeMemo::run( fn(): array => $this->pageInScope( $query, $types, $page, $per_page, $user_id ) );
+    public function page( SearchQuery $query, array $types, int $page, int $per_page, int $user_id, ?array $item_kinds = null ): array {
+        return ScopeMemo::run( fn(): array => $this->pageInScope( $query, $types, $page, $per_page, $user_id, $item_kinds ) );
     }
 
     /**
-     * @param list<string> $types
+     * @param list<string>      $types
+     * @param list<string>|null $item_kinds
      * @return array{items:list<array<string,mixed>>, counts:array<string,int>, understood:list<array{pattern:string, value:string, label:string}>, total:int}
      */
-    private function pageInScope( SearchQuery $query, array $types, int $page, int $per_page, int $user_id ): array {
+    private function pageInScope( SearchQuery $query, array $types, int $page, int $per_page, int $user_id, ?array $item_kinds ): array {
         $types = $types === [] ? SearchRegistry::kinds() : $types;
-        $fetch = $page * $per_page;
+        $paged = $page * $per_page;
 
         $hits   = [];
         $counts = [];
@@ -98,7 +104,11 @@ final class SearchService {
                 $counts[ $kind ] = 0;
                 continue;
             }
-            $raw  = $provider->match( $query, $user_id, $fetch );
+            // A kind that is only counted fetches one hit: enough to know
+            // whether the count statement has anything to count.
+            $listed = $item_kinds === null || in_array( $kind, $item_kinds, true );
+            $fetch  = $listed ? $paged : 1;
+            $raw    = $provider->match( $query, $user_id, $fetch );
             $kept = $this->confirmRaw( $provider, $raw, $user_id );
             // A page short of full holds every match; only a full one needs
             // the count over the same scope. Either way the count follows the
@@ -107,6 +117,7 @@ final class SearchService {
             $counts[ $kind ] = count( $raw ) < $fetch
                 ? count( $kept )
                 : max( 0, $provider->count( $query, $user_id ) - $dropped );
+            if ( ! $listed ) continue;
             foreach ( $kept as $hit ) {
                 $hit['tt_kind_order'] = $order[ $kind ] ?? 99;
                 $hits[] = $hit;

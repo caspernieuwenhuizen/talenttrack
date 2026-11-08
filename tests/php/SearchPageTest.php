@@ -55,6 +55,21 @@ final class SearchPageTest extends WP_UnitTestCase {
         $this->assertMatchesRegularExpression( '/class="tt-search-page__kind is-current"[^>]*aria-current="true"/', $html );
     }
 
+    public function test_one_pass_lists_one_kind_and_counts_them_all(): void {
+        $admin = $this->personas['admin'];
+        wp_set_current_user( $admin );
+        $this->resetSearchCaches();
+        $service = new \TT\Infrastructure\Search\SearchService();
+        $query   = new \TT\Infrastructure\Search\SearchQuery( 'Searchside' );
+
+        $both = $service->page( $query, [], 1, 20, $admin );
+        $one  = $service->page( $query, [], 1, 20, $admin, [ 'team' ] );
+
+        $this->assertSame( [ 'team' ], array_values( array_unique( array_column( $one['items'], 'type' ) ) ) );
+        $this->assertSame( $both['counts'], $one['counts'], 'every kind is still counted' );
+        $this->assertGreaterThan( 0, $one['counts']['activity'] ?? 0 );
+    }
+
     public function test_the_team_filter_narrows_and_an_unknown_kind_is_ignored(): void {
         $html = $this->page( $this->personas['admin'], [ 'q' => 'training', 'team_id' => (string) $this->team_b, 'type' => 'nonsense' ] );
 

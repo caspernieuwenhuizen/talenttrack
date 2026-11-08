@@ -116,8 +116,9 @@ class FrontendSearchView extends FrontendViewBase {
         }
 
         $service = new SearchService();
-        $all     = $service->page( $query, [], $kind === '' ? $page : 1, $kind === '' ? self::PER_PAGE : 1, $user_id );
-        $result  = $kind === '' ? $all : $service->page( $query, [ $kind ], $page, self::PER_PAGE, $user_id );
+        // One pass: the items of the chosen kind (or all), the count of every kind.
+        $all     = $service->page( $query, [], $page, self::PER_PAGE, $user_id, $kind === '' ? null : [ $kind ] );
+        $result  = $all;
 
         self::renderUnderstood( $all['understood'] );
         self::renderKinds( $all['counts'], (int) $all['total'], $kind, $args );
