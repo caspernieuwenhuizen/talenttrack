@@ -30,12 +30,14 @@ final class ReportDefinition {
 
     /**
      * The definition to store, or why it cannot be. Null, an empty string or
-     * an empty object clears the definition. `$layout` is the report's
-     * layout: a block bound to other layouts is refused (#4572).
+     * an empty object clears the definition. `$layout`, `$scope` and
+     * `$audience` are the report's (#4572): a block bound to another layout,
+     * or one that does not fit the report's subject or audience, is refused
+     * on save rather than stored and then dropped when the report is read.
      *
      * @return array{blocks:list<array{id:string, key:string, options:array<mixed>, width:string}>}|StudioError
      */
-    public static function normalise( mixed $raw, ?string $layout = null ): array|StudioError {
+    public static function normalise( mixed $raw, ?string $layout = null, ?string $scope = null, ?string $audience = null ): array|StudioError {
         if ( $raw === null || $raw === '' || $raw === [] ) return [ 'blocks' => [] ];
         if ( ! is_array( $raw ) ) return self::invalid( __( 'The definition must be an object.', 'talenttrack' ) );
 
@@ -69,6 +71,10 @@ final class ReportDefinition {
             }
             if ( $layout !== null && $registry instanceof LayoutBound && ! in_array( $layout, $registry->layouts(), true ) ) {
                 return new StudioError( 'invalid_field', $registry->layoutReason(), 400, [ 'field' => 'definition', 'block' => $i ] );
+            }
+            if ( ( $scope !== null && ! in_array( $scope, $registry->scopes(), true ) )
+                || ( $audience !== null && ! in_array( $audience, $registry->audiences(), true ) ) ) {
+                return new StudioError( 'invalid_field', __( 'This block cannot be used for this subject or audience.', 'talenttrack' ), 400, [ 'field' => 'definition', 'block' => $i ] );
             }
             $options = $block['options'] ?? [];
             if ( ! is_array( $options ) ) return self::invalid( __( 'The options must be an object.', 'talenttrack' ) );

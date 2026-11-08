@@ -121,8 +121,15 @@
 		var blocks = data ? data.blocks || [] : [];
 		if (data && !blocks.length) list.appendChild(el('li', 'tt-rs-empty', t.empty));
 		blocks.forEach(function (b) {
-			// A page break only acts on paper (#4572).
-			if (b.key === 'page_break') return;
+			// A page break only acts on paper (#4572): an empty item, hidden on
+			// screen, that starts a new page when the browser prints.
+			if (b.key === 'page_break') {
+				var br = el('li', 'tt-rs-print-break');
+				br.setAttribute('aria-hidden', 'true');
+				br.dataset.ttRvBreak = b.id;
+				list.appendChild(br);
+				return;
+			}
 			var li = el('li', 'tt-rs-block tt-rs-block--' + (b.width === 'half' ? 'half' : 'full'));
 			var art = el('article', 'tt-rs-card');
 			if (!window.TT.ReportBlocks.untitled(b.key) || b.error) {

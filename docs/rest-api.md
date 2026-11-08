@@ -1497,7 +1497,14 @@ The blocks:
 - `page_break` (every scope and audience, `rows` layout only): no data. In
   `GET /reports/{id}/data` it takes no height in `page_fit`, and the block
   after it opens a new page (its id is in `breaks`). A draft holding it on a
-  `grid` report is refused with `400 invalid_field`.
+  `grid` report is refused with `400 invalid_field`. The reader's view prints
+  it as an item hidden on screen that starts a new page in the browser's
+  print; there is no PDF route for a Studio report.
+
+A draft is also refused with `400 invalid_field` (`details.block` the index)
+when a block does not fit the report's scope or audience, for example the key
+figures on a player report or a staff-only block on a family report. Before
+#4572 such a block was stored and then left out when the report was read.
 - `playing_time` (team, staff only): minutes, matches and starts per player,
   read through the minutes query the team monthly report uses.
 - `attendance_per_week` (player, team, group, academy): the attendance

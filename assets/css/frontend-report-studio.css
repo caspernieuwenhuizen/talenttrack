@@ -408,6 +408,25 @@
     color: var(--tt-muted, #6a6d66);
 }
 
+/* The reader's page break: nothing on screen, a new page on paper. There is
+   no PDF route for a Studio report, so the browser's print is the paper. */
+.tt-dashboard .tt-rs-print-break {
+    display: none;
+}
+
+@media print {
+    .tt-dashboard .tt-rs-print-break {
+        display: block;
+        grid-column: 1 / -1;
+        height: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        break-before: page;
+        page-break-before: always;
+    }
+}
+
 .tt-dashboard .tt-rs-break-body {
     border-top: 2px dashed var(--tt-line, #e3e6e1);
     padding-top: var(--tt-sp-1, 4px);
