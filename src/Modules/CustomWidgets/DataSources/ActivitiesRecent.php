@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
 
@@ -83,12 +84,15 @@ final class ActivitiesRecent implements CustomDataSource {
         $where  = [ 'a.club_id = %d' ];
         $params = [ CurrentClub::id() ];
 
+        // #4584 — the date and type columns the table has, as `aggregate()`
+        // reads them: `start_at` and `session_type` do not exist, so the
+        // query failed and the widget rendered empty.
         if ( ! empty( $filters['date_from'] ) ) {
-            $where[]  = 'a.start_at >= %s';
+            $where[]  = 'a.session_date >= %s';
             $params[] = (string) $filters['date_from'];
         }
         if ( ! empty( $filters['date_to'] ) ) {
-            $where[]  = 'a.start_at <= %s';
+            $where[]  = 'a.session_date <= %s';
             $params[] = (string) $filters['date_to'];
         }
         $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
@@ -98,11 +102,11 @@ final class ActivitiesRecent implements CustomDataSource {
         }
         $where[] = SourceScope::teamClause( $user_id, 'activities', 'a.team_id', $team_id );
 
-        $sql = "SELECT a.id, a.title, a.session_type, a.start_at, t.name AS team_name
+        $sql = "SELECT a.id, a.title, a.activity_type_key, a.session_date, t.name AS team_name
                   FROM {$p}tt_activities a
              LEFT JOIN {$p}tt_teams t ON t.id = a.team_id
                  WHERE " . implode( ' AND ', $where )
-              . " ORDER BY a.start_at DESC
+              . " ORDER BY a.session_date DESC, a.id DESC
                  LIMIT %d";
         $params[] = max( 1, min( 1000, $limit ) );
 
@@ -113,9 +117,9 @@ final class ActivitiesRecent implements CustomDataSource {
         foreach ( $rows as $row ) {
             $out[] = [
                 'title'          => (string) ( $row->title ?? '' ),
-                'type'           => (string) ( $row->session_type ?? '' ),
+                'type'           => (string) LabelTranslator::activityType( (string) ( $row->activity_type_key ?? '' ) ),
                 'team'           => (string) ( $row->team_name ?? '' ),
-                'date'           => (string) ( $row->start_at ?? '' ),
+                'date'           => (string) ( $row->session_date ?? '' ),
                 'attendance_pct' => '',
             ];
         }
