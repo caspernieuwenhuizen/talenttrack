@@ -13,8 +13,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   - `O<nn>`/`MO<nn>` an age group (teams and players); `MO` is the girls'
  *                     group only, `O` every group of that age;
  *   - `dd-mm`         a date in the current season (activities);
+ *   - `yyyy-mm-dd`, `dd-mm-yyyy`, or a day and a month name in Dutch or
+ *     English (`3 nov`, `3 november`): that date, the last two in the
+ *     current season;
  *   - a weekday, in Dutch or English: the last and the next such day
  *     (activities).
+ *
+ * The dates are honoured by every dated kind: activities, evaluations,
+ * goals and messages.
  *
  * A word that is a pattern is not also a text token, and a kind that does
  * not honour a pattern in the query has nothing to match for it.
@@ -30,6 +36,22 @@ final class SearchQuery {
     private const WEEKDAYS = [
         'maandag' => 1, 'dinsdag' => 2, 'woensdag' => 3, 'donderdag' => 4, 'vrijdag' => 5, 'zaterdag' => 6, 'zondag' => 7,
         'monday'  => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6, 'sunday' => 7,
+    ];
+
+    /** Month names and their short forms, Dutch and English, folded. */
+    private const MONTHS = [
+        'januari' => 1, 'january' => 1, 'jan' => 1,
+        'februari' => 2, 'february' => 2, 'feb' => 2,
+        'maart' => 3, 'march' => 3, 'mrt' => 3, 'mar' => 3,
+        'april' => 4, 'apr' => 4,
+        'mei' => 5, 'may' => 5,
+        'juni' => 6, 'june' => 6, 'jun' => 6,
+        'juli' => 7, 'july' => 7, 'jul' => 7,
+        'augustus' => 8, 'august' => 8, 'aug' => 8,
+        'september' => 9, 'sep' => 9, 'sept' => 9,
+        'oktober' => 10, 'october' => 10, 'okt' => 10, 'oct' => 10,
+        'november' => 11, 'nov' => 11,
+        'december' => 12, 'dec' => 12,
     ];
 
     /** @var list<string> folded text tokens, patterns taken out */
@@ -76,8 +98,9 @@ final class SearchQuery {
     private function parse(): void {
         $today = new \DateTimeImmutable( current_time( 'Y-m-d' ), wp_timezone() );
         $text  = [];
-        foreach ( preg_split( '/\s+/u', $this->raw ) ?: [] as $word ) {
-            if ( $word === '' ) continue;
+        $words = array_values( array_filter( preg_split( '/\s+/u', $this->raw ) ?: [], static fn( string $w ): bool => $w !== '' ) );
+        for ( $i = 0, $n = count( $words ); $i < $n; $i++ ) {
+            $word = $words[ $i ];
 
             if ( $this->shirt === null && preg_match( '/^#(\d{1,3})$/', $word, $m ) ) {
                 $this->shirt        = (int) $m[1];
@@ -99,6 +122,27 @@ final class SearchQuery {
                     'label'   => sprintf( __( 'Age group %s', 'talenttrack' ), strtoupper( $m[1] ) . (int) $m[2] ),
                 ];
                 continue;
+            }
+
+            // #4673 — a whole date (2026-11-03, 03-11-2026) or a day and a
+            // month name (3 nov, 3 november): the dates a parent types.
+            if ( $this->dates === [] ) {
+                $date = self::fullDate( $word );
+                if ( $date === null && isset( $words[ $i + 1 ] ) && preg_match( '/^(\d{1,2})$/', $word, $m ) ) {
+                    $month = self::MONTHS[ trim( SearchText::fold( $words[ $i + 1 ] ) ) ] ?? 0;
+                    $date  = $month > 0 ? self::seasonDate( (int) $m[1], $month, $today ) : null;
+                    if ( $date !== null ) $i++;
+                }
+                if ( $date !== null ) {
+                    $this->dates        = [ $date ];
+                    $this->understood[] = [
+                        'pattern' => self::PATTERN_DATE,
+                        'value'   => $date,
+                        /* translators: %s: a date */
+                        'label'   => sprintf( __( 'On %s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $date ) ),
+                    ];
+                    continue;
+                }
             }
 
             if ( $this->dates === [] && preg_match( '/^(\d{1,2})-(\d{1,2})$/', $word, $m ) ) {
@@ -130,6 +174,18 @@ final class SearchQuery {
             $text[] = $word;
         }
         $this->tokens = SearchText::tokens( implode( ' ', $text ) );
+    }
+
+    /** `yyyy-mm-dd` or `dd-mm-yyyy`, as `Y-m-d`, when it is a real day. */
+    private static function fullDate( string $word ): ?string {
+        if ( preg_match( '/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $word, $m ) ) {
+            [ $y, $mo, $d ] = [ (int) $m[1], (int) $m[2], (int) $m[3] ];
+        } elseif ( preg_match( '/^(\d{1,2})-(\d{1,2})-(\d{4})$/', $word, $m ) ) {
+            [ $d, $mo, $y ] = [ (int) $m[1], (int) $m[2], (int) $m[3] ];
+        } else {
+            return null;
+        }
+        return checkdate( $mo, $d, $y ) ? sprintf( '%04d-%02d-%02d', $y, $mo, $d ) : null;
     }
 
     /**

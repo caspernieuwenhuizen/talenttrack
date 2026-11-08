@@ -35,8 +35,21 @@ class HelpTopics {
     /** Verdict reason for a slug that names no registered topic. */
     public const REASON_UNREGISTERED = 'topic_unregistered';
 
+    /**
+     * Topics folded into another, old slug => the topic that replaced it, so
+     * a link or a bookmark to the old one opens the new one.
+     */
+    public const RETIRED = [
+        'parent-search' => 'search',
+    ];
+
     /** @var array<string, array<string, mixed>>|null in-process memo */
     private static $memo = null;
+
+    /** The slug a request means: a retired topic's replacement, or itself. */
+    public static function canonicalSlug( string $slug ): string {
+        return self::RETIRED[ $slug ] ?? $slug;
+    }
 
     /**
      * Every registered topic, keyed by slug and ordered for display:

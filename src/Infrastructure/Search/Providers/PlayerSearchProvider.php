@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Players\PlayerVisibility;
 use TT\Infrastructure\Search\SearchQuery;
+use TT\Infrastructure\Search\SearchViewer;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Players\Services\PlayerPhoto;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -27,6 +29,10 @@ use TT\Shared\Frontend\Components\RecordLink;
  *   - otherwise the profile, and the report when they may read it.
  *
  * The photo comes from `PlayerPhoto`, the gated media-store URL.
+ *
+ * #4673 — a player (not staff) also finds their teammates, the players on
+ * their own team, as the teammate card allows: the name and a link to that
+ * card, nothing else. A parent or a player gets no actions.
  */
 final class PlayerSearchProvider extends RecordSearchProvider {
 
@@ -49,7 +55,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
     }
 
     protected function columns(): string {
-        return 'p.id, p.first_name, p.last_name, p.team_id, p.wp_user_id, p.photo_media_id, p.photo_url, t.name AS team_name';
+        return 'p.id, p.first_name, p.last_name, p.team_id, p.status, p.wp_user_id, p.photo_media_id, p.photo_url, t.name AS team_name';
     }
 
     protected function scope( int $user_id ): ?array {
@@ -72,12 +78,33 @@ final class PlayerSearchProvider extends RecordSearchProvider {
             $own_params   = array_merge( $own_params, $in['params'] );
         }
 
+        // #4673 — a player also finds their teammates, by name only: the
+        // members of their own team's roster, as My Team lists them
+        // (`TeamRoster::memberOfClause()`), for roster consistency.
+        $sql    = $clause['sql'];
+        $params = $clause['params'];
+        $team   = self::teammateTeam( $user_id );
+        if ( $team > 0 && $sql !== '1=1' ) {
+            $sql    = "( {$sql} OR ( " . TeamRoster::memberOfClause( 'p', '%d' ) . ' ) )';
+            $params = array_merge( $params, [ $team ] );
+        }
+
         return [
-            'sql'        => $clause['sql'],
-            'params'     => $clause['params'],
+            'sql'        => $sql,
+            'params'     => $params,
             'own_sql'    => $own_parts === [] ? '' : '( ' . implode( ' OR ', $own_parts ) . ' )',
             'own_params' => $own_params,
         ];
+    }
+
+    /**
+     * The team whose players this viewer sees as teammates: their own, when
+     * they are a player and not staff. 0 otherwise.
+     */
+    private static function teammateTeam( int $user_id ): int {
+        if ( SearchViewer::isStaff( $user_id ) ) return 0;
+        $own = SearchViewer::ownPlayer( $user_id );
+        return $own !== null ? (int) ( $own->team_id ?? 0 ) : 0;
     }
 
     protected function conditions( SearchQuery $query ): array {
@@ -120,6 +147,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
         // never part of an item (SearchService::item() lists its keys).
         $hit['tt_row'] = [
             'wp_user_id'     => (int) ( $r['wp_user_id'] ?? 0 ),
+            'status'         => (string) ( $r['status'] ?? '' ),
             'photo_media_id' => (int) ( $r['photo_media_id'] ?? 0 ),
             'photo_url'      => (string) ( $r['photo_url'] ?? '' ),
         ];
@@ -132,7 +160,9 @@ final class PlayerSearchProvider extends RecordSearchProvider {
      * staff page through no grant).
      */
     private function url( int $user_id, int $player_id ): string {
-        if ( user_can( $user_id, 'tt_view_players' ) ) return $this->detailUrl( 'players', $player_id );
+        // #4673 — the matrix bridge grants `tt_view_players` to a guardian
+        // too, for their own children, so a family viewer is asked first.
+        if ( ! SearchViewer::isFamily( $user_id ) && user_can( $user_id, 'tt_view_players' ) ) return $this->detailUrl( 'players', $player_id );
         static $own = [];
         if ( ! isset( $own[ $user_id ] ) ) {
             $own[ $user_id ] = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->linkedPlayerIdForUser( $user_id );
@@ -145,8 +175,41 @@ final class PlayerSearchProvider extends RecordSearchProvider {
     public function confirm( int $user_id, array $hits ): array {
         if ( $hits === [] ) return [];
         $allowed = AuthorizationService::canViewPlayers( $user_id, array_map( static fn( array $h ): int => (int) $h['id'], $hits ) );
-        $kept    = array_values( array_filter( $hits, static fn( array $h ): bool => ! empty( $allowed[ (int) $h['id'] ] ) ) );
-        return $this->withPhotos( $this->withActions( $user_id, $kept ) );
+        $team    = self::teammateTeam( $user_id );
+        $kept    = [];
+        $mates   = [];
+        foreach ( $hits as $hit ) {
+            if ( ! empty( $allowed[ (int) $hit['id'] ] ) ) {
+                $kept[] = $hit;
+            } elseif ( $team > 0 && (int) ( $hit['team_id'] ?? 0 ) === $team && ( $hit['tt_row']['status'] ?? '' ) === 'active' ) {
+                // The roster's own rule: an active member of the viewer's team.
+                // Archived and binned rows never reach here (`baseWhere()`).
+                $mates[] = $this->asTeammate( $hit );
+            }
+        }
+        $kept = $this->withPhotos( $this->withActions( $user_id, $kept ) );
+        if ( $mates === [] ) return $kept;
+
+        // Back in the ranked order the hits came in.
+        $order = array_flip( array_map( static fn( array $h ): int => (int) $h['id'], $hits ) );
+        $all   = array_merge( $kept, $mates );
+        usort( $all, static fn( array $a, array $b ): int => $order[ (int) $a['id'] ] <=> $order[ (int) $b['id'] ] );
+        return $all;
+    }
+
+    /**
+     * A teammate as a player sees one: the name and a link to the teammate
+     * card. No team, no photo, no actions.
+     *
+     * @param array<string,mixed> $hit
+     * @return array<string,mixed>
+     */
+    private function asTeammate( array $hit ): array {
+        $hit['sublabel'] = '';
+        $hit['url']      = (string) add_query_arg( [ 'tt_view' => 'teammate', 'player_id' => (int) $hit['id'] ], $this->dashboard() ); /* tt-xview-ok */
+        $hit['actions']  = [];
+        unset( $hit['tt_row'], $hit['photo_url'], $hit['team_id'] );
+        return $hit;
     }
 
     /**
@@ -179,7 +242,8 @@ final class PlayerSearchProvider extends RecordSearchProvider {
      * @return list<array<string,mixed>>
      */
     private function withActions( int $user_id, array $hits ): array {
-        if ( $hits === [] ) return [];
+        // #4673 — a parent or a player gets no quick actions.
+        if ( $hits === [] || SearchViewer::isFamily( $user_id ) ) return $hits;
         $gate        = \TT\Modules\Authorization\MatrixGate::class;
         $academywide = $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL );
         $ids         = array_map( static fn( array $h ): int => (int) $h['id'], $hits );

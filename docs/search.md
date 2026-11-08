@@ -1,8 +1,8 @@
 ---
 title: Search
 group: basics
-summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen.
-audience: [user, admin]
+summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen, and for parents and players their own records.
+audience: [user, admin, player, parent]
 views: [search]
 order: 22
 ---
@@ -20,10 +20,11 @@ in it and the results appear underneath, grouped:
 1. Players
 2. Teams
 3. Activities
-4. People
-5. Settings
-6. Sections
-7. Help
+4. Evaluations, goals and messages (for parents and players)
+5. People
+6. Settings
+7. Sections
+8. Help
 
 Each group shows its best four players or three of the rest. When there are
 more, an *All* link at the foot of the group opens the full list on the
@@ -92,13 +93,63 @@ makes reaching it faster. A record you may not open is not shown and not
 counted, so a search for it reads exactly like a search for a name that does
 not exist.
 
-For a parent the results page searches their own children's records instead:
-see [Finding something in your child's record](parent-search.md).
+## For parents
+
+A coach texts you that a session is "in TalentTrack now". This is how you find
+it: the same search box, and the same results page.
+
+You search four kinds of record, for your own children and nobody else's:
+
+- **Activities**: trainings, matches and other sessions your child is on,
+  including ones still to come.
+- **Evaluations**: what a coach wrote about your child. The type of
+  evaluation is found in your own language, so *wedstrijdevaluatie* finds a
+  match evaluation.
+- **Goals**: what your child is working on.
+- **Messages**: what the academy sent you.
+
+Type a name or a title (*training*, *Ajax*), or a date: *3 nov*,
+*3 november*, *2026-11-03* or *12-10* all work. A date finds the activities on
+that day, the evaluations recorded on it, the goals due on it and the messages
+sent on it. Two characters is the shortest search that finds anything.
+
+With more than one child, the search covers all of them at once. An
+evaluation or a goal says which child it is about, and each result opens on
+the right child. A section your child has chosen to keep
+private is not searched.
+
+The search never reaches another family, and never tells you that another
+family's record exists: a search that would match somebody else's child
+returns exactly what a search for a made-up name returns. Parents get no quick
+actions, and no settings.
+
+If no child is linked to your account yet, the page says so: ask the academy
+to link you.
+
+**Seeing everything that is coming up.** Your child's activities page opens on
+what has already happened. **Show upcoming** at the top of the list flips it to
+everything still to come, soonest first. The **Coming up** block above the
+list always shows the next few.
+
+## For players
+
+You find:
+
+- **yourself**, opening your own development page;
+- **your teammates**: the players your *My team* page lists, by name,
+  opening their teammate card;
+- **your own team's activities**;
+- **your own evaluations and goals**.
+
+You never find another player's evaluations or goals, notes, or settings, and
+you get no quick actions.
 
 ## For developers
 
 The box and the page read the same REST routes: `GET /talenttrack/v1/search`
 with `page` for the grouped and paged results, `GET /talenttrack/v1/me/recent`
 for the recent list, and `POST /talenttrack/v1/me/recent` to note an opened
-record. Opening a player, team or activity page notes it on the server, so
+record. `GET /talenttrack/v1/me/search` stays for its existing callers: it
+answers in its old shape (`children`, `results`, `total`), built from the same
+engine. The old help topic for the parent search opens this one. Opening a player, team or activity page notes it on the server, so
 every front end feeds the same list. See [REST API](rest-api.md).

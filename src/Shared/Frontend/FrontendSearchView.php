@@ -3,7 +3,10 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Search\ParentSearchService;
+use TT\Infrastructure\Search\SearchViewer;
 use TT\Infrastructure\REST\SearchRestController;
 use TT\Infrastructure\Search\SearchQuery;
 use TT\Infrastructure\Search\SearchRegistry;
@@ -14,9 +17,11 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
- * FrontendSearchView (#4672) — `?tt_view=search&q=` for staff: every kind
- * the search engine (#4671) serves, filtered by kind, team and season, one
- * page at a time.
+ * FrontendSearchView (#4672) — `?tt_view=search&q=`: every kind the search
+ * engine (#4671) serves the caller, filtered by kind, team and season, one
+ * page at a time. Since #4673 it is the page for parents and players too;
+ * each kind scopes itself to them, so the view does not branch on who asks
+ * beyond its wording.
  *
  * The view composes. What matches, what the viewer may open and what is
  * counted are the providers' decisions, reached through `SearchService`,
@@ -36,13 +41,16 @@ class FrontendSearchView extends FrontendViewBase {
      */
     public static function groups(): array {
         $groups = [
-            [ 'kind' => 'player',   'label' => _x( 'Players', 'search group', 'talenttrack' ),    'limit' => 4 ],
-            [ 'kind' => 'team',     'label' => _x( 'Teams', 'search group', 'talenttrack' ),      'limit' => 3 ],
-            [ 'kind' => 'activity', 'label' => _x( 'Activities', 'search group', 'talenttrack' ), 'limit' => 3 ],
-            [ 'kind' => 'person',   'label' => _x( 'People', 'search group', 'talenttrack' ),     'limit' => 3 ],
-            [ 'kind' => 'setting',  'label' => _x( 'Settings', 'search group', 'talenttrack' ),   'limit' => 3 ],
-            [ 'kind' => 'view',     'label' => _x( 'Sections', 'search group', 'talenttrack' ),   'limit' => 3 ],
-            [ 'kind' => 'help',     'label' => _x( 'Help', 'search group', 'talenttrack' ),       'limit' => 3 ],
+            [ 'kind' => 'player',     'label' => _x( 'Players', 'search group', 'talenttrack' ),     'limit' => 4 ],
+            [ 'kind' => 'team',       'label' => _x( 'Teams', 'search group', 'talenttrack' ),       'limit' => 3 ],
+            [ 'kind' => 'activity',   'label' => _x( 'Activities', 'search group', 'talenttrack' ),  'limit' => 3 ],
+            [ 'kind' => 'evaluation', 'label' => _x( 'Evaluations', 'search group', 'talenttrack' ), 'limit' => 3 ],
+            [ 'kind' => 'goal',       'label' => _x( 'Goals', 'search group', 'talenttrack' ),       'limit' => 3 ],
+            [ 'kind' => 'message',    'label' => _x( 'Messages', 'search group', 'talenttrack' ),    'limit' => 3 ],
+            [ 'kind' => 'person',     'label' => _x( 'People', 'search group', 'talenttrack' ),      'limit' => 3 ],
+            [ 'kind' => 'setting',    'label' => _x( 'Settings', 'search group', 'talenttrack' ),    'limit' => 3 ],
+            [ 'kind' => 'view',       'label' => _x( 'Sections', 'search group', 'talenttrack' ),    'limit' => 3 ],
+            [ 'kind' => 'help',       'label' => _x( 'Help', 'search group', 'talenttrack' ),        'limit' => 3 ],
         ];
         $known = SearchRegistry::kinds();
         return array_values( array_filter( $groups, static fn( array $g ): bool => in_array( $g['kind'], $known, true ) ) );
@@ -51,14 +59,17 @@ class FrontendSearchView extends FrontendViewBase {
     /** One result's kind, as a row label. */
     public static function kindLabel( string $kind ): string {
         switch ( $kind ) {
-            case 'player':   return _x( 'Player', 'search result kind', 'talenttrack' );
-            case 'team':     return _x( 'Team', 'search result kind', 'talenttrack' );
-            case 'activity': return _x( 'Activity', 'search result kind', 'talenttrack' );
-            case 'person':   return _x( 'Person', 'search result kind', 'talenttrack' );
-            case 'setting':  return _x( 'Setting', 'search result kind', 'talenttrack' );
-            case 'view':     return _x( 'Section', 'search result kind', 'talenttrack' );
-            case 'help':     return _x( 'Help topic', 'search result kind', 'talenttrack' );
-            default:         return '';
+            case 'player':     return _x( 'Player', 'search result kind', 'talenttrack' );
+            case 'team':       return _x( 'Team', 'search result kind', 'talenttrack' );
+            case 'activity':   return _x( 'Activity', 'search result kind', 'talenttrack' );
+            case 'evaluation': return _x( 'Evaluation', 'search result kind', 'talenttrack' );
+            case 'goal':       return _x( 'Goal', 'search result kind', 'talenttrack' );
+            case 'message':    return _x( 'Message', 'search result kind', 'talenttrack' );
+            case 'person':     return _x( 'Person', 'search result kind', 'talenttrack' );
+            case 'setting':    return _x( 'Setting', 'search result kind', 'talenttrack' );
+            case 'view':       return _x( 'Section', 'search result kind', 'talenttrack' );
+            case 'help':       return _x( 'Help topic', 'search result kind', 'talenttrack' );
+            default:           return '';
         }
     }
 
@@ -102,10 +113,26 @@ class FrontendSearchView extends FrontendViewBase {
 
         self::renderForm( $raw, $kind, $team, $sid, $teams, $seasons );
 
+        $parent = ParentSearchService::isParentCaller( $user_id );
+        $family = SearchViewer::isFamily( $user_id );
+        // A parent with no child linked yet, and no record of their own,
+        // has nothing to search; say so instead of an empty result.
+        if ( $parent && $family && ParentChildResolver::childCount( $user_id ) === 0 && SearchViewer::ownPlayer( $user_id ) === null ) {
+            echo '<p class="tt-notice">' . esc_html__( 'No child is linked to your account yet, so there is nothing to search. Ask the academy to link you.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $query = new SearchQuery( $raw );
         if ( $query->isEmpty() ) {
-            echo '<p class="tt-search-page__hint">' . esc_html__( 'Search for a player, team, activity, person, setting or help topic.', 'talenttrack' ) . '</p>';
-            self::renderSuggestions();
+            if ( ! $family ) {
+                $hint = __( 'Search for a player, team, activity, person, setting or help topic.', 'talenttrack' );
+            } elseif ( $parent ) {
+                $hint = __( 'Search your children\'s activities, evaluations, goals and messages by name or by date.', 'talenttrack' );
+            } else {
+                $hint = __( 'Search for yourself, your teammates, your team\'s activities, your evaluations and your goals.', 'talenttrack' );
+            }
+            echo '<p class="tt-search-page__hint">' . esc_html( $hint ) . '</p>';
+            self::renderSuggestions( $family );
             return;
         }
 
@@ -126,7 +153,7 @@ class FrontendSearchView extends FrontendViewBase {
         if ( $result['items'] === [] ) {
             echo '<div class="tt-search-page__empty">';
             echo '<p class="tt-notice">' . esc_html__( 'Nothing matched.', 'talenttrack' ) . '</p>';
-            self::renderSuggestions();
+            self::renderSuggestions( $family );
             echo '</div>';
             return;
         }
@@ -289,8 +316,15 @@ class FrontendSearchView extends FrontendViewBase {
         echo '</nav>';
     }
 
-    private static function renderSuggestions(): void {
+    /** What to try. A parent or a player gets the tips that find their own records. */
+    private static function renderSuggestions( bool $family = false ): void {
         echo '<ul class="tt-search-page__tips">';
+        if ( $family ) {
+            echo '<li>' . esc_html__( 'Type part of a title or a name, such as "training".', 'talenttrack' ) . '</li>';
+            echo '<li>' . esc_html__( 'Type a date such as 3 nov, 2026-11-03 or 12-10, or a weekday.', 'talenttrack' ) . '</li>';
+            echo '</ul>';
+            return;
+        }
         echo '<li>' . esc_html__( 'Type part of a name: "den b" finds Daan den Besten.', 'talenttrack' ) . '</li>';
         echo '<li>' . esc_html__( 'Type #7 for the players with shirt number 7.', 'talenttrack' ) . '</li>';
         echo '<li>' . esc_html__( 'Type O14 for the O14 teams and their players.', 'talenttrack' ) . '</li>';

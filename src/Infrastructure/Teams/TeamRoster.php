@@ -36,6 +36,19 @@ final class TeamRoster {
         return "{$p}.team_id = {$team_expr} AND " . self::liveClause( $p );
     }
 
+    /** Is this player on the current roster of this team, in this club? */
+    public static function isMember( int $player_id, int $team_id ): bool {
+        if ( $player_id <= 0 || $team_id <= 0 ) return false;
+        global $wpdb;
+        $clause = self::memberOfClause( 'p', '%d' );
+        return (bool) $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}tt_players p WHERE p.id = %d AND p.club_id = %d AND {$clause} LIMIT 1",
+            $player_id,
+            (int) \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            $team_id
+        ) );
+    }
+
     /**
      * The roster's status and lifecycle half, for a caller that selects the
      * team itself (a list of team ids, say): active, not archived, not

@@ -119,10 +119,11 @@ class MeRestController {
     /**
      * Search the caller's own children's records (#3806).
      *
-     * Every decision about what may be found lives in
-     * `ParentSearchService`, which resolves the caller's children first
-     * and bounds each query by them, so this route and the rendered page
-     * return the same rows. A caller with no linked child gets an empty
+     * #4673 — an alias kept for its callers: the rows come from the shared
+     * search engine (`GET /search`), whose activity, evaluation, goal and
+     * message kinds bound each query by the caller's own children, and
+     * `ParentSearchService` composes them in the shape this route has always
+     * answered in. A caller with no linked child gets an empty
      * result rather than an error: whether anybody is linked to them is
      * not something a status code should disclose.
      */

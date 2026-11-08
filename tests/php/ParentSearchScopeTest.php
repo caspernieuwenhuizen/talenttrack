@@ -85,7 +85,10 @@ final class ParentSearchScopeTest extends WP_UnitTestCase {
     }
 
     public function test_a_future_activity_is_found_which_is_the_whole_complaint(): void {
-        $found = ( new ParentSearchService() )->search( $this->parent_user, 'Training dinsdag' );
+        // "Training", not "Training dinsdag": since #4673 a weekday is a
+        // date pattern of the shared engine, and this fixture's Tuesday is
+        // in 2099.
+        $found = ( new ParentSearchService() )->search( $this->parent_user, 'Training' );
 
         $titles = array_column( $found['results'], 'title' );
         $this->assertContains( 'Training dinsdag', $titles );
@@ -131,12 +134,18 @@ final class ParentSearchScopeTest extends WP_UnitTestCase {
         $this->assertSame( [], $found['results'] );
     }
 
+    /**
+     * #4673 — the date is read by the shared query patterns, and a word is
+     * never coerced into one (`strtotime( 'now' )` would make every text
+     * search also match today).
+     */
     public function test_a_date_query_is_read_as_a_date_and_a_word_is_not(): void {
-        $this->assertSame( '2026-11-03', ParentSearchService::asDate( '2026-11-03' ) );
-        // No digit, so `strtotime()` never gets to read it as "now" — which
-        // would make every text search also match today.
-        $this->assertSame( '', ParentSearchService::asDate( 'training' ) );
-        $this->assertSame( '', ParentSearchService::asDate( 'now' ) );
+        $this->assertSame( [ '2026-11-03' ], ( new \TT\Infrastructure\Search\SearchQuery( '2026-11-03' ) )->dates );
+        $this->assertSame( [], ( new \TT\Infrastructure\Search\SearchQuery( 'training' ) )->dates );
+        $this->assertSame( [], ( new \TT\Infrastructure\Search\SearchQuery( 'now' ) )->dates );
+
+        $found = ( new ParentSearchService() )->search( $this->parent_user, '2099-11-03' );
+        $this->assertSame( [ 'Training dinsdag' ], array_column( $found['results'], 'title' ) );
     }
 
     public function test_the_rest_route_answers_the_caller_and_nobody_else(): void {
@@ -178,11 +187,11 @@ final class ParentSearchScopeTest extends WP_UnitTestCase {
 
             $_SERVER['HTTP_REFERER'] = home_url( '/?tt_view=my-child&player_id=' . $this->child_one );
             $this->assertSame( $_SERVER['HTTP_REFERER'], \TT\Shared\Frontend\Components\BackLink::captureCurrent(), 'precondition: the Referer is the back target' );
-            $first = $this->searchUrls( 'Training dinsdag' );
+            $first = $this->searchUrls( 'Training' );
 
             $_SERVER['HTTP_REFERER'] = home_url( '/?tt_view=my-messages' );
             $this->assertSame( $_SERVER['HTTP_REFERER'], \TT\Shared\Frontend\Components\BackLink::captureCurrent() );
-            $second = $this->searchUrls( 'Training dinsdag' );
+            $second = $this->searchUrls( 'Training' );
         } finally {
             $_SERVER = $server_was;
         }
