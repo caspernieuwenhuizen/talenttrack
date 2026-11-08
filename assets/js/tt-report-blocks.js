@@ -81,6 +81,13 @@
 		letterhead: function (box, data, opts) {
 			var t = opts.i18n || {};
 			var head = el('header', 'tt-rs-letterhead');
+			// The club colours the server resolved (ReportBrandColour), the
+			// ones a printed report carries; the theme's colour otherwise.
+			var brand = data.brand || {};
+			var hex = /^#[0-9a-f]{6}$/i;
+			if (hex.test(brand.primary || '')) head.style.setProperty('--tt-rs-brand', brand.primary);
+			if (hex.test(brand.tint || '')) head.style.setProperty('--tt-rs-brand-tint', brand.tint);
+			if (hex.test(brand.number || '')) head.style.setProperty('--tt-rs-brand-ink', brand.number);
 			head.appendChild(el(opts.headingTag || 'h3', 'tt-rs-letterhead-title', data.name || data.team_name || ''));
 			var meta = [data.subject === 'player' ? data.team_name : '', data.age_group, data.head_coach]
 				.filter(function (s) { return !!s; }).join(' · ');

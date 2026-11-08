@@ -390,7 +390,7 @@ paths:
         - { in: query, name: layout, required: false, schema: { type: string, enum: [rows, grid] } }
       responses:
         '200': { description: OK }
-        '400': { description: bad_filter — an unknown scope or audience }
+        '400': { description: bad_filter — an unknown scope, audience or layout }
         '402': { description: license_required — the install is not on the plan }
         '403': { description: The caller lacks the capability, or the feature is off }
 

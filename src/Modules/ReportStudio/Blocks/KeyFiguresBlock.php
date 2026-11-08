@@ -54,31 +54,22 @@ final class KeyFiguresBlock implements ReportBlock {
     }
 
     public function render( ReportContext $context, array $options ): array {
-        $ctx  = new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId );
-        $kpi  = KpiComposer::compose( $ctx );
-        $pts  = _x( 'pts', 'percentage points', 'talenttrack' );
+        $ctx = new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId );
+        $kpi = KpiComposer::compose( $ctx );
 
-        // The monthly report's tiles, in its order and with its labels.
-        $tiles = [
-            'activities'               => [ __( 'Activities', 'talenttrack' ), '', '' ],
-            'attendance_pct'           => [ __( 'Attendance', 'talenttrack' ), 'percent', $pts ],
-            'minutes_share_median_pct' => [ __( 'Median minutes share', 'talenttrack' ), 'percent', $pts ],
-            'evaluated'                => [ __( 'Evaluated', 'talenttrack' ), 'count_of', $pts ],
-            'squad_rating'             => [ __( 'Squad rating', 'talenttrack' ), '', '' ],
-            'needs_attention'          => [ __( 'Need attention', 'talenttrack' ), '', '' ],
-        ];
-
+        // The monthly report's tiles, in its order and with its labels: one
+        // list, the composer's.
         $figures = [];
-        foreach ( $tiles as $key => [ $label, $unit, $delta_unit ] ) {
-            $m = is_array( $kpi[ $key ] ?? null ) ? $kpi[ $key ] : [];
+        foreach ( KpiComposer::tiles() as $tile ) {
+            $m = is_array( $kpi[ $tile['key'] ] ?? null ) ? $kpi[ $tile['key'] ] : [];
             $figures[] = [
-                'key'        => $key,
-                'label'      => $label,
+                'key'        => $tile['key'],
+                'label'      => $tile['label'],
                 'value'      => $m['value'] ?? null,
-                'of'         => $key === 'evaluated' ? (int) ( $m['of'] ?? 0 ) : null,
-                'unit'       => $unit,
+                'of'         => $tile['unit'] === 'count_of' ? (int) ( $m['of'] ?? 0 ) : null,
+                'unit'       => $tile['unit'],
                 'delta'      => $m['delta'] ?? null,
-                'delta_unit' => $delta_unit,
+                'delta_unit' => $tile['delta_unit'],
             ];
         }
 

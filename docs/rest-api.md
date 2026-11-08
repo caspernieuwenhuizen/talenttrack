@@ -1759,7 +1759,10 @@ row scope. `source` is `draft` (a builder's own, their default) or
 - **`page_fit`** is the A4 estimate for the report in rows: `pages`, `fill`
   (percent per page) and `breaks` (the ids of the blocks that start a new
   page). It uses the player report's measured heights, two half blocks side
-  by side making one row.
+  by side making one row. The letterhead is a block, not page chrome (#4572):
+  a `letterhead` block takes the letterhead's height where it is placed, and
+  a report without one reserves none. A `page_break` takes no height and
+  starts a new page.
 
 ```json
 { "report_id": 7, "uuid": "…", "source": "published", "version_no": 2,

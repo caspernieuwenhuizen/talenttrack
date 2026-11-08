@@ -13,6 +13,8 @@ use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Analytics\Reports\PlayerReportLayout;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\KpiComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
@@ -141,6 +143,13 @@ final class ReportStudioLayoutBlocksTest extends WP_UnitTestCase {
 
         $keys = array_column( $block['data']['figures'], 'key' );
         $this->assertSame( [ 'activities', 'attendance_pct', 'minutes_share_median_pct', 'evaluated', 'squad_rating', 'needs_attention' ], $keys );
+        // One owner for the tiles: the block's order, labels and units are
+        // the composer's, which the monthly report's document also reads.
+        $tiles = KpiComposer::tiles();
+        $this->assertSame( array_column( $tiles, 'key' ), $keys );
+        $this->assertSame( array_column( $tiles, 'label' ), array_column( $block['data']['figures'], 'label' ) );
+        $this->assertSame( array_column( $tiles, 'unit' ), array_column( $block['data']['figures'], 'unit' ) );
+        $this->assertSame( array_column( $tiles, 'delta_unit' ), array_column( $block['data']['figures'], 'delta_unit' ) );
         foreach ( $block['data']['figures'] as $figure ) {
             $theirs = $kpi[ $figure['key'] ];
             $this->assertSame( $theirs['value'], $figure['value'], "{$figure['key']} value" );
@@ -259,6 +268,31 @@ final class ReportStudioLayoutBlocksTest extends WP_UnitTestCase {
 
         $req->set_query_params( [ 'layout' => 'columns' ] );
         $this->assertSame( 400, rest_do_request( $req )->get_status() );
+
+        // The folded form is refused the same way.
+        $req->set_query_params( [ 'filter' => [ 'layout' => 'columns' ] ] );
+        $folded = rest_do_request( $req );
+        $this->assertSame( 400, $folded->get_status() );
+        $this->assertSame( 'bad_filter', (string) ( $folded->get_data()['errors'][0]['code'] ?? '' ) );
+        $this->assertSame( 'layout', (string) ( ( (array) $folded->get_data()['errors'][0]['details'] )['parameter'] ?? '' ) );
+    }
+
+    public function test_the_letterhead_is_a_block_and_not_page_chrome(): void {
+        $page = PlayerReportLayout::pageHeight( false );
+
+        // Without a letterhead block nothing is reserved for one.
+        $plain = ReportPageFit::estimate( [ [ 'id' => 'a', 'width' => 'full', 'rows' => 0 ] ] );
+        $this->assertSame( (int) round( PlayerReportLayout::sectionHeight( 0 ) / $page * 100 ), $plain['fill'][0] );
+
+        // A letterhead block takes the letterhead's height where it is placed, once.
+        $headed = ReportPageFit::estimate( [
+            [ 'id' => 'lh', 'width' => 'full', 'rows' => 0, 'letterhead' => true ],
+            [ 'id' => 'a', 'width' => 'full', 'rows' => 0 ],
+        ] );
+        $this->assertSame(
+            (int) round( ( PlayerReportLayout::letterheadHeight() + PlayerReportLayout::sectionHeight( 0 ) ) / $page * 100 ),
+            $headed['fill'][0]
+        );
     }
 
     public function test_a_page_break_moves_the_next_block_to_a_new_page(): void {

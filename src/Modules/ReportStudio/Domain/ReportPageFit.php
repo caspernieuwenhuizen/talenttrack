@@ -19,9 +19,11 @@ final class ReportPageFit {
 
     /**
      * A page break (`break: true`, #4572) takes no height and moves the row
-     * after it to a new page.
+     * after it to a new page. The letterhead is a block, not page chrome
+     * (`letterhead: true`): it takes the letterhead's height where it is
+     * placed, and a report without one reserves none.
      *
-     * @param list<array{id:string, width:string, rows:int, break?:bool}> $blocks in canvas order
+     * @param list<array{id:string, width:string, rows:int, break?:bool, letterhead?:bool}> $blocks in canvas order
      * @return array{pages:int, fill:list<int>, breaks:list<string>}
      */
     public static function estimate( array $blocks ): array {
@@ -34,23 +36,22 @@ final class ReportPageFit {
                 $forced = true;
                 continue;
             }
-            $height = PlayerReportLayout::sectionHeight( $block['rows'] );
+            $height = self::heightOf( $block );
             $next   = $blocks[ $i + 1 ] ?? null;
             if ( $block['width'] === ReportDefinition::WIDTH_HALF && $next !== null && empty( $next['break'] ) && $next['width'] === ReportDefinition::WIDTH_HALF ) {
-                $height = max( $height, PlayerReportLayout::sectionHeight( $next['rows'] ) );
+                $height = max( $height, self::heightOf( $next ) );
                 $i++;
             }
             $rows[] = [ 'id' => $block['id'], 'height' => $height, 'forced' => $forced ];
             $forced = false;
         }
 
-        $letterhead = PlayerReportLayout::letterheadHeight();
-        $total      = $letterhead + array_sum( array_column( $rows, 'height' ) );
-        $page       = PlayerReportLayout::pageHeight( $total > PlayerReportLayout::pageHeight( false ) );
+        $total = array_sum( array_column( $rows, 'height' ) );
+        $page  = PlayerReportLayout::pageHeight( $total > PlayerReportLayout::pageHeight( false ) );
 
         $fill   = [];
         $breaks = [];
-        $used   = $letterhead;
+        $used   = 0.0;
         foreach ( $rows as $row ) {
             if ( $used > 0.0 && ( $row['forced'] || $used + $row['height'] > $page ) ) {
                 $fill[]   = self::percent( $used, $page );
@@ -79,6 +80,18 @@ final class ReportPageFit {
         if ( isset( $block['error'] ) ) return 0;
         $data = is_array( $block['data'] ?? null ) ? $block['data'] : [];
         return is_array( $data['rows'] ?? null ) ? count( $data['rows'] ) : 0;
+    }
+
+    /**
+     * One block's printed height: the letterhead's for a letterhead block,
+     * a section of its rows for any other.
+     *
+     * @param array{rows:int, letterhead?:bool} $block
+     */
+    private static function heightOf( array $block ): float {
+        return ! empty( $block['letterhead'] )
+            ? PlayerReportLayout::letterheadHeight()
+            : PlayerReportLayout::sectionHeight( $block['rows'] );
     }
 
     private static function percent( float $used, float $page ): int {

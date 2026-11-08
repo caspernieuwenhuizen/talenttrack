@@ -30,8 +30,10 @@ final class LetterheadBlock implements ReportBlock {
         'jersey_number', 'birth_year', 'from', 'to', 'generated_at', 'subject', 'brand',
     ];
 
+    public const KEY = 'letterhead';
+
     public function key(): string {
-        return 'letterhead';
+        return self::KEY;
     }
 
     public function label(): string {

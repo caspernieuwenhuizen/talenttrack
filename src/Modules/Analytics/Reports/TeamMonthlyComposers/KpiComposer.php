@@ -12,6 +12,27 @@ use TT\Modules\Analytics\EvalCoverageService;
  */
 final class KpiComposer {
 
+    /**
+     * The headline tiles in print order, with their label, the unit of the
+     * value (`percent`, `count_of` for "value of of", or none) and the unit
+     * of the change. The one list the monthly report's document and the
+     * Report Studio's key figures both read (#4572), so the two cannot name
+     * the same figure differently.
+     *
+     * @return list<array{key:string, label:string, unit:string, delta_unit:string}>
+     */
+    public static function tiles(): array {
+        $pts = _x( 'pts', 'percentage points', 'talenttrack' );
+        return [
+            [ 'key' => 'activities',               'label' => __( 'Activities', 'talenttrack' ),           'unit' => '',         'delta_unit' => '' ],
+            [ 'key' => 'attendance_pct',           'label' => __( 'Attendance', 'talenttrack' ),           'unit' => 'percent',  'delta_unit' => $pts ],
+            [ 'key' => 'minutes_share_median_pct', 'label' => __( 'Median minutes share', 'talenttrack' ), 'unit' => 'percent',  'delta_unit' => $pts ],
+            [ 'key' => 'evaluated',                'label' => __( 'Evaluated', 'talenttrack' ),            'unit' => 'count_of', 'delta_unit' => $pts ],
+            [ 'key' => 'squad_rating',             'label' => __( 'Squad rating', 'talenttrack' ),         'unit' => '',         'delta_unit' => '' ],
+            [ 'key' => 'needs_attention',          'label' => __( 'Need attention', 'talenttrack' ),       'unit' => '',         'delta_unit' => '' ],
+        ];
+    }
+
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $previous = $ctx->previous;
