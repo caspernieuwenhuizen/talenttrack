@@ -160,6 +160,40 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
         $this->assertNotSame( 200, $reach->get_status(), 'nor counted for the publish confirm' );
     }
 
+    /** #4903 (D-52) — the generic staff persona is off the publish list too. */
+    public function test_a_report_cannot_be_published_to_the_generic_staff_persona(): void {
+        $this->assertNotContains( 'staff', ReportAccess::PUBLISHABLE_PERSONAS );
+        $this->assertSame( [ 'head_of_development', 'academy_admin', 'head_coach', 'assistant_coach', 'team_manager' ], ReportAccess::PUBLISHABLE_PERSONAS );
+
+        $id = $this->draft();
+        wp_set_current_user( $this->hod );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'First', 'persona_keys' => [ 'staff' ] ] );
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+        $details = (array) ( $res->get_data()['errors'][0]['details'] ?? [] );
+        $this->assertSame( 'persona_keys', $details['field'] ?? null );
+        if ( isset( $details['allowed'] ) ) {
+            $this->assertNotContains( 'staff', (array) $details['allowed'] );
+        }
+
+        $reach = $this->send( 'GET', "reports/{$id}/reach", [ 'persona_keys' => 'staff' ] );
+        $this->assertNotSame( 200, $reach->get_status(), 'nor counted for the publish confirm' );
+
+        // The canvas's publish dialog offers the five named roles and no Staff box.
+        wp_set_current_user( $this->hod );
+        $this->flush();
+        $_GET['id'] = (string) $id;
+        ob_start();
+        \TT\Modules\ReportStudio\Frontend\FrontendReportStudioView::render( $this->hod, false );
+        $page = (string) ob_get_clean();
+        unset( $_GET['id'] );
+        $this->assertStringContainsString( 'data-tt-rs-publish', $page, 'Precondition: the canvas renders its publish dialog.' );
+        $this->assertStringNotContainsString( 'value="staff"', $page );
+        foreach ( ReportAccess::PUBLISHABLE_PERSONAS as $key ) {
+            $this->assertStringContainsString( 'value="' . $key . '"', $page, $key );
+        }
+    }
+
     public function test_the_team_manager_still_reads_a_report_published_to_them(): void {
         $id = $this->published( [ 'head_coach', 'team_manager' ] );
 

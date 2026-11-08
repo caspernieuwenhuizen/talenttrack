@@ -33,13 +33,16 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 final class ReportAccess {
 
     /**
-     * The personas a report may be published to. Families read snapshots,
-     * never a live report, and the read-only observer reads none: the Studio
-     * is closed to that seat (#4695).
+     * The personas a report may be published to: the roles that work with
+     * the player or the team by name. Families read snapshots, never a live
+     * report, and the read-only observer reads none: the Studio is closed to
+     * that seat (#4695). The generic staff persona is not on the list (#4903,
+     * owner decision D-52): a report reaches the named roles, not everyone
+     * holding the general staff role.
      */
     public const PUBLISHABLE_PERSONAS = [
         'head_of_development', 'academy_admin', 'head_coach', 'assistant_coach',
-        'team_manager', 'staff',
+        'team_manager',
     ];
 
     /**

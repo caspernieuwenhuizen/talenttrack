@@ -716,6 +716,8 @@ Een rapport bevat hooguit 40 blokken.
 
 **Versies en publiceren.** **Publiceren** maakt van je concept een versie. Het vraagt wat er veranderd is, en bij een rapport voor een rol vraagt het voor welke rollen je het publiceert en zegt het hoeveel mensen dat bereikt. **Versies** toont de gepubliceerde versies; **Deze versie gebruiken** zet er een terug in je concept, en de volgende publicatie maakt hem weer live.
 
+Een rapport wordt gepubliceerd voor de rollen die bij naam met de speler of het team werken: het hoofd opleidingen, de academiebeheerder, de hoofdtrainer, de assistent-trainer en de teammanager. Het wordt niet gepubliceerd voor de algemene stafrol. Een rapport dat eerder voor de stafrol was gepubliceerd, staat niet meer onder **Gedeeld met mij** bij iemand die alleen die rol had; wie een van de genoemde rollen heeft, houdt het.
+
 ## Report Studio — de blokken
 
 Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetzelfde onderwerp en dezelfde periode. Een blok dat alleen voor staf is, krijgt een gezin of een scout nooit te zien.

@@ -1782,9 +1782,15 @@ what changed and is required: an empty or blank one is `400 missing_fields`
 with `details.field = "note"`. An empty list
 publishes the report for its builder only, which `tt_build_reports` allows.
 Reaching a persona needs `tt_publish_reports` (`403 forbidden_publish`) and a
-report made for a role (`sharing: role`); persona keys are staff personas
-only, because a family reads a shared snapshot, never a live report, and
-never the read-only observer (`400 invalid_field` with the allowed keys). Version numbers are unique per report
+report made for a role (`sharing: role`); persona keys are the named staff
+roles only: `head_of_development`, `academy_admin`, `head_coach`,
+`assistant_coach` and `team_manager`
+(`ReportAccess::PUBLISHABLE_PERSONAS`). A family reads a shared snapshot,
+never a live report; the read-only observer reads none; and since #4903 the
+generic `staff` persona is not a key either, so a report reaches the roles
+that work with the player or team by name (`400 invalid_field` with
+`details.field = "persona_keys"` and the allowed keys). Migration 0318
+removed the publications to `staff` made before. Version numbers are unique per report
 in the database: a publish that collides is retried once, then answered `409
 version_conflict`, and no duplicate is written. A deadlock or lock wait
 timeout on the locking read or the version insert, which two first publishes
