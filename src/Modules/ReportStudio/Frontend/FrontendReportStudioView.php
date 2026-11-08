@@ -321,6 +321,12 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'nothing'     => __( 'Nothing recorded between %1$s and %2$s.', 'talenttrack' ),
             'truncated'   => __( 'Only the first rows are shown.', 'talenttrack' ),
             'value'       => _x( 'Value', 'report studio column', 'talenttrack' ),
+            /* translators: 1: first day, 2: last day of the period */
+            'periodRange' => __( '%1$s to %2$s', 'talenttrack' ),
+            /* translators: %s: the change, for example "+4 pts" */
+            'sincePrevious' => __( '%s against the period before', 'talenttrack' ),
+            'emptyText'   => __( 'Open the settings to write the text.', 'talenttrack' ),
+            'pageBreakNote' => __( 'The next block starts on a new page when printed.', 'talenttrack' ),
             /* translators: %s: how full the page is, in percent */
             'onePage'     => __( 'One A4 page, %s%% full.', 'talenttrack' ),
             /* translators: 1: number of pages, 2: how full the last page is, in percent */

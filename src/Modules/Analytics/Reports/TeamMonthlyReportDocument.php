@@ -9,6 +9,7 @@ use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\StackTable;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 use TT\Modules\Measurements\Services\TestVerdict;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\KpiComposer;
 
 /**
  * TeamMonthlyReportDocument (#4097, epic #4094; the PDF template since #3460)
@@ -631,21 +632,27 @@ final class TeamMonthlyReportDocument {
 
     /** @param array<string,mixed> $k */
     private static function kpi( array $k ): string {
-        $pts   = _x( 'pts', 'percentage points', 'talenttrack' );
-        $cells = [
-            self::kpiCell( __( 'Activities', 'talenttrack' ), self::measureValue( $k, 'activities', '' ), self::measureDelta( $k, 'activities', '' ) ),
-            self::kpiCell( __( 'Attendance', 'talenttrack' ), self::measureValue( $k, 'attendance_pct', '%' ), self::measureDelta( $k, 'attendance_pct', $pts ) ),
-            self::kpiCell( __( 'Median minutes share', 'talenttrack' ), self::measureValue( $k, 'minutes_share_median_pct', '%' ), self::measureDelta( $k, 'minutes_share_median_pct', $pts ) ),
-        ];
-        $eval  = is_array( $k['evaluated'] ?? null ) ? $k['evaluated'] : [];
-        $of    = (int) ( $eval['of'] ?? 0 );
-        $cells[] = self::kpiCell(
-            __( 'Evaluated', 'talenttrack' ),
-            $of > 0 ? (int) ( $eval['value'] ?? 0 ) . '/' . $of : '—',
-            self::deltaText( $eval['delta'] ?? null, $pts )
-        );
-        $cells[] = self::kpiCell( __( 'Squad rating', 'talenttrack' ), self::measureValue( $k, 'squad_rating', '' ), self::measureDelta( $k, 'squad_rating', '' ) );
-        $cells[] = self::kpiCell( __( 'Need attention', 'talenttrack' ), self::measureValue( $k, 'needs_attention', '' ), self::measureDelta( $k, 'needs_attention', '' ) );
+        // #4572 — the tile list is the composer's, shared with the Report
+        // Studio's key figures.
+        $cells = [];
+        foreach ( KpiComposer::tiles() as $tile ) {
+            $key = $tile['key'];
+            if ( $tile['unit'] === 'count_of' ) {
+                $m  = is_array( $k[ $key ] ?? null ) ? $k[ $key ] : [];
+                $of = (int) ( $m['of'] ?? 0 );
+                $cells[] = self::kpiCell(
+                    $tile['label'],
+                    $of > 0 ? (int) ( $m['value'] ?? 0 ) . '/' . $of : '—',
+                    self::deltaText( $m['delta'] ?? null, $tile['delta_unit'] )
+                );
+                continue;
+            }
+            $cells[] = self::kpiCell(
+                $tile['label'],
+                self::measureValue( $k, $key, $tile['unit'] === 'percent' ? '%' : '' ),
+                self::measureDelta( $k, $key, $tile['delta_unit'] )
+            );
+        }
 
         return '<table class="kpi"><tr>' . implode( '', $cells ) . '</tr></table>';
     }

@@ -18,6 +18,7 @@ final class BlockOption {
     public const TYPE_INT       = 'int';
     public const TYPE_MEASURE   = 'measure';
     public const TYPE_BREAKDOWN = 'breakdown';
+    public const TYPE_TEXT      = 'text';
 
     /**
      * @param array<string,string>|array<string,array<string,string>> $choices
@@ -88,6 +89,13 @@ final class BlockOption {
                 $n = (int) $raw;
                 if ( ( $this->min !== null && $n < $this->min ) || ( $this->max !== null && $n > $this->max ) ) return [ false, null ];
                 return [ true, $n ];
+            case self::TYPE_TEXT:
+                // Plain text about the document, never markup: tags are
+                // dropped and `max` is the length in characters.
+                if ( ! is_string( $raw ) ) return [ false, null ];
+                $text = sanitize_textarea_field( $raw );
+                if ( $this->max !== null && mb_strlen( $text ) > $this->max ) return [ false, null ];
+                return $text === '' && $this->required ? [ false, null ] : [ true, $text ];
             default:
                 if ( ! is_string( $raw ) ) return [ false, null ];
                 $set = $this->choices;

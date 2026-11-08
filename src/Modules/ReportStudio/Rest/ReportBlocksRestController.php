@@ -11,7 +11,9 @@ use TT\Modules\ReportStudio\Domain\BlockEngine;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Domain\BlockSources;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\LayoutBound;
 use TT\Modules\ReportStudio\Domain\ReportContext;
+use TT\Modules\ReportStudio\Domain\ReportStartRules;
 use TT\Modules\ReportStudio\Domain\StudioError;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -53,7 +55,8 @@ final class ReportBlocksRestController extends BaseController {
                 'args'                => [
                     'scope'    => [ 'type' => 'string', 'description' => 'me, player, team, group or academy. Omit for every scope. Same as filter[scope]. Any other value is refused with 400 bad_filter.' ],
                     'audience' => [ 'type' => 'string', 'description' => 'internal, scout or family; internal when omitted. Same as filter[audience]. Any other value is refused with 400 bad_filter.' ],
-                    'filter'   => [ 'description' => 'Nested filters: scope, audience. A nested value wins over the plain parameter of the same name.' ],
+                    'layout'   => [ 'type' => 'string', 'description' => 'rows or grid: the report\'s layout. A block that does not fit it is listed under unavailable. Omit to list blocks for any layout. Same as filter[layout]. Any other value is refused with 400 bad_filter.' ],
+                    'filter'   => [ 'description' => 'Nested filters: scope, audience, layout. A nested value wins over the plain parameter of the same name.' ],
                 ],
             ],
         ] );
@@ -86,9 +89,13 @@ final class ReportBlocksRestController extends BaseController {
         $filter   = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
         $scope    = self::filterValue( $filter, $r, 'scope' );
         $audience = self::filterValue( $filter, $r, 'audience' );
+        $layout   = self::filterValue( $filter, $r, 'layout' );
 
         if ( $scope !== '' && ! in_array( $scope, ReportContext::SCOPES, true ) ) {
             return self::badFilter( 'scope' );
+        }
+        if ( $layout !== '' && ! in_array( $layout, ReportStartRules::LAYOUTS, true ) ) {
+            return self::badFilter( 'layout' );
         }
         if ( $audience !== '' && ! PlayerReportAudience::isValid( $audience ) ) {
             return self::badFilter( 'audience' );
@@ -101,6 +108,7 @@ final class ReportBlocksRestController extends BaseController {
         foreach ( $scopes as $s ) {
             $context = ReportContext::forListing( $s, $audience, $user_id );
             foreach ( BlockRegistry::availableFor( $context ) as $block ) {
+                if ( ! self::fitsLayout( $block, $layout ) ) continue;
                 if ( isset( $out[ $block->key() ] ) ) {
                     $out[ $block->key() ]['available_scopes'][] = $s;
                     continue;
@@ -118,15 +126,23 @@ final class ReportBlocksRestController extends BaseController {
             $unavailable[] = [
                 'key'    => $block->key(),
                 'label'  => $block->label(),
-                'reason' => self::unavailableReason( $block, $first ),
+                'reason' => self::unavailableReason( $block, $first, $layout ),
             ];
         }
 
         return RestResponse::success( [ 'blocks' => array_values( $out ), 'unavailable' => $unavailable ] );
     }
 
+    /** Does the block fit the report's layout? Any layout fits when none is named. */
+    private static function fitsLayout( ReportBlock $block, string $layout ): bool {
+        return $layout === '' || ! $block instanceof LayoutBound || in_array( $layout, $block->layouts(), true );
+    }
+
     /** Why a block cannot be placed here, in the words the library shows. */
-    private static function unavailableReason( ReportBlock $block, ReportContext $context ): string {
+    private static function unavailableReason( ReportBlock $block, ReportContext $context, string $layout = '' ): string {
+        if ( ! self::fitsLayout( $block, $layout ) && $block instanceof LayoutBound ) {
+            return $block->layoutReason();
+        }
         if ( ! in_array( $context->scope, $block->scopes(), true ) ) {
             return __( 'This block does not fit what the report is about.', 'talenttrack' );
         }

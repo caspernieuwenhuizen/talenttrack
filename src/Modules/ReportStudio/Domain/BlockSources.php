@@ -14,6 +14,15 @@ final class BlockSources {
     /** Where the block's figures come from. */
     public static function source( ReportBlock $block ): string {
         switch ( $block->key() ) {
+            case 'letterhead':
+                return __( 'The team or the player, the period and the club colours, the same heading as the team monthly report and the player report.', 'talenttrack' );
+            case 'key_figures':
+                return __( 'The headline figures of the team monthly report, each against the period before.', 'talenttrack' );
+            case 'heading':
+            case 'text':
+                return __( 'Text you write about this report. A note about a player does not belong here.', 'talenttrack' );
+            case 'page_break':
+                return __( 'Starts a new page when the report is printed.', 'talenttrack' );
             case 'playing_time':
                 return __( 'Minutes from the match line-ups, the same figures as the team monthly report.', 'talenttrack' );
             case 'attendance_per_week':

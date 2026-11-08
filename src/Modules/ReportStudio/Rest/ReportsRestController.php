@@ -411,7 +411,7 @@ final class ReportsRestController extends BaseController {
 
         $definition = null;
         if ( array_key_exists( 'definition', $body ) ) {
-            $definition = ReportDefinition::normalise( $body['definition'] );
+            $definition = ReportDefinition::normalise( $body['definition'], $report['layout'], $report['scope'], $report['audience'] );
             if ( $definition instanceof StudioError ) return self::refuse( $definition );
         }
 

@@ -676,6 +676,18 @@ A report holds at most 40 blocks.
 
 **Versions and publishing.** **Publish** makes your draft a version. It asks what changed, and for a report made for a role it asks which roles to publish it for and says how many people that reaches. **Versions** lists the published versions; **Use this version** puts one back in your draft, and the next publish makes it live again.
 
+## Report Studio — the blocks
+
+Each block shows the same figure as the report it comes from, for the same subject and period. A block that is for staff only is never shown to a family or a scout.
+
+**Layout and text**
+
+- **Letterhead**: the team or the player, the period and the club colours. For a team it names the age group, the head coach, the squad size and how many activities the period held, as the team monthly report does; for a player the team and the head coach, as the player report does. A family and a scout may see a player's letterhead.
+- **Key figures**: the team monthly report's headline figures (activities, attendance, the median minutes share, how many players were evaluated, the squad rating and how many need attention), each with the change against the period before. For a team only, and for staff only.
+- **Heading**: a title between blocks.
+- **Text**: a heading and a paragraph about the report, for example what it is for or how to read it. It is plain text, at most 2,000 characters. Do not write about a player here: a note about a player belongs on a snapshot.
+- **Page break**: the block after it starts on a new page when the report is printed. Only for a report laid out in rows; the A4 view shows where the new page starts.
+
 ## Report Studio — reading a shared report
 
 A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.
@@ -685,6 +697,7 @@ A report someone published for your role appears on the Reports launcher under *
 - **The period** is the one the report was made for. When it is chosen on opening, pick one of the period options: last week, last month, this month or this season.
 - **A block you may not see** says "Not available to you." and shows no figures. Contact details of a family you do not work with are never shown.
 - On a phone the blocks stack one under the other.
+- A letterhead, a heading and a text are shown without a block name above them, and a page break only acts on paper.
 
 A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
 

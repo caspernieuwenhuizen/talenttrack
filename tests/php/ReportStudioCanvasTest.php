@@ -286,6 +286,53 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
         $this->assertCount( 1, $fit['fill'] );
     }
 
+    public function test_the_data_route_counts_a_letterhead_block_once(): void {
+        $plain  = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        $headed = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
+        $this->patch( $plain, [ [ 'id' => 'b1', 'key' => 'heading' ] ] );
+        $this->patch( $headed, [ [ 'id' => 'b0', 'key' => 'letterhead' ], [ 'id' => 'b1', 'key' => 'heading' ] ] );
+
+        $page   = \TT\Modules\Analytics\Reports\PlayerReportLayout::pageHeight( false );
+        $one    = \TT\Modules\Analytics\Reports\PlayerReportLayout::sectionHeight( 0 );
+        $lh     = \TT\Modules\Analytics\Reports\PlayerReportLayout::letterheadHeight();
+        $fill_p = $this->send( 'GET', "reports/{$plain}/data", [], $this->period() )->get_data()['data']['page_fit']['fill'][0];
+        $fill_h = $this->send( 'GET', "reports/{$headed}/data", [], $this->period() )->get_data()['data']['page_fit']['fill'][0];
+
+        $this->assertSame( (int) round( $one / $page * 100 ), $fill_p, 'no letterhead block reserves no letterhead' );
+        $this->assertSame( (int) round( ( $lh + $one ) / $page * 100 ), $fill_h, 'a letterhead block is counted once' );
+    }
+
+    public function test_a_grid_report_refuses_a_page_break_on_save(): void {
+        $grid = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid' ] );
+        $res  = $this->send( 'PATCH', "reports/{$grid}", [ 'definition' => [ 'blocks' => [ [ 'id' => 'b1', 'key' => 'page_break' ] ] ] ] );
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+        $draft = $this->send( 'GET', "reports/{$grid}" )->get_data()['data']['draft'] ?? null;
+        $this->assertSame( [], is_array( $draft ) ? ( $draft['definition']['blocks'] ?? [] ) : [], 'nothing was saved' );
+
+        $rows = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'rows' ] );
+        $this->patch( $rows, [ [ 'id' => 'b1', 'key' => 'page_break' ] ] );
+    }
+
+    public function test_a_draft_refuses_a_block_the_reports_subject_or_audience_cannot_have(): void {
+        // Key figures are about a team and for staff: not on a player report.
+        $player = $this->create( [ 'scope' => 'player', 'player_id' => $this->player_a ] );
+        $res    = $this->send( 'PATCH', "reports/{$player}", [ 'definition' => [ 'blocks' => [ [ 'id' => 'b1', 'key' => 'key_figures' ] ] ] ] );
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+
+        // Nor on a family report, whose audience they never reach.
+        $family = $this->create( [ 'scope' => 'player', 'player_id' => $this->player_a, 'audience' => PlayerReportAudience::FAMILY ] );
+        $res    = $this->send( 'PATCH', "reports/{$family}", [ 'definition' => [ 'blocks' => [ [ 'id' => 'b1', 'key' => 'test_staff_only' ] ] ] ] );
+        $this->assertSame( 400, $res->get_status(), 'a staff-only block on a family draft' );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+        $draft = $this->send( 'GET', "reports/{$family}" )->get_data()['data']['draft'] ?? null;
+        $this->assertSame( [], is_array( $draft ) ? ( $draft['definition']['blocks'] ?? [] ) : [], 'nothing was saved' );
+
+        // The edge: a block the family may see is accepted on the same draft.
+        $this->patch( $family, [ [ 'id' => 'b1', 'key' => 'letterhead' ] ] );
+    }
+
     public function test_two_halves_share_a_row_and_a_long_report_breaks_onto_a_new_page(): void {
         $full  = ReportPageFit::estimate( [ [ 'id' => 'a', 'width' => 'full', 'rows' => 10 ], [ 'id' => 'b', 'width' => 'full', 'rows' => 10 ] ] );
         $halves = ReportPageFit::estimate( [ [ 'id' => 'a', 'width' => 'half', 'rows' => 10 ], [ 'id' => 'b', 'width' => 'half', 'rows' => 10 ] ] );
