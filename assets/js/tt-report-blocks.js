@@ -160,7 +160,10 @@
 		var rows = Array.isArray(data.rows) ? data.rows : [];
 		if (!rows.length) {
 			var ctx = opts.context || {};
-			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.nothing, day(ctx.from), day(ctx.to))));
+			// A flags block with nobody flagged is an answer, not missing data (#4572).
+			var none = data.threshold != null && t.noneFlagged ? t.noneFlagged : t.nothing;
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(none, day(ctx.from), day(ctx.to))));
+			attendanceNotes(box, data, t);
 			return box;
 		}
 		var cols = Object.keys(rows[0]).filter(function (k) { return k !== 'player_id' && k !== 'key'; });
@@ -182,6 +185,7 @@
 		box.appendChild(wrap);
 		if (data.truncated) box.appendChild(el('p', 'tt-rs-block-msg', t.truncated));
 		target(box, data, t);
+		attendanceNotes(box, data, t);
 		return box;
 	}
 
@@ -200,6 +204,16 @@
 	function target(box, data, t) {
 		if (data.target_pct == null || !t.target) return;
 		box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.target, data.target_pct)));
+	}
+
+	/** The squad's attendance, or the flag thresholds, under an attendance block (#4572). */
+	function attendanceNotes(box, data, t) {
+		if (data.team_avg_pct != null && t.squadAttendance) {
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.squadAttendance, data.team_avg_pct)));
+		}
+		if (data.threshold != null && t.flagThresholds) {
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.flagThresholds, data.threshold, data.late_threshold)));
+		}
 	}
 
 	window.TT.ReportBlocks = { body: body, fmt: fmt, day: day, untitled: untitled };

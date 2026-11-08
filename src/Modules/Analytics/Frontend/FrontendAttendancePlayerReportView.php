@@ -322,25 +322,13 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
     }
 
     /**
-     * #4013 — why this player is on the at-risk list, in words: the missed
-     * count, the late count, or both. The list used to say "%d missed" for
-     * every flagged player, which for a player flagged on lateness alone
-     * read as "0 missed" and told the coach the opposite of the truth.
+     * Why this player is on the at-risk list, in words — the service's text,
+     * shared with the Report Studio (#4572).
      *
      * @param array<string,mixed> $row  a row from AttendanceRankingQuery
      */
     private static function flagReasonText( array $row ): string {
-        $reasons = is_array( $row['flag_reasons'] ?? null ) ? $row['flag_reasons'] : [];
-        $parts   = [];
-        foreach ( $reasons as $reason ) {
-            $parts[] = $reason === AttendanceFlagService::REASON_LATENESS
-                ? sprintf( /* translators: %d activities the player arrived late for */ __( '%d late', 'talenttrack' ), (int) ( $row['late'] ?? 0 ) )
-                : sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
-        }
-        if ( $parts === [] ) {
-            $parts[] = sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
-        }
-        return implode( ', ', $parts );
+        return AttendanceFlagService::reasonText( $row );
     }
 
     /**

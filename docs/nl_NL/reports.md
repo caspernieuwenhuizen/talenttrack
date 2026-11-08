@@ -733,6 +733,10 @@ Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetz
 - **Minuten per wedstrijd**: de minuten van één speler in elke wedstrijd van de periode, met de datum en het wedstrijdtype, dezelfde cijfers als in het minutenrapport. Een gezin en een scout mogen het zien.
 - **Doelpunten en assists**: voor een team de doelpuntenmakers uit het maandrapport van het team: elke speler die scoorde of een assist gaf, gerangschikt op doelpunten, dan assists, dan rugnummer, waarbij spelers die op beide gelijk staan dezelfde plaats delen; voor een speler zijn eigen doelpunten en assists. Een eigen doelpunt telt niet als doelpunt. Een gezin en een scout mogen de eigen cijfers van een speler zien.
 - **Aandeel in de beschikbare minuten**: voor een team het aandeel van elke speler uit de selectie, laagste eerst, zoals het rapport minutenaandeel het toont; voor een speler zijn eigen aandeel tegenover het doel. Een gezin of een scout ziet alleen het eigen aandeel van de speler, nooit het gemiddelde van het team of van de positiegroep.
+**Aanwezigheid**
+
+- **Aanwezigheid per speler**: voor elke speler uit de selectie het aantal activiteiten, hoe vaak hij aanwezig, te laat, afwezig, afgemeld, geblesseerd of geschorst was, en zijn aanwezigheid, op rugnummer, zoals het aanwezigheidsonderdeel van het maandrapport van het team ze toont. Te laat telt als aanwezig. Onder de tabel staat de aanwezigheid van de selectie. Alleen voor een team, en alleen voor staf.
+- **Spelers gemarkeerd op aanwezigheid**: de risicolijst van het aanwezigheidsrapport, voor een team of voor de hele academie. Een speler staat erop als hij zoveel activiteiten miste als de markeringsdrempel voor aanwezigheid in de configuratie, of zo vaak te laat was als de drempel voor te laat komen. Per speler staat erbij waarom, slechtste eerst, en onder de lijst staan beide drempels. Het is niet de lijn van 70 procent uit het maandrapport van het team. Alleen voor staf.
 
 ## Report Studio — een gedeeld rapport lezen
 

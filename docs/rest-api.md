@@ -1543,6 +1543,18 @@ The blocks:
   `available_minutes`, `matches` and `target_pct`, and no average.
 - `attendance_per_week` (player, team, group, academy): the attendance
   measures grouped by ISO week, on the rows the attendance reports count.
+- `attendance_per_player` (team, staff only, #4572): the team monthly
+  report's attendance composer at its details level. `rows` of `{ player_id,
+  name, activities, present, late, absent, excused, injured, suspended,
+  attendance_pct }` in shirt order (late counts as attended), plus
+  `team_avg_pct` and `absences` by kind. Neither the monthly report's 70 %
+  line nor the flags.
+- `attendance_flags` (team, academy, staff only, #4572):
+  `AttendanceRankingQuery::atRisk()`, as `GET /reports/attendance-at-risk`
+  answers it. `rows` of `{ player_id, name, team_name (academy only),
+  activities, attendance_pct, reason }`, worst first, `reason` the
+  translated why (`AttendanceFlagService::reasonText()`); plus `threshold`
+  and `late_threshold`, the configured flag thresholds.
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.

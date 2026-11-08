@@ -693,6 +693,10 @@ Each block shows the same figure as the report it comes from, for the same subje
 - **Minutes per match**: one player's minutes in each match of the period, with the date and the match type, the same figures as the minutes report. A family and a scout may see it.
 - **Goals and assists**: for a team, the team monthly report's scorers: every player who scored or assisted, ranked on goals, then assists, then shirt number, with players level on both sharing a place; for a player, their own goals and assists. An own goal is not counted as a goal. A family and a scout may see a player's own figures.
 - **Share of available minutes**: for a team, every squad player's share, lowest first, as the minutes-share report shows it; for a player, their own share against the target. A family or a scout sees the player's own share only, never the team's or the position group's average.
+**Attendance**
+
+- **Attendance per player**: every squad player's activities, how often they were present, late, absent, excused, injured or suspended, and their attendance, in shirt order, as the team monthly report's attendance section lists them. Late counts as attended. Under the table: the squad's attendance. For a team only, and for staff only.
+- **Players flagged on attendance**: the attendance report's at-risk list, for a team or for the whole academy. A player is on it when they missed as many activities as the attendance flag threshold in the configuration, or were late as often as the lateness threshold. It says why for each player, worst first, and names both thresholds under the list. It is not the team monthly report's line at 70 percent. Staff only.
 
 ## Report Studio — reading a shared report
 

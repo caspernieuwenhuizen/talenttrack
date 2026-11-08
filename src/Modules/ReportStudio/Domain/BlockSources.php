@@ -33,6 +33,10 @@ final class BlockSources {
                 return __( 'Minutes against the minutes the team played, the same figures as the minutes-share report.', 'talenttrack' );
             case 'attendance_per_week':
                 return __( 'Attendance taken at trainings and matches, counted the way the attendance reports count it.', 'talenttrack' );
+            case 'attendance_per_player':
+                return __( 'Attendance taken at trainings and matches for every squad player, the same figures as the team monthly report.', 'talenttrack' );
+            case 'attendance_flags':
+                return __( 'Players over the attendance flag thresholds set in the configuration, for missed activities or for lateness: the attendance report\'s at-risk list. Not the monthly report\'s line at 70 percent.', 'talenttrack' );
             case 'own_question':
                 return __( 'The data and the measure you pick, read the way the analytics explorer reads them.', 'talenttrack' );
         }
