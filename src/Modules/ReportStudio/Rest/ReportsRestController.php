@@ -769,7 +769,9 @@ final class ReportsRestController extends BaseController {
                 $draft['name_changed'] = ReportNaming::changed( $report, $draft['name'] );
             }
             $out['draft']        = $draft;
-            $out['persona_keys'] = $repo->personaKeys( $report['id'] );
+            // #4903 — only keys that may be published, so the editor never
+            // sends back one a stored row still carries before 0318 runs.
+            $out['persona_keys'] = array_values( array_intersect( $repo->personaKeys( $report['id'] ), ReportAccess::PUBLISHABLE_PERSONAS ) );
         }
         return $out;
     }

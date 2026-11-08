@@ -197,11 +197,15 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
         $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a ] );
         $count = fn( string $keys ): int => (int) $this->send( 'GET', "reports/{$id}/reach", [], [ 'persona_keys' => $keys ] )->get_data()['data']['count'];
 
-        // A staff account that reads team A only through the manager role.
-        $before_staff = $count( 'staff' );
-        $staff        = $this->staffWithFunctionalRole( $this->team_a, 'manager' );
-        $this->assertTrue( \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $staff, $this->team_a ), 'Precondition: the functional role reads the team\'s reports.' );
-        $this->assertSame( $before_staff + 1, $count( 'staff' ), 'a read through a functional role is a reader' );
+        // A team manager account that reads team A through the manager
+        // functional role. The generic staff persona is no longer one a
+        // report is published to (#4903), so the reach is counted on a
+        // persona that is.
+        $before_tm = $count( 'team_manager' );
+        $manager   = $this->staffWithFunctionalRole( $this->team_a, 'manager', 'tt_team_manager' );
+        $this->assertTrue( \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $manager, $this->team_a ), 'Precondition: the functional role reads the team\'s reports.' );
+        $this->assertSame( $before_tm + 1, $count( 'team_manager' ), 'a read through a functional role is a reader' );
+        $this->assertSame( 400, $this->send( 'GET', "reports/{$id}/reach", [], [ 'persona_keys' => 'staff' ] )->get_status(), 'staff is not a persona to count' );
 
         // The academy admin persona comes from two WordPress roles.
         $before_admin = $count( 'academy_admin' );
@@ -479,10 +483,11 @@ final class ReportStudioCanvasTest extends WP_UnitTestCase {
     }
 
     /** A staff account whose only team access is a functional role on this team. */
-    private function staffWithFunctionalRole( int $team, string $role_key ): int {
+    private function staffWithFunctionalRole( int $team, string $role_key, string $wp_role = 'tt_staff' ): int {
         global $wpdb;
         $p    = $wpdb->prefix;
-        $user = (int) self::factory()->user->create( [ 'role' => 'tt_staff' ] );
+        if ( get_role( $wp_role ) === null ) add_role( $wp_role, $wp_role, [ 'read' => true ] );
+        $user = (int) self::factory()->user->create( [ 'role' => $wp_role ] );
         $wpdb->insert( "{$p}tt_people", [
             'club_id' => CurrentClub::id(), 'first_name' => 'Team', 'last_name' => 'Manager',
             'role_type' => 'staff', 'wp_user_id' => $user, 'status' => 'active',

@@ -160,6 +160,78 @@ final class ReportStudioClosedToObserverTest extends WP_UnitTestCase {
         $this->assertNotSame( 200, $reach->get_status(), 'nor counted for the publish confirm' );
     }
 
+    /** #4903 (D-52) — the generic staff persona is off the publish list too. */
+    public function test_a_report_cannot_be_published_to_the_generic_staff_persona(): void {
+        $this->assertNotContains( 'staff', ReportAccess::PUBLISHABLE_PERSONAS );
+        $this->assertSame( [ 'head_of_development', 'academy_admin', 'head_coach', 'assistant_coach', 'team_manager' ], ReportAccess::PUBLISHABLE_PERSONAS );
+
+        $id = $this->draft();
+        wp_set_current_user( $this->hod );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'note' => 'First', 'persona_keys' => [ 'staff' ] ] );
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+        $details = (array) ( $res->get_data()['errors'][0]['details'] ?? [] );
+        $this->assertSame( 'persona_keys', $details['field'] ?? null );
+        if ( isset( $details['allowed'] ) ) {
+            $this->assertNotContains( 'staff', (array) $details['allowed'] );
+        }
+
+        $reach = $this->send( 'GET', "reports/{$id}/reach", [ 'persona_keys' => 'staff' ] );
+        $this->assertNotSame( 200, $reach->get_status(), 'nor counted for the publish confirm' );
+
+        // The canvas's publish dialog offers the five named roles and no Staff box.
+        wp_set_current_user( $this->hod );
+        $this->flush();
+        $_GET['id'] = (string) $id;
+        ob_start();
+        \TT\Modules\ReportStudio\Frontend\FrontendReportStudioView::render( $this->hod, false );
+        $page = (string) ob_get_clean();
+        unset( $_GET['id'] );
+        $this->assertStringContainsString( 'data-tt-rs-publish', $page, 'Precondition: the canvas renders its publish dialog.' );
+        $this->assertStringNotContainsString( 'value="staff"', $page );
+        foreach ( ReportAccess::PUBLISHABLE_PERSONAS as $key ) {
+            $this->assertStringContainsString( 'value="' . $key . '"', $page, $key );
+        }
+    }
+
+    /**
+     * #4903 — the code enforces D-52, not the migration: until an admin runs
+     * 0318, a publication row to `staff` is still stored, and it must reach
+     * nobody. A staff account holding the Manager functional role reads the
+     * Studio and the team's reports, so only the persona can refuse it.
+     */
+    public function test_a_stored_publication_to_staff_reaches_no_one_before_the_migration_runs(): void {
+        global $wpdb;
+        $id    = $this->published( [ 'head_coach' ] );
+        $staff = $this->staffWithManagerRole();
+
+        // The row an install carries from before #4903, with 0318 not run.
+        $wpdb->insert( "{$wpdb->prefix}tt_report_publications", [
+            'club_id' => (int) CurrentClub::id(), 'report_id' => $id, 'persona_key' => 'staff',
+            'published_by' => $this->hod, 'published_at' => current_time( 'mysql' ),
+        ] );
+        $this->flush();
+
+        $this->assertSame( [ 'staff' ], array_values( array_map( 'strval', \TT\Modules\Authorization\PersonaResolver::personasFor( $staff ) ) ), 'Precondition: the account holds the staff persona alone.' );
+        $reader = ReportReader::for( $staff );
+        $this->assertTrue( $reader->readsStudio(), 'Precondition: the Manager role reads the Studio.' );
+        $report = ( new \TT\Modules\ReportStudio\Repositories\ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        $this->assertTrue( ReportAccess::canReadSubject( $reader, $report ), 'Precondition: the account reads the report\'s team.' );
+
+        $this->assertSame( [], $reader->personas(), 'staff is not a persona a report reaches' );
+        $this->assertFalse( ReportAccess::isRecipient( $reader, $report ) );
+        $this->assertNotContains( $id, array_column( SharedWithMe::forReader( ReportReader::for( $staff ) ), 'id' ) );
+
+        wp_set_current_user( $staff );
+        $this->assertNotContains( $id, array_column( $this->payload( $this->send( 'GET', 'reports' ) )['rows'] ?? [], 'id' ) );
+        $this->assertNotSame( 200, $this->send( 'GET', "reports/{$id}" )->get_status() );
+
+        // The editor is shown the publishable keys only, so it never sends staff back.
+        wp_set_current_user( $this->hod );
+        $this->assertSame( [ 'head_coach' ], $this->payload( $this->send( 'GET', "reports/{$id}" ) )['persona_keys'] ?? null );
+    }
+
     public function test_the_team_manager_still_reads_a_report_published_to_them(): void {
         $id = $this->published( [ 'head_coach', 'team_manager' ] );
 

@@ -676,6 +676,8 @@ A report holds at most 40 blocks.
 
 **Versions and publishing.** **Publish** makes your draft a version. It asks what changed, and for a report made for a role it asks which roles to publish it for and says how many people that reaches. **Versions** lists the published versions; **Use this version** puts one back in your draft, and the next publish makes it live again.
 
+A report is published to the roles that work with the player or team by name: the head of development, the academy admin, the head coach, the assistant coach and the team manager. It is not published to the general staff role. A report that was published to the staff role before no longer appears under **Shared with me** for someone who held only that role; whoever holds one of the named roles keeps it.
+
 ## Report Studio — the blocks
 
 Each block shows the same figure as the report it comes from, for the same subject and period. A block that is for staff only is never shown to a family or a scout.

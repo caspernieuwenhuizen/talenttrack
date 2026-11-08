@@ -97,10 +97,19 @@ final class ReportReader {
         return $this->publishes ??= $this->userId > 0 && user_can( $this->userId, 'tt_publish_reports' );
     }
 
-    /** @return list<string> */
+    /**
+     * The personas this user receives reports as: the ones they hold that a
+     * report may be published to (`ReportAccess::PUBLISHABLE_PERSONAS`).
+     * Every recipient read asks this list, so a stored publication to a key
+     * that is no longer publishable, such as `staff` before migration 0318
+     * has run (#4903), reaches nobody.
+     *
+     * @return list<string>
+     */
     public function personas(): array {
         if ( $this->personas === null ) {
-            $this->personas = $this->userId > 0 ? array_values( array_map( 'strval', PersonaResolver::personasFor( $this->userId ) ) ) : [];
+            $held           = $this->userId > 0 ? array_map( 'strval', PersonaResolver::personasFor( $this->userId ) ) : [];
+            $this->personas = array_values( array_intersect( $held, ReportAccess::PUBLISHABLE_PERSONAS ) );
         }
         return $this->personas;
     }
