@@ -714,6 +714,10 @@ For a team, the averages follow the team monthly report: whoever may read the te
 
 For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
 
+**Your own question**
+
+- **Your own question**: pick the data (attendance, evaluations, goals and more), one measure of it, and optionally what to break it down by, for the report's subject and period. It reads the figures the data explorer reads, with the same counting rules as the reports: attendance counts only completed, live activities of the player's current team, so the percentage per player is the one the attendance reports show. You are only offered the data you may read for this subject, and a family or a scout is never offered a breakdown by player.
+
 ## Report Studio — reading a shared report
 
 A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.

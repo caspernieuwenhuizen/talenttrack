@@ -754,6 +754,10 @@ Voor een team volgen de gemiddelden het maandrapport van het team: wie de rappor
 
 Voor een speler vragen de doelenblokken het recht om de doelen van die speler te lezen, zoals zijn tabblad Doelen. Voor een team volgen de openstaande doelen de selectielijst van het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze.
 
+**Je eigen vraag**
+
+- **Je eigen vraag**: kies de gegevens (aanwezigheid, evaluaties, doelen en meer), één maat daarvan, en eventueel waarnaar je wilt uitsplitsen, voor het onderwerp en de periode van het rapport. Het leest de cijfers die de dataverkenner leest, met dezelfde telregels als de rapporten: aanwezigheid telt alleen afgeronde, actieve activiteiten van het huidige team van de speler, zodat het percentage per speler het percentage is dat de aanwezigheidsrapporten tonen. Je krijgt alleen gegevens aangeboden die je voor dit onderwerp mag lezen, en een gezin of een scout krijgt nooit een uitsplitsing per speler.
+
 ## Report Studio — een gedeeld rapport lezen
 
 Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.
