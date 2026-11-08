@@ -20,7 +20,6 @@
 }
 
 .tt-search-page__form .tt-btn {
-    min-height: var(--tt-tap-min, 48px);
     touch-action: manipulation;
 }
 
