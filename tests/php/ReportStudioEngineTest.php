@@ -273,19 +273,19 @@ final class ReportStudioEngineTest extends WP_UnitTestCase {
         $this->assertSame( 85, $block['data']['total_minutes'] );
         $this->assertSame( $report_total, $block['data']['total_minutes'] );
 
-        // Row for row, for every player who played. The report also lists
-        // squad players at 0 minutes; the block takes those over with the
-        // shared composer (#4590).
-        $report_rows = [];
-        foreach ( $report['data']['minutes']['rows'] as $r ) $report_rows[ (int) $r['player_id'] ] = $r;
-        $this->assertCount( 2, $block['data']['rows'] );
-        foreach ( $block['data']['rows'] as $row ) {
-            $theirs = $report_rows[ $row['player_id'] ] ?? null;
-            $this->assertNotNull( $theirs, 'a block row the report does not have' );
+        // Row for row and in the report's order: the block reads the monthly
+        // report's minutes composer (#4572), so the squad players at 0
+        // minutes are in it too.
+        $theirs = $report['data']['minutes']['rows'];
+        $this->assertSame( array_column( $theirs, 'player_id' ), array_column( $block['data']['rows'], 'player_id' ) );
+        foreach ( $block['data']['rows'] as $i => $row ) {
             foreach ( [ 'total_minutes', 'matches', 'starts', 'available_minutes' ] as $field ) {
-                $this->assertSame( (int) $theirs[ $field ], $row[ $field ], "{$field} for player {$row['player_id']}" );
+                $this->assertSame( (int) $theirs[ $i ][ $field ], $row[ $field ], "{$field} for player {$row['player_id']}" );
             }
+            $this->assertSame( $theirs[ $i ]['share_pct'], $row['share_pct'], "share for player {$row['player_id']}" );
         }
+        $this->assertSame( $report['data']['minutes']['target_pct'], $block['data']['target_pct'] );
+        $this->assertSame( $report['data']['minutes']['median_share_pct'], $block['data']['median_share_pct'] );
     }
 
     public function test_a_club_wide_reader_keeps_the_evaluation_of_a_player_who_moved(): void {

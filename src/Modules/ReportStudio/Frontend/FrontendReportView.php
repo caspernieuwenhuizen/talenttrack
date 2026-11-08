@@ -99,6 +99,8 @@ final class FrontendReportView extends FrontendViewBase {
                 'periodRange'  => __( '%1$s to %2$s', 'talenttrack' ),
                 /* translators: %s: the change, for example "+4 pts" */
                 'sincePrevious' => __( '%s against the period before', 'talenttrack' ),
+                /* translators: %s: the academy's minimum share of the minutes, in percent */
+                'target'       => __( 'Target: at least %s%% of the minutes available.', 'talenttrack' ),
                 'block'        => _x( 'Block', 'report studio', 'talenttrack' ),
                 'notAvailable' => __( 'Not available to you.', 'talenttrack' ),
                 'empty'        => __( 'This report has no blocks yet.', 'talenttrack' ),

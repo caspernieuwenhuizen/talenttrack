@@ -277,6 +277,15 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'matches'           => _x( 'Matches', 'report studio column', 'talenttrack' ),
             'starts'            => _x( 'Starts', 'report studio column', 'talenttrack' ),
             'available_minutes' => _x( 'Minutes available', 'report studio column', 'talenttrack' ),
+            'share_pct'         => _x( 'Share %', 'report studio column', 'talenttrack' ),
+            'minutes'           => _x( 'Minutes', 'report studio column', 'talenttrack' ),
+            'session_date'      => _x( 'Date', 'report studio column', 'talenttrack' ),
+            'title'             => _x( 'Match', 'report studio column', 'talenttrack' ),
+            'type'              => _x( 'Type', 'report studio column', 'talenttrack' ),
+            'rank'              => _x( 'Rank', 'report studio column', 'talenttrack' ),
+            'goals'             => _x( 'Goals', 'report studio column', 'talenttrack' ),
+            'assists'           => _x( 'Assists', 'report studio column', 'talenttrack' ),
+            'contributions'     => _x( 'Goals + assists', 'report studio column', 'talenttrack' ),
             'label'             => _x( 'Group', 'report studio column', 'talenttrack' ),
             'value'             => _x( 'Value', 'report studio column', 'talenttrack' ),
         ];
@@ -327,6 +336,8 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'sincePrevious' => __( '%s against the period before', 'talenttrack' ),
             'emptyText'   => __( 'Open the settings to write the text.', 'talenttrack' ),
             'pageBreakNote' => __( 'The next block starts on a new page when printed.', 'talenttrack' ),
+            /* translators: %s: the academy's minimum share of the minutes, in percent */
+            'target'      => __( 'Target: at least %s%% of the minutes available.', 'talenttrack' ),
             /* translators: %s: how full the page is, in percent */
             'onePage'     => __( 'One A4 page, %s%% full.', 'talenttrack' ),
             /* translators: 1: number of pages, 2: how full the last page is, in percent */

@@ -1518,18 +1518,39 @@ The blocks:
   `grid` report is refused with `400 invalid_field`. The reader's view prints
   it as an item hidden on screen that starts a new page in the browser's
   print; there is no PDF route for a Studio report.
-
-A draft is also refused with `400 invalid_field` (`details.block` the index)
-when a block does not fit the report's scope or audience, for example the key
-figures on a player report or a staff-only block on a family report. Before
-#4572 such a block was stored and then left out when the report was read.
-- `playing_time` (team, staff only): minutes, matches and starts per player,
-  read through the minutes query the team monthly report uses.
+- `playing_time` (team, staff only): the team monthly report's minutes
+  composer. `rows` holds every squad player (a player who never got on at 0)
+  with `total_minutes`, `matches`, `starts`, `available_minutes` (each
+  match's resolved length, `MatchLengthResolver`) and `share_pct`, in the
+  report's order; plus `total_minutes`, `target_pct`
+  (`MinutesShareQuery::targetPct()`), `median_share_pct` and
+  `matches_played` (#4572).
+- `minutes_per_match` (player, every audience): `MinutesQuery::
+  playingTimeForPlayer()` on the player's current team. `rows` of
+  `{ session_date, title, type, minutes }`, `type` the translated match type,
+  and `total_minutes`.
+- `goals_assists` (player, team). For a team (staff only)
+  `MatchesComposer::scorers()`, the monthly report's scorers: `rows` of
+  `{ player_id, rank, name, goals, assists }` ranked on goals, then assists,
+  then shirt order, a tie sharing its `rank` and a player without a goal
+  having none (#4069), with `goals` and `assists` totals. For a player (every
+  audience) `GoalContributionQuery::forPlayer()` as one row
+  `{ goals, assists, contributions }`.
+- `minutes_share` (player, team): `MinutesShareQuery`. For a team (staff
+  only) every squad player's `minutes` and `share_pct`, lowest first, with
+  `available_minutes`, `matches`, `target_pct` and `median_share_pct`; for a
+  player (every audience) `value` (their share, percent), `minutes`,
+  `available_minutes`, `matches` and `target_pct`, and no average.
 - `attendance_per_week` (player, team, group, academy): the attendance
   measures grouped by ISO week, on the rows the attendance reports count.
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.
+
+A draft is also refused with `400 invalid_field` (`details.block` the index)
+when a block does not fit the report's scope or audience, for example the key
+figures on a player report or a staff-only block on a family report. Before
+#4572 such a block was stored and then left out when the report was read.
 
 Shared reads are memoised per request by subject and period, so several
 blocks on one subject read it once.

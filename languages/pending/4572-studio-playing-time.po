@@ -1,0 +1,71 @@
+#: src/Modules/ReportStudio/Blocks/MinutesPerMatchBlock.php:30
+msgid "Minutes per match"
+msgstr "Minuten per wedstrijd"
+
+#: src/Modules/ReportStudio/Blocks/GoalsAssistsBlock.php:30
+msgid "Goals and assists"
+msgstr "Doelpunten en assists"
+
+#: src/Modules/ReportStudio/Blocks/MinutesShareBlock.php:31
+#: src/Modules/ReportStudio/Blocks/MinutesShareBlock.php:108
+msgid "Share of available minutes"
+msgstr "Aandeel in de beschikbare minuten"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:20
+msgid "The player's minutes in each match, the same figures as the minutes report."
+msgstr "De minuten van de speler in elke wedstrijd, dezelfde cijfers als in het minutenrapport."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:22
+msgid "Goals and assists from the match goal log, counted the way the match reports count them."
+msgstr "Doelpunten en assists uit het doelpuntenlog van de wedstrijden, geteld zoals de wedstrijdrapporten ze tellen."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Minutes against the minutes the team played, the same figures as the minutes-share report."
+msgstr "Minuten tegenover de minuten die het team speelde, dezelfde cijfers als in het rapport minutenaandeel."
+
+#. translators: %s: the academy's minimum share of the minutes, in percent
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:327
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+#, php-format
+msgid "Target: at least %s%% of the minutes available."
+msgstr "Doel: minstens %s%% van de beschikbare minuten."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Share %"
+msgstr "Aandeel %"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Date"
+msgstr "Datum"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "Match"
+msgstr "Wedstrijd"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column"
+msgid "Type"
+msgstr "Type"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Rank"
+msgstr "Plaats"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Goals"
+msgstr "Doelpunten"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Assists"
+msgstr "Assists"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Goals + assists"
+msgstr "Doelpunten + assists"

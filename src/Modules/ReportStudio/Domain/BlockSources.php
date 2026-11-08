@@ -25,6 +25,12 @@ final class BlockSources {
                 return __( 'Starts a new page when the report is printed.', 'talenttrack' );
             case 'playing_time':
                 return __( 'Minutes from the match line-ups, the same figures as the team monthly report.', 'talenttrack' );
+            case 'minutes_per_match':
+                return __( 'The player\'s minutes in each match, the same figures as the minutes report.', 'talenttrack' );
+            case 'goals_assists':
+                return __( 'Goals and assists from the match goal log, counted the way the match reports count them.', 'talenttrack' );
+            case 'minutes_share':
+                return __( 'Minutes against the minutes the team played, the same figures as the minutes-share report.', 'talenttrack' );
             case 'attendance_per_week':
                 return __( 'Attendance taken at trainings and matches, counted the way the attendance reports count it.', 'talenttrack' );
             case 'own_question':

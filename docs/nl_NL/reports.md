@@ -727,6 +727,12 @@ Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetz
 - **Kop**: een titel tussen blokken.
 - **Tekst**: een kop en een alinea over het rapport, bijvoorbeeld waar het voor is of hoe je het leest. Het is platte tekst, hooguit 2.000 tekens. Schrijf hier niet over een speler: een notitie over een speler hoort bij een momentopname.
 - **Pagina-einde**: het blok erna begint op een nieuwe pagina als het rapport wordt afgedrukt. Alleen voor een rapport in rijen; de A4-weergave toont waar de nieuwe pagina begint.
+**Speeltijd**
+
+- **Speeltijd per speler**: de minuten, wedstrijden en basisplaatsen van elke speler uit de selectie, en zijn aandeel in de beschikbare minuten, zoals het minutenonderdeel van het maandrapport van het team ze toont. Een speler die niet in actie kwam, staat erin met 0. De beschikbare minuten volgen de eigen lengte van elke wedstrijd, zodat een leeftijdsgroep die acht tegen acht speelt niet langs een wedstrijd op een groot veld wordt gelegd. Onder de tabel staat het doelaandeel van de academie. Alleen voor een team, en alleen voor staf.
+- **Minuten per wedstrijd**: de minuten van één speler in elke wedstrijd van de periode, met de datum en het wedstrijdtype, dezelfde cijfers als in het minutenrapport. Een gezin en een scout mogen het zien.
+- **Doelpunten en assists**: voor een team de doelpuntenmakers uit het maandrapport van het team: elke speler die scoorde of een assist gaf, gerangschikt op doelpunten, dan assists, dan rugnummer, waarbij spelers die op beide gelijk staan dezelfde plaats delen; voor een speler zijn eigen doelpunten en assists. Een eigen doelpunt telt niet als doelpunt. Een gezin en een scout mogen de eigen cijfers van een speler zien.
+- **Aandeel in de beschikbare minuten**: voor een team het aandeel van elke speler uit de selectie, laagste eerst, zoals het rapport minutenaandeel het toont; voor een speler zijn eigen aandeel tegenover het doel. Een gezin of een scout ziet alleen het eigen aandeel van de speler, nooit het gemiddelde van het team of van de positiegroep.
 
 ## Report Studio — een gedeeld rapport lezen
 
