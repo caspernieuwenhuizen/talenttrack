@@ -180,6 +180,30 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
         $this->assertSame( 403, $academy->status );
     }
 
+    public function test_the_blocks_answer_to_the_attendance_read_not_the_reports_read(): void {
+        // The read-only observer reads reports club-wide and holds no
+        // attendance read (seed matrix): the subject passes, the figures do not.
+        $observer = $this->makePersona( 'tt_readonly_observer', 'readonly_observer', $this->team_a );
+        $this->assertTrue( user_can( $observer, 'tt_view_reports' ), 'Precondition: the observer holds the blocks\' capability.' );
+        $this->assertSame( [], AuthorizationService::attendanceReadableTeamIds( $observer ), 'Precondition: no attendance read.' );
+        $subject = \TT\Modules\ReportStudio\Domain\ReportSubjectAccess::check( ReportContext::fromInput( $this->team( $this->team_a ), $observer ) );
+        $this->assertInstanceOf( ReportContext::class, $subject, 'Precondition: the reports read lets the observer open the team.' );
+
+        foreach ( [ 'attendance_per_player', 'attendance_flags' ] as $key ) {
+            $out = BlockEngine::preview( $key, $this->team( $this->team_a ), [], $observer );
+            $this->assertInstanceOf( StudioError::class, $out, "{$key} for a reader without the attendance read" );
+            $this->assertSame( 'not_found', $out->code, $key );
+        }
+        $listed = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( 'team', PlayerReportAudience::INTERNAL, $observer ) ) );
+        $this->assertNotContains( 'attendance_per_player', $listed );
+        $this->assertNotContains( 'attendance_flags', $listed );
+
+        // The edge: the attendance read on the team is what opens them.
+        $this->assertNotNull( AuthorizationService::attendanceReadableTeamIds( $this->manager ) );
+        $this->assertTrue( AuthorizationService::canReadTeamAttendance( $this->manager, $this->team_a ) );
+        $this->assertIsArray( BlockEngine::preview( 'attendance_per_player', $this->team( $this->team_a ), [], $this->manager ) );
+    }
+
     public function test_each_block_adds_no_statement_per_player_to_the_shared_read(): void {
         $context = $this->team( $this->team_a );
         $before  = [];
@@ -194,8 +218,8 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
 
         // Both blocks read `AttendanceRankingQuery::rows()`, whose flag
         // thresholds are read from the configuration once per player today
-        // (a `ConfigService` per call). The blocks add nothing per player on
-        // top of that read: their growth is exactly the read's.
+        // (a `ConfigService` per call, #4948). The blocks add nothing per
+        // player on top of that read: their growth is exactly the read's.
         $read_growth = $this->readStatements() - $read_before;
         foreach ( [ 'attendance_per_player', 'attendance_flags' ] as $key ) {
             $this->assertSame( $read_growth, $this->statementsFor( $key, $context ) - $before[ $key ], "{$key} costs more per player than the attendance read" );

@@ -1555,6 +1555,13 @@ The blocks:
   activities, attendance_pct, reason }`, worst first, `reason` the
   translated why (`AttendanceFlagService::reasonText()`); plus `threshold`
   and `late_threshold`, the configured flag thresholds.
+
+Both attendance blocks answer to the **attendance** read, the gate of the
+attendance reports and `GET /reports/attendance-at-risk`, not to the reports
+read: a team's block needs `AuthorizationService::canReadTeamAttendance()` for
+that team, the academy's flags need attendance read on every team
+(`attendanceReadableTeamIds()` is null). Without it the block is not listed and
+a preview is `404 not_found`.
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.

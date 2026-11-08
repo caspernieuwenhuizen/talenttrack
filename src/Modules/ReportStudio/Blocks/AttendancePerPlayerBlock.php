@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\AttendanceComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
@@ -48,8 +49,17 @@ final class AttendancePerPlayerBlock implements ReportBlock {
         return [];
     }
 
+    /**
+     * The attendance read, the gate the attendance reports answer to, not
+     * the reports read: a reader who may open a team's reports but not its
+     * attendance does not get its attendance here either. A listing names no
+     * team, so it asks whether the reader reads any team's attendance.
+     */
     public function available( ReportContext $context ): bool {
-        return $context->scope === ReportContext::SCOPE_TEAM;
+        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
+        return $context->teamId > 0
+            ? AuthorizationService::canReadTeamAttendance( $context->userId, $context->teamId )
+            : AuthorizationService::attendanceReadableTeamIds( $context->userId ) !== [];
     }
 
     public function externalKeys(): array {

@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
@@ -46,8 +47,19 @@ final class AttendanceFlagsBlock implements ReportBlock {
         return [];
     }
 
+    /**
+     * The at-risk route's gate, the attendance read (#4579), not the reports
+     * read: a team's list for a reader who reads that team's attendance, the
+     * academy's for one who reads every team's. A listing names no team.
+     */
     public function available( ReportContext $context ): bool {
-        return in_array( $context->scope, $this->scopes(), true );
+        if ( $context->scope === ReportContext::SCOPE_ACADEMY ) {
+            return AuthorizationService::attendanceReadableTeamIds( $context->userId ) === null;
+        }
+        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
+        return $context->teamId > 0
+            ? AuthorizationService::canReadTeamAttendance( $context->userId, $context->teamId )
+            : AuthorizationService::attendanceReadableTeamIds( $context->userId ) !== [];
     }
 
     public function externalKeys(): array {

@@ -738,6 +738,8 @@ Elk blok toont hetzelfde cijfer als het rapport waar het vandaan komt, voor hetz
 - **Aanwezigheid per speler**: voor elke speler uit de selectie het aantal activiteiten, hoe vaak hij aanwezig, te laat, afwezig, afgemeld, geblesseerd of geschorst was, en zijn aanwezigheid, op rugnummer, zoals het aanwezigheidsonderdeel van het maandrapport van het team ze toont. Te laat telt als aanwezig. Onder de tabel staat de aanwezigheid van de selectie. Alleen voor een team, en alleen voor staf.
 - **Spelers gemarkeerd op aanwezigheid**: de risicolijst van het aanwezigheidsrapport, voor een team of voor de hele academie. Een speler staat erop als hij zoveel activiteiten miste als de markeringsdrempel voor aanwezigheid in de configuratie, of zo vaak te laat was als de drempel voor te laat komen. Per speler staat erbij waarom, slechtste eerst, en onder de lijst staan beide drempels. Het is niet de lijn van 70 procent uit het maandrapport van het team. Alleen voor staf.
 
+Beide aanwezigheidsblokken vragen het recht om de aanwezigheid van het team te lezen, hetzelfde recht dat de aanwezigheidsrapporten vragen; de rapporten van een team mogen lezen is niet genoeg. De lijst van de academie vraagt dat recht voor elk team.
+
 ## Report Studio — een gedeeld rapport lezen
 
 Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.

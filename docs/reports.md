@@ -698,6 +698,8 @@ Each block shows the same figure as the report it comes from, for the same subje
 - **Attendance per player**: every squad player's activities, how often they were present, late, absent, excused, injured or suspended, and their attendance, in shirt order, as the team monthly report's attendance section lists them. Late counts as attended. Under the table: the squad's attendance. For a team only, and for staff only.
 - **Players flagged on attendance**: the attendance report's at-risk list, for a team or for the whole academy. A player is on it when they missed as many activities as the attendance flag threshold in the configuration, or were late as often as the lateness threshold. It says why for each player, worst first, and names both thresholds under the list. It is not the team monthly report's line at 70 percent. Staff only.
 
+Both attendance blocks need the right to read the team's attendance, the same right the attendance reports ask; reading a team's reports is not enough. The academy's list needs it for every team.
+
 ## Report Studio — reading a shared report
 
 A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.
