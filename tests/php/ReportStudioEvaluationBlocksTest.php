@@ -175,6 +175,38 @@ final class ReportStudioEvaluationBlocksTest extends WP_UnitTestCase {
         $this->assertInstanceOf( StudioError::class, $team );
     }
 
+    public function test_the_blocks_answer_to_the_evaluations_read_not_the_reports_read(): void {
+        // The assistant coach reads the team's reports and holds no
+        // evaluations read (#1060): the subject opens, the figures do not.
+        $assistant = $this->assistantCoachOf( $this->team_a );
+        $this->assertFalse( AuthorizationService::canReadTeamSection( $assistant, $this->team_a, 'evaluations' ), 'Precondition: no evaluations read on the team.' );
+        $this->assertFalse( AuthorizationService::mayReadPlayerSection( $assistant, $this->pa1, 'evaluations' ), 'Precondition: no evaluations read on the player.' );
+        $subject = \TT\Modules\ReportStudio\Domain\ReportSubjectAccess::check( ReportContext::fromInput( $this->team( $this->team_a ), $assistant ) );
+        $this->assertInstanceOf( ReportContext::class, $subject, 'Precondition: the reports read opens the team.' );
+
+        $cases = [
+            [ 'category_averages', $this->team( $this->team_a ) ],
+            [ 'category_averages', $this->player( $this->pa1 ) ],
+            [ 'progress_radar', $this->player( $this->pa1 ) ],
+        ];
+        foreach ( $cases as [ $key, $context ] ) {
+            $out = BlockEngine::preview( $key, $context, [], $assistant );
+            $this->assertInstanceOf( StudioError::class, $out, "{$key} on {$context['scope']}" );
+            $this->assertSame( 404, $out->status, "{$key} on {$context['scope']}" );
+        }
+        foreach ( [ 'team', 'player' ] as $scope ) {
+            $listed = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( $scope, PlayerReportAudience::INTERNAL, $assistant ) ) );
+            $this->assertNotContains( 'category_averages', $listed, $scope );
+            $this->assertNotContains( 'progress_radar', $listed, $scope );
+        }
+
+        // The edge: the evaluations read is what opens them.
+        $this->assertTrue( AuthorizationService::canReadTeamSection( $this->hod, $this->team_a, 'evaluations' ) );
+        $this->assertTrue( AuthorizationService::mayReadPlayerSection( $this->hod, $this->pa1, 'evaluations' ) );
+        $this->assertIsArray( BlockEngine::preview( 'category_averages', $this->team( $this->team_a ), [], $this->hod ) );
+        $this->assertIsArray( BlockEngine::preview( 'progress_radar', $this->player( $this->pa1 ), [], $this->hod ) );
+    }
+
     public function test_a_coach_out_of_scope_is_refused_each_blocks_subject(): void {
         $cases = [
             [ 'category_averages', $this->team( $this->team_b ) ],
@@ -292,6 +324,25 @@ final class ReportStudioEvaluationBlocksTest extends WP_UnitTestCase {
                 'club_id' => $this->club, 'evaluation_id' => $eval_id, 'category_id' => $category, 'rating' => $rating,
             ] );
         }
+    }
+
+    /** An assistant coach of one team, through the auth bridge: the person, the team seat and the scope. */
+    private function assistantCoachOf( int $team ): int {
+        global $wpdb;
+        $user = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Assistant', 'last_name' => 'Ratings',
+            'role_type' => 'assistant_coach', 'wp_user_id' => $user, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'team_id' => $team, 'person_id' => $person, 'role_in_team' => 'assistant_coach', 'is_head_coach' => 0,
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'club_id' => $this->club, 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
+        ] );
+        $this->flush();
+        return $user;
     }
 
     /** A persona from its WordPress role, with a team-scope grant on one team. */

@@ -404,6 +404,51 @@ class AuthorizationService {
     }
 
     /**
+     * #4572 — may this user read one section across this team: the team
+     * twin of {@see self::canReadPlayerSection()}. A figure about a whole
+     * squad — the squad's evaluation averages, its open goals — is the
+     * section's data for every player on the team, so it asks the section's
+     * own entity at global scope or at team scope on this team. Player-scope
+     * and own-record grants open one player, never a squad.
+     *
+     * Holding a team's reports is not holding its sections: the matrix
+     * grants `reports` and each section separately on purpose.
+     *
+     * @param string $entity Matrix entity naming the section, e.g. `evaluations`.
+     */
+    public static function canReadTeamSection( int $user_id, int $team_id, string $entity ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 || $entity === '' ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        $key = $user_id . '|team-section|' . $entity . '|' . $team_id;
+        if ( isset( self::$cache_matrix[ $key ] ) ) return self::$cache_matrix[ $key ];
+
+        $gate    = '\\TT\\Modules\\Authorization\\MatrixGate';
+        $allowed = $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_GLOBAL )
+            || $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_TEAM, $team_id );
+
+        self::$cache_matrix[ $key ] = $allowed;
+        return $allowed;
+    }
+
+    /**
+     * #4572 — the list form of {@see self::canReadTeamSection()}: null when
+     * the user reads the section everywhere (a global grant), otherwise the
+     * teams they read it on, possibly none. For a surface that asks before a
+     * team is chosen, such as a block library.
+     *
+     * @return list<int>|null
+     */
+    public static function teamSectionReadableTeamIds( int $user_id, string $entity ): ?array {
+        if ( $user_id <= 0 || $entity === '' ) return [];
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [];
+
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+        if ( $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_GLOBAL ) ) return null;
+        return $gate::teamIdsFor( $user_id, $entity, $gate::READ );
+    }
+
+    /**
      * #3972 — the players a scout reads this entity for through their
      * `player`-scoped grant: the scout's linked players (an active
      * trial-case panel seat or the assignment list, {@see ScoutPlayerLinks})

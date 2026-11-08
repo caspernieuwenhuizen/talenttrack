@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\PlayerReportContext;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\RatingsComposer;
@@ -51,8 +52,26 @@ final class CategoryAveragesBlock implements ReportBlock {
         return [];
     }
 
+    /**
+     * The evaluations read, the gate of `players/{id}/evaluations`, not the
+     * reports read: a player's section as this reader may see it, or the
+     * section on the team. A listing names no subject.
+     */
     public function available( ReportContext $context ): bool {
-        return in_array( $context->scope, $this->scopes(), true );
+        return self::readsEvaluations( $context );
+    }
+
+    /** The evaluations read for this context's subject, shared with the progress block. */
+    public static function readsEvaluations( ReportContext $context ): bool {
+        if ( $context->scope === ReportContext::SCOPE_PLAYER ) {
+            return $context->playerId > 0
+                ? AuthorizationService::mayReadPlayerSection( $context->userId, $context->playerId, 'evaluations' )
+                : user_can( $context->userId, 'tt_view_evaluations' );
+        }
+        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
+        return $context->teamId > 0
+            ? AuthorizationService::canReadTeamSection( $context->userId, $context->teamId, 'evaluations' )
+            : AuthorizationService::teamSectionReadableTeamIds( $context->userId, 'evaluations' ) !== [];
     }
 
     public function externalKeys(): array {
