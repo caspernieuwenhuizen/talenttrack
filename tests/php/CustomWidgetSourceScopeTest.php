@@ -149,6 +149,28 @@ final class CustomWidgetSourceScopeTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4584 — the activities rows themselves: they read `session_date` and
+     * `activity_type_key`, the type under its translated label, and follow
+     * the viewer's teams. The query used to read `start_at` and
+     * `session_type`, which the table does not have, so the widget was empty.
+     */
+    public function test_the_activities_rows_carry_date_and_type_and_follow_the_viewers_teams(): void {
+        $admin = $this->rows( ActivitiesRecent::class, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->assertCount( 2, $admin, 'the club-wide reader lists both teams\' activities' );
+        foreach ( $admin as $row ) {
+            $this->assertSame( gmdate( 'Y-m-d' ), substr( (string) $row['date'], 0, 10 ), 'the date is the session date' );
+            $this->assertSame( (string) \TT\Infrastructure\Query\LabelTranslator::activityType( 'training' ), $row['type'], 'the type is the translated label' );
+            $this->assertNotSame( '', $row['type'] );
+        }
+
+        $mine = $this->rows( ActivitiesRecent::class, $this->coach );
+        $this->assertSame( [ 'Training Ownkid' ], array_column( $mine, 'title' ), 'the coach lists their own team\'s activity' );
+
+        $later = ( new ActivitiesRecent() )->fetch( $this->coach, [ 'date_from' => gmdate( 'Y-m-d', strtotime( '+1 day' ) ) ], [], 100 );
+        $this->assertSame( [], $later, 'the date filter reads the session date' );
+    }
+
+    /**
      * A KPI counts the rows the viewer may see: one team's worth for its
      * coach, both for a club-wide reader, none for a parent.
      *
