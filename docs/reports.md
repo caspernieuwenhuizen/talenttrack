@@ -706,6 +706,14 @@ Both attendance blocks need the right to read the team's attendance, the same ri
 
 For a team, the averages follow the team monthly report: whoever may read the team's reports sees them, an assistant coach included. For a player, both evaluation blocks need the right to read that player's evaluations, as the player report and the player's Evaluations tab do. A block you may not read is not offered, and reads as having no data.
 
+**Goals and PDP**
+
+- **Open goals now**: for a player, how many goals are open today, the same number as their Goals tab; for a team, every squad player's open goals in shirt order, as the team monthly report's squad list shows them. It shows today's count, whatever period the report covers. A family may see a player's own count; a scout never sees goals.
+- **Goals completed so far**: how many goals one player has completed, the same number as their own goals overview. Also today's count. A family may see it; a scout never.
+- **PDP conversations held against planned**: the PDP planning page's row for one team in the current season, block by block: the squad, the talks planned, held and marked as not held, and each block's window. It follows the season's blocks, not the report's period. Staff only, and only for someone who may open PDP planning for that team.
+
+For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
+
 ## Report Studio — reading a shared report
 
 A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.

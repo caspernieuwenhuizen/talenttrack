@@ -746,6 +746,14 @@ Beide aanwezigheidsblokken vragen het recht om de aanwezigheid van het team te l
 
 Voor een team volgen de gemiddelden het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze, ook een assistent-trainer. Voor een speler vragen beide evaluatieblokken het recht om de evaluaties van die speler te lezen, zoals het spelersrapport en het tabblad Evaluaties van de speler. Een blok dat je niet mag lezen, wordt niet aangeboden en leest als een blok zonder gegevens.
 
+**Doelen en POP**
+
+- **Openstaande doelen nu**: voor een speler hoeveel doelen er vandaag openstaan, hetzelfde aantal als op zijn tabblad Doelen; voor een team de openstaande doelen van elke speler uit de selectie, op rugnummer, zoals de selectielijst van het maandrapport van het team ze toont. Het toont het aantal van vandaag, welke periode het rapport ook beslaat. Een gezin mag het eigen aantal van een speler zien; een scout ziet nooit doelen.
+- **Tot nu toe behaalde doelen**: hoeveel doelen één speler heeft behaald, hetzelfde aantal als in zijn eigen doelenoverzicht. Ook het aantal van vandaag. Een gezin mag het zien; een scout nooit.
+- **POP-gesprekken gehouden tegenover gepland**: de rij van de POP-planningspagina voor één team in het huidige seizoen, blok voor blok: de selectie, de geplande, gehouden en als niet gehouden gemarkeerde gesprekken, en het venster van elk blok. Het volgt de blokken van het seizoen, niet de periode van het rapport. Alleen voor staf, en alleen voor wie de POP-planning van dat team mag openen.
+
+Voor een speler vragen de doelenblokken het recht om de doelen van die speler te lezen, zoals zijn tabblad Doelen. Voor een team volgen de openstaande doelen de selectielijst van het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze.
+
 ## Report Studio — een gedeeld rapport lezen
 
 Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.

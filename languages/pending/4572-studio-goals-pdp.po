@@ -1,0 +1,65 @@
+#: src/Modules/ReportStudio/Blocks/OpenGoalsBlock.php:34
+#: src/Modules/ReportStudio/Blocks/OpenGoalsBlock.php:67
+msgid "Open goals now"
+msgstr "Openstaande doelen nu"
+
+#: src/Modules/ReportStudio/Blocks/GoalsCompletedBlock.php:25
+#: src/Modules/ReportStudio/Blocks/GoalsCompletedBlock.php:53
+msgid "Goals completed so far"
+msgstr "Tot nu toe behaalde doelen"
+
+#: src/Modules/ReportStudio/Blocks/PdpConversationsBlock.php:29
+msgid "PDP conversations held against planned"
+msgstr "POP-gesprekken gehouden tegenover gepland"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "The goals that are open today, the same number as the player's Goals tab and the team monthly report's squad list. Not limited to the period."
+msgstr "De doelen die vandaag openstaan, hetzelfde aantal als op het tabblad Doelen van de speler en in de selectielijst van het maandrapport van het team. Niet beperkt tot de periode."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The goals the player has completed so far, the same number as the player's own goals overview. Not limited to the period."
+msgstr "De doelen die de speler tot nu toe heeft behaald, hetzelfde aantal als in het eigen doelenoverzicht van de speler. Niet beperkt tot de periode."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:28
+msgid "The PDP planning page's figures for this team in the current season, block by block. It follows the season's blocks, not the report's period."
+msgstr "De cijfers van de POP-planningspagina voor dit team in het huidige seizoen, blok voor blok. Het volgt de blokken van het seizoen, niet de periode van het rapport."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Open goals"
+msgstr "Openstaande doelen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column: a PDP block"
+msgid "Block"
+msgstr "Blok"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "From"
+msgstr "Vanaf"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "To"
+msgstr "T/m"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column: players expected to have a talk"
+msgid "Squad"
+msgstr "Selectie"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Planned"
+msgstr "Gepland"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Held"
+msgstr "Gehouden"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Not held"
+msgstr "Niet gehouden"
