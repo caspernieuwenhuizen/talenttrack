@@ -183,12 +183,14 @@ test.describe( 'Header search on a desktop', () => {
 		await expect( page.locator( '.tt-breadcrumbs' ) ).toBeVisible();
 		await expect( page.locator( '.tt-search-page__result', { hasText: made.last } ) ).toHaveCount( 1 );
 
-		// Deep-linkable: the kind chip is a URL of its own.
+		// Deep-linkable: the kind chip is a URL of its own. Opened with goto
+		// rather than a click: the page arrived through a form submission,
+		// which runs the cross-document view transition, and in CI's browser
+		// the chip never became clickable after it ("Transition was skipped").
 		const chip = page.locator( '.tt-search-page__kind[href*="type=player"]' );
-		await Promise.all( [
-			page.waitForURL( /type=player/, { timeout: 15000 } ),
-			chip.click(),
-		] );
+		await expect( chip ).toHaveCount( 1 );
+		await page.goto( /** @type {string} */ ( await chip.getAttribute( 'href' ) ) );
+		expect( new URL( page.url() ).searchParams.get( 'type' ) ).toBe( 'player' );
 		await expect( page.locator( '.tt-search-page__kind.is-current' ) ).toHaveAttribute( 'aria-current', 'true' );
 		await expect( page.locator( '.tt-search-page__result', { hasText: made.last } ) ).toHaveCount( 1 );
 
