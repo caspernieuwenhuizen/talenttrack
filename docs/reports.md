@@ -687,6 +687,12 @@ Each block shows the same figure as the report it comes from, for the same subje
 - **Heading**: a title between blocks.
 - **Text**: a heading and a paragraph about the report, for example what it is for or how to read it. It is plain text, at most 2,000 characters. Do not write about a player here: a note about a player belongs on a snapshot.
 - **Page break**: the block after it starts on a new page when the report is printed. Only for a report laid out in rows; the A4 view shows where the new page starts.
+**Playing time**
+
+- **Playing time per player**: every squad player's minutes, matches and starts, and their share of the minutes available, as the team monthly report's minutes section shows them. A player who never got on is listed at 0. The minutes available follow each match's own length, so an eight-a-side age group is not measured against a full-size match. Under the table: the academy's target share. For a team only, and for staff only.
+- **Minutes per match**: one player's minutes in each match of the period, with the date and the match type, the same figures as the minutes report. A family and a scout may see it.
+- **Goals and assists**: for a team, every player who scored or assisted, in shirt order, the same as the team monthly report's scorers; for a player, their own goals and assists. An own goal is not counted as a goal. A family and a scout may see a player's own figures.
+- **Share of available minutes**: for a team, every squad player's share, lowest first, as the minutes-share report shows it; for a player, their own share against the target. A family or a scout sees the player's own share only, never the team's or the position group's average.
 
 ## Report Studio — reading a shared report
 

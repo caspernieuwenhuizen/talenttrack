@@ -154,6 +154,7 @@
 			fig.appendChild(el('span', 'tt-rs-figure-value', data.value == null ? '–' : String(data.value) + (data.unit === 'percent' ? '%' : '')));
 			fig.appendChild(el('span', 'tt-rs-figure-label', data.measure_label || ''));
 			box.appendChild(fig);
+			target(box, data, t);
 			return box;
 		}
 		var rows = Array.isArray(data.rows) ? data.rows : [];
@@ -173,19 +174,33 @@
 		var tbody = el('tbody');
 		rows.forEach(function (r) {
 			var tr = el('tr');
-			cols.forEach(function (c) { tr.appendChild(el('td', null, r[c] == null ? '–' : String(r[c]))); });
+			cols.forEach(function (c) { tr.appendChild(el('td', null, cell(c, r[c]))); });
 			tbody.appendChild(tr);
 		});
 		table.appendChild(tbody);
 		wrap.appendChild(table);
 		box.appendChild(wrap);
 		if (data.truncated) box.appendChild(el('p', 'tt-rs-block-msg', t.truncated));
+		target(box, data, t);
 		return box;
 	}
 
 	/** Blocks that are their own heading, so a reader sees no block name above them. */
 	var UNTITLED = ['letterhead', 'heading', 'text', 'page_break'];
 	function untitled(key) { return UNTITLED.indexOf(key) !== -1; }
+
+	/** A cell's text: a date column reads as a date (#4572). */
+	function cell(c, v) {
+		if (v == null) return '–';
+		if (/(^|_)date$/.test(c)) return day(String(v));
+		return String(v);
+	}
+
+	/** The academy's minutes target under a playing-time block (#4572). */
+	function target(box, data, t) {
+		if (data.target_pct == null || !t.target) return;
+		box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.target, data.target_pct)));
+	}
 
 	window.TT.ReportBlocks = { body: body, fmt: fmt, day: day, untitled: untitled };
 })();
