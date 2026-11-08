@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\ReportStudio\Blocks\AttendanceFlagsBlock;
+use TT\Modules\ReportStudio\Blocks\AttendancePerPlayerBlock;
 use TT\Modules\ReportStudio\Blocks\AttendancePerWeekBlock;
 use TT\Modules\ReportStudio\Blocks\GoalsAssistsBlock;
 use TT\Modules\ReportStudio\Blocks\HeadingBlock;
@@ -46,6 +48,8 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new GoalsAssistsBlock() );
         BlockRegistry::register( new MinutesShareBlock() );
         BlockRegistry::register( new AttendancePerWeekBlock() );
+        BlockRegistry::register( new AttendancePerPlayerBlock() );
+        BlockRegistry::register( new AttendanceFlagsBlock() );
         BlockRegistry::register( new OwnQuestionBlock() );
         ReportBlocksRestController::init();
         ReportsRestController::init();

@@ -150,6 +150,29 @@ final class AttendanceFlagService {
     }
 
     /**
+     * #4013 — why this player is flagged, in words: the missed count, the
+     * late count, or both. The list used to say "%d missed" for every flagged
+     * player, which for a player flagged on lateness alone read as "0 missed"
+     * and told the coach the opposite of the truth. The at-risk report and the
+     * Report Studio's block both say it this way (#4572).
+     *
+     * @param array<string,mixed> $row a row from AttendanceRankingQuery
+     */
+    public static function reasonText( array $row ): string {
+        $reasons = is_array( $row['flag_reasons'] ?? null ) ? $row['flag_reasons'] : [];
+        $parts   = [];
+        foreach ( $reasons as $reason ) {
+            $parts[] = $reason === self::REASON_LATENESS
+                ? sprintf( /* translators: %d activities the player arrived late for */ __( '%d late', 'talenttrack' ), (int) ( $row['late'] ?? 0 ) )
+                : sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
+        }
+        if ( $parts === [] ) {
+            $parts[] = sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
+        }
+        return implode( ', ', $parts );
+    }
+
+    /**
      * Literal SQL predicate for "this attendance row is a miss", for the
      * queries that aggregate in the database rather than in PHP. No user
      * input reaches it, so it needs no preparation — the statuses are this

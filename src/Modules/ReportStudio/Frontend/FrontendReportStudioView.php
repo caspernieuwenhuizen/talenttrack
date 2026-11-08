@@ -286,6 +286,13 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'goals'             => _x( 'Goals', 'report studio column', 'talenttrack' ),
             'assists'           => _x( 'Assists', 'report studio column', 'talenttrack' ),
             'contributions'     => _x( 'Goals + assists', 'report studio column', 'talenttrack' ),
+            'activities'        => _x( 'Activities', 'report studio column', 'talenttrack' ),
+            'late'              => _x( 'Late', 'report studio column', 'talenttrack' ),
+            'excused'           => _x( 'Excused', 'report studio column', 'talenttrack' ),
+            'injured'           => _x( 'Injured', 'report studio column', 'talenttrack' ),
+            'suspended'         => _x( 'Suspended', 'report studio column', 'talenttrack' ),
+            'team_name'         => _x( 'Team', 'report studio column', 'talenttrack' ),
+            'reason'            => _x( 'Why flagged', 'report studio column', 'talenttrack' ),
             'label'             => _x( 'Group', 'report studio column', 'talenttrack' ),
             'value'             => _x( 'Value', 'report studio column', 'talenttrack' ),
         ];
@@ -338,6 +345,12 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'pageBreakNote' => __( 'The next block starts on a new page when printed.', 'talenttrack' ),
             /* translators: %s: the academy's minimum share of the minutes, in percent */
             'target'      => __( 'Target: at least %s%% of the minutes available.', 'talenttrack' ),
+            /* translators: %s: the squad's attendance, in percent */
+            'squadAttendance' => __( 'Squad attendance: %s%%.', 'talenttrack' ),
+            /* translators: 1: missed activities that flag a player, 2: late arrivals that flag a player */
+            'flagThresholds'  => __( 'Flagged at %1$s missed activities or %2$s late arrivals.', 'talenttrack' ),
+            /* translators: 1: first day, 2: last day of the period */
+            'noneFlagged'     => __( 'No player was flagged on attendance between %1$s and %2$s.', 'talenttrack' ),
             /* translators: %s: how full the page is, in percent */
             'onePage'     => __( 'One A4 page, %s%% full.', 'talenttrack' ),
             /* translators: 1: number of pages, 2: how full the last page is, in percent */
