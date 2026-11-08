@@ -1529,10 +1529,13 @@ The blocks:
   playingTimeForPlayer()` on the player's current team. `rows` of
   `{ session_date, title, type, minutes }`, `type` the translated match type,
   and `total_minutes`.
-- `goals_assists` (player, team): `GoalContributionQuery`. For a team (staff
-  only) the players who scored or assisted, in shirt order, as the monthly
-  report's scorers, with `goals` and `assists` totals; for a player (every
-  audience) one row `{ goals, assists, contributions }`.
+- `goals_assists` (player, team). For a team (staff only)
+  `MatchesComposer::scorers()`, the monthly report's scorers: `rows` of
+  `{ player_id, rank, name, goals, assists }` ranked on goals, then assists,
+  then shirt order, a tie sharing its `rank` and a player without a goal
+  having none (#4069), with `goals` and `assists` totals. For a player (every
+  audience) `GoalContributionQuery::forPlayer()` as one row
+  `{ goals, assists, contributions }`.
 - `minutes_share` (player, team): `MinutesShareQuery`. For a team (staff
   only) every squad player's `minutes` and `share_pct`, lowest first, with
   `available_minutes`, `matches`, `target_pct` and `median_share_pct`; for a

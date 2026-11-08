@@ -129,26 +129,28 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
     }
 
     public function test_team_goals_and_assists_equal_the_goal_log_and_the_monthly_report(): void {
-        $block   = $this->preview( 'goals_assists', $this->team( $this->team_a ) );
-        $log     = ( new GoalContributionQuery() )->forTeam( $this->team_a, [ 'from' => self::FROM, 'to' => self::TO ] );
-        $report  = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'matches' ] );
-        $scorers = [];
-        foreach ( $report['data']['matches']['scorers'] as $s ) $scorers[ (int) $s['player_id'] ] = [ (int) $s['goals'], (int) $s['assists'] ];
+        $block  = $this->preview( 'goals_assists', $this->team( $this->team_a ) );
+        $log    = ( new GoalContributionQuery() )->forTeam( $this->team_a, [ 'from' => self::FROM, 'to' => self::TO ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'matches' ] );
 
-        $mine = [];
+        // Row for row and in the report's order, rank included.
+        $theirs = array_map(
+            static fn( array $s ): array => [ (int) $s['player_id'], $s['rank'], (int) $s['goals'], (int) $s['assists'] ],
+            $report['data']['matches']['scorers']
+        );
+        $mine = array_map(
+            static fn( array $r ): array => [ $r['player_id'], $r['rank'], $r['goals'], $r['assists'] ],
+            $block['data']['rows']
+        );
+        $this->assertSame( $theirs, $mine, 'the monthly report\'s scorers, in its order' );
         foreach ( $block['data']['rows'] as $row ) {
-            $mine[ $row['player_id'] ] = [ $row['goals'], $row['assists'] ];
             $this->assertSame( (int) $log[ $row['player_id'] ]['goals'], $row['goals'] );
             $this->assertSame( (int) $log[ $row['player_id'] ]['assists'], $row['assists'] );
         }
-        ksort( $mine );
-        ksort( $scorers );
-        $this->assertSame( $scorers, $mine, 'the same scorers as the monthly report' );
-        $this->assertSame( [ $this->pa1 => [ 2, 0 ], $this->pa2 => [ 1, 1 ] ], $mine, 'the hand count' );
+        // The hand count: Anna 2 goals ranks first, Bram 1 goal and 1 assist second.
+        $this->assertSame( [ [ $this->pa1, 1, 2, 0 ], [ $this->pa2, 2, 1, 1 ] ], $mine );
         $this->assertSame( $report['data']['matches']['scorer_totals']['goals'], $block['data']['goals'] );
         $this->assertSame( $report['data']['matches']['scorer_totals']['assists'], $block['data']['assists'] );
-        // Shirt order: Bram (4) before Anna (9).
-        $this->assertSame( [ $this->pa2, $this->pa1 ], array_column( $block['data']['rows'], 'player_id' ) );
     }
 
     public function test_a_players_goals_and_assists_equal_their_goal_contributions(): void {
@@ -183,6 +185,32 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
             $this->assertSame( $mine['minutes'], $player['data']['minutes'], $audience );
             $this->assertSame( $mine['available_minutes'], $player['data']['available_minutes'], $audience );
         }
+    }
+
+    public function test_a_period_without_matches_reads_as_empty_not_as_zero(): void {
+        $empty  = [ 'from' => '2020-05-01', 'to' => '2020-05-31' ];
+        $team   = array_merge( $this->team( $this->team_a ), $empty );
+        $player = array_merge( $this->player( $this->pa1 ), $empty );
+
+        $this->assertSame( [], $this->preview( 'minutes_per_match', $player )['data']['rows'] );
+        $this->assertSame( 0, $this->preview( 'minutes_per_match', $player )['data']['total_minutes'] );
+        $this->assertSame( [], $this->preview( 'goals_assists', $team )['data']['rows'] );
+        $this->assertSame( [], $this->preview( 'minutes_share', $team )['data']['rows'] );
+
+        // No minutes to share: the player's share is no figure (a dash), not 0 %.
+        $share = $this->preview( 'minutes_share', $player )['data'];
+        $this->assertNull( $share['value'] );
+        $this->assertSame( 0, $share['available_minutes'] );
+
+        // The monthly report's minutes section still lists the squad, as it
+        // does on paper, but with no share: nothing was available.
+        $playing = $this->preview( 'playing_time', $team )['data'];
+        $this->assertSame( 0, $playing['total_minutes'] );
+        foreach ( $playing['rows'] as $row ) {
+            $this->assertSame( 0, $row['total_minutes'] );
+            $this->assertNull( $row['share_pct'], 'no share without minutes available' );
+        }
+        $this->assertNull( $playing['median_share_pct'] );
     }
 
     public function test_a_family_never_receives_a_staff_only_block_or_another_childs_minutes(): void {

@@ -4,8 +4,8 @@ namespace TT\Modules\ReportStudio\Blocks;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\GoalContributionQuery;
-use TT\Modules\Analytics\Reports\PlayerOrder;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\MatchesComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
@@ -14,9 +14,10 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
 /**
  * Goals and assists (#4572), read through `GoalContributionQuery`.
  *
- * - For a team: every player who scored or assisted in the period, as the
- *   team monthly report's scorers table lists them, named from the squad and
- *   in shirt order (`PlayerOrder`). Staff only.
+ * - For a team: the team monthly report's scorers table, through
+ *   `MatchesComposer::scorers()`: every player who scored or assisted,
+ *   ranked on goals, then assists, then shirt order, with the shared rank.
+ *   Staff only.
  * - For a player: their own goals and assists, the figure the player's
  *   goal-contributions route answers. On the family and the scout lists.
  */
@@ -73,35 +74,29 @@ final class GoalsAssistsBlock implements ReportBlock {
             ];
         }
 
-        $contributions = SharedReads::remember(
-            'goal_contributions_for_team',
+        $scorers = SharedReads::remember(
+            'team_scorers',
             $context,
-            static fn(): array => ( new GoalContributionQuery() )->forTeam( $context->teamId, $window )
+            static fn(): array => MatchesComposer::scorers( new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId ) )
         );
-        $squad   = ( new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId ) )->players();
-        $jerseys = PlayerOrder::jerseys( $squad );
 
         $rows = [];
-        foreach ( $contributions as $player_id => $c ) {
-            if ( ! is_array( $c ) ) continue;
-            $goals   = (int) ( $c['goals'] ?? 0 );
-            $assists = (int) ( $c['assists'] ?? 0 );
-            if ( $goals === 0 && $assists === 0 ) continue;
-            $player = $squad[ (int) $player_id ] ?? null;
+        foreach ( (array) ( $scorers['rows'] ?? [] ) as $s ) {
+            if ( ! is_array( $s ) ) continue;
             $rows[] = [
-                'player_id'     => (int) $player_id,
-                'name'          => $player !== null ? trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) ) : '',
-                'goals'         => $goals,
-                'assists'       => $assists,
-                'contributions' => $goals + $assists,
+                'player_id' => (int) ( $s['player_id'] ?? 0 ),
+                'rank'      => isset( $s['rank'] ) ? (int) $s['rank'] : null,
+                'name'      => (string) ( $s['name'] ?? '' ),
+                'goals'     => (int) ( $s['goals'] ?? 0 ),
+                'assists'   => (int) ( $s['assists'] ?? 0 ),
             ];
         }
 
         return [
             'breakdown' => 'player_id',
-            'rows'      => PlayerOrder::sort( $rows, $jerseys ),
-            'goals'     => array_sum( array_column( $rows, 'goals' ) ),
-            'assists'   => array_sum( array_column( $rows, 'assists' ) ),
+            'rows'      => $rows,
+            'goals'     => (int) ( $scorers['goals'] ?? 0 ),
+            'assists'   => (int) ( $scorers['assists'] ?? 0 ),
         ];
     }
 }

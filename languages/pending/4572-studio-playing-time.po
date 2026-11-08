@@ -52,6 +52,11 @@ msgstr "Type"
 
 #: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
 msgctxt "report studio column"
+msgid "Rank"
+msgstr "Plaats"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
 msgid "Goals"
 msgstr "Doelpunten"
 

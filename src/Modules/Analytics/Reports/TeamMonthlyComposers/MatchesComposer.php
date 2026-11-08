@@ -50,27 +50,10 @@ final class MatchesComposer {
         ];
 
         $jerseys = PlayerOrder::jerseys( $ctx->players() );
-        $names   = [];
-        foreach ( $ctx->players() as $player ) {
-            $names[ (int) ( $player->id ?? 0 ) ] = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
-        }
+        $names   = self::names( $ctx );
 
         if ( $out['shows']['scorers'] ) {
-            $contributions = ( new GoalContributionQuery() )->forTeam( $ctx->team_id, [ 'from' => $ctx->from, 'to' => $ctx->to ] );
-            $rows = [];
-            foreach ( $contributions as $player_id => $c ) {
-                $player_id = (int) $player_id;
-                $goals     = (int) $c['goals'];
-                $assists   = (int) $c['assists'];
-                if ( $goals === 0 && $assists === 0 ) continue;
-
-                $rows[] = [
-                    'player_id' => $player_id,
-                    'name'      => $names[ $player_id ] ?? '',
-                    'goals'     => $goals,
-                    'assists'   => $assists,
-                ];
-            }
+            $scorers = self::scorers( $ctx );
             // #4079 — the record counts only scored, non-tournament fixtures,
             // so the attributed count is taken over exactly those. The table
             // above keeps tournament goals: it is a leaderboard.
@@ -78,10 +61,10 @@ final class MatchesComposer {
             foreach ( $activities as $a ) {
                 if ( $a['outcome'] !== '' ) $scored[] = $a['activity_id'];
             }
-            $out['scorers']       = self::rankScorers( PlayerOrder::sort( $rows, $jerseys ) );
+            $out['scorers']       = $scorers['rows'];
             $out['scorer_totals'] = [
-                'goals'            => array_sum( array_column( $rows, 'goals' ) ),
-                'assists'          => array_sum( array_column( $rows, 'assists' ) ),
+                'goals'            => $scorers['goals'],
+                'assists'          => $scorers['assists'],
                 // Reconciled against the record, like the minutes grid footer:
                 // "7 of 8 goals attributed" says a scorer was not entered.
                 'attributed_goals' => ( new GoalContributionQuery() )->attributedGoalsIn( $ctx->team_id, $scored ),
@@ -109,6 +92,56 @@ final class MatchesComposer {
         }
 
         return $out;
+    }
+
+    /**
+     * The scorers table: every player who scored or assisted in the window,
+     * ranked on goals, then assists, then shirt order, with a shared rank
+     * for a tie and none for a player without a goal (#4069), and the goal
+     * and assist totals. The team monthly report and the Report Studio's
+     * goals and assists block both read it (#4572). Tournament goals stay in:
+     * it is a leaderboard.
+     *
+     * Each row: `player_id`, `name`, `goals`, `assists`, `rank` (null without a goal).
+     *
+     * @return array{rows:list<array<string,mixed>>, goals:int, assists:int}
+     */
+    public static function scorers( TeamReportContext $ctx ): array {
+        $names         = self::names( $ctx );
+        $contributions = ( new GoalContributionQuery() )->forTeam( $ctx->team_id, [ 'from' => $ctx->from, 'to' => $ctx->to ] );
+        $rows          = [];
+        foreach ( $contributions as $player_id => $c ) {
+            $player_id = (int) $player_id;
+            $goals     = (int) $c['goals'];
+            $assists   = (int) $c['assists'];
+            if ( $goals === 0 && $assists === 0 ) continue;
+
+            $rows[] = [
+                'player_id' => $player_id,
+                'name'      => $names[ $player_id ] ?? '',
+                'goals'     => $goals,
+                'assists'   => $assists,
+            ];
+        }
+
+        return [
+            'rows'    => self::rankScorers( PlayerOrder::sort( $rows, PlayerOrder::jerseys( $ctx->players() ) ) ),
+            'goals'   => array_sum( array_column( $rows, 'goals' ) ),
+            'assists' => array_sum( array_column( $rows, 'assists' ) ),
+        ];
+    }
+
+    /**
+     * The squad's names, by player id.
+     *
+     * @return array<int,string>
+     */
+    private static function names( TeamReportContext $ctx ): array {
+        $names = [];
+        foreach ( $ctx->players() as $player ) {
+            $names[ (int) ( $player->id ?? 0 ) ] = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
+        }
+        return $names;
     }
 
     /**

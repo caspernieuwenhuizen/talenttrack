@@ -282,6 +282,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'session_date'      => _x( 'Date', 'report studio column', 'talenttrack' ),
             'title'             => _x( 'Match', 'report studio column', 'talenttrack' ),
             'type'              => _x( 'Type', 'report studio column', 'talenttrack' ),
+            'rank'              => _x( 'Rank', 'report studio column', 'talenttrack' ),
             'goals'             => _x( 'Goals', 'report studio column', 'talenttrack' ),
             'assists'           => _x( 'Assists', 'report studio column', 'talenttrack' ),
             'contributions'     => _x( 'Goals + assists', 'report studio column', 'talenttrack' ),
