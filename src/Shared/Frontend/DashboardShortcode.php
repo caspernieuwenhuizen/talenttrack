@@ -176,23 +176,24 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
-            // #2458 — command palette + peek panel. The sidebar solves the
-            // ~30 grouped destinations; the palette is what reaches a named
-            // record and the long setup / report tail.
-            wp_enqueue_style(
-                'tt-frontend-spotlight',
-                TT_PLUGIN_URL . 'assets/css/frontend-spotlight.css',
-                [ 'tt-frontend-app-shell' ],
-                TT_VERSION
-            );
-            wp_enqueue_script(
-                'tt-spotlight',
-                TT_PLUGIN_URL . 'assets/js/components/spotlight.js',
-                [ 'tt-public' ],
-                TT_VERSION,
-                true
-            );
         }
+
+        // #2458 / #4672 — the header search and the peek panel. The search
+        // box is shell chrome in both shells; the peek panel stays an app
+        // shell feature, which spotlight.js decides from TT.shell.
+        wp_enqueue_style(
+            'tt-frontend-spotlight',
+            TT_PLUGIN_URL . 'assets/css/frontend-spotlight.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-spotlight',
+            TT_PLUGIN_URL . 'assets/js/components/spotlight.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
 
         // #2512 — the resolved theme's token layer. Enqueued last of the
         // stylesheets so it overrides both tokens.css and the shell's own
@@ -288,6 +289,9 @@ class DashboardShortcode {
             'shell'      => ShellPreference::resolve(),
             // #2512 — the resolved theme, for the same reason.
             'theme'      => ThemePreference::resolve(),
+            // #4672 — the header search's groups, in display order, with
+            // their labels and how many rows each shows.
+            'search_groups' => FrontendSearchView::groups(),
             'i18n'       => [
                 'shell_nav_collapse'   => __( 'Collapse navigation', 'talenttrack' ),
                 'shell_nav_expand'     => __( 'Expand navigation', 'talenttrack' ),
@@ -303,6 +307,15 @@ class DashboardShortcode {
                 'spotlight_type_player'   => __( 'Player', 'talenttrack' ),
                 'spotlight_type_team'     => __( 'Team', 'talenttrack' ),
                 'spotlight_type_activity' => __( 'Activity', 'talenttrack' ),
+                // #4672 — the grouped quick results, the recent list and the
+                // phone sheet.
+                'search_recent'           => __( 'Recently opened', 'talenttrack' ),
+                /* translators: %s: what the search read in the query, e.g. "Shirt number 7" */
+                'search_understood'       => __( 'Understood: %s', 'talenttrack' ),
+                /* translators: %d: how many results of this kind there are */
+                'search_all'              => __( 'All %d', 'talenttrack' ),
+                'search_see_all'          => __( 'Press Enter to see every result.', 'talenttrack' ),
+                'search_close'            => __( 'Close search', 'talenttrack' ),
                 'peek_title'              => __( 'Preview', 'talenttrack' ),
                 'peek_loading'            => __( 'Loading…', 'talenttrack' ),
                 'peek_open'               => __( 'Open', 'talenttrack' ),
@@ -592,6 +605,17 @@ class DashboardShortcode {
             'frontend_view',
             $view !== '' ? $view : 'dashboard'
         );
+
+        // #4672 — opening a player, team or activity puts it on the search
+        // box's recent list. Not for a page the browser fetched ahead of a
+        // hover, and not for the edit form.
+        $opened_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        if ( $opened_id > 0
+             && ( ! isset( $_GET['action'] ) || sanitize_key( (string) $_GET['action'] ) !== 'edit' )
+             && ! \TT\Infrastructure\Usage\UsageTracker::isSpeculativeRequest()
+        ) {
+            ( new \TT\Infrastructure\Search\RecentItems() )->recordView( $user_id, $view, $opened_id );
+        }
 
         if ( $view === '' ) {
             // #0060 — when the persona-dashboard feature flag is on,
@@ -1205,9 +1229,16 @@ class DashboardShortcode {
             // constant so the route gates can see it: `check-docs` and
             // `check-mobile-classes` resolve `?tt_view=` slugs statically
             // and report a constant as unclassifiable.
+            //
+            // #4672 — everyone else gets the results page of the shared
+            // search engine, which scopes every kind to the caller itself.
             case 'search':
                 if ( $user_id <= 0 ) return self::renderSignInRequired();
-                FrontendParentSearchView::render();
+                if ( \TT\Infrastructure\Search\ParentSearchService::isParentCaller( $user_id ) ) {
+                    FrontendParentSearchView::render();
+                    return true;
+                }
+                FrontendSearchView::render( $user_id );
                 return true;
             default:
                 return false;
@@ -2366,6 +2397,57 @@ class DashboardShortcode {
         echo '</div>';
     }
 
+    /**
+     * The header search (#4672): a combobox from 768px, a 48px button below
+     * it that opens the same form as a full-screen sheet. spotlight.js
+     * completes the combobox and the sheet. Without it, the button is a link
+     * to the results page and the form submits there.
+     */
+    private static function renderSearchBox(): void {
+        $label   = __( 'Search players, teams, activities…', 'talenttrack' );
+        $base    = self::shortcodeBaseUrl();
+        // Shell chrome reaching the one search page, which scopes itself
+        // to the caller. Not an in-body cross-view link.
+        $results = add_query_arg( [ 'tt_view' => FrontendSearchView::SLUG ], $base ); /* tt-xview-ok */
+
+        echo '<a class="tt-spotlight-open" href="' . esc_url( $results ) . '" data-tt-spotlight-open'
+            . ' aria-label="' . esc_attr__( 'Search', 'talenttrack' ) . '">'
+            . '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+            . '<circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>'
+            . '</a>';
+
+        echo '<form class="tt-spotlight-form" role="search" method="get" action="' . esc_url( $base ) . '" data-tt-spotlight-form>';
+        echo '<input type="hidden" name="tt_view" value="' . esc_attr( FrontendSearchView::SLUG ) . '" />';
+        echo '<div class="tt-spotlight-bar">';
+        echo '<span class="tt-spotlight-form__icon" aria-hidden="true"></span>';
+        echo '<input type="search" name="q" class="tt-spotlight-input" '
+            . 'data-tt-spotlight-input '
+            . 'role="combobox" aria-expanded="false" aria-haspopup="listbox" '
+            . 'aria-controls="tt-spotlight-results" aria-autocomplete="list" '
+            . 'inputmode="search" enterkeyhint="search" autocomplete="off" spellcheck="false" '
+            . 'placeholder="' . esc_attr( $label ) . '" '
+            . 'aria-label="' . esc_attr( $label ) . '" />';
+        // #2563 — Ctrl K by default; the script swaps in the Command glyph
+        // on a Mac. The server cannot know the platform.
+        echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true" data-tt-shortcut-hint>Ctrl K</span>'; /* tt-i18n-ok */
+        echo '<button type="button" class="tt-spotlight-close" data-tt-spotlight-close'
+            . ' aria-label="' . esc_attr__( 'Close search', 'talenttrack' ) . '">'
+            . '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">'
+            . '<path d="M6 6l12 12M18 6L6 18"></path></svg>'
+            . '</button>';
+        echo '</div>';
+        echo '<div class="tt-spotlight-panel" data-tt-spotlight-panel hidden>';
+        echo '<p class="tt-spotlight-understood" data-tt-spotlight-understood hidden></p>';
+        echo '<div class="tt-spotlight-results" id="tt-spotlight-results" role="listbox"'
+            . ' aria-label="' . esc_attr__( 'Search results', 'talenttrack' ) . '"></div>';
+        echo '<p class="tt-spotlight__empty" data-tt-spotlight-empty hidden></p>';
+        echo '</div>';
+        // Movement between options is announced from here, because focus
+        // stays in the input the whole time.
+        echo '<span class="tt-screen-reader-text" aria-live="polite" data-tt-spotlight-status></span>';
+        echo '</form>';
+    }
+
     private static function renderHeader(): void {
         $logo      = QueryHelpers::get_config( 'logo_url', '' );
         $show_logo = QueryHelpers::get_config( 'show_logo', '0' ) === '1';
@@ -2414,44 +2496,11 @@ class DashboardShortcode {
 
         echo '<div class="tt-dash-actions">';
 
-        // #2458 — the palette's non-keyboard entry point. ⌘K opens the same
-        // overlay, so the shortcut only ever accelerates (CLAUDE.md §2: a
-        // shortcut needs a non-shortcut fallback). Falls back to the tile
-        // hub without JS, so it is never a dead control.
-        if ( ShellPreference::isApp( (int) $user->ID ) ) {
-            // #2531 — a real search field, not a button that opens a modal.
-            // Typing queries directly and results drop down beneath it; the
-            // combobox wiring (aria-expanded / activedescendant, the listbox)
-            // is completed by spotlight.js, which owns the open state.
-            //
-            // Wrapped in a GET form so it degrades: without JS, submitting
-            // lands on the tile hub — the same fallback the old trigger had,
-            // since there is no server-rendered results view to send it to.
-            $label = __( 'Search players, teams, activities…', 'talenttrack' );
-
-            echo '<form class="tt-spotlight-form" role="search" method="get" '
-                . 'action="' . esc_url( self::shortcodeBaseUrl() ) . '">';
-            echo '<span class="tt-spotlight-form__icon" aria-hidden="true"></span>';
-            echo '<input type="search" name="q" class="tt-spotlight-input" '
-                . 'data-tt-spotlight-input '
-                . 'role="combobox" aria-expanded="false" aria-haspopup="listbox" '
-                . 'aria-controls="tt-spotlight-results" aria-autocomplete="list" '
-                . 'autocomplete="off" spellcheck="false" '
-                . 'placeholder="' . esc_attr( $label ) . '" '
-                . 'aria-label="' . esc_attr( $label ) . '" />';
-            // #2563 — the badge renders Ctrl-K and app-shell.js swaps it to
-            // the Command glyph on a Mac. It was hardcoded to the Command
-            // glyph, which told every Windows user to press a key their
-            // keyboard does not have. Ctrl is the safer default: the server
-            // cannot know the platform, so the majority case renders correct
-            // even when the script never runs.
-            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true" data-tt-shortcut-hint>Ctrl K</span>'; /* tt-i18n-ok */
-            echo '<ul class="tt-spotlight-results" id="tt-spotlight-results" '
-                . 'role="listbox" aria-label="' . esc_attr__( 'Search results', 'talenttrack' ) . '" hidden></ul>';
-            // Movement between options is announced from here, because focus
-            // stays in the input the whole time.
-            echo '<span class="tt-screen-reader-text" aria-live="polite" data-tt-spotlight-status></span>';
-            echo '</form>';
+        // #2458 / #4672 — the header search, in both shells. It is shell
+        // chrome rendered once here, beside the help icon and the user menu,
+        // never a control inside a view (CLAUDE.md §5).
+        if ( (int) $user->ID > 0 ) {
+            self::renderSearchBox();
         }
 
         // Filter point — other modules can inject pill-style affordances

@@ -1,20 +1,20 @@
 /*
- * spotlight.js (#2458, #2531) — inline search + peek panel for the app shell.
+ * spotlight.js (#2458, #2531, #4672) — the header search and the peek panel.
  *
  * Two features, one file, because they share a fetch helper and an escape
  * handler; two copies of those is how they drift.
  *
  * Both are progressive enhancements over markup that already works:
  *
- *   - Search:   the header field is a real <input> in a GET form. This turns
- *               it into a combobox that queries as you type and drops results
- *               beneath it. #2531 replaced the modal palette #2458 shipped —
- *               opening an overlay to reach a second input was a context
- *               switch to start something already on screen. Without JS the
- *               form submits to the tile overview.
+ *   - Search:   the header field is a real <input> in a GET form that
+ *               submits to the results page (?tt_view=search). This turns
+ *               it into a combobox with grouped quick results, the recent
+ *               list on an empty box, and on a phone a full-screen sheet
+ *               behind the 48px search button. Without JS the button is a
+ *               link to the results page. Runs in both shells.
  *   - Peek:     every peekable link keeps a real href and navigates normally
  *               when JS is off or the fetch fails. Peek is never the only
- *               path to a record.
+ *               path to a record. App shell only.
  *
  * Budget note (CLAUDE.md §2, 50KB gzipped front end): no dependencies, no
  * framework, no template engine — DOM built imperatively.
@@ -23,8 +23,6 @@
 	'use strict';
 
 	var TT = window.TT || {};
-	if (TT.shell !== 'app') return;
-
 	var i18n = TT.i18n || {};
 	var restUrl = (TT.rest_url || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/');
 	var nonce = TT.rest_nonce || '';
@@ -47,7 +45,7 @@
 
 	function focusablesIn(root) {
 		return Array.prototype.filter.call(
-			root.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])'),
+			root.querySelectorAll('a[href], button:not([disabled]), input:not([type="hidden"]), [tabindex]:not([tabindex="-1"])'),
 			function (el) { return el.offsetParent !== null; }
 		);
 	}
@@ -68,139 +66,420 @@
 	}
 
 	/* ================================================================
-	 * Inline search (#2531)
+	 * Header search (#2531, #4672)
 	 * ============================================================== */
 	/*
-	 * The header field IS the search. #2458 shipped a trigger that opened a
-	 * modal with its own input — two steps and a context switch to start
-	 * something the user was already looking at. Typing here queries
-	 * directly and results drop down beneath the field.
+	 * Built as a combobox: focus never leaves the field, so movement through
+	 * the options is carried by `aria-activedescendant` and a polite status
+	 * line. Options are plain elements with the URL in data-href, not links:
+	 * a focusable element inside an option is a nested interactive control.
 	 *
-	 * Built as a combobox rather than a styled input: focus never leaves
-	 * the field, so movement through the options has to be announced with
-	 * `aria-activedescendant` and a polite status line. The old modal got
-	 * this for free by trapping focus; inline has to do it deliberately.
+	 * Nothing is selected until an arrow key moves, so Enter with no row
+	 * selected submits the form to the results page.
 	 */
 
-	var sInput = document.querySelector('[data-tt-spotlight-input]');
+	var sForm = document.querySelector('[data-tt-spotlight-form]');
+	var sInput = sForm && sForm.querySelector('[data-tt-spotlight-input]');
+	var sPanel = sForm && sForm.querySelector('[data-tt-spotlight-panel]');
 	var sList = document.getElementById('tt-spotlight-results');
-	var sStatus = document.querySelector('[data-tt-spotlight-status]');
-	var sForm = sInput && sInput.closest('form');
+	var sUnderstood = sForm && sForm.querySelector('[data-tt-spotlight-understood]');
+	var sEmpty = sForm && sForm.querySelector('[data-tt-spotlight-empty]');
+	var sStatus = sForm && sForm.querySelector('[data-tt-spotlight-status]');
+	var sOpenBtn = document.querySelector('[data-tt-spotlight-open]');
+	var sCloseBtn = sForm && sForm.querySelector('[data-tt-spotlight-close]');
+
+	var GROUPS = Array.isArray(TT.search_groups) ? TT.search_groups : [];
+	var RECENT_SHOWN = 8;
 
 	var sActive = -1;
 	var sDebounce = null;
 	var sSeq = 0;
+	var sSheet = false;
+	var sSheetPushed = false;
+	var sOptSeq = 0;
+
+	/* ---- Text helpers ------------------------------------------------ */
+
+	function fold(s) {
+		var out = String(s || '');
+		if (out.normalize) out = out.normalize('NFD').replace(/[̀-ͯ]/g, '');
+		return out.toLowerCase();
+	}
+
+	function initials(name) {
+		var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+		if (!parts.length) return '?';
+		if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+		return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+	}
+
+	/*
+	 * The label with every typed word marked. Folding is per character so
+	 * a match found in the folded text maps back onto the original one:
+	 * "jose" marks the "José" it found.
+	 */
+	function highlighted(label, query) {
+		var frag = document.createDocumentFragment();
+		var text = String(label || '');
+		var words = String(query || '').split(/\s+/).map(fold).filter(function (w) {
+			return w.length > 0 && w.charAt(0) !== '#';
+		});
+		if (!words.length) {
+			frag.appendChild(document.createTextNode(text));
+			return frag;
+		}
+
+		var folded = '';
+		var map = [];
+		for (var i = 0; i < text.length; i++) {
+			var f = fold(text.charAt(i));
+			for (var k = 0; k < f.length; k++) map.push(i);
+			folded += f;
+		}
+
+		var marks = new Array(text.length);
+		words.forEach(function (w) {
+			var from = 0;
+			var at;
+			while ((at = folded.indexOf(w, from)) !== -1) {
+				for (var j = at; j < at + w.length; j++) marks[map[j]] = true;
+				from = at + w.length;
+			}
+		});
+
+		var run = '';
+		var inMark = false;
+		function flush() {
+			if (!run) return;
+			if (inMark) {
+				var m = document.createElement('mark');
+				m.className = 'tt-spotlight__mark';
+				m.textContent = run;
+				frag.appendChild(m);
+			} else {
+				frag.appendChild(document.createTextNode(run));
+			}
+			run = '';
+		}
+		for (var c = 0; c < text.length; c++) {
+			var on = !!marks[c];
+			if (on !== inMark) { flush(); inMark = on; }
+			run += text.charAt(c);
+		}
+		flush();
+		return frag;
+	}
+
+	/* ---- Open state -------------------------------------------------- */
 
 	function sOptions() {
 		return sList ? sList.querySelectorAll('[role="option"]') : [];
 	}
 
 	function sOpen(open) {
-		if (!sList || !sInput) return;
-		sList.hidden = !open;
-		sInput.setAttribute('aria-expanded', open ? 'true' : 'false');
-		if (!open) {
-			sActive = -1;
-			sInput.removeAttribute('aria-activedescendant');
+		if (!sPanel || !sInput) return;
+		sPanel.hidden = !open;
+		sInput.setAttribute('aria-expanded', open && sOptions().length ? 'true' : 'false');
+		if (!open) sClearActive();
+	}
+
+	function sClearActive() {
+		var items = sOptions();
+		if (sActive >= 0 && items[sActive]) {
+			items[sActive].classList.remove('is-active');
+			items[sActive].setAttribute('aria-selected', 'false');
 		}
+		sActive = -1;
+		if (sInput) sInput.removeAttribute('aria-activedescendant');
 	}
 
 	function sHighlight(index) {
 		var items = sOptions();
 		if (!items.length) return;
+		if (sPanel.hidden) sOpen(true);
 
-		if (sActive >= 0 && items[sActive]) items[sActive].classList.remove('is-active');
+		if (sActive >= 0 && items[sActive]) {
+			items[sActive].classList.remove('is-active');
+			items[sActive].setAttribute('aria-selected', 'false');
+		}
 		sActive = (index + items.length) % items.length;
 
 		var el = items[sActive];
 		el.classList.add('is-active');
+		el.setAttribute('aria-selected', 'true');
 		el.scrollIntoView({ block: 'nearest' });
-		// Focus stays in the input; this is what a screen reader follows.
 		sInput.setAttribute('aria-activedescendant', el.id);
+		if (sStatus) sStatus.textContent = el.getAttribute('aria-label') || el.textContent;
 	}
 
-	function sRender(results) {
-		if (!sList) return;
-		sList.textContent = '';
-		sActive = -1;
-		sInput.removeAttribute('aria-activedescendant');
-
-		if (!results.length) {
-			var empty = document.createElement('li');
-			empty.className = 'tt-spotlight__empty';
-			empty.textContent = t('spotlight_empty', 'Nothing matched.');
-			sList.appendChild(empty);
-			if (sStatus) sStatus.textContent = t('spotlight_empty', 'Nothing matched.');
-			sOpen(true);
+	function sGo(option, newTab) {
+		var href = option && option.getAttribute('data-href');
+		if (!href) return;
+		if (newTab) {
+			window.open(href, '_blank', 'noopener');
 			return;
 		}
-
-		results.forEach(function (r, i) {
-			var li = document.createElement('li');
-			li.id = 'tt-spotlight-opt-' + i;
-			li.setAttribute('role', 'option');
-			li.setAttribute('aria-selected', 'false');
-			li.className = 'tt-spotlight__item';
-
-			var a = document.createElement('a');
-			a.href = r.url;
-			a.className = 'tt-spotlight__result';
-			a.tabIndex = -1;   // the input keeps focus; arrows do the moving
-
-			var kind = document.createElement('span');
-			kind.className = 'tt-spotlight__kind';
-			kind.textContent = t('spotlight_type_' + r.type, r.type);
-
-			var label = document.createElement('span');
-			label.className = 'tt-spotlight__label';
-			label.textContent = r.label;
-
-			a.appendChild(kind);
-			a.appendChild(label);
-
-			if (r.sublabel) {
-				var sub = document.createElement('span');
-				sub.className = 'tt-spotlight__sub';
-				sub.textContent = r.sublabel;
-				a.appendChild(sub);
-			}
-
-			li.appendChild(a);
-			sList.appendChild(li);
-		});
-
-		if (sStatus) {
-			sStatus.textContent = results.length + ' ' + t('spotlight_results', 'results');
-		}
-		sOpen(true);
-		sHighlight(0);
+		// From the sheet, replace the history entry the sheet pushed, so
+		// Back on the next page returns here and not to an empty sheet.
+		if (sSheetPushed) window.location.replace(href);
+		else window.location.href = href;
 	}
 
-	function sQuery(q) {
-		// Out-of-order responses would otherwise let a slow early query
-		// overwrite a fast later one.
+	/* ---- Rendering --------------------------------------------------- */
+
+	function option(cls, href, name) {
+		var el = document.createElement('div');
+		el.id = 'tt-spotlight-opt-' + (++sOptSeq);
+		el.className = 'tt-spotlight__option ' + cls;
+		el.setAttribute('role', 'option');
+		el.setAttribute('aria-selected', 'false');
+		el.setAttribute('data-href', href || '');
+		if (name) el.setAttribute('aria-label', name);
+		return el;
+	}
+
+	function resultsUrl(q, kind) {
+		var url = new URL(sForm.getAttribute('action') || window.location.href, window.location.href);
+		url.searchParams.set('tt_view', 'search');
+		url.searchParams.set('q', q);
+		if (kind) url.searchParams.set('type', kind);
+		else url.searchParams.delete('type');
+		return url.toString();
+	}
+
+	function row(item, query) {
+		var wrap = document.createElement('div');
+		wrap.className = 'tt-spotlight__row tt-spotlight__row--' + item.type;
+		wrap.setAttribute('role', 'presentation');
+
+		var main = option('tt-spotlight__result', item.url, '');
+		if (item.type === 'player') {
+			if (item.photo_url) {
+				var img = document.createElement('img');
+				img.className = 'tt-spotlight__avatar';
+				img.src = item.photo_url;
+				img.width = 32;
+				img.height = 32;
+				img.alt = '';
+				main.appendChild(img);
+			} else {
+				var ini = document.createElement('span');
+				ini.className = 'tt-spotlight__avatar tt-spotlight__avatar--initials';
+				ini.setAttribute('aria-hidden', 'true');
+				ini.textContent = initials(item.label);
+				main.appendChild(ini);
+			}
+		}
+
+		var text = document.createElement('span');
+		text.className = 'tt-spotlight__text';
+		var label = document.createElement('span');
+		label.className = 'tt-spotlight__label';
+		label.appendChild(highlighted(item.label, query));
+		text.appendChild(label);
+		if (item.sublabel) {
+			var sub = document.createElement('span');
+			sub.className = 'tt-spotlight__sub';
+			sub.textContent = item.sublabel;
+			text.appendChild(sub);
+		}
+		main.appendChild(text);
+		wrap.appendChild(main);
+
+		(item.actions || []).slice(0, 2).forEach(function (action) {
+			if (!action || !action.url) return;
+			var a = option('tt-spotlight__action', action.url, action.label + ': ' + item.label);
+			a.textContent = action.label;
+			wrap.appendChild(a);
+		});
+		return wrap;
+	}
+
+	function group(kind, title, items, query, total) {
+		var g = document.createElement('div');
+		g.className = 'tt-spotlight__group';
+		g.setAttribute('role', 'group');
+		var head = document.createElement('div');
+		head.className = 'tt-spotlight__group-title';
+		head.id = 'tt-spotlight-group-' + kind;
+		head.setAttribute('role', 'presentation');
+		head.textContent = title;
+		g.setAttribute('aria-labelledby', head.id);
+		g.appendChild(head);
+
+		items.forEach(function (item) { g.appendChild(row(item, query)); });
+
+		if (total > items.length && query) {
+			var all = option('tt-spotlight__all', resultsUrl(query, kind), '');
+			all.textContent = t('search_all', 'All %d').replace('%d', String(total)) + ' ›';
+			g.appendChild(all);
+		}
+		return g;
+	}
+
+	function sShow(groups, understood, emptyText) {
+		sList.textContent = '';
+		sClearActive();
+
+		var count = 0;
+		groups.forEach(function (g) {
+			if (!g.items.length && !(g.total > 0)) return;
+			sList.appendChild(group(g.kind, g.title, g.items, g.query, g.total || 0));
+			count += g.items.length;
+		});
+
+		if (sUnderstood) {
+			sUnderstood.hidden = !understood;
+			sUnderstood.textContent = understood || '';
+		}
+		var none = sOptions().length === 0;
+		sList.hidden = none;
+		if (sEmpty) {
+			sEmpty.hidden = !none || !emptyText;
+			sEmpty.textContent = emptyText || '';
+		}
+		if (sStatus) {
+			sStatus.textContent = none ? (emptyText || '') : count + ' ' + t('spotlight_results', 'results');
+		}
+		sOpen(!none || !!emptyText || !!understood);
+	}
+
+	function byKind(items) {
+		var map = {};
+		(items || []).forEach(function (it) {
+			(map[it.type] = map[it.type] || []).push(it);
+		});
+		return map;
+	}
+
+	function sSearch(q) {
 		var seq = ++sSeq;
-		api('search?q=' + encodeURIComponent(q || ''))
+		api('search?page=1&per_page=50&q=' + encodeURIComponent(q))
 			.then(function (data) {
 				if (seq !== sSeq) return;
-				sRender((data && data.results) || []);
+				var kinds = byKind(data && data.items);
+				var counts = (data && data.counts) || {};
+				var groups = GROUPS.map(function (g) {
+					return {
+						kind: g.kind,
+						title: g.label,
+						items: (kinds[g.kind] || []).slice(0, g.limit),
+						total: counts[g.kind] || 0,
+						query: q
+					};
+				});
+				var understood = ((data && data.understood) || []).map(function (u) { return u.label; }).join(', ');
+				sShow(
+					groups,
+					understood ? t('search_understood', 'Understood: %s').replace('%s', understood) : '',
+					t('spotlight_empty', 'Nothing matched.') + ' ' + t('search_see_all', 'Press Enter to see every result.')
+				);
 			})
 			.catch(function () {
-				if (seq === sSeq) sRender([]);
+				if (seq === sSeq) sShow([], '', t('spotlight_empty', 'Nothing matched.'));
 			});
 	}
 
-	if (sInput && sList) {
+	/*
+	 * An empty box: the records opened last, re-checked by the server. With
+	 * none yet, the sections the viewer can reach, so the box still works as
+	 * a launcher.
+	 */
+	function sRecent() {
+		var seq = ++sSeq;
+		api('me/recent')
+			.then(function (data) {
+				if (seq !== sSeq) return null;
+				var items = ((data && data.items) || []).slice(0, RECENT_SHOWN);
+				if (items.length) {
+					sShow([{ kind: 'recent', title: t('search_recent', 'Recently opened'), items: items, query: '' }], '', '');
+					return null;
+				}
+				return api('search?q=');
+			})
+			.then(function (data) {
+				if (!data || seq !== sSeq) return;
+				var sections = GROUPS.filter(function (g) { return g.kind === 'view'; })[0];
+				sShow([{
+					kind: 'view',
+					title: sections ? sections.label : t('spotlight_type_view', 'Section'),
+					items: (data.results || []).map(function (r) { r.actions = []; return r; }),
+					query: ''
+				}], '', '');
+			})
+			.catch(function () {
+				if (seq === sSeq) sShow([], '', '');
+			});
+	}
+
+	function sRefresh() {
+		var q = sInput.value.trim();
+		if (q === '') sRecent();
+		else sSearch(q);
+	}
+
+	/* ---- The phone sheet --------------------------------------------- */
+
+	function sheetOpen() {
+		if (sSheet) return;
+		sSheet = true;
+		sForm.classList.add('is-sheet');
+		document.documentElement.classList.add('tt-search-sheet-open');
+		if (window.history && history.pushState) {
+			history.pushState({ ttSearchSheet: true }, '');
+			sSheetPushed = true;
+		}
+		// The focus handler fills the sheet: the recent list, or the results
+		// for what is already typed.
+		sInput.focus();
+	}
+
+	function sheetHide() {
+		if (!sSheet) return;
+		sSheet = false;
+		sSheetPushed = false;
+		sForm.classList.remove('is-sheet');
+		document.documentElement.classList.remove('tt-search-sheet-open');
+		sOpen(false);
+		if (sOpenBtn) sOpenBtn.focus();
+	}
+
+	// Closing goes through history when the sheet pushed an entry, so Back
+	// and the close button end in the same state.
+	function sheetClose() {
+		if (sSheetPushed) history.back();
+		else sheetHide();
+	}
+
+	function isPhone() {
+		return !!(sOpenBtn && sOpenBtn.offsetParent !== null);
+	}
+
+	function focusSearch() {
+		if (isPhone()) {
+			sheetOpen();
+			return;
+		}
+		sInput.focus();
+		sInput.select();
+	}
+
+	/* ---- Wiring ------------------------------------------------------ */
+
+	function sOptOut() {
+		sList.textContent = '';
+		sOpen(false);
+	}
+
+	if (sForm && sInput && sList && sPanel) {
 		sInput.addEventListener('input', function () {
 			window.clearTimeout(sDebounce);
-			sDebounce = window.setTimeout(function () { sQuery(sInput.value); }, 180);
+			sDebounce = window.setTimeout(sRefresh, 180);
 		});
 
-		// Focusing shows the reachable sections before a character is typed —
-		// it is a launcher first and a search box second.
 		sInput.addEventListener('focus', function () {
-			if (!sOptions().length) sQuery(sInput.value);
-			else sOpen(true);
+			if (sOptions().length || (sEmpty && !sEmpty.hidden)) sOpen(true);
+			else sRefresh();
 		});
 
 		sInput.addEventListener('keydown', function (e) {
@@ -208,58 +487,104 @@
 			if (e.key === 'ArrowUp') { e.preventDefault(); sHighlight(sActive - 1); return; }
 
 			if (e.key === 'Escape') {
-				// Close the list but keep focus in the field — Escape should
-				// not cost the user their place.
 				e.preventDefault();
-				sOpen(false);
+				if (sSheet) { sheetClose(); return; }
+				// First Escape closes the list, the second clears the field.
+				if (!sPanel.hidden) { sOpen(false); return; }
+				if (sInput.value !== '') {
+					sInput.value = '';
+					sOptOut();
+				}
 				return;
 			}
 
 			if (e.key === 'Enter') {
 				var items = sOptions();
 				if (sActive >= 0 && items[sActive]) {
-					var link = items[sActive].querySelector('a');
-					if (link) { e.preventDefault(); link.click(); }
+					e.preventDefault();
+					sGo(items[sActive], e.ctrlKey || e.metaKey);
 				}
-				// With nothing highlighted, let the form submit (no-JS path).
+				// With nothing selected the form submits to the results page.
 			}
+		});
+
+		sList.addEventListener('click', function (e) {
+			var opt = e.target.closest('[role="option"]');
+			if (!opt) return;
+			e.preventDefault();
+			sGo(opt, e.ctrlKey || e.metaKey);
+		});
+
+		sList.addEventListener('auxclick', function (e) {
+			var opt = e.target.closest('[role="option"]');
+			if (opt && e.button === 1) sGo(opt, true);
 		});
 
 		// Pointer users get the same highlight the keyboard does.
 		sList.addEventListener('mousemove', function (e) {
-			var li = e.target.closest('[role="option"]');
-			if (!li) return;
-			var items = Array.prototype.indexOf.call(sOptions(), li);
-			if (items !== -1 && items !== sActive) sHighlight(items);
+			var opt = e.target.closest('[role="option"]');
+			if (!opt) return;
+			var index = Array.prototype.indexOf.call(sOptions(), opt);
+			if (index !== -1 && index !== sActive) sHighlight(index);
 		});
 
 		document.addEventListener('click', function (e) {
-			if (sForm && !sForm.contains(e.target)) sOpen(false);
+			if (!sSheet && !sForm.contains(e.target)) sOpen(false);
 		});
 
-		// ⌘K / Ctrl-K focuses the field. Still an accelerator — the field is
-		// on screen and clickable without it (CLAUDE.md §2).
+		if (sOpenBtn) {
+			sOpenBtn.addEventListener('click', function (e) {
+				if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+				e.preventDefault();
+				sheetOpen();
+			});
+		}
+
+		if (sCloseBtn) {
+			sCloseBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				sheetClose();
+			});
+		}
+
+		sForm.addEventListener('keydown', function (e) {
+			if (sSheet) trap(sForm, e);
+		});
+
+		window.addEventListener('popstate', function () {
+			if (sSheet) sheetHide();
+		});
+
+		// ⌘K / Ctrl-K: an accelerator for a control that is on screen and
+		// clickable without it (CLAUDE.md §2).
 		document.addEventListener('keydown', function (e) {
 			if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
 				e.preventDefault();
-				sInput.focus();
-				sInput.select();
+				focusSearch();
 			}
 		});
 
-		// #4252 — a page can hand the reader to this field with a control
+		// #4252 — a page can hand the reader to the search with a control
 		// marked data-tt-spotlight-focus.
 		document.addEventListener('click', function (e) {
 			if (!e.target.closest('[data-tt-spotlight-focus]')) return;
 			e.preventDefault();
-			sInput.scrollIntoView({ block: 'nearest' });
-			sInput.focus();
+			if (!isPhone()) sInput.scrollIntoView({ block: 'nearest' });
+			focusSearch();
 		});
+
+		var hint = sForm.querySelector('[data-tt-shortcut-hint]');
+		if (hint) {
+			var plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+			if (/mac/i.test(plat)) hint.textContent = '⌘K'; // tt-i18n-ok — a key name
+		}
 	}
 
 	/* ================================================================
-	 * Peek panel
+	 * Peek panel — app shell only
 	 * ============================================================== */
+
+	if (TT.shell !== 'app') return;
 
 	var peek = null;
 	var peekBody = null;
