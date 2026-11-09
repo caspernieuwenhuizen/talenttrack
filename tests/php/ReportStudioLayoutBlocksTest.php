@@ -136,6 +136,33 @@ final class ReportStudioLayoutBlocksTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #4949 — the key figures read the monthly report's KPI through the
+     * report's own removal, so the attendance figure follows the attendance
+     * right: the head coach of the team gets it, the read-only observer, who
+     * reads the team's reports but not its attendance, does not.
+     */
+    public function test_the_key_figures_attendance_follows_the_attendance_right(): void {
+        $coach    = $this->makePersona( 'tt_coach', 'head_coach', $this->team_a );
+        $observer = $this->makePersona( 'tt_readonly_observer', 'readonly_observer', $this->team_a );
+        $this->assertTrue( AuthorizationService::canReadTeamAttendance( $coach, $this->team_a ), 'Precondition: the head coach reads attendance.' );
+        $this->assertFalse( AuthorizationService::canReadTeamAttendance( $observer, $this->team_a ), 'Precondition: the observer does not.' );
+
+        $block = BlockRegistry::find( 'key_figures' );
+        $this->assertNotNull( $block );
+        foreach ( [ $coach => true, $observer => false ] as $uid => $sees ) {
+            $context = ReportContext::fromInput( $this->team( $this->team_a ), $uid );
+            $this->assertInstanceOf( ReportContext::class, $context );
+            $keys = array_column( $block->render( $context, [] )['figures'], 'key' );
+            if ( $sees ) {
+                $this->assertContains( 'attendance_pct', $keys, 'the head coach gets the attendance figure' );
+            } else {
+                $this->assertNotContains( 'attendance_pct', $keys, 'the observer gets no attendance figure' );
+                $this->assertContains( 'activities', $keys, 'and the other figures still' );
+            }
+        }
+    }
+
     public function test_the_key_figures_equal_the_monthly_reports_tiles(): void {
         $block  = $this->preview( 'key_figures', $this->team( $this->team_a ) );
         $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'kpi' ], $this->hod );
