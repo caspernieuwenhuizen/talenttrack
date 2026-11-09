@@ -8,6 +8,7 @@ use TT\Modules\Alerts\Diagnostics\AlertDiagnostics;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Policy\ClubAlertPolicy;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FlashMessages;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -204,24 +205,33 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
         }
 
         echo '<div class="tt-table-scroll">';
-        echo '<table class="tt-table tt-alert-diagnostics-table">';
-        echo '<thead><tr>'
-            . '<th>' . esc_html__( 'Alert', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Open', 'talenttrack' ) . '</th>'
+        // #4918 — a card per alert on a phone, the table from 768px.
+        $c_alert      = __( 'Alert', 'talenttrack' );
+        $c_open       = __( 'Open', 'talenttrack' );
+        $c_recipients = __( 'Recipients', 'talenttrack' );
+        $c_cleared    = __( 'Cleared', 'talenttrack' );
+        $c_dismissed  = __( 'Dismissed', 'talenttrack' );
+        $c_check      = __( 'Check time', 'talenttrack' );
+        $th           = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-alert-diagnostics-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+            . '<th' . $th . '>' . esc_html( $c_alert ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_open ) . '</th>'
             // #3665 — how many people those open rows are spread over.
-            . '<th>' . esc_html__( 'Recipients', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Cleared', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Dismissed', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Check time', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+            . '<th' . $th . '>' . esc_html( $c_recipients ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_cleared ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_dismissed ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_check ) . '</th>'
+            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $dismissed = $row['dismiss_rate'] !== null
                 ? sprintf( '%d%%', (int) round( $row['dismiss_rate'] * 100 ) )
                 : '—';
 
+            // The alert's name and its "mostly dismissed" flag are one value.
             printf(
-                '<tr%1$s><td>%2$s%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td><td>%7$s</td><td>%8$s</td></tr>',
+                '<tr%1$s%9$s><td%10$s><span class="%16$s">%2$s%3$s</span></td><td%11$s>%4$s</td><td%12$s>%5$s</td><td%13$s>%6$s</td><td%14$s>%7$s</td><td%15$s>%8$s</td></tr>',
                 $row['noisy'] ? ' class="tt-alert-diagnostics-noisy"' : '',
                 esc_html( $row['label'] ),
                 $row['noisy']
@@ -235,7 +245,15 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
                     /* translators: %d: milliseconds the check took */
                     __( '%d ms', 'talenttrack' ),
                     $row['ms']
-                ) )
+                ) ),
+                StackTable::attrs( 'row' ),
+                StackTable::attrs( 'cell', $c_alert ),
+                StackTable::attrs( 'cell', $c_open ),
+                StackTable::attrs( 'cell', $c_recipients ),
+                StackTable::attrs( 'cell', $c_cleared ),
+                StackTable::attrs( 'cell', $c_dismissed ),
+                StackTable::attrs( 'cell', $c_check ),
+                esc_attr( StackTable::VALUE )
             );
         }
 

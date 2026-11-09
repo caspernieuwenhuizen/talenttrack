@@ -11,6 +11,7 @@ use TT\Modules\License\LicenseMode;
 use TT\Modules\License\PlanSummary;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -194,12 +195,18 @@ class FrontendPlanView extends FrontendViewBase {
         echo '<p class="tt-muted">' . esc_html__( 'Caps apply only on the Free plan. Standard and Pro have no cap.', 'talenttrack' ) . '</p>';
 
         echo '<div class="tt-account-scroll">';
-        echo '<table class="tt-table tt-account-table"><thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Resource', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'In use', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Limit', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4918 — a card per resource (its name the title) on a phone, the
+        // table from 768px.
+        $c_used   = __( 'In use', 'talenttrack' );
+        $c_limit  = __( 'Limit', 'talenttrack' );
+        $c_status = __( 'Status', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-account-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Resource', 'talenttrack' ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_used ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_limit ) . '</th>';
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_status ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         /** @var list<array{resource:string,label:string,used:int,limit:int,at_cap:bool,near_cap:bool}> $caps */
         $caps = $plan['caps'];
@@ -218,13 +225,13 @@ class FrontendPlanView extends FrontendViewBase {
                 $state  = 'ok';
             }
 
-            echo '<tr>';
-            echo '<th scope="row">' . esc_html( $cap['label'] ) . '</th>';
-            echo '<td class="tt-account-num">' . (int) $cap['used'] . '</td>';
-            echo '<td class="tt-account-num">'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $cap['label'] ) . '</th>';
+            echo '<td class="tt-account-num"' . StackTable::attrs( 'cell', $c_used ) . '>' . (int) $cap['used'] . '</td>';
+            echo '<td class="tt-account-num"' . StackTable::attrs( 'cell', $c_limit ) . '>'
                 . esc_html( $plan['caps_apply'] ? (string) (int) $cap['limit'] : '—' )
                 . '</td>';
-            echo '<td><span class="tt-account-status tt-account-status--' . esc_attr( $state ) . '">'
+            echo '<td' . StackTable::attrs( 'cell', $c_status ) . '><span class="tt-account-status tt-account-status--' . esc_attr( $state ) . '">'
                 . esc_html( $status ) . '</span></td>';
             echo '</tr>';
         }
@@ -244,27 +251,29 @@ class FrontendPlanView extends FrontendViewBase {
         $tiers = $plan['tiers'];
 
         echo '<div class="tt-account-scroll">';
-        echo '<table class="tt-table tt-account-table tt-account-matrix"><thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Feature', 'talenttrack' ) . '</th>';
+        // #4918 — a card per feature (its name the title) on a phone, the
+        // matrix from 768px.
+        echo '<table class="tt-table tt-account-table tt-account-matrix ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html__( 'Feature', 'talenttrack' ) . '</th>';
         foreach ( $tiers as $tier ) {
             $cls = 'tt-account-tier-col' . ( $tier['current'] ? ' is-current' : '' );
-            echo '<th scope="col" class="' . esc_attr( $cls ) . '">' . esc_html( $tier['label'] );
+            echo '<th scope="col" class="' . esc_attr( $cls ) . '"' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $tier['label'] );
             if ( $tier['current'] ) {
                 echo ' <span class="tt-account-tier-flag">' . esc_html__( 'this install', 'talenttrack' ) . '</span>';
             }
             echo '</th>';
         }
-        echo '</tr></thead><tbody>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         /** @var list<array{key:string,label:string,tiers:array<string,bool>}> $features */
         $features = $plan['features'];
         foreach ( $features as $feature ) {
-            echo '<tr>';
-            echo '<th scope="row">' . esc_html( $feature['label'] ) . '</th>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $feature['label'] ) . '</th>';
             foreach ( $tiers as $tier ) {
                 $has = ! empty( $feature['tiers'][ $tier['key'] ] );
                 $cls = 'tt-account-cell' . ( $tier['current'] ? ' is-current' : '' );
-                echo '<td class="' . esc_attr( $cls ) . '">';
+                echo '<td class="' . esc_attr( $cls ) . '"' . StackTable::attrs( 'cell', (string) $tier['label'] ) . '>';
                 echo '<span class="tt-account-mark tt-account-mark--' . ( $has ? 'yes' : 'no' ) . '" aria-hidden="true">'
                     . ( $has ? '&#10003;' : '&mdash;' ) . '</span>';
                 echo '<span class="tt-sr-only">' . esc_html(

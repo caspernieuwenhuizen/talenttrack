@@ -1,0 +1,17 @@
+/*
+ * Configuration → Dashboard: the per-persona override table (#4918).
+ *
+ * The table is on the stack-table primitive: a card per persona on a phone,
+ * a table from 480px. Its width and the dashboard column used to be inline
+ * styles on the markup.
+ */
+
+.tt-dashboard .tt-persona-dash-table {
+    max-width: 32.5rem;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-persona-dash-table__choice {
+        width: 12.5rem;
+    }
+}
