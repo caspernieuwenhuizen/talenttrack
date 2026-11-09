@@ -83,15 +83,17 @@ final class EvaluationsGlobalListMatrixTest extends WP_UnitTestCase {
     }
 
     public function test_a_seat_granted_global_evaluations_read_gets_the_academy_wide_list(): void {
-        $manager = (int) self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
-        // The route's own gate, for an install where the bridge does not
-        // decide it; the list's scope is what is under test.
-        ( new \WP_User( $manager ) )->add_cap( 'tt_view_evaluations' );
+        // A team manager on `$this->team`: the seed's team-scoped evaluations
+        // read lets them through the route's gate, and the evaluation sits
+        // on the other team.
+        $manager = $this->makeTeamManager();
         $this->assertFalse(
             MatrixGate::can( $manager, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ),
             'precondition: the seed gives this seat no global evaluations read'
         );
-        $this->assertNotContains( $this->eval, $this->listedIds( $manager ), 'without the grant the evaluation is not listed' );
+        $before = $this->listFor( $manager );
+        $this->assertSame( 200, $before->get_status(), 'without the grant the seat still reaches the list' );
+        $this->assertNotContains( $this->eval, $this->idsOf( $before ), 'and the evaluation on the other team is not listed' );
 
         ( new MatrixRepository() )->setRow( 'team_manager', 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, '' );
         MatrixRepository::clearCache();
@@ -186,6 +188,27 @@ final class EvaluationsGlobalListMatrixTest extends WP_UnitTestCase {
             $ids[] = (int) ( ( (array) $row )['id'] ?? 0 );
         }
         return $ids;
+    }
+
+    /** A team manager on `$this->team`, assigned the way production assigns one. */
+    private function makeTeamManager(): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
+
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Team', 'last_name' => 'Manager', 'role_type' => 'team_manager', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id' => $this->club, 'person_id' => $person_id, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        AuthorizationService::flushCache();
+        $this->assertTrue(
+            MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_TEAM, $this->team ),
+            'precondition: the seat reads evaluations on its own team'
+        );
+        return $uid;
     }
 
     /** A head coach of `$this->team`, built the way production builds one. */
