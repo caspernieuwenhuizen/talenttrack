@@ -4,7 +4,6 @@ namespace TT\Modules\Analytics\Reports\TeamMonthlyComposers;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\LevelBlockOptions;
-use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 
@@ -20,7 +19,8 @@ final class MinutesComposer {
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $level  = LevelBlockOptions::level( $ctx->optionsFor( TeamMonthlyReportBlock::MINUTES ) );
-        $counts = ( new MinutesQuery() )->matchCountsForTeam( $ctx->team_id, $ctx->from, $ctx->to );
+        // #4998 — over the match section's fixtures, by its played rule.
+        $counts = $ctx->matchMinutesCounts();
         $source = $ctx->minutesIn( $ctx->from, $ctx->to );
 
         $rows = [];

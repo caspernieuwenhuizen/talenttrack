@@ -4,7 +4,6 @@ namespace TT\Modules\Analytics\Reports\TeamMonthlyComposers;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\EvalCoverageService;
-use TT\Modules\Analytics\Reports\MinutesQuery;
 
 /**
  * What is missing and needs fixing before next month (#4590).
@@ -14,7 +13,8 @@ final class QualityComposer {
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $coverage = CoverageComposer::compose( $ctx );
-        $counts   = ( new MinutesQuery() )->matchCountsForTeam( $ctx->team_id, $ctx->from, $ctx->to );
+        // #4998 — the minutes section's counts, over the same fixtures.
+        $counts   = $ctx->matchMinutesCounts();
         $cover    = ( new EvalCoverageService() )->coverageBetween( $ctx->team_id, $ctx->from, $ctx->to );
         $players  = $ctx->players();
 
