@@ -90,6 +90,7 @@ final class ReauthStep implements WizardStepInterface, ConditionalStepInterface 
                 return [ 'reauth_at' => time() ];
             }
         } else {
+            /** @var list<array{hash:string,used_at:null|string}> $codes the hydrated JSON column */
             $codes = (array) ( $row['backup_codes'] ?? [] );
             $idx   = BackupCodesService::verify( $raw, $codes );
             if ( $idx !== -1 ) {
@@ -109,11 +110,12 @@ final class ReauthStep implements WizardStepInterface, ConditionalStepInterface 
         );
     }
 
-    public function nextStep( array $state ): ?string {
+    public function nextStep( array $state ): string {
         return 'secret';
     }
 
+    /** Never the last step: the runner submits only where `nextStep()` is null. */
     public function submit( array $state ) {
-        return null;
+        return [];
     }
 }
