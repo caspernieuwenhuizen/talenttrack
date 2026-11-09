@@ -172,7 +172,10 @@ final class TeamMonthlyReportSnapshotPage {
 
         TeamMonthlyReportPage::enqueuePublic();
 
-        $report = TeamReportSnapshotRepository::reportOf( $row );
+        // #4949 — frozen under the taker's rights, shown under the reader's:
+        // without its attendance for a reader who may not read it, however
+        // long ago it was taken.
+        $report = \TT\Modules\Analytics\Reports\TeamMonthlyReport::forReader( TeamReportSnapshotRepository::reportOf( $row ), (int) $row->team_id, get_current_user_id() );
         $notes  = TeamReportSnapshotRepository::notesOf( $row );
         $team   = QueryHelpers::get_team( (int) $row->team_id );
 

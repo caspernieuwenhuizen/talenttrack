@@ -1266,6 +1266,18 @@ vocabulary, in print order: `letterhead` (always included), `coverage`, `kpi`,
 `changes`, `tests`, `roster`, `notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
 not asked for is absent from `data` **and is not queried**.
 
+**Attendance (#4949).** The `attendance` block and the `kpi` block's
+`attendance_pct` answer to the attendance read right
+(`AuthorizationService::canReadTeamAttendance()`, as
+`GET /reports/attendance-at-risk` asks), not to the reports read below. For a
+caller without it, `attendance` is left out of `blocks` and `data`,
+`attendance_pct` out of `kpi`, `attendance_pct` and `suspended` out of each
+`roster` row, and `attendance_pct` and `missed` out of each `attention` item,
+whether or not they were asked for; everything else is unchanged. This is not
+a `400` or a `403`: the rest of the report is theirs. The removal is one
+function (`TeamMonthlyReport::withoutAttendance()`), which a snapshot's page
+and its PDF apply to the frozen payload for the reader too.
+
 **Permission.** A `reports` read at global scope, or at team scope on this team
 — the gate the other team reports use. Checked in the permission callback, so a
 refused caller never reaches the composer.

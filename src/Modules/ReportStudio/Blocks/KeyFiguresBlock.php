@@ -5,7 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\KpiComposer;
-use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
+use TT\Modules\Analytics\Reports\TeamMonthlyReport;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
@@ -54,13 +55,18 @@ final class KeyFiguresBlock implements ReportBlock {
     }
 
     public function render( ReportContext $context, array $options ): array {
-        $ctx = new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId );
-        $kpi = KpiComposer::compose( $ctx );
+        // #4949 — the monthly report's key figures as this reader may read
+        // them: composed and filtered by the report itself, so the
+        // attendance tile follows the attendance right here as it does on
+        // the report, with no second check in the block.
+        $report = ( new TeamMonthlyReport() )->forTeam( $context->teamId, $context->from, $context->to, [ TeamMonthlyReportBlock::KPI ], $context->userId );
+        $kpi    = $report['data'][ TeamMonthlyReportBlock::KPI ] ?? [];
 
         // The monthly report's tiles, in its order and with its labels: one
         // list, the composer's.
         $figures = [];
         foreach ( KpiComposer::tiles() as $tile ) {
+            if ( ! array_key_exists( $tile['key'], $kpi ) ) continue;
             $m = is_array( $kpi[ $tile['key'] ] ?? null ) ? $kpi[ $tile['key'] ] : [];
             $figures[] = [
                 'key'        => $tile['key'],
@@ -75,7 +81,7 @@ final class KeyFiguresBlock implements ReportBlock {
 
         return [
             'figures'  => $figures,
-            'previous' => $ctx->previous,
+            'previous' => $report['previous'],
         ];
     }
 }

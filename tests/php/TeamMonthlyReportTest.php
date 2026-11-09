@@ -32,6 +32,11 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->team_id = (int) $wpdb->insert_id;
     }
 
+    /** #4949 — the attendance section and tile are for a reader with the attendance right. */
+    private function attendanceReader(): int {
+        return (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+    }
+
     private function player( string $last ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
@@ -90,7 +95,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
     }
 
     public function test_letterhead_is_always_included_and_deselected_blocks_are_absent(): void {
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi' ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi' ], $this->attendanceReader() );
 
         $this->assertSame( [ TeamMonthlyReportBlock::LETTERHEAD, TeamMonthlyReportBlock::KPI ], $report['blocks'] );
         $this->assertArrayHasKey( 'letterhead', $report['data'] );
@@ -132,7 +137,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
     /** A quiet team is a well-formed, empty report — not an error and not zeroes. */
     public function test_a_team_with_no_activities_gets_an_empty_report_not_zeroes(): void {
         $this->player( 'Quiet' );
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'coverage', 'kpi', 'minutes' ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'coverage', 'kpi', 'minutes' ], $this->attendanceReader() );
 
         $this->assertSame( 'empty', $report['data']['coverage']['state'] );
         $this->assertSame( 0, $report['data']['kpi']['activities']['value'] );
@@ -229,7 +234,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->present( $tue, $absent, 'Absent' );
         $this->present( $thu, $absent );
 
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ], $this->attendanceReader() );
 
         $this->assertSame( 83.3, $report['data']['attendance']['team_avg_pct'], 'Mean of 100, 100 and 50 — late attended.' );
         $this->assertSame( $report['data']['attendance']['team_avg_pct'], $report['data']['kpi']['attendance_pct']['value'] );
@@ -250,7 +255,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->present( $tue, $playing );
         $this->present( $thu, $playing );
 
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'attendance', 'roster' ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'attendance', 'roster' ], $this->attendanceReader() );
 
         $roster = array_column( $report['data']['roster']['rows'], 'suspended', 'player_id' );
         $this->assertSame( 2, $roster[ $suspended ] );
@@ -273,7 +278,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
             }
         }
 
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ] );
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ], $this->attendanceReader() );
 
         $this->assertSame( 99.9, $report['data']['kpi']['attendance_pct']['value'], 'One absence in 900 is not 100%.' );
     }

@@ -93,7 +93,7 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
         $this->assertSame( $expected, $this->snapshotPct(), 'KPI snapshot export' );
 
         // Team monthly report, team overview and the evidence packet.
-        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'attendance' ] );
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'attendance' ], $this->attendanceReader() );
         $this->assertSame( $expected, $monthly['data']['attendance']['rows'][0]['present_pct'], 'team monthly report' );
 
         $overview = ( new TeamOverviewRepository() )->teamPlayerBreakdown( $this->team, self::daysSince( self::FROM ) );
@@ -132,7 +132,7 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
 
         $this->assertSame( $expected, $this->snapshotPct(), 'KPI snapshot export' );
 
-        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'attendance' ] );
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'attendance' ], $this->attendanceReader() );
         $this->assertSame( $expected, $monthly['data']['attendance']['rows'][0]['present_pct'], 'team monthly report' );
 
         $overview = ( new TeamOverviewRepository() )->teamPlayerBreakdown( $this->team, self::daysSince( self::FROM ) );
@@ -185,6 +185,11 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
     }
 
     // ---- fixtures -------------------------------------------------------
+
+    /** #4949 — the monthly report's attendance section is for a reader with the attendance right. */
+    private function attendanceReader(): int {
+        return (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+    }
 
     private function snapshotPct() {
         $payload = ( new KpiSnapshotXlsxExporter() )->collect( new ExportRequest(

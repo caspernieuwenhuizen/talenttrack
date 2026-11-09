@@ -114,6 +114,13 @@ final class TeamMonthlyReport {
             $data[ $block ] = self::block( $block, $ctx );
         }
 
+        // #4949 — the report's attendance answers to the attendance right.
+        // Removed from the composed payload, so the screen, the print, the
+        // PDF and the REST route leave it out alike: all render this payload.
+        if ( ! $ctx->readsAttendance() ) {
+            [ $selected, $data ] = self::stripAttendance( $selected, $data );
+        }
+
         return [
             'team_id'  => $team_id,
             'from'     => $from,
@@ -122,6 +129,86 @@ final class TeamMonthlyReport {
             'blocks'   => $selected,
             'data'     => $data,
         ];
+    }
+
+    /**
+     * #4949 — a composed report as this viewer may read it: unchanged for a
+     * reader with the team's attendance right, without its attendance
+     * otherwise. For a payload composed earlier, under somebody else's
+     * rights: a snapshot, frozen when it was taken, is filtered when it is
+     * shown and when it is printed, whenever it was taken.
+     *
+     * @param array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string} $report
+     * @return array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string}
+     */
+    public static function forReader( array $report, int $team_id, int $viewer_user_id ): array {
+        return \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer_user_id, $team_id )
+            ? $report
+            : self::withoutAttendance( $report );
+    }
+
+    /**
+     * #4949 — a composed or frozen report without its attendance.
+     *
+     * @param array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string} $report
+     * @return array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string}
+     */
+    public static function withoutAttendance( array $report ): array {
+        [ $report['blocks'], $report['data'] ] = self::stripAttendance( $report['blocks'], $report['data'] );
+        return $report;
+    }
+
+    /**
+     * #4949 — the one place a report loses its attendance, live or frozen:
+     *
+     *   - the attendance section, out of `blocks` and `data`;
+     *   - the attendance headline number (`kpi.attendance_pct`);
+     *   - each roster row's `attendance_pct` and `suspended`;
+     *   - each attention item's `attendance_pct` and `missed`.
+     *
+     * Removed, not nulled, so a renderer draws no attendance column or tile
+     * rather than an empty one.
+     *
+     * @param list<string>                         $blocks
+     * @param array<string, array<string, mixed>> $data
+     * @return array{0: list<string>, 1: array<string, array<string, mixed>>}
+     */
+    private static function stripAttendance( array $blocks, array $data ): array {
+        $att    = TeamMonthlyReportBlock::ATTENDANCE;
+        $blocks = array_values( array_diff( $blocks, [ $att ] ) );
+        unset( $data[ $att ] );
+
+        $kpi = TeamMonthlyReportBlock::KPI;
+        if ( isset( $data[ $kpi ] ) ) unset( $data[ $kpi ]['attendance_pct'] );
+
+        $roster = TeamMonthlyReportBlock::ROSTER;
+        if ( isset( $data[ $roster ]['rows'] ) ) {
+            $data[ $roster ]['rows'] = self::withoutKeys( $data[ $roster ]['rows'], [ 'attendance_pct', 'suspended' ] );
+        }
+
+        $attention = TeamMonthlyReportBlock::ATTENTION;
+        if ( isset( $data[ $attention ]['items'] ) ) {
+            $data[ $attention ]['items'] = self::withoutKeys( $data[ $attention ]['items'], [ 'attendance_pct', 'missed' ] );
+        }
+        return [ $blocks, $data ];
+    }
+
+    /**
+     * A list of rows with these keys taken out of each; anything that is
+     * not a list of rows comes back as it was.
+     *
+     * @param mixed        $rows
+     * @param list<string> $keys
+     * @return mixed
+     */
+    private static function withoutKeys( $rows, array $keys ) {
+        if ( ! is_array( $rows ) ) return $rows;
+        foreach ( $rows as $i => $row ) {
+            if ( ! is_array( $row ) ) continue;
+            foreach ( $keys as $key ) unset( $row[ $key ] );
+            $rows[ $i ] = $row;
+        }
+        return $rows;
     }
 
     /**

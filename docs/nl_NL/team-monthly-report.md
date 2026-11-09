@@ -440,5 +440,16 @@ Dat geldt ook voor de **teammanager**, voor de teams die hij beheert en geen
 andere, of hij nu de rol teammanager heeft of een stafaccount met de rol
 Manager op het team. Hetzelfde recht opent het rapport minutenaandeel.
 
+De **sectie aanwezigheid** en het kerncijfer **aanwezigheid** vragen één recht
+meer: de aanwezigheid van dat team mogen lezen, het recht dat de
+aanwezigheidsrapporten vragen. Wie de rapporten van het team mag lezen maar
+niet de aanwezigheid, zoals de alleen-lezen waarnemer, krijgt het rapport
+zonder die twee, op het scherm, op papier en in de pdf. De tabel per speler
+heeft dan geen kolom aanwezigheid of geschorst, en de lijst van wie een gesprek
+nodig heeft noemt geen aanwezigheidscijfer; de rest van die secties blijft
+hetzelfde. Een momentopname volgt dezelfde regel voor wie hem opent of afdrukt,
+hoe lang geleden hij ook gemaakt is. Een ingepland rapport wordt samengesteld
+voor wie het inplande, en volgt dus diens rechten.
+
 Academiebeheerders kunnen het rapport uitzetten onder **Functies**; het verdwijnt
 dan van de rapportenpagina en is ook via een link niet meer te openen.

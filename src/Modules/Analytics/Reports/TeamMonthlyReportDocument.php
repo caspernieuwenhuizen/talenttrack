@@ -637,6 +637,9 @@ final class TeamMonthlyReportDocument {
         $cells = [];
         foreach ( KpiComposer::tiles() as $tile ) {
             $key = $tile['key'];
+            // #4949 — a tile the composer left out (the attendance tile, for
+            // a reader without the attendance right) is not drawn at all.
+            if ( ! array_key_exists( $key, $k ) ) continue;
             if ( $tile['unit'] === 'count_of' ) {
                 $m  = is_array( $k[ $key ] ?? null ) ? $k[ $key ] : [];
                 $of = (int) ( $m['of'] ?? 0 );
@@ -1951,21 +1954,30 @@ final class TeamMonthlyReportDocument {
             'goals'      => _x( 'Goals', 'team monthly report column: open goals, short', 'talenttrack' ),
             'injured'    => _x( 'Injury', 'team monthly report column: injured, short', 'talenttrack' ),
         ];
-        // [ label, alignment class, full label ].
+        // #4949 — a report for a reader without the attendance right carries
+        // no attendance or suspension figure per player
+        // (`TeamMonthlyReport::withoutAttendance()`), so it has no column
+        // for them either, rather than an empty one.
+        $first   = is_array( $rows[0] ?? null ) ? $rows[0] : [];
+        $has_att = $rows === [] || array_key_exists( 'attendance_pct', $first );
+
+        // [ label, alignment class, full label, show ]. A column keeps its
+        // own width class (`.w<n>`) whether or not the ones before it show.
         $cols   = [];
-        $cols[] = [ __( 'Player', 'talenttrack' ), '', '' ];
-        $cols[] = [ $labels['status'], '', '' ];
-        $cols[] = [ $short['attendance'], 'r', $labels['attendance'] ];
-        if ( $wide ) $cols[] = [ '', '', '' ];
-        $cols[] = [ $short['minutes'], 'r', $labels['minutes'] ];
-        $cols[] = [ $labels['share'], 'r', '' ];
-        if ( $wide ) $cols[] = [ '', '', '' ];
-        $cols[] = [ $short['goals'], 'r', $labels['goals'] ];
-        $cols[] = [ $short['injured'], 'c', $labels['injured'] ];
-        $cols[] = [ $labels['suspended'], 'c', '' ];
+        $cols[] = [ __( 'Player', 'talenttrack' ), '', '', true ];
+        $cols[] = [ $labels['status'], '', '', true ];
+        $cols[] = [ $short['attendance'], 'r', $labels['attendance'], $has_att ];
+        if ( $wide ) $cols[] = [ '', '', '', $has_att ];
+        $cols[] = [ $short['minutes'], 'r', $labels['minutes'], true ];
+        $cols[] = [ $labels['share'], 'r', '', true ];
+        if ( $wide ) $cols[] = [ '', '', '', true ];
+        $cols[] = [ $short['goals'], 'r', $labels['goals'], true ];
+        $cols[] = [ $short['injured'], 'c', $labels['injured'], true ];
+        $cols[] = [ $labels['suspended'], 'c', '', $has_att ];
 
         $out .= '<table class="tbl ' . StackTable::classes( StackTable::ALWAYS ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( $cols as $i => $col ) {
+            if ( ! $col[3] ) continue;
             $text = $col[2] !== '' && $col[2] !== $col[0]
                 ? '<abbr title="' . esc_attr( $col[2] ) . '">' . esc_html( $col[0] ) . '</abbr>'
                 : esc_html( $col[0] );
@@ -1989,14 +2001,14 @@ final class TeamMonthlyReportDocument {
             $out .= '<tr' . StackTable::attrs( 'row' ) . '>'
                 . '<td class="nm"' . StackTable::attrs( 'cell' ) . '>' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 31 : 26 ) . '</td>'
                 . '<td class="stat"' . StackTable::attrs( 'cell', $labels['status'] ) . '>' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
-                . '<td class="r"' . StackTable::attrs( 'cell', $labels['attendance'] ) . '>' . esc_html( self::pct( $att ) ) . '</td>'
-                . ( $wide ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $att ) . '</td>' : '' )
+                . ( $has_att ? '<td class="r"' . StackTable::attrs( 'cell', $labels['attendance'] ) . '>' . esc_html( self::pct( $att ) ) . '</td>' : '' )
+                . ( $wide && $has_att ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $att ) . '</td>' : '' )
                 . '<td class="r"' . StackTable::attrs( 'cell', $labels['minutes'] ) . '>' . esc_html( ( is_int( $min ) || is_float( $min ) ) ? number_format_i18n( (float) $min ) : '—' ) . '</td>'
                 . '<td class="r"' . StackTable::attrs( 'cell', $labels['share'] ) . '>' . esc_html( self::pct( $share ) ) . '</td>'
                 . ( $wide ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $share ) . '</td>' : '' )
                 . '<td class="r"' . StackTable::attrs( 'cell', $labels['goals'] ) . '>' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
                 . '<td class="c"' . StackTable::attrs( 'cell', $labels['injured'] ) . '>' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
-                . '<td class="c"' . StackTable::attrs( 'cell', $labels['suspended'] ) . '>' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>'
+                . ( $has_att ? '<td class="c"' . StackTable::attrs( 'cell', $labels['suspended'] ) . '>' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>' : '' )
                 . '</tr>';
         }
         return $out . '</tbody></table></div>';
