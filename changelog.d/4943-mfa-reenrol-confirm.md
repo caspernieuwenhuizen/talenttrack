@@ -9,5 +9,8 @@ and the last step is finished, with an `mfa.replaced` audit row that holds no
 secret. Leaving the wizard halfway changes nothing: the working secret, the
 backup codes and the lockout counters stay as they were, and an unconfirmed new
 secret is discarded after an hour. A first enrolment goes through the same
-staging. Operator reset, turning it off and `wp tt mfa reset` still remove the
+staging. Devices remembered under the old setup ask for a code again once the
+new one takes over. Turning two-step off and making new backup codes also ask
+for the current code or a backup code, through the same check and the same
+lockout. Operator reset, turning it off and `wp tt mfa reset` still remove the
 whole enrolment, staged secret included.

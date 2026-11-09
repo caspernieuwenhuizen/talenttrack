@@ -171,6 +171,12 @@ class AccountPage {
                 <p style="margin:0;"><?php esc_html_e( 'MFA was not turned off — the confirmation checkbox was not ticked.', 'talenttrack' ); ?></p>
             </div>
             <?php
+        elseif ( strpos( $tt_msg, 'mfa_current_code_' ) === 0 ) :
+            ?>
+            <div class="notice notice-warning is-dismissible">
+                <p><?php echo esc_html( \TT\Modules\Mfa\Auth\CurrentFactorCheck::message( substr( $tt_msg, strlen( 'mfa_current_code_' ) ) ) ); ?> <?php esc_html_e( 'Nothing was changed.', 'talenttrack' ); ?></p>
+            </div>
+            <?php
         elseif ( $tt_msg === 'mfa_backup_regenerated' ) :
             // Pull the freshly-generated plaintext from the one-shot transient
             // and delete it immediately so it's never displayed twice.
@@ -224,6 +230,7 @@ class AccountPage {
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block; margin:0 12px 12px 0;">
                 <?php wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_REGENERATE, 'tt_mfa_nonce' ); ?>
                 <input type="hidden" name="action" value="<?php echo esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_REGENERATE ); ?>">
+                <?php self::renderCurrentCodeField( 'tt-mfa-admin-regenerate-code' ); ?>
                 <button type="submit" class="button"><?php esc_html_e( 'Regenerate backup codes', 'talenttrack' ); ?></button>
             </form>
 
@@ -233,6 +240,7 @@ class AccountPage {
                     <?php wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_DISABLE, 'tt_mfa_nonce' ); ?>
                     <input type="hidden" name="action" value="<?php echo esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_DISABLE ); ?>">
                     <p style="margin:0 0 12px;"><?php esc_html_e( 'Turning MFA off removes your secret and your backup codes. From your next sign-in onward, TalentTrack will accept just your password again.', 'talenttrack' ); ?></p>
+                    <?php self::renderCurrentCodeField( 'tt-mfa-admin-disable-code' ); ?>
                     <label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer; margin-bottom:12px;">
                         <input type="checkbox" name="confirm" value="yes" required style="margin-top:4px;">
                         <span><?php esc_html_e( 'I understand that turning MFA off weakens the security of my TalentTrack account.', 'talenttrack' ); ?></span>
@@ -287,6 +295,13 @@ class AccountPage {
      *     Operator types a username + ticks confirm, MFA is wiped on
      *     that user's `tt_user_mfa` row.
      */
+    /** The current-code field the regenerate and turn-off forms post (#4943). */
+    private static function renderCurrentCodeField( string $id ): void {
+        echo '<p><label for="' . esc_attr( $id ) . '">' . esc_html__( 'Current code or backup code', 'talenttrack' ) . '</label><br>';
+        echo '<input type="text" id="' . esc_attr( $id ) . '" name="current_code" class="regular-text" required '
+            . 'autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="20"></p>';
+    }
+
     private static function renderOperatorMfaSection( string $tt_msg ): void {
         $settings = new \TT\Modules\Mfa\Settings\MfaSettings();
         $required = $settings->requiredPersonas();

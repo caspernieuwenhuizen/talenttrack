@@ -184,16 +184,16 @@ final class MfaSecretsRepository {
      * @param list<array{hash:string,used_at:null|string}> $backup_codes
      */
     public function stagePendingBackupCodes( int $wp_user_id, array $backup_codes ): bool {
-        if ( $wp_user_id <= 0 ) return false;
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return false;
         global $wpdb;
         $ok = $wpdb->query( $wpdb->prepare(
             "UPDATE {$this->table()}
                 SET pending_backup_codes_hashed = %s, updated_at = %s
-              WHERE wp_user_id = %d AND club_id = %d AND pending_secret_encrypted IS NOT NULL",
+              WHERE id = %d AND pending_secret_encrypted IS NOT NULL",
             (string) wp_json_encode( $backup_codes ),
             current_time( 'mysql' ),
-            $wp_user_id,
-            CurrentClub::id()
+            (int) $existing['id']
         ) );
         return is_int( $ok ) && $ok > 0;
     }
@@ -204,15 +204,15 @@ final class MfaSecretsRepository {
      * the enrolment wizard reads it.
      */
     public function pendingSecret( int $wp_user_id ): string {
-        if ( $wp_user_id <= 0 ) return '';
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return '';
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT pending_secret_encrypted FROM {$this->table()}
-              WHERE wp_user_id = %d AND club_id = %d
+              WHERE id = %d
                 AND pending_secret_encrypted IS NOT NULL
                 AND pending_created_at >= %s",
-            $wp_user_id,
-            CurrentClub::id(),
+            (int) $existing['id'],
             self::pendingCutoff()
         ), ARRAY_A );
         if ( ! is_array( $row ) ) return '';
@@ -224,49 +224,41 @@ final class MfaSecretsRepository {
      * and mark the row enrolled, in one statement. Nothing happens unless
      * a secret and its codes are staged and the secret is inside
      * `PENDING_TTL`. Returns false when no row changed.
+     *
+     * Remembered devices are dropped with the old secret: a device trusted
+     * under the setup being replaced is asked for a code again.
+     *
+     * There is no separate "clear pending": an abandoned staging is inert
+     * after `PENDING_TTL` and is overwritten by the next one, and every
+     * reset goes through `disable()`, which deletes the row.
      */
     public function promotePending( int $wp_user_id ): bool {
-        if ( $wp_user_id <= 0 ) return false;
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return false;
         global $wpdb;
         $now = current_time( 'mysql' );
         $ok  = $wpdb->query( $wpdb->prepare(
             "UPDATE {$this->table()}
                 SET secret_encrypted = pending_secret_encrypted,
                     backup_codes_hashed = pending_backup_codes_hashed,
+                    remembered_devices = NULL,
                     enrolled_at = %s,
                     last_verified_at = %s,
                     updated_at = %s,
                     pending_secret_encrypted = NULL,
                     pending_backup_codes_hashed = NULL,
                     pending_created_at = NULL
-              WHERE wp_user_id = %d AND club_id = %d
+              WHERE id = %d
                 AND pending_secret_encrypted IS NOT NULL
                 AND pending_backup_codes_hashed IS NOT NULL
                 AND pending_created_at >= %s",
             $now,
             $now,
             $now,
-            $wp_user_id,
-            CurrentClub::id(),
+            (int) $existing['id'],
             self::pendingCutoff()
         ) );
         return is_int( $ok ) && $ok > 0;
-    }
-
-    /** Drop whatever is staged. The working columns are not touched. */
-    public function clearPending( int $wp_user_id ): bool {
-        if ( $wp_user_id <= 0 ) return false;
-        global $wpdb;
-        $ok = $wpdb->query( $wpdb->prepare(
-            "UPDATE {$this->table()}
-                SET pending_secret_encrypted = NULL,
-                    pending_backup_codes_hashed = NULL,
-                    pending_created_at = NULL
-              WHERE wp_user_id = %d AND club_id = %d",
-            $wp_user_id,
-            CurrentClub::id()
-        ) );
-        return $ok !== false;
     }
 
     private static function pendingCutoff(): string {

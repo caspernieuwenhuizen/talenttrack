@@ -113,6 +113,28 @@ class MfaReenrolmentTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( $this->secret, $payload );
     }
 
+    public function test_staging_and_promotion_address_the_row_find_by_user_id_returns(): void {
+        global $wpdb;
+        $id = (int) ( $this->repo->findByUserId( $this->user_id )['id'] ?? 0 );
+        $this->assertGreaterThan( 0, $id );
+        $this->repo->appendRememberedDevice( $this->user_id, [
+            'signed_token' => 'tok-4943', 'device_label' => 'Phone', 'expires_at' => gmdate( 'Y-m-d H:i:s', time() + 3600 ), 'last_used_at' => gmdate( 'Y-m-d H:i:s' ),
+        ] );
+
+        $new = TotpService::generateSecret();
+        $this->assertTrue( $this->repo->stagePendingSecret( $this->user_id, $new ) );
+        $this->assertSame( $new, $this->repo->pendingSecret( $this->user_id ), 'read back from the same row' );
+        $this->assertTrue( $this->repo->stagePendingBackupCodes( $this->user_id, BackupCodesService::generate()['storage'] ) );
+        $this->assertTrue( $this->repo->promotePending( $this->user_id ) );
+
+        $this->assertSame( 1, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_user_mfa WHERE wp_user_id = %d", $this->user_id ) ), 'still one row' );
+        $row = $this->repo->findByUserId( $this->user_id );
+        $this->assertNotNull( $row );
+        $this->assertSame( $id, (int) $row['id'] );
+        $this->assertSame( $new, $row['secret'] );
+        $this->assertSame( [], (array) $row['remembered_devices'], 'devices trusted under the old setup are dropped' );
+    }
+
     public function test_promote_with_nothing_staged_changes_nothing(): void {
         $before = $this->workingRow();
         $this->assertFalse( $this->repo->promotePending( $this->user_id ) );
@@ -151,7 +173,7 @@ class MfaReenrolmentTest extends WP_UnitTestCase {
         );
         $result = $step->validate( [ 'current_code' => TotpService::generate( $this->secret ) ], [] );
         $this->assertInstanceOf( WP_Error::class, $result, 'even the right code is refused while locked' );
-        $this->assertSame( 'mfa_locked_out', $result->get_error_code() );
+        $this->assertSame( 'mfa_current_code_locked', $result->get_error_code() );
     }
 
     public function test_a_backup_code_used_for_reauth_is_spent(): void {

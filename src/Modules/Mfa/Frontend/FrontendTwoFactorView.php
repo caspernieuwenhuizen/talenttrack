@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\License\Admin\AccountPage;
 use TT\Modules\Mfa\Admin\MfaActionHandlers;
+use TT\Modules\Mfa\Auth\CurrentFactorCheck;
 use TT\Modules\Mfa\Domain\BackupCodesService;
 use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Modules\Mfa\Wizards\MfaEnrollmentWizard;
@@ -143,6 +144,14 @@ class FrontendTwoFactorView extends FrontendViewBase {
             return;
         }
 
+        if ( strpos( $msg, 'mfa_current_code_' ) === 0 ) {
+            echo '<p class="tt-notice tt-notice-warning">'
+                . esc_html( CurrentFactorCheck::message( substr( $msg, strlen( 'mfa_current_code_' ) ) ) )
+                . ' ' . esc_html__( 'Nothing was changed.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
         if ( $msg === 'mfa_not_enrolled' ) {
             echo '<p class="tt-notice">'
                 . esc_html__( 'There was nothing to change — two-factor is not set up on your account.', 'talenttrack' )
@@ -199,6 +208,7 @@ class FrontendTwoFactorView extends FrontendViewBase {
         echo '<input type="hidden" name="action" value="' . esc_attr( MfaActionHandlers::ACTION_REGENERATE ) . '" />';
         echo '<input type="hidden" name="tt_return" value="frontend" />';
         echo '<p class="tt-muted">' . esc_html__( 'A fresh set of 10 codes. The old set stops working straight away.', 'talenttrack' ) . '</p>';
+        self::renderCurrentCodeField( 'tt-mfa-regenerate-code' );
         echo '<button type="submit" class="tt-btn tt-btn-secondary">'
             . esc_html__( 'Make new backup codes', 'talenttrack' ) . '</button>';
         echo '</form>';
@@ -210,6 +220,7 @@ class FrontendTwoFactorView extends FrontendViewBase {
         echo '<input type="hidden" name="action" value="' . esc_attr( MfaActionHandlers::ACTION_DISABLE ) . '" />';
         echo '<input type="hidden" name="tt_return" value="frontend" />';
         echo '<p>' . esc_html__( 'This removes your secret and your backup codes. From your next sign-in, your password alone gets you in.', 'talenttrack' ) . '</p>';
+        self::renderCurrentCodeField( 'tt-mfa-disable-code' );
         echo '<label class="tt-account-confirm">';
         echo '<input type="checkbox" name="confirm" value="yes" required /> ';
         echo '<span>' . esc_html__( 'I understand this makes my account easier to break into.', 'talenttrack' ) . '</span>';
@@ -220,6 +231,17 @@ class FrontendTwoFactorView extends FrontendViewBase {
         echo '</details>';
 
         echo '</section>';
+    }
+
+    /** The current-code field that making new backup codes and turning two-step off ask for. */
+    private static function renderCurrentCodeField( string $id ): void {
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="' . esc_attr( $id ) . '">'
+            . esc_html__( 'Current code or backup code', 'talenttrack' )
+            . '</label>';
+        echo '<input type="text" id="' . esc_attr( $id ) . '" name="current_code" class="tt-input" required '
+            . 'autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="20" />';
+        echo '</div>';
     }
 
     private static function renderNotEnrolled(): void {

@@ -55,6 +55,11 @@ msgstr "De nieuwe secret is verlopen. Ga terug naar de stap met de QR-code en sc
 msgid "Two-step verification was not changed. Start setting it up again and confirm both codes."
 msgstr "Tweestapsverificatie is niet gewijzigd. Begin opnieuw met instellen en bevestig beide codes."
 
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Nothing was changed."
+msgstr "Er is niets gewijzigd."
+
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php
 msgid "Two-step verification was not changed: the new secret expired. Start setting it up again."
 msgstr "Tweestapsverificatie is niet gewijzigd: de nieuwe secret is verlopen. Begin opnieuw met instellen."
