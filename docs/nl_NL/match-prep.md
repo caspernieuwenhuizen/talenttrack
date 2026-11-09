@@ -181,7 +181,8 @@ gelden dezelfde regels: geen oorzaak, nooit opgeslagen, nooit afgedrukt.
 De status die je kiest en de reden daarbij zijn iets anders: die worden
 in de voorbereiding opgeslagen, dus iedereen die haar opent ziet ze, en
 het afgedrukte blad en de PDF tonen ze als "naam · status (reden)". Een
-gedeelde link opent zonder inloggen en toont de status zonder de reden.
+gedeelde link opent zonder inloggen en toont de status met de reden erbij,
+dus deel hem alleen met je staf.
 **Zet hoe dan ook geen medische details in de reden**: "Geblesseerd" is
 genoeg, de blessure zelf hoort in het
 blessuredossier van de speler. Zie [Toegangsbeheer](access-control.md)
@@ -441,6 +442,9 @@ Drie dingen om te weten voordat je er een verstuurt:
   nodig heeft, en niet aan een groepsapp die je niet in de hand hebt.
 - **Er staan spelersnamen in, en wie er naar verwachting begint.** Daarvoor
   stuur je hem, en daarom stuur je hem niet door buiten de staf.
+- **Er staat in waarom een speler er niet bij is.** De status en de reden die
+  je bij een afwezige speler typte staan er allebei op. Stuur de link alleen
+  naar staf.
 - **Je kunt hem intrekken.** Met **Link vervangen** komt er een nieuwe en stopt
   de oude direct met werken — voor iedereen die hem heeft. Gebruik dat als een
   link bij de verkeerde groep terechtkwam, of als iemand de staf verlaat.
