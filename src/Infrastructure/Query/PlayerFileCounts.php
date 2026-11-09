@@ -61,6 +61,10 @@ final class PlayerFileCounts {
         // archived guard — minus its 25-row recent-window cap, because the
         // badge is a total and the list is a window.
         //
+        // #4968 — the tab shows completed activities only, dated today or
+        // earlier, so the badge counts exactly those. Planned and scheduled
+        // activities, past or future, count on neither.
+        //
         // #2521 is not being reverted, but it does need reading first. Its
         // point was that `plan_state` defaults to 'completed' on rows the
         // planner never created, so a plan-state filter counts still-planned
@@ -72,9 +76,10 @@ final class PlayerFileCounts {
         // belongs.
         //
         // `record_type` is deliberately absent for the same reason: the list
-        // shows planned activities, which have only an `expected` row.
-        // DISTINCT on the activity is what stops a player holding both rows
-        // counting twice.
+        // reads both record types (`record_types => null`), so a completed
+        // activity the player was only planned for still shows. DISTINCT on
+        // the activity is what stops a player holding both rows counting
+        // twice.
         // /* both-kinds-ok */ — the paragraph above is the decision.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT att.activity_id)
@@ -83,9 +88,8 @@ final class PlayerFileCounts {
               WHERE att.player_id = %d
                 AND att.is_guest = 0
                 AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
-                AND a.plan_state IN ( 'completed', 'planned', 'scheduled' )
-                AND ( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
-                      OR a.plan_state IN ( 'planned', 'scheduled' ) )",
+                AND a.plan_state = 'completed'
+                AND a.session_date <= CURDATE()",
             $player_id
         ) );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(

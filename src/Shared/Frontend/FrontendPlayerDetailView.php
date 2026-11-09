@@ -2429,15 +2429,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /**
-     * Activities tab — recent attended + planned activities for the player.
+     * Activities tab — the player's recent completed activities.
      *
      * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
      */
     private static function renderActivitiesTab( int $player_id, ?object $player, array $viewer ): void {
-        // v3.110.185 (#789) — both planned and completed activities;
-        // planned rows render a neutral "Planned" pill instead of the
-        // wizard's default-Present pre-fill so coach intent stays
-        // distinct from coach pre-fill.
+        // #4968 — what happened, not what is next: completed activities
+        // only, for every reader. #789 showed planned rows here too, with a
+        // "Planned" pill; upcoming trainings then sorted above everything
+        // that had happened. Planned activities belong on the Activities
+        // list and the calendar. A completed row dated in the future still
+        // does not show (`only_past_completed`), and neither does a past
+        // row whose plan state was never moved off planned.
         //
         // #3277 — newest first. #1316 made this tab ascending, on the
         // reading that an operator scans a season top-to-bottom; living
@@ -2445,11 +2448,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // put the one row most likely to be wanted — the latest — at the
         // bottom of the list every time. The other five surfaces #1316
         // flipped stay ascending; this is the tab, not the rule.
-        //
-        // Planned and scheduled rows pass the filter regardless of date, so
-        // under DESC a training scheduled for next week sorts above today's
-        // completed match. That is intended: what is next, then what
-        // happened.
         //
         // #1320 — routed through ActivitiesRepository::listForPlayer so
         // the activity-table read path lives in one place. The window is
@@ -2461,7 +2459,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'DESC',
             [
                 'record_types'        => null,
-                'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+                'plan_states'         => [ 'completed' ],
                 'only_past_completed' => true,
             ]
         );
@@ -2483,7 +2481,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 EmptyStateCard::render( [
                     'icon'      => 'activities',
                     'headline'  => __( 'No attended activities yet', 'talenttrack' ),
-                    'explainer' => __( 'Activities are recorded at the team level. Assign this player to a team first; activities planned for that team will then surface here.', 'talenttrack' ),
+                    'explainer' => __( 'Activities are recorded at the team level. Assign this player to a team first; the team\'s completed activities will then show here.', 'talenttrack' ),
                 ] );
             }
             return;
@@ -2524,11 +2522,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     $url        = self::recordUrl( $viewer, 'activities', 'my-activities', $activity_id );
                     $date_bit   = self::dateBadge( (string) ( $a->session_date ?? '' ) );
                     $is_today   = (string) ( $a->session_date ?? '' ) === $today;
-                    $is_planned = in_array( (string) ( $a->plan_state ?? '' ), [ 'planned', 'scheduled' ], true );
-                    $status_key = $is_planned ? 'planned' : (string) ( $a->status ?? '' );
-                    $status_lbl = $is_planned
-                        ? __( 'Planned', 'talenttrack' )
-                        : ( ! empty( $a->status ) ? LookupTranslator::byTypeAndName( 'attendance_status', (string) $a->status ) : '' );
+                    $status_key = (string) ( $a->status ?? '' );
+                    $status_lbl = ! empty( $a->status ) ? LookupTranslator::byTypeAndName( 'attendance_status', (string) $a->status ) : '';
                     $date_cls   = $is_today ? 'tt-player-row__date--today' : '';
                     ?>
                     <li>
