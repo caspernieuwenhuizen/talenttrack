@@ -119,6 +119,8 @@ final class EvaluationInserter {
         ];
         if ( $aid > 0 )         $insert['activity_id']  = $aid;
         if ( $eval_type_id > 0 ) $insert['eval_type_id'] = $eval_type_id;
+        // #4985 — the evaluation's portable identity (CLAUDE.md §4).
+        $insert['uuid'] = wp_generate_uuid4();
 
         $ok = $wpdb->insert( "{$p}tt_evaluations", $insert );
         if ( $ok === false ) {

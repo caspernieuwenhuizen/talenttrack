@@ -557,6 +557,7 @@ final class ExcelImporter {
                 'eval_date'    => $this->formatDate( $r['eval_date'] ?? null ),
                 'eval_type_id' => 0,
                 'notes'        => (string) ( $r['notes'] ?? '' ),
+                'uuid'         => wp_generate_uuid4(),
             ] );
             $id = (int) $wpdb->insert_id;
             if ( $id > 0 ) {
