@@ -693,7 +693,7 @@ final class LegacyTeamMonthlyReport {
      * @return array<string,mixed>
      */
     private function minutesBlock( string $level = SectionLevel::DETAILS ): array {
-        $counts = ( new MinutesQuery() )->matchCountsForTeam( $this->team_id, $this->from, $this->to );
+        $counts = $this->playedMatchMinutesCounts();
         $source = $this->minutesIn( $this->from, $this->to );
 
         $rows = [];
@@ -1542,13 +1542,28 @@ final class LegacyTeamMonthlyReport {
     }
 
     /**
+     * #4998 — the played-match rule the match section counts with, applied to
+     * the minutes counts, as `TeamReportContext::matchMinutesCounts()` does.
+     *
+     * @return array{recorded:int, played:int}
+     */
+    private function playedMatchMinutesCounts(): array {
+        $played = [];
+        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to, true ) as $f ) {
+            if ( ! empty( $f['played'] ) || $f['outcome'] !== '' ) $played[ (int) $f['activity_id'] ] = true;
+        }
+        $with = array_flip( ( new MinutesQuery() )->recordedMatchIds( $this->team_id, $this->from, $this->to ) );
+        return [ 'recorded' => count( array_intersect_key( $played, $with ) ), 'played' => count( $played ) ];
+    }
+
+    /**
      * What is missing and needs fixing before next month.
      *
      * @return array<string,mixed>
      */
     private function quality(): array {
         $coverage = $this->coverage();
-        $counts   = ( new MinutesQuery() )->matchCountsForTeam( $this->team_id, $this->from, $this->to );
+        $counts   = $this->playedMatchMinutesCounts();
         $cover    = ( new EvalCoverageService() )->coverageBetween( $this->team_id, $this->from, $this->to );
         $players  = $this->players();
 

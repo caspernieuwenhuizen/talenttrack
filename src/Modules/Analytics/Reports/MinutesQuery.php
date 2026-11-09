@@ -662,6 +662,49 @@ final class MinutesQuery {
         if ( $team_id <= 0 ) return [ 'recorded' => 0, 'played' => 0 ];
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        $recorded = count( $this->recordedMatchIds( $team_id, $from, $to ) );
+
+        // #2833 — `session_date <= CURDATE()` counted a fixture kicking off at
+        // 19:00 tonight as played, which is where "1 van 2 gespeelde
+        // wedstrijden vastgelegd" came from beside a single played match, and
+        // with it an amber "1 played match has no minutes" warning about a
+        // match nobody had kicked off yet. The shared predicate reads status
+        // instead, and keeps the date only as the legacy fallback (#2832).
+        $played_sql = self::playedMatchSql( 'a' );
+        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
+        $played = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_activities a
+              WHERE a.club_id = %d
+                AND a.team_id = %d
+                AND {$is_match_sql}
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND {$played_sql}
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
+            $club_id, $team_id, $from, $to
+        ) );
+
+        return [ 'recorded' => $recorded, 'played' => $played ];
+    }
+
+    /**
+     * The team's matches in the window that carry recorded minutes: the
+     * `recorded` of {@see matchCountsForTeam()}, as ids, so a caller with its
+     * own list of fixtures (#4998, the monthly report) counts the ones of
+     * those that have minutes by the same rule.
+     *
+     * @return list<int> activity ids
+     */
+    public function recordedMatchIds( int $team_id, string $from, string $to ): array {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        if ( $team_id <= 0 ) return [];
+
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
         // #2833 — the JOIN onto `tt_players` is what stops this number and the
         // squad beside it telling different stories. #2339 was supposed to
@@ -705,31 +748,7 @@ final class MinutesQuery {
             $aid = (int) ( $r->activity_id ?? 0 );
             if ( ( $minutes[ $aid ][ (int) ( $r->player_id ?? 0 ) ] ?? 0 ) > 0 ) $with[ $aid ] = true;
         }
-        $recorded = count( $with );
-
-        // #2833 — `session_date <= CURDATE()` counted a fixture kicking off at
-        // 19:00 tonight as played, which is where "1 van 2 gespeelde
-        // wedstrijden vastgelegd" came from beside a single played match, and
-        // with it an amber "1 played match has no minutes" warning about a
-        // match nobody had kicked off yet. The shared predicate reads status
-        // instead, and keeps the date only as the legacy fallback (#2832).
-        $played_sql = self::playedMatchSql( 'a' );
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
-        $played = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*)
-               FROM {$p}tt_activities a
-              WHERE a.club_id = %d
-                AND a.team_id = %d
-                AND {$is_match_sql}
-                AND a.{$date_col} BETWEEN %s AND %s
-                AND {$played_sql}
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
-            $club_id, $team_id, $from, $to
-        ) );
-
-        return [ 'recorded' => $recorded, 'played' => $played ];
+        return array_keys( $with );
     }
 
     /**

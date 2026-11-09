@@ -279,7 +279,10 @@ mee.
   staat erop met 0 minuten en telt mee in de mediaan, want juist die speler
   hoort deze tabel zichtbaar te maken. De doellijn is het doel voor
   minutenaandeel van de academie, hetzelfde doel dat het rapport
-  Minutenaandeel gebruikt.
+  Minutenaandeel gebruikt. "Minuten vastgelegd voor N van de M gespeelde
+  wedstrijden" telt de wedstrijden die de sectie **Wedstrijden** gespeeld
+  noemt: tot en met vandaag, zonder toernooidagen. **Datakwaliteit** telt de
+  wedstrijden zonder minuten op dezelfde manier.
 - **Wedstrijden** — uitslagen en wedstrijdstatistieken. Zie hieronder.
 - **Gesprek nodig** — de spelers die het statusmodel signaleert, dringendste
   eerst, met wat de gegevens over ze zeggen. Dit is de agenda van het overleg.

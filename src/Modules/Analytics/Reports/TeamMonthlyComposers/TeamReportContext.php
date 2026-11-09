@@ -74,8 +74,11 @@ final class TeamReportContext {
     /** @var array<string,array<int,StatusVerdict>> as-of date => verdicts */
     private array $verdicts = [];
 
-    /** @var list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}>|null */
+    /** @var list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>|null */
     private ?array $fixtures = null;
+
+    /** @var array{recorded:int, played:int}|null */
+    private ?array $match_minutes_counts = null;
 
     /**
      * @param array<string,array<string,mixed>> $options per-block option bags,
@@ -299,13 +302,39 @@ final class TeamReportContext {
      * section read the same list, and the statistics tab reads the same
      * filter, so the two records count the same fixtures (#4572).
      *
-     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}>
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
      */
     public function fixtures(): array {
         if ( $this->fixtures === null ) {
             $this->fixtures = TeamMatchRecord::fixtures( $this->team_id, $this->from, $this->to, true );
         }
         return $this->fixtures;
+    }
+
+    /**
+     * #4998 — the played matches of {@see fixtures()}, the ones
+     * `TeamMatchRecord::tally()` counts as played, and how many of them carry
+     * recorded minutes (`MinutesQuery::recordedMatchIds()`). The minutes and
+     * data-quality sections read these, so "minutes recorded for N of M
+     * played matches" counts the same matches the match section and the
+     * statistics tab call played.
+     *
+     * @return array{recorded:int, played:int}
+     */
+    public function matchMinutesCounts(): array {
+        if ( $this->match_minutes_counts === null ) {
+            $played = [];
+            foreach ( $this->fixtures() as $f ) {
+                // The tally's rule: played, or scored whatever the date says.
+                if ( ! empty( $f['played'] ) || (string) $f['outcome'] !== '' ) $played[ (int) $f['activity_id'] ] = true;
+            }
+            $with = array_flip( ( new MinutesQuery() )->recordedMatchIds( $this->team_id, $this->from, $this->to ) );
+            $this->match_minutes_counts = [
+                'recorded' => count( array_intersect_key( $played, $with ) ),
+                'played'   => count( $played ),
+            ];
+        }
+        return $this->match_minutes_counts;
     }
 
     private static function isDate( string $d ): bool {
