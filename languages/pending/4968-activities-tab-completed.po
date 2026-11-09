@@ -1,0 +1,3 @@
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Activities are recorded at the team level. Assign this player to a team first; the team's completed activities will then show here."
+msgstr "Activiteiten worden per team vastgelegd. Koppel deze speler eerst aan een team; de afgeronde activiteiten van dat team verschijnen dan hier."

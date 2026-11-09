@@ -217,9 +217,10 @@ final class ActivitiesRepository {
      *                          `is_guest = 1` joined via `guest_player_id`.
      *   - `record_types`       (default `['actual']`) — list of
      *                          `att.record_type` values. The player
-     *                          dashboard wants `['actual']`; the
-     *                          Activities tab also accepts planned
-     *                          rows (it filters by `plan_state` instead).
+     *                          dashboard wants `['actual']`; an
+     *                          explicit null reads every record type,
+     *                          as the Activities tab does (it filters
+     *                          by `plan_state` instead).
      *   - `include_archived`   (default false) — when true, drops the
      *                          `a.archived_at IS NULL` filter.
      *   - `plan_states`        (optional) — list of `a.plan_state`
@@ -232,7 +233,7 @@ final class ActivitiesRepository {
      *
      * @param array{
      *     include_guests?: bool,
-     *     record_types?: list<string>,
+     *     record_types?: list<string>|null,
      *     include_archived?: bool,
      *     plan_states?: list<string>,
      *     only_past_completed?: bool

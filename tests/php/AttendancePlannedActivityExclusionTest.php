@@ -97,7 +97,7 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
             'ASC',
             [
                 'record_types'        => null,
-                'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+                'plan_states'         => [ 'completed' ],
                 'only_past_completed' => true,
             ]
         );

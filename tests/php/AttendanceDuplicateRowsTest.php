@@ -143,9 +143,10 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
             $this->insertAttendance( $activity, $player_id, 'actual', 'present' );
         }
 
+        // The tab's own filter (#4968: completed only).
         $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
             'record_types'        => null,
-            'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+            'plan_states'         => [ 'completed' ],
             'only_past_completed' => true,
         ] );
         $counts = PlayerFileCounts::for( $player_id );
@@ -158,11 +159,10 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
     }
 
     /**
-     * The case the old badge got wrong: an upcoming fixture is rendered by
-     * the tab, so it has to be counted by the badge too. Under the previous
-     * `activity_status_key` rule this was 2 vs 3.
+     * #4968 — the tab shows completed activities only, so an upcoming
+     * fixture is on neither the list nor the badge, and the two still agree.
      */
-    public function test_upcoming_activities_count_toward_the_badge(): void {
+    public function test_upcoming_activities_count_on_neither_the_tab_nor_the_badge(): void {
         $team_id   = $this->insertTeam();
         $player_id = $this->insertPlayer( $team_id );
 
@@ -176,13 +176,13 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
 
         $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
             'record_types'        => null,
-            'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+            'plan_states'         => [ 'completed' ],
             'only_past_completed' => true,
         ] );
         $counts = PlayerFileCounts::for( $player_id );
 
-        $this->assertCount( 3, $rows, 'two played plus one upcoming' );
-        $this->assertSame( 3, (int) $counts['activities'], 'the badge counts the upcoming one too' );
+        $this->assertCount( 2, $rows, 'the two played, not the upcoming one' );
+        $this->assertSame( 2, (int) $counts['activities'], 'the badge leaves the upcoming one out too' );
     }
 
     private function insertTeam(): int {
