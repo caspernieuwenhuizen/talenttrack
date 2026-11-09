@@ -60,6 +60,19 @@ final class MfaEnrollmentWizard implements WizardInterface {
     public static function reauthSatisfied( int $wp_user_id, array $state ): bool {
         if ( ! ( new MfaSecretsRepository() )->isEnrolled( $wp_user_id ) ) return true;
         $at = (int) ( $state['reauth_at'] ?? 0 );
-        return $at > 0 && ( time() - $at ) <= MfaSecretsRepository::PENDING_TTL;
+        if ( $at <= 0 || ( time() - $at ) > MfaSecretsRepository::PENDING_TTL ) return false;
+
+        // Wizard state is keyed on (user, wizard), so every session of the
+        // account reads it. The confirmation counts only in the session
+        // that made it.
+        $bound   = (string) ( $state['reauth_session'] ?? '' );
+        $current = self::sessionBinding();
+        return $bound !== '' && $current !== '' && hash_equals( $bound, $current );
+    }
+
+    /** A hash of the current login session's token, or '' without one. */
+    public static function sessionBinding(): string {
+        $token = wp_get_session_token();
+        return $token === '' ? '' : hash( 'sha256', $token );
     }
 }

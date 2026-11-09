@@ -150,6 +150,16 @@ final class MfaActionHandlers {
             exit;
         }
 
+        // Operators turn off two-step for others. Their own goes through the
+        // self-service turn-off, which asks for the current code.
+        if ( $target_id === get_current_user_id() ) {
+            wp_safe_redirect( add_query_arg(
+                [ 'page' => 'tt-account', 'tab' => 'mfa', 'tt_msg' => 'mfa_operator_disable_self' ],
+                admin_url( 'admin.php' )
+            ) );
+            exit;
+        }
+
         $repo = new MfaSecretsRepository();
         $repo->disable( $target_id );
         MfaAuditEvents::record( MfaAuditEvents::DISABLED, $target_id, [ 'operator_initiated' => true ] );

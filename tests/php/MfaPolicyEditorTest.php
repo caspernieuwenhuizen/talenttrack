@@ -69,8 +69,9 @@ final class MfaPolicyEditorTest extends WP_UnitTestCase {
 
     private function enrol( int $user_id ): void {
         $repo = new MfaSecretsRepository();
-        $this->assertTrue( $repo->upsertSecret( $user_id, 'JBSWY3DPEHPK3PXP', [] ), 'precondition: secret stored' );
-        $this->assertTrue( $repo->markEnrolled( $user_id ), 'precondition: enrolled' );
+        $this->assertTrue( $repo->stagePendingSecret( $user_id, 'JBSWY3DPEHPK3PXP' ), 'precondition: secret staged' );
+        $this->assertTrue( $repo->stagePendingBackupCodes( $user_id, [] ), 'precondition: codes staged' );
+        $this->assertTrue( $repo->promotePending( $user_id ), 'precondition: enrolled' );
         $this->assertTrue( $repo->isEnrolled( $user_id ) );
     }
 

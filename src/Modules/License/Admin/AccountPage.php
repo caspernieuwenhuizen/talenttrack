@@ -361,8 +361,14 @@ class AccountPage {
             echo '<div class="notice notice-error is-dismissible" style="padding:12px 16px;">'
                 . '<p style="margin:0;">' . esc_html__( 'No reset performed — pick a user and tick the confirmation box.', 'talenttrack' ) . '</p>'
                 . '</div>';
+        } elseif ( $tt_msg === 'mfa_operator_disable_self' ) {
+            echo '<div class="notice notice-warning is-dismissible"><p>'
+                . esc_html__( 'Operators turn off two-step for others. Your own goes through the self-service turn-off, which asks for your current code.', 'talenttrack' )
+                . '</p></div>';
         }
 
+        // The operator's own account is not offered: their own second factor
+        // goes through the self-service turn-off, with the current code.
         // List of currently-enrolled users (so the operator picks from a
         // dropdown rather than typing a numeric ID). Cap to first 200 by
         // username; in practice an academy has < 50 enrolled accounts.
@@ -371,10 +377,11 @@ class AccountPage {
             "SELECT m.wp_user_id, u.user_login, u.display_name
                FROM {$wpdb->prefix}tt_user_mfa m
                JOIN {$wpdb->users} u ON u.ID = m.wp_user_id
-              WHERE m.club_id = %d AND m.enrolled_at IS NOT NULL
+              WHERE m.club_id = %d AND m.enrolled_at IS NOT NULL AND m.wp_user_id <> %d
               ORDER BY u.user_login ASC
               LIMIT 200",
-            \TT\Infrastructure\Tenancy\CurrentClub::id()
+            \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            get_current_user_id()
         ) );
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:16px; max-width:760px; padding:16px; background:#fff8f8; border:1px solid #f0c5c5;">';

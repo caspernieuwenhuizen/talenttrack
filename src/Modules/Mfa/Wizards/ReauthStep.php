@@ -59,7 +59,9 @@ final class ReauthStep implements WizardStepInterface, ConditionalStepInterface 
         $raw    = isset( $post['current_code'] ) ? (string) wp_unslash( (string) $post['current_code'] ) : '';
         $result = ( new CurrentFactorCheck() )->verify( get_current_user_id(), $raw );
 
-        if ( $result === CurrentFactorCheck::OK ) return [ 'reauth_at' => time() ];
+        if ( $result === CurrentFactorCheck::OK ) {
+            return [ 'reauth_at' => time(), 'reauth_session' => MfaEnrollmentWizard::sessionBinding() ];
+        }
         // Nothing to confirm against: the run continues as a first enrolment.
         if ( $result === CurrentFactorCheck::NOT_ENROLLED ) return [];
 

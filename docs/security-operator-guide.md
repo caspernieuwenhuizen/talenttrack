@@ -59,7 +59,7 @@ Add personas progressively: enable for *Academy admin* + *Head of development* o
 
 **Lockout policy** — 5 consecutive failed verifications trigger a 15-minute lockout on that user's account. The counter resets after a successful verification. Both thresholds (5 attempts, 15 minutes) are configurable on the per-club `tt_config` store under keys `mfa_max_attempts` and `mfa_lockout_minutes` (no UI yet; edit via direct DB or a plugin like Better Search Replace).
 
-**Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, the *Reset MFA on another user* form on the same operator sub-section is the recovery path. Pick the enrolled user from the dropdown, tick the confirmation box, click *Reset MFA on this user*. Their `tt_user_mfa` row is wiped; they re-enroll on their next login. The action is audit-logged on both sides — actor (operator) and subject (target user).
+**Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, the *Reset MFA on another user* form on the same operator sub-section is the recovery path. Pick the enrolled user from the dropdown, tick the confirmation box, click *Reset MFA on this user*. Their `tt_user_mfa` row is wiped; they re-enroll on their next login. Operators turn off two-step for others; their own goes through the self-service path with the current code, so your own account is not in the dropdown. The action is audit-logged on both sides — actor (operator) and subject (target user).
 
 ### MFA lockout recovery
 

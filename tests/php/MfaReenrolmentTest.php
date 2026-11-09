@@ -34,17 +34,47 @@ class MfaReenrolmentTest extends WP_UnitTestCase {
         $this->repo    = new MfaSecretsRepository();
         $this->user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
         wp_set_current_user( $this->user_id );
+        $this->useSession( 'session-a' );
 
         $this->secret = TotpService::generateSecret();
         $generated    = BackupCodesService::generate();
         $this->codes  = $generated['plaintext'];
-        $this->repo->upsertSecret( $this->user_id, $this->secret, $generated['storage'] );
-        $this->repo->markEnrolled( $this->user_id );
+        $this->repo->stagePendingSecret( $this->user_id, $this->secret );
+        $this->repo->stagePendingBackupCodes( $this->user_id, $generated['storage'] );
+        $this->assertTrue( $this->repo->promotePending( $this->user_id ), 'precondition: enrolled' );
     }
 
     public function tear_down(): void {
         WizardState::clear( $this->user_id, MfaEnrollmentWizard::SLUG );
+        unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
         parent::tear_down();
+    }
+
+    public function test_a_confirmation_counts_only_in_the_session_that_made_it(): void {
+        $slug   = MfaEnrollmentWizard::SLUG;
+        $reauth = ( new ReauthStep() )->validate( [ 'current_code' => TotpService::generate( $this->secret ) ], [] );
+        $this->assertIsArray( $reauth );
+        WizardState::save( $this->user_id, $slug, $reauth );
+        $this->render( new SecretStep(), WizardState::load( $this->user_id, $slug ) );
+        $staged = $this->repo->pendingSecret( $this->user_id );
+        $this->assertNotSame( '', $staged, 'precondition: staged in the confirming session' );
+
+        // The same account, the same wizard state, another browser.
+        $this->useSession( 'session-b' );
+        $state = WizardState::load( $this->user_id, $slug );
+        $this->assertFalse( MfaEnrollmentWizard::reauthSatisfied( $this->user_id, $state ) );
+        $html = $this->render( new SecretStep(), $state );
+        $this->assertStringNotContainsString( '<svg', $html, 'no QR code in the other session' );
+        $this->assertStringNotContainsString( trim( chunk_split( $staged, 4, ' ' ) ), $html, 'and no staged secret' );
+        $this->assertInstanceOf( WP_Error::class, ( new VerifyStep() )->validate( [ 'code' => TotpService::generate( $staged ) ], $state ) );
+
+        $this->useSession( 'session-a' );
+        $this->assertTrue( MfaEnrollmentWizard::reauthSatisfied( $this->user_id, WizardState::load( $this->user_id, $slug ) ), 'still valid where it was made' );
+    }
+
+    /** A logged-in cookie carrying `$token`, which `wp_get_session_token()` reads. */
+    private function useSession( string $token ): void {
+        $_COOKIE[ LOGGED_IN_COOKIE ] = 'user|' . ( time() + 3600 ) . '|' . $token . '|hmac';
     }
 
     public function test_without_the_current_code_nothing_is_staged_or_changed(): void {

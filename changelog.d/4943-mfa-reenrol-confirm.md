@@ -12,5 +12,7 @@ secret is discarded after an hour. A first enrolment goes through the same
 staging. Devices remembered under the old setup ask for a code again once the
 new one takes over. Turning two-step off and making new backup codes also ask
 for the current code or a backup code, through the same check and the same
-lockout. Operator reset, turning it off and `wp tt mfa reset` still remove the
-whole enrolment, staged secret included.
+lockout. A confirmed current code counts only in the browser session that
+entered it. Operators turn off two-step for others; their own goes through the
+self-service path with the current code. Operator reset, turning it off and
+`wp tt mfa reset` still remove the whole enrolment, staged secret included.

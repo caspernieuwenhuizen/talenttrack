@@ -38,8 +38,9 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
         $this->secret = TotpService::generateSecret();
         $generated    = BackupCodesService::generate();
         $this->codes  = $generated['plaintext'];
-        $this->repo->upsertSecret( $this->user_id, $this->secret, $generated['storage'] );
-        $this->repo->markEnrolled( $this->user_id );
+        $this->repo->stagePendingSecret( $this->user_id, $this->secret );
+        $this->repo->stagePendingBackupCodes( $this->user_id, $generated['storage'] );
+        $this->assertTrue( $this->repo->promotePending( $this->user_id ), 'precondition: enrolled' );
 
         add_filter( 'wp_redirect', [ $this, 'captureRedirect' ] );
     }
@@ -67,6 +68,49 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
             $this->assertSame( $before['secret_encrypted'], $this->row()['secret_encrypted'] );
             $this->assertSame( $before['backup_codes_hashed'], $this->row()['backup_codes_hashed'] );
         }
+    }
+
+    public function test_turning_two_step_off_with_the_current_code_goes_ahead(): void {
+        global $wpdb;
+        $location = $this->post( MfaActionHandlers::ACTION_DISABLE, [ 'confirm' => 'yes', 'current_code' => TotpService::generate( $this->secret ) ], 'handleDisable' );
+
+        $this->assertStringContainsString( 'tt_msg=mfa_disabled', $location );
+        $this->assertNull( $this->repo->findByUserId( $this->user_id ), 'the enrolment is gone' );
+        $this->assertSame( 1, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_id = %d",
+            'mfa.disabled',
+            $this->user_id
+        ) ), 'and it is audited' );
+    }
+
+    public function test_an_operator_cannot_reset_their_own_two_step_but_can_reset_someone_elses(): void {
+        $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->enrol( $operator );
+        wp_set_current_user( $operator );
+        $this->assertTrue( current_user_can( 'tt_edit_settings' ), 'precondition: the operator holds the reset' );
+
+        $location = $this->post( MfaActionHandlers::ACTION_OPERATOR_DISABLE, [ 'confirm' => 'yes', 'target_user_id' => (string) $operator ], 'handleOperatorDisable' );
+        $this->assertStringContainsString( 'tt_msg=mfa_operator_disable_self', $location );
+        $this->assertNotNull( $this->repo->findByUserId( $operator ), 'their own two-step stays on' );
+
+        $location = $this->post( MfaActionHandlers::ACTION_OPERATOR_DISABLE, [ 'confirm' => 'yes', 'target_user_id' => (string) $this->user_id ], 'handleOperatorDisable' );
+        $this->assertStringContainsString( 'tt_msg=mfa_operator_disabled', $location );
+        $this->assertNull( $this->repo->findByUserId( $this->user_id ), 'another account is reset' );
+    }
+
+    public function test_the_operator_list_leaves_the_operator_out(): void {
+        $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->enrol( $operator );
+        wp_set_current_user( $operator );
+
+        $method = new ReflectionMethod( \TT\Modules\License\Admin\AccountPage::class, 'renderOperatorMfaSection' );
+        $method->setAccessible( true );
+        ob_start();
+        $method->invoke( null, '' );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'value="' . $this->user_id . '"', $html, 'precondition: other enrolled accounts are offered' );
+        $this->assertStringNotContainsString( 'value="' . $operator . '"', $html, 'the operator is not' );
     }
 
     public function test_making_new_backup_codes_without_a_valid_current_factor_is_refused(): void {
@@ -127,6 +171,12 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
             return $e->location;
         }
         $this->fail( 'The handler must redirect.' );
+    }
+
+    private function enrol( int $user_id ): void {
+        $this->repo->stagePendingSecret( $user_id, TotpService::generateSecret() );
+        $this->repo->stagePendingBackupCodes( $user_id, [] );
+        $this->assertTrue( $this->repo->promotePending( $user_id ), 'precondition: enrolled' );
     }
 
     /** @return array<string,mixed> */

@@ -101,52 +101,6 @@ final class MfaSecretsRepository {
     }
 
     /**
-     * Create or replace the secret row for a user. Used by the
-     * enrollment wizard's first step (Sprint 2) — generate a fresh
-     * TOTP secret, store it, render the QR. Verification of the user's
-     * first code (wizard step 3) flips `enrolled_at` via `markEnrolled()`.
-     *
-     * The TOTP secret is provided plaintext (base32) and encrypted on
-     * the way in. Backup codes are provided pre-hashed (the wizard
-     * generates them via `BackupCodesService::generate()` and shows the
-     * plaintext to the user once).
-     *
-     * @param list<array{hash:string,used_at:null|string}> $backup_codes
-     */
-    public function upsertSecret( int $wp_user_id, string $secret_plaintext, array $backup_codes ): bool {
-        if ( $wp_user_id <= 0 ) return false;
-        if ( $secret_plaintext === '' ) return false;
-
-        global $wpdb;
-        $now = current_time( 'mysql' );
-
-        $existing = $this->findByUserId( $wp_user_id );
-        $data = [
-            'club_id'             => CurrentClub::id(),
-            'wp_user_id'          => $wp_user_id,
-            'secret_encrypted'    => CredentialEncryption::encrypt( $secret_plaintext ),
-            'backup_codes_hashed' => wp_json_encode( $backup_codes ),
-            'updated_at'          => $now,
-            'failed_attempts'     => 0,
-            'locked_until'        => null,
-        ];
-
-        if ( $existing !== null ) {
-            $ok = $wpdb->update(
-                $this->table(),
-                $data,
-                [ 'id' => (int) $existing['id'] ]
-            );
-            return $ok !== false;
-        }
-
-        $data['uuid']       = wp_generate_uuid4();
-        $data['created_at'] = $now;
-        $ok = $wpdb->insert( $this->table(), $data );
-        return $ok !== false;
-    }
-
-    /**
      * Stage a new secret beside the working one. Only the pending columns
      * are written; the working secret, backup codes, `enrolled_at` and the
      * lockout counters stay as they are. Any staged backup codes are
@@ -265,27 +219,12 @@ final class MfaSecretsRepository {
         return gmdate( 'Y-m-d H:i:s', time() - self::PENDING_TTL );
     }
 
-    /**
-     * Flip `enrolled_at` to NOW after the wizard's verify step succeeds.
-     * Returns false if no row exists.
+    /*
+     * There is no direct write of the working secret. An enrolment, first
+     * or replacement, is staged and then promoted (`stagePendingSecret()`,
+     * `stagePendingBackupCodes()`, `promotePending()`), so the wizard's
+     * checks are the only way to it.
      */
-    public function markEnrolled( int $wp_user_id ): bool {
-        $existing = $this->findByUserId( $wp_user_id );
-        if ( $existing === null ) return false;
-
-        global $wpdb;
-        $now = current_time( 'mysql' );
-        $ok = $wpdb->update(
-            $this->table(),
-            [
-                'enrolled_at'      => $now,
-                'last_verified_at' => $now,
-                'updated_at'       => $now,
-            ],
-            [ 'id' => (int) $existing['id'] ]
-        );
-        return $ok !== false;
-    }
 
     /**
      * Persist a verification success — bumps `last_verified_at`,
