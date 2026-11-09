@@ -612,11 +612,12 @@ class MatrixGate {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT person_id, scope_id FROM {$wpdb->prefix}tt_user_role_scopes
               WHERE person_id IN ({$in})
+                AND club_id = %d
                 AND scope_type = 'team'
                 AND ( start_date IS NULL OR start_date <= %s )
                 AND ( end_date   IS NULL OR end_date   >= %s )
               ORDER BY person_id ASC, scope_id ASC",
-            ...array_merge( array_map( 'intval', $person_ids ), [ $today, $today ] )
+            ...array_merge( array_map( 'intval', $person_ids ), [ (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), $today, $today ] )
         ) );
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $r ) {

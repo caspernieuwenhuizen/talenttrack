@@ -31,6 +31,11 @@ final class ClubIteration {
      * removed in a `finally`, so the previous club is current again whether
      * `$fn` returns or throws.
      *
+     * #4967 — the authorization layer's per-request answers rest on one
+     * club's rows (person, role scopes, assignments), so they are cleared
+     * when the pin is set and again when it is removed: each club is
+     * answered from its own rows, and so is the club the request returns to.
+     *
      * @template T
      * @param callable():T $fn
      * @return T
@@ -38,10 +43,18 @@ final class ClubIteration {
     public static function withClub( int $club_id, callable $fn ) {
         $filter = static function () use ( $club_id ) { return $club_id; };
         add_filter( 'tt_current_club_id', $filter, 9999 );
+        self::forgetAuthorization();
         try {
             return $fn();
         } finally {
             remove_filter( 'tt_current_club_id', $filter, 9999 );
+            self::forgetAuthorization();
+        }
+    }
+
+    private static function forgetAuthorization(): void {
+        if ( class_exists( '\\TT\\Infrastructure\\Security\\AuthorizationService' ) ) {
+            \TT\Infrastructure\Security\AuthorizationService::flushCache();
         }
     }
 }

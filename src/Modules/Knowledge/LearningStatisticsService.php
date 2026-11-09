@@ -108,7 +108,7 @@ final class LearningStatisticsService {
              INNER JOIN {$p}tt_people pe
                      ON pe.id = e.person_id AND pe.club_id = e.club_id
              INNER JOIN {$p}tt_user_role_scopes s
-                     ON s.person_id = pe.id
+                     ON s.person_id = pe.id AND s.club_id = pe.club_id
                   WHERE e.club_id = %d
                     AND e.course_slug = %s
                     AND s.scope_type = 'team'
