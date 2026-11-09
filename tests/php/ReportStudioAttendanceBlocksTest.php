@@ -353,6 +353,9 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
                 $this->assertArrayNotHasKey( 'attendance_pct', $report['data']['kpi'], $who );
                 $this->assertStringNotContainsString( $pdf_tile, $pdf, "{$who}: no attendance tile in the PDF" );
                 $this->assertStringNotContainsString( $screen_tile, $screen, "{$who}: no attendance tile on screen" );
+                // Nor per player: the roster's and the attention list's figures.
+                $this->assertSame( [], self::attendanceKeys( $report['data'] ), "{$who}: no attendance figure anywhere in the report" );
+                $this->assertStringNotContainsString( '>' . esc_html_x( 'Att.', 'team monthly report column: attendance, short', 'talenttrack' ) . '<', $pdf, "{$who}: no attendance column in the roster" );
                 $without[ $who ] = $report;
             }
             foreach ( [ 'kpi', 'attendance' ] as $gated ) unset( $report['data'][ $gated ] );
@@ -361,6 +364,66 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'observer', $without, 'the observer is a reader without the attendance right' );
         // Every other section is there for every reader.
         $this->assertCount( 1, array_unique( array_map( 'wp_json_encode', $sections ) ), 'the other sections do not depend on the attendance right' );
+    }
+
+    /**
+     * #4949 — a snapshot is frozen under its taker's rights and shown under
+     * the reader's. One taken by the head of development, who reads
+     * attendance, is shown and printed without it to the observer, who does
+     * not; the taker still sees it whole.
+     */
+    public function test_a_snapshot_is_shown_without_attendance_to_a_reader_without_the_right(): void {
+        $observer = $this->makePersona( 'tt_readonly_observer', 'readonly_observer', $this->team_a );
+        $this->assertFalse( AuthorizationService::canReadTeamAttendance( $observer, $this->team_a ), 'Precondition: the observer does not read attendance.' );
+
+        $composition = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::normalise( [
+            'team_id' => $this->team_a, 'from' => self::FROM, 'to' => self::TO, 'layout' => \TT\Modules\Analytics\Reports\TeamMonthlyReportLayout::DEFAULT,
+        ] );
+        $frozen = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [], $this->hod );
+        $this->assertContains( 'attendance', $frozen['blocks'], 'Precondition: the taker\'s snapshot carries attendance.' );
+        $uuid = ( new \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository() )->create( $this->team_a, $composition, $frozen, 'Snapshot', $this->hod );
+        $this->assertNotSame( '', $uuid );
+
+        $tile = esc_html__( 'Attendance', 'talenttrack' ) . '</div>';
+        foreach ( [ $observer => false, $this->hod => true ] as $uid => $sees ) {
+            $this->flush();
+            wp_set_current_user( $uid );
+            ob_start();
+            $this->assertTrue( \TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage::render( $uuid ) );
+            $page = (string) ob_get_clean();
+
+            $pdf = ( new \TT\Modules\Export\Exporters\TeamMonthlyReportPdfExporter() )->collect(
+                new \TT\Modules\Export\Domain\ExportRequest( 'team_monthly_report_pdf', 'pdf', (int) CurrentClub::id(), $uid, null, [ 'snapshot' => $uuid ] )
+            );
+            $html = (string) ( $pdf['html'] ?? '' );
+            $this->assertNotSame( '', $html, 'the snapshot PDF renders' );
+
+            if ( $sees ) {
+                $this->assertStringContainsString( 'class="tt-d-kl">' . $tile, $page, 'the taker sees the tile on screen' );
+                $this->assertStringContainsString( 'class="kl">' . $tile, $html, 'and in the PDF' );
+            } else {
+                $this->assertStringNotContainsString( 'class="tt-d-kl">' . $tile, $page, 'no attendance tile on screen' );
+                $this->assertStringNotContainsString( 'class="kl">' . $tile, $html, 'no attendance tile in the PDF' );
+                $this->assertSame( [], self::attendanceKeys( TeamMonthlyReport::forReader( $frozen, $this->team_a, $uid )['data'] ) );
+            }
+        }
+        wp_set_current_user( 0 );
+    }
+
+    /**
+     * Every path in the report data that ends in an attendance figure.
+     *
+     * @param array<mixed> $data
+     * @return list<string>
+     */
+    private static function attendanceKeys( array $data, string $path = '' ): array {
+        $found = [];
+        foreach ( $data as $key => $value ) {
+            $here = $path === '' ? (string) $key : $path . '.' . $key;
+            if ( in_array( (string) $key, [ 'attendance_pct', 'missed', 'suspended' ], true ) ) $found[] = $here;
+            if ( is_array( $value ) ) $found = array_merge( $found, self::attendanceKeys( $value, $here ) );
+        }
+        return $found;
     }
 
     /** A persona from its WordPress role, with a team-scope grant on one team. */

@@ -134,9 +134,10 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
             if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer, $this->team ) ) {
                 $this->assertNotContains( TeamMonthlyReportBlock::ATTENDANCE, $after['blocks'] );
                 $this->assertArrayNotHasKey( TeamMonthlyReportBlock::ATTENDANCE, $after['data'] );
-                $this->assertArrayNotHasKey( 'attendance_pct', $after['data'][ TeamMonthlyReportBlock::KPI ] );
-                $before['blocks'] = array_values( array_diff( $before['blocks'], [ TeamMonthlyReportBlock::ATTENDANCE ] ) );
-                unset( $before['data'][ TeamMonthlyReportBlock::ATTENDANCE ], $before['data'][ TeamMonthlyReportBlock::KPI ]['attendance_pct'] );
+                // No attendance figure anywhere: not the tile, not per player
+                // in the roster or the attention list.
+                $this->assertSame( [], self::attendanceKeys( $after['data'] ), "viewer {$viewer}" );
+                $before = TeamMonthlyReport::withoutAttendance( $before );
             }
             $this->assertSame( $this->json( $before ), $this->json( $after ), "viewer {$viewer}" );
             $changes[ $viewer ] = array_column( $after['data']['changes']['events'], 'summary' );
@@ -331,6 +332,23 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
      *
      * @param array<string,mixed>|null $payload
      */
+    /**
+     * #4949 — every path in the report data that ends in an attendance
+     * figure.
+     *
+     * @param array<mixed> $data
+     * @return list<string>
+     */
+    private static function attendanceKeys( array $data, string $path = '' ): array {
+        $found = [];
+        foreach ( $data as $key => $value ) {
+            $here = $path === '' ? (string) $key : $path . '.' . $key;
+            if ( in_array( (string) $key, [ 'attendance_pct', 'missed', 'suspended' ], true ) ) $found[] = $here;
+            if ( is_array( $value ) ) $found = array_merge( $found, self::attendanceKeys( $value, $here ) );
+        }
+        return $found;
+    }
+
     private function json( ?array $payload ): string {
         $json = wp_json_encode( $this->level( $payload ) );
         $this->assertIsString( $json, 'The payload must encode.' );

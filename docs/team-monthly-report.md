@@ -417,8 +417,11 @@ The **attendance section** and the **attendance** headline number need one
 more right: reading that team's attendance, the right the attendance reports
 ask. Someone who may read the team's reports but not its attendance, such as
 the read-only observer, gets the report without both, on screen, in print and
-in the PDF; every other section is the same. A scheduled report is composed
-for the person who scheduled it, so it follows their rights.
+in the PDF. The player-by-player table then has no attendance or suspended
+column, and the list of who needs a conversation gives no attendance figure;
+everything else in those sections is the same. A snapshot follows the same
+rule for whoever opens or prints it, whenever it was taken. A scheduled report
+is composed for the person who scheduled it, so it follows their rights.
 
 Academy administrators can switch the report off under **Features**; it then
 disappears from the Reports page and cannot be opened from a link.
