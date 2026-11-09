@@ -65,16 +65,66 @@ final class PlayerStatusCalculator {
      *                                               auto-resolve via MethodologyResolver.
      */
     public function calculate( int $player_id, ?string $as_of_date = null, ?array $methodology = null ): StatusVerdict {
-        $methodology = $methodology ?? MethodologyResolver::forPlayer( $player_id );
+        return $this->calculateMany( [ $player_id ], $as_of_date, $methodology )[ $player_id ];
+    }
+
+    /**
+     * #4945 — `calculate()` for a squad. Each input the rule reads is read
+     * once for every player (one statement per input: ratings, behaviour,
+     * attendance, potential, the methodology, and `rating_max` once), then
+     * the same rule (`compose()`) runs per player. `calculate()` is this for
+     * one player, so there is one rule. Every requested player is present,
+     * keyed by id.
+     *
+     * @param list<int>                $player_ids
+     * @param array<string,mixed>|null $methodology Pass null to resolve each player's own.
+     * @return array<int, StatusVerdict>
+     */
+    public function calculateMany( array $player_ids, ?string $as_of_date = null, ?array $methodology = null ): array {
+        $ids = array_values( array_unique( array_map( 'intval', $player_ids ) ) );
+        if ( $ids === [] ) return [];
+
         $as_of       = $as_of_date ?? gmdate( 'Y-m-d H:i:s' );
         $window_to   = $as_of_date ?? gmdate( 'Y-m-d' );
         $window_from = gmdate( 'Y-m-d', strtotime( $window_to . ' -90 days' ) );
 
+        $methodologies = $methodology === null ? MethodologyResolver::forPlayers( $ids ) : [];
+        $ratings       = $this->ratingsAverages( $ids, $window_from, $window_to );
+        $behaviour     = $this->behaviourRepo->averagesInWindow( $ids, $window_from . ' 00:00:00', $window_to . ' 23:59:59' );
+        $attendance    = $this->attendanceCalc->scoresFor( $ids, $window_from, $window_to );
+        $potential     = $this->potentialRepo->latestForMany( $ids );
+        $rating_max    = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+
+        $out = [];
+        foreach ( $ids as $id ) {
+            $out[ $id ] = $this->compose(
+                $methodology ?? ( $methodologies[ $id ] ?? MethodologyResolver::shippedDefault() ),
+                $as_of,
+                $ratings[ $id ] ?? null,
+                $behaviour[ $id ] ?? null,
+                $attendance[ $id ] ?? $this->attendanceCalc->scoreFor( $id, $window_from, $window_to ),
+                $potential[ $id ] ?? null,
+                $rating_max
+            );
+        }
+        return $out;
+    }
+
+    /**
+     * The status rule for one player, over inputs already read.
+     *
+     * @param array<string,mixed> $methodology
+     * @param array{sessions:int,present:int,late:int,absent:int,excused:int,injured:int,suspended:int,attended:int,score:?float,low_confidence:bool} $att
+     */
+    private function compose( array $methodology, string $as_of, ?float $rating_avg, ?float $behaviour_avg, array $att, ?object $potential_row, float $rating_max ): StatusVerdict {
         $inputs  = [];
         $reasons = [];
 
-        // Ratings: avg from tt_eval_ratings in the last 90 days, scaled 0-10 → 0-100.
-        $rating_score = $this->ratingsScore( $player_id, $window_from, $window_to );
+        // Ratings: avg from tt_eval_ratings in the last 90 days, scaled
+        // against the configured rating_max (v3.110.116 — was `× 10`).
+        $rating_score = $rating_avg === null
+            ? [ 'value' => null, 'score' => null ]
+            : [ 'value' => $rating_avg, 'score' => round( ( $rating_avg / $rating_max ) * 100, 1 ) ];
         $inputs['ratings'] = [
             'value'  => $rating_score['value'],
             'weight' => (int) ( $methodology['inputs']['ratings']['weight'] ?? 0 ),
@@ -84,8 +134,6 @@ final class PlayerStatusCalculator {
 
         // Behaviour: avg in window, scaled to 0-100 against the
         // configured rating_max (v3.110.116 — was hardcoded `/ 5`).
-        $rating_max = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
-        $behaviour_avg = $this->behaviourRepo->averageInWindow( $player_id, $window_from . ' 00:00:00', $window_to . ' 23:59:59' );
         $behaviour_score = $behaviour_avg !== null ? round( ( $behaviour_avg / $rating_max ) * 100, 1 ) : null;
         $inputs['behaviour'] = [
             'value'  => $behaviour_avg,
@@ -94,7 +142,6 @@ final class PlayerStatusCalculator {
         ];
 
         // Attendance: 0-100 directly from the calculator.
-        $att = $this->attendanceCalc->scoreFor( $player_id, $window_from, $window_to );
         $inputs['attendance'] = [
             'value'  => $att['score'],
             'weight' => (int) ( $methodology['inputs']['attendance']['weight'] ?? 0 ),
@@ -103,8 +150,7 @@ final class PlayerStatusCalculator {
         if ( $att['low_confidence'] ) $reasons[] = __( 'Sparse attendance data — confidence reduced.', 'talenttrack' );
 
         // Potential: banded; null when never set.
-        $potential_row  = $this->potentialRepo->latestFor( $player_id );
-        $potential_band = $potential_row ? (string) $potential_row->potential_band : null;
+        $potential_band = $potential_row ? (string) ( $potential_row->potential_band ?? '' ) : null;
         $potential_score = $potential_band !== null
             ? (float) ( self::POTENTIAL_BAND_SCORES[ $potential_band ] ?? 50 )
             : null;
@@ -217,27 +263,33 @@ final class PlayerStatusCalculator {
     }
 
     /**
-     * @return array{value:?float,score:?float}
+     * Each player's average evaluation rating in the window, rounded to two
+     * places, in one statement. A player with no rating is absent.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, float>
      */
-    private function ratingsScore( int $player_id, string $from, string $to ): array {
+    private function ratingsAverages( array $player_ids, string $from, string $to ): array {
+        if ( $player_ids === [] ) return [];
         global $wpdb;
-        $avg = $wpdb->get_var( $wpdb->prepare(
-            "SELECT AVG(r.rating)
+        $in = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.player_id, AVG(r.rating) AS avg_rating
                FROM {$wpdb->prefix}tt_eval_ratings r
                JOIN {$wpdb->prefix}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
-              WHERE e.player_id = %d
+              WHERE e.player_id IN ({$in})
                 AND e.club_id = %d
                 AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND e.eval_date >= %s
-                AND e.eval_date <= %s",
-            $player_id, CurrentClub::id(), $from, $to
+                AND e.eval_date <= %s
+              GROUP BY e.player_id",
+            ...array_merge( $player_ids, [ CurrentClub::id(), $from, $to ] )
         ) );
-        if ( $avg === null ) return [ 'value' => null, 'score' => null ];
-        $value = round( (float) $avg, 2 );
-        // v3.110.116 — was hardcoded `× 10` (assumed 0–10 scale). Now
-        // reads `rating_max` from config so the 0–100 normalisation
-        // matches the configured scale (5–10 default post-migration).
-        $rating_max = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
-        return [ 'value' => $value, 'score' => round( ( $value / $rating_max ) * 100, 1 ) ];
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) && ( $r->avg_rating ?? null ) !== null ) $out[ (int) ( $r->player_id ?? 0 ) ] = round( (float) $r->avg_rating, 2 );
+        }
+        return $out;
     }
 }

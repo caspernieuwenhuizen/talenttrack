@@ -43,15 +43,37 @@ final class PlayerPotentialRepository {
      * Most recent potential row for a player, or null if never set.
      */
     public function latestFor( int $player_id ): ?object {
+        return $this->latestForMany( [ $player_id ] )[ $player_id ] ?? null;
+    }
+
+    /**
+     * #4945 — `latestFor()` for many players in one statement: each player's
+     * most recent row (`set_at`, then `id`, newest first). A player never
+     * set is absent.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, object>
+     */
+    public function latestForMany( array $player_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
         global $wpdb;
-        $row = $wpdb->get_row( $wpdb->prepare(
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE player_id = %d AND club_id = %d
-              ORDER BY set_at DESC, id DESC
-              LIMIT 1",
-            $player_id, CurrentClub::id()
+              WHERE player_id IN ({$in}) AND club_id = %d
+              ORDER BY player_id ASC, set_at DESC, id DESC",
+            ...array_merge( $ids, [ CurrentClub::id() ] )
         ) );
-        return $row ?: null;
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( ! is_object( $r ) ) continue;
+            $pid = (int) ( $r->player_id ?? 0 );
+            if ( ! isset( $out[ $pid ] ) ) $out[ $pid ] = $r;
+        }
+        return $out;
     }
 
     /**

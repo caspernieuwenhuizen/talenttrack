@@ -272,12 +272,9 @@ final class TeamReportContext {
      */
     public function verdictsAt( string $as_of ): array {
         if ( ! isset( $this->verdicts[ $as_of ] ) ) {
-            $calc = new PlayerStatusCalculator();
-            $out  = [];
-            foreach ( array_keys( $this->players() ) as $pid ) {
-                $out[ $pid ] = $calc->calculate( $pid, $as_of );
-            }
-            $this->verdicts[ $as_of ] = $out;
+            // #4945 — the squad in one pass: one statement per input, not
+            // one per player.
+            $this->verdicts[ $as_of ] = ( new PlayerStatusCalculator() )->calculateMany( array_map( 'intval', array_keys( $this->players() ) ), $as_of );
         }
         return $this->verdicts[ $as_of ];
     }
