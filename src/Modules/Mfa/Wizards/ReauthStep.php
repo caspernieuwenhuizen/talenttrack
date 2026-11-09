@@ -114,7 +114,11 @@ final class ReauthStep implements WizardStepInterface, ConditionalStepInterface 
         return 'secret';
     }
 
-    /** Never the last step: the runner submits only where `nextStep()` is null. */
+    /**
+     * Never the last step: the runner submits only where `nextStep()` is null.
+     *
+     * @return array<string,mixed>
+     */
     public function submit( array $state ) {
         return [];
     }
