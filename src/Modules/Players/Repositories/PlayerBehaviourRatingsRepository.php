@@ -61,15 +61,36 @@ final class PlayerBehaviourRatingsRepository {
      * Average rating in a date window. Returns null when no rows.
      */
     public function averageInWindow( int $player_id, string $from, string $to ): ?float {
+        return $this->averagesInWindow( [ $player_id ], $from, $to )[ $player_id ] ?? null;
+    }
+
+    /**
+     * #4945 — `averageInWindow()` for many players in one statement. A player
+     * with no rating in the window is absent.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, float>
+     */
+    public function averagesInWindow( array $player_ids, string $from, string $to ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
         global $wpdb;
-        $avg = $wpdb->get_var( $wpdb->prepare(
-            "SELECT AVG(rating) FROM {$this->table}
-              WHERE player_id = %d
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT player_id, AVG(rating) AS avg_rating FROM {$this->table}
+              WHERE player_id IN ({$in})
                 AND club_id = %d
                 AND rated_at >= %s
-                AND rated_at <= %s",
-            $player_id, CurrentClub::id(), $from, $to
+                AND rated_at <= %s
+              GROUP BY player_id",
+            ...array_merge( $ids, [ CurrentClub::id(), $from, $to ] )
         ) );
-        return $avg === null ? null : (float) $avg;
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) && ( $r->avg_rating ?? null ) !== null ) $out[ (int) ( $r->player_id ?? 0 ) ] = (float) $r->avg_rating;
+        }
+        return $out;
     }
 }
