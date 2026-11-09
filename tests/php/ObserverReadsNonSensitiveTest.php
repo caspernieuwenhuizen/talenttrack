@@ -46,7 +46,6 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
     /** Not granted here: each follows with its masking or its own review. */
     private const WITH_THEIR_MASKING = [
         'attendance'              => 'its masking (#4692)',
-        'evaluations_panel'       => 'its masking (#4693)',
         'player_status'           => 'its masking (#4694)',
         'player_status_breakdown' => 'its masking (#4694)',
         'player_potential'        => 'its masking (#4694)',
@@ -194,12 +193,13 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
             if ( ( $row['persona'] ?? '' ) !== 'readonly_observer' ) continue;
             $seeded[] = (string) $row['entity'];
         }
-        // #4795 — the journey and cohort rows, brought by migration 0312.
-        $expected = array_merge( self::HELD_BEFORE, $this->granted(), [ 'player_timeline', 'cohort_transitions' ] );
+        // #4795 — the journey and cohort rows, brought by migration 0312;
+        // #4997 — the evaluations list, brought by migration 0321.
+        $expected = array_merge( self::HELD_BEFORE, $this->granted(), [ 'player_timeline', 'cohort_transitions', 'evaluations_panel' ] );
         sort( $seeded );
         sort( $expected );
 
-        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312) have drifted apart' );
+        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312, 0321) have drifted apart' );
         $this->assertSame( [], array_intersect( $this->granted(), self::CLOSED ) );
         $this->assertSame( [], array_intersect( $this->granted(), array_keys( self::WITH_THEIR_MASKING ) ) );
     }

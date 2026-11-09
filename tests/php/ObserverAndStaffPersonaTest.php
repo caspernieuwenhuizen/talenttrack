@@ -67,6 +67,10 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         foreach ( (array) constant( get_class( $journey ) . '::CELLS' ) as [ $persona, $entity ] ) {
             if ( $persona === 'readonly_observer' ) $entities[] = (string) $entity;
         }
+
+        // #4997 — and the evaluations list 0321 brings.
+        $evaluations = require dirname( __DIR__, 2 ) . '/database/migrations/0321_authorization_observer_evaluations_panel.php';
+        $entities[]  = (string) constant( get_class( $evaluations ) . '::ENTITY' );
         return $entities;
     }
 
