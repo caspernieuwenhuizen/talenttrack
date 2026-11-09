@@ -939,7 +939,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         self::renderKpiStrip( [
             [
-                'num'   => (string) (int) $data['matches'],
+                // #4966 — every played match, as the list behind the tile
+                // shows; only those with minutes recorded feed the share.
+                'num'   => (string) (int) $data['played_matches'],
                 'label' => __( 'Matches played', 'talenttrack' ),
                 'href'  => $matches_url,
                 'slug'  => 'activities',
@@ -968,6 +970,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 . esc_html__( 'See the minutes distribution →', 'talenttrack' ) . '</a></p>';
         }
 
+        // #4966 — only matches with minutes recorded make minutes available,
+        // so played matches with nothing recorded are said as such, not as
+        // "nothing played".
+        if ( $available <= 0 && (int) $data['played_matches'] > 0 ) {
+            self::renderEmpty( __( 'Matches were played but no minutes are recorded for this team yet. Record them from the activity.', 'talenttrack' ) );
+            return;
+        }
         if ( $available <= 0 ) {
             // "Widen the window" is only advice worth giving when there is
             // something to widen onto. Told apart, because the two ask the
@@ -996,7 +1005,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2>'
-            . '<span class="tt-rep-section__hint">' . esc_html__( 'Lowest share first. The share is of every minute the team played, whether or not the player was available.', 'talenttrack' ) . '</span></div>';
+            . '<span class="tt-rep-section__hint">' . esc_html__( 'Lowest share first. The share is of every minute of the matches with minutes recorded, whether or not the player was available.', 'talenttrack' ) . '</span></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table">';
         echo '<thead><tr>'
             . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'

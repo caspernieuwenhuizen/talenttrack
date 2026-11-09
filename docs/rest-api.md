@@ -524,7 +524,7 @@ and a non-WordPress front end cannot disagree.
 ```json
 {
   "team_id": 12, "from": "2025-08-25", "to": "2026-08-25",
-  "matches": 10, "available_minutes": 700, "target_pct": 30,
+  "matches": 10, "played_matches": 11, "available_minutes": 700, "target_pct": 30,
   "outside_window": { "matches": 3, "earliest": "2024-09-14", "latest": "2025-06-07" },
   "players": [
     { "player_id": 41, "name": "…", "jersey_number": 9, "minutes": 140, "share_pct": 20.0, "below_target": true },
@@ -533,12 +533,17 @@ and a non-WordPress front end cannot disagree.
 }
 ```
 
-`available_minutes` is the sum of every **played** match's own length (the
-match-prep half length doubled, else the age-group default, else 35 a half) —
-the same "played" predicate the two other minutes reports use, so a fixture
-kicking off tonight is not yet in the denominator. `share_pct` is `null` when
-the team has played nothing: a share of no minutes is undefined, not zero.
-Rows come back lowest share first.
+`available_minutes` is the sum of the own length (the match-prep half length
+doubled, else the age-group default, else 35 a half) of every **played** match
+**whose minutes were recorded**: the same "played" predicate the two other
+minutes reports use, so a fixture kicking off tonight is not yet in the
+denominator, and since #4966 the same recorded-minutes rule the team monthly
+report and the minutes report count by (`MinutesQuery::forTeam()`, #2252), so
+the three give one share. `matches` counts the matches that fed `available_minutes`;
+`played_matches` every played match in the window, recorded or not, which the
+report's "Matches played" tile shows. `share_pct` is `null` when no minutes
+are available: a share of no minutes is undefined, not zero. Rows come back
+lowest share first.
 
 **The window.** `from` and `to` are declared query parameters, both
 `YYYY-MM-DD`. `to` defaults to today and `from` to twelve months before it, so
@@ -551,12 +556,12 @@ outside the resolved window, with the earliest and latest of their dates
 (empty strings when there are none). It is the difference between "this team
 played nothing" and "everything this team played is on the other side of your
 window", which an `available_minutes` of `0` alone cannot express. It uses the
-same "played" predicate as the in-window figures, so the two counts partition
-the team's matches and never overlap.
+same rule as `matches`, played with minutes recorded (#4966), so the two counts
+partition the team's matches and never overlap.
 
 `GET /teams/{id}/minutes-share/{player_id}` returns one player's row out of the
 same answer (`minutes`, `share_pct`, `below_target`, plus the team's
-`available_minutes`, `matches`, `target_pct` and `outside_window`), so a
+`available_minutes`, `matches`, `played_matches`, `target_pct` and `outside_window`), so a
 player-facing client
 need not fetch and filter the whole squad. A player with no recorded minutes on
 that team in the window is a 404 rather than a zero row — they were not in the
@@ -1542,11 +1547,14 @@ The blocks:
   having none (#4069), with `goals` and `assists` totals. For a player (every
   audience) `GoalContributionQuery::forPlayer()` as one row
   `{ goals, assists, contributions }`.
-- `minutes_share` (player, team): `MinutesShareQuery`. For a team (staff
-  only) every squad player's `minutes` and `share_pct`, lowest first, with
-  `available_minutes`, `matches`, `target_pct` and `median_share_pct`; for a
+- `minutes_share` (player, team): the team monthly report's minutes section
+  (`MinutesComposer`, the read `playing_time` uses). For a team (staff only)
+  every squad player's `minutes`, `available_minutes` (the length of the
+  matches whose minutes were recorded, `MinutesQuery::forTeam()`) and
+  `share_pct`, lowest first, a player without minutes available last, with `matches`, `target_pct` and `median_share_pct`; for a
   player (every audience) `value` (their share, percent), `minutes`,
-  `available_minutes`, `matches` and `target_pct`, and no average.
+  `available_minutes`, `matches` and `target_pct` from their row in their
+  current team's section, and no average.
 - `open_goals` (player, team; internal and family, #4572): today's count, not
   the period's. For a player `value` = `GoalsRepository::
   countActiveForPlayer()`; for a team (staff only)

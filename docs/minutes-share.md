@@ -26,8 +26,14 @@ team.
 
 ## How the available minutes are worked out
 
-Every match the team **played** in the window, at that match's own length.
+Every match the team **played** in the window **with minutes recorded**, at
+that match's own length.
 
+- **With minutes recorded** means at least one player has minutes on the
+ match's register. A played match nobody filled in minutes for adds nothing,
+ to either side of the share, so a forgotten register does not lower every
+ player's share. This is the rule the minutes report and the team monthly
+ report count by, so all three give the same share for the same squad.
 - **Played** means the same thing it means on the other minutes reports: the
  activity is completed, its date has passed, or it already carries recorded
  minutes. A fixture kicking off this evening is not in the denominator, so
@@ -41,12 +47,12 @@ Every match the team **played** in the window, at that match's own length.
  minutes a half. A U9 team on 30-minute halves has 600 available over ten
  matches, not 700, whether or not those matches had a match prep.
 
-So ten completed 70-minute matches make **700 available minutes**, and a
-player with 350 recorded is on **50%**.
+So ten completed 70-minute matches with minutes recorded make **700 available
+minutes**, and a player with 350 recorded is on **50%**.
 
 ## The denominator does not shrink for absences
 
-The share is of every minute the team played, whether or not the player was
+The share is of every minute of those matches, whether or not the player was
 available. A player who missed six weeks injured shows a low share, and that
 is the honest number — their injury record is what explains it.
 
@@ -69,7 +75,7 @@ that is only red says nothing in black and white or to a colour-blind reader.
 
 | Tile | What it means |
 | --- | --- |
-| **Matches played** | How many matches fed the denominator. Opens the activities list with exactly those matches: this window, every match type, tournament days included, past matches expanded. To see which of them have no minutes recorded, use **See the minutes distribution** below the tiles, which opens Team · Minutes distribution on the same window. |
+| **Matches played** | How many matches the team played in the window; the ones with minutes recorded feed the denominator. Opens the activities list with exactly those matches: this window, every match type, tournament days included, past matches expanded. To see which of them have no minutes recorded, use **See the minutes distribution** below the tiles, which opens Team · Minutes distribution on the same window. |
 | **Available minutes / player** | The denominator every share on the page is measured against. |
 | **Median share** | The middle of the squad. Median rather than average on purpose: one player who plays every minute drags an average above a line the rest of the squad is nowhere near. |
 | **Below target** | How many players are under the target, flagged gold when that is more than none. |
