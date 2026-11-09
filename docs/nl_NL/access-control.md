@@ -180,7 +180,7 @@ Gebruiksgevallen:
 | **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
 | **Spelers** — het dossier en profiel van elke speler, zonder de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
 | **Personen** — de stafgids | Een stafdossier bewerken |
-| **Evaluaties** — de beoordelingen die trainers vastleggen: cijfers, datums, soort en beoordelaar, zonder de geschreven notities, feedback aan de speler of categorienotities | Een evaluatie schrijven of delen |
+| **Evaluaties** — de beoordelingen die trainers vastleggen, in de lijst van de hele academie en per speler: cijfers, datums, soort en beoordelaar, zonder de geschreven notities, feedback aan de speler of categorienotities | Een evaluatie schrijven of delen |
 | **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
 | **Doelen** — de ontwikkeldoelen van spelers | Een doel stellen of afsluiten |
 | **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
@@ -193,7 +193,7 @@ De regel achter de lijst: een waarnemer leest alles wat niet gevoelig is, en een
 
 **Wat dicht blijft.** Een waarnemer ziet **geen** zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen notities alleen voor staf, geen privéberichten, geen ouderaccounts, niets uit de POP-cyclus (plannen, gesprekken, besluiten, onderbouwing en planning), geen auditlog en geen impersonatielog, en heeft geen toegang tot Report Studio. Die blijven bij de mensen die er verantwoordelijk voor zijn.
 
-**Wat wacht op de afscherming.** Sommige records bevatten een gevoelig veld dat nog niet afgeschermd kan worden. Die zijn voor een waarnemer pas leesbaar als dat wel kan: aanwezigheid (redenen van afwezigheid), de evaluatielijst (opmerkingen bij evaluaties), het statusoordeel en de potentie, proeftrainingen, prospects en scouting (contactgegevens en oordelen), de eigen spelersvelden van de club, de personenlijst (contactgegevens van ouders en verzorgers), en het selectiescherm van een team, de spelerslijst van de trainer en de spelersvergelijking (geboortedatum). Metingen, de toernooiplanner, trainingsplannen en trainingsbelasting, VCT-sessies, en foto's en video volgen na een eigen beoordeling. Gedragsbeoordelingen en teamchemie zijn voor een waarnemer evenmin leesbaar.
+**Wat wacht op de afscherming.** Sommige records bevatten een gevoelig veld dat nog niet afgeschermd kan worden. Die zijn voor een waarnemer pas leesbaar als dat wel kan: aanwezigheid (redenen van afwezigheid), het statusoordeel en de potentie, proeftrainingen, prospects en scouting (contactgegevens en oordelen), de eigen spelersvelden van de club, de personenlijst (contactgegevens van ouders en verzorgers), en het selectiescherm van een team, de spelerslijst van de trainer en de spelersvergelijking (geboortedatum). Metingen, de toernooiplanner, trainingsplannen en trainingsbelasting, VCT-sessies, en foto's en video volgen na een eigen beoordeling. Gedragsbeoordelingen en teamchemie zijn voor een waarnemer evenmin leesbaar.
 
 **Het spelerspad.** Een waarnemer leest het spelerspad van elke speler en de cohortovergangen (zolang de academie die functie heeft aangezet), zonder de regels over een proeftraining, een schorsing, een blessure of een POP-besluit: die staan er alleen voor wie dat record mag lezen.
 

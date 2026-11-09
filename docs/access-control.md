@@ -183,7 +183,7 @@ Use cases:
 | **Teams** — every squad, its roster and its details | Change anything about a team |
 | **Players** — every player's record and profile, without the guardian contact on it | Add, edit or remove a player |
 | **People** — the staff directory | Edit a staff record |
-| **Evaluations** — the assessments coaches record: ratings, dates, type and evaluator, without the written notes, player feedback or category notes | Write or share an evaluation |
+| **Evaluations** — the assessments coaches record, in the academy-wide list and on each player: ratings, dates, type and evaluator, without the written notes, player feedback or category notes | Write or share an evaluation |
 | **Activities** — the training and match calendar | Plan, edit or cancel anything |
 | **Goals** — the development goals set for players | Set or close a goal |
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
@@ -196,7 +196,7 @@ The rule behind the list: an observer reads everything that is not sensitive, an
 
 **What stays closed.** An observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, staff-only notes, private message threads, parent accounts, anything in the PDP cycle (plans, talks, verdicts, evidence and planning), the audit log, or the impersonation log, and has no access to Report Studio. Those stay with the people accountable for them.
 
-**What waits for its masking.** Some records carry a sensitive field that cannot be masked yet. Those are not readable for an observer until it can be: attendance (absence reasons), the evaluations list (evaluation comments), the status verdict and potential, trials, prospects and scouting (contact details and judgements), the club's own player fields, the people list (parent and guardian contact), and the team roster screen, the coach's player list and the player comparison (date of birth). Measurements, the tournament planner, training plans and training load, VCT sessions, and photographs and video follow after their own review. Behaviour ratings and team chemistry are not readable for an observer either.
+**What waits for its masking.** Some records carry a sensitive field that cannot be masked yet. Those are not readable for an observer until it can be: attendance (absence reasons), the status verdict and potential, trials, prospects and scouting (contact details and judgements), the club's own player fields, the people list (parent and guardian contact), and the team roster screen, the coach's player list and the player comparison (date of birth). Measurements, the tournament planner, training plans and training load, VCT sessions, and photographs and video follow after their own review. Behaviour ratings and team chemistry are not readable for an observer either.
 
 **The journey.** An observer reads every player's journey and the cohort transitions (while the academy has that feature on), without the entries about a trial, a suspension, an injury or a PDP verdict: each of those shows only to someone who may read that record.
 

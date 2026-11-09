@@ -533,13 +533,16 @@ class EvaluationsRestController {
     /**
      * v3.110.126 — global-read bypass for evaluations list. Mirrors
      * `PdpFilesRestController::hasGlobalPdpAccess()` from v3.110.112.
-     * Four rungs in order:
+     * Three rungs in order:
      *
      *   1. `tt_edit_settings` cap (legacy umbrella).
      *   2. WP site admin (`manage_options`).
-     *   3. global-reader personas (head_of_development / academy_admin).
-     *      Matrix-dormant installs need the explicit persona check
-     *      because the matrix is empty.
+     *   3. `evaluations` read at global scope in the authorization
+     *      matrix (#4904). MatrixGate reads the seeded matrix whether or
+     *      not the `user_has_cap` bridge is active, so a matrix-dormant
+     *      install answers the same. The read-only observer holds this
+     *      grant and lists every evaluation; the notes and comments stay
+     *      masked through the sensitive-field registry.
      *
      * When false, the caller scopes to coach-owned teams + coach's
      * own authored rows.
@@ -548,15 +551,13 @@ class EvaluationsRestController {
         if ( current_user_can( 'tt_edit_settings' ) ) return true;
         if ( current_user_can( 'manage_options' ) ) return true;
         $uid = get_current_user_id();
-        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
-            $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $uid );
-            foreach ( $personas as $p ) {
-                if ( $p === 'head_of_development' || $p === 'academy_admin' ) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return $uid > 0
+            && \TT\Modules\Authorization\MatrixGate::can(
+                $uid,
+                'evaluations',
+                \TT\Modules\Authorization\MatrixGate::READ,
+                \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL
+            );
     }
 
     /**
