@@ -254,7 +254,8 @@ class DemoEvaluationWriter {
                     if ( $main_id <= 0 ) continue;
 
                     $children = [];
-                    foreach ( $repo->getChildren( $main_id, true ) as $child ) {
+                    // #4976 — an ordinary evaluation never rates a PDP form's items.
+                    foreach ( $repo->getChildrenForRating( $main_id ) as $child ) {
                         $child_id = (int) ( $child->id ?? 0 );
                         if ( $child_id > 0 ) $children[] = $child_id;
                     }

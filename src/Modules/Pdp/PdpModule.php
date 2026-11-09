@@ -12,6 +12,7 @@ use TT\Modules\Pdp\Rest\PdpBlocksRestController;
 use TT\Modules\Pdp\Rest\PdpConversationsRestController;
 use TT\Modules\Pdp\Rest\PdpFamilyRestController;
 use TT\Modules\Pdp\Rest\PdpFilesRestController;
+use TT\Modules\Pdp\Rest\PdpFormsRestController;
 use TT\Modules\Pdp\Rest\PdpPlanningRestController;
 use TT\Modules\Pdp\Rest\PdpPrepRestController;
 use TT\Modules\Pdp\Rest\PdpVerdictsRestController;
@@ -56,6 +57,8 @@ class PdpModule implements ModuleInterface {
         PdpConversationsRestController::init();
         PdpVerdictsRestController::init();
         PdpPrepRestController::init();
+        // #4976 — which conversation forms the academy uses.
+        PdpFormsRestController::init();
         // #3645 — the family read route. `pdp-files/*` stays a staff
         // surface; a player and their guardians read the plan here.
         PdpFamilyRestController::init();

@@ -172,12 +172,26 @@ De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: fot
 - **Configuratie → Systeem** — *POP-cyclusstandaard* (2 / 3 / 4) en de *Print: standaard bewijs meenemen*-knop.
 - **Per-team override** — op de team-bewerk­pagina kun je *POP-cyclus­grootte* afwijkend instellen.
 - **Configuratie → POP-voorbereidingsvragen** — waar een trainer over nadenkt voor elk gesprek, met per gesprek in de cyclus een eigen set. Elke academie begint met een meegeleverde set en kan vragen toevoegen, herformuleren, verslepen of verwijderen.
+- **Configuratie → POP-gespreksformulieren** — welke set gespreksformulieren de academie gebruikt, of geen. Zie *Gespreksformulieren* hieronder.
 
 ### Voorbereidingsvragen
 
 Aan het begin van het seizoen vraag je andere dingen dan aan het eind, dus elk gesprek in de cyclus heeft een eigen set prompts. De antwoorden zijn **alleen zichtbaar voor de trainer en het hoofd opleiding** — nooit voor de speler of de ouders, op geen enkel scherm.
 
 Herformuleer je een vraag die al beantwoord is, dan verandert dat niet waar die antwoorden op gegeven zijn: de oude formulering blijft staan bij de voorbereidingen die ze bevatten, en de nieuwe formulering geldt vanaf het volgende gesprek. Een voorbereiding van vorig seizoen leest dus nog steeds zoals hij geschreven is.
+
+### Gespreksformulieren
+
+Een academie kan haar POP-gesprekken voeren op een vast eigen formulier: een lijst onderdelen in vier secties (technisch, tactisch, fysiek en mentaal), waarbij de speler en de trainer elk onderdeel een score van 1 tot 5 geven, met daarbij de grootste kwaliteit, twee ontwikkelpunten en een ondertekening. Het formulier is van de academie zelf. De tekst wordt precies gebruikt zoals de academie hem schreef, in elke taal, en is in TalentTrack niet te bewerken. Een keeper krijgt het keepersformulier en elke andere speler het formulier voor veldspelers.
+
+Formulieren staan bij elke academie uit tot iemand met het recht om instellingen te wijzigen een set kiest onder **Configuratie → POP-gespreksformulieren**. Een set kiezen zet klaar waar de scores van de trainer onder worden opgeslagen:
+
+- per onderdeel een subcategorie voor evaluaties, onder de vier hoofdcategorieën die de academie al heeft, zodat het radardiagram, de evaluatiegeschiedenis en de rapporten de scores van de trainer tonen zoals elke andere beoordeling;
+- per formulier een evaluatietype ("POP-gesprek veldspeler" en "POP-gesprek keeper").
+
+De gewone evaluatieformulieren bieden deze onderdelen en typen nooit aan: die horen bij het gespreksformulier. Een formulier scoort in vijf stappen, dus de beoordelingsschaal van de academie moet er vijf hebben (de standaard één tot vijf sterren). Heeft de schaal een ander aantal stappen, of ontbreekt een van de vier hoofdcategorieën of staat die uit, dan wordt het kiezen van een set geweigerd met een melding en verandert er niets. Met *Geen* zet je de formulieren weer uit; de categorieën blijven staan, omdat evaluaties ze al kunnen gebruiken.
+
+Een formulier verandert nooit meer als het in gebruik is. Veranderen de tekst of de onderdelen, dan komt er een nieuwe versie van het formulier bij, en gesprekken die al gevoerd zijn houden de versie waarop ze gevoerd zijn.
 
 ## Werkflow­herinneringen
 
