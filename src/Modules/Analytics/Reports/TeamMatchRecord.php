@@ -56,6 +56,17 @@ final class TeamMatchRecord {
     }
 
     /**
+     * Was this fixture played? Played by the minutes reports' rule, or
+     * scored: a scored fixture was played whatever its date says. The one
+     * rule the record and the monthly report's minutes counts read (#4998).
+     *
+     * @param array{outcome:string, played?:bool} $fixture
+     */
+    public static function isPlayed( array $fixture ): bool {
+        return ! empty( $fixture['played'] ) || (string) $fixture['outcome'] !== '';
+    }
+
+    /**
      * The record over the fixtures given.
      *
      * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played?:bool}> $fixtures
@@ -78,8 +89,7 @@ final class TeamMatchRecord {
 
         foreach ( $fixtures as $f ) {
             $out['fixtures']++;
-            // A scored fixture was played whatever its date says.
-            if ( ! empty( $f['played'] ) || $f['outcome'] !== '' ) $out['played']++;
+            if ( self::isPlayed( $f ) ) $out['played']++;
             if ( $f['outcome'] === '' ) {
                 $out['without_score']++;
                 continue;

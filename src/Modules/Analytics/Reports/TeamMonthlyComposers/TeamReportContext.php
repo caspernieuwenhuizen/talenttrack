@@ -325,8 +325,7 @@ final class TeamReportContext {
         if ( $this->match_minutes_counts === null ) {
             $played = [];
             foreach ( $this->fixtures() as $f ) {
-                // The tally's rule: played, or scored whatever the date says.
-                if ( ! empty( $f['played'] ) || (string) $f['outcome'] !== '' ) $played[ (int) $f['activity_id'] ] = true;
+                if ( TeamMatchRecord::isPlayed( $f ) ) $played[ (int) $f['activity_id'] ] = true;
             }
             $with = array_flip( ( new MinutesQuery() )->recordedMatchIds( $this->team_id, $this->from, $this->to ) );
             $this->match_minutes_counts = [
