@@ -44,7 +44,13 @@ class AuthorizationService {
 
     // Per-request caches
 
-    /** @var array<int, int|null> */
+    /**
+     * #4967 — keyed `club|user`: a person row belongs to one club, so a
+     * request that moves between clubs (`ClubIteration::withClub()`) reads
+     * each club's row, never the first club's.
+     *
+     * @var array<string, int|null>
+     */
     private static $cache_person = [];
 
     /** @var array<int, array<int, array<string>>>  user_id => team_id => [role_keys] */
@@ -1164,10 +1170,16 @@ class AuthorizationService {
      */
     public static function getPersonIdByUserId( int $user_id ): ?int {
         if ( $user_id <= 0 ) return null;
-        if ( array_key_exists( $user_id, self::$cache_person ) ) return self::$cache_person[ $user_id ];
+        $key = self::personKey( $user_id );
+        if ( array_key_exists( $key, self::$cache_person ) ) return self::$cache_person[ $key ];
 
         self::primePersonIds( [ $user_id ] );
-        return self::$cache_person[ $user_id ] ?? null;
+        return self::$cache_person[ $key ] ?? null;
+    }
+
+    /** The person memo's key: the current club and the user. */
+    private static function personKey( int $user_id ): string {
+        return (int) CurrentClub::id() . '|' . $user_id;
     }
 
     /**
@@ -1180,7 +1192,7 @@ class AuthorizationService {
         $missing = [];
         foreach ( $user_ids as $id ) {
             $id = (int) $id;
-            if ( $id > 0 && ! array_key_exists( $id, self::$cache_person ) ) $missing[ $id ] = $id;
+            if ( $id > 0 && ! array_key_exists( self::personKey( $id ), self::$cache_person ) ) $missing[ $id ] = $id;
         }
         if ( $missing === [] ) return;
 
@@ -1199,7 +1211,7 @@ class AuthorizationService {
         foreach ( is_array( $rows ) ? $rows : [] as $r ) {
             if ( is_object( $r ) && (int) ( $r->id ?? 0 ) > 0 ) $found[ (int) ( $r->wp_user_id ?? 0 ) ] = (int) ( $r->id ?? 0 );
         }
-        foreach ( $missing as $id ) self::$cache_person[ $id ] = $found[ $id ] ?? null;
+        foreach ( $missing as $id ) self::$cache_person[ self::personKey( $id ) ] = $found[ $id ] ?? null;
     }
 
     /**
@@ -1592,7 +1604,7 @@ class AuthorizationService {
 
         $persons = [];
         foreach ( $ids as $id ) {
-            $person = self::$cache_person[ $id ] ?? null;
+            $person = self::$cache_person[ self::personKey( $id ) ] ?? null;
             if ( $person !== null && $person > 0 ) $persons[ $person ] = $person;
         }
         if ( $persons === [] ) return;
