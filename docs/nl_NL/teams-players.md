@@ -207,7 +207,7 @@ Wisselen van tabblad laadt de pagina opnieuw (`?tt_view=teams&id=N&tab=stats`), 
 
 Wat het team op het veld deed, over een periode die standaard het lopende seizoen is en die bovenaan benoemd staat, zodat "12 gespeeld" nooit onduidelijk is over *wanneer*. Versmal hem met de datums Vanaf / T/m.
 
-- **Balans** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen, doelsaldo, keren de nul gehouden.
+- **Balans** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen, doelsaldo, keren de nul gehouden. **Gespeeld** telt de wedstrijden die TalentTrack overal als gespeeld telt: afgerond, in het verleden, of met vastgelegde minuten. Het is hetzelfde getal als in het maandrapport van het team, en een gespeelde wedstrijd waarvan niemand de uitslag invoerde telt mee.
 - **Recente vorm** — de laatste uitslagen als W/G/V-chips met de standen, dezelfde regel die spelers op hun Mijn team-pagina zien.
 - **Topscorers** en **Meeste assists** — twee ranglijsten, naast elkaar op een tablet en onder elkaar op een telefoon. Elke naam opent het profiel van die speler.
 - **Optredens en minuten** — de bovenkant van de selectie op minuten, met een link naar het volledige minutenrapport voor de rest.

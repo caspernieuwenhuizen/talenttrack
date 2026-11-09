@@ -216,8 +216,9 @@ final class TeamMatchStatsQuery {
     }
 
     /**
-     * The tab's record: `played` counts scored fixtures only, and the rest
-     * are `without_a_score`.
+     * The tab's record. `played` is the reports' one played-match rule
+     * (#4572), the figure the monthly report prints under the same label; a
+     * played fixture with no score is also in `without_a_score`.
      *
      * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $fixtures
      * @return array{played:int, won:int, drawn:int, lost:int, goals_for:int,
@@ -228,7 +229,7 @@ final class TeamMatchStatsQuery {
         $tally = TeamMatchRecord::tally( $fixtures );
 
         return [
-            'played'               => $tally['scored'],
+            'played'               => $tally['played'],
             'won'                  => $tally['won'],
             'drawn'                => $tally['drawn'],
             'lost'                 => $tally['lost'],

@@ -283,14 +283,16 @@ final class TeamReportContext {
     }
 
     /**
-     * The window's fixtures, tournaments excluded ({@see TeamMatchRecord}).
-     * The match section and the data-quality section read the same list.
+     * The window's fixtures up to today, tournaments excluded
+     * ({@see TeamMatchRecord}). The match section and the data-quality
+     * section read the same list, and the statistics tab reads the same
+     * filter, so the two records count the same fixtures (#4572).
      *
      * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}>
      */
     public function fixtures(): array {
         if ( $this->fixtures === null ) {
-            $this->fixtures = TeamMatchRecord::fixtures( $this->team_id, $this->from, $this->to );
+            $this->fixtures = TeamMatchRecord::fixtures( $this->team_id, $this->from, $this->to, true );
         }
         return $this->fixtures;
     }

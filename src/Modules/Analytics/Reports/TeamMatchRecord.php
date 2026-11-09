@@ -14,12 +14,15 @@ use TT\Modules\Activities\Repositories\ActivitiesRepository;
  * out) and count them here. A fixture without a score is never a goalless
  * draw: it is counted in `without_score` and in nothing else.
  *
- * The two surfaces word "played" differently, and both are kept: the report
- * counts every fixture in the window, the tab only the scored ones. Both are
- * in the tally, so neither is computed twice.
+ * #4572 — "Played" has one meaning on every surface: the fixtures the
+ * reports' played-match rule counts (`MinutesQuery::playedMatchSql()`), read
+ * per fixture as `played`. The monthly report used to print every fixture in
+ * its window under that label and the statistics tab only the scored ones, so
+ * the same word showed two figures for the same team. A played match without
+ * a score is still played, and is counted in `without_score` too.
  *
- * @phpstan-type Fixture array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}
- * @phpstan-type Tally array{fixtures:int, scored:int, won:int, drawn:int, lost:int, goals_for:int, goals_against:int, goal_difference:int, clean_sheets:int, without_score:int}
+ * @phpstan-type Fixture array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}
+ * @phpstan-type Tally array{fixtures:int, played:int, scored:int, won:int, drawn:int, lost:int, goals_for:int, goals_against:int, goal_difference:int, clean_sheets:int, without_score:int}
  */
 final class TeamMatchRecord {
 
@@ -34,14 +37,34 @@ final class TeamMatchRecord {
     }
 
     /**
+     * Why the record leaves tournaments out, in words, or '' when none fell
+     * in the period. The statistics tab and the Report Studio's match blocks
+     * both say it this way (#4572).
+     */
+    public static function tournamentsNote( int $tournaments ): string {
+        if ( $tournaments <= 0 ) return '';
+        return sprintf(
+            /* translators: %d: number of tournaments in the period */
+            _n(
+                '%d tournament this period is not included — a tournament is a multi-game day.',
+                '%d tournaments this period are not included — a tournament is a multi-game day.',
+                $tournaments,
+                'talenttrack'
+            ),
+            $tournaments
+        );
+    }
+
+    /**
      * The record over the fixtures given.
      *
-     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $fixtures
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played?:bool}> $fixtures
      * @return Tally
      */
     public static function tally( array $fixtures ): array {
         $out = [
             'fixtures'        => 0,
+            'played'          => 0,
             'scored'          => 0,
             'won'             => 0,
             'drawn'           => 0,
@@ -55,6 +78,8 @@ final class TeamMatchRecord {
 
         foreach ( $fixtures as $f ) {
             $out['fixtures']++;
+            // A scored fixture was played whatever its date says.
+            if ( ! empty( $f['played'] ) || $f['outcome'] !== '' ) $out['played']++;
             if ( $f['outcome'] === '' ) {
                 $out['without_score']++;
                 continue;

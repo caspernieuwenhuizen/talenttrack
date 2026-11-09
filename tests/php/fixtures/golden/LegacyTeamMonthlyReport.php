@@ -28,7 +28,7 @@ use TT\Modules\Measurements\Units\UnitContext;
  * Frozen copy of `TeamMonthlyReport` as it stood before the block composers
  * were extracted (#4590). The golden test composes with both and compares the
  * bytes. Not loaded by the plugin; do not call it from `src/`. Delete it when
- * #4572 merges: from then the Studio blocks are the second caller of the
+ * the snapshot harness lands (#4958): the Studio blocks are the second caller of the
  * composers, and the golden test compares against stored snapshots.
  *
  * TeamMonthlyReport (#3458, epic #3457) — the document a monthly staff meeting
@@ -811,7 +811,10 @@ final class LegacyTeamMonthlyReport {
      * @return array<string,mixed>
      */
     private function matches( array $options = [] ): array {
-        $activities = ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to );
+        // #4572 — the deliberate change, taken here as the golden test asks:
+        // the monthly report reads fixtures up to today, as the statistics
+        // tab does, so the two records count the same matches.
+        $activities = ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to, true );
 
         $out = [
             // Tournaments are multi-game days (#2686): one score line cannot
@@ -945,7 +948,9 @@ final class LegacyTeamMonthlyReport {
         ];
 
         foreach ( $activities as $a ) {
-            $record['played']++;
+            // #4572 — the one played-match rule, a deliberate change to the
+            // figure, made here so it shows as a change to the "before".
+            if ( ! empty( $a['played'] ) || $a['outcome'] !== '' ) $record['played']++;
             if ( $a['outcome'] === '' ) {
                 $record['without_score']++;
                 continue;
@@ -1569,7 +1574,7 @@ final class LegacyTeamMonthlyReport {
         // whether the record is wrong or merely incomplete. Named by date
         // and title, because the title is where the opponent usually is.
         $without_opponent = [];
-        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to ) as $match ) {
+        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to, true ) as $match ) {
             if ( trim( (string) $match['opponent'] ) !== '' ) continue;
             $without_opponent[] = [
                 'activity_id' => (int) $match['activity_id'],

@@ -160,7 +160,8 @@ final class MatchesComposer {
         $tally = TeamMatchRecord::tally( $activities );
 
         return [
-            'played'          => $tally['fixtures'],
+            // #4572 — the one played-match rule, as the statistics tab counts it.
+            'played'          => $tally['played'],
             'won'             => $tally['won'],
             'drawn'           => $tally['drawn'],
             'lost'            => $tally['lost'],

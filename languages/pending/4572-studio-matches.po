@@ -1,0 +1,36 @@
+#: src/Modules/ReportStudio/Blocks/MatchResultsBlock.php:29
+msgctxt "report studio block: match results"
+msgid "Results"
+msgstr "Uitslagen"
+
+#: src/Modules/ReportStudio/Blocks/TeamStatisticsBlock.php:30
+msgid "Team statistics"
+msgstr "Teamstatistieken"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Every match in the period up to today with its score, and the record over them, the same as the team monthly report. Tournaments are left out."
+msgstr "Elke wedstrijd in de periode tot en met vandaag met de uitslag, en de balans daarover, hetzelfde als in het maandrapport van het team. Toernooien blijven erbuiten."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The team's record over the period, the same figures as the team's statistics tab."
+msgstr "De balans van het team over de periode, dezelfde cijfers als op het tabblad Statistieken van het team."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column: home or away"
+msgid "H/A"
+msgstr "T/U"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column"
+msgid "Opponent"
+msgstr "Tegenstander"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Score"
+msgstr "Uitslag"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:292
+msgctxt "report studio column"
+msgid "No score recorded"
+msgstr "Geen uitslag ingevoerd"

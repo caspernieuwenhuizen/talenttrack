@@ -111,6 +111,8 @@ final class FrontendReportView extends FrontendViewBase {
                 'squadRating'   => __( 'Squad rating: %s.', 'talenttrack' ),
                 /* translators: 1: the player's average rating, 2: number of evaluations */
                 'overallRating' => __( 'Average over all ratings: %1$s, from %2$s evaluations.', 'talenttrack' ),
+                /* translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against, 7: signed goal difference */
+                'recordLine'   => __( 'Played %1$d · W %2$d D %3$d L %4$d · %5$d–%6$d (%7$s)', 'talenttrack' ),
                 'block'        => _x( 'Block', 'report studio', 'talenttrack' ),
                 'notAvailable' => __( 'Not available to you.', 'talenttrack' ),
                 'empty'        => __( 'This report has no blocks yet.', 'talenttrack' ),

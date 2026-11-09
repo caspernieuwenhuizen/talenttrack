@@ -191,7 +191,18 @@
 		target(box, data, t);
 		attendanceNotes(box, data, t);
 		ratingNotes(box, data, t);
+		matchNotes(box, data, t);
 		return box;
+	}
+
+	/** The record under the results, and the tournaments left out (#4572). */
+	function matchNotes(box, data, t) {
+		var r = data.record;
+		if (r && t.recordLine) {
+			var gd = Number(r.goal_difference) || 0;
+			box.appendChild(el('p', 'tt-rs-block-msg', fmt(t.recordLine, r.played, r.won, r.drawn, r.lost, r.goals_for, r.goals_against, (gd > 0 ? '+' : '') + gd)));
+		}
+		if (data.note) box.appendChild(el('p', 'tt-rs-block-msg', data.note));
 	}
 
 	/** Blocks that are their own heading, so a reader sees no block name above them. */

@@ -15,7 +15,7 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
  * Frozen copy of `TeamMatchStatsQuery` as it stood before its record moved
  * onto the shared `TeamMatchRecord` read (#4590). The golden test compares
  * both. Not loaded by the plugin; do not call it from `src/`. Delete it when
- * #4572 merges, with the other frozen copies.
+ * the snapshot harness lands (#4958), with the other frozen copies.
  *
  * TeamMatchStatsQuery (#3520, epic #3519) — "how is this team doing", as one
  * answer.
@@ -207,8 +207,31 @@ final class LegacyTeamMatchStatsQuery {
 
         /** @var list<object>|null $rows */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // The played rule as `MinutesQuery::playedMatchSql()` and
+        // `PlayerMatchMinutes::newestRowClause()` read it when this copy was
+        // frozen, typed out rather than called: a later change to the live
+        // rule must move the "after" and leave this "before" where it was.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
+            "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score,
+                    ( ( a.activity_status_key = 'completed'
+                        OR a.session_date < CURDATE()
+                        OR EXISTS ( SELECT 1 FROM {$p}tt_attendance played_att
+                                     WHERE played_att.activity_id = a.id
+                                       AND played_att.record_type = 'actual'
+                                       AND played_att.is_guest = 0
+                                       AND COALESCE( played_att.minutes_override, played_att.minutes_played, 0 ) > 0
+                                       AND played_att.id = (
+                                           SELECT COALESCE(
+                                                      MAX( CASE WHEN COALESCE( n.minutes_override, n.minutes_played ) IS NOT NULL THEN n.id END ),
+                                                      MAX( n.id )
+                                                  )
+                                             FROM {$p}tt_attendance n
+                                            WHERE n.activity_id = played_att.activity_id
+                                              AND n.player_id   = played_att.player_id
+                                              AND n.club_id     = played_att.club_id
+                                              AND n.record_type = 'actual'
+                                              AND n.is_guest    = 0
+                                       ) ) ) ) AS is_played
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
                 AND a.club_id = %d
@@ -273,8 +296,12 @@ final class LegacyTeamMatchStatsQuery {
 
         foreach ( $fixtures as $fixture ) {
             $result = $this->frame( $fixture );
+            // #4572 — the one played-match rule, a deliberate change to the
+            // figure, made here so it shows as a change to the "before": a
+            // played fixture without a score is played too.
             if ( $result === null ) {
                 $out['without_a_score']++;
+                if ( ! empty( $fixture->is_played ) ) $out['played']++;
                 continue;
             }
 

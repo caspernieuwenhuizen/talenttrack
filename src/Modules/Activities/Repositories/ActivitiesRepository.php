@@ -1896,8 +1896,12 @@ final class ActivitiesRepository {
      * team statistics tab: next week's league game is not a match missing its
      * result. The monthly report reads its whole window.
      *
+     * #4572 — `played` is the reports' one played-match rule
+     * (`MinutesQuery::playedMatchSql()`: completed, in the past, or carrying
+     * recorded minutes), so every "Played" figure counts the same fixtures.
+     *
      * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string,
-     *         team_score:int|null, opp_score:int|null, outcome:string}>
+     *         team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
      */
     public function matchesInWindowForTeam( int $team_id, string $from, string $to, bool $played_only = false ): array {
         if ( $team_id <= 0 ) return [];
@@ -1911,11 +1915,12 @@ final class ActivitiesRepository {
         $legacy     = ActivityTypeKey::LEGACY_GAME;
         $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
         $played     = $played_only ? "AND a.{$date_col} <= CURDATE()" : '';
+        $is_played  = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.{$date_col} AS session_date, a.opponent, a.home_away,
-                    a.home_score, a.away_score
+                    a.home_score, a.away_score, ( {$is_played} ) AS is_played
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
                 AND a.club_id = %d
@@ -1949,6 +1954,7 @@ final class ActivitiesRepository {
                 'team_score'  => $result['our_score'],
                 'opp_score'   => $result['their_score'],
                 'outcome'     => $result['outcome'],
+                'played'      => ! empty( $r->is_played ),
             ];
         }
 
