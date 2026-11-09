@@ -56,13 +56,17 @@ final class PlayerReportAccess {
         $out = [ 'read' => [], 'teams' => [] ];
         if ( $ids === [] ) return $out;
 
-        global $wpdb;
-        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, team_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
-            (int) CurrentClub::id(),
-            ...$ids
-        ) );
+        // Remembered while a scope decision runs (#4742): a bulk check asks
+        // this for one player once per account.
+        $rows = \TT\Infrastructure\Security\ScopeMemo::remember( 'report_player_teams|' . implode( ',', $ids ), static function () use ( $ids ) {
+            global $wpdb;
+            $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            return $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, team_id FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND id IN ({$in})",
+                (int) CurrentClub::id(),
+                ...$ids
+            ) );
+        } );
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             if ( is_object( $row ) ) $out['teams'][ (int) ( $row->id ?? 0 ) ] = (int) ( $row->team_id ?? 0 );
         }

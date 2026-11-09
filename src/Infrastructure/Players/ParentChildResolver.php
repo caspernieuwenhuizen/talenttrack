@@ -235,6 +235,36 @@ final class ParentChildResolver {
 
     /** @return list<object> */
     private static function childrenUncached( int $parent_user_id ): array {
+        return self::childrenUncachedMany( [ $parent_user_id ] )[ $parent_user_id ] ?? [];
+    }
+
+    /**
+     * #4742 — read the children of a set of guardian accounts in one
+     * statement and leave each account's list where `children()` finds it
+     * while a scope decision runs, so the per-account question reads
+     * nothing again. Outside a decision window nothing is kept.
+     *
+     * @param list<int> $parent_user_ids
+     */
+    public static function primeChildren( array $parent_user_ids ): void {
+        if ( ! \TT\Infrastructure\Security\ScopeMemo::active() ) return;
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $parent_user_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return;
+
+        $rows = self::childrenUncachedMany( $ids );
+        foreach ( $ids as $id ) \TT\Infrastructure\Security\ScopeMemo::prime( 'children|' . $id, $rows[ $id ] ?? [] );
+    }
+
+    /**
+     * The linked children of each of these accounts, each list ordered most
+     * recent link first. An account with none is absent.
+     *
+     * @param list<int> $parent_user_ids
+     * @return array<int, list<object>>
+     */
+    private static function childrenUncachedMany( array $parent_user_ids ): array {
+        if ( $parent_user_ids === [] ) return [];
+
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_parents';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
@@ -249,19 +279,32 @@ final class ParentChildResolver {
         // Aliased on purpose: both joined tables are archivable, so an
         // unqualified `trashed_at` is an ambiguous column and the query dies.
         $lifecycle = ArchiveRepository::filterClause( 'active', 'p' );
+        $in        = implode( ',', array_fill( 0, count( $parent_user_ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.* FROM {$table} pp
+            "SELECT p.*, pp.parent_user_id AS tt_linked_parent_user_id FROM {$table} pp
                INNER JOIN {$players} p ON p.id = pp.player_id
-              WHERE pp.parent_user_id = %d
+              WHERE pp.parent_user_id IN ({$in})
                 AND pp.club_id = %d
                 AND p.status IN ( %s, %s, %s )
                 AND {$lifecycle}
-              ORDER BY pp.created_at DESC, pp.player_id DESC",
-            $parent_user_id, CurrentClub::id(),
-            self::LINKED_STATUSES[0], self::LINKED_STATUSES[1], self::LINKED_STATUSES[2]
+              ORDER BY pp.parent_user_id ASC, pp.created_at DESC, pp.player_id DESC",
+            ...array_merge(
+                array_map( 'intval', $parent_user_ids ),
+                [ CurrentClub::id(), self::LINKED_STATUSES[0], self::LINKED_STATUSES[1], self::LINKED_STATUSES[2] ]
+            )
         ) );
-        return is_array( $rows ) ? array_values( array_filter( $rows, 'is_object' ) ) : [];
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            if ( ! is_object( $row ) ) continue;
+            $parent = (int) ( $row->tt_linked_parent_user_id ?? 0 );
+            // The grouping key is not a player column: drop it, so the rows
+            // are the `tt_players` rows `children()` has always returned.
+            unset( $row->tt_linked_parent_user_id );
+            $out[ $parent ][] = $row;
+        }
+        return $out;
     }
 
     /**

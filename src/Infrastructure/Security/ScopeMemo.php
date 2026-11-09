@@ -64,6 +64,37 @@ final class ScopeMemo {
         return self::$store[ $key ];
     }
 
+    /**
+     * #4742 — set the answer for `$key` ahead of the question, inside a
+     * window: a bulk check reads a source once for a whole set of users and
+     * leaves each user's answer here, where the unchanged single check finds
+     * it. An answer already remembered is kept. Outside a window nothing is
+     * kept, so the single check reads the source itself, as it always did.
+     *
+     * @param mixed $value
+     */
+    public static function prime( string $key, $value ): void {
+        if ( self::$depth === 0 ) return;
+        $key = (int) \TT\Infrastructure\Tenancy\CurrentClub::id() . '|' . $key;
+        if ( ! array_key_exists( $key, self::$store ) ) self::$store[ $key ] = $value;
+    }
+
+    /** Is an answer for `$key` remembered? Always false outside a window. */
+    public static function has( string $key ): bool {
+        if ( self::$depth === 0 ) return false;
+        return array_key_exists( (int) \TT\Infrastructure\Tenancy\CurrentClub::id() . '|' . $key, self::$store );
+    }
+
+    /**
+     * The remembered answer for `$key`, null when there is none.
+     *
+     * @return mixed
+     */
+    public static function get( string $key ) {
+        if ( self::$depth === 0 ) return null;
+        return self::$store[ (int) \TT\Infrastructure\Tenancy\CurrentClub::id() . '|' . $key ] ?? null;
+    }
+
     public static function active(): bool {
         return self::$depth > 0;
     }

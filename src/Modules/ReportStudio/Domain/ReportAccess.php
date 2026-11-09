@@ -209,6 +209,30 @@ final class ReportAccess {
     }
 
     /**
+     * #4742 — `readsAs()` for a set of accounts: the ones who would read
+     * the report as one of these personas, ascending. Every source the rule
+     * rests on is read once for the set (`AuthorizationService::primeUsers()`),
+     * then each account is asked `readsAs()`, unchanged, so the answer
+     * cannot differ from the recipient rule.
+     *
+     * @param list<int>    $user_ids
+     * @param Report       $report
+     * @param list<string> $persona_keys
+     * @return list<int>
+     */
+    public static function readersAmong( array $user_ids, array $report, array $persona_keys ): array {
+        return \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $user_ids, $report, $persona_keys ): array {
+            \TT\Infrastructure\Security\AuthorizationService::primeUsers( $user_ids );
+            $out = [];
+            foreach ( array_unique( array_map( 'intval', $user_ids ) ) as $id ) {
+                if ( $id > 0 && self::readsAs( ReportReader::for( $id ), $report, $persona_keys ) ) $out[] = $id;
+            }
+            sort( $out );
+            return $out;
+        } );
+    }
+
+    /**
      * May this user open the report at all: an editor, or a recipient.
      *
      * @param Report $report

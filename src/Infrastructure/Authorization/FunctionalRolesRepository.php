@@ -75,14 +75,33 @@ class FunctionalRolesRepository {
      * @return int[]
      */
     public function getAuthRoleIdsForFunctionalRole( int $functional_role_id ): array {
+        return $this->getAuthRoleIdsForFunctionalRoles( [ $functional_role_id ] )[ $functional_role_id ] ?? [];
+    }
+
+    /**
+     * #4742 — `getAuthRoleIdsForFunctionalRole()` for many functional roles,
+     * in one statement. A functional role mapped to none is absent.
+     *
+     * @param list<int> $functional_role_ids
+     * @return array<int, int[]>
+     */
+    public function getAuthRoleIdsForFunctionalRoles( array $functional_role_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $functional_role_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
         global $wpdb;
-        $rows = $wpdb->get_col( $wpdb->prepare(
-            "SELECT auth_role_id FROM {$wpdb->prefix}tt_functional_role_auth_roles
-             WHERE functional_role_id = %d AND club_id = %d",
-            $functional_role_id, CurrentClub::id()
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT functional_role_id, auth_role_id FROM {$wpdb->prefix}tt_functional_role_auth_roles
+             WHERE functional_role_id IN ({$in}) AND club_id = %d",
+            ...array_merge( $ids, [ CurrentClub::id() ] )
         ) );
-        if ( ! is_array( $rows ) ) return [];
-        return array_map( 'intval', $rows );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) ) $out[ (int) ( $r->functional_role_id ?? 0 ) ][] = (int) ( $r->auth_role_id ?? 0 );
+        }
+        return $out;
     }
 
     /**
@@ -217,9 +236,27 @@ class FunctionalRolesRepository {
      * @return array<int, object>
      */
     public function getFunctionalRoleAssignmentsForPerson( int $person_id ): array {
+        return $this->getFunctionalRoleAssignmentsForPersons( [ $person_id ] )[ $person_id ] ?? [];
+    }
+
+    /**
+     * #4742 — `getFunctionalRoleAssignmentsForPerson()` for many people, in
+     * one statement: person id => their (team, functional role) rows, each
+     * shaped as above. A person with none is absent.
+     *
+     * @param list<int> $person_ids
+     * @return array<int, array<int, object>>
+     */
+    public function getFunctionalRoleAssignmentsForPersons( array $person_ids ): array {
+        $person_ids = array_values( array_unique( array_filter( array_map( 'intval', $person_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $person_ids === [] ) return [];
+
         global $wpdb;
+        $in = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT tp.id   AS assignment_id,
+                    tp.person_id AS tt_assigned_person_id,
                     tp.team_id,
                     tp.functional_role_id,
                     tp.start_date,
@@ -228,11 +265,20 @@ class FunctionalRolesRepository {
              FROM {$wpdb->prefix}tt_team_people tp
              INNER JOIN {$wpdb->prefix}tt_functional_roles fr
                      ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
-             WHERE tp.person_id = %d
+             WHERE tp.person_id IN ({$in})
                AND tp.club_id = %d
                AND tp.functional_role_id IS NOT NULL",
-            $person_id, CurrentClub::id()
+            ...array_merge( $person_ids, [ CurrentClub::id() ] )
         ) );
-        return is_array( $rows ) ? $rows : [];
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            if ( ! is_object( $row ) ) continue;
+            $person = (int) ( $row->tt_assigned_person_id ?? 0 );
+            // The grouping key is not one of the row's columns above: drop it.
+            unset( $row->tt_assigned_person_id );
+            $out[ $person ][] = $row;
+        }
+        return $out;
     }
 }

@@ -140,20 +140,37 @@ class AuthorizationRepository {
      * @return array<int, array<string, mixed>>
      */
     public function getActiveScopesForPerson( int $person_id ): array {
+        return $this->getActiveScopesForPersons( [ $person_id ] )[ $person_id ] ?? [];
+    }
+
+    /**
+     * #4742 — `getActiveScopesForPerson()` for many people, in two
+     * statements: person id => their active scopes, each shaped as above. A
+     * person with none is absent.
+     *
+     * @param list<int> $person_ids
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    public function getActiveScopesForPersons( array $person_ids ): array {
+        $person_ids = array_values( array_unique( array_filter( array_map( 'intval', $person_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $person_ids === [] ) return [];
+
         global $wpdb;
         $today = current_time( 'Y-m-d' );
+        $in    = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT urs.id AS scope_id_pk, urs.role_id, urs.scope_type, urs.scope_id,
+            "SELECT urs.id AS scope_id_pk, urs.person_id, urs.role_id, urs.scope_type, urs.scope_id,
                     urs.start_date, urs.end_date,
                     r.role_key
              FROM {$wpdb->prefix}tt_user_role_scopes urs
              INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = urs.role_id AND r.club_id = urs.club_id
-             WHERE urs.person_id = %d
+             WHERE urs.person_id IN ({$in})
                AND urs.club_id = %d
                AND (urs.start_date IS NULL OR urs.start_date <= %s)
                AND (urs.end_date   IS NULL OR urs.end_date   >= %s)",
-            $person_id, CurrentClub::id(), $today, $today
+            ...array_merge( $person_ids, [ CurrentClub::id(), $today, $today ] )
         ) );
 
         if ( ! is_array( $rows ) || empty( $rows ) ) return [];
@@ -175,7 +192,7 @@ class AuthorizationRepository {
 
         $out = [];
         foreach ( $rows as $r ) {
-            $out[] = [
+            $out[ (int) $r->person_id ][] = [
                 'scope_id_pk' => (int) $r->scope_id_pk,
                 'role_id'     => (int) $r->role_id,
                 'role_key'    => (string) $r->role_key,

@@ -263,15 +263,9 @@ class MatrixGate {
      * so the admin can show "scope_value=42".
      */
     private static function firstScopeAssignment( int $user_id, string $scope_kind, string $persona, string $entity, string $activity ): ?int {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         if ( $scope_kind === self::SCOPE_PLAYER ) {
             // The account's own player record in this academy only.
-            $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
-                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
-            ) );
+            $self_player = self::selfPlayerId( $user_id );
             if ( $self_player > 0 ) return $self_player;
 
             // #3476 — was a fifth inline pivot query, club-unscoped like the
@@ -302,17 +296,10 @@ class MatrixGate {
             $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return null;
 
-            $today = current_time( 'Y-m-d' );
-            $team_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT scope_id FROM {$p}tt_user_role_scopes
-                  WHERE person_id = %d
-                    AND scope_type = 'team'
-                    AND ( start_date IS NULL OR start_date <= %s )
-                    AND ( end_date   IS NULL OR end_date   >= %s )
-                  LIMIT 1",
-                $person_id, $today, $today
-            ) );
-            return $team_id > 0 ? $team_id : null;
+            foreach ( self::liveTeamScopes( $person_id ) as $team_id ) {
+                if ( $team_id > 0 ) return $team_id;
+            }
+            return null;
         }
 
         return null;
@@ -374,22 +361,10 @@ class MatrixGate {
      * @return list<int>
      */
     private static function assignedTeamIds( int $user_id ): array {
-        global $wpdb;
         $person_id = self::personIdOf( $user_id );
         if ( $person_id <= 0 ) return [];
 
-        $p     = $wpdb->prefix;
-        $today = current_time( 'Y-m-d' );
-        $ids   = $wpdb->get_col( $wpdb->prepare(
-            "SELECT DISTINCT s.scope_id
-               FROM {$p}tt_user_role_scopes s
-              WHERE s.person_id = %d
-                AND s.scope_type = 'team'
-                AND ( s.start_date IS NULL OR s.start_date <= %s )
-                AND ( s.end_date   IS NULL OR s.end_date   >= %s )",
-            $person_id, $today, $today
-        ) );
-        return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ), static fn( int $v ): bool => $v > 0 ) );
+        return array_values( array_filter( self::liveTeamScopes( $person_id ), static fn( int $v ): bool => $v > 0 ) );
     }
 
     /**
@@ -530,16 +505,9 @@ class MatrixGate {
      * any linked player at all", not "the specific team N".
      */
     private static function userHasAnyScope( int $user_id, string $scope_kind, string $persona, string $entity, string $activity ): bool {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         if ( $scope_kind === self::SCOPE_PLAYER ) {
             // The account's own player record in this academy only.
-            $self_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
-                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
-            ) );
-            if ( $self_player > 0 ) return true;
+            if ( self::selfPlayerId( $user_id ) > 0 ) return true;
 
             // #3476 — the canonical, club-scoped, status-filtered answer.
             // This used to be an inline pivot query with neither filter, so
@@ -563,26 +531,13 @@ class MatrixGate {
             $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return false;
 
-            $today = current_time( 'Y-m-d' );
-            $hit = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT 1 FROM {$p}tt_user_role_scopes
-                  WHERE person_id = %d
-                    AND scope_type = 'team'
-                    AND ( start_date IS NULL OR start_date <= %s )
-                    AND ( end_date   IS NULL OR end_date   >= %s )
-                  LIMIT 1",
-                $person_id, $today, $today
-            ) );
-            return $hit === 1;
+            return self::liveTeamScopes( $person_id ) !== [];
         }
 
         return false;
     }
 
     private static function userHasScope( int $user_id, string $scope_kind, int $target_id, string $persona, string $entity, string $activity ): bool {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         if ( $scope_kind === self::SCOPE_SELF ) {
             return $user_id === $target_id;
         }
@@ -590,14 +545,7 @@ class MatrixGate {
         if ( $scope_kind === self::SCOPE_PLAYER ) {
             // Player viewing self? In this club only: the account's player
             // record in another academy is not the one being asked about.
-            // Remembered while a scope decision runs (#4671): it does not
-            // depend on the target, and a list-form question asks it per
-            // target.
-            $self_player = (int) \TT\Infrastructure\Security\ScopeMemo::remember( 'self_player|' . $user_id, static fn(): int => (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
-                $user_id, (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
-            ) ) );
-            if ( $self_player === $target_id ) return true;
+            if ( self::selfPlayerId( $user_id ) === $target_id ) return true;
 
             // Parent of the player? #3476 — one club-scoped implementation,
             // not a fifth copy of the pivot query. #4089 — narrowed by the
@@ -625,21 +573,189 @@ class MatrixGate {
             $person_id = self::personIdOf( $user_id );
             if ( $person_id <= 0 ) return false;
 
-            $today = current_time( 'Y-m-d' );
-            $hit = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT 1 FROM {$p}tt_user_role_scopes
-                  WHERE person_id = %d
-                    AND scope_type = 'team'
-                    AND scope_id = %d
-                    AND ( start_date IS NULL OR start_date <= %s )
-                    AND ( end_date   IS NULL OR end_date   >= %s )
-                  LIMIT 1",
-                $person_id, $target_id, $today, $today
-            ) );
-            return $hit === 1;
+            return in_array( $target_id, self::liveTeamScopes( $person_id ), true );
         }
 
         return false;
+    }
+
+    /**
+     * The teams this person holds a team scope on that is live today
+     * (`start_date` and `end_date` inclusive, either open), ascending. A
+     * team scope row without a team reads as 0: it still counts as "a team
+     * assignment" for the any-scope question, as it always did.
+     * Remembered while a scope decision runs (#4671); a bulk check primes
+     * it for a whole set of people (#4742).
+     *
+     * @return list<int>
+     */
+    private static function liveTeamScopes( int $person_id ): array {
+        if ( $person_id <= 0 ) return [];
+        /** @var list<int> $teams */
+        $teams = \TT\Infrastructure\Security\ScopeMemo::remember(
+            'live_team_scopes|' . $person_id,
+            static fn(): array => self::loadLiveTeamScopes( [ $person_id ] )[ $person_id ] ?? []
+        );
+        return $teams;
+    }
+
+    /**
+     * @param list<int> $person_ids
+     * @return array<int, list<int>> person id => team ids, ascending; a person with none is absent
+     */
+    private static function loadLiveTeamScopes( array $person_ids ): array {
+        if ( $person_ids === [] ) return [];
+        global $wpdb;
+        $in    = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+        $today = current_time( 'Y-m-d' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT person_id, scope_id FROM {$wpdb->prefix}tt_user_role_scopes
+              WHERE person_id IN ({$in})
+                AND scope_type = 'team'
+                AND ( start_date IS NULL OR start_date <= %s )
+                AND ( end_date   IS NULL OR end_date   >= %s )
+              ORDER BY person_id ASC, scope_id ASC",
+            ...array_merge( array_map( 'intval', $person_ids ), [ $today, $today ] )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) ) $out[ (int) ( $r->person_id ?? 0 ) ][] = (int) ( $r->scope_id ?? 0 );
+        }
+        return $out;
+    }
+
+    /**
+     * The account's own player record in this academy, 0 for none.
+     * Remembered while a scope decision runs (#4671): it does not depend on
+     * the target, and a list-form question asks it per target.
+     */
+    private static function selfPlayerId( int $user_id ): int {
+        if ( $user_id <= 0 ) return 0;
+        return (int) \TT\Infrastructure\Security\ScopeMemo::remember(
+            'self_player|' . $user_id,
+            static fn(): int => self::loadSelfPlayerIds( [ $user_id ] )[ $user_id ] ?? 0
+        );
+    }
+
+    /**
+     * @param list<int> $user_ids
+     * @return array<int, int> user id => their player id in this club; an account with none is absent
+     */
+    private static function loadSelfPlayerIds( array $user_ids ): array {
+        if ( $user_ids === [] ) return [];
+        global $wpdb;
+        $in = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
+        // One player per account and club (the UNIQUE (club_id, wp_user_id) index).
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT wp_user_id, MIN(id) AS id FROM {$wpdb->prefix}tt_players
+              WHERE wp_user_id IN ({$in}) AND club_id = %d
+              GROUP BY wp_user_id",
+            ...array_merge( array_map( 'intval', $user_ids ), [ (int) \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            if ( is_object( $r ) ) $out[ (int) ( $r->wp_user_id ?? 0 ) ] = (int) ( $r->id ?? 0 );
+        }
+        return $out;
+    }
+
+    /**
+     * #4742 — read, once for a set of accounts, every source the gate's
+     * global-, team- and self-scope answers rest on, and leave each
+     * account's answer in the memo its single check reads: the accounts and
+     * their personas (with the coaches' team assignments), the person rows,
+     * the live team scopes, the functional-role assignments, and, for the
+     * player-scope reads `AuthorizationService::canViewPlayer()` asks, the
+     * own player record and the guardian links. A fixed number of
+     * statements whatever the size of the set. Effective inside a
+     * `ScopeMemo` window, which the bulk checks below open; outside one,
+     * only the per-request memos are filled.
+     *
+     * @param list<int> $user_ids
+     */
+    public static function primeUsers( array $user_ids ): void {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $user_ids ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return;
+
+        PersonaResolver::personasForMany( $ids );
+        FunctionalRoleGrants::primeAssignments( $ids );
+        \TT\Infrastructure\Security\AuthorizationService::primePersonIds( $ids );
+        \TT\Infrastructure\Players\ParentChildResolver::primeChildren( $ids );
+
+        $self = self::loadSelfPlayerIds( $ids );
+        foreach ( $ids as $id ) \TT\Infrastructure\Security\ScopeMemo::prime( 'self_player|' . $id, $self[ $id ] ?? 0 );
+
+        $persons = [];
+        foreach ( $ids as $id ) {
+            $person = self::personIdOf( $id );
+            if ( $person > 0 ) $persons[ $person ] = $person;
+        }
+        $scopes = self::loadLiveTeamScopes( array_values( $persons ) );
+        foreach ( $persons as $person ) \TT\Infrastructure\Security\ScopeMemo::prime( 'live_team_scopes|' . $person, $scopes[ $person ] ?? [] );
+    }
+
+    /**
+     * #4742 — `can()` for a set of accounts: the ones for which it says yes,
+     * ascending. The sources are read once for the set (`primeUsers()`),
+     * then each account is asked `can()`, unchanged, so the list cannot
+     * differ from the single check. Global, team and self scope only; player
+     * scope has no bulk source yet and is refused rather than answered one
+     * account at a time.
+     *
+     * For the first caller that needs player scope in bulk: the player-scope
+     * answer also reads the scout links (`ScoutPlayerLinks::playerIds()`,
+     * scout persona only), which `primeUsers()` does not read. Give
+     * `ScoutPlayerLinks` a bulk read that primes its `scout_links|<user>`
+     * memo, prime it in `primeUsers()`, add `SCOPE_PLAYER` to the accepted
+     * kinds below, and extend the equivalence and statement-count tests in
+     * `ReportReachBoundedTest` with a scout and a player target. The own
+     * player record and the guardian links are already primed.
+     *
+     * @throws \InvalidArgumentException for any scope but global, team and self.
+     *
+     * @param list<int> $user_ids
+     * @return list<int>
+     */
+    public static function usersWhoCan( array $user_ids, string $entity, string $activity, string $scope_kind, int $scope_target_id = 0 ): array {
+        if ( ! in_array( $scope_kind, [ self::SCOPE_GLOBAL, self::SCOPE_TEAM, self::SCOPE_SELF ], true ) ) {
+            throw new \InvalidArgumentException( 'MatrixGate::usersWhoCan() answers global, team and self scope only.' );
+        }
+        $target = $scope_kind === self::SCOPE_GLOBAL ? null : $scope_target_id;
+
+        return \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $user_ids, $entity, $activity, $scope_kind, $target ): array {
+            self::primeUsers( $user_ids );
+            return self::filterUsers( $user_ids, static fn( int $id ): bool => self::can( $id, $entity, $activity, $scope_kind, $target ) );
+        } );
+    }
+
+    /**
+     * #4742 — `canAnyScope()` for a set of accounts: the ones for which it
+     * says yes, ascending, read as `usersWhoCan()` reads them.
+     *
+     * @param list<int> $user_ids
+     * @return list<int>
+     */
+    public static function usersWhoCanAnyScope( array $user_ids, string $entity, string $activity ): array {
+        return \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $user_ids, $entity, $activity ): array {
+            self::primeUsers( $user_ids );
+            return self::filterUsers( $user_ids, static fn( int $id ): bool => self::canAnyScope( $id, $entity, $activity ) );
+        } );
+    }
+
+    /**
+     * @param list<int>           $user_ids
+     * @param callable(int): bool $check
+     * @return list<int>
+     */
+    private static function filterUsers( array $user_ids, callable $check ): array {
+        $out = [];
+        foreach ( array_unique( array_map( 'intval', $user_ids ) ) as $id ) {
+            if ( $id > 0 && $check( $id ) ) $out[] = $id;
+        }
+        sort( $out );
+        return $out;
     }
 
     /**

@@ -15,8 +15,9 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
  * the one every route asks.
  *
  * The holders are found through every WordPress role a persona comes from,
- * and loaded in one query with their roles, so resolving their personas
- * reads no account twice.
+ * and counted with `ReportAccess::readersAmong()`, which reads what the rule
+ * rests on once for all of them (#4742): the count costs the same number of
+ * statements for three holders as for sixty.
  *
  * The publish confirm shows this number, so it is counted here and never in
  * the browser.
@@ -38,10 +39,8 @@ final class ReportReach {
         }
         if ( $roles === [] ) return 0;
 
-        $count = 0;
-        foreach ( get_users( [ 'role__in' => array_values( $roles ), 'fields' => 'all' ] ) as $user ) {
-            if ( ReportAccess::readsAs( ReportReader::for( (int) $user->ID ), $report, $persona_keys ) ) $count++;
-        }
-        return $count;
+        $holders = get_users( [ 'role__in' => array_values( $roles ), 'fields' => 'ID' ] );
+        $ids     = array_values( array_map( 'intval', $holders ) );
+        return count( ReportAccess::readersAmong( $ids, $report, $persona_keys ) );
     }
 }
