@@ -29,6 +29,8 @@ final class MfaAuditEvents {
     public const DEVICE_REMEMBERED         = 'mfa.device_remembered';
     public const DEVICES_REVOKED           = 'mfa.devices_revoked';
     public const REQUIRED_PERSONAS_CHANGED = 'mfa.required_personas_changed';
+    /** #4798 — an account's enrolments in several academies merged into one. */
+    public const ENROLMENTS_MERGED         = 'mfa.enrolments_merged';
 
     /**
      * Record an MFA event. `$wp_user_id` is the *subject* of the event
