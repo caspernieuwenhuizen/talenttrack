@@ -26,9 +26,15 @@ Manager op het team.
 
 ## Hoe de beschikbare minuten worden bepaald
 
-Elke wedstrijd die het team in de periode **gespeeld** heeft, met de eigen duur
-van die wedstrijd.
+Elke wedstrijd die het team in de periode **gespeeld** heeft **met vastgelegde
+minuten**, met de eigen duur van die wedstrijd.
 
+- **Met vastgelegde minuten** betekent dat er voor minstens één speler minuten
+ op de presentielijst van de wedstrijd staan. Een gespeelde wedstrijd waarvoor
+ niemand minuten invulde telt aan geen van beide kanten van het aandeel mee,
+ zodat een vergeten presentielijst niet het aandeel van elke speler omlaag
+ haalt. Dit is de regel waarmee het minutenrapport en het maandrapport van het
+ team tellen, zodat alle drie voor dezelfde selectie hetzelfde aandeel geven.
 - **Gespeeld** betekent hier hetzelfde als in de andere minutenrapporten: de
  activiteit is voltooid, de datum is voorbij, of er zijn al minuten
  vastgelegd. Een wedstrijd die vanavond begint zit niet in de noemer, dus
@@ -43,12 +49,13 @@ van die wedstrijd.
  heeft over tien wedstrijden 600 beschikbaar, geen 700, of die wedstrijden nu
  een wedstrijdvoorbereiding hadden of niet.
 
-Tien voltooide wedstrijden van 70 minuten leveren dus **700 beschikbare
-minuten** op, en een speler met 350 vastgelegde minuten staat op **50%**.
+Tien voltooide wedstrijden van 70 minuten met vastgelegde minuten leveren dus
+**700 beschikbare minuten** op, en een speler met 350 vastgelegde minuten staat
+op **50%**.
 
 ## De noemer krimpt niet mee met afwezigheid
 
-Het aandeel is van elke minuut die het team speelde, of de speler nu
+Het aandeel is van elke minuut van die wedstrijden, of de speler nu
 beschikbaar was of niet. Een speler die zes weken geblesseerd was, laat een
 laag aandeel zien, en dat is het eerlijke getal — het blessuredossier legt uit
 waarom.
@@ -73,7 +80,7 @@ die alleen rood is zegt niets in zwart-wit of voor een kleurenblinde lezer.
 
 | Tegel | Wat het betekent |
 | --- | --- |
-| **Gespeelde wedstrijden** | Hoeveel wedstrijden de noemer voedden. Opent de activiteitenlijst met precies die wedstrijden: dit venster, elk wedstrijdtype, toernooidagen inbegrepen, voorbije wedstrijden uitgeklapt. Wil je zien welke daarvan geen vastgelegde minuten hebben, gebruik dan **Bekijk de minutenverdeling** onder de tegels; dat opent Team · Minutenverdeling op hetzelfde venster. |
+| **Gespeelde wedstrijden** | Hoeveel wedstrijden het team in de periode speelde; die met vastgelegde minuten voeden de noemer. Opent de activiteitenlijst met precies die wedstrijden: dit venster, elk wedstrijdtype, toernooidagen inbegrepen, voorbije wedstrijden uitgeklapt. Wil je zien welke daarvan geen vastgelegde minuten hebben, gebruik dan **Bekijk de minutenverdeling** onder de tegels; dat opent Team · Minutenverdeling op hetzelfde venster. |
 | **Beschikbare minuten / speler** | De noemer waartegen elk aandeel op de pagina wordt gemeten. |
 | **Mediaan aandeel** | Het midden van de selectie. Bewust de mediaan en niet het gemiddelde: één speler die elke minuut speelt trekt een gemiddelde boven een streep waar de rest van de selectie nergens in de buurt komt. |
 | **Onder de norm** | Hoeveel spelers onder de norm zitten, goud gemarkeerd zodra dat er meer dan nul zijn. |

@@ -174,7 +174,7 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
 
         $section = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'minutes' ] )['data']['minutes'];
         $other   = ( new MinutesShareQuery() )->forTeam( $this->team_a, self::FROM, self::TO );
-        $this->assertNotSame( $other['available_minutes'], $section['rows'][0]['available_minutes'], 'Precondition: the two definitions differ on this fixture.' );
+        $this->assertSame( $other['available_minutes'], $section['rows'][0]['available_minutes'], 'the minutes-share report and the monthly section agree on the minutes available' );
 
         $block = $this->preview( 'minutes_share', $this->team( $this->team_a ) );
         $rows  = $block['data']['rows'];
@@ -207,6 +207,44 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
             $this->assertSame( $by_player[ $this->pa1 ]['available_minutes'], $player['available_minutes'], $audience );
             $this->assertArrayNotHasKey( 'median_share_pct', $player, 'no average for a single player' );
         }
+    }
+
+    /**
+     * #4966 — the minutes-share report (and `GET /teams/{id}/minutes-share`)
+     * counts only matches with minutes recorded, so it gives the monthly
+     * report's share, for the team and for one player. The played match
+     * without minutes is in `played_matches` and nowhere else.
+     */
+    public function test_the_minutes_share_report_equals_the_monthly_report(): void {
+        $before = ( new MinutesShareQuery() )->forTeam( $this->team_a, self::FROM, self::TO );
+        $this->insertMatch( $this->team_a, '2020-03-28', 'League' ); // played, no minutes recorded
+        $this->flush();
+
+        $report  = ( new MinutesShareQuery() )->forTeam( $this->team_a, self::FROM, self::TO );
+        $section = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'minutes' ] )['data']['minutes'];
+        $rows    = array_column( $section['rows'], null, 'player_id' );
+
+        $this->assertSame( $before['available_minutes'], $report['available_minutes'], 'a match without minutes adds no minutes' );
+        $this->assertSame( $before['matches'], $report['matches'] );
+        $this->assertSame( $before['played_matches'] + 1, $report['played_matches'], 'and is a played match' );
+        $this->assertGreaterThan( 0, $report['available_minutes'] );
+
+        $this->assertNotEmpty( $report['players'] );
+        foreach ( $report['players'] as $p ) {
+            $mine = $rows[ $p['player_id'] ] ?? null;
+            $this->assertIsArray( $mine, 'a player of the monthly report' );
+            $this->assertSame( $mine['available_minutes'], $report['available_minutes'], "player {$p['player_id']}: available" );
+            $this->assertSame( $mine['total_minutes'], $p['minutes'], "player {$p['player_id']}: minutes" );
+            $this->assertSame( $mine['share_pct'], round( (float) $p['share_pct'], 1 ), "player {$p['player_id']}: share" );
+        }
+        $median = MinutesShareQuery::medianShare( $report['players'] );
+        $this->assertNotNull( $median );
+        $this->assertSame( $section['median_share_pct'], round( $median, 1 ), 'the median' );
+
+        $one = ( new MinutesShareQuery() )->forPlayer( $this->team_a, $this->pa1, self::FROM, self::TO );
+        $this->assertIsArray( $one );
+        $this->assertSame( $rows[ $this->pa1 ]['share_pct'], round( (float) $one['share_pct'], 1 ), 'one player' );
+        $this->assertSame( $rows[ $this->pa1 ]['available_minutes'], $one['available_minutes'] );
     }
 
     public function test_a_period_without_matches_reads_as_empty_not_as_zero(): void {

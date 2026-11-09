@@ -21,8 +21,11 @@ use TT\Modules\MatchPrep\Services\MatchLengthResolver;
  *
  * ## The denominator
  *
- * Every **played** match the team had in the window, at its own resolved
- * length. Not "the matches this player was available for": a player who
+ * Every **played** match the team had in the window **whose minutes were
+ * recorded**, at its own resolved length (#4966): the rule the minutes report
+ * and the team monthly report count by (#2252), so the three give one share.
+ * A played match with an empty register adds nothing to either side. Not
+ * "the matches this player was available for": a player who
  * missed six weeks injured shows a low share, and that is the honest
  * number — the injury record is what explains it, and a denominator that
  * quietly shrank to match each player's availability would hide exactly
@@ -70,17 +73,26 @@ final class MinutesShareQuery {
     }
 
     /**
-     * Available minutes for a team over a window: the sum of every played
-     * match's length.
+     * Available minutes for a team over a window: the sum of the length of
+     * every played match **whose minutes were recorded**.
      *
-     * @return array{minutes:int, matches:int}
+     * #4966 — a played match nobody recorded minutes for adds nothing, as in
+     * the minutes report and the team monthly report (`MinutesQuery::
+     * forTeam()`, #2252). It used to count, which lowered every player's
+     * share for a register nobody filled in, and set this report against the
+     * monthly report's figure for the same squad. `matches` counts the
+     * matches that fed the minutes; `played` every played match in the
+     * window, recorded or not, so a reader can tell "played, nothing
+     * recorded" from "nothing played".
+     *
+     * @return array{minutes:int, matches:int, played:int}
      */
     public function availableForTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
 
-        if ( $team_id <= 0 ) return [ 'minutes' => 0, 'matches' => 0 ];
+        if ( $team_id <= 0 ) return [ 'minutes' => 0, 'matches' => 0, 'played' => 0 ];
 
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
@@ -104,25 +116,28 @@ final class MinutesShareQuery {
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ),
             $club_id, $team_id, $from, $to
         ) );
-        $rows = is_array( $rows ) ? $rows : [];
+        $rows   = is_array( $rows ) ? $rows : [];
+        $played = count( $rows );
+        $rows   = self::withRecordedMinutes( $rows );
 
         // #4087 — the prep's period length times the periods the match was
         // played in, as the minutes report counts it: a quarters match is
         // four periods, not two halves.
         $periods  = MinutesQuery::periodCountsFor(
-            array_map( static fn( $r ): int => (int) $r->id, $rows )
+            array_map( static fn( object $r ): int => (int) ( $r->id ?? 0 ), $rows )
         );
         $resolver = new MatchLengthResolver();
         $minutes  = 0;
         foreach ( $rows as $r ) {
+            $id       = (int) ( $r->id ?? 0 );
             $minutes += $resolver->playedMatchMinutes(
-                (int) $r->id,
-                (int) $r->half_length_minutes,
-                $periods[ (int) $r->id ] ?? 2
+                $id,
+                (int) ( $r->half_length_minutes ?? 0 ),
+                $periods[ $id ] ?? 2
             );
         }
 
-        return [ 'minutes' => $minutes, 'matches' => count( $rows ) ];
+        return [ 'minutes' => $minutes, 'matches' => count( $rows ), 'played' => $played ];
     }
 
     /**
@@ -153,10 +168,8 @@ final class MinutesShareQuery {
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
 
         $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT COUNT(*) AS matches,
-                    MIN( a.{$date_col} ) AS earliest,
-                    MAX( a.{$date_col} ) AS latest
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.{$date_col} AS match_date
                FROM {$p}tt_activities a
               WHERE a.club_id = %d
                 AND a.team_id = %d
@@ -169,13 +182,35 @@ final class MinutesShareQuery {
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ),
             $club_id, $team_id, $from, $to
         ) );
-        if ( ! is_object( $row ) ) return $empty;
+        // #4966 — the matches `availableForTeam()` would count, so the two
+        // still partition the team's matches.
+        $rows = self::withRecordedMinutes( is_array( $rows ) ? $rows : [] );
+        if ( $rows === [] ) return $empty;
 
+        $dates = array_map( static fn( object $r ): string => substr( (string) ( $r->match_date ?? '' ), 0, 10 ), $rows );
+        sort( $dates );
         return [
-            'matches'  => (int) ( $row->matches ?? 0 ),
-            'earliest' => substr( (string) ( $row->earliest ?? '' ), 0, 10 ),
-            'latest'   => substr( (string) ( $row->latest ?? '' ), 0, 10 ),
+            'matches'  => count( $rows ),
+            'earliest' => (string) reset( $dates ),
+            'latest'   => (string) end( $dates ),
         ];
+    }
+
+    /**
+     * #4966 — the matches among these rows whose minutes were recorded: the
+     * minutes reports' own read of a match's minutes
+     * (`MinutesQuery::minutesForActivities()`, a figure above 0 for at least
+     * one player). One rule with `MinutesQuery::forTeam()`, which counts a
+     * match toward the minutes available on the same condition (#2252).
+     *
+     * @param array<int, mixed> $rows activity rows carrying `id`
+     * @return list<object>
+     */
+    private static function withRecordedMinutes( array $rows ): array {
+        $rows = array_values( array_filter( $rows, 'is_object' ) );
+        if ( $rows === [] ) return [];
+        $recorded = MinutesQuery::minutesForActivities( array_map( static fn( object $r ): int => (int) ( $r->id ?? 0 ), $rows ) );
+        return array_values( array_filter( $rows, static fn( object $r ): bool => isset( $recorded[ (int) ( $r->id ?? 0 ) ] ) ) );
     }
 
     /**
@@ -188,9 +223,11 @@ final class MinutesShareQuery {
      *
      * `outside_window` (#3796) reports the played matches this window
      * excluded, so a reader can tell an empty report from a mis-aimed one.
+     * `matches` are the matches whose minutes fed the share (#4966);
+     * `played_matches` every played match in the window, recorded or not.
      *
      * @return array{
-     *   available_minutes:int, matches:int, target_pct:int,
+     *   available_minutes:int, matches:int, played_matches:int, target_pct:int,
      *   outside_window: array{matches:int, earliest:string, latest:string},
      *   players: list<array{player_id:int, name:string, jersey_number:?int,
      *                       minutes:int, share_pct:?float, below_target:bool}>
@@ -205,6 +242,7 @@ final class MinutesShareQuery {
         $empty = [
             'available_minutes' => 0,
             'matches'           => 0,
+            'played_matches'    => 0,
             'target_pct'        => $target,
             'outside_window'    => [ 'matches' => 0, 'earliest' => '', 'latest' => '' ],
             'players'           => [],
@@ -275,6 +313,7 @@ final class MinutesShareQuery {
         return [
             'available_minutes' => $available['minutes'],
             'matches'           => $available['matches'],
+            'played_matches'    => $available['played'],
             'target_pct'        => $target,
             'outside_window'    => $outside,
             'players'           => $players,
@@ -286,7 +325,7 @@ final class MinutesShareQuery {
      * the row out, so the two can never answer differently.
      *
      * @return array{
-     *   available_minutes:int, matches:int, target_pct:int,
+     *   available_minutes:int, matches:int, played_matches:int, target_pct:int,
      *   outside_window: array{matches:int, earliest:string, latest:string},
      *   minutes:int, share_pct:?float, below_target:bool
      * }|null  null when the player is not in the team's squad for the window
@@ -301,6 +340,7 @@ final class MinutesShareQuery {
             return [
                 'available_minutes' => $team['available_minutes'],
                 'matches'           => $team['matches'],
+                'played_matches'    => $team['played_matches'],
                 'target_pct'        => $team['target_pct'],
                 'outside_window'    => $team['outside_window'],
                 'minutes'           => $row['minutes'],
