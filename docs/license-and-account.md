@@ -224,6 +224,8 @@ It is also where every locked-feature panel sends you. When a screen is switched
 
 **Two-factor authentication** is a screen too. It is your own second factor — set it up, make fresh backup codes, or turn it off. Only ever your own account.
 
+To set it up again, for example on a new phone, you first enter a code from your current authenticator app or one of your backup codes. Your current setup keeps working until you confirm a code from the new app and finish the last step. Leave the wizard halfway and nothing changes. Turning two-step off and making new backup codes also ask for the current code or a backup code.
+
 ### What stays in the WordPress admin
 
 Three things did not move, and are not going to:

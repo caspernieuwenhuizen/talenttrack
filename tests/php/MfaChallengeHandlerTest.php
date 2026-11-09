@@ -44,8 +44,9 @@ class MfaChallengeHandlerTest extends WP_UnitTestCase {
 
         $this->secret = TotpService::generateSecret();
         $repo = new MfaSecretsRepository();
-        $repo->upsertSecret( $this->user_id, $this->secret, [] );
-        $repo->markEnrolled( $this->user_id );
+        $repo->stagePendingSecret( $this->user_id, $this->secret );
+        $repo->stagePendingBackupCodes( $this->user_id, [] );
+        $this->assertTrue( $repo->promotePending( $this->user_id ), 'precondition: enrolled' );
 
         add_filter( 'wp_redirect', [ $this, 'captureRedirect' ] );
 

@@ -6,27 +6,26 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Mfa\Domain\QrCodeRenderer;
 use TT\Modules\Mfa\Domain\TotpService;
 use TT\Modules\Mfa\MfaSecretsRepository;
+use TT\Shared\Wizards\WizardState;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 2 — Secret. Generates a fresh TOTP shared secret (lazy / idempotent
- * across re-renders), persists it encrypted, and renders the QR code
+ * Step 3 — Secret. Stages a fresh TOTP shared secret (lazy / idempotent
+ * across re-renders) in the row's pending columns and renders the QR code
  * + manual-entry fallback. The user adds the entry to their authenticator
  * app and clicks Continue to advance to the verify step.
  *
  * Secret lifecycle here:
- *   - Render is the chokepoint. If no `tt_user_mfa` row exists for the
- *     current user, or the row has no `secret_encrypted`, we generate
- *     a fresh 20-byte secret and persist it via `upsertSecret()` with
- *     an empty backup-codes array.
- *   - `upsertSecret()` resets `enrolled_at` if a previous enrollment
- *     existed, so re-enrollment cleanly replaces the old secret.
- *   - On the next visit / Back navigation, we re-read the existing row
- *     and decrypt the secret — the QR shown is identical to the one
- *     the user scanned the first time.
+ *   - Render is the chokepoint. With no staged secret inside the TTL, a
+ *     fresh 20-byte secret is staged via `stagePendingSecret()`. The
+ *     working secret, backup codes and counters are never written here.
+ *   - An enrolled account sees nothing until its current code was
+ *     confirmed in this run (`MfaEnrollmentWizard::reauthSatisfied()`).
+ *   - On the next visit / Back navigation the staged secret is read back,
+ *     so the QR shown is identical to the one the user scanned.
  *
  * Why generate-in-render is acceptable here:
- *   - The operation is idempotent: existing row → reuse; no row → create.
+ *   - The operation is idempotent: staged secret → reuse; none → stage.
  *   - There's no user-input to validate before generation; the only
  *     interaction is "I scanned, continue".
  *   - Wizard validate() runs only on POST, but render runs on GET. Doing
@@ -39,22 +38,17 @@ final class SecretStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         $user_id = get_current_user_id();
-        $repo    = new MfaSecretsRepository();
-        $row     = $repo->findByUserId( $user_id );
 
-        // Lazy-create / re-create the secret if there's nothing usable
-        // on disk. Re-enrollment from an enrolled state replaces the
-        // secret (upsertSecret resets `enrolled_at`).
-        $needs_fresh = ( $row === null )
-            || empty( $row['secret'] )
-            || ! empty( $row['enrolled_at'] );
-        if ( $needs_fresh ) {
-            $fresh_secret = TotpService::generateSecret();
-            $repo->upsertSecret( $user_id, $fresh_secret, [] );
-            $row = $repo->findByUserId( $user_id );
+        if ( ! MfaEnrollmentWizard::reauthSatisfied( $user_id, $state ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'Confirm a code from your current setup first. Go back one step to enter it.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        $secret = self::stagedSecret( $user_id );
+        if ( $secret === '' ) {
+            echo '<p class="tt-notice">' . esc_html__( 'The new secret could not be prepared. Reload the page to try again.', 'talenttrack' ) . '</p>';
+            return;
         }
 
-        $secret  = (string) ( $row['secret'] ?? '' );
         $user    = wp_get_current_user();
         $account = (string) ( $user->user_email ?: $user->user_login );
         $issuer  = self::issuerLabel();
@@ -127,11 +121,37 @@ final class SecretStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
+        if ( ! MfaEnrollmentWizard::reauthSatisfied( get_current_user_id(), $state ) ) {
+            return new \WP_Error(
+                'mfa_current_not_confirmed',
+                __( 'Confirm a code from your current setup first. Go back one step to enter it.', 'talenttrack' )
+            );
+        }
         return [];
     }
 
     public function nextStep( array $state ): ?string {
         return 'verify';
+    }
+
+    /**
+     * The staged secret, staged now when none is (or it has expired), so
+     * Back and a reload show the same QR code. A fresh secret voids an
+     * earlier verified code and backup codes in this run: they belonged to
+     * the secret it replaces.
+     */
+    private static function stagedSecret( int $user_id ): string {
+        $repo   = new MfaSecretsRepository();
+        $secret = $repo->pendingSecret( $user_id );
+        if ( $secret !== '' ) return $secret;
+
+        $secret = TotpService::generateSecret();
+        if ( ! $repo->stagePendingSecret( $user_id, $secret ) ) return '';
+        WizardState::merge( $user_id, MfaEnrollmentWizard::SLUG, [
+            'mfa_verified_at'        => 0,
+            'backup_codes_plaintext' => [],
+        ] );
+        return $secret;
     }
 
     public function submit( array $state ) {

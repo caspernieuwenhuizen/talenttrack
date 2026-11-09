@@ -10,12 +10,12 @@ use TT\Shared\Wizards\WizardStepInterface;
 /**
  * Step 1 — Intro. Explains what MFA is, what the user is about to do,
  * and what authenticator apps work. No form fields; clicking "Continue"
- * advances to the secret step.
+ * advances to the reauth step, which is skipped on a first
+ * enrolment.
  *
- * If the user already has an enrolled row, surface a notice that
- * proceeding will replace their secret. Re-enrollment is a legitimate
- * flow (lost-device recovery; switch authenticator app), so we don't
- * block it — we warn.
+ * If the user already has an enrolled row, the notice explains that the
+ * current code is asked for first and that nothing changes until a code
+ * from the new secret is confirmed.
  */
 final class IntroStep implements WizardStepInterface {
 
@@ -40,13 +40,13 @@ final class IntroStep implements WizardStepInterface {
         if ( $is_enrolled ) {
             echo '<div class="notice notice-warning" style="padding:12px 16px; margin:24px 0; max-width:760px;">';
             echo '<p style="margin:0;"><strong>' . esc_html__( 'You are already enrolled.', 'talenttrack' ) . '</strong> '
-                . esc_html__( 'Continuing will replace your existing secret and backup codes — useful if you lost your phone or want to switch authenticator app. Your old codes will stop working.', 'talenttrack' )
+                . esc_html__( 'Setting it up again gives you a new secret and new backup codes, for example after losing your phone or switching authenticator app. You first confirm a code from your current app or a backup code. Your current setup keeps working until you confirm a code from the new one; only then do the old codes stop working.', 'talenttrack' )
                 . '</p>';
             echo '</div>';
         }
 
         echo '<p style="margin-top:24px;">'
-            . esc_html__( "Click Continue to generate your shared secret. The next screen shows the QR code your authenticator app scans.", 'talenttrack' )
+            . esc_html__( 'Click Continue to start. You then scan a QR code with your authenticator app.', 'talenttrack' )
             . '</p>';
     }
 
@@ -55,7 +55,7 @@ final class IntroStep implements WizardStepInterface {
     }
 
     public function nextStep( array $state ): ?string {
-        return 'secret';
+        return 'reauth';
     }
 
     public function submit( array $state ) {

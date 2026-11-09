@@ -174,16 +174,16 @@ final class AccountFrontendPortTest extends WP_UnitTestCase {
     }
 
     /**
-     * The three operator redirects stay put. Counted rather than named:
-     * `handleSavePersonas` has one and `handleOperatorDisable` has two
-     * (the invalid-input path and the success path).
+     * The four operator redirects stay put. Counted rather than named:
+     * `handleSavePersonas` has one and `handleOperatorDisable` has three
+     * (the invalid-input path, the self-target refusal and the success path).
      */
     public function test_the_operator_redirects_still_point_at_wp_admin(): void {
         $src = $this->viewSource( 'src/Modules/Mfa/Admin/MfaActionHandlers.php' );
         $this->assertSame(
-            4,
+            5,
             substr_count( $src, "'page' => 'tt-account'" ),
-            'Three operator redirects plus the self-service fallback.'
+            'Four operator redirects plus the self-service fallback.'
         );
     }
 }

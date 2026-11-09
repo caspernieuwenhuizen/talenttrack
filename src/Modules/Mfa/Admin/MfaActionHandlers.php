@@ -4,6 +4,7 @@ namespace TT\Modules\Mfa\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Mfa\Audit\MfaAuditEvents;
+use TT\Modules\Mfa\Auth\CurrentFactorCheck;
 use TT\Modules\Mfa\Auth\RememberDeviceCookie;
 use TT\Modules\Mfa\Domain\BackupCodesService;
 use TT\Modules\Mfa\MfaSecretsRepository;
@@ -23,7 +24,8 @@ use TT\Modules\Mfa\Settings\MfaSettings;
  *     from scratch).
  *
  * Both endpoints require the user to be logged-in and operate on their
- * own row only. There is no admin-on-behalf-of-another flow yet — that
+ * own row only, and both ask for the current code or a backup code
+ * (`CurrentFactorCheck`, #4943). There is no admin-on-behalf-of-another flow yet — that
  * lands in sprint 3 alongside the lockout-recovery story (operator
  * disables MFA on a stuck user, audit-logged).
  */
@@ -55,9 +57,7 @@ final class MfaActionHandlers {
 
         $user_id = get_current_user_id();
         $repo    = new MfaSecretsRepository();
-        if ( ! $repo->isEnrolled( $user_id ) ) {
-            self::redirectBack( 'mfa_not_enrolled' );
-        }
+        self::requireCurrentFactor( $user_id, $repo );
 
         $generated = BackupCodesService::generate();
         $repo->updateBackupCodes( $user_id, $generated['storage'] );
@@ -91,6 +91,7 @@ final class MfaActionHandlers {
 
         $user_id = get_current_user_id();
         $repo    = new MfaSecretsRepository();
+        self::requireCurrentFactor( $user_id, $repo );
         $repo->disable( $user_id );
         RememberDeviceCookie::clear();
         MfaAuditEvents::record( MfaAuditEvents::DISABLED, $user_id, [ 'self_initiated' => true ] );
@@ -149,6 +150,16 @@ final class MfaActionHandlers {
             exit;
         }
 
+        // Operators turn off two-step for others. Their own goes through the
+        // self-service turn-off, which asks for the current code.
+        if ( $target_id === get_current_user_id() ) {
+            wp_safe_redirect( add_query_arg(
+                [ 'page' => 'tt-account', 'tab' => 'mfa', 'tt_msg' => 'mfa_operator_disable_self' ],
+                admin_url( 'admin.php' )
+            ) );
+            exit;
+        }
+
         $repo = new MfaSecretsRepository();
         $repo->disable( $target_id );
         MfaAuditEvents::record( MfaAuditEvents::DISABLED, $target_id, [ 'operator_initiated' => true ] );
@@ -158,6 +169,21 @@ final class MfaActionHandlers {
             admin_url( 'admin.php' )
         ) );
         exit;
+    }
+
+    /**
+     * #4943 — making new backup codes and turning two-step off ask for the
+     * current code or a backup code first, through the same check as
+     * setting it up again. Anything but a pass sends the user back with
+     * the reason and changes nothing beyond the check's own bookkeeping
+     * (a miss counted, a matching backup code spent).
+     */
+    private static function requireCurrentFactor( int $user_id, MfaSecretsRepository $repo ): void {
+        $raw    = isset( $_POST['current_code'] ) ? (string) wp_unslash( (string) $_POST['current_code'] ) : '';
+        $result = ( new CurrentFactorCheck( $repo ) )->verify( $user_id, $raw );
+        if ( $result === CurrentFactorCheck::OK ) return;
+        if ( $result === CurrentFactorCheck::NOT_ENROLLED ) self::redirectBack( 'mfa_not_enrolled' );
+        self::redirectBack( 'mfa_current_code_' . $result );
     }
 
     /**

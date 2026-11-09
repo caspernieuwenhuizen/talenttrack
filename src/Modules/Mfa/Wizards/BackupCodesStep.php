@@ -12,18 +12,20 @@ use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 4 — Backup codes. Final step. Generates 10 single-use recovery
- * codes (lazy / idempotent across re-renders), persists the hashes,
+ * Step 5 — Backup codes. Final step. Generates 10 single-use recovery
+ * codes (lazy / idempotent across re-renders), stages the hashes,
  * displays the plaintext codes ONCE, and asks the user to confirm
- * they have saved them before submitting.
+ * they have saved them before submitting. Submit promotes the staged
+ * secret and codes into the working columns.
  *
  * Plaintext-code lifecycle:
  *   - Generated at first render. Plaintext stashed in wizard state so
  *     re-renders (validation failures, F5) show the same codes — telling
  *     the user "you saw codes once, here they are again" is better than
  *     "I generated different codes; the ones you wrote down are wrong."
- *   - Persisted hashes go into `tt_user_mfa.backup_codes_hashed` via
- *     `MfaSecretsRepository::updateBackupCodes()`.
+ *   - Hashes are staged in `tt_user_mfa.pending_backup_codes_hashed` via
+ *     `MfaSecretsRepository::stagePendingBackupCodes()`; they are inert
+ *     until `promotePending()`.
  *   - On submit, `WizardState::clear()` is called by the wizard view —
  *     transient + persistent draft row both deleted. The plaintext is
  *     gone from the wizard; only the user's saved copy persists.
@@ -35,7 +37,11 @@ final class BackupCodesStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         $user_id = get_current_user_id();
-        $repo    = new MfaSecretsRepository();
+
+        if ( ! self::ready( $user_id, $state ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'Confirm a code from the new setup first. Go back one step to enter it.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         $plaintext = isset( $state['backup_codes_plaintext'] ) && is_array( $state['backup_codes_plaintext'] )
             ? array_values( array_filter( array_map( 'strval', $state['backup_codes_plaintext'] ) ) )
@@ -43,8 +49,13 @@ final class BackupCodesStep implements WizardStepInterface {
 
         if ( count( $plaintext ) !== BackupCodesService::CODE_COUNT ) {
             // Lazy-generate: this is the only path on first render of this step.
+            // The hashes are staged next to the staged secret; the working
+            // codes keep working until Finish promotes both.
             $generated = BackupCodesService::generate();
-            $repo->updateBackupCodes( $user_id, $generated['storage'] );
+            if ( ! ( new MfaSecretsRepository() )->stagePendingBackupCodes( $user_id, $generated['storage'] ) ) {
+                echo '<p class="tt-notice">' . esc_html__( 'The new secret expired. Go back to the QR code step and scan it again.', 'talenttrack' ) . '</p>';
+                return;
+            }
             $plaintext = $generated['plaintext'];
 
             // Stash plaintext in wizard state so a re-render shows the same
@@ -109,16 +120,32 @@ final class BackupCodesStep implements WizardStepInterface {
 
         $user_id = get_current_user_id();
         $repo    = new MfaSecretsRepository();
-        // Atomically enroll: flip `enrolled_at` only at this final step
-        // so the user can never end up enrolled without their recovery
-        // codes (see VerifyStep::validate for the rationale).
-        if ( ! $repo->markEnrolled( $user_id ) ) {
+
+        if ( ! self::ready( $user_id, $state ) ) {
             return new \WP_Error(
-                'mfa_persist_failed',
-                __( 'Could not finalise enrollment. Please try again.', 'talenttrack' )
+                'mfa_not_confirmed',
+                __( 'Two-step verification was not changed. Start setting it up again and confirm both codes.', 'talenttrack' )
             );
         }
-        MfaAuditEvents::record( MfaAuditEvents::ENROLLED, $user_id );
+
+        // Atomically enroll: the staged secret and its codes become the
+        // working ones in one statement, only at this final step, so the
+        // user can never end up enrolled without their recovery codes.
+        $was_enrolled = $repo->isEnrolled( $user_id );
+        if ( ! $repo->promotePending( $user_id ) ) {
+            return new \WP_Error(
+                'mfa_persist_failed',
+                __( 'Two-step verification was not changed: the new secret expired. Start setting it up again.', 'talenttrack' )
+            );
+        }
+        // No secret and no code in either payload.
+        if ( $was_enrolled ) {
+            MfaAuditEvents::record( MfaAuditEvents::REPLACED, $user_id, [
+                'backup_codes' => BackupCodesService::CODE_COUNT,
+            ] );
+        } else {
+            MfaAuditEvents::record( MfaAuditEvents::ENROLLED, $user_id );
+        }
         // The login-guard's "must enroll" flag (sprint 3) clears here so
         // the gated user, redirected mid-flow, isn't sent right back to
         // the wizard after finishing it. The "pending" challenge flag
@@ -138,5 +165,18 @@ final class BackupCodesStep implements WizardStepInterface {
         // self-service flow by depositing them there was the single
         // worst of the six redirects this issue reviewed.
         return [ 'redirect_url' => FrontendTwoFactorView::url( [ 'tt_msg' => 'mfa_enrolled' ] ) ];
+    }
+
+    /**
+     * Whether this run may stage codes and finish: an enrolled account
+     * confirmed its current code inside the TTL, and a code from the
+     * staged secret was confirmed. Checked server-side here because the
+     * runner can reach this step without passing the earlier ones.
+     *
+     * @param array<string,mixed> $state
+     */
+    private static function ready( int $user_id, array $state ): bool {
+        return MfaEnrollmentWizard::reauthSatisfied( $user_id, $state )
+            && ! empty( $state['mfa_verified_at'] );
     }
 }

@@ -34,7 +34,11 @@ Elke gebruiker kan zich nu zelf aanmelden via `wp-admin → TalentTrack → Acco
 4. Stap 3 vraagt om de eerste 6-cijferige code uit de app om te bevestigen dat alles goed staat. ±1-stap (90s) tolerantie voor klokafwijkingen.
 5. Stap 4 toont 10 eenmalige reservecodes, één keer. Bewaar ze in een wachtwoordmanager of print ze — je krijgt ze niet opnieuw te zien. Elke code is goed voor één login (handig als de gebruiker zijn telefoon kwijt is). Vink het bevestigingsvakje aan om af te ronden.
 
-Na aanmelding kan de gebruiker via dezelfde tab **reservecodes opnieuw genereren** (de oude set werkt direct niet meer) of **MFA uitzetten** (vereist bevestiging; verwijdert de secret + reservecodes; opnieuw aanmelden kan altijd).
+Na aanmelding kan de gebruiker via dezelfde tab **reservecodes opnieuw genereren** (vraagt om de huidige code of een reservecode; de oude set werkt direct niet meer) of **MFA uitzetten** (vraagt om de huidige code of een reservecode, en een bevestiging; verwijdert de secret + reservecodes; opnieuw aanmelden kan altijd).
+
+**Opnieuw instellen** (een nieuwe telefoon, een andere authenticator-app) gaat via dezelfde wizard, met één stap extra. Voordat er een nieuwe QR-code verschijnt, vraagt de wizard om een code uit de huidige authenticator-app of een van de reservecodes. Die controle deelt de blokkering van het inloggen: een verkeerde code telt mee voor de 5 pogingen, tijdens een blokkering wordt hij geweigerd, en een reservecode die je daar gebruikt is daarna op. De huidige instelling blijft de hele tijd werken. De nieuwe secret en de nieuwe reservecodes nemen het pas over als de gebruiker een code uit de nieuwe app bevestigt en de laatste stap afrondt; op dat moment werken de oude secret en de oude reservecodes niet meer. Wie de wizard halverwege verlaat, houdt zijn huidige instelling, reservecodes en blokkeringsstand precies zoals ze waren. Een nieuwe secret die een uur onbevestigd blijft, vervalt. Zodra de nieuwe instelling het overneemt, vragen apparaten die onder de oude werden onthouden weer om een code.
+
+Tweestapsverificatie uitzetten en nieuwe reservecodes maken vragen ook om de huidige code, of een reservecode, met dezelfde blokkeringsregels. Een verkeerde code verandert niets behalve het aantal pogingen.
 
 **Wat doe je vandaag als academy admin?**:
 
@@ -55,7 +59,7 @@ Voeg persona's geleidelijk toe: zet het op dag één aan voor *Academy admin* + 
 
 **Lockout-beleid** — 5 mislukte verificaties op rij geven 15 minuten lockout op dat account. De teller springt op nul na een geslaagde verificatie. Beide drempels (5 pogingen, 15 minuten) zijn instelbaar via de per-club `tt_config` met keys `mfa_max_attempts` en `mfa_lockout_minutes` (nog geen UI; aanpassen via directe DB-toegang of een plugin zoals Better Search Replace).
 
-**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker).
+**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. Beheerders zetten tweestapsverificatie uit voor anderen; hun eigen gaat via de gewone weg met de huidige code, dus je eigen account staat niet in de dropdown. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker).
 
 ### Herstel bij MFA-buitensluiting
 
@@ -76,7 +80,7 @@ Als jij (de enige academy admin) buitengesloten raakt — verkeerde codes, kloka
 
 Voorkomen blijft beter dan herstellen: **houd minstens twee adminaccounts**, zodat een admin altijd een andere admin via de bovenstaande UI kan herstellen.
 
-**Audit-log-integratie** — elke MFA-gebeurtenis verschijnt onder `wp-admin → TalentTrack → Audit log` met actiekeys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter op `action=mfa.lockout` om gebruikers te zien die de drempel raken; filter op `action=mfa.disabled` om resets door beheerders te zien.
+**Audit-log-integratie** — elke MFA-gebeurtenis verschijnt onder `wp-admin → TalentTrack → Audit log` met actiekeys `mfa.enrolled` / `mfa.replaced` (opnieuw ingesteld; de regel bevat nooit de secret) / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter op `action=mfa.lockout` om gebruikers te zien die de drempel raken; filter op `action=mfa.disabled` om resets door beheerders te zien.
 
 ## De audit-log doornemen
 

@@ -8,14 +8,15 @@ use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 3 — Verify. The user types the first 6-digit code from their
+ * Step 4 — Verify. The user types the first 6-digit code from their
  * authenticator app to prove the secret was added correctly. We verify
- * against the just-stored secret using the standard ±1-step (90s)
+ * against the staged secret using the standard ±1-step (90s)
  * tolerance window.
  *
  * Validation outcomes:
  *   - empty / non-numeric / wrong length → WP_Error.
- *   - correct code → mark the row enrolled (set `enrolled_at`),
+ *   - an enrolled account without a confirmed current code → WP_Error.
+ *   - correct code → note `mfa_verified_at` in wizard state,
  *     advance to the backup-codes step.
  *   - incorrect code → WP_Error. We let the user retry indefinitely
  *     here; the rate-limit + lockout machinery is for the runtime
@@ -65,30 +66,34 @@ final class VerifyStep implements WizardStepInterface {
         }
 
         $user_id = get_current_user_id();
-        $repo    = new MfaSecretsRepository();
-        $row     = $repo->findByUserId( $user_id );
-        if ( $row === null || empty( $row['secret'] ) ) {
+        if ( ! MfaEnrollmentWizard::reauthSatisfied( $user_id, $state ) ) {
+            return new \WP_Error(
+                'mfa_current_not_confirmed',
+                __( 'Confirm a code from your current setup first. Go back one step to enter it.', 'talenttrack' )
+            );
+        }
+
+        // The staged secret is the one the user just scanned; the working
+        // secret on an enrolled row is not.
+        $secret = ( new MfaSecretsRepository() )->pendingSecret( $user_id );
+        if ( $secret === '' ) {
             return new \WP_Error(
                 'mfa_no_secret',
                 __( 'The secret expired. Go back one step and scan the QR code again.', 'talenttrack' )
             );
         }
 
-        if ( ! TotpService::verify( (string) $row['secret'], $stripped ) ) {
+        if ( ! TotpService::verify( $secret, $stripped ) ) {
             return new \WP_Error(
                 'mfa_code_mismatch',
                 __( "That code didn't match. Make sure your phone's clock is correct, then try the current code from your authenticator.", 'talenttrack' )
             );
         }
 
-        // Note: `enrolled_at` is flipped at the BackupCodesStep submit
-        // (the final step), not here. If the user closes the browser
-        // between this step and step 4 they're left with a stored secret
-        // but no `enrolled_at` — `isEnrolled()` returns false, and a fresh
-        // enrollment attempt overwrites the un-enrolled row cleanly.
-        // Sprint-3 reasoning: keep enrollment atomic with backup-codes
-        // persistence so a user can never end up "enrolled" without their
-        // recovery codes.
+        // Nothing is written here. The staged secret is promoted at the
+        // BackupCodesStep submit, together with its codes, so a user can
+        // never end up enrolled without recovery codes, and closing the
+        // browser now leaves the working setup as it was.
         return [ 'mfa_verified_at' => time() ];
     }
 
