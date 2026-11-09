@@ -47,7 +47,7 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 | Epic | Value to the academy | State |
 | --- | --- | --- |
 | Next release | Report Studio's first wave of blocks, the search screen with parent and player search, two-step login re-setup and one setup per account, the match prep share link, and the Configuratie tables on phones | Being finished and checked; the release comes to the owner for a yes |
-| Configuratie by task with search, phase 1 ([#4669](https://github.com/caspernieuwenhuizen/talenttrack/issues/4669), [#4670](https://github.com/caspernieuwenhuizen/talenttrack/issues/4670), [#4671](https://github.com/caspernieuwenhuizen/talenttrack/issues/4671), [#4672](https://github.com/caspernieuwenhuizen/talenttrack/issues/4672), [#4673](https://github.com/caspernieuwenhuizen/talenttrack/issues/4673)) | Settings in ten task sections, each once; one search box in every layout and on the phone, over players, teams, staff, activities, help and settings, for staff, parents and players | Ships as one release (owner decision) |
+| Configuratie by task with search, phase 1 ([#4669](https://github.com/caspernieuwenhuizen/talenttrack/issues/4669), [#4670](https://github.com/caspernieuwenhuizen/talenttrack/issues/4670), [#4671](https://github.com/caspernieuwenhuizen/talenttrack/issues/4671), [#4672](https://github.com/caspernieuwenhuizen/talenttrack/issues/4672), [#4673](https://github.com/caspernieuwenhuizen/talenttrack/issues/4673)) | Settings in ten task sections, each once; one search box in every layout and on the phone, over players, teams, staff, activities, help and settings, for staff, parents and players | Phase 1 completes with the next release |
 
 ## Later
 
