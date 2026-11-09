@@ -1,3 +1,0 @@
-# The monthly team report's attendance follows the attendance right (#4949)
-
-The team monthly report's attendance is now shown only to someone who may read that team's attendance, the same right the attendance reports ask. Someone who may read the team's reports but not its attendance, such as the read-only observer, gets the rest of the report without it, on screen, in print and in the PDF: no attendance section, no attendance headline number, no attendance or suspended column in the player-by-player table, and no attendance figure in the list of who needs a conversation. A snapshot follows the same rule for whoever opens or prints it, including snapshots taken before this change. The Report Studio's key figures follow it too.

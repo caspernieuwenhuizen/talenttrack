@@ -1,3 +1,0 @@
-# Report Studio: reports are no longer published to the general staff role (#4903)
-
-A Report Studio report is now published to the roles that work with the player or team by name: the head of development, the academy admin, the head coach, the assistant coach and the team manager. The general staff role is no longer on the publish list, and the publish dialog no longer offers it. A migration removes the publications to that role made before. A report that was also published to one of the named roles stays published to them, so someone who held only the staff role no longer sees it under Shared with me.

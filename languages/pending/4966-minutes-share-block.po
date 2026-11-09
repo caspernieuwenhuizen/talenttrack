@@ -1,9 +1,0 @@
-msgid ""
-msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-
-msgid "Minutes against the minutes available in the matches with minutes recorded, the same figures as the team monthly report."
-msgstr "Minuten tegenover de beschikbare minuten in de wedstrijden waarvan de minuten zijn vastgelegd, dezelfde cijfers als in het maandrapport van het team."
-
-msgid "Lowest share first. The share is of every minute of the matches with minutes recorded, whether or not the player was available."
-msgstr "Laagste aandeel eerst. Het aandeel is van elke minuut van de wedstrijden waarvan de minuten zijn vastgelegd, of de speler nu beschikbaar was of niet."

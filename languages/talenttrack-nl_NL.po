@@ -71601,6 +71601,643 @@ msgstr "De eerste keer dat een geplande run wordt overgeslagen. Het wordt pas op
 msgid "When a report you scheduled could not be sent"
 msgstr "Als een rapport dat je hebt ingepland niet verstuurd kon worden"
 
+#: src/Modules/ReportStudio/Blocks/AttendancePerPlayerBlock.php:32
+msgid "Attendance per player"
+msgstr "Aanwezigheid per speler"
+
+#: src/Modules/ReportStudio/Blocks/AttendanceFlagsBlock.php:30
+msgid "Players flagged on attendance"
+msgstr "Spelers gemarkeerd op aanwezigheid"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Attendance taken at trainings and matches for every squad player, the same figures as the team monthly report."
+msgstr "Aanwezigheid bij trainingen en wedstrijden voor elke speler uit de selectie, dezelfde cijfers als in het maandrapport van het team."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "Players over the attendance flag thresholds set in the configuration, for missed activities or for lateness: the attendance report's at-risk list. Not the monthly report's line at 70 percent."
+msgstr "Spelers boven de markeringsdrempels voor aanwezigheid uit de configuratie, voor gemiste activiteiten of voor te laat komen: de risicolijst van het aanwezigheidsrapport. Niet de lijn van 70 procent uit het maandrapport."
+
+#. translators: %s: the squad's attendance, in percent
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:330
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+#, php-format
+msgid "Squad attendance: %s%%."
+msgstr "Aanwezigheid van de selectie: %s%%."
+
+#. translators: 1: missed activities that flag a player, 2: late arrivals that flag a player
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:332
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:100
+msgid "Flagged at %1$s missed activities or %2$s late arrivals."
+msgstr "Gemarkeerd bij %1$s gemiste activiteiten of %2$s keer te laat."
+
+#. translators: 1: first day, 2: last day of the period
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:334
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:102
+msgid "No player was flagged on attendance between %1$s and %2$s."
+msgstr "Tussen %1$s en %2$s is geen speler gemarkeerd op aanwezigheid."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Activities"
+msgstr "Activiteiten"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column"
+msgid "Late"
+msgstr "Laat"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Excused"
+msgstr "Afgemeld"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "Injured"
+msgstr "Geblesseerd"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column"
+msgid "Suspended"
+msgstr "Geschorst"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Team"
+msgstr "Team"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Why flagged"
+msgstr "Waarom gemarkeerd"
+
+#: src/Modules/ReportStudio/Blocks/CategoryAveragesBlock.php:35
+msgid "Average per main category"
+msgstr "Gemiddelde per hoofdcategorie"
+
+#: src/Modules/ReportStudio/Blocks/ProgressRadarBlock.php:35
+msgid "Progress over the last five evaluations"
+msgstr "Ontwikkeling over de laatste vijf evaluaties"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Evaluation ratings per main category of the academy's methodology, the same figures as the team monthly report and the player report. Scores only, never a coach's written notes."
+msgstr "Evaluatiecijfers per hoofdcategorie van de methodiek van de academie, dezelfde cijfers als in het maandrapport van het team en het spelersrapport. Alleen cijfers, nooit de geschreven opmerkingen van een trainer."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The player's last five evaluations, whenever they were, as the progress and radar report shows them."
+msgstr "De laatste vijf evaluaties van de speler, wanneer die ook waren, zoals het rapport ontwikkeling en radar ze toont."
+
+#. translators: %s: the squad's average rating
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:332
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+msgid "Squad rating: %s."
+msgstr "Selectiebeoordeling: %s."
+
+#. translators: 1: the player's average rating, 2: number of evaluations
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:334
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:100
+msgid "Average over all ratings: %1$s, from %2$s evaluations."
+msgstr "Gemiddelde over alle cijfers: %1$s, uit %2$s evaluaties."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Category"
+msgstr "Categorie"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column"
+msgid "Average"
+msgstr "Gemiddeld"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Change"
+msgstr "Verschil"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "Lowest"
+msgstr "Laagste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column"
+msgid "Highest"
+msgstr "Hoogste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Latest"
+msgstr "Laatste"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+#: src/Modules/ReportStudio/Blocks/OpenGoalsBlock.php:34
+#: src/Modules/ReportStudio/Blocks/OpenGoalsBlock.php:67
+msgid "Open goals now"
+msgstr "Openstaande doelen nu"
+
+#: src/Modules/ReportStudio/Blocks/GoalsCompletedBlock.php:25
+#: src/Modules/ReportStudio/Blocks/GoalsCompletedBlock.php:53
+msgid "Goals completed so far"
+msgstr "Tot nu toe behaalde doelen"
+
+#: src/Modules/ReportStudio/Blocks/PdpConversationsBlock.php:29
+msgid "PDP conversations held against planned"
+msgstr "POP-gesprekken gehouden tegenover gepland"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "The goals that are open today, the same number as the player's Goals tab and the team monthly report's squad list. Not limited to the period."
+msgstr "De doelen die vandaag openstaan, hetzelfde aantal als op het tabblad Doelen van de speler en in de selectielijst van het maandrapport van het team. Niet beperkt tot de periode."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The goals the player has completed so far, the same number as the player's own goals overview. Not limited to the period."
+msgstr "De doelen die de speler tot nu toe heeft behaald, hetzelfde aantal als in het eigen doelenoverzicht van de speler. Niet beperkt tot de periode."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:28
+msgid "The PDP planning page's figures for this team in the current season, block by block. It follows the season's blocks, not the report's period."
+msgstr "De cijfers van de POP-planningspagina voor dit team in het huidige seizoen, blok voor blok. Het volgt de blokken van het seizoen, niet de periode van het rapport."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Open goals"
+msgstr "Openstaande doelen"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column: a PDP block"
+msgid "Block"
+msgstr "Blok"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "From"
+msgstr "Vanaf"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "To"
+msgstr "T/m"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column: players expected to have a talk"
+msgid "Squad"
+msgstr "Selectie"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Planned"
+msgstr "Gepland"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Held"
+msgstr "Gehouden"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Not held"
+msgstr "Niet gehouden"
+
+#: src/Modules/ReportStudio/Blocks/LetterheadBlock.php:38
+msgctxt "report studio block"
+msgid "Letterhead"
+msgstr "Briefhoofd"
+
+#: src/Modules/ReportStudio/Blocks/KeyFiguresBlock.php:29
+msgctxt "report studio block"
+msgid "Key figures"
+msgstr "Kerncijfers"
+
+#: src/Modules/ReportStudio/Blocks/HeadingBlock.php:21
+msgctxt "report studio block"
+msgid "Heading"
+msgstr "Kop"
+
+#: src/Modules/ReportStudio/Blocks/TextBlock.php:31
+msgctxt "report studio block"
+msgid "Text"
+msgstr "Tekst"
+
+#: src/Modules/ReportStudio/Blocks/PageBreakBlock.php:26
+msgctxt "report studio block"
+msgid "Page break"
+msgstr "Pagina-einde"
+
+#: src/Modules/ReportStudio/Blocks/TextBlock.php:49
+msgid "Text about this report (not about a player)"
+msgstr "Tekst over dit rapport (niet over een speler)"
+
+#: src/Modules/ReportStudio/Blocks/PageBreakBlock.php:62
+msgid "A page break is for a report laid out in rows."
+msgstr "Een pagina-einde is voor een rapport in rijen."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:18
+msgid "The team or the player, the period and the club colours, the same heading as the team monthly report and the player report."
+msgstr "Het team of de speler, de periode en de clubkleuren: hetzelfde briefhoofd als in het maandrapport van het team en het spelersrapport."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:20
+msgid "The headline figures of the team monthly report, each against the period before."
+msgstr "De hoofdcijfers van het maandrapport van het team, elk ten opzichte van de periode ervoor."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:23
+msgid "Text you write about this report. A note about a player does not belong here."
+msgstr "Tekst die je zelf schrijft over dit rapport. Een notitie over een speler hoort hier niet."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:25
+msgid "Starts a new page when the report is printed."
+msgstr "Begint een nieuwe pagina als het rapport wordt afgedrukt."
+
+#. translators: 1: first day, 2: last day of the period
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:327
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+msgid "%1$s to %2$s"
+msgstr "%1$s tot en met %2$s"
+
+#. translators: %s: the change, for example "+4 pts"
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:329
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:100
+msgid "%s against the period before"
+msgstr "%s ten opzichte van de periode ervoor"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:330
+msgid "Open the settings to write the text."
+msgstr "Open de instellingen om de tekst te schrijven."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:331
+msgid "The next block starts on a new page when printed."
+msgstr "Het volgende blok begint op een nieuwe pagina bij afdrukken."
+
+#: src/Modules/ReportStudio/Blocks/MatchResultsBlock.php:29
+msgctxt "report studio block: match results"
+msgid "Results"
+msgstr "Uitslagen"
+
+#: src/Modules/ReportStudio/Blocks/TeamStatisticsBlock.php:30
+msgid "Team statistics"
+msgstr "Teamstatistieken"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Every match in the period up to today with its score, and the record over them, the same as the team monthly report. Tournaments are left out."
+msgstr "Elke wedstrijd in de periode tot en met vandaag met de uitslag, en de balans daarover, hetzelfde als in het maandrapport van het team. Toernooien blijven erbuiten."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:26
+msgid "The team's record over the period, the same figures as the team's statistics tab."
+msgstr "De balans van het team over de periode, dezelfde cijfers als op het tabblad Statistieken van het team."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column: home or away"
+msgid "H/A"
+msgstr "T/U"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:282
+msgctxt "report studio column"
+msgid "Opponent"
+msgstr "Tegenstander"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Score"
+msgstr "Uitslag"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:292
+msgctxt "report studio column"
+msgid "No score recorded"
+msgstr "Geen uitslag ingevoerd"
+
+#: src/Modules/ReportStudio/Blocks/MinutesPerMatchBlock.php:30
+msgid "Minutes per match"
+msgstr "Minuten per wedstrijd"
+
+#: src/Modules/ReportStudio/Blocks/GoalsAssistsBlock.php:30
+msgid "Goals and assists"
+msgstr "Doelpunten en assists"
+
+#: src/Modules/ReportStudio/Blocks/MinutesShareBlock.php:31
+#: src/Modules/ReportStudio/Blocks/MinutesShareBlock.php:108
+msgid "Share of available minutes"
+msgstr "Aandeel in de beschikbare minuten"
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:20
+msgid "The player's minutes in each match, the same figures as the minutes report."
+msgstr "De minuten van de speler in elke wedstrijd, dezelfde cijfers als in het minutenrapport."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:22
+msgid "Goals and assists from the match goal log, counted the way the match reports count them."
+msgstr "Doelpunten en assists uit het doelpuntenlog van de wedstrijden, geteld zoals de wedstrijdrapporten ze tellen."
+
+#: src/Modules/ReportStudio/Domain/BlockSources.php:24
+msgid "Minutes against the minutes the team played, the same figures as the minutes-share report."
+msgstr "Minuten tegenover de minuten die het team speelde, dezelfde cijfers als in het rapport minutenaandeel."
+
+#. translators: %s: the academy's minimum share of the minutes, in percent
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:327
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php:98
+#, php-format
+msgid "Target: at least %s%% of the minutes available."
+msgstr "Doel: minstens %s%% van de beschikbare minuten."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:281
+msgctxt "report studio column"
+msgid "Share %"
+msgstr "Aandeel %"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:283
+msgctxt "report studio column"
+msgid "Date"
+msgstr "Datum"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:284
+msgctxt "report studio column"
+msgid "Match"
+msgstr "Wedstrijd"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:285
+msgctxt "report studio column"
+msgid "Type"
+msgstr "Type"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:286
+msgctxt "report studio column"
+msgid "Rank"
+msgstr "Plaats"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Goals"
+msgstr "Doelpunten"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:287
+msgctxt "report studio column"
+msgid "Assists"
+msgstr "Assists"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php:288
+msgctxt "report studio column"
+msgid "Goals + assists"
+msgstr "Doelpunten + assists"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Players"
+msgstr "Spelers"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Teams"
+msgstr "Teams"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Activities"
+msgstr "Activiteiten"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "People"
+msgstr "Mensen"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Settings"
+msgstr "Instellingen"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Sections"
+msgstr "Onderdelen"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Help"
+msgstr "Help"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Team"
+msgstr "Team"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Activity"
+msgstr "Activiteit"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Person"
+msgstr "Persoon"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Setting"
+msgstr "Instelling"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Section"
+msgstr "Onderdeel"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Help topic"
+msgstr "Helponderwerp"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Search for a player, team, activity, person, setting or help topic."
+msgstr "Zoek een speler, team, activiteit, persoon, instelling of helponderwerp."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Name, #7, O14, 12-10…"
+msgstr "Naam, #7, O14, 12-10…"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Any season"
+msgstr "Elk seizoen"
+
+#. translators: %s: what the search read in the query, e.g. "Shirt number 7"
+#: src/Shared/Frontend/FrontendSearchView.php
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Understood: %s"
+msgstr "Herkend: %s"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Filter by kind"
+msgstr "Filter op soort"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Search result pages"
+msgstr "Pagina's met zoekresultaten"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type part of a name: \"den b\" finds Daan den Besten."
+msgstr "Typ een deel van een naam: \"den b\" vindt Daan den Besten."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type #7 for the players with shirt number 7."
+msgstr "Typ #7 voor de spelers met rugnummer 7."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type O14 for the O14 teams and their players."
+msgstr "Typ O14 voor de O14-teams en hun spelers."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type a date such as 12-10, or a weekday, for the activities on that day."
+msgstr "Typ een datum zoals 12-10, of een weekdag, voor de activiteiten op die dag."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Recently opened"
+msgstr "Laatst geopend"
+
+#. translators: %d: how many results of this kind there are
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "All %d"
+msgstr "Alle %d"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Press Enter to see every result."
+msgstr "Druk op Enter voor alle resultaten."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Close search"
+msgstr "Zoeken sluiten"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Goals"
+msgstr "Doelen"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Messages"
+msgstr "Berichten"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Goal"
+msgstr "Doel"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Message"
+msgstr "Bericht"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Search for yourself, your teammates, your team's activities, your evaluations and your goals."
+msgstr "Zoek jezelf, je teamgenoten, de activiteiten van je team, je evaluaties en je doelen."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type part of a title or a name, such as \"training\"."
+msgstr "Typ een deel van een titel of een naam, zoals \"training\"."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgid "Type a date such as 3 nov, 2026-11-03 or 12-10, or a weekday."
+msgstr "Typ een datum zoals 3 nov, 2026-11-03 of 12-10, of een weekdag."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Nobody in this academy has set up two-step verification yet."
+msgstr "Nog niemand in deze academie heeft tweestapsverificatie ingesteld."
+
+#: src/Modules/Mfa/Wizards/IntroStep.php
+msgid "Setting it up again gives you a new secret and new backup codes, for example after losing your phone or switching authenticator app. You first confirm a code from your current app or a backup code. Your current setup keeps working until you confirm a code from the new one; only then do the old codes stop working."
+msgstr "Opnieuw instellen geeft je een nieuwe secret en nieuwe reservecodes, bijvoorbeeld als je je telefoon kwijt bent of een andere authenticator-app gaat gebruiken. Je bevestigt eerst een code uit je huidige app of een reservecode. Je huidige instelling blijft werken tot je een code uit de nieuwe bevestigt; pas dan werken de oude codes niet meer."
+
+#: src/Modules/Mfa/Wizards/IntroStep.php
+msgid "Click Continue to start. You then scan a QR code with your authenticator app."
+msgstr "Klik op Doorgaan om te beginnen. Daarna scan je een QR-code met je authenticator-app."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Confirm current code"
+msgstr "Huidige code bevestigen"
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Too many codes did not match. Try again in a few minutes."
+msgstr "Te veel codes klopten niet. Probeer het over een paar minuten opnieuw."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Two-step verification is already set up on this account. Enter the 6-digit code your current authenticator app shows, or one of your backup codes. Your current setup keeps working until you confirm a code from the new one."
+msgstr "Tweestapsverificatie is al ingesteld op dit account. Vul de 6-cijferige code in die je huidige authenticator-app toont, of een van je reservecodes. Je huidige instelling blijft werken tot je een code uit de nieuwe bevestigt."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Current code or backup code"
+msgstr "Huidige code of reservecode"
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Spaces and dashes are ignored. A backup code used here is spent."
+msgstr "Spaties en streepjes worden genegeerd. Een reservecode die je hier gebruikt, is daarna op."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Enter the code from your current authenticator app, or a backup code."
+msgstr "Vul de code uit je huidige authenticator-app in, of een reservecode."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "That code did not match your current setup. Try the code your authenticator app shows now, or a backup code."
+msgstr "Die code past niet bij je huidige instelling. Probeer de code die je authenticator-app nu toont, of een reservecode."
+
+#: src/Modules/Mfa/Wizards/SecretStep.php
+#: src/Modules/Mfa/Wizards/VerifyStep.php
+msgid "Confirm a code from your current setup first. Go back one step to enter it."
+msgstr "Bevestig eerst een code van je huidige instelling. Ga één stap terug om hem in te vullen."
+
+#: src/Modules/Mfa/Wizards/SecretStep.php
+msgid "The new secret could not be prepared. Reload the page to try again."
+msgstr "De nieuwe secret kon niet worden klaargezet. Laad de pagina opnieuw om het nog eens te proberen."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Confirm a code from the new setup first. Go back one step to enter it."
+msgstr "Bevestig eerst een code van de nieuwe instelling. Ga één stap terug om hem in te vullen."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "The new secret expired. Go back to the QR code step and scan it again."
+msgstr "De nieuwe secret is verlopen. Ga terug naar de stap met de QR-code en scan hem opnieuw."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Two-step verification was not changed. Start setting it up again and confirm both codes."
+msgstr "Tweestapsverificatie is niet gewijzigd. Begin opnieuw met instellen en bevestig beide codes."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Operators turn off two-step for others. Your own goes through the self-service turn-off, which asks for your current code."
+msgstr "Beheerders zetten tweestapsverificatie uit voor anderen. Je eigen zet je zelf uit, en daarvoor is je huidige code nodig."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Nothing was changed."
+msgstr "Er is niets gewijzigd."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Two-step verification was not changed: the new secret expired. Start setting it up again."
+msgstr "Tweestapsverificatie is niet gewijzigd: de nieuwe secret is verlopen. Begin opnieuw met instellen."
+
+msgid "Minutes against the minutes available in the matches with minutes recorded, the same figures as the team monthly report."
+msgstr "Minuten tegenover de beschikbare minuten in de wedstrijden waarvan de minuten zijn vastgelegd, dezelfde cijfers als in het maandrapport van het team."
+
+msgid "Lowest share first. The share is of every minute of the matches with minutes recorded, whether or not the player was available."
+msgstr "Laagste aandeel eerst. Het aandeel is van elke minuut van de wedstrijden waarvan de minuten zijn vastgelegd, of de speler nu beschikbaar was of niet."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Activities are recorded at the team level. Assign this player to a team first; the team's completed activities will then show here."
+msgstr "Activiteiten worden per team vastgelegd. Koppel deze speler eerst aan een team; de afgeronde activiteiten van dat team verschijnen dan hier."
+
 #~ msgid "All states"
 #~ msgstr "Alle statussen"
 
