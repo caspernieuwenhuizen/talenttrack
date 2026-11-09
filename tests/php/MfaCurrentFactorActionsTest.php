@@ -86,6 +86,8 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
     public function test_an_operator_cannot_reset_their_own_two_step_but_can_reset_someone_elses(): void {
         $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         $this->enrol( $operator );
+        $this->memberOfThisAcademy( $operator );
+        $this->memberOfThisAcademy( $this->user_id );
         wp_set_current_user( $operator );
         $this->assertTrue( current_user_can( 'tt_edit_settings' ), 'precondition: the operator holds the reset' );
 
@@ -101,6 +103,10 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
     public function test_the_operator_list_leaves_the_operator_out(): void {
         $operator = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         $this->enrol( $operator );
+        // Both belong to this academy, so only the self-exclusion keeps the
+        // operator off the list (#4798 lists the academy's members).
+        $this->memberOfThisAcademy( $operator );
+        $this->memberOfThisAcademy( $this->user_id );
         wp_set_current_user( $operator );
 
         $method = new ReflectionMethod( \TT\Modules\License\Admin\AccountPage::class, 'renderOperatorMfaSection' );
@@ -171,6 +177,15 @@ class MfaCurrentFactorActionsTest extends WP_UnitTestCase {
             return $e->location;
         }
         $this->fail( 'The handler must redirect.' );
+    }
+
+    /** A staff record in the current academy, which is what makes an account its member. */
+    private function memberOfThisAcademy( int $user_id ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id' => \TT\Infrastructure\Tenancy\CurrentClub::id(), 'first_name' => 'Member', 'last_name' => (string) $user_id, 'wp_user_id' => $user_id, 'status' => 'active',
+        ] );
+        \TT\Infrastructure\Tenancy\ClubMembership::flush();
     }
 
     private function enrol( int $user_id ): void {

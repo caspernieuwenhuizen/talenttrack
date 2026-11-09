@@ -20,7 +20,10 @@ use TT\Shared\Wizards\WizardInterface;
  *                        once; Finish promotes the staged secret and codes.
  *
  * Capability: `read` — every logged-in user can enroll their own MFA;
- * each tt_user_mfa row is keyed by (wp_user_id, club_id).
+ * each tt_user_mfa row is keyed by `wp_user_id` alone (#4798: the
+ * second factor belongs to the account, in every academy it belongs
+ * to) so no cross-user concerns. The tab on the Account page provides
+ * the entry point.
  *
  * First enrolment and setting it up again take the same path (#4943):
  * the new secret and codes live in the row's pending columns and replace

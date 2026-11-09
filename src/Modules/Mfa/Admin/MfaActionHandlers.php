@@ -160,9 +160,23 @@ final class MfaActionHandlers {
             exit;
         }
 
+        // #4798 — the enrolment is the account's, and the reset follows the
+        // academy: an operator resets only an account that belongs to the
+        // academy they are working in.
+        $clubs = \TT\Infrastructure\Tenancy\ClubMembership::clubIdsForUser( $target_id );
+        if ( ! in_array( (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), $clubs, true ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ), '', [ 'response' => 403 ] );
+        }
+
         $repo = new MfaSecretsRepository();
         $repo->disable( $target_id );
-        MfaAuditEvents::record( MfaAuditEvents::DISABLED, $target_id, [ 'operator_initiated' => true ] );
+        // The enrolment counts in every academy of the account, so each of
+        // their logs shows the reset.
+        foreach ( $clubs as $club_id ) {
+            \TT\Infrastructure\Tenancy\ClubIteration::withClub( $club_id, static function () use ( $target_id ): void {
+                MfaAuditEvents::record( MfaAuditEvents::DISABLED, $target_id, [ 'operator_initiated' => true ] );
+            } );
+        }
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => 'tt-account', 'tab' => 'mfa', 'tt_msg' => 'mfa_operator_disabled', 'target' => $target_id ],
