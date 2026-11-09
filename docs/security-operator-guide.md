@@ -36,6 +36,8 @@ Every user can self-enroll right now from `wp-admin → TalentTrack → Account 
 
 After enrollment the user can come back to the same tab to **regenerate backup codes** (the old set stops working immediately) or **turn MFA off** (requires confirmation; removes the secret + backup codes; user can re-enroll any time).
 
+**Setting it up again** (a new phone, a different authenticator app) runs the same wizard with one extra step. Before any new QR code is shown, the wizard asks for a code from the current authenticator app or one of the backup codes. That check shares the sign-in lockout: a wrong code counts towards the 5 attempts, it is refused while the account is locked, and a backup code used there is spent. The current setup keeps working the whole time. The new secret and the new backup codes take over only when the user confirms a code from the new app and finishes the last step; the old secret and the old backup codes stop working at that moment. A user who leaves the wizard halfway keeps their current setup, backup codes and lockout state exactly as they were. A new secret left unconfirmed for an hour is discarded.
+
 **As Academy Admin, what to do today**:
 
 - Enroll your own admin account first. Walk through the wizard end to end so you know what your staff will see.
@@ -76,7 +78,7 @@ If you (the only academy admin) get locked out — wrong codes, clock skew, a lo
 
 Prevention is still better than recovery: **keep at least two admin accounts** so an admin can always recover another admin via the operator UI above.
 
-**Audit log integration** — every MFA event surfaces under `wp-admin → TalentTrack → Audit log` with action keys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter on `action=mfa.lockout` to spot users hitting the threshold; filter on `action=mfa.disabled` to spot operator-initiated resets.
+**Audit log integration** — every MFA event surfaces under `wp-admin → TalentTrack → Audit log` with action keys `mfa.enrolled` / `mfa.replaced` (set up again; the row never holds the secret) / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter on `action=mfa.lockout` to spot users hitting the threshold; filter on `action=mfa.disabled` to spot operator-initiated resets.
 
 ## Reviewing the audit log
 

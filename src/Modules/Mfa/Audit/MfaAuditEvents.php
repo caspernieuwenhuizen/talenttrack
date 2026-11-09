@@ -18,6 +18,8 @@ use TT\Infrastructure\Audit\AuditService;
 final class MfaAuditEvents {
 
     public const ENROLLED                  = 'mfa.enrolled';
+    /** Payload: `backup_codes` (int, the size of the new set). Never the secret. */
+    public const REPLACED                  = 'mfa.replaced';
     public const VERIFIED                  = 'mfa.verified';
     public const VERIFY_FAILED             = 'mfa.verify_failed';
     public const LOCKOUT                   = 'mfa.lockout';

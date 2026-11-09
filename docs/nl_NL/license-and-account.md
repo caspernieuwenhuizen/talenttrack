@@ -229,6 +229,8 @@ Het is ook waar elk op-slot-paneel naartoe verwijst. Staat een scherm uit omdat 
 
 **Tweestapsverificatie** is eveneens een scherm. Het gaat over jouw eigen tweede stap — instellen, nieuwe herstelcodes maken, of uitzetten. Altijd alleen je eigen account.
 
+Wil je het opnieuw instellen, bijvoorbeeld op een nieuwe telefoon, dan vul je eerst een code in uit je huidige authenticator-app of een van je herstelcodes. Je huidige instelling blijft werken tot je een code uit de nieuwe app bevestigt en de laatste stap afrondt. Stop je halverwege, dan verandert er niets.
+
 ### Wat in de WordPress-beheeromgeving blijft
 
 Drie dingen zijn niet meeverhuisd, en gaan dat ook niet doen:

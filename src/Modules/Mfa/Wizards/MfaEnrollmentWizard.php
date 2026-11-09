@@ -3,39 +3,31 @@ namespace TT\Modules\Mfa\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Shared\Wizards\WizardInterface;
 
 /**
  * The MFA enrollment wizard (#0086 Workstream B Child 1, sprint 2).
  *
- * Four steps:
+ * Five steps:
  *   1. `intro`         — what MFA is and what the user is about to do.
- *   2. `secret`        — generate a fresh TOTP shared secret, display
- *                        the QR code + manual-entry fallback. The user
- *                        scans / types into their authenticator app.
- *   3. `verify`        — user types the first 6-digit code; we verify
- *                        against the just-generated secret. On success
- *                        the row in `tt_user_mfa` is marked enrolled.
- *   4. `backup-codes`  — show the 10 single-use recovery codes once.
- *                        User confirms they have saved them, wizard
- *                        finishes by redirecting to the Account-page
- *                        MFA tab.
+ *   2. `reauth`        — only when already enrolled: a code from the
+ *                        current authenticator or a backup code.
+ *   3. `secret`        — stage a new secret, show the QR code + manual
+ *                        entry fallback.
+ *   4. `verify`        — the first 6-digit code from the staged secret.
+ *   5. `backup-codes`  — stage 10 single-use recovery codes, show them
+ *                        once; Finish promotes the staged secret and codes.
  *
  * Capability: `read` — every logged-in user can enroll their own MFA;
- * each tt_user_mfa row is keyed by (wp_user_id, club_id) so no
- * cross-user concerns. The tab on the Account page provides the entry
- * point.
+ * each tt_user_mfa row is keyed by (wp_user_id, club_id).
  *
- * Plaintext-credential lifetime in wizard state:
- *   - The TOTP secret is generated and persisted (encrypted) at step 2;
- *     never held plaintext in wizard state — step 3 reads + decrypts
- *     from `tt_user_mfa`.
- *   - The plaintext backup codes are generated at step 4 (after the
- *     verify step succeeds) and held in wizard state only for the
- *     duration of step 4's render. Submit clears the wizard state,
- *     which deletes the transient and the persistent draft row.
- *     Worst-case exposure window: ~1 hour transient TTL or ~14 days
- *     persistent draft TTL until the cleanup cron sweeps it.
+ * First enrolment and setting it up again take the same path (#4943):
+ * the new secret and codes live in the row's pending columns and replace
+ * the working ones only on Finish, so an abandoned wizard leaves the
+ * working setup, the backup codes and the lockout counters as they were.
+ * The plaintext backup codes are kept in wizard state only so the last
+ * step can show them; they are inert until promotion.
  */
 final class MfaEnrollmentWizard implements WizardInterface {
 
@@ -50,9 +42,24 @@ final class MfaEnrollmentWizard implements WizardInterface {
     public function steps(): array {
         return [
             new IntroStep(),
+            new ReauthStep(),
             new SecretStep(),
             new VerifyStep(),
             new BackupCodesStep(),
         ];
+    }
+
+    /**
+     * Server-side guard for every step after `reauth`. An account that is
+     * already enrolled must have confirmed its current code in this run,
+     * inside the TTL; the step order alone is not the check, because the
+     * runner's Back-jump and Skip can reach any step.
+     *
+     * @param array<string,mixed> $state
+     */
+    public static function reauthSatisfied( int $wp_user_id, array $state ): bool {
+        if ( ! ( new MfaSecretsRepository() )->isEnrolled( $wp_user_id ) ) return true;
+        $at = (int) ( $state['reauth_at'] ?? 0 );
+        return $at > 0 && ( time() - $at ) <= MfaSecretsRepository::PENDING_TTL;
     }
 }

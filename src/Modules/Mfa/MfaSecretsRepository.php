@@ -36,6 +36,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 final class MfaSecretsRepository {
 
+    /** A staged secret older than this is treated as absent (the wizard's own TTL). */
+    public const PENDING_TTL = HOUR_IN_SECONDS;
+
     private function table(): string {
         global $wpdb;
         return $wpdb->prefix . 'tt_user_mfa';
@@ -141,6 +144,133 @@ final class MfaSecretsRepository {
         $data['created_at'] = $now;
         $ok = $wpdb->insert( $this->table(), $data );
         return $ok !== false;
+    }
+
+    /**
+     * Stage a new secret beside the working one. Only the pending columns
+     * are written; the working secret, backup codes, `enrolled_at` and the
+     * lockout counters stay as they are. Any staged backup codes are
+     * dropped, because they belonged to the previous staged secret. A
+     * first enrolment creates the row with only the pending columns set.
+     */
+    public function stagePendingSecret( int $wp_user_id, string $secret_plaintext ): bool {
+        if ( $wp_user_id <= 0 || $secret_plaintext === '' ) return false;
+
+        global $wpdb;
+        $now  = current_time( 'mysql' );
+        $data = [
+            'pending_secret_encrypted'    => CredentialEncryption::encrypt( $secret_plaintext ),
+            'pending_backup_codes_hashed' => null,
+            'pending_created_at'          => gmdate( 'Y-m-d H:i:s' ),
+            'updated_at'                  => $now,
+        ];
+
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing !== null ) {
+            return $wpdb->update( $this->table(), $data, [ 'id' => (int) $existing['id'] ] ) !== false;
+        }
+
+        $data['club_id']    = CurrentClub::id();
+        $data['wp_user_id'] = $wp_user_id;
+        $data['uuid']       = wp_generate_uuid4();
+        $data['created_at'] = $now;
+        return $wpdb->insert( $this->table(), $data ) !== false;
+    }
+
+    /**
+     * Stage the hashed backup codes that go with the staged secret.
+     * Refused when no secret is staged.
+     *
+     * @param list<array{hash:string,used_at:null|string}> $backup_codes
+     */
+    public function stagePendingBackupCodes( int $wp_user_id, array $backup_codes ): bool {
+        if ( $wp_user_id <= 0 ) return false;
+        global $wpdb;
+        $ok = $wpdb->query( $wpdb->prepare(
+            "UPDATE {$this->table()}
+                SET pending_backup_codes_hashed = %s, updated_at = %s
+              WHERE wp_user_id = %d AND club_id = %d AND pending_secret_encrypted IS NOT NULL",
+            (string) wp_json_encode( $backup_codes ),
+            current_time( 'mysql' ),
+            $wp_user_id,
+            CurrentClub::id()
+        ) );
+        return is_int( $ok ) && $ok > 0;
+    }
+
+    /**
+     * The staged secret, decrypted, or '' when none is staged or it is
+     * older than `PENDING_TTL`. Kept out of `hydrate()` on purpose: only
+     * the enrolment wizard reads it.
+     */
+    public function pendingSecret( int $wp_user_id ): string {
+        if ( $wp_user_id <= 0 ) return '';
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT pending_secret_encrypted FROM {$this->table()}
+              WHERE wp_user_id = %d AND club_id = %d
+                AND pending_secret_encrypted IS NOT NULL
+                AND pending_created_at >= %s",
+            $wp_user_id,
+            CurrentClub::id(),
+            self::pendingCutoff()
+        ), ARRAY_A );
+        if ( ! is_array( $row ) ) return '';
+        return CredentialEncryption::decrypt( (string) $row['pending_secret_encrypted'] );
+    }
+
+    /**
+     * Promote the staged secret and backup codes into the working columns
+     * and mark the row enrolled, in one statement. Nothing happens unless
+     * a secret and its codes are staged and the secret is inside
+     * `PENDING_TTL`. Returns false when no row changed.
+     */
+    public function promotePending( int $wp_user_id ): bool {
+        if ( $wp_user_id <= 0 ) return false;
+        global $wpdb;
+        $now = current_time( 'mysql' );
+        $ok  = $wpdb->query( $wpdb->prepare(
+            "UPDATE {$this->table()}
+                SET secret_encrypted = pending_secret_encrypted,
+                    backup_codes_hashed = pending_backup_codes_hashed,
+                    enrolled_at = %s,
+                    last_verified_at = %s,
+                    updated_at = %s,
+                    pending_secret_encrypted = NULL,
+                    pending_backup_codes_hashed = NULL,
+                    pending_created_at = NULL
+              WHERE wp_user_id = %d AND club_id = %d
+                AND pending_secret_encrypted IS NOT NULL
+                AND pending_backup_codes_hashed IS NOT NULL
+                AND pending_created_at >= %s",
+            $now,
+            $now,
+            $now,
+            $wp_user_id,
+            CurrentClub::id(),
+            self::pendingCutoff()
+        ) );
+        return is_int( $ok ) && $ok > 0;
+    }
+
+    /** Drop whatever is staged. The working columns are not touched. */
+    public function clearPending( int $wp_user_id ): bool {
+        if ( $wp_user_id <= 0 ) return false;
+        global $wpdb;
+        $ok = $wpdb->query( $wpdb->prepare(
+            "UPDATE {$this->table()}
+                SET pending_secret_encrypted = NULL,
+                    pending_backup_codes_hashed = NULL,
+                    pending_created_at = NULL
+              WHERE wp_user_id = %d AND club_id = %d",
+            $wp_user_id,
+            CurrentClub::id()
+        ) );
+        return $ok !== false;
+    }
+
+    private static function pendingCutoff(): string {
+        return gmdate( 'Y-m-d H:i:s', time() - self::PENDING_TTL );
     }
 
     /**
@@ -374,7 +504,9 @@ final class MfaSecretsRepository {
      * Disable MFA for a user — deletes the row entirely. Used when an
      * admin needs to recover a user who's locked themselves out
      * (lost their authenticator + lost their backup codes). Audit-logged
-     * by the caller (Sprint 3).
+     * by the caller (Sprint 3). The operator reset, the user's own "turn
+     * off" and `wp tt mfa reset` all come through here, so a staged
+     * secret and its codes go with the row.
      */
     public function disable( int $wp_user_id ): bool {
         if ( $wp_user_id <= 0 ) return false;

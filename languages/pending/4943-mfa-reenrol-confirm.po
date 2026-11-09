@@ -1,0 +1,60 @@
+#: src/Modules/Mfa/Wizards/IntroStep.php
+msgid "Setting it up again gives you a new secret and new backup codes, for example after losing your phone or switching authenticator app. You first confirm a code from your current app or a backup code. Your current setup keeps working until you confirm a code from the new one; only then do the old codes stop working."
+msgstr "Opnieuw instellen geeft je een nieuwe secret en nieuwe reservecodes, bijvoorbeeld als je je telefoon kwijt bent of een andere authenticator-app gaat gebruiken. Je bevestigt eerst een code uit je huidige app of een reservecode. Je huidige instelling blijft werken tot je een code uit de nieuwe bevestigt; pas dan werken de oude codes niet meer."
+
+#: src/Modules/Mfa/Wizards/IntroStep.php
+msgid "Click Continue to start. You then scan a QR code with your authenticator app."
+msgstr "Klik op Doorgaan om te beginnen. Daarna scan je een QR-code met je authenticator-app."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Confirm current code"
+msgstr "Huidige code bevestigen"
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Too many codes did not match. Try again in a few minutes."
+msgstr "Te veel codes klopten niet. Probeer het over een paar minuten opnieuw."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Two-step verification is already set up on this account. Enter the 6-digit code your current authenticator app shows, or one of your backup codes. Your current setup keeps working until you confirm a code from the new one."
+msgstr "Tweestapsverificatie is al ingesteld op dit account. Vul de 6-cijferige code in die je huidige authenticator-app toont, of een van je reservecodes. Je huidige instelling blijft werken tot je een code uit de nieuwe bevestigt."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Current code or backup code"
+msgstr "Huidige code of reservecode"
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Spaces and dashes are ignored. A backup code used here is spent."
+msgstr "Spaties en streepjes worden genegeerd. Een reservecode die je hier gebruikt, is daarna op."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "Enter the code from your current authenticator app, or a backup code."
+msgstr "Vul de code uit je huidige authenticator-app in, of een reservecode."
+
+#: src/Modules/Mfa/Wizards/ReauthStep.php
+msgid "That code did not match your current setup. Try the code your authenticator app shows now, or a backup code."
+msgstr "Die code past niet bij je huidige instelling. Probeer de code die je authenticator-app nu toont, of een reservecode."
+
+#: src/Modules/Mfa/Wizards/SecretStep.php
+#: src/Modules/Mfa/Wizards/VerifyStep.php
+msgid "Confirm a code from your current setup first. Go back one step to enter it."
+msgstr "Bevestig eerst een code van je huidige instelling. Ga één stap terug om hem in te vullen."
+
+#: src/Modules/Mfa/Wizards/SecretStep.php
+msgid "The new secret could not be prepared. Reload the page to try again."
+msgstr "De nieuwe secret kon niet worden klaargezet. Laad de pagina opnieuw om het nog eens te proberen."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Confirm a code from the new setup first. Go back one step to enter it."
+msgstr "Bevestig eerst een code van de nieuwe instelling. Ga één stap terug om hem in te vullen."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "The new secret expired. Go back to the QR code step and scan it again."
+msgstr "De nieuwe secret is verlopen. Ga terug naar de stap met de QR-code en scan hem opnieuw."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Two-step verification was not changed. Start setting it up again and confirm both codes."
+msgstr "Tweestapsverificatie is niet gewijzigd. Begin opnieuw met instellen en bevestig beide codes."
+
+#: src/Modules/Mfa/Wizards/BackupCodesStep.php
+msgid "Two-step verification was not changed: the new secret expired. Start setting it up again."
+msgstr "Tweestapsverificatie is niet gewijzigd: de nieuwe secret is verlopen. Begin opnieuw met instellen."
