@@ -128,6 +128,11 @@ final class RememberDeviceCookie {
      * Drop the cookie immediately (sets an empty value with a past expiry).
      */
     public static function clear(): void {
+        unset( $_COOKIE[ self::COOKIE_NAME ] );
+        // After output there is no header left to send; setcookie() would
+        // only warn. The server-side entries are what stop a cookie working.
+        if ( headers_sent() ) return;
+
         $cookie_path = defined( 'COOKIEPATH' ) && COOKIEPATH !== '' ? COOKIEPATH : '/';
         $cookie_dom  = defined( 'COOKIE_DOMAIN' ) ? COOKIE_DOMAIN : '';
         setcookie(
@@ -142,7 +147,6 @@ final class RememberDeviceCookie {
                 'samesite' => 'Lax',
             ]
         );
-        unset( $_COOKIE[ self::COOKIE_NAME ] );
     }
 
     private static function sign( int $user_id, string $token ): string {
