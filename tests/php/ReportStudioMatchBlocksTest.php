@@ -78,10 +78,9 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
         foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
             $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
         }
-        // "Without a score" is not part of the Played rule: the monthly report
-        // still lists the match still to come among the fixtures without one,
-        // the tab, which reads past fixtures only, does not.
-        $this->assertSame( $tab['without_a_score'] + 1, $monthly['without_score'] );
+        // Both read the fixtures up to today, so the match still to come is in
+        // neither, and "without a score" agrees as well.
+        $this->assertSame( $tab['without_a_score'], $monthly['without_score'] );
 
         // The hand count: four played (the one without a score included), the
         // match in ten days not; one won, one drawn, one lost; 4–4.
@@ -115,7 +114,49 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
         foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
             $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
         }
-        $this->assertSame( $tab['without_a_score'] + 1, $monthly['without_score'] );
+        $this->assertSame( $tab['without_a_score'], $monthly['without_score'] );
+    }
+
+    /**
+     * Fenna's walk: a fixture dated after today but already marked completed
+     * is "played" by the played-match rule (`completed` counts whatever the
+     * date). Both records read fixtures up to today, so it is in neither and
+     * they agree. Whether such a row should exist at all is #4957's data
+     * question; this pins that the two surfaces cannot disagree about it.
+     */
+    public function test_a_completed_fixture_dated_after_today_counts_the_same_on_both_records(): void {
+        $before = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+        $this->match( $this->team_a, 5, 'Geel', 'home', 2, 1, 'completed' );
+        $this->flush();
+
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team_a, $this->from, $this->to, [ 'matches' ] )['data']['matches']['record'];
+        $tab     = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+
+        $this->assertSame( $tab['played'], $monthly['played'], 'one played count on both records' );
+        $this->assertSame( $before['played'], $tab['played'], 'a fixture dated after today is not in the record yet' );
+        foreach ( [ 'won', 'drawn', 'lost', 'goals_for', 'goals_against' ] as $key ) {
+            $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
+        }
+        $this->assertSame( $tab['without_a_score'], $monthly['without_score'] );
+    }
+
+    /** Fenna's walk: completed fixtures nobody typed a score into are played on both records, and counted alike. */
+    public function test_two_completed_fixtures_without_a_score_count_the_same_on_both_records(): void {
+        $before = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+        $this->match( $this->team_a, -12, 'Zwart', 'home', null, null, 'completed' );
+        $this->match( $this->team_a, -8, 'Grijs', 'away', null, null, 'completed' );
+        $this->flush();
+
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team_a, $this->from, $this->to, [ 'matches' ] )['data']['matches']['record'];
+        $tab     = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];
+
+        $this->assertSame( $before['played'] + 2, $tab['played'], 'both are played' );
+        $this->assertSame( $tab['played'], $monthly['played'], 'one played count on both records' );
+        $this->assertSame( $before['without_a_score'] + 2, $tab['without_a_score'] );
+        $this->assertSame( $tab['without_a_score'], $monthly['without_score'] );
+        foreach ( [ 'won', 'drawn', 'lost', 'goals_for', 'goals_against' ] as $key ) {
+            $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
+        }
     }
 
     public function test_the_results_equal_the_monthly_reports_match_section(): void {
@@ -124,7 +165,8 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
 
         $this->assertSame( $report['record'], $block['data']['record'] );
         $this->assertSame( array_column( $report['fixtures'], 'date' ), array_column( $block['data']['rows'], 'match_date' ) );
-        $this->assertCount( 5, $block['data']['rows'], 'every fixture in the window, the one still to come included' );
+        $this->assertCount( 4, $block['data']['rows'], 'every fixture in the window up to today; the one still to come is not listed' );
+        $this->assertNotContains( gmdate( 'Y-m-d', time() + 10 * DAY_IN_SECONDS ), array_column( $block['data']['rows'], 'match_date' ) );
 
         $by_date = array_column( $block['data']['rows'], null, 'match_date' );
         $first   = $by_date[ gmdate( 'Y-m-d', time() - 30 * DAY_IN_SECONDS ) ];

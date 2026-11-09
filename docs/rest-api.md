@@ -1596,7 +1596,8 @@ The blocks:
   gives 0, below every rating scale).
 - `match_results` (team, staff only, #4572): the team monthly report's match
   section (`MatchesComposer`). `rows` of `{ match_date, venue, opponent,
-  score }` for every fixture in the period, tournaments left out, `venue` the
+  score }` for every fixture in the period up to today (the filter the
+  Statistics tab reads too), tournaments left out, `venue` the
   one-letter home/away chip and `score` "3–1" or "no score recorded"; plus
   `record` (the section's, `TeamMatchRecord`), `tournaments_excluded` and
   `note`.

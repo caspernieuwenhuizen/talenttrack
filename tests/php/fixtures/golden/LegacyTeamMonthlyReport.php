@@ -811,7 +811,10 @@ final class LegacyTeamMonthlyReport {
      * @return array<string,mixed>
      */
     private function matches( array $options = [] ): array {
-        $activities = ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to );
+        // #4572 — the deliberate change, taken here as the golden test asks:
+        // the monthly report reads fixtures up to today, as the statistics
+        // tab does, so the two records count the same matches.
+        $activities = ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to, true );
 
         $out = [
             // Tournaments are multi-game days (#2686): one score line cannot
@@ -1571,7 +1574,7 @@ final class LegacyTeamMonthlyReport {
         // whether the record is wrong or merely incomplete. Named by date
         // and title, because the title is where the opponent usually is.
         $without_opponent = [];
-        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to ) as $match ) {
+        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to, true ) as $match ) {
             if ( trim( (string) $match['opponent'] ) !== '' ) continue;
             $without_opponent[] = [
                 'activity_id' => (int) $match['activity_id'],

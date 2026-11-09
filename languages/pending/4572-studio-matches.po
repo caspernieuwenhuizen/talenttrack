@@ -8,8 +8,8 @@ msgid "Team statistics"
 msgstr "Teamstatistieken"
 
 #: src/Modules/ReportStudio/Domain/BlockSources.php:24
-msgid "Every match in the period with its score, and the record over them, the same as the team monthly report. Tournaments are left out."
-msgstr "Elke wedstrijd in de periode met de uitslag, en de balans daarover, hetzelfde als in het maandrapport van het team. Toernooien blijven erbuiten."
+msgid "Every match in the period up to today with its score, and the record over them, the same as the team monthly report. Tournaments are left out."
+msgstr "Elke wedstrijd in de periode tot en met vandaag met de uitslag, en de balans daarover, hetzelfde als in het maandrapport van het team. Toernooien blijven erbuiten."
 
 #: src/Modules/ReportStudio/Domain/BlockSources.php:26
 msgid "The team's record over the period, the same figures as the team's statistics tab."

@@ -717,10 +717,10 @@ For a team, the averages follow the team monthly report: whoever may read the te
 For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
 **Matches**
 
-- **Results**: every match of the team in the period with the date, home or away, the opponent and the score, as the team monthly report's match section lists them, with the record under it. Tournaments are left out, and the block says how many. A match without a score says so instead of showing 0–0. Staff only.
+- **Results**: every match of the team in the period up to today with the date, home or away, the opponent and the score, as the team monthly report's match section lists them, with the record under it. Tournaments are left out, and the block says how many. A match without a score says so instead of showing 0–0. Staff only.
 - **Team statistics**: the team's record over the period, as the team's Statistics tab shows it: played, won, drawn, lost, goals for and against, goal difference, clean sheets, and the played matches without a score. It needs the right to read the team, as the Statistics tab does. Staff only.
 
-**Played** is one figure everywhere: the matches that are completed, in the past, or have minutes recorded. The monthly report, the Statistics tab and both blocks count it the same way.
+**Played** is one figure everywhere: of the matches up to today, the ones that are completed, in the past, or have minutes recorded. The monthly report, the Statistics tab and both blocks read the same matches and count them the same way. A match still to come is in none of them, so it adds nothing to "without a score" either.
 
 **Your own question**
 

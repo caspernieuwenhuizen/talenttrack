@@ -48,7 +48,7 @@ final class BlockSources {
             case 'pdp_conversations':
                 return __( 'The PDP planning page\'s figures for this team in the current season, block by block. It follows the season\'s blocks, not the report\'s period.', 'talenttrack' );
             case 'match_results':
-                return __( 'Every match in the period with its score, and the record over them, the same as the team monthly report. Tournaments are left out.', 'talenttrack' );
+                return __( 'Every match in the period up to today with its score, and the record over them, the same as the team monthly report. Tournaments are left out.', 'talenttrack' );
             case 'team_statistics':
                 return __( 'The team\'s record over the period, the same figures as the team\'s statistics tab.', 'talenttrack' );
             case 'own_question':
