@@ -30,7 +30,7 @@ final class BlockSources {
             case 'goals_assists':
                 return __( 'Goals and assists from the match goal log, counted the way the match reports count them.', 'talenttrack' );
             case 'minutes_share':
-                return __( 'Minutes against the minutes the team played, the same figures as the minutes-share report.', 'talenttrack' );
+                return __( 'Minutes against the minutes available in the matches with minutes recorded, the same figures as the team monthly report.', 'talenttrack' );
             case 'attendance_per_week':
                 return __( 'Attendance taken at trainings and matches, counted the way the attendance reports count it.', 'talenttrack' );
             case 'attendance_per_player':

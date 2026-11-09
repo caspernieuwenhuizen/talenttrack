@@ -162,28 +162,50 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
         $this->assertSame( 1, $theirs['goals'], 'an own goal is not a goal' );
     }
 
-    public function test_the_minutes_share_equals_the_minutes_share_report(): void {
-        $report = ( new MinutesShareQuery() )->forTeam( $this->team_a, self::FROM, self::TO );
-        $block  = $this->preview( 'minutes_share', $this->team( $this->team_a ) );
+    /**
+     * #4966 — the block's share is the monthly report's, per player and for
+     * the median. A played match nobody recorded minutes for is the case the
+     * two definitions part on: the monthly report leaves it out of the
+     * minutes available (#2252), the minutes-share report counts it.
+     */
+    public function test_the_minutes_share_equals_the_monthly_reports_minutes_section(): void {
+        $this->insertMatch( $this->team_a, '2020-03-28', 'League' ); // played, no minutes recorded
+        $this->flush();
 
-        $this->assertSame( array_column( $report['players'], 'player_id' ), array_column( $block['data']['rows'], 'player_id' ), 'the report\'s order, lowest share first' );
-        foreach ( $block['data']['rows'] as $i => $row ) {
-            $this->assertSame( $report['players'][ $i ]['minutes'], $row['minutes'] );
-            $this->assertSame( round( (float) $report['players'][ $i ]['share_pct'], 1 ), $row['share_pct'] );
+        $section = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'minutes' ] )['data']['minutes'];
+        $other   = ( new MinutesShareQuery() )->forTeam( $this->team_a, self::FROM, self::TO );
+        $this->assertNotSame( $other['available_minutes'], $section['rows'][0]['available_minutes'], 'Precondition: the two definitions differ on this fixture.' );
+
+        $block = $this->preview( 'minutes_share', $this->team( $this->team_a ) );
+        $rows  = $block['data']['rows'];
+
+        $by_player = array_column( $section['rows'], null, 'player_id' );
+        $this->assertCount( count( $section['rows'] ), $rows, 'every squad player of the section' );
+        foreach ( $rows as $row ) {
+            $theirs = $by_player[ $row['player_id'] ] ?? null;
+            $this->assertIsArray( $theirs, 'a player of the section' );
+            $this->assertSame( $theirs['total_minutes'], $row['minutes'] );
+            $this->assertSame( $theirs['available_minutes'], $row['available_minutes'] );
+            $this->assertSame( $theirs['share_pct'], $row['share_pct'] );
         }
-        $this->assertSame( $report['available_minutes'], $block['data']['available_minutes'] );
-        $this->assertSame( $report['target_pct'], $block['data']['target_pct'] );
-        $median = MinutesShareQuery::medianShare( $report['players'] );
-        $this->assertNotNull( $median );
-        $this->assertSame( round( $median, 1 ), $block['data']['median_share_pct'] );
+        $this->assertSame( $section['median_share_pct'], $block['data']['median_share_pct'] );
+        $this->assertNotNull( $block['data']['median_share_pct'] );
+        $this->assertSame( $section['target_pct'], $block['data']['target_pct'] );
+
+        $shares = array_column( $rows, 'share_pct' );
+        $sorted = $shares;
+        sort( $sorted );
+        $this->assertSame( $sorted, $shares, 'lowest share first' );
+
+        // The playing-time block and the key-figures tile give the same median.
+        $this->assertSame( $section['median_share_pct'], $this->preview( 'playing_time', $this->team( $this->team_a ) )['data']['median_share_pct'] );
 
         foreach ( [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ] as $audience ) {
-            $mine   = ( new MinutesShareQuery() )->forPlayer( $this->team_a, $this->pa1, self::FROM, self::TO );
-            $player = $this->preview( 'minutes_share', $this->player( $this->pa1, $audience ) );
-            $this->assertIsArray( $mine );
-            $this->assertSame( round( (float) $mine['share_pct'], 1 ), $player['data']['value'], $audience );
-            $this->assertSame( $mine['minutes'], $player['data']['minutes'], $audience );
-            $this->assertSame( $mine['available_minutes'], $player['data']['available_minutes'], $audience );
+            $player = $this->preview( 'minutes_share', $this->player( $this->pa1, $audience ) )['data'];
+            $this->assertSame( $by_player[ $this->pa1 ]['share_pct'], $player['value'], $audience );
+            $this->assertSame( $by_player[ $this->pa1 ]['total_minutes'], $player['minutes'], $audience );
+            $this->assertSame( $by_player[ $this->pa1 ]['available_minutes'], $player['available_minutes'], $audience );
+            $this->assertArrayNotHasKey( 'median_share_pct', $player, 'no average for a single player' );
         }
     }
 
@@ -195,7 +217,12 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [], $this->preview( 'minutes_per_match', $player )['data']['rows'] );
         $this->assertSame( 0, $this->preview( 'minutes_per_match', $player )['data']['total_minutes'] );
         $this->assertSame( [], $this->preview( 'goals_assists', $team )['data']['rows'] );
-        $this->assertSame( [], $this->preview( 'minutes_share', $team )['data']['rows'] );
+        // The section still lists the squad with no minutes to share: each
+        // share is no figure, never 0 %.
+        foreach ( $this->preview( 'minutes_share', $team )['data']['rows'] as $row ) {
+            $this->assertNull( $row['share_pct'] );
+        }
+        $this->assertNull( $this->preview( 'minutes_share', $team )['data']['median_share_pct'] );
 
         // No minutes to share: the player's share is no figure (a dash), not 0 %.
         $share = $this->preview( 'minutes_share', $player )['data'];

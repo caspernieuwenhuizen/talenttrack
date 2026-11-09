@@ -1,0 +1,3 @@
+# Report Studio: the minutes-share block shows the monthly report's share (#4966)
+
+The Report Studio's **Share of available minutes** block counted every played match in the minutes available, including a match nobody recorded minutes for. The team monthly report counts only the matches whose minutes were recorded. So the block showed a lower share for every player: for one squad its median was 40.7% where the monthly report, its key figures and the playing-time block all showed 81.4%. The block now reads the monthly report's minutes section, lowest share first, with the same median and the minutes available on each row. For a single player it is their row in their team's section.

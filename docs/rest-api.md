@@ -1542,11 +1542,16 @@ The blocks:
   having none (#4069), with `goals` and `assists` totals. For a player (every
   audience) `GoalContributionQuery::forPlayer()` as one row
   `{ goals, assists, contributions }`.
-- `minutes_share` (player, team): `MinutesShareQuery`. For a team (staff
-  only) every squad player's `minutes` and `share_pct`, lowest first, with
-  `available_minutes`, `matches`, `target_pct` and `median_share_pct`; for a
+- `minutes_share` (player, team): the team monthly report's minutes section
+  (`MinutesComposer`, the read `playing_time` uses). For a team (staff only)
+  every squad player's `minutes`, `available_minutes` (the length of the
+  matches whose minutes were recorded, `MinutesQuery::forTeam()`) and
+  `share_pct`, lowest first, a player without minutes available last, with `matches`, `target_pct` and `median_share_pct`; for a
   player (every audience) `value` (their share, percent), `minutes`,
-  `available_minutes`, `matches` and `target_pct`, and no average.
+  `available_minutes`, `matches` and `target_pct` from their row in their
+  current team's section, and no average. Before #4966 the block divided by
+  every played match's length, recorded or not (`MinutesShareQuery`), and
+  carried `available_minutes` once for the team rather than per row.
 - `open_goals` (player, team; internal and family, #4572): today's count, not
   the period's. For a player `value` = `GoalsRepository::
   countActiveForPlayer()`; for a team (staff only)

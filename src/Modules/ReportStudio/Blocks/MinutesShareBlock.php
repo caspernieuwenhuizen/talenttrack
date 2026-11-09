@@ -6,20 +6,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\MinutesComposer;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
 /**
- * Share of the available minutes (#4572), read through `MinutesShareQuery`,
- * the read of the minutes-share report: each played match at its own resolved
- * length, the squad as that report defines it, and the academy's one target.
+ * Share of the available minutes (#4572, #4966): the share the team monthly
+ * report's minutes section computes (`MinutesComposer`), the same figure as
+ * the key-figures tile and `playing_time`. A player's minutes are divided by
+ * the minutes available in the matches whose minutes were recorded
+ * (`MinutesQuery::forTeam()`, #2252), not by every played match: a match
+ * nobody recorded minutes for adds to neither side of the share. Against the
+ * academy's one target.
  *
- * - For a team: every squad player's share, lowest first, the report's own
- *   order, because who is not getting on is the finding. Staff only.
- * - For a player: their own share on their current team, against the target.
- *   On the family and the scout lists without any team or position-group
- *   average (#3991): in a small group an average is another child's minutes.
+ * - For a team: every squad player's share, lowest first, because who is not
+ *   getting on is the finding, with the section's median. Staff only.
+ * - For a player: their own row in their current team's section, against the
+ *   target. On the family and the scout lists without any team or
+ *   position-group average (#3991): in a small group an average is another
+ *   child's minutes.
  */
 final class MinutesShareBlock implements ReportBlock {
 
@@ -60,35 +67,35 @@ final class MinutesShareBlock implements ReportBlock {
             return $this->forPlayer( $context );
         }
 
-        $share = SharedReads::remember(
-            'minutes_share_for_team',
-            $context,
-            static fn(): array => ( new MinutesShareQuery() )->forTeam( $context->teamId, $context->from, $context->to )
-        );
+        $section = self::section( $context, $context->teamId );
 
-        $rows   = [];
-        $shares = [];
-        foreach ( (array) ( $share['players'] ?? [] ) as $p ) {
-            if ( ! is_array( $p ) ) continue;
-            $pct      = isset( $p['share_pct'] ) ? (float) $p['share_pct'] : null;
-            $shares[] = [ 'share_pct' => $pct ];
-            $rows[]   = [
-                'player_id' => (int) ( $p['player_id'] ?? 0 ),
-                'name'      => (string) ( $p['name'] ?? '' ),
-                'minutes'   => (int) ( $p['minutes'] ?? 0 ),
-                'share_pct' => $pct !== null ? round( $pct, 1 ) : null,
+        $rows = [];
+        foreach ( (array) ( $section['rows'] ?? [] ) as $r ) {
+            if ( ! is_array( $r ) ) continue;
+            $rows[] = [
+                'player_id'         => (int) ( $r['player_id'] ?? 0 ),
+                'name'              => (string) ( $r['name'] ?? '' ),
+                'minutes'           => (int) ( $r['total_minutes'] ?? 0 ),
+                'available_minutes' => (int) ( $r['available_minutes'] ?? 0 ),
+                'share_pct'         => isset( $r['share_pct'] ) ? (float) $r['share_pct'] : null,
             ];
         }
-        // The report's median, over the unrounded shares.
-        $median = MinutesShareQuery::medianShare( $shares );
+        // Lowest share first, because who is not getting on is the finding;
+        // a player with no minutes available to share has no figure and goes
+        // last. PHP's sort is stable, so equal shares keep the section's order.
+        usort( $rows, static function ( array $a, array $b ): int {
+            if ( $a['share_pct'] === null || $b['share_pct'] === null ) {
+                return ( $a['share_pct'] === null ? 1 : 0 ) <=> ( $b['share_pct'] === null ? 1 : 0 );
+            }
+            return $a['share_pct'] <=> $b['share_pct'];
+        } );
 
         return [
-            'breakdown'         => 'player_id',
-            'rows'              => $rows,
-            'available_minutes' => (int) ( $share['available_minutes'] ?? 0 ),
-            'matches'           => (int) ( $share['matches'] ?? 0 ),
-            'target_pct'        => (int) ( $share['target_pct'] ?? MinutesShareQuery::targetPct() ),
-            'median_share_pct'  => $median !== null ? round( $median, 1 ) : null,
+            'breakdown'        => 'player_id',
+            'rows'             => $rows,
+            'matches'          => (int) ( $section['matches_played'] ?? 0 ),
+            'target_pct'       => (int) ( $section['target_pct'] ?? MinutesShareQuery::targetPct() ),
+            'median_share_pct' => $section['median_share_pct'] ?? null,
         ];
     }
 
@@ -96,23 +103,42 @@ final class MinutesShareBlock implements ReportBlock {
     private function forPlayer( ReportContext $context ): array {
         $player  = QueryHelpers::get_player( $context->playerId );
         $team_id = $player ? (int) ( $player->team_id ?? 0 ) : 0;
-        $mine    = $team_id > 0
-            ? SharedReads::remember(
-                'minutes_share_for_player',
-                $context,
-                static fn(): array => ( new MinutesShareQuery() )->forPlayer( $team_id, $context->playerId, $context->from, $context->to ) ?? []
-            )
-            : [];
 
-        $pct = $mine['share_pct'] ?? null;
+        $mine    = null;
+        $section = $team_id > 0 ? self::section( $context, $team_id ) : [];
+        foreach ( (array) ( $section['rows'] ?? [] ) as $r ) {
+            if ( is_array( $r ) && (int) ( $r['player_id'] ?? 0 ) === $context->playerId ) {
+                $mine = $r;
+                break;
+            }
+        }
+
+        $pct = is_array( $mine ) && isset( $mine['share_pct'] ) ? (float) $mine['share_pct'] : null;
         return [
-            'value'             => $pct !== null ? round( (float) $pct, 1 ) : null,
+            'value'             => $pct,
             'unit'              => 'percent',
             'measure_label'     => __( 'Share of available minutes', 'talenttrack' ),
-            'minutes'           => (int) ( $mine['minutes'] ?? 0 ),
-            'available_minutes' => (int) ( $mine['available_minutes'] ?? 0 ),
-            'matches'           => (int) ( $mine['matches'] ?? 0 ),
-            'target_pct'        => (int) ( $mine['target_pct'] ?? MinutesShareQuery::targetPct() ),
+            'minutes'           => is_array( $mine ) ? (int) ( $mine['total_minutes'] ?? 0 ) : 0,
+            'available_minutes' => is_array( $mine ) ? (int) ( $mine['available_minutes'] ?? 0 ) : 0,
+            'matches'           => is_array( $mine ) ? (int) ( $mine['matches'] ?? 0 ) : 0,
+            'target_pct'        => (int) ( $section['target_pct'] ?? MinutesShareQuery::targetPct() ),
         ];
+    }
+
+    /**
+     * The team monthly report's minutes section for this team and period,
+     * the one read `playing_time` and the key-figures tile answer from, so
+     * the share has one owner (#4966). For a player it is their current
+     * team's section; the memo key carries the subject, so that never
+     * answers for a team report.
+     *
+     * @return array<string,mixed>
+     */
+    private static function section( ReportContext $context, int $team_id ): array {
+        return SharedReads::remember(
+            'team_minutes_section',
+            $context,
+            static fn(): array => MinutesComposer::compose( new TeamReportContext( $team_id, $context->from, $context->to, $context->userId ) )
+        );
     }
 }
