@@ -166,7 +166,8 @@ It follows the same rules: no cause, never saved, never printed.
 The status you choose and its reason are different: they are saved into
 the prep, so everyone who opens it sees them, and the printed sheet and the
 PDF list them as "name · status (reason)". A shared link opens without
-logging in and lists the status without the reason. **Keep medical
+logging in and lists the status with the reason as well, so share it only
+with your staff. **Keep medical
 details out of the reason** all the same: "Injured" is enough, the injury
 itself belongs in the player's injury record. See
 [Access control](access-control.md) for what the Unavailable label does
@@ -406,6 +407,8 @@ Three things worth knowing before you send one:
   not to a group chat you do not control.
 - **It names players and says who is expected to start.** That is the point of
   sending it, and it is also the reason not to forward it outside the staff.
+- **It shows why a player is not available.** The status and the reason you
+  typed beside an absent player are both on it. Send the link to staff only.
 - **You can revoke it.** *Replace link* issues a new one and stops the old one
   working immediately — for everyone who has it. Use it if a link went to the
   wrong group, or when someone leaves the staff.

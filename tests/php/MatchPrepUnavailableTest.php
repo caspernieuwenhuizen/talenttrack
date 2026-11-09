@@ -136,7 +136,8 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
      * The coach's reason beside an absent player is free text and can name
      * an injury: it goes where the flag goes. A club-wide reader gets the
      * status alone, over REST and on the print; the team's coach and the
-     * share link keep it.
+     * share link keep it. The share link is staff-only and the coach
+     * decides who gets it (#4944).
      */
     public function test_the_coachs_reason_goes_only_where_the_flag_goes(): void {
         global $wpdb;
@@ -164,7 +165,7 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
 
         $share = \TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer::bodyHtml( $this->activity, $this->club );
         $this->assertStringContainsString( 'Absent', $share, 'the share body keeps the status' );
-        $this->assertStringNotContainsString( 'Hamstring', $share, 'and leaves the reason out' );
+        $this->assertStringContainsString( 'Absent (Hamstring)', (string) preg_replace( '/\s+/', ' ', $share ), 'and the reason with it' );
     }
 
     public function test_staff_with_injury_access_get_both_lists(): void {
