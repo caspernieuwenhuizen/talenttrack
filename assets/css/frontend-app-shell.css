@@ -95,6 +95,15 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     z-index: 1100;
 }
 
+/*
+ * The sticky header is a stacking context, so the phone search sheet inside
+ * it cannot rise above the WordPress admin bar on its own z-index. While the
+ * sheet is open the header goes above the bar with it.
+ */
+html.tt-search-sheet-open .tt-dashboard.tt-shell-app .tt-dash-header {
+    z-index: 100000;
+}
+
 /* ---- Content column ------------------------------------------------ */
 /*
  * The gutter released from `.tt-dashboard` above is re-applied here, so
