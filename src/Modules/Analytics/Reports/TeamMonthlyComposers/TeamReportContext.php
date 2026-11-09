@@ -54,6 +54,8 @@ final class TeamReportContext {
     private bool $team_loaded = false;
     private ?object $team_row = null;
 
+    private ?bool $reads_attendance = null;
+
     /** @var array<int,object>|null */
     private ?array $players = null;
 
@@ -115,6 +117,18 @@ final class TeamReportContext {
             $this->team_loaded = true;
         }
         return $this->team_row;
+    }
+
+    /**
+     * #4949 — may the viewer read this team's attendance? The attendance
+     * section and the attendance tile follow the attendance read right, the
+     * check `GET /reports/attendance-at-risk` asks
+     * (`AuthorizationService::canReadTeamAttendance()`), not the reports
+     * read right the rest of the report answers to. Asked once per report.
+     * An unattended caller (viewer 0) reads none, the conservative set.
+     */
+    public function readsAttendance(): bool {
+        return $this->reads_attendance ??= \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $this->viewer_user_id, $this->team_id );
     }
 
     /**

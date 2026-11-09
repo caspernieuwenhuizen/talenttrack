@@ -61,6 +61,9 @@ final class KeyFiguresBlock implements ReportBlock {
         // list, the composer's.
         $figures = [];
         foreach ( KpiComposer::tiles() as $tile ) {
+            // #4949 — a tile the composer left out is not a figure here
+            // either: the attendance tile follows the attendance right.
+            if ( ! array_key_exists( $tile['key'], $kpi ) ) continue;
             $m = is_array( $kpi[ $tile['key'] ] ?? null ) ? $kpi[ $tile['key'] ] : [];
             $figures[] = [
                 'key'        => $tile['key'],

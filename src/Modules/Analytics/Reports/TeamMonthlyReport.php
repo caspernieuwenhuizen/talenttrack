@@ -108,6 +108,12 @@ final class TeamMonthlyReport {
         // for this report, and never carried over into the next one.
         $ctx      = new TeamReportContext( $team_id, $from, $to, $viewer_user_id, $options );
         $selected = TeamMonthlyReportBlock::normalise( $blocks );
+        // #4949 — the attendance section answers to the attendance right.
+        // Leaving it out of the composed report leaves it out of the screen,
+        // the print and the PDF alike: all three render this payload.
+        if ( ! $ctx->readsAttendance() ) {
+            $selected = array_values( array_diff( $selected, [ TeamMonthlyReportBlock::ATTENDANCE ] ) );
+        }
 
         $data = [];
         foreach ( $selected as $block ) {

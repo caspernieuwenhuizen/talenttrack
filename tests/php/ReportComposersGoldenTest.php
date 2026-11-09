@@ -127,6 +127,17 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         foreach ( [ 0, $this->admin ] as $viewer ) {
             $before = ( new LegacyTeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $viewer, $options );
             $after  = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $viewer, $options );
+            // #4949 — the deliberate change: a reader without the attendance
+            // right (here the unattended viewer 0) gets the report without
+            // its attendance section and attendance tile, and nothing else
+            // differs. The administrator reads attendance and is unchanged.
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer, $this->team ) ) {
+                $this->assertNotContains( TeamMonthlyReportBlock::ATTENDANCE, $after['blocks'] );
+                $this->assertArrayNotHasKey( TeamMonthlyReportBlock::ATTENDANCE, $after['data'] );
+                $this->assertArrayNotHasKey( 'attendance_pct', $after['data'][ TeamMonthlyReportBlock::KPI ] );
+                $before['blocks'] = array_values( array_diff( $before['blocks'], [ TeamMonthlyReportBlock::ATTENDANCE ] ) );
+                unset( $before['data'][ TeamMonthlyReportBlock::ATTENDANCE ], $before['data'][ TeamMonthlyReportBlock::KPI ]['attendance_pct'] );
+            }
             $this->assertSame( $this->json( $before ), $this->json( $after ), "viewer {$viewer}" );
             $changes[ $viewer ] = array_column( $after['data']['changes']['events'], 'summary' );
         }

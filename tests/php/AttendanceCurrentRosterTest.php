@@ -111,7 +111,8 @@ final class AttendanceCurrentRosterTest extends WP_UnitTestCase {
     }
 
     public function test_the_other_team_surfaces_agree_with_the_report(): void {
-        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->u12, self::FROM, self::TO, [ 'attendance' ] );
+        // #4949 — the section is for a reader with the attendance right.
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->u12, self::FROM, self::TO, [ 'attendance' ], (int) self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $this->assertSame(
             [ $this->stayer ],
             array_column( $monthly['data']['attendance']['rows'], 'player_id' ),

@@ -45,8 +45,11 @@ final class KpiComposer {
 
         // #4068 — the attendance section's own squad average, so the tile and
         // the table under it cannot disagree. Both windows the same way.
-        $att_now  = TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $ctx->from, $ctx->to ) );
-        $att_prev = $has_prev ? TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $previous['from'], $previous['to'] ) ) : null;
+        // #4949 — and only for a viewer who may read the team's attendance:
+        // the tile follows the section's right, and is left out otherwise.
+        $reads_att = $ctx->readsAttendance();
+        $att_now   = $reads_att ? TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $ctx->from, $ctx->to ) ) : null;
+        $att_prev  = $reads_att && $has_prev ? TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $previous['from'], $previous['to'] ) ) : null;
 
         $min_now  = TeamReportFigures::medianShare( $ctx->minutesIn( $ctx->from, $ctx->to ) );
         $min_prev = $has_prev ? TeamReportFigures::medianShare( $ctx->minutesIn( $previous['from'], $previous['to'] ) ) : null;
@@ -65,7 +68,7 @@ final class KpiComposer {
         $attention_now  = TeamReportFigures::attentionCount( $ctx->verdictsAt( $ctx->to ) );
         $attention_prev = $has_prev ? TeamReportFigures::attentionCount( $ctx->verdictsAt( $previous['to'] ) ) : null;
 
-        return [
+        $out = [
             'activities'               => TeamReportFigures::measure( count( $ctx->scheduledIn( $ctx->from, $ctx->to ) ), $has_prev ? $prev_n : null ),
             'attendance_pct'           => TeamReportFigures::measure( $att_now, $att_prev ),
             'minutes_share_median_pct' => TeamReportFigures::measure( $min_now, $min_prev ),
@@ -81,5 +84,7 @@ final class KpiComposer {
             ),
             'needs_attention'          => TeamReportFigures::measure( $attention_now, $attention_prev ),
         ];
+        if ( ! $reads_att ) unset( $out['attendance_pct'] );
+        return $out;
     }
 }

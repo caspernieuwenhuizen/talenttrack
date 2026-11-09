@@ -637,6 +637,9 @@ final class TeamMonthlyReportDocument {
         $cells = [];
         foreach ( KpiComposer::tiles() as $tile ) {
             $key = $tile['key'];
+            // #4949 — a tile the composer left out (the attendance tile, for
+            // a reader without the attendance right) is not drawn at all.
+            if ( ! array_key_exists( $key, $k ) ) continue;
             if ( $tile['unit'] === 'count_of' ) {
                 $m  = is_array( $k[ $key ] ?? null ) ? $k[ $key ] : [];
                 $of = (int) ( $m['of'] ?? 0 );

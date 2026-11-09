@@ -112,7 +112,8 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
 
     public function test_attendance_per_player_equals_the_monthly_reports_section(): void {
         $block  = $this->preview( 'attendance_per_player', $this->team( $this->team_a ) );
-        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'attendance' ] );
+        // #4949 — the section is for a reader with the attendance right.
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [ 'attendance' ], $this->hod );
         $theirs = $report['data']['attendance']['rows'];
 
         $this->assertSame( array_column( $theirs, 'player_id' ), array_column( $block['data']['rows'], 'player_id' ), 'the report\'s shirt order' );
@@ -301,6 +302,65 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
             'club_id' => $this->club, 'activity_id' => $activity_id, 'player_id' => $player_id,
             'status' => $status, 'is_guest' => 0, 'record_type' => 'actual',
         ] );
+    }
+
+    /**
+     * #4949 — the monthly report's attendance section and its attendance
+     * tile follow the attendance read right. A persona who reads the team's
+     * reports but not its attendance gets neither, in the composed report,
+     * on screen and in the PDF; the head coach and the head of development
+     * get both, and every other section is the same for all of them.
+     */
+    public function test_the_monthly_reports_attendance_follows_the_attendance_right(): void {
+        $readers = [
+            'head of development' => $this->hod,
+            'head coach'          => $this->makePersona( 'tt_coach', 'head_coach', $this->team_a ),
+            'observer'            => $this->makePersona( 'tt_readonly_observer', 'readonly_observer', $this->team_a ),
+            'scout'               => $this->makePersona( 'tt_scout', 'scout', $this->team_a ),
+        ];
+
+        $without  = [];
+        $sections = [];
+        foreach ( $readers as $who => $uid ) {
+            $this->flush();
+            $reads = AuthorizationService::canReadTeamAttendance( $uid, $this->team_a );
+            if ( in_array( $who, [ 'head of development', 'head coach' ], true ) ) {
+                $this->assertTrue( $reads, "Precondition: the {$who} reads the team's attendance." );
+            }
+            if ( $who === 'observer' ) {
+                $this->assertTrue( \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $uid, $this->team_a ), 'Precondition: the observer reads the team\'s reports.' );
+                $this->assertFalse( $reads, 'Precondition: the observer does not read attendance.' );
+            }
+
+            $report = ( new TeamMonthlyReport() )->forTeam( $this->team_a, self::FROM, self::TO, [], $uid );
+            $pdf    = \TT\Modules\Export\Exporters\TeamMonthlyReportPdfExporter::payload( $report, \TT\Modules\Analytics\Reports\TeamMonthlyReportLayout::DEFAULT, 'Attendance U12' )['html'];
+            $prep   = \TT\Modules\Analytics\Reports\TeamMonthlyReportDocument::prepare( $report, \TT\Modules\Analytics\Reports\TeamMonthlyReportLayout::DEFAULT );
+            $screen = \TT\Modules\Analytics\Reports\TeamMonthlyReportDocument::screen( $prep['report'], \TT\Modules\Analytics\Reports\TeamMonthlyReportLayout::DEFAULT, 'Attendance U12', $prep['fit'] );
+            // The tile's label cell: the PDF's class, and the screen's, which
+            // prefixes every document class with `tt-d-`.
+            $label      = esc_html__( 'Attendance', 'talenttrack' );
+            $pdf_tile   = '<div class="kl">' . $label . '</div>';
+            $screen_tile = '<div class="tt-d-kl">' . $label . '</div>';
+
+            if ( $reads ) {
+                $this->assertContains( 'attendance', $report['blocks'], $who );
+                $this->assertArrayHasKey( 'attendance_pct', $report['data']['kpi'], $who );
+                $this->assertStringContainsString( $pdf_tile, $pdf, "{$who}: the PDF carries the tile" );
+                $this->assertStringContainsString( $screen_tile, $screen, "{$who}: the screen carries the tile" );
+            } else {
+                $this->assertNotContains( 'attendance', $report['blocks'], $who );
+                $this->assertArrayNotHasKey( 'attendance', $report['data'], $who );
+                $this->assertArrayNotHasKey( 'attendance_pct', $report['data']['kpi'], $who );
+                $this->assertStringNotContainsString( $pdf_tile, $pdf, "{$who}: no attendance tile in the PDF" );
+                $this->assertStringNotContainsString( $screen_tile, $screen, "{$who}: no attendance tile on screen" );
+                $without[ $who ] = $report;
+            }
+            foreach ( [ 'kpi', 'attendance' ] as $gated ) unset( $report['data'][ $gated ] );
+            $sections[ $who ] = array_keys( $report['data'] );
+        }
+        $this->assertArrayHasKey( 'observer', $without, 'the observer is a reader without the attendance right' );
+        // Every other section is there for every reader.
+        $this->assertCount( 1, array_unique( array_map( 'wp_json_encode', $sections ) ), 'the other sections do not depend on the attendance right' );
     }
 
     /** A persona from its WordPress role, with a team-scope grant on one team. */
