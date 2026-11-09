@@ -1276,8 +1276,7 @@ return array_merge(
     //   - closed to the observer by #4695: `report_studio`,
     //     `report_publishing`;
     //   - granted with their masking, never before it: `attendance`
-    //     (#4692, absence reasons), `evaluations_panel` (#4693,
-    //     evaluation comments), `player_status`, `player_status_breakdown`
+    //     (#4692, absence reasons), `player_status`, `player_status_breakdown`
     //     (#4694, potential notes and band), `trial_*`, `prospects`,
     //     `test_trainings`, `scout_*`, `scouting_visits_panel`,
     //     `player_potential` (#4694), `custom_field_values` (#4716),
@@ -1345,6 +1344,13 @@ return array_merge(
         // (#4794). Existing installs get them through migration 0312.
         'player_timeline'         => [ 'r', 'global', $mod_journey ],
         'cohort_transitions'      => [ 'r', 'global', $mod_journey ],
+
+        // #4997 — the evaluations list, the tile and dispatch entity of
+        // `?tt_view=evaluations`. Held back until the evaluation notes were
+        // masked (#4693, #4881); the owner decided in #4904 that the
+        // observer sees the list. The notes stay masked for this seat.
+        // Existing installs get it through migration 0321.
+        'evaluations_panel'       => [ 'r', 'global', $mod_evals ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────
