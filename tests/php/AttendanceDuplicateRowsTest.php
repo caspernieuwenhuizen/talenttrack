@@ -45,11 +45,7 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
         $this->insertAttendance( $activity, $player_id, 'expected', 'present' );
         $this->insertAttendance( $activity, $player_id, 'actual', 'present' );
 
-        $rows = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
-            'record_types'        => null,
-            'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
-            'only_past_completed' => true,
-        ] );
+        $rows = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', ActivitiesRepository::TAB_FILTERS );
 
         $this->assertCount( 1, $rows, 'two attendance rows on one activity are one list entry' );
         $this->assertSame(
@@ -57,29 +53,7 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
             (string) ( $rows[0]->record_type ?? '' ),
             'the recorded row wins: it carries the real status'
         );
-    }
-
-    /**
-     * A still-planned activity has only an expected row. Filtering the list
-     * to `actual` — the obvious-looking fix — would have emptied this half
-     * of the tab, so it is pinned here.
-     */
-    public function test_a_planned_activity_still_appears(): void {
-        $team_id   = $this->insertTeam();
-        $player_id = $this->insertPlayer( $team_id );
-
-        $future = gmdate( 'Y-m-d', strtotime( '+14 days' ) );
-        $planned = $this->insertActivity( $team_id, $future, 'planned' );
-        $this->insertAttendance( $planned, $player_id, 'expected', 'present' );
-
-        $rows = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
-            'record_types'        => null,
-            'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
-            'only_past_completed' => true,
-        ] );
-
-        $this->assertCount( 1, $rows, 'a planned activity has only an expected row and must still show' );
-        $this->assertSame( 'expected', (string) ( $rows[0]->record_type ?? '' ) );
+        $this->assertSame( 1, ( new ActivitiesRepository() )->countForPlayer( $player_id, ActivitiesRepository::TAB_FILTERS ), 'and counts once' );
     }
 
     /** The activity roster: fifteen players, fifteen rows. */
@@ -143,12 +117,8 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
             $this->insertAttendance( $activity, $player_id, 'actual', 'present' );
         }
 
-        // The tab's own filter (#4968: completed only).
-        $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
-            'record_types'        => null,
-            'plan_states'         => [ 'completed' ],
-            'only_past_completed' => true,
-        ] );
+        // The tab's own filters (#4968, #4990: completed by status).
+        $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', ActivitiesRepository::TAB_FILTERS );
         $counts = PlayerFileCounts::for( $player_id );
 
         $this->assertSame(
@@ -174,11 +144,7 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
         $upcoming = $this->insertActivity( $team_id, gmdate( 'Y-m-d', strtotime( '+14 days' ) ), 'planned' );
         $this->insertAttendance( $upcoming, $player_id, 'expected', 'present' );
 
-        $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
-            'record_types'        => null,
-            'plan_states'         => [ 'completed' ],
-            'only_past_completed' => true,
-        ] );
+        $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', ActivitiesRepository::TAB_FILTERS );
         $counts = PlayerFileCounts::for( $player_id );
 
         $this->assertCount( 2, $rows, 'the two played, not the upcoming one' );
@@ -206,9 +172,8 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
     /**
      * Real rows carry BOTH lifecycle columns: `plan_state` (what the
      * planner tracks) and `activity_status_key` (what the coach set). The
-     * tab's list reads the first, its badge reads the second — see #2521 —
-     * so a fixture that sets only one makes the two disagree for a reason
-     * that has nothing to do with what is under test.
+     * tab and its badge decide "completed" by the status (#4990); the
+     * fixture sets both so the rows look like real ones.
      */
     private function insertActivity( int $team_id, string $date, string $plan_state ): int {
         global $wpdb;

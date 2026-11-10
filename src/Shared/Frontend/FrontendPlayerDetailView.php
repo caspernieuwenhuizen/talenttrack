@@ -2438,9 +2438,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // only, for every reader. #789 showed planned rows here too, with a
         // "Planned" pill; upcoming trainings then sorted above everything
         // that had happened. Planned activities belong on the Activities
-        // list and the calendar. A completed row dated in the future still
-        // does not show (`only_past_completed`), and neither does a past
-        // row whose plan state was never moved off planned.
+        // list and the calendar. A completed row dated in the future does
+        // not show either.
+        //
+        // #4990 — "completed" is the activity's status, the same rule as the
+        // activity page and every report (`completed_only` asks the shared
+        // gate). `plan_state` defaults to completed on a row the planner
+        // never created, so filtering on it showed activities as done that
+        // their own page did not.
         //
         // #3277 — newest first. #1316 made this tab ascending, on the
         // reading that an operator scans a season top-to-bottom; living
@@ -2457,11 +2462,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             (int) $player_id,
             25,
             'DESC',
-            [
-                'record_types'        => null,
-                'plan_states'         => [ 'completed' ],
-                'only_past_completed' => true,
-            ]
+            \TT\Modules\Activities\Repositories\ActivitiesRepository::TAB_FILTERS
         );
         if ( empty( $rows ) ) {
             $team_id = $player !== null ? (int) ( $player->team_id ?? 0 ) : 0;

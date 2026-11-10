@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -46,8 +47,23 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  * (`is_guest = 0`) and the exporter's player-join shape so the printed
  * roster table no longer includes guests by default. Callers wanting
  * guests pass `includeGuests = true`.
+ *
+ * @phpstan-type PlayerActivityFilters array{
+ *     include_guests?: bool,
+ *     record_types?: list<string>|null,
+ *     include_archived?: bool,
+ *     completed_only?: bool
+ * }
  */
 final class ActivitiesRepository {
+
+    /**
+     * #4990 — the filters of the player profile's Activities tab, which its
+     * badge counts with too: completed activities by their status, dated
+     * today or earlier, read from both record types (a completed activity
+     * the player was only planned for still shows).
+     */
+    public const TAB_FILTERS = [ 'record_types' => null, 'completed_only' => true ];
 
     /**
      * Fetch an activity row + joined team name, applying the same
@@ -219,25 +235,23 @@ final class ActivitiesRepository {
      *                          `att.record_type` values. The player
      *                          dashboard wants `['actual']`; an
      *                          explicit null reads every record type,
-     *                          as the Activities tab does (it filters
-     *                          by `plan_state` instead).
+     *                          as the Activities tab does: a completed
+     *                          activity the player was only planned for
+     *                          still shows, and the dedupe below keeps
+     *                          one row per activity.
      *   - `include_archived`   (default false) — when true, drops the
      *                          `a.archived_at IS NULL` filter.
-     *   - `plan_states`        (optional) — list of `a.plan_state`
-     *                          values to filter on. Empty = no filter.
-     *   - `only_past_completed` (default false) — when true, completed
-     *                          activities are only included if
-     *                          `session_date <= CURDATE()` (the
-     *                          Activities tab's "no future-dated
-     *                          completed shows" rule).
+     *   - `completed_only`     (default false, #4990) — only activities
+     *                          whose status is completed
+     *                          (`ActivityLifecycle::completedClause()`),
+     *                          dated today or earlier on the site's clock
+     *                          (`AttendanceDateRule::today()`). The
+     *                          Activities tab and its badge.
      *
-     * @param array{
-     *     include_guests?: bool,
-     *     record_types?: list<string>|null,
-     *     include_archived?: bool,
-     *     plan_states?: list<string>,
-     *     only_past_completed?: bool
-     * } $filters
+     * `countForPlayer()` counts with the same filters through the same
+     * where-clause, so the tab and its badge cannot drift apart (#4990).
+     *
+     * @param PlayerActivityFilters $filters
      * @param 'ASC'|'DESC' $display_order
      * @return list<object>
      */
@@ -248,6 +262,95 @@ final class ActivitiesRepository {
         $display_order = strtoupper( $display_order ) === 'ASC' ? 'ASC' : 'DESC';
         $limit         = max( 1, min( 100, $limit ) );
 
+        [ $where_sql, $params ] = $this->playerActivityWhere( $player_id, $filters );
+
+        // #2862 — one row per ACTIVITY, not per attendance row.
+        //
+        // A player can hold two rows for the same activity: the `expected`
+        // row the planner writes and the `actual` row recording what
+        // happened. This list is a list of activities, so both rows joining
+        // produced a duplicate entry — the profile's Activities tab showed
+        // "Training 8.2" twice on the same date, four times over on one
+        // pilot player.
+        //
+        // Filtering to `record_type = 'actual'` is NOT the fix: a completed
+        // activity the player was planned for but whose register holds no
+        // row for them has only the `expected` row, and it is still an
+        // activity the player belongs to. So collapse to one attendance row
+        // per activity, preferring the recorded one where both exist — it
+        // carries the real attendance status.
+        $dedupe = self::dedupeClause( $p );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $sql = "SELECT * FROM (
+                    SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, a.team_id, a.activity_status_key,
+                           att.id AS attendance_id, att.status, att.notes AS att_notes, att.is_guest, att.record_type
+                      FROM {$p}tt_attendance att
+                      JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
+                     WHERE {$where_sql}
+                       AND {$dedupe}
+                  ORDER BY a.session_date DESC, a.id DESC
+                     LIMIT %d
+                ) recent
+                ORDER BY recent.session_date {$display_order}, recent.id {$display_order}";
+
+        $params[] = $limit;
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #4990 — how many activities `listForPlayer()` would list with the same
+     * filters, without its row cap. The Activities tab's badge. One shared
+     * where-clause and the same dedupe, so the count and the list agree by
+     * construction: this pair drifted three times when the badge kept its
+     * own copy of the SQL (#2862, #4968, #4990).
+     *
+     * @param PlayerActivityFilters $filters
+     */
+    public function countForPlayer( int $player_id, array $filters = [] ): int {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        [ $where_sql, $params ] = $this->playerActivityWhere( $player_id, $filters );
+        $dedupe = self::dedupeClause( $p );
+
+        // /* both-kinds-ok */ — the record types are the caller's filter
+        // (`record_types`, as in `listForPlayer()`), and the dedupe keeps one
+        // row per activity: this counts activities, not attendance.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
+              WHERE {$where_sql}
+                AND {$dedupe}",
+            ...$params
+        ) );
+    }
+
+    /** One attendance row per activity, the recorded one first (#2862). */
+    private static function dedupeClause( string $p ): string {
+        return "att.id = (
+                    SELECT pick.id
+                      FROM {$p}tt_attendance pick
+                     WHERE pick.activity_id = att.activity_id
+                       AND pick.player_id   = att.player_id
+                       AND pick.is_guest    = att.is_guest
+                       AND pick.club_id     = att.club_id
+                  ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
+                     LIMIT 1
+                )";
+    }
+
+    /**
+     * The where-clause `listForPlayer()` and `countForPlayer()` share.
+     *
+     * @param PlayerActivityFilters $filters
+     * @return array{0:string, 1:list<int|string>}
+     */
+    private function playerActivityWhere( int $player_id, array $filters ): array {
         $include_guests     = ! empty( $filters['include_guests'] );
         // record_types: array_key_exists distinguishes "not set" (default
         // to ['actual']) from explicit null (skip the filter entirely).
@@ -256,10 +359,7 @@ final class ActivitiesRepository {
             ? ( is_array( $filters['record_types'] ) ? array_values( array_filter( array_map( 'strval', $filters['record_types'] ) ) ) : null )
             : [ 'actual' ];
         $include_archived   = ! empty( $filters['include_archived'] );
-        $plan_states        = isset( $filters['plan_states'] ) && is_array( $filters['plan_states'] )
-            ? array_values( array_filter( array_map( 'strval', $filters['plan_states'] ) ) )
-            : [];
-        $only_past_completed = ! empty( $filters['only_past_completed'] );
+        $completed_only     = ! empty( $filters['completed_only'] );
 
         // #4565 — the current club's rows only; the join and the dedupe
         // subquery below carry the same club.
@@ -286,65 +386,18 @@ final class ActivitiesRepository {
             $where[] = 'a.archived_at IS NULL';
         }
 
-        if ( ! empty( $plan_states ) ) {
-            $placeholders = implode( ',', array_fill( 0, count( $plan_states ), '%s' ) );
-            $where[]      = "a.plan_state IN ({$placeholders})";
-            $params       = array_merge( $params, $plan_states );
+        if ( $completed_only ) {
+            // #4990 — what happened, by the activity's status: the shared
+            // gate the activity page and every report use, dated today or
+            // earlier on the site's clock (`AttendanceDateRule`, one clock;
+            // `CURDATE()` is the database server's date). `plan_state`
+            // defaults to completed on a row the planner never created, so
+            // it is not the gate.
+            $where[]  = ActivityLifecycle::completedClause( 'a' ) . ' AND a.session_date <= %s';
+            $params[] = \TT\Modules\Activities\Services\AttendanceDateRule::today();
         }
 
-        if ( $only_past_completed ) {
-            // Completed rows must be in the past; in-flight rows
-            // (planned/scheduled) pass through regardless of date.
-            $where[] = "( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() ) OR a.plan_state IN ( 'planned', 'scheduled' ) )";
-        }
-
-        $where_sql = implode( ' AND ', $where );
-
-        // #2862 — one row per ACTIVITY, not per attendance row.
-        //
-        // A player can hold two rows for the same activity: the `expected`
-        // row the planner writes and the `actual` row recording what
-        // happened. This list is a list of activities, so both rows joining
-        // produced a duplicate entry — the profile's Activities tab showed
-        // "Training 8.2" twice on the same date, four times over on one
-        // pilot player.
-        //
-        // Filtering to `record_type = 'actual'` is NOT the fix here, even
-        // though that is what the tab's badge count does: this tab
-        // deliberately shows still-planned activities, which have only an
-        // `expected` row, and filtering would empty that half of the list.
-        //
-        // So collapse to one attendance row per activity, preferring the
-        // recorded one where both exist — the recorded row carries the real
-        // status, and on a planned activity the expected row is all there is.
-        $dedupe = "att.id = (
-                       SELECT pick.id
-                         FROM {$p}tt_attendance pick
-                        WHERE pick.activity_id = att.activity_id
-                          AND pick.player_id   = att.player_id
-                          AND pick.is_guest    = att.is_guest
-                          AND pick.club_id     = att.club_id
-                     ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
-                        LIMIT 1
-                   )";
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $sql = "SELECT * FROM (
-                    SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, a.team_id, a.activity_status_key,
-                           att.id AS attendance_id, att.status, att.notes AS att_notes, att.is_guest, att.record_type
-                      FROM {$p}tt_attendance att
-                      JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                     WHERE {$where_sql}
-                       AND {$dedupe}
-                  ORDER BY a.session_date DESC, a.id DESC
-                     LIMIT %d
-                ) recent
-                ORDER BY recent.session_date {$display_order}, recent.id {$display_order}";
-
-        $params[] = $limit;
-
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
-        return is_array( $rows ) ? $rows : [];
+        return [ implode( ' AND ', $where ), $params ];
     }
 
     /**
