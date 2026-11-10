@@ -153,13 +153,13 @@ final class PdpPreparationTest extends WP_UnitTestCase {
         $this->assertNull( $before['player'] );
 
         wp_set_current_user( $this->account );
-        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4 ], 'answers' => [ 'strongest_quality' => 'Mijn wendbaarheid' ] ] )[1] );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4 ], 'answers' => [ 'strongest_quality' => 'Antwoord van Sam 4979' ] ] )[1] );
 
         wp_set_current_user( $this->trainer );
         $started = $this->send( 'GET', 'form', [] )[0]['data'];
         $this->assertNull( $started['state']['form_switch_to'], 'the switch is gone' );
         $this->assertNull( $started['player'], 'nothing of what the player wrote before klaar' );
-        $this->assertStringNotContainsString( 'wendbaarheid', (string) wp_json_encode( $started ) );
+        $this->assertStringNotContainsString( 'Antwoord van Sam 4979', (string) wp_json_encode( $started ) );
 
         wp_set_current_user( $this->account );
         $this->assertSame( 200, $this->send( 'PUT', 'form/player/preparation', [] )[1] );
@@ -230,20 +230,20 @@ final class PdpPreparationTest extends WP_UnitTestCase {
 
     public function test_my_pdp_shows_the_summary_after_klaar_and_read_only_after_the_lock(): void {
         wp_set_current_user( $this->account );
-        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4, 'technisch_rechts' => 2 ], 'answers' => [ 'strongest_quality' => 'Mijn wendbaarheid' ] ] )[1] );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4, 'technisch_rechts' => 2 ], 'answers' => [ 'strongest_quality' => 'Antwoord van Sam 4979' ] ] )[1] );
         $this->assertSame( 200, $this->send( 'PUT', 'form/player/preparation', [] )[1] );
 
         $html = $this->myPdp();
         $this->assertStringContainsString( 'Your preparation is ready', $html );
         $this->assertStringContainsString( 'data-tt-prep-reopen', $html, 'toch aanpassen' );
-        $this->assertStringContainsString( 'Mijn wendbaarheid', $html );
+        $this->assertStringContainsString( 'Antwoord van Sam 4979', $html );
         $this->assertStringNotContainsString( 'data-tt-pdp-prep ', $html, 'no form while marked ready' );
 
         $this->plan( time() - HOUR_IN_SECONDS );
         $html = $this->myPdp();
         $this->assertStringContainsString( 'your part of the form can no longer be changed', $html );
         $this->assertStringNotContainsString( 'data-tt-prep-reopen', $html );
-        $this->assertStringContainsString( 'Mijn wendbaarheid', $html, 'the summary stays, read-only' );
+        $this->assertStringContainsString( 'Antwoord van Sam 4979', $html, 'the summary stays, read-only' );
     }
 
     public function test_a_parent_sees_nothing_of_the_preparation_and_no_reflection_either(): void {

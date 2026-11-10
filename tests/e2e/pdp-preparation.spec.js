@@ -105,7 +105,7 @@ test( 'the player scores every item and the strongest quality on a phone, and a 
 			.include( '[data-tt-pdp-prep]' )
 			.withTags( [ 'wcag2a', 'wcag2aa' ] )
 			.analyze();
-		expect( axe.violations.map( ( v ) => `${ v.id }: ${ v.help }` ) ).toEqual( [] );
+		expect( axe.violations.map( ( v ) => `${ v.id }: ${ v.help } — ${ v.nodes.map( ( n ) => `${ n.target.join( ' ' ) } (${ n.failureSummary || '' })` ).join( '; ' ) }` ) ).toEqual( [] );
 
 		await page.setViewportSize( { width: 320, height: 800 } );
 		const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );
