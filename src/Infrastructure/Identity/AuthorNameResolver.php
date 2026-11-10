@@ -60,6 +60,31 @@ final class AuthorNameResolver {
     }
 
     /**
+     * #4994 — {@see self::namesFor()} without the last resort: only the
+     * academy's own record of the person (their player or person row). An
+     * account with neither resolves to nothing rather than to its
+     * `display_name`, which defaults to the login and can be an email
+     * address.
+     *
+     * @param  list<int>          $user_ids
+     * @return array<int,string>  wp_user_id => name from the record
+     */
+    public static function recordNamesFor( array $user_ids ): array {
+        $ids = array_values( array_unique( array_filter(
+            array_map( 'intval', $user_ids ),
+            static function ( int $id ): bool { return $id > 0; }
+        ) ) );
+        if ( $ids === [] ) return [];
+
+        $names     = self::playerNames( $ids );
+        $remaining = array_values( array_diff( $ids, array_keys( $names ) ) );
+        if ( $remaining !== [] ) {
+            $names += self::personNames( $remaining );
+        }
+        return $names;
+    }
+
+    /**
      * The name for one account, or '' when nothing resolves.
      *
      * Convenience for a single-message path; anything rendering a list

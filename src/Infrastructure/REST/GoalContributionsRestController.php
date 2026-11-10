@@ -4,6 +4,7 @@ namespace TT\Infrastructure\REST;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Analytics\Reports\GoalContributionDrilldown;
 use TT\Modules\Analytics\Reports\GoalContributionQuery;
 
 /**
@@ -39,6 +40,68 @@ final class GoalContributionsRestController {
                 ],
             ],
         ] );
+
+        // #4994 — every match behind one player's goals and assists for a
+        // team, with each entry's provenance and the flags that point at a
+        // wrong one. The Statistics tab and the Goals and assists report open
+        // the same data through `GoalContributionDrilldown`.
+        register_rest_route( self::NS, '/teams/(?P<team_id>\d+)/players/(?P<player_id>\d+)/goal-contributions', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'drilldown' ],
+                'permission_callback' => [ __CLASS__, 'can_view_teams' ],
+                'args'                => [
+                    'season' => [ 'type' => 'string', 'required' => false, 'description' => 'A season id. Unknown: 400 bad_filter. Wins over from/to.' ],
+                    'from'   => [ 'type' => 'string', 'required' => false, 'description' => 'YYYY-MM-DD, with to. Malformed or after to: 400 bad_date.' ],
+                    'to'     => [ 'type' => 'string', 'required' => false, 'description' => 'YYYY-MM-DD, with from.' ],
+                ],
+            ],
+        ] );
+    }
+
+    /**
+     * #4994 — the team-staff gate the team routes use. The team and the
+     * player are asked about in the handler, so an out-of-scope team answers
+     * `403 forbidden_team` rather than a bare refusal.
+     */
+    public static function can_view_teams(): bool {
+        $uid = get_current_user_id();
+        if ( $uid <= 0 ) return false;
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_teams' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_teams' );
+    }
+
+    public static function drilldown( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id   = absint( $r['team_id'] );
+        $player_id = absint( $r['player_id'] );
+        if ( $team_id <= 0 || $player_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid team or player.', 'talenttrack' ), 400 );
+        }
+
+        // The team first, so an out-of-scope team is always `forbidden_team`;
+        // then the player. `GoalContributionDrilldown::refusal()` asks the
+        // page the same two questions in the same order.
+        $uid = get_current_user_id();
+        if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeam( $uid, $team_id ) ) {
+            return RestResponse::error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        }
+        if ( ! AuthorizationService::canViewPlayer( $uid, $player_id ) ) {
+            return RestResponse::error( 'forbidden_player', __( 'You may not see this player.', 'talenttrack' ), 403 );
+        }
+
+        $window = GoalContributionQuery::resolveWindow(
+            (string) ( $r['season'] ?? '' ),
+            (string) ( $r['from'] ?? '' ),
+            (string) ( $r['to'] ?? '' )
+        );
+        if ( $window['error'] === 'bad_filter' ) {
+            return RestResponse::error( 'bad_filter', __( 'That season is not known.', 'talenttrack' ), 400, [ 'parameter' => 'season' ] );
+        }
+        if ( $window['error'] === 'bad_date' ) {
+            return RestResponse::error( 'bad_date', __( 'Dates must be written as YYYY-MM-DD, with from on or before to.', 'talenttrack' ), 400 );
+        }
+
+        return RestResponse::success( GoalContributionDrilldown::payload( $team_id, $player_id, $window ) );
     }
 
     /**

@@ -155,6 +155,7 @@ return [
     'attendance-report-player'      => [ 'read_only', 'One player’s attendance over time.' ],
     'attendance-report-team'        => [ 'read_only', 'Squad attendance summary.' ],
     'minutes-report-team'           => [ 'read_only', 'Minutes distribution across a squad.' ],
+    'goals-assists'                 => [ 'read_only', 'Goals and assists per player, and the matches behind each count. Correcting one is done in the minutes grid.' ],
     'podium'                        => [ 'read_only', 'A leaderboard, read at a glance.' ],
     'reports'                       => [ 'read_only', 'Reading a report survives a phone. Assembling one does not.' ],
     'standard-report'               => [ 'read_only', 'The rendered output of a saved report.' ],

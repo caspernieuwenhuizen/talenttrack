@@ -185,6 +185,28 @@
     white-space: nowrap;
 }
 
+/* #4994 — a count opens the matches behind it. A full tap target on touch. */
+.tt-table.tt-ts-table .tt-ts-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: var(--tt-tap-min-fine, 2.25rem);
+    min-height: var(--tt-tap-min-fine, 2.25rem);
+    font-weight: 600;
+    color: var(--tt-link);
+    touch-action: manipulation;
+}
+.tt-table.tt-ts-table .tt-ts-count:focus-visible {
+    outline: 2px solid var(--tt-link);
+    outline-offset: 2px;
+}
+@media (pointer: coarse) {
+    .tt-table.tt-ts-table .tt-ts-count {
+        min-width: var(--tt-tap-min, 3rem);
+        min-height: var(--tt-tap-min, 3rem);
+    }
+}
+
 .tt-ts-table th[scope="row"] {
     font-weight: 500;
     text-align: left;

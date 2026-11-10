@@ -1,0 +1,159 @@
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "You may not see this player."
+msgstr "Je mag deze speler niet zien."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "Live match sheet"
+msgstr "Live wedstrijdformulier"
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "Entered after the match"
+msgstr "Ingevoerd na de wedstrijd"
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More assists than goals we scored in this match."
+msgstr "Meer assists dan doelpunten die wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More goals attributed than we scored in this match."
+msgstr "Meer toegekende doelpunten dan wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More goals or assists for this player than we scored in this match."
+msgstr "Meer doelpunten of assists voor deze speler dan wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "No score recorded, and more goals or assists for this player than one match can hold."
+msgstr "Geen uitslag vastgelegd, en meer doelpunten of assists voor deze speler dan één wedstrijd kan bevatten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "An assist recorded on an opponent goal or an own goal."
+msgstr "Een assist vastgelegd op een doelpunt van de tegenstander of een eigen doelpunt."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded in this season."
+msgstr "Geen doelpunten of assists vastgelegd in dit seizoen."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "goals and assists report"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded in this period."
+msgstr "Geen doelpunten of assists vastgelegd in deze periode."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded yet."
+msgstr "Nog geen doelpunten of assists vastgelegd."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "Correct in the minutes grid"
+msgstr "Herstellen in het minutenraster"
+
+#. translators: %s: the opponent's name
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "Against %s"
+msgstr "Tegen %s"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "match venue"
+msgid "Home"
+msgstr "Thuis"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "match venue"
+msgid "Away"
+msgstr "Uit"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No score recorded"
+msgstr "Geen uitslag vastgelegd"
+
+#. translators: 1: minute in the half, 2: the half (1 or 2)
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "%1$d' (half %2$d)"
+msgstr "%1$d' (helft %2$d)"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "no minute"
+msgstr "geen minuut"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No scorer recorded"
+msgstr "Geen maker vastgelegd"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "Opponent goal"
+msgstr "Doelpunt van de tegenstander"
+
+#. translators: %s: the player who put the ball in their own net
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "Own goal (%s)"
+msgstr "Eigen doelpunt (%s)"
+
+#. translators: %s: the player credited with the assist
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "assist %s"
+msgstr "assist %s"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "recorded before tracking began"
+msgstr "vastgelegd voordat dit werd bijgehouden"
+
+#. translators: %s: the account that entered the goal
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "by %s"
+msgstr "door %s"
+
+#. translators: 1: date of the change, 2: the account that changed it
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "changed %1$s by %2$s"
+msgstr "gewijzigd %1$s door %2$s"
+
+#. translators: %s: date of the change
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "changed %s"
+msgstr "gewijzigd %s"
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+msgid "Goals and assists"
+msgstr "Doelpunten en assists"
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+msgid "Choose a team to see its goals and assists."
+msgstr "Kies een team om de doelpunten en assists te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+#: src/Infrastructure/REST/GoalContributionsRestController.php
+msgid "That season is not known."
+msgstr "Dat seizoen is niet bekend."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+#: src/Infrastructure/REST/GoalContributionsRestController.php
+msgid "Dates must be written as YYYY-MM-DD, with from on or before to."
+msgstr "Datums schrijf je als JJJJ-MM-DD, met de begindatum op of vóór de einddatum."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+msgid "Choose a team"
+msgstr "Kies een team"
+
+#: src/Core/FeatureRegistry.php
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Goals and assists"
+msgstr "Team · Doelpunten en assists"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Goals and assists per player, and every match behind each count, with where each entry came from."
+msgstr "Doelpunten en assists per speler, en elke wedstrijd achter elk aantal, met waar elke invoer vandaan komt."
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php
+msgid "See every match in the goals and assists report"
+msgstr "Bekijk elke wedstrijd in het rapport doelpunten en assists"

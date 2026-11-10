@@ -7,7 +7,6 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Pdp\Repositories\SeasonsRepository;
 
 /**
  * TeamMatchStatsQuery (#3520, epic #3519) — "how is this team doing", as one
@@ -155,19 +154,16 @@ final class TeamMatchStatsQuery {
             return [ 'from' => $from, 'to' => $to, 'source' => 'custom', 'season' => '' ];
         }
 
-        $season = ( new SeasonsRepository() )->current();
-        if ( $season && ! empty( $season->start_date ) && ! empty( $season->end_date ) ) {
-            return [
-                'from'   => (string) $season->start_date,
-                'to'     => (string) $season->end_date,
-                'source' => 'season',
-                'season' => (string) ( $season->name ?? '' ),
-            ];
-        }
-
-        // No season on the install. '1970-01-01' rather than an open-ended
-        // clause keeps every read on one BETWEEN shape.
-        return [ 'from' => '1970-01-01', 'to' => '2999-12-31', 'source' => 'all_time', 'season' => '' ];
+        // #4994 — the current season, else all time, by the one rule the
+        // goals and assists drill-down this tab links into reads, so the two
+        // cannot disagree about which matches a number covers.
+        $window = GoalContributionQuery::resolveWindow( '', '', '' );
+        return [
+            'from'   => $window['from'],
+            'to'     => $window['to'],
+            'source' => $window['source'],
+            'season' => $window['season'],
+        ];
     }
 
     // ──────────────────────────────────────────────────────────────

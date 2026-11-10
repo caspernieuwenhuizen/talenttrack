@@ -136,6 +136,17 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'One document for the monthly staff meeting: status, attendance, minutes, what changed and who needs a conversation.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-monthly' ], $base_url ), /* tt-xview-ok */
             ],
+            // #4994 — goals and assists per team and season, and every match
+            // behind one player's count. Gated like its siblings: the
+            // `report_*` filter below drops it when switched off, and the
+            // view re-checks team view, the toggle, team scope and the player.
+            [
+                'slug'  => 'goals-assists',
+                'label' => __( 'Team · Goals and assists', 'talenttrack' ),
+                'desc'  => __( 'Goals and assists per player, and every match behind each count, with where each entry came from.', 'talenttrack' ),
+                'can'   => static fn( int $uid ): bool => \TT\Infrastructure\REST\GoalContributionsRestController::can_view_teams(),
+                'url'   => add_query_arg( [ 'tt_view' => 'goals-assists' ], $base_url ), /* tt-xview-ok */
+            ],
             // #3873 (epic #3871) — the player's counterpart: one document for
             // a conversation with one player. Gated like its siblings; the
             // report re-checks the feature and access to the player.
@@ -401,7 +412,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Shared with me', 'talenttrack' ),            'slugs' => $shared ],
-            [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'team-monthly', 'player-report', 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
+            [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'team-monthly', 'player-report', 'goals-assists', 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
             [ 'label' => __( 'Tests & measurements', 'talenttrack' ),      'slugs' => [ 'test-trends', 'player-bmi' ] ],
             [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-share', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],

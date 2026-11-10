@@ -311,22 +311,49 @@ class MatchExecutionRepository {
         // second id to keep the column true.
         $activity_id = $this->activityForExecution( $execution_id );
 
+        // #4994 — `NULLIF(%d, 0)` stores a real NULL for a write with no
+        // signed-in account (a cron, the demo generator) rather than user 0.
         $ok = $assist === null
             ? $this->wpdb->query( $this->wpdb->prepare(
                 "INSERT IGNORE INTO {$this->t_goals}
-                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-                 VALUES (%s, %d, %d, %d, %s, %d, NULL, %d, %d, %d)",
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half, source, created_by)
+                 VALUES (%s, %d, %d, %d, %s, %d, NULL, %d, %d, %d, %s, NULLIF(%d, 0))",
                 $event_uuid, CurrentClub::id(), $activity_id, $execution_id, $team, $player_id,
-                $is_own_goal ? 1 : 0, $half, max( 0, $minute )
+                $is_own_goal ? 1 : 0, $half, max( 0, $minute ), self::SOURCE_LIVE_SHEET, self::actor()
             ) )
             : $this->wpdb->query( $this->wpdb->prepare(
                 "INSERT IGNORE INTO {$this->t_goals}
-                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-                 VALUES (%s, %d, %d, %d, %s, %d, %d, %d, %d, %d)",
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half, source, created_by)
+                 VALUES (%s, %d, %d, %d, %s, %d, %d, %d, %d, %d, %s, NULLIF(%d, 0))",
                 $event_uuid, CurrentClub::id(), $activity_id, $execution_id, $team, $player_id,
-                $assist, $is_own_goal ? 1 : 0, $half, max( 0, $minute )
+                $assist, $is_own_goal ? 1 : 0, $half, max( 0, $minute ), self::SOURCE_LIVE_SHEET, self::actor()
             ) );
         return $ok !== false;
+    }
+
+    /** #4994 — where a goal entry came from (`source` on the goal log). */
+    public const SOURCE_LIVE_SHEET = 'live_sheet';
+    public const SOURCE_MATCH_FORM = 'match_form';
+    public const SOURCE_DEMO       = 'demo';
+
+    /** The signed-in account writing a goal row, or 0 when nobody is. */
+    private static function actor(): int {
+        return function_exists( 'get_current_user_id' ) ? max( 0, (int) get_current_user_id() ) : 0;
+    }
+
+    /**
+     * #4994 — mark every goal row of one match as written by a given source.
+     * The demo generator writes through the same methods a coach does and
+     * then says so here, so a drill-down never shows demo goals as entered
+     * by somebody at the club.
+     */
+    public function markGoalSourceForActivity( int $activity_id, string $source ): void {
+        if ( $activity_id <= 0 || ! in_array( $source, [ self::SOURCE_LIVE_SHEET, self::SOURCE_MATCH_FORM, self::SOURCE_DEMO ], true ) ) return;
+        $this->wpdb->update(
+            $this->t_goals,
+            [ 'source' => $source ],
+            [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
     }
 
     private function activityForExecution( int $execution_id ): int {
@@ -358,15 +385,17 @@ class MatchExecutionRepository {
         $ok = $assist === null
             ? $this->wpdb->query( $this->wpdb->prepare(
                 "UPDATE {$this->t_goals}
-                    SET player_id = %d, assist_player_id = NULL, is_own_goal = %d
+                    SET player_id = %d, assist_player_id = NULL, is_own_goal = %d,
+                        updated_at = %s, updated_by = NULLIF(%d, 0)
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-                $player_id, $is_own_goal ? 1 : 0, $event_uuid, CurrentClub::id()
+                $player_id, $is_own_goal ? 1 : 0, current_time( 'mysql', true ), self::actor(), $event_uuid, CurrentClub::id()
             ) )
             : $this->wpdb->query( $this->wpdb->prepare(
                 "UPDATE {$this->t_goals}
-                    SET player_id = %d, assist_player_id = %d, is_own_goal = %d
+                    SET player_id = %d, assist_player_id = %d, is_own_goal = %d,
+                        updated_at = %s, updated_by = NULLIF(%d, 0)
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-                $player_id, $assist, $is_own_goal ? 1 : 0, $event_uuid, CurrentClub::id()
+                $player_id, $assist, $is_own_goal ? 1 : 0, current_time( 'mysql', true ), self::actor(), $event_uuid, CurrentClub::id()
             ) );
         return $ok !== false;
     }
@@ -446,7 +475,7 @@ class MatchExecutionRepository {
      * credited with in a match whose score was never recorded. No youth
      * match legitimately needs more.
      */
-    public const CONTRIBUTIONS_CAP_WITHOUT_SCORE = 15;
+    public const CONTRIBUTIONS_CAP_WITHOUT_SCORE = \TT\Modules\MatchExecution\Domain\ContributionsCeiling::CAP_WITHOUT_SCORE;
 
     /**
      * #4506 — the ceiling a batch of counts for one match must stay under,
@@ -485,7 +514,8 @@ class MatchExecutionRepository {
         $stored = $match !== null ? ( $match->home_score ?? null ) : null;
         $score  = $stored !== null ? (int) $stored : null;
         $scored = $score !== null;
-        $limit  = $score !== null ? max( 0, $score ) : self::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
+        // #4994 — one ceiling, shared with the goals and assists drill-down.
+        $limit  = \TT\Modules\MatchExecution\Domain\ContributionsCeiling::limit( $score );
 
         // What is stored now. A count is refused only when this write raises
         // it past the ceiling, so any lowering is accepted: a player whose
@@ -497,7 +527,7 @@ class MatchExecutionRepository {
             foreach ( [ 'goals', 'assists' ] as $field ) {
                 $value = max( 0, (int) $c[ $field ] );
                 $now   = (int) ( $before[ (int) $pid ][ $field ] ?? 0 );
-                if ( $value > $limit && $value > $now ) {
+                if ( \TT\Modules\MatchExecution\Domain\ContributionsCeiling::playerOver( $score, $value ) && $value > $now ) {
                     $players[] = [ 'player_id' => (int) $pid, 'field' => $field, 'value' => $value ];
                 }
             }
@@ -512,7 +542,7 @@ class MatchExecutionRepository {
             foreach ( [ 'goals', 'assists' ] as $field ) {
                 $pre  = array_sum( array_column( $before, $field ) );
                 $post = array_sum( array_column( $after, $field ) );
-                if ( $post > $limit && $post > $pre ) {
+                if ( \TT\Modules\MatchExecution\Domain\ContributionsCeiling::matchOver( $score, $post ) && $post > $pre ) {
                     $totals[] = [ 'field' => $field, 'value' => (int) $post ];
                 }
             }
@@ -599,9 +629,10 @@ class MatchExecutionRepository {
             // Clearing the assister off a live goal leaves the goal standing,
             // so the score does not move and nothing needs re-deriving.
             $this->wpdb->query( $this->wpdb->prepare(
-                "UPDATE {$this->t_goals} SET assist_player_id = NULL
+                "UPDATE {$this->t_goals}
+                    SET assist_player_id = NULL, updated_at = %s, updated_by = NULLIF(%d, 0)
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-                (string) $row->event_uuid, CurrentClub::id()
+                current_time( 'mysql', true ), self::actor(), (string) $row->event_uuid, CurrentClub::id()
             ) );
         }
     }
@@ -624,9 +655,10 @@ class MatchExecutionRepository {
 
         if ( $free !== null && $free !== '' ) {
             $this->wpdb->query( $this->wpdb->prepare(
-                "UPDATE {$this->t_goals} SET assist_player_id = %d
+                "UPDATE {$this->t_goals}
+                    SET assist_player_id = %d, updated_at = %s, updated_by = NULLIF(%d, 0)
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-                $player_id, (string) $free, CurrentClub::id()
+                $player_id, current_time( 'mysql', true ), self::actor(), (string) $free, CurrentClub::id()
             ) );
             return;
         }
@@ -650,18 +682,18 @@ class MatchExecutionRepository {
         if ( $assist === null ) {
             $this->wpdb->query( $this->wpdb->prepare(
                 "INSERT INTO {$this->t_goals}
-                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-                 VALUES (%s, %d, %d, NULL, 'home', %d, NULL, 0, NULL, NULL)",
-                $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id )
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half, source, created_by)
+                 VALUES (%s, %d, %d, NULL, 'home', %d, NULL, 0, NULL, NULL, %s, NULLIF(%d, 0))",
+                $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id ), self::SOURCE_MATCH_FORM, self::actor()
             ) );
             return;
         }
 
         $this->wpdb->query( $this->wpdb->prepare(
             "INSERT INTO {$this->t_goals}
-               (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-             VALUES (%s, %d, %d, NULL, 'home', %d, %d, 0, NULL, NULL)",
-            $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id ), $assist
+               (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half, source, created_by)
+             VALUES (%s, %d, %d, NULL, 'home', %d, %d, 0, NULL, NULL, %s, NULLIF(%d, 0))",
+            $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id ), $assist, self::SOURCE_MATCH_FORM, self::actor()
         ) );
     }
 
@@ -771,9 +803,9 @@ class MatchExecutionRepository {
         if ( $event_uuid === '' || $half < 1 || $half > 2 ) return false;
         $ok = $this->wpdb->query( $this->wpdb->prepare(
             "UPDATE {$this->t_goals}
-                SET half = %d, minute_in_half = %d
+                SET half = %d, minute_in_half = %d, updated_at = %s, updated_by = NULLIF(%d, 0)
               WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-            $half, max( 0, $minute ), $event_uuid, CurrentClub::id()
+            $half, max( 0, $minute ), current_time( 'mysql', true ), self::actor(), $event_uuid, CurrentClub::id()
         ) );
         return $ok !== false;
     }
