@@ -167,9 +167,13 @@ Other rules that hold on a phone:
 
 - A cell with nothing in it takes no line, and neither does an empty
   row-actions cell. Row actions sit together at the right.
-- When the list sets `row_url_key`, the whole row is the link (at
-  least 48 px high, reachable with Tab, opened with Enter or Space,
-  with a focus ring). The 48 px floor on record links inside the row
+- When the list sets `row_url_key`, a tap or click anywhere on the row
+  opens the record (the row is at least 48 px high). The row stays a
+  table row, so a screen reader keeps its cells under their column
+  headers. The keyboard reaches the record through the link to it in
+  the row: Tab moves to it, Enter opens it, it has a focus ring and the
+  row is tinted while it has focus. A list whose rows print no link to
+  their record gets one on the title. The 48 px floor on record links inside the row
   is lifted there, because the row is already the target. A link in the
   title line does not catch the tap on a phone: tapping it opens the
   row. That lets a list lead with the player (the goals list) and still

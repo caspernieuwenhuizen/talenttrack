@@ -256,22 +256,69 @@
         }
         // v3.110.169 (#758) — row-link standard. When the preset
         // declares `row_url_key` and the row carries that key, stamp
-        // the <tr> with data-row-href + is-row-link + role=link +
-        // tabindex=0 so the whole row is a click / Enter / Space
-        // target. bindRowLinks() below wires the click handler,
-        // skipping interactive descendants (links, buttons, inputs)
-        // so per-column links keep working.
-        var rowAttrs = ' data-row-id="' + escapeHtml(row.id == null ? '' : row.id) + '"';
+        // the <tr> with data-row-href + is-row-link so the whole row is
+        // a pointer target. bindRowLinks() below wires the click
+        // handler, skipping interactive descendants (links, buttons,
+        // inputs) so per-column links keep working.
+        // #4884 — the row stays role="row": a rowgroup may only own rows,
+        // so a role=link row dropped out of the table for a screen reader.
+        // Its keyboard path is the anchor to its record inside the row
+        // (#1472); linkRowRecords() adds one where the preset prints none.
+        var rowAttrs = ' data-row-id="' + escapeHtml(row.id == null ? '' : row.id) + '" role="row"';
         var rowClass = '';
         var rowUrlKey = config.row_url_key;
         if (rowUrlKey && row[rowUrlKey]) {
             rowAttrs += ' data-row-href="' + escapeHtml(withBack(String(row[rowUrlKey]))) + '"';
-            rowAttrs += ' role="link" tabindex="0"';
             rowClass = ' class="is-row-link"';
-        } else {
-            rowAttrs += ' role="row"';
         }
         return '<tr' + rowClass + rowAttrs + '>' + tds + '</tr>';
+    }
+
+    /**
+     * #4884 — a record's address without the back hint, so a cell's link
+     * and the row's address compare as the same record whatever `tt_back`
+     * either carries.
+     */
+    function recordKey(href) {
+        try {
+            var u = new URL(href, window.location.href);
+            u.searchParams.delete('tt_back');
+            u.searchParams.sort();
+            return u.origin + u.pathname + '?' + u.searchParams.toString();
+        } catch (e) {
+            return String(href);
+        }
+    }
+
+    /**
+     * #4884 — every row link gets an anchor to its record, which is its Tab
+     * stop and what a screen reader announces as the link. Most presets
+     * already print one (the name or title link). For a row without one, the
+     * primary cell's content — or the first plain cell's, when the primary
+     * cell holds another control — is wrapped in an anchor to the record.
+     */
+    function linkRowRecords(tbody) {
+        tbody.querySelectorAll('tr.is-row-link[data-row-href]').forEach(function(tr) {
+            var href = tr.getAttribute('data-row-href');
+            var key = recordKey(href);
+            var anchors = tr.querySelectorAll('td a[href]');
+            for (var i = 0; i < anchors.length; i++) {
+                if (recordKey(anchors[i].getAttribute('href')) === key) return;
+            }
+            var candidates = [ tr.querySelector('td[data-mobile="primary"]') ]
+                .concat(Array.prototype.slice.call(tr.querySelectorAll('td:not(.tt-list-table-actions)')));
+            for (var j = 0; j < candidates.length; j++) {
+                var cell = candidates[j];
+                if (!cell || cell.textContent.trim() === '') continue;
+                if (cell.querySelector('a, button, input, select, textarea, label, [role="button"]')) continue;
+                var a = document.createElement('a');
+                a.className = 'tt-record-link';
+                a.setAttribute('href', href);
+                while (cell.firstChild) a.appendChild(cell.firstChild);
+                cell.appendChild(a);
+                return;
+            }
+        });
     }
 
     function syncUrl(state) {
@@ -379,6 +426,7 @@
         }
         tbody.innerHTML = rows.map(function(r) { return renderRow(config, r); }).join('');
         addBackToLinks(tbody);
+        linkRowRecords(tbody);
     }
 
     /**
@@ -810,12 +858,13 @@
     }
 
     // v3.110.169 (#758) — row-link delegated click handler. Navigates
-    // to row.dataset.rowHref on click / Enter / Space, except when
-    // the actual click target is interactive (link, button, input,
-    // select, label, textarea, anything with role="button"). Middle-
-    // click + cmd/ctrl-click open in a new tab. Text-selection drags
-    // are ignored — if the user is actively selecting, the click
-    // event doesn't fire on mouseup.
+    // to row.dataset.rowHref on click, except when the actual click
+    // target is interactive (link, button, input, select, label,
+    // textarea, anything with role="button"). Middle-click +
+    // cmd/ctrl-click open in a new tab. Text-selection drags are
+    // ignored — if the user is actively selecting, the click event
+    // doesn't fire on mouseup. #4884 — the keyboard opens the record
+    // through the anchor in the row, so the row has no key handler.
     function bindRowLinks(root) {
         var tbody = root.querySelector('[data-tt-list-body="1"]');
         if (!tbody) return;
@@ -863,16 +912,6 @@
             if (targetIsInteractive(e.target)) return;
             e.preventDefault();
             navigate(tr.getAttribute('data-row-href'), true);
-        });
-
-        // Enter / Space on a focused row activates the link.
-        tbody.addEventListener('keydown', function(e) {
-            if (e.key !== 'Enter' && e.key !== ' ') return;
-            var tr = e.target.closest && e.target.closest('tr.is-row-link');
-            if (!tr || !tbody.contains(tr)) return;
-            if (targetIsInteractive(e.target)) return;
-            e.preventDefault();
-            navigate(tr.getAttribute('data-row-href'), e.metaKey || e.ctrlKey);
         });
     }
 

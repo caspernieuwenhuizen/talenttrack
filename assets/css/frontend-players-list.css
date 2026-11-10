@@ -38,9 +38,10 @@
     background: var(--tt-bg-soft, #f4f6f3);
 }
 
-.tt-dashboard .tt-players-manage .tt-list-table-table tbody tr.is-row-link:focus-visible {
-    outline: 2px solid var(--tt-primary, #0b3d2e);
-    outline-offset: -2px;
+/* #4884 — the row is not a focus target; the name link in it is, and
+   draws its own ring. The row is tinted while it has focus. */
+.tt-dashboard .tt-players-manage .tt-list-table-table tbody tr.is-row-link:focus-within {
+    background: var(--tt-bg-soft, #f4f6f3);
 }
 
 /* ---- Create / edit form as a 2026 card ----------------------------- */
