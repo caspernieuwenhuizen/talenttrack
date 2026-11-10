@@ -91,6 +91,11 @@
 .tt-stack-table > tbody > tr > td[data-label=""]::before { content: none; }
 .tt-stack-table > tbody > tr > td[data-label=""] { justify-content: flex-end; }
 
+/* A row the page hides with the `hidden` attribute (a collapsed drill-down,
+   a row a search filtered out) stays hidden: every display rule here would
+   otherwise outrank it. (0,2,2) beats the row rules at every width. */
+.tt-stack-table > tbody > tr[hidden] { display: none; }
+
 /* A cell with nothing in it takes no line. */
 .tt-stack-table > tbody > tr > td:empty,
 .tt-stack-table > tbody > tr > td[data-empty] { display: none; }

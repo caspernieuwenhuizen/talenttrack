@@ -81,9 +81,7 @@
     align-items: center;
     gap: 8px;
 }
-/* The primitive gives every row a display, which outranks the `hidden`
-   attribute the drill-down toggles, and centres a spanning cell. */
-.tt-dashboard .tt-att-team-table > tbody > tr.tt-att-sub-row[hidden] { display: none; }
+/* The primitive centres a spanning cell; the sub-table reads from the left. */
 .tt-dashboard .tt-att-sub-row > td.tt-att-sub-cell { text-align: left; }
 
 /* the disclosure button — the primary expand affordance */

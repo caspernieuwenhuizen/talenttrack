@@ -104,8 +104,11 @@ A table that turns into labelled cards on a phone uses the stacked-table primiti
 - **Header row:** hidden visually, never with `display: none`, so the column headers stay in the accessibility tree. It shows while a control in it has the keyboard focus.
 - **Label:** hidden from a screen reader (`content: attr(data-label) / ""`), because the column header already names the cell.
 - **Cells without a line:** an empty cell takes no line, a cell with `data-label=""` is its value alone, and a spanning cell is one block.
+- **Hidden rows:** a row with the `hidden` attribute (a collapsed drill-down row, a row a search filtered out) stays hidden at every width. The primitive's row display rules would otherwise outrank the attribute, so a surface sheet never needs its own `[hidden]` rule.
 
 There are no other breakpoints and no container queries.
+
+**Choosing the breakpoint.** Use `TO_768` when the table scrolls inside its wrap anywhere between 480 and 767px: as cards up to 767 it fits the screen instead. Use `TO_480` otherwise, and always for a table that prints. A printed page is about 720 CSS px wide, so a `TO_768` table would print as cards.
 
 **Surface sheets.** A surface's own sheet owns padding, borders and the label's type, never the stacking. The primitive's selectors are `> tbody > tr > td` chains (0,1,3, and 0,2,3 for the empty, spanning and unlabelled cells), so a surface rule that must win uses the same chain shape or sits under a scope class such as `.tt-dashboard`.
 
