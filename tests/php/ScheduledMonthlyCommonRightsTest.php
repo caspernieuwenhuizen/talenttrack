@@ -126,6 +126,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
 
     public function test_one_recipient_without_attendance_takes_it_out_for_everyone(): void {
         $this->needsPdf();
+        $this->seedJourney();
         $observer = $this->observer( 'observer-4991@example.test' );
 
         $this->runMonthly( [ 'owner-4991@example.test', 'observer-4991@example.test' ] );
@@ -136,6 +137,12 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertNotContains( 'Attendance', $this->headers( $this->pdf_html[0] ), 'no attendance section' );
         $this->assertStringNotContainsString( self::ATTENDANCE_TILE, $this->pdf_html[0], 'no attendance tile' );
         $this->assertGreaterThan( 0, $observer );
+
+        // And "what changed" carries only the entry the observer may see too.
+        $this->assertStringContainsString( self::ENTRY_PUBLIC, $this->pdf_html[0], 'Precondition: the changes are printed.' );
+        foreach ( [ self::ENTRY_STAFF, self::ENTRY_SAFEGUARDING, self::ENTRY_MEDICAL, self::ENTRY_VERDICT ] as $summary ) {
+            $this->assertStringNotContainsString( $summary, $this->pdf_html[0] );
+        }
     }
 
     public function test_every_recipient_holding_attendance_keeps_it(): void {
