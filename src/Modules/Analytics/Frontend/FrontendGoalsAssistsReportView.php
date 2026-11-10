@@ -204,7 +204,7 @@ final class FrontendGoalsAssistsReportView extends FrontendViewBase {
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the renderer escapes.
         echo GoalContributionsRenderer::drilldown(
             $data,
-            static fn( array $m ): string => RecordLink::detailUrlForWithBack( 'activities', (int) $m['activity_id'] ),
+            static fn( array $m ): string => CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', (int) $m['activity_id'] ) : '',
             static function ( array $m ) use ( $can_correct, $team_id ): string {
                 if ( ! $can_correct ) return '';
                 $date = (string) $m['date'];
