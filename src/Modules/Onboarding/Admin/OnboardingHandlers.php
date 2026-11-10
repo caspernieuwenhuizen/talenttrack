@@ -587,7 +587,8 @@ class OnboardingHandlers {
         ];
 
         QueryHelpers::set_config( 'academy_name',     $payload['academy_name'] );
-        QueryHelpers::set_config( 'primary_color',    $payload['primary_color'] );
+        // #4803 — stored only when the academy chose a colour of its own.
+        \TT\Shared\Frontend\BrandStyles::saveColor( 'primary_color', (string) $payload['primary_color'] );
         QueryHelpers::set_config( 'season_label',     $payload['season_label'] );
         QueryHelpers::set_config( 'date_format_pref', $payload['date_format'] );
 

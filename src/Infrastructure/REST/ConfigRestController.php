@@ -362,6 +362,13 @@ class ConfigRestController {
             if ( $key === \TT\Modules\Activities\Services\CoachWeek::SETTINGS_KEY ) {
                 $clean = \TT\Modules\Activities\Services\CoachWeek::normaliseSettingsStored( $clean );
             }
+            // #4803 — a Branding colour is stored only when the academy chose
+            // it; its default or a cleared value unsets it.
+            if ( \TT\Shared\Frontend\BrandStyles::isColorKey( $key ) ) {
+                \TT\Shared\Frontend\BrandStyles::saveColor( $key, $clean );
+                $written++;
+                continue;
+            }
             QueryHelpers::set_config( $key, $clean );
             $written++;
         }

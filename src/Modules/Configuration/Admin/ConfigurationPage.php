@@ -1022,7 +1022,14 @@ class ConfigurationPage {
         $tab = isset( $_POST['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['tab'] ) ) : '';
         $cfg = isset( $_POST['cfg'] ) && is_array( $_POST['cfg'] ) ? $_POST['cfg'] : [];
         foreach ( $cfg as $k => $v ) {
-            QueryHelpers::set_config( sanitize_key( (string) $k ), sanitize_text_field( wp_unslash( (string) $v ) ) );
+            $key   = sanitize_key( (string) $k );
+            $value = sanitize_text_field( wp_unslash( (string) $v ) );
+            // #4803 — a Branding colour is stored only when chosen.
+            if ( \TT\Shared\Frontend\BrandStyles::isColorKey( $key ) ) {
+                \TT\Shared\Frontend\BrandStyles::saveColor( $key, $value );
+                continue;
+            }
+            QueryHelpers::set_config( $key, $value );
         }
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=saved" ) );
         exit;

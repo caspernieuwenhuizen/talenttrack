@@ -92,6 +92,11 @@ class QueryHelpers {
         self::config()->set( $key, $value );
     }
 
+    /** #4803 — unset a key for the current club, so readers fall back to their default. */
+    public static function delete_config( string $key ): void {
+        self::config()->delete( $key );
+    }
+
     // Lookups
 
     /** @return object[] */
