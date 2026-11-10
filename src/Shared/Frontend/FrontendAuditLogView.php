@@ -562,7 +562,7 @@ class FrontendAuditLogView extends FrontendViewBase {
     /** @param object[] $entries */
     private static function renderTable( array $entries ): void {
         if ( empty( $entries ) ) return;
-        // #4917 — on the stack-table primitive: a table from 480px, one card
+        // #4917 — on the stack-table primitive: a table from 768px, one card
         // per entry below it. The entity and its id are one value block.
         $c_when    = __( 'When', 'talenttrack' );
         $c_user    = __( 'User', 'talenttrack' );
@@ -573,7 +573,7 @@ class FrontendAuditLogView extends FrontendViewBase {
         $th        = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap" style="overflow-x:auto;">
-            <table class="tt-table tt-audit-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <table class="tt-table tt-audit-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <th class="tt-audit-nowrap"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_when ); ?></th>
                     <?php foreach ( [ $c_user, $c_action, $c_entity, $c_ip, $c_payload ] as $header ) : ?>
