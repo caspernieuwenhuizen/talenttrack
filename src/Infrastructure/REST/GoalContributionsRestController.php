@@ -78,9 +78,15 @@ final class GoalContributionsRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid team or player.', 'talenttrack' ), 400 );
         }
 
-        $refused = GoalContributionDrilldown::refusal( get_current_user_id(), $team_id, $player_id );
-        if ( $refused !== null ) {
-            return RestResponse::error( $refused['code'], $refused['message'], 403 );
+        // The team first, so an out-of-scope team is always `forbidden_team`;
+        // then the player. `GoalContributionDrilldown::refusal()` asks the
+        // page the same two questions in the same order.
+        $uid = get_current_user_id();
+        if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeam( $uid, $team_id ) ) {
+            return RestResponse::error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        }
+        if ( ! AuthorizationService::canViewPlayer( $uid, $player_id ) ) {
+            return RestResponse::error( 'forbidden_player', __( 'You may not see this player.', 'talenttrack' ), 403 );
         }
 
         $window = GoalContributionQuery::resolveWindow(
