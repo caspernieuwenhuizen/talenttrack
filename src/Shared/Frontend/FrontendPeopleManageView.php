@@ -10,6 +10,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -287,23 +288,29 @@ class FrontendPeopleManageView extends FrontendViewBase {
             return;
         }
 
+        // #4913 — on the stack-table primitive: a table from 480px, one card
+        // per assignment below it.
+        $c_team  = __( 'Team', 'talenttrack' );
+        $c_role  = __( 'Role', 'talenttrack' );
+        $c_start = __( 'Start', 'talenttrack' );
+        $c_end   = __( 'End', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Role', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Start', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'End', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( [ $c_team, $c_role, $c_start, $c_end ] as $header ) {
+            echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $assignments as $a ) {
             $role = $a->functional_role_id ? $roles_repo->findRole( (int) $a->functional_role_id ) : null;
             $role_label = $role
                 ? ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label )
                 : (string) ( $a->role_in_team ?? '' );
-            echo '<tr>';
-            echo '<td>' . esc_html( (string) ( $a->team_name ?? '' ) ) . '</td>';
-            echo '<td>' . esc_html( $role_label ) . '</td>';
-            echo '<td>' . esc_html( (string) ( $a->start_date ?? '—' ) ) . '</td>';
-            echo '<td>' . esc_html( (string) ( $a->end_date ?? '—' ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_team ) . '>' . esc_html( (string) ( $a->team_name ?? '' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_role ) . '>' . esc_html( $role_label ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_start ) . '>' . esc_html( (string) ( $a->start_date ?? '—' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_end ) . '>' . esc_html( (string) ( $a->end_date ?? '—' ) ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table>';

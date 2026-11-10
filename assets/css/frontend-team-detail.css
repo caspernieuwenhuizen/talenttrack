@@ -138,6 +138,12 @@
 .tt-team-customize__status.is-error { color: var(--tt-danger, #d8453b); }
 .tt-team-customize__status.is-success { color: var(--tt-success, #2f9e5e); }
 
+/* #4913 — the roster table's shirt-number column and the dash for a player
+   without one, moved out of inline styles when the table went onto the
+   stack-table primitive. */
+.tt-team-roster-table__jersey { width: 5rem; }
+.tt-team-muted { color: var(--tt-muted, #5f6368); }
+
 .tt-team-customize-trigger[aria-expanded="true"] {
     background: var(--tt-primary, #0b3d2e);
     color: #fff;

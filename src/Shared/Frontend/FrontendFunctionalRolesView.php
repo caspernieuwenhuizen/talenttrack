@@ -10,6 +10,7 @@ use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\PlayerPickerComponent;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -210,14 +211,21 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         echo '<div class="tt-fnrole-types" data-tt-fnrole-types="1">';
+        // #4913 — on the stack-table primitive: a table from 480px, one card
+        // per role type below it. The move and edit columns have no header,
+        // so their cells show their buttons alone.
+        $c_label  = __( 'Label', 'talenttrack' );
+        $c_key    = __( 'Key', 'talenttrack' );
+        $c_assign = __( 'Assignments', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table"><thead><tr>';
-        echo '<th></th>';
-        echo '<th>' . esc_html__( 'Label',       'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Key',         'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Assignments', 'talenttrack' ) . '</th>';
-        echo '<th></th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '></th>';
+        echo '<th' . $th . '>' . esc_html( $c_label ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_key ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_assign ) . '</th>';
+        echo '<th' . $th . '></th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         $last_idx = count( $roles ) - 1;
         foreach ( $roles as $idx => $role ) {
@@ -225,20 +233,20 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
             $is_first = $idx === 0;
             $is_last  = $idx === $last_idx;
             ?>
-            <tr data-role-id="<?php echo (int) $role->id; ?>">
-                <td style="white-space:nowrap;">
+            <tr data-role-id="<?php echo (int) $role->id; ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <td class="tt-fnrole-move"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                     <button type="button" class="tt-list-table-action" data-tt-fnrole-move="up"   <?php disabled( $is_first ); ?>>↑</button>
                     <button type="button" class="tt-list-table-action" data-tt-fnrole-move="down" <?php disabled( $is_last  ); ?>>↓</button>
-                </td>
-                <td><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label ); ?></a>
+                </span></td>
+                <td<?php echo StackTable::attrs( 'cell', $c_label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>"><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label ); ?></a>
                     <?php if ( ! empty( $role->is_system ) ) : ?>
                         <span class="tt-badge" style="margin-left:6px; padding:1px 6px; background:var(--tt-bg-soft); border:1px solid var(--tt-line); border-radius:999px; font-size:var(--tt-fs-xs); color:var(--tt-muted);">
                             <?php esc_html_e( 'system', 'talenttrack' ); ?>
                         </span>
                     <?php endif; ?>
-                </td>
-                <td><code><?php echo esc_html( (string) $role->role_key ); ?></code></td>
-                <td>
+                </span></td>
+                <td<?php echo StackTable::attrs( 'cell', $c_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><code><?php echo esc_html( (string) $role->role_key ); ?></code></td>
+                <td<?php echo StackTable::attrs( 'cell', $c_assign ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php
                     // #0077 M7 — empty-state CTA: if a role has zero
                     // assignments, surface a quick path to add one
@@ -257,12 +265,12 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                     }
                     ?>
                 </td>
-                <td>
+                <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                     <a class="tt-list-table-action" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                     <?php if ( empty( $role->is_system ) && (int) ( $role->assignment_count ?? 0 ) === 0 ) : ?>
                         <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-fnrole-delete="<?php echo (int) $role->id; ?>"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
                     <?php endif; ?>
-                </td>
+                </span></td>
             </tr>
             <?php
         }

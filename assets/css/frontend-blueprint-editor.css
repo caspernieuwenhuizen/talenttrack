@@ -1301,6 +1301,13 @@ body.tt-bp-chem-hidden .tt-chem-link {
     gap: var(--tt-sp-2, 8px);
     flex-wrap: wrap;
 }
+/* #4913 — on the stack-table primitive the buttons sit in one value block,
+   which carries the row of buttons and their gap. */
+.tt-dashboard .tt-bp-list-rowactions > .tt-stack-table__value {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+}
 
 /* ---- Notices ------------------------------------------------------ */
 .tt-dashboard .tt-bp-notice-spaced { margin-bottom: var(--tt-sp-3, 12px); }
