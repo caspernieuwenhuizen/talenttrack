@@ -106,7 +106,8 @@ final class HybridDeepRateStep implements WizardStepInterface, ConditionalStepIn
         // `eval_type`. Migration 0091 extended `eval_type` with
         // Tournament / Observation / Other so the wizard's value
         // space is preserved.
-        $eval_types = \TT\Infrastructure\Query\QueryHelpers::get_eval_types();
+        // #4976 — without the PDP conversation types: they belong to a form.
+        $eval_types = \TT\Infrastructure\Query\QueryHelpers::get_pickable_eval_types();
 
         // #1643 — training-eval default. Resolve the training type id +
         // mental category id and hand them to the shared JS enhancement
@@ -192,7 +193,8 @@ final class HybridDeepRateStep implements WizardStepInterface, ConditionalStepIn
                 $cid       = (int) $cat->id;
                 $val       = (float) ( $state['ratings_self'][ $cid ] ?? 0 );
                 $cat_label = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
-                $sub_cats  = $cat_repo !== null ? $cat_repo->getChildren( $cid ) : [];
+                // #4976 — a PDP form's own items are not offered here.
+                $sub_cats  = $cat_repo !== null ? $cat_repo->getChildrenForRating( $cid ) : [];
                 ?>
                 <details class="tt-rate-cat" data-tt-eval-cat-main data-tt-eval-cat="<?php echo (int) $cid; ?>">
                     <summary class="tt-rate-cat-head">

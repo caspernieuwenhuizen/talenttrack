@@ -54,6 +54,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
                 // #3305 — the questions a coach prepares each talk against.
                 'pdp-prep-questions' => __( 'PDP preparation questions', 'talenttrack' ),
+                // #4976 — which conversation forms the PDP uses.
+                'pdp-forms' => __( 'PDP conversation forms', 'talenttrack' ),
                 // #1727 — central per-age-category default match minutes.
                 'match-minutes' => __( 'Match minutes', 'talenttrack' ),
                 // #3044 — how many a side each age group plays.
@@ -117,6 +119,10 @@ class FrontendConfigurationView extends FrontendViewBase {
                 // conversation against, configured per conversation template.
                 self::renderHeader( __( 'PDP preparation questions', 'talenttrack' ) );
                 self::renderPdpPrepQuestionsForm();
+                return;
+            case 'pdp-forms':
+                self::renderHeader( __( 'PDP conversation forms', 'talenttrack' ) );
+                self::renderPdpFormsForm();
                 return;
             case 'match-minutes':
                 // #1727 — central per-age-category default match minutes.
@@ -2504,6 +2510,41 @@ class FrontendConfigurationView extends FrontendViewBase {
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * #4976 (epic #4975) — the one select that switches the PDP conversation
+     * forms on: a set of forms (one per position group), or none. Saved
+     * through `PUT /pdp-forms`, which checks the scale and the main
+     * categories and creates the forms' categories before it stores the
+     * choice. A single config field, so no wizard (CLAUDE.md §3 (a)).
+     */
+    private static function renderPdpFormsForm(): void {
+        if ( ! current_user_can( \TT\Modules\Pdp\Rest\PdpFormsRestController::CAP ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $current = \TT\Modules\Pdp\Forms\PdpFormRegistry::setForClub();
+        $sets    = \TT\Modules\Pdp\Forms\PdpFormRegistry::sets();
+
+        echo '<form class="tt-ajax-form tt-pdp-forms-settings" data-rest-path="pdp-forms" data-rest-method="PUT" data-redirect-after-save="reload">';
+        echo '<p>' . esc_html__( 'A conversation form gives the PDP conversation a fixed list of items, each scored by the player and by the trainer. The trainer\'s scores are also saved as an evaluation. The forms are the academy\'s own, with their own wording, and cannot be edited here.', 'talenttrack' ) . '</p>';
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt-pdp-forms-set">' . esc_html__( 'Conversation forms', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-pdp-forms-set" name="set" class="tt-input">';
+        echo '<option value="">' . esc_html__( 'None (conversations without a form)', 'talenttrack' ) . '</option>';
+        foreach ( $sets as $key => $set ) {
+            echo '<option value="' . esc_attr( (string) $key ) . '"' . selected( $current, $key, false ) . '>' . esc_html( (string) $set['label'] ) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'A goalkeeper gets the goalkeeper form and every other player the outfield form.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+        echo '<p class="tt-form-msg" role="status" aria-live="polite"></p>';
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the helper escapes its own output.
+            'cancel_url' => remove_query_arg( [ 'config_sub' ] ),
+        ] );
+        echo '</form>';
     }
 
     /**

@@ -343,7 +343,8 @@ class EvaluationsPage {
             $eval_player = QueryHelpers::get_player( $eval_player_id );
             if ( $eval_player ) $players[] = $eval_player;
         }
-        $types      = QueryHelpers::get_eval_types();
+        // #4976 — without the PDP conversation types, except this one's own.
+        $types      = QueryHelpers::get_pickable_eval_types( $eval ? (int) ( $eval->eval_type_id ?? 0 ) : 0 );
         $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '5' );
         $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '10' );
         $rstep = (float) QueryHelpers::get_config( 'rating_step', '0.5' );
@@ -369,6 +370,14 @@ class EvaluationsPage {
                     $direct_ratings[ $cid ] = $rating;
                 }
             }
+        }
+
+        // #4976 — a PDP form's own items are not offered, except those this
+        // evaluation already rates: the save below rewrites every rating from
+        // what is posted, so a hidden rated item would be lost.
+        foreach ( $tree as $main ) {
+            if ( ! $main instanceof \stdClass ) continue;
+            $main->children = EvalCategoriesRepository::forRating( (array) ( $main->children ?? [] ), '', array_keys( $sub_ratings ) );
         }
 
         $type_meta = [];

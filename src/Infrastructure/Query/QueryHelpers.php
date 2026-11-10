@@ -239,6 +239,24 @@ class QueryHelpers {
         return self::get_lookups( 'eval_type' );
     }
 
+    /**
+     * #4976 — the evaluation types a coach may pick when rating: every type
+     * except those a PDP conversation form owns (`meta.picker_hidden`), which
+     * are only written by the form. Lists and reports keep `get_eval_types()`,
+     * so an evaluation of such a type is still found and filtered on.
+     * `$keep_id` keeps a hidden type an evaluation being edited already has.
+     *
+     * @return list<\stdClass>
+     */
+    public static function get_pickable_eval_types( int $keep_id = 0 ): array {
+        $out = [];
+        foreach ( self::get_eval_types() as $type ) {
+            $row = (object) (array) $type;
+            if ( empty( self::lookup_meta( $row )['picker_hidden'] ) || ( $keep_id > 0 && (int) ( $row->id ?? 0 ) === $keep_id ) ) $out[] = $row;
+        }
+        return $out;
+    }
+
     public static function type_requires_match( int $type_id ): bool {
         $t = self::get_lookup( $type_id );
         if ( ! $t ) return false;

@@ -92,9 +92,11 @@ final class RateActorsStep implements WizardStepInterface, ConditionalStepInterf
         // are nested under each main row inside a `<details>` so the
         // coach can drill into a detailed rating without losing the
         // top-line ergonomic.
+        // #4976 — without a PDP form's own items.
         $sub_cats_raw = $wpdb->get_results(
             "SELECT id, parent_id, label FROM {$p}tt_eval_categories
               WHERE parent_id IS NOT NULL AND is_active = 1
+                AND " . \TT\Infrastructure\Evaluations\EvalCategoriesRepository::notFormOwnedSql() . "
               ORDER BY parent_id, display_order, label"
         );
         $sub_cats_by_parent = [];

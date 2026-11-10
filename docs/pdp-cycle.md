@@ -172,12 +172,26 @@ The detail view's **Print / PDF** button opens a clean A4 layout: photo, season 
 - **Configuration → System** — the *PDP cycle default* (2 / 3 / 4) and *Print: include evidence by default* toggle.
 - **Per-team override** — on the team edit page, set *PDP cycle size* to override the club default.
 - **Configuration → PDP preparation questions** — what a coach is asked to think about before each conversation, with a separate set per conversation in the cycle. Every academy starts with a shipped set and can add, reword, reorder or remove questions.
+- **Configuration → PDP conversation forms** — which set of conversation forms the academy uses, or none. See *Conversation forms* below.
 
 ### Preparation questions
 
 The start of a season asks different things than the end, so each conversation in the cycle carries its own set of prompts. Answers are **private to the coach and the head of academy** — never shown to the player or their parents, on any surface.
 
 Rewording a question that has already been answered does not change what those answers were given against: the old wording is kept on the preps that hold them, and the new wording applies from the next conversation onward. So a prep written last season still reads the way it was written.
+
+### Conversation forms
+
+An academy can hold its PDP conversations on a fixed form of its own: a list of items in four sections (technical, tactical, physical and mental), each item scored from 1 to 5 by the player and by the trainer, with a strongest quality, two development points and a sign-off. The form is the academy's own. Its wording is used exactly as the academy wrote it, in every language, and it cannot be edited in TalentTrack. A goalkeeper gets the goalkeeper form and every other player the outfield form.
+
+Forms are off at every academy until someone with the right to change settings picks a set under **Configuration → PDP conversation forms**. Picking a set prepares what the trainer's scores are saved under:
+
+- one evaluation sub-category per item, under the four main categories the academy already has, so the radar, the evaluation history and the reports show the trainer's scores like any other rating;
+- one evaluation type per form ("PDP conversation, outfield" and "PDP conversation, goalkeeper").
+
+The ordinary evaluation forms never offer these items or types: they belong to the conversation form. A form scores on five steps, so the academy's rating scale needs five (the standard one to five stars). If it has another number of steps, or one of the four main categories is missing or switched off, picking a set is refused with a message and nothing changes. Choosing *None* switches the forms off again; the categories stay, because evaluations may already use them.
+
+A form never changes once it is in use. When the wording or the items change, a new version of the form is added, and conversations already held keep the version they were held on.
 
 ## Workflow nudges
 

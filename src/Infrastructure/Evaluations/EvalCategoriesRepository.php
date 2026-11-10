@@ -107,6 +107,61 @@ class EvalCategoriesRepository {
         ) );
     }
 
+    /**
+     * #4976 — the sub-categories of a main a rating input offers.
+     *
+     * A PDP conversation form owns its items' sub-categories (the `pdp_form`
+     * marker in `meta`). The ordinary evaluation forms leave those out, or
+     * every evaluation at an academy using the forms would offer the forms'
+     * items too. `$form_key` keeps the ones of that form: the form's own
+     * evaluation passes it. `$keep_ids` keeps the ones an evaluation being
+     * edited already rates, so opening it in an ordinary form never drops a
+     * score on save. The radar, the history and the reports read the
+     * categories through `getChildren()` / `getTree()` and see them all.
+     *
+     * @param array<int> $keep_ids
+     * @return array<int, object>
+     */
+    public function getChildrenForRating( int $parent_id, string $form_key = '', array $keep_ids = [] ): array {
+        return self::forRating( (array) $this->getChildren( $parent_id ), $form_key, $keep_ids );
+    }
+
+    /**
+     * The rule of `getChildrenForRating()` over rows already read.
+     *
+     * @param array<int, object> $rows
+     * @param array<int>         $keep_ids
+     * @return array<int, object>
+     */
+    public static function forRating( array $rows, string $form_key = '', array $keep_ids = [] ): array {
+        $keep = array_flip( array_map( 'intval', $keep_ids ) );
+        $out  = [];
+        foreach ( $rows as $row ) {
+            $owner = self::formOwner( $row );
+            if ( $owner === '' || $owner === $form_key || isset( $keep[ (int) ( $row->id ?? 0 ) ] ) ) $out[] = $row;
+        }
+        return $out;
+    }
+
+    /** The PDP form that owns a category row, or '' when none does. */
+    public static function formOwner( object $row ): string {
+        $meta = json_decode( (string) ( $row->meta ?? '' ), true );
+        return is_array( $meta ) && is_string( $meta[ self::META_FORM ] ?? null ) ? $meta[ self::META_FORM ] : '';
+    }
+
+    /**
+     * The SQL form of the same rule, for a rating input that reads the table
+     * directly: rows no PDP form owns. `$alias` qualifies the column.
+     */
+    public static function notFormOwnedSql( string $alias = '' ): string {
+        $alias = preg_replace( '/[^A-Za-z0-9_]/', '', $alias ) ?? '';
+        $col   = ( $alias !== '' ? $alias . '.' : '' ) . 'meta';
+        return "( {$col} IS NULL OR {$col} NOT LIKE '%\"" . self::META_FORM . "\":%' )";
+    }
+
+    /** The `meta` key that marks a category as a PDP form's item. */
+    public const META_FORM = 'pdp_form';
+
     public function get( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
@@ -186,7 +241,8 @@ class EvalCategoriesRepository {
         global $wpdb;
         $normalized = $this->normalize( $data, true );
         $normalized['club_id'] = CurrentClub::id();
-        $wpdb->insert( $this->table(), $normalized );
+        // A failed insert leaves the previous insert's id in `insert_id`.
+        if ( $wpdb->insert( $this->table(), $normalized ) === false ) return 0;
         return (int) $wpdb->insert_id;
     }
 
@@ -257,6 +313,12 @@ class EvalCategoriesRepository {
         }
         if ( array_key_exists( 'is_system', $data ) ) {
             $out['is_system'] = ! empty( $data['is_system'] ) ? 1 : 0;
+        }
+        // #4976 — the PDP forms mark their items here. An array is stored as
+        // JSON; null clears the column.
+        if ( array_key_exists( 'meta', $data ) ) {
+            $meta = $data['meta'];
+            $out['meta'] = $meta === null ? null : ( is_array( $meta ) ? (string) wp_json_encode( $meta ) : (string) $meta );
         }
         return $out;
     }

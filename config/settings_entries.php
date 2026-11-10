@@ -192,6 +192,14 @@ return [
             'keywords'    => _x( 'pdp, preparation, questions, conversation', 'settings search keywords', 'talenttrack' ),
         ],
         [
+            // #4976 — which conversation forms the academy's PDP uses.
+            'key' => 'pdp-forms', 'section' => 'development_evaluations', 'sub' => 'pdp-forms', 'cap' => 'tt_edit_settings',
+            'module'      => 'TT\\Modules\\Pdp\\PdpModule',
+            'label'       => __( 'PDP conversation forms', 'talenttrack' ),
+            'description' => __( 'The forms a PDP conversation is held on: a score from the player and from the trainer per item. Off unless the academy picks a set.', 'talenttrack' ),
+            'keywords'    => _x( 'pdp, conversation, form, scores, player, trainer', 'settings search keywords', 'talenttrack' ),
+        ],
+        [
             'key' => 'measurement-tests', 'section' => 'development_evaluations', 'tile' => 'measurement-tests',
             'keywords' => _x( 'tests, measurements, target bands', 'settings search keywords', 'talenttrack' ),
         ],

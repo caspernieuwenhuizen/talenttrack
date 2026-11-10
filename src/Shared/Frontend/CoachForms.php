@@ -47,7 +47,9 @@ class CoachForms {
      */
     public static function renderEvalForm( array $teams, bool $is_admin, int $preset_player_id = 0, ?object $existing_eval = null ): void {
         $categories = QueryHelpers::get_categories();
-        $types      = QueryHelpers::get_eval_types();
+        // #4976 — without the PDP conversation types, except the one an
+        // evaluation being edited already has.
+        $types      = QueryHelpers::get_pickable_eval_types( $existing_eval !== null ? (int) ( $existing_eval->eval_type_id ?? 0 ) : 0 );
         $rmin  = QueryHelpers::get_config( 'rating_min', '5' );
         $rmax  = QueryHelpers::get_config( 'rating_max', '10' );
         $rstep = QueryHelpers::get_config( 'rating_step', '0.5' );
@@ -345,7 +347,9 @@ class CoachForms {
                 $cid = (int) $cat->id;
                 $cur_rating = isset( $existing_ratings[ $cid ] ) ? (string) $existing_ratings[ $cid ] : '';
                 $cat_label  = EvalCategoriesRepository::displayLabel( (string) $cat->name );
-                $sub_cats   = $cat_repo !== null ? $cat_repo->getChildren( $cid ) : [];
+                // #4976 — a PDP form's own items are not offered here, except
+                // those this evaluation already rates.
+                $sub_cats   = $cat_repo !== null ? $cat_repo->getChildrenForRating( $cid, '', array_keys( $existing_ratings ) ) : [];
 
                 // Auto-default: Detailed when any sub for this main
                 // has a stored value (edit case); Basic otherwise.
