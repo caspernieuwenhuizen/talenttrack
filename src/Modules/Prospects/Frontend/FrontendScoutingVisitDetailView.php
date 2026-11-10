@@ -312,9 +312,11 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             echo '</section>';
             return;
         }
-        // #4911 — on the stack-table primitive: a table from 480px, one card
-        // per prospect below it. The actions column is named for a screen
-        // reader only, so its cell shows the button alone.
+        // #4911 — on the stack-table primitive: a table from 768px, one card
+        // per prospect below it. Its seven columns do not fit a narrower
+        // screen, so it stays cards up to a tablet rather than scrolling. The
+        // actions column is named for a screen reader only, so its cell shows
+        // the button alone.
         $c_name     = __( 'Name', 'talenttrack' );
         $c_birth    = __( 'Birth year', 'talenttrack' );
         $c_club     = __( 'Club', 'talenttrack' );
@@ -325,7 +327,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         ?>
         <p class="tt-observation-status" role="status" aria-live="polite" data-tt-observation-status></p>
         <div class="tt-table-wrap">
-            <table class="tt-table tt-table-sortable <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <table class="tt-table tt-table-sortable <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th>
