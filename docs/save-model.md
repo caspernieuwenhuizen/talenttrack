@@ -33,6 +33,7 @@ not. Beside it, **Undo** and **Revert changes**.
 | [PDP conversation](pdp-cycle.md) | Until it is signed off |
 | [PDP preparation](pdp-cycle.md) | The coach's answers, until the conversation is signed off |
 | [PDP self-reflection](pdp-cycle.md) | While the reflection window is open |
+| [PDP conversation form](pdp-cycle.md#conversation-forms) | The player's scores and answers until the talk starts; the trainer's scores, answers and development points until sign-off |
 | [Report Studio](reports.md#report-studio--building-a-report) | The draft of a report; **Publish** makes a version |
 
 **Why these.** They are all places where you *compose* — you write sentences
@@ -89,7 +90,12 @@ These screens keep deliberate buttons, and none of them is a Save:
   link says the analysis is not finished yet; after it, the link shows the
   document. Editing a final analysis afterwards leaves it final.
 - **Sign off** on a PDP conversation. Everything above it is already saved;
-  signing off closes the conversation for editing, for everyone.
+  signing off closes the conversation for editing, for everyone. On a
+  conversation form it also saves the trainer's scores as an evaluation and
+  turns the two development points into goals, all at once or not at all.
+- **Ready** ("klaar") on the player's part of a conversation form. The scores
+  and answers save themselves; marking the preparation finished is what lets
+  the trainer see them. The player can take it back until the talk starts.
 - **Mark as not held** on a PDP conversation, for a talk that will never take
   place. It moves the cycle on to the next talk, so it sits beside Sign off,
   behind its own confirm, with a required reason. It can be undone only until

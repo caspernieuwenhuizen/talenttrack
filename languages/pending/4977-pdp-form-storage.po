@@ -1,0 +1,114 @@
+#: src/Infrastructure/REST/EvaluationsRestController.php
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php
+msgid "This evaluation was saved by a signed PDP conversation form, so it cannot be changed. Open the conversation to read it."
+msgstr "Deze evaluatie is opgeslagen door een ondertekend POP-gespreksformulier en kan daarom niet worden gewijzigd. Open het gesprek om haar te lezen."
+
+#: src/Shared/Frontend/CoachForms.php
+msgid "This evaluation was saved by a signed PDP conversation form, so it cannot be changed here."
+msgstr "Deze evaluatie is opgeslagen door een ondertekend POP-gespreksformulier en kan hier daarom niet worden gewijzigd."
+
+#: src/Shared/Frontend/CoachForms.php
+msgid "Open the conversation"
+msgstr "Open het gesprek"
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "This conversation does not use a conversation form."
+msgstr "Dit gesprek gebruikt geen gespreksformulier."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The form is not complete yet. Score every item, fill in the strongest quality, and give both development points an action, the trainer's help and a deadline."
+msgstr "Het formulier is nog niet compleet. Geef elk onderdeel een score, vul de grootste kwaliteit in en geef beide ontwikkelpunten een actie, de hulp van de trainer en een deadline."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The evaluation categories of the conversation form are missing. Ask your administrator to save the conversation forms setting again."
+msgstr "De evaluatiecategorieën van het gespreksformulier ontbreken. Vraag je beheerder de instelling voor de gespreksformulieren opnieuw op te slaan."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This conversation has already been signed off."
+msgstr "Dit gesprek is al ondertekend."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The sign-off could not be saved. Nothing was changed; try again."
+msgstr "Het ondertekenen kon niet worden opgeslagen. Er is niets gewijzigd; probeer het opnieuw."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Say which conversation form to use."
+msgstr "Geef aan welk gespreksformulier je wilt gebruiken."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "That conversation form is not available at this academy."
+msgstr "Dat gespreksformulier is bij deze academie niet beschikbaar."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The player has started on this form, so it can no longer be switched."
+msgstr "De speler is met dit formulier begonnen, dus het kan niet meer worden gewisseld."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Only the current talk can be signed off. Earlier talks come first."
+msgstr "Alleen het huidige gesprek kan worden ondertekend. Eerdere gesprekken gaan voor."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the scores as an object of item => score."
+msgstr "Stuur de scores als object van onderdeel => score."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A score is a whole number from 1 to 5."
+msgstr "Een score is een heel getal van 1 tot 5."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the answers as an object of field => text."
+msgstr "Stuur de antwoorden als object van veld => tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "An answer is text."
+msgstr "Een antwoord is tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the development points as an object of slot => fields."
+msgstr "Stuur de ontwikkelpunten als object van plek => velden."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point is an object of action, support, due_date and item_key."
+msgstr "Een ontwikkelpunt is een object met action, support, due_date en item_key."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point field is text."
+msgstr "Een veld van een ontwikkelpunt is tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A deadline is a date (YYYY-MM-DD)."
+msgstr "Een deadline is een datum (JJJJ-MM-DD)."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point refers to an item of this form."
+msgstr "Een ontwikkelpunt verwijst naar een onderdeel van dit formulier."
+
+#. translators: %s: comma-separated field names
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This form does not have: %s."
+msgstr "Dit formulier heeft geen: %s."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "You do not have permission to do this on this conversation form."
+msgstr "Je hebt geen toestemming om dit op dit gespreksformulier te doen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This conversation does not use a conversation form yet."
+msgstr "Dit gesprek gebruikt nog geen gespreksformulier."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This talk did not take place, so its form takes no entries."
+msgstr "Dit gesprek heeft niet plaatsgevonden, dus het formulier neemt niets meer op."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The conversation has started, so your part of the form can no longer be changed."
+msgstr "Het gesprek is begonnen, dus jouw deel van het formulier kan niet meer worden gewijzigd."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The form could not be saved. Try again."
+msgstr "Het formulier kon niet worden opgeslagen. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This conversation uses a conversation form. Sign it off on the form, so the trainer's scores and the development points are saved with it."
+msgstr "Dit gesprek gebruikt een gespreksformulier. Onderteken het op het formulier, zodat de scores van de trainer en de ontwikkelpunten mee worden opgeslagen."
