@@ -315,6 +315,8 @@ class DashboardShortcode {
                 /* translators: %d: how many results of this kind there are */
                 'search_all'              => __( 'All %d', 'talenttrack' ),
                 'search_see_all'          => __( 'Press Enter to see every result.', 'talenttrack' ),
+                // #4936 — the mark on a switched-off module's row.
+                'search_off'              => _x( 'Off', 'search result of a switched-off module', 'talenttrack' ),
                 'search_close'            => __( 'Close search', 'talenttrack' ),
                 'peek_title'              => __( 'Preview', 'talenttrack' ),
                 'peek_loading'            => __( 'Loading…', 'talenttrack' ),

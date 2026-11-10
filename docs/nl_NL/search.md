@@ -1,7 +1,7 @@
 ---
 title: Zoeken
 group: basics
-summary: Het zoekveld in de bovenbalk en de resultatenpagina erachter, om vanaf elk scherm een speler, team, activiteit, persoon, instelling of helponderwerp te vinden, en voor ouders en spelers hun eigen records.
+summary: Het zoekveld in de bovenbalk en de resultatenpagina erachter, om vanaf elk scherm een speler, team, activiteit, persoon, instelling of helponderwerp te vinden, voor staf de evaluaties, doelen en notities die ze mogen lezen, en voor ouders en spelers hun eigen records.
 audience: [user, admin, player, parent]
 views: [search]
 order: 22
@@ -20,21 +20,27 @@ Typ erin en de resultaten verschijnen eronder, gegroepeerd:
 1. Spelers
 2. Teams
 3. Activiteiten
-4. Evaluaties, doelen en berichten (voor ouders en spelers)
-5. Mensen
-6. Instellingen
-7. Onderdelen
-8. Help
+4. Evaluaties & doelen (voor staf)
+5. Notities (voor staf)
+6. Evaluaties, doelen en berichten (voor ouders en spelers)
+7. Mensen
+8. Instellingen & modules
+9. Onderdelen
+10. Help
 
 Elke groep toont de beste vier spelers of drie van de rest. Zijn er meer, dan
 opent een link *Alle* onderaan de groep de volledige lijst op de
 resultatenpagina. De letters die je typte staan vet.
 
-- **Een speler** toont de foto, of de initialen als er geen foto is, en het
-  team. Naast de naam staan maximaal twee snelle acties, zoals *Nieuwe
-  evaluatie* of *Doelen*. Je ziet alleen een actie die je mag gebruiken.
-- **Een instelling** toont het onderdeel van de configuratie waar hij staat.
+- **Een speler** toont de foto, of de initialen als er geen foto is, het
+  rugnummer en de eerste positie als de speler die heeft, en het team. Naast
+  de naam staan maximaal twee snelle acties, zoals *Nieuwe evaluatie* of
+  *Doelen*. Je ziet alleen een actie die je mag gebruiken.
+- **Een instelling** toont volledig waar hij staat, bijvoorbeeld
+  *Configuratie › Academie › Vormgeving*.
 - **Een activiteit** toont de datum en het team.
+- **Een evaluatie, een doel of een notitie** toont de speler, de datum en een
+  kort stukje van wat er geschreven is, als je dat mag lezen.
 
 Een leeg veld toont wat je het laatst opende: de spelers, teams en activiteiten
 waarvan je de pagina bezocht, nieuwste eerst. Een record dat je niet meer mag
@@ -95,6 +101,39 @@ maakt bereiken sneller. Een record dat je niet mag openen wordt niet getoond en
 niet geteld, dus een zoekopdracht ernaar leest precies als een zoekopdracht naar
 een naam die niet bestaat.
 
+## Voor staf: evaluaties, doelen en notities
+
+Trainers, het hoofd opleiding en iedereen die het ontwikkeldossier van een
+speler leest, vinden dat hier ook, voor de spelers waarvoor ze het mogen
+lezen: een trainer voor de spelers van zijn eigen teams, het hoofd opleiding
+in de hele academie, een scout voor de spelers aan wie hij gekoppeld is.
+
+- **Evaluaties & doelen** bevat ze allebei. Een evaluatie vind je op de naam
+  van de speler, het soort evaluatie in je eigen taal, de tegenstander, de
+  datum en de notities van de trainer. Een doel vind je op de naam van de
+  speler, de titel, de omschrijving en de datum waarop het af moet zijn.
+- **Notities** bevat de notities in het dossier van een speler. Een notitie
+  vind je op de naam van de speler, de tekst en de dag waarop hij geschreven
+  is, en opent het tabblad *Notities* van de speler. Een notitie die alleen
+  voor staf is, vindt alleen wie hem mag zien.
+
+De notities van de trainer bij een evaluatie worden alleen doorzocht, en
+alleen als stukje getoond, waar je ze mag lezen. De alleen-lezen waarnemer
+vindt een evaluatie bijvoorbeeld op de speler, het soort en de datum, nooit
+op een woord in de notities, en ziet geen stukje tekst. De waarnemer krijgt
+helemaal geen groep *Notities*.
+
+Op de resultatenpagina toont de knop *Evaluaties & doelen* beide soorten
+tegelijk.
+
+## Uitgeschakelde modules
+
+Een beheerder die modules mag aanzetten, vindt onder *Instellingen & modules*
+ook de modules die uit staan, en hun instellingen. Zo'n regel is gemarkeerd
+met *Uit* en heeft een actie *Aanzetten*, die de pagina Modules opent bij de
+schakelaar van die module. Niemand anders ziet een uitgeschakelde module in
+het zoeken.
+
 ## Voor ouders
 
 Een trainer appt je dat een training "nu in TalentTrack staat". Zo vind je hem:
@@ -152,7 +191,9 @@ geen instellingen, en je krijgt geen snelle acties.
 Het veld en de pagina lezen dezelfde REST-routes: `GET /talenttrack/v1/search`
 met `page` voor de gegroepeerde en gepagineerde resultaten,
 `GET /talenttrack/v1/me/recent` voor de lijst van laatst geopend, en
-`POST /talenttrack/v1/me/recent` om een geopend record vast te leggen. Het
+`POST /talenttrack/v1/me/recent` om een geopend record vast te leggen. De
+soorten voor staf zijn `staff_evaluation`, `staff_goal` en `note`; items
+kunnen `shirt_number`, `position`, `excerpt`, `path` en `disabled` hebben. Het
 openen van een spelers-, team- of activiteitpagina legt dat op de server vast,
 zodat elke frontend dezelfde lijst vult. `GET /talenttrack/v1/me/search` blijft
 bestaan voor wie hem al gebruikt: hij antwoordt in zijn oude vorm (`children`,

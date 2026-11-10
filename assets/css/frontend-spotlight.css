@@ -320,6 +320,27 @@ html.tt-search-sheet-open body {
     white-space: nowrap;
 }
 
+/* #4936 — an excerpt of free text the viewer may read, one line. */
+.tt-dashboard .tt-spotlight__excerpt {
+    font-size: 0.8rem;
+    color: var(--tt-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* #4936 — the mark on a switched-off module's row. */
+.tt-dashboard .tt-spotlight__state {
+    display: inline-block;
+    padding: 0 var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 600;
+}
+
 .tt-dashboard .tt-spotlight__mark {
     background: none;
     color: inherit;

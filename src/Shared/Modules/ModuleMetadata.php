@@ -445,6 +445,16 @@ class ModuleMetadata {
     }
 
     /**
+     * #4936 — the id of a module's card on the Modules page, so a link can
+     * open the page at that module's toggle: `tt-module-` and the class
+     * name, lower-cased, without its namespace.
+     */
+    public static function anchor( string $module_class ): string {
+        $parts = explode( '\\', ltrim( $module_class, '\\' ) );
+        return 'tt-module-' . sanitize_key( (string) end( $parts ) );
+    }
+
+    /**
      * Metadata for one module class. Falls back to a slugified class name
      * label + the Advanced/developer category for an undescribed module,
      * so the page never shows a raw FQCN and a missing entry surfaces as a

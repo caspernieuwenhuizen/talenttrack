@@ -153,6 +153,33 @@
 .tt-search-page__meta {
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+/* #4936 — an excerpt of free text the viewer may read: two lines at most,
+   wrapping anywhere so a long word never widens a 360px row. */
+.tt-search-page__excerpt {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin-top: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink);
+    overflow-wrap: anywhere;
+}
+
+/* #4936 — the mark on a switched-off module's row. */
+.tt-search-page__state {
+    display: inline-block;
+    padding: 0 var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 600;
+    vertical-align: middle;
 }
 
 .tt-search-page__actions {

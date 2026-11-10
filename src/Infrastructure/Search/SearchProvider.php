@@ -20,9 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *     the recent items.
  *
  * A hit is an array:
- * `{type, id, label, sublabel, url, score, date?, player_id?, team_id?, photo_url?, actions}`.
+ * `{type, id, label, sublabel, url, score, date?, player_id?, team_id?, photo_url?, shirt_number?, position?, excerpt?, path?, disabled?, actions}`.
+ * An `excerpt` is only ever text the viewer may read (#4936).
  *
- * @phpstan-type Hit array{type:string, id:int, label:string, sublabel:string, url:string, score:int, date?:string, player_id?:int, team_id?:int, photo_url?:string, actions:list<array{key:string, label:string, url:string}>, key?:string}
+ * @phpstan-type Hit array{type:string, id:int, label:string, sublabel:string, url:string, score:int, date?:string, player_id?:int, team_id?:int, photo_url?:string, shirt_number?:int, position?:string, excerpt?:string, path?:string, disabled?:bool, actions:list<array{key:string, label:string, url:string}>, key?:string}
  */
 interface SearchProvider {
 

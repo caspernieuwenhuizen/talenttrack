@@ -7,11 +7,14 @@ use TT\Infrastructure\Search\Providers\ActivitySearchProvider;
 use TT\Infrastructure\Search\Providers\EvaluationSearchProvider;
 use TT\Infrastructure\Search\Providers\GoalSearchProvider;
 use TT\Infrastructure\Search\Providers\MessageSearchProvider;
+use TT\Infrastructure\Search\Providers\NoteSearchProvider;
 use TT\Infrastructure\Search\Providers\HelpSearchProvider;
 use TT\Infrastructure\Search\Providers\PersonSearchProvider;
 use TT\Infrastructure\Search\Providers\PlayerSearchProvider;
 use TT\Infrastructure\Search\Providers\SectionSearchProvider;
 use TT\Infrastructure\Search\Providers\SettingSearchProvider;
+use TT\Infrastructure\Search\Providers\StaffEvaluationSearchProvider;
+use TT\Infrastructure\Search\Providers\StaffGoalSearchProvider;
 use TT\Infrastructure\Search\Providers\TeamSearchProvider;
 
 /**
@@ -20,8 +23,8 @@ use TT\Infrastructure\Search\Providers\TeamSearchProvider;
  *
  * Phase 1 kinds: sections (`view`), players, teams, people, activities,
  * settings and help topics. #4673 added the family's evaluations, goals and
- * messages. A kind added later registers a
- * {@see SearchProvider} here and inherits the whole contract: scoped in SQL,
+ * messages; #4936 the staff evaluations, goals and notes. A kind added
+ * later registers a {@see SearchProvider} here and inherits the whole contract: scoped in SQL,
  * confirmed per row, counted over the same scope.
  */
 final class SearchRegistry {
@@ -42,6 +45,9 @@ final class SearchRegistry {
                 new EvaluationSearchProvider(),
                 new GoalSearchProvider(),
                 new MessageSearchProvider(),
+                new StaffEvaluationSearchProvider(),
+                new StaffGoalSearchProvider(),
+                new NoteSearchProvider(),
                 new SettingSearchProvider(),
                 new HelpSearchProvider(),
             ] as $provider ) {

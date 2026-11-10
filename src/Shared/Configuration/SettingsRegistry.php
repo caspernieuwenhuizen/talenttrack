@@ -222,6 +222,45 @@ final class SettingsRegistry {
     }
 
     /**
+     * #4936 — where an entry lives, in full: Configuration, its section and
+     * its own label, e.g. "Configuration › Academy › Appearance".
+     *
+     * @param array<string,mixed> $entry
+     */
+    public static function path( array $entry ): string {
+        return implode( ' › ', array_filter( [
+            __( 'Configuration', 'talenttrack' ),
+            NavigationGroups::label( (string) ( $entry['section'] ?? '' ) ),
+            (string) ( $entry['label'] ?? '' ),
+        ] ) );
+    }
+
+    /**
+     * #4936 — the modules that are switched off, for a viewer who may
+     * switch them on, and for nobody else: each with its label, its
+     * description, its full path and the link to its toggle on the Modules
+     * page. Always-on modules are never off.
+     *
+     * @return list<array{class:string, label:string, description:string, path:string, url:string}>
+     */
+    public static function offModulesFor( int $user_id ): array {
+        if ( $user_id <= 0 || ! user_can( $user_id, self::OFF_CAP ) ) return [];
+        $out = [];
+        foreach ( ModuleRegistry::allWithState() as $module ) {
+            if ( $module['enabled'] || $module['always_on'] ) continue;
+            $meta  = \TT\Shared\Modules\ModuleMetadata::for( $module['class'] );
+            $out[] = [
+                'class'       => $module['class'],
+                'label'       => $meta['label'],
+                'description' => $meta['description'],
+                'path'        => self::path( [ 'section' => self::OFF_SECTION, 'label' => $meta['label'] ] ),
+                'url'         => self::viewUrl( 'modules' ) . '#' . \TT\Shared\Modules\ModuleMetadata::anchor( $module['class'] ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * The entries grouped for the Configuration landing: the settings
      * sections in order, each with its label and question. A section with
      * fewer than MIN_SECTION_SIZE entries folds into the next one (the last
@@ -359,7 +398,8 @@ final class SettingsRegistry {
             // viewer could not open with the module on.
             if ( $tile === null && ! self::allowed( $entry, $user_id ) ) return null;
             $section = self::OFF_SECTION;
-            $url     = self::viewUrl( 'modules' );
+            // #4936 — at the module's own toggle.
+            $url     = self::viewUrl( 'modules' ) . '#' . \TT\Shared\Modules\ModuleMetadata::anchor( $module );
         } else {
             if ( $tile !== null ) {
                 if ( ! isset( $setup[ $tile_slug ] ) ) return null;

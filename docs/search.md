@@ -1,7 +1,7 @@
 ---
 title: Search
 group: basics
-summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen, and for parents and players their own records.
+summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen, for staff the evaluations, goals and notes they may read, and for parents and players their own records.
 audience: [user, admin, player, parent]
 views: [search]
 order: 22
@@ -20,21 +20,27 @@ in it and the results appear underneath, grouped:
 1. Players
 2. Teams
 3. Activities
-4. Evaluations, goals and messages (for parents and players)
-5. People
-6. Settings
-7. Sections
-8. Help
+4. Evaluations & goals (for staff)
+5. Notes (for staff)
+6. Evaluations, goals and messages (for parents and players)
+7. People
+8. Settings & modules
+9. Sections
+10. Help
 
 Each group shows its best four players or three of the rest. When there are
 more, an *All* link at the foot of the group opens the full list on the
 results page. The letters you typed are shown in bold.
 
-- **A player** shows the photo, or the initials when there is none, and the
-  team. Up to two quick actions sit beside the name, such as *New evaluation*
-  or *Goals*. You only see an action you are allowed to use.
-- **A setting** shows the section of the configuration it is in.
+- **A player** shows the photo, or the initials when there is none, the shirt
+  number and the primary position when the player has them, and the team. Up
+  to two quick actions sit beside the name, such as *New evaluation* or
+  *Goals*. You only see an action you are allowed to use.
+- **A setting** shows where it lives in full, for example
+  *Configuration › Academy › Appearance*.
 - **An activity** shows its date and team.
+- **An evaluation, a goal or a note** shows the player, the date and a short
+  excerpt of what was written, when you may read it.
 
 An empty box shows what you opened last: the players, teams and activities
 whose page you visited, newest first. A record you can no longer open drops off
@@ -93,6 +99,36 @@ makes reaching it faster. A record you may not open is not shown and not
 counted, so a search for it reads exactly like a search for a name that does
 not exist.
 
+## For staff: evaluations, goals and notes
+
+Coaches, the head of development and everyone else who reads a player's
+development record find it here too, for the players they may read it for: a
+coach for the players of their own teams, the head of development across the
+academy, a scout for the players they are linked to.
+
+- **Evaluations & goals** holds both. An evaluation is found by the player's
+  name, the type of evaluation in your own language, the opponent, the date
+  and the coach's notes. A goal is found by the player's name, its title, its
+  description and its due date.
+- **Notes** holds the notes on a player's file. A note is found by the
+  player's name, its text and the day it was written, and opens the player's
+  *Notes* tab. A note marked staff-only is found only by someone who may see
+  it.
+
+The coach's notes on an evaluation are only searched, and only shown as an
+excerpt, where you may read them. The read-only observer, for example, finds
+an evaluation by the player, the type and the date, never by a word in its
+notes, and sees no excerpt. The observer gets no *Notes* group at all.
+
+On the results page the *Evaluations & goals* chip shows both kinds at once.
+
+## Switched-off modules
+
+An administrator who may switch modules on also finds the modules that are
+switched off, and their settings, under *Settings & modules*. Such a row is
+marked *Off* and has a *Turn on* action, which opens the Modules page at that
+module's switch. Nobody else sees a switched-off module in search.
+
 ## For parents
 
 A coach texts you that a session is "in TalentTrack now". This is how you find
@@ -149,7 +185,9 @@ you get no quick actions.
 The box and the page read the same REST routes: `GET /talenttrack/v1/search`
 with `page` for the grouped and paged results, `GET /talenttrack/v1/me/recent`
 for the recent list, and `POST /talenttrack/v1/me/recent` to note an opened
-record. `GET /talenttrack/v1/me/search` stays for its existing callers: it
+record. The staff kinds are `staff_evaluation`, `staff_goal` and `note`;
+items may carry `shirt_number`, `position`, `excerpt`, `path` and `disabled`.
+`GET /talenttrack/v1/me/search` stays for its existing callers: it
 answers in its old shape (`children`, `results`, `total`), built from the same
 engine. The old help topic for the parent search opens this one. Opening a player, team or activity page notes it on the server, so
 every front end feeds the same list. See [REST API](rest-api.md).

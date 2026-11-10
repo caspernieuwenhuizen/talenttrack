@@ -24,9 +24,10 @@ abstract class MemorySearchProvider implements SearchProvider {
 
     /**
      * The viewer's entries: a stable key, the title and secondary text to
-     * match, and the hit fields.
+     * match, and the hit fields. `extra` carries a kind's further hit fields
+     * (a setting's `path`, `disabled` and `actions`, #4936).
      *
-     * @return list<array{key:string, title:string, text:string, label:string, sublabel:string, url:string}>
+     * @return list<array{key:string, title:string, text:string, label:string, sublabel:string, url:string, extra?:array<string,mixed>}>
      */
     abstract protected function entries( int $user_id ): array;
 
@@ -50,7 +51,7 @@ abstract class MemorySearchProvider implements SearchProvider {
     /** @var array<string, list<array<string,mixed>>> user and query => scored hits, for one request */
     private array $memo = [];
 
-    /** @var array<int, list<array{key:string, title:string, text:string, label:string, sublabel:string, url:string}>> */
+    /** @var array<int, list<array{key:string, title:string, text:string, label:string, sublabel:string, url:string, extra?:array<string,mixed>}>> */
     private array $entries = [];
 
     /** @return list<array<string,mixed>> */
@@ -64,7 +65,7 @@ abstract class MemorySearchProvider implements SearchProvider {
         foreach ( $this->entries[ $user_id ] as $i => $entry ) {
             $score = SearchText::scoreText( $entry['title'], $entry['text'], $query->tokens );
             if ( $score === null ) continue;
-            $out[] = [
+            $out[] = array_merge( [ 'actions' => [] ], $entry['extra'] ?? [], [
                 'type'     => $this->kind(),
                 'id'       => 0,
                 'key'      => $entry['key'],
@@ -72,9 +73,8 @@ abstract class MemorySearchProvider implements SearchProvider {
                 'sublabel' => $entry['sublabel'],
                 'url'      => $entry['url'],
                 'score'    => $score,
-                'actions'  => [],
                 'tt_order' => $i,
-            ];
+            ] );
         }
         usort( $out, static fn( array $a, array $b ): int => [ $b['score'], $a['tt_order'] ] <=> [ $a['score'], $b['tt_order'] ] );
         foreach ( $out as $i => $hit ) unset( $out[ $i ]['tt_order'] );

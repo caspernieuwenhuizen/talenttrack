@@ -14,7 +14,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * children's, where the record's own read allows it
  * (`SearchViewer::playerIdsReading( …, 'evaluations' )`). Found by the
  * evaluation type in the viewer's language (`LookupTranslator`) or as
- * stored, by the opponent, and by date. Staff are not served here yet.
+ * stored, by the opponent, and by date. Staff are served by the
+ * `staff_evaluation` kind (#4936).
  */
 final class EvaluationSearchProvider extends FamilyRecordSearchProvider {
 
@@ -75,11 +76,12 @@ final class EvaluationSearchProvider extends FamilyRecordSearchProvider {
     /**
      * The evaluation types by lookup id: the name in the viewer's language,
      * and the stored one, so "wedstrijdevaluatie" and "match evaluation"
-     * both find a match evaluation on a Dutch install.
+     * both find a match evaluation on a Dutch install. The staff kind
+     * (`StaffEvaluationSearchProvider`) matches on the same names.
      *
      * @return array<int, array{0:string, 1:string}>
      */
-    private static function typeNames(): array {
+    public static function typeNames(): array {
         $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
         if ( isset( self::$types[ $locale ] ) ) return self::$types[ $locale ];
         $out = [];

@@ -136,6 +136,32 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         return true;
     }
 
+    /**
+     * #4936 — {@see self::canRead()} for many players the caller has
+     * already read from `tt_players` in the current club, by their team:
+     * the capability and the academy-wide read asked once, the coached
+     * teams read once. Search confirms its note hits with it.
+     *
+     * @param array<int,int> $team_by_player player id => team id
+     * @return array<int,bool> player id => may read the player's notes
+     */
+    public function canReadMany( int $user_id, array $team_by_player ): array {
+        $out = array_fill_keys( array_map( 'intval', array_keys( $team_by_player ) ), false );
+        if ( $user_id <= 0 || $out === [] ) return $out;
+        if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return $out;
+
+        if ( QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
+            return array_fill_keys( array_keys( $out ), true );
+        }
+
+        $coached = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) $coached[ (int) $team->id ] = true;
+        foreach ( $team_by_player as $player_id => $team_id ) {
+            $out[ (int) $player_id ] = (int) $team_id > 0 && isset( $coached[ (int) $team_id ] );
+        }
+        return $out;
+    }
+
     public function canPost( int $user_id, int $thread_id ): bool {
         if ( $user_id <= 0 ) return false;
         if ( ! $this->findEntity( $thread_id ) ) return false;

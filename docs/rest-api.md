@@ -727,7 +727,7 @@ standard envelope:
       "actions": [ { "key": "new_evaluation", "label": "New evaluation", "url": "https://…" },
                    { "key": "goals", "label": "Goals", "url": "https://…" } ] }
   ],
-  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "setting": 0, "help": 0 },
+  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "staff_evaluation": 0, "staff_goal": 0, "note": 0, "setting": 0, "help": 0 },
   "understood": [ { "pattern": "shirt_number", "value": "7", "label": "Shirt number 7" } ],
   "total": 1 }, "errors": [] }
 ```
@@ -739,10 +739,13 @@ standard envelope:
 | `team` | `tt_view_teams`, then every team for global `team` read, otherwise the caller's teams (`GET /teams`'s narrowing) | The same rule |
 | `person` | The people read right (`tt_view_people` or `tt_edit_people`), as `GET /people` | The same rule |
 | `activity` | `ActivityAccess::readScope()`: global read, the teams a staff reader coaches, and for a player, a guardian or a linked scout the activities of those players | `ActivityAccess::readableIds()` |
-| `evaluation` | The caller's own record and their linked children's (`SearchViewer::playerIdsReading( …, 'evaluations' )`: development-record access, the guardian's matrix access and the child's own visibility switch). Staff are not served yet | The same list |
+| `evaluation` | The caller's own record and their linked children's (`SearchViewer::playerIdsReading( …, 'evaluations' )`: development-record access, the guardian's matrix access and the child's own visibility switch). Staff are served by `staff_evaluation` | The same list |
 | `goal` | As `evaluation`, for `goals` | The same list |
 | `message` | A parent's own inbox (`recipient_user_id`) | The same rule |
-| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile). Nothing for a parent or a player | — |
+| `staff_evaluation` | Anyone who is not a family viewer: `PlayerVisibility::sqlClause()` on the evaluation's player, and the `evaluations` read at global scope, on the teams of the caller's player scope, or on a scout's linked players. The caller's own record and children are left to `evaluation`. The staff notes are matched only on the players where `RecordRedactor` lets the caller read them (`readsEverywhere()` / `readsOnTeams()`) | `AuthorizationService::canViewPlayers()` and `mayReadPlayerSections( …, 'evaluations' )`, the evaluation detail's pair |
+| `staff_goal` | As `staff_evaluation`, for `goals` | `canViewPlayers()` and `mayReadPlayerSections( …, 'goals' )` (`GoalAccess::mayRead()`) |
+| `note` | The player notes thread's read (`tt_view_player_notes`; the global `player_notes` read, otherwise the teams the caller coaches) on top of `PlayerVisibility::sqlClause()`; a staff-only note only where `ThreadAccess::canSeePrivateOnTeams()` holds. Nothing for the read-only observer, a parent or a player | `canViewPlayers()`, `PlayerThreadAdapter::canReadMany()` and the same staff-only rule |
+| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile); for a caller with `tt_manage_modules` also every switched-off module (`SettingsRegistry::offModulesFor()`). Nothing for a parent or a player | — |
 | `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
 
 - **Matching.** The text is folded (lower case, accents removed, so *jose*
@@ -785,6 +788,23 @@ standard envelope:
 - **`photo_url`**: the player's photo through the private media store
   (`PlayerPhoto::url()`): a session-bound delivery URL, never an uploads path.
   Absent when the player has no photo.
+- **`shirt_number`** and **`position`** on a player: the shirt number and the
+  primary position code (`PlayerPosition::primaryCodeOf()`). Each absent when
+  the player has none, and both absent on a teammate.
+- **`excerpt`** on a `staff_evaluation`, `staff_goal` or `note`: the first
+  words of the staff notes, the goal's description or the note's text. Only
+  ever text the caller may read: absent on an evaluation whose notes are
+  masked for the caller (`RecordRedactor`, `evaluation_notes`).
+- **`path`** and **`disabled`** on a `setting`: the full Configuration path
+  (`"Configuration › Academy › Appearance"`, also the `sublabel`), and whether
+  it belongs to a switched-off module. A disabled item carries one action,
+  `turn_on`, whose `url` opens the Modules page at that module's switch.
+- **Evaluation and goal staff kinds** match the player's name (folded), and
+  on the record's own text: an evaluation's type (in the caller's language or
+  as stored), opponent and staff notes; a goal's title and description; a
+  note's text. They honour the date patterns and `from` / `to` (the
+  evaluation date, the goal's due date, the day a note was written) and
+  `team_id`.
 - **Search text.** Matching reads the folded columns `search_title` /
   `search_text` on each searched table, from the row's own columns only (names,
   title and location, team name and age group). No contact detail, note or

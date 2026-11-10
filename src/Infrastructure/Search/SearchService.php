@@ -221,6 +221,14 @@ final class SearchService {
             if ( isset( $hit[ $key ] ) && (int) $hit[ $key ] > 0 ) $item[ $key ] = (int) $hit[ $key ];
         }
         if ( isset( $hit['photo_url'] ) && (string) $hit['photo_url'] !== '' ) $item['photo_url'] = (string) $hit['photo_url'];
+        // #4936 — a player's shirt number and primary position, an excerpt
+        // of the free text the viewer may read, a setting's full path and
+        // whether it belongs to a switched-off module.
+        if ( isset( $hit['shirt_number'] ) && (int) $hit['shirt_number'] > 0 ) $item['shirt_number'] = (int) $hit['shirt_number'];
+        foreach ( [ 'position', 'excerpt', 'path' ] as $key ) {
+            if ( isset( $hit[ $key ] ) && (string) $hit[ $key ] !== '' ) $item[ $key ] = (string) $hit[ $key ];
+        }
+        if ( array_key_exists( 'disabled', $hit ) ) $item['disabled'] = (bool) $hit['disabled'];
         $item['actions'] = array_values( (array) ( $hit['actions'] ?? [] ) );
         return $item;
     }

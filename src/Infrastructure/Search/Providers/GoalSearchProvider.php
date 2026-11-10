@@ -11,7 +11,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Goals (#4673), for the family: the viewer's own and their children's,
  * where the record's own read allows it
  * (`SearchViewer::playerIdsReading( …, 'goals' )`). Found by title and by
- * due date. Staff are not served here yet.
+ * due date. Staff are served by the `staff_goal` kind (#4936).
  */
 final class GoalSearchProvider extends FamilyRecordSearchProvider {
 

@@ -91,6 +91,34 @@ final class ThreadAccess {
     }
 
     /**
+     * #4936 — {@see self::canSeePrivate()} for the threads of player-anchored
+     * records whose read the caller has already established, by the team
+     * each thread belongs to. `all` holds for a global thread reader, a
+     * holder of the global staff-only right and a holder of
+     * `tt_edit_evaluations`; otherwise `teams` says, per team, whether the
+     * staff-only right is held there. Search narrows its note statement and
+     * confirms its hits with it, so both read one rule.
+     *
+     * @param list<int> $team_ids
+     * @return array{all:bool, teams:array<int,bool>}
+     */
+    public static function canSeePrivateOnTeams( int $user_id, array $team_ids ): array {
+        $teams = array_fill_keys( array_values( array_filter( array_map( 'intval', $team_ids ), static fn( int $t ): bool => $t > 0 ) ), false );
+        if ( $user_id <= 0 ) return [ 'all' => false, 'teams' => $teams ];
+        if ( self::hasGlobalAccess( $user_id, 'read' ) || user_can( $user_id, 'tt_edit_evaluations' ) ) {
+            return [ 'all' => true, 'teams' => array_fill_keys( array_keys( $teams ), true ) ];
+        }
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [ 'all' => false, 'teams' => $teams ];
+        if ( MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
+            return [ 'all' => true, 'teams' => array_fill_keys( array_keys( $teams ), true ) ];
+        }
+        foreach ( array_keys( $teams ) as $team_id ) {
+            $teams[ $team_id ] = MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+        }
+        return [ 'all' => false, 'teams' => $teams ];
+    }
+
+    /**
      * #3858 — may this user mark a message on this thread staff-only, or
      * take that mark off again?
      *
