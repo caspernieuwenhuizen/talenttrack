@@ -163,6 +163,17 @@ final class TeamStatisticsTabTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tt-breadcrumbs', $html, 'the host view owns the chain' );
     }
 
+    public function test_a_player_link_opens_the_player_profile(): void {
+        // #5017 — the link used the slug `player`, which no view answers.
+        $method = new \ReflectionMethod( TeamStatisticsTab::class, 'playerLink' );
+        $method->setAccessible( true );
+
+        $html = (string) $method->invoke( null, [ 'player_id' => self::STRIKER, 'name' => 'Sam Striker' ] );
+
+        $this->assertMatchesRegularExpression( '/href="[^"]*tt_view=players(&|&amp;|&#038;)/', $html );
+        $this->assertMatchesRegularExpression( '/[?&;]id=' . self::STRIKER . '\b/', $html );
+    }
+
     public function test_the_form_chips_come_from_the_shared_component(): void {
         ob_start();
         FormChips::render( [
