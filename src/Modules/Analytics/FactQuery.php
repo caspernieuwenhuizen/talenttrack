@@ -72,14 +72,19 @@ final class FactQuery {
     private const OPERATORS = [ 'eq', 'in', 'not_eq', 'not_in' ];
 
     /**
+     * `$counted_groups_only` (#4956) keeps a breakdown group only when at
+     * least one of its rows passes the selected measures' `population`, so
+     * a report lists the players the measure counts. The data explorer
+     * leaves it off and keeps showing every row (#3451).
+     *
      * @param string             $factKey
      * @param string[]           $dimensionKeys
      * @param string[]           $measureKeys
      * @param array<string,mixed> $filters
      * @return array<int, \stdClass>
      */
-    public static function run( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): array {
-        return self::query( $factKey, $dimensionKeys, $measureKeys, $filters, $scope )->rows;
+    public static function run( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope, bool $counted_groups_only = false ): array {
+        return self::query( $factKey, $dimensionKeys, $measureKeys, $filters, $scope, $counted_groups_only )->rows;
     }
 
     /**
@@ -90,16 +95,16 @@ final class FactQuery {
      * @param string[]            $measureKeys
      * @param array<string,mixed> $filters
      */
-    public static function query( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): FactResult {
+    public static function query( string $factKey, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope, bool $counted_groups_only = false ): FactResult {
         $fact = FactRegistry::find( $factKey );
         if ( $fact === null ) return new FactResult( [], false );
         [ $dimensionKeys, $filters ] = self::resolveKeys( $fact, $dimensionKeys, $filters );
 
-        $cache_key = self::cacheKey( $factKey, $dimensionKeys, $measureKeys, $filters, $scope );
+        $cache_key = self::cacheKey( $factKey, $dimensionKeys, $measureKeys, $filters, $scope, $counted_groups_only );
         $cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
         if ( $cached instanceof FactResult ) return $cached;
 
-        $result = self::execute( $fact, $dimensionKeys, $measureKeys, $filters, $scope );
+        $result = self::execute( $fact, $dimensionKeys, $measureKeys, $filters, $scope, $counted_groups_only );
         wp_cache_set( $cache_key, $result, self::CACHE_GROUP, self::CACHE_TTL_SECONDS );
         return $result;
     }
@@ -200,11 +205,13 @@ final class FactQuery {
      * @param string[]            $measureKeys
      * @param array<string,mixed> $filters
      */
-    private static function execute( Fact $fact, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope ): FactResult {
+    private static function execute( Fact $fact, array $dimensionKeys, array $measureKeys, array $filters, FactScope $scope, bool $counted_groups_only = false ): FactResult {
         global $wpdb;
 
         $select_parts = [];
         $group_by     = [];
+        $populations  = [];
+        $every_row    = false;
 
         foreach ( $dimensionKeys as $dim_key ) {
             $dim = $fact->dimension( $dim_key );
@@ -218,6 +225,11 @@ final class FactQuery {
             $measure = $fact->measure( $measure_key );
             if ( $measure === null ) continue;
             $select_parts[] = self::measureExpression( $measure ) . ' AS ' . self::ident( $measure->key );
+            if ( $measure->population !== null && $measure->population !== '' ) {
+                $populations[] = '(' . $measure->population . ')';
+            } else {
+                $every_row = true;
+            }
         }
 
         if ( empty( $select_parts ) ) {
@@ -233,6 +245,12 @@ final class FactQuery {
         $sql = 'SELECT ' . implode( ', ', $select_parts ) . $base;
         if ( ! empty( $group_by ) ) {
             $sql .= ' GROUP BY ' . implode( ', ', $group_by );
+            // A measure without a population counts every row, so any group
+            // it is selected in has one; the clause only narrows when every
+            // selected measure declares its rows.
+            if ( $counted_groups_only && ! $every_row && $populations !== [] ) {
+                $sql .= ' HAVING SUM( CASE WHEN ' . implode( ' OR ', $populations ) . ' THEN 1 ELSE 0 END ) > 0';
+            }
         }
         // One row past the cap, so a result that reached it can say so.
         $sql .= ' LIMIT ' . ( self::ROW_LIMIT + 1 );
@@ -580,7 +598,7 @@ final class FactQuery {
      * @param string[]            $measures
      * @param array<string,mixed> $filters
      */
-    private static function cacheKey( string $factKey, array $dims, array $measures, array $filters, FactScope $scope ): string {
+    private static function cacheKey( string $factKey, array $dims, array $measures, array $filters, FactScope $scope, bool $counted_groups_only = false ): string {
         $parts = [
             'club'     => CurrentClub::id(),
             'fact'     => $factKey,
@@ -588,6 +606,7 @@ final class FactQuery {
             'measures' => $measures,
             'filters'  => $filters,
             'scope'    => $scope->cacheKey(),
+            'counted'  => $counted_groups_only,
         ];
         return 'q_' . md5( (string) wp_json_encode( $parts ) );
     }
