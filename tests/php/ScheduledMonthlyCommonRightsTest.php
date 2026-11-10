@@ -309,15 +309,16 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->flush();
 
         [ $from, $to ] = $this->lastMonth();
-        $alone    = ( new TeamMonthlyReport() )->forTeam( $this->team, $from, $to, [], $this->owner );
         $together = $this->teamFor( [ 'owner-4991@example.test', 'hod-4991@example.test' ], $from, $to );
+        $this->flush();
+        $alone    = ( new TeamMonthlyReport() )->forTeam( $this->team, $from, $to, [], $this->owner );
 
         $changes = array_column( (array) $together['data']['changes']['events'], 'summary' );
         foreach ( $this->fullEntries( [ $this->owner, $hod ] ) as $summary ) {
             $this->assertContains( $summary, $changes, 'every entry they all may read: ' . implode( ' / ', $changes ) );
         }
         $this->assertContains( 'attendance', $together['blocks'] );
-        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged' );
+        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
     }
 
     /**
@@ -348,15 +349,17 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->flush();
 
         [ $from, $to ] = $this->lastMonth();
-        $alone    = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $this->player, $from, $to, self::PLAYER_BLOCKS, $this->owner );
         $together = $this->playerFor( [ 'owner-4991@example.test', 'hod-4991@example.test' ], $from, $to );
+        $this->flush();
+        $alone    = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $this->player, $from, $to, self::PLAYER_BLOCKS, $this->owner );
         $this->assertNotNull( $together );
+        $this->assertNotNull( $alone );
 
         $journey = array_column( (array) $together['data']['journey']['items'], 'summary' );
         foreach ( $this->fullEntries( [ $this->owner, $hod ] ) as $summary ) {
             $this->assertContains( $summary, $journey, 'every entry they all may read: ' . implode( ' / ', $journey ) );
         }
-        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged' );
+        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
     }
 
     /** The runner hands the player report its recipients: one PDF, narrowed, to both. */
@@ -396,6 +399,31 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
     private const PLAYER_BLOCKS = [ 'letterhead', 'journey', 'pdp', 'thread_notes' ];
 
     private int $player = 0;
+
+    /**
+     * The top-level keys whose values differ, and each differing section's
+     * field keys, so a failure names what moved.
+     *
+     * @param array<string,mixed> $a
+     * @param array<string,mixed> $b
+     * @return list<string>
+     */
+    private function differingSections( array $a, array $b ): array {
+        $out = [];
+        foreach ( array_unique( array_merge( array_keys( $a ), array_keys( $b ) ) ) as $key ) {
+            if ( ( $a[ $key ] ?? null ) === ( $b[ $key ] ?? null ) ) continue;
+            if ( $key === 'data' && is_array( $a['data'] ?? null ) && is_array( $b['data'] ?? null ) ) {
+                foreach ( array_unique( array_merge( array_keys( $a['data'] ), array_keys( $b['data'] ) ) ) as $section ) {
+                    if ( ( $a['data'][ $section ] ?? null ) !== ( $b['data'][ $section ] ?? null ) ) {
+                        $out[] = 'data.' . $section . ' ' . wp_json_encode( $a['data'][ $section ] ?? null ) . ' vs ' . wp_json_encode( $b['data'][ $section ] ?? null );
+                    }
+                }
+                continue;
+            }
+            $out[] = (string) $key;
+        }
+        return $out;
+    }
 
     /** @return array{0:string, 1:string} last month, the window a schedule on `last_month` reports on */
     private function lastMonth(): array {
