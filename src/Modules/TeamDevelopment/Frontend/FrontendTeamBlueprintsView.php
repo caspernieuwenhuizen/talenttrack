@@ -4,6 +4,7 @@ namespace TT\Modules\TeamDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\BlueprintShareToken;
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
@@ -757,28 +758,37 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // Switch the current_club filter to the blueprint's club so
         // the repository's club-scoped reads succeed without an active
         // session. The blueprint id is the only secret we'd be leaking
-        // here, and it's already in the URL.
+        // here, and it's already in the URL. `withClub()` also restores
+        // the club and drops the per-club caches when the render throws.
         $blueprint_id = (int) $row->id;
         $bp_club_id   = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT club_id FROM {$wpdb->prefix}tt_team_blueprints WHERE id = %d",
             $blueprint_id
         ) );
-        $club_filter = static function ( $club ) use ( $bp_club_id ) {
-            return $bp_club_id > 0 ? $bp_club_id : $club;
+        $render = static function () use ( $blueprint_id, $token ): void {
+            self::renderSharedBlueprint( $blueprint_id, $token );
         };
-        add_filter( 'tt_current_club_id', $club_filter );
+        if ( $bp_club_id > 0 ) {
+            ClubIteration::withClub( $bp_club_id, $render );
+        } else {
+            $render();
+        }
+    }
 
+    /**
+     * The shared blueprint itself, with the blueprint's club already
+     * current. The token is verified here, against the club's own row.
+     */
+    private static function renderSharedBlueprint( int $blueprint_id, string $token ): void {
         $repo = new TeamBlueprintsRepository();
         $bp   = $repo->find( $blueprint_id );
         if ( $bp === null ) {
-            remove_filter( 'tt_current_club_id', $club_filter );
             self::renderSharedNotFound();
             return;
         }
 
         $seed = $repo->ensureShareTokenSeed( $blueprint_id );
         if ( ! BlueprintShareToken::verify( $blueprint_id, (string) $bp['uuid'], $seed, $token ) ) {
-            remove_filter( 'tt_current_club_id', $club_filter );
             self::renderSharedNotFound();
             return;
         }
@@ -835,8 +845,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             . esc_html__( 'This is a read-only share link. Comments and edits are coach-only inside TalentTrack.', 'talenttrack' )
             . '</p>';
         echo '</div>';
-
-        remove_filter( 'tt_current_club_id', $club_filter );
     }
 
     /**

@@ -139,6 +139,13 @@ class AuthorizationService {
         if ( class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
             \TT\Modules\Authorization\PersonaResolver::clearCache();
         }
+        // #4992 — and "does this user see any player in this club", which
+        // is answered from the caches above and from one club's players:
+        // a club switch or an assignment change must not keep the old
+        // answer.
+        if ( class_exists( '\\TT\\Infrastructure\\Players\\PlayerVisibility' ) ) {
+            \TT\Infrastructure\Players\PlayerVisibility::flush();
+        }
     }
 
     /**
