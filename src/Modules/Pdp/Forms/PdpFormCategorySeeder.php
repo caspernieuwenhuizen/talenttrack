@@ -135,8 +135,8 @@ final class PdpFormCategorySeeder {
                 ];
                 $existing = $repo->getByKey( $key );
                 if ( $existing === null ) {
-                    // A refused insert (a key another club on this install
-                    // already holds, a database error) stops the save: the
+                    // A refused insert (a database error; keys are per club
+                    // since #4986, so another academy's never collides) stops the save: the
                     // choice is stored only when every category is there.
                     // Rows created before it stay; a retry completes them.
                     $created = $repo->create( $data + [ 'category_key' => $key, 'parent_id' => $mains[ $item['main'] ] ] );

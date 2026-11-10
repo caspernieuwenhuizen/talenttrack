@@ -70,6 +70,8 @@ final class EvalCategoryKeyPerClubTest extends WP_UnitTestCase {
         // The pre-0324 shape: the install-wide key, no per-club one.
         if ( $this->hasIndex( 'uniq_club_category_key' ) ) $wpdb->query( "ALTER TABLE `{$table}` DROP INDEX `uniq_club_category_key`" );
         if ( ! $this->hasIndex( 'uniq_category_key' ) ) $wpdb->query( "ALTER TABLE `{$table}` ADD UNIQUE KEY `uniq_category_key` (`category_key`)" );
+        $this->assertTrue( $this->hasIndex( 'uniq_category_key' ), 'precondition: the old shape is restored' );
+        $this->assertFalse( $this->hasIndex( 'uniq_club_category_key' ), 'precondition: without the per-club key' );
 
         $repo = new EvalCategoriesRepository();
         $cat  = $repo->create( [ 'category_key' => 'passing_4986', 'label' => 'Passing', 'is_active' => 1 ] );
@@ -96,9 +98,59 @@ final class EvalCategoryKeyPerClubTest extends WP_UnitTestCase {
         $this->assertSame( $create, $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N ), 'a second run changes nothing' );
     }
 
-    public function test_a_fresh_install_gets_the_per_club_key(): void {
+    /**
+     * The suite builds its schema from the migrations, so the Activator's
+     * CREATE is run here explicitly: `ensureSchema()` runs on every
+     * activation, and `dbDelta` adds any key the CREATE declares. With the
+     * old CREATE it put the install-wide key back.
+     */
+    public function test_the_activator_schema_keeps_the_per_club_key_and_not_the_old_one(): void {
+        $this->migration()->up();
         $this->assertTrue( $this->hasIndex( 'uniq_club_category_key' ) );
-        $this->assertFalse( $this->hasIndex( 'uniq_category_key' ) );
+
+        $ensure = new \ReflectionMethod( \TT\Core\Activator::class, 'ensureSchema' );
+        $ensure->setAccessible( true );
+        global $wpdb;
+        $wpdb->suppress_errors( true );
+        ob_start();
+        $ensure->invoke( null );
+        ob_end_clean();
+        $wpdb->suppress_errors( false );
+
+        $this->assertTrue( $this->hasIndex( 'uniq_club_category_key' ), 'the per-club key stays' );
+        $this->assertFalse( $this->hasIndex( 'uniq_category_key' ), 'and the install-wide key is not added back' );
+    }
+
+    public function test_duplicates_within_one_club_refuse_the_migration_and_change_nothing(): void {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_eval_categories';
+        $club  = (int) CurrentClub::id();
+
+        // An install that lost the old key and holds a duplicate in one club.
+        if ( $this->hasIndex( 'uniq_club_category_key' ) ) $wpdb->query( "ALTER TABLE `{$table}` DROP INDEX `uniq_club_category_key`" );
+        if ( $this->hasIndex( 'uniq_category_key' ) ) $wpdb->query( "ALTER TABLE `{$table}` DROP INDEX `uniq_category_key`" );
+        $ids = [];
+        foreach ( [ 'Dup A', 'Dup B' ] as $label ) {
+            $wpdb->insert( $table, [ 'club_id' => $club, 'category_key' => 'dup_4986', 'label' => $label, 'is_active' => 1 ] );
+            $ids[] = (int) $wpdb->insert_id;
+        }
+        $before = $this->rows( $table );
+
+        try {
+            $this->migration()->up();
+            $this->fail( 'duplicates within one club should refuse the migration' );
+        } catch ( \RuntimeException $e ) {
+            $this->assertStringContainsString( $club . ':dup_4986', $e->getMessage(), 'the refusal names the club:key pair' );
+        } finally {
+            $after_keys = [ $this->hasIndex( 'uniq_club_category_key' ), $this->hasIndex( 'uniq_category_key' ) ];
+            $after_rows = $this->rows( $table );
+            // Put the table back the way the suite expects it.
+            $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE id IN (%d, %d)", $ids[0], $ids[1] ) );
+            $this->migration()->up();
+        }
+
+        $this->assertSame( [ false, false ], $after_keys, 'no key was added' );
+        $this->assertSame( $before, $after_rows, 'and no row was changed' );
     }
 
     private function asClub( int $club ): void {

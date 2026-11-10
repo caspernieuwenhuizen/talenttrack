@@ -20,8 +20,10 @@
  *
  * Existing rows cannot violate the new key: the old one was stricter. An
  * install that lost the old key could hold duplicates within one club; the
- * migration then fails naming them instead of merging categories that
- * ratings point at. No row is changed. Run alone.
+ * migration then fails naming them, and changes nothing. It does not dedupe:
+ * ratings, notes and evaluation-type mappings point at each duplicate's id,
+ * so removing one would mean re-pointing them, a merge only an operator can
+ * judge (`docs/migrations.md` rule 4). Run alone.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
