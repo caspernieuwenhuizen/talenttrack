@@ -3,7 +3,7 @@ title: Rapporten
 group: analytics
 summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, goals-assists, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -207,6 +207,48 @@ in de overzichtsstrook, met de assists op de regel eronder. Let op
 de bewoording: de tegel ernaast, kortweg **Doelen**, telt de ontwikkeldoelen
 van een speler. Die twee betekenissen worden overal uit elkaar gehouden waar
 ze elkaar tegenkomen.
+
+### Doelpunten en assists: elke wedstrijd achter een getal
+
+**Team · Doelpunten en assists** (op de pagina Rapporten, onder
+*Ontwikkeling & prestaties*) toont elke speler van een team die in een seizoen
+scoorde of een doelpunt voorbereidde, met zijn doelpunten en assists. Kies
+bovenaan het team en het seizoen. Beide blijven in het adres staan, zodat
+herladen of een gedeelde link hetzelfde rapport opent.
+
+Tik op de doelpunten of assists van een speler om elke wedstrijd achter dat
+getal te zien. De wedstrijden tellen op tot het getal waarop je tikte. Per
+wedstrijd zie je:
+
+- de datum, de tegenstander, thuis of uit en de uitslag, met een link naar de
+  wedstrijd;
+- elk doelpunt met de minuut, de maker en de aangever. Een doelpunt dat na de
+  wedstrijd is ingevoerd heeft geen minuut en zegt dat ook; er wordt geen
+  minuut verzonnen;
+- waar elke invoer vandaan komt (het live wedstrijdformulier, ingevoerd na de
+  wedstrijd, of demogegevens), wanneer hij is ingevoerd en, als dat is
+  vastgelegd, door wie. Een invoer van vóór het bijhouden hiervan zegt
+  "vastgelegd voordat dit werd bijgehouden".
+
+Een wedstrijd wordt gemarkeerd als er iets in niet kan kloppen:
+
+- meer assists, of meer toegekende doelpunten, dan wij scoorden;
+- meer doelpunten of assists voor deze speler dan wij scoorden, of, zonder
+  uitslag, meer dan één wedstrijd kan bevatten (15);
+- een assist op een doelpunt van de tegenstander of een eigen doelpunt. Die
+  telt nog wel mee in de totalen, zoals overal, dus de markering is wat je
+  vertelt dat het hersteld moet worden.
+
+Stafleden die wedstrijden mogen bewerken krijgen bij elke wedstrijd de knop
+**Herstellen in het minutenraster**. Daar wordt het hersteld, nooit hier.
+
+Dezelfde getallen openen vanuit het tabblad **Statistieken** van het team: tik
+daar op een aantal doelpunten of assists en de wedstrijden erachter openen in
+dit rapport, over de periode van het tabblad. Het rapport kan worden
+afgedrukt; de filters en knoppen blijven dan van de pagina.
+
+Alleen de staf van een team opent dit rapport, voor teams en spelers die ze
+mogen zien. Een gezin of een scout niet.
 
 ### De minutenrapporten filteren
 

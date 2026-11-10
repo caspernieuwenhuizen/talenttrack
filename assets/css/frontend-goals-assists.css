@@ -1,0 +1,197 @@
+/*
+ * frontend-goals-assists.css (#4994) — the Goals and assists report: the
+ * team table and one player's drill-down. One markup for screen and print.
+ * Mobile-first: one column at 360px, nothing wider than the screen, every
+ * link a full tap target under a coarse pointer. Tokens only.
+ */
+
+.tt-ga {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+    min-width: 0;
+}
+
+.tt-ga-empty {
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    color: var(--tt-muted);
+    background: var(--tt-bg-soft);
+    border-radius: var(--tt-radius);
+}
+
+/* ---- Filters ---- */
+
+.tt-ga-filters {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-ga-filters__field {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-width: 0;
+}
+.tt-ga-filters .tt-input {
+    width: 100%;
+    font-size: 1rem;
+}
+
+/* ---- Team table ---- */
+
+.tt-ga-table {
+    width: 100%;
+}
+.tt-ga-table .tt-ga-n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tt-ga-count,
+.tt-ga-table .tt-record-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tt-tap-min-fine, 2.25rem);
+    touch-action: manipulation;
+}
+.tt-ga-count {
+    justify-content: flex-end;
+    min-width: var(--tt-tap-min-fine, 2.25rem);
+    font-weight: 600;
+}
+.tt-ga-count:focus-visible,
+.tt-ga .tt-record-link:focus-visible {
+    outline: 2px solid var(--tt-link);
+    outline-offset: 2px;
+}
+
+/* ---- Drill-down ---- */
+
+.tt-ga-totals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-ga-totals__cell {
+    display: grid;
+    gap: 0.125rem;
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    text-align: center;
+}
+.tt-ga-totals__n {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tt-ga-totals__l {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-ga-matches {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+.tt-ga-match {
+    min-width: 0;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+}
+.tt-ga-match--flagged {
+    border-color: var(--tt-warning);
+}
+.tt-ga-match__title {
+    margin: 0;
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+}
+.tt-ga-match__meta,
+.tt-ga-match__mine {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    overflow-wrap: anywhere;
+}
+.tt-ga-match__mine {
+    color: var(--tt-ink);
+    font-weight: 600;
+}
+
+.tt-ga-flag {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-warning-ink);
+    background: var(--tt-warning-subtle);
+    border-radius: var(--tt-radius);
+}
+
+.tt-ga-events {
+    list-style: none;
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-ga-event {
+    display: grid;
+    gap: 0.125rem;
+    padding-top: var(--tt-sp-2, 8px);
+    border-top: 1px solid var(--tt-line-soft);
+}
+.tt-ga-event--flagged .tt-ga-event__line {
+    color: var(--tt-warning-ink);
+}
+.tt-ga-event__line {
+    overflow-wrap: anywhere;
+}
+.tt-ga-event__source {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    overflow-wrap: anywhere;
+}
+
+.tt-ga-correct {
+    margin: var(--tt-sp-3, 12px) 0 0;
+}
+
+@media (pointer: coarse) {
+    .tt-ga-count,
+    .tt-ga-table .tt-record-link,
+    .tt-ga-match__title .tt-record-link {
+        min-height: var(--tt-tap-min, 3rem);
+    }
+    .tt-ga-count {
+        min-width: var(--tt-tap-min, 3rem);
+    }
+    .tt-ga-match__title .tt-record-link {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-ga-filters {
+        grid-template-columns: repeat(2, minmax(0, 16rem)) auto;
+        align-items: end;
+    }
+}
+
+@media print {
+    .tt-ga-filters,
+    .tt-ga-correct {
+        display: none;
+    }
+    .tt-ga-match {
+        break-inside: avoid;
+    }
+}

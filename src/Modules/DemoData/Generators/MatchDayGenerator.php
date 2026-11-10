@@ -536,6 +536,9 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         // recorded goal has no execution_id, and an untagged demo row is a
         // permanent orphan on an operator's install.
         $this->tagRowsFor( 'match_goal_event', 'tt_match_execution_goal_events', 'activity_id', $activity_id );
+        // #4994 — written through the coach's own write paths, so the rows say
+        // "live sheet" or "match form"; the drill-down must read them as demo.
+        $exec_repo->markGoalSourceForActivity( $activity_id, \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository::SOURCE_DEMO );
         $total += $home_goals + $away_goals;
 
         // Substitutions: each bench player replaces a distinct starter, so a

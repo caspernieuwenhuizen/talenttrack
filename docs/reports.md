@@ -3,7 +3,7 @@ title: Reports
 group: analytics
 summary: The tile launcher — progress charts, team ratings, coach activity.
 audience: [user, admin]
-views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
+views: [reports, standard-report, attendance-leaderboard, attendance-report-player, attendance-report-team, minutes-report-team, goals-assists, minutes-audit, analytics, explore, scheduled-reports, podium, report-studio, report]
 module: TT\Modules\Reports\ReportsModule
 capability: tt_view_reports
 order: 10
@@ -200,6 +200,45 @@ The same figures appear on the player's own profile — the **Goals scored**
 tile in the at-a-glance strip, with assists on the line beneath. Note the
 wording: the tile beside it, plain **Goals**, counts a player's development
 goals. The two senses are kept apart everywhere they meet.
+
+### Goals and assists: every match behind a count
+
+**Team · Goals and assists** (on the Reports page, under *Development &
+performance*) lists every player of a team who scored or set up a goal in a
+season, with their goals and assists. Choose the team and the season at the
+top. Both stay in the address, so a reload or a shared link opens the same
+report.
+
+Tap a player's goals or assists to see every match behind the number. The
+matches add up to the number you tapped. For each match you see:
+
+- the date, the opponent, home or away and the score, with a link to the
+  match;
+- each goal with its minute, scorer and assister. A goal entered after the
+  match has no minute and says so; no minute is invented;
+- where each entry came from (the live match sheet, entered after the match,
+  or demo data), when it was entered and, where that was recorded, by whom.
+  An entry from before this was tracked says "recorded before tracking began".
+
+A match is marked when something in it can't be right:
+
+- more assists, or more attributed goals, than the goals we scored;
+- more goals or assists for this player than we scored, or, with no score
+  recorded, more than one match can hold (15);
+- an assist recorded on an opponent goal or an own goal. It still counts in
+  the totals, as it does everywhere else, so the mark is what tells you to
+  fix it.
+
+Staff who may edit matches get a **Correct in the minutes grid** button on
+each match. The correction is made there, never here.
+
+The same numbers open from the team's **Statistics** tab: tap a goals or
+assists number there and the matches behind it open in this report, over the
+tab's period. The report can be printed; the filters and buttons are left off
+the page.
+
+Only team staff open this report, for teams they may see and players they
+may see. A family or a scout does not.
 
 ### Filtering the minutes reports
 

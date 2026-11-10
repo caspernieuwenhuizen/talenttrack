@@ -2287,6 +2287,12 @@ class DashboardShortcode {
             case 'minutes-report-team':
                 \TT\Modules\Analytics\Frontend\FrontendMinutesTeamReportView::render( $user_id, $is_admin );
                 return true;
+            // #4994 — goals and assists per team and season, and the matches
+            // behind one player's count. Self-gates on team view, the report
+            // toggle, team scope and the player.
+            case \TT\Modules\Analytics\Frontend\FrontendGoalsAssistsReportView::SLUG:
+                \TT\Modules\Analytics\Frontend\FrontendGoalsAssistsReportView::render( $user_id, $is_admin );
+                return true;
             // #2368 — read-only minutes-audit overview (games × players
             // matrix). Self-gates on tt_view_analytics + team scope.
             // #2367 — a `match_id` param routes to the per-match minutes

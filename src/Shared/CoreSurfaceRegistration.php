@@ -452,6 +452,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'attendance-report-player', self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'attendance-report-team',   self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'minutes-report-team',      self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'goals-assists',            self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'minutes-audit',            self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'potential-overview',       self::M_ANALYTICS );
 

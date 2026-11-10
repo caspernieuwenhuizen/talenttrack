@@ -657,6 +657,9 @@ class FeatureRegistry {
             'attendance_report_player'      => __( 'Player · Attendance statistics', 'talenttrack' ),
             'attendance_leaderboard'        => __( 'Attendance leaderboard', 'talenttrack' ),
             'minutes_report_team'           => __( 'Minutes played per team', 'talenttrack' ),
+            // #4994 — goals and assists per team and season, with the matches
+            // behind each count.
+            'goals_assists'                 => __( 'Team · Goals and assists', 'talenttrack' ),
             'minutes_audit'                 => __( 'Minutes audit', 'talenttrack' ),
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
             // #2537 — one test, every player, over the season.
@@ -680,6 +683,9 @@ class FeatureRegistry {
                 'entities'        => [],
             ];
         }
+        // #4994 — the one report with its own route, so switching it off
+        // closes `?tt_view=goals-assists` as well as its launcher tile.
+        $catalog['report_goals_assists']['view_slugs'] = [ 'goals-assists' ];
 
         return $catalog;
     }

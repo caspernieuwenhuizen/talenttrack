@@ -76,7 +76,9 @@ final class TeamStatisticsTab {
         self::renderContributions(
             is_array( $stats['scorers'] ?? null ) ? $stats['scorers'] : [],
             is_array( $stats['assists'] ?? null ) ? $stats['assists'] : [],
-            $played
+            $played,
+            $team_id,
+            $stats['window']
         );
         self::renderAppearances(
             is_array( $stats['appearances'] ?? null ) ? $stats['appearances'] : [],
@@ -245,8 +247,9 @@ final class TeamStatisticsTab {
      *
      * @param array<int, array<string,mixed>> $scorers
      * @param array<int, array<string,mixed>> $assists
+     * @param array<string,mixed>             $window
      */
-    private static function renderContributions( array $scorers, array $assists, int $played ): void {
+    private static function renderContributions( array $scorers, array $assists, int $played, int $team_id, array $window ): void {
         if ( $scorers === [] && $assists === [] ) {
             // The third empty state, and the one most likely to be reported as
             // a bug if it were left blank: matches were played and scored, but
@@ -262,19 +265,46 @@ final class TeamStatisticsTab {
             return;
         }
 
+        // #4994 — each count opens the matches behind it, in the Goals and
+        // assists report, over the same window. Hidden with the report.
+        $report = CrossViewLink::allows( FrontendGoalsAssistsReportView::SLUG )
+            ? self::goalsReportUrl( $team_id, $window )
+            : '';
+
         echo '<div class="tt-ts-pair">';
         // `Goals` bare is already translated as "Doelen" — objectives, the PDP
         // sense. On a scorers table that is the wrong word entirely, so both
         // columns take the context #3516 shipped for exactly these two.
-        self::renderLeaderboard( __( 'Top scorers', 'talenttrack' ), $scorers, 'goals', _x( 'Goals', 'monthly report matches column', 'talenttrack' ) );
-        self::renderLeaderboard( __( 'Top assists', 'talenttrack' ), $assists, 'assists', _x( 'Assists', 'monthly report matches column', 'talenttrack' ) );
+        self::renderLeaderboard( __( 'Top scorers', 'talenttrack' ), $scorers, 'goals', _x( 'Goals', 'monthly report matches column', 'talenttrack' ), $report );
+        self::renderLeaderboard( __( 'Top assists', 'talenttrack' ), $assists, 'assists', _x( 'Assists', 'monthly report matches column', 'talenttrack' ), $report );
         echo '</div>';
+
+        if ( $report !== '' ) {
+            echo '<p class="tt-ts-note"><a class="tt-record-link" href="' . esc_url( BackLink::appendTo( $report ) ) . '">'
+                . esc_html__( 'See every match in the goals and assists report', 'talenttrack' ) . '</a></p>';
+        }
+    }
+
+    /**
+     * The Goals and assists report for this team over the tab's window. The
+     * current season (or all time) is the report's own default, so only a
+     * window the reader chose is carried.
+     *
+     * @param array<string,mixed> $window
+     */
+    private static function goalsReportUrl( int $team_id, array $window ): string {
+        $args = [ 'tt_view' => FrontendGoalsAssistsReportView::SLUG, 'team_id' => $team_id ]; /* tt-xview-ok — gated by CrossViewLink::allows() in the caller */
+        if ( (string) ( $window['source'] ?? '' ) === 'custom' ) {
+            $args['from'] = (string) ( $window['from'] ?? '' );
+            $args['to']   = (string) ( $window['to'] ?? '' );
+        }
+        return add_query_arg( $args, RecordLink::dashboardUrl() );
     }
 
     /**
      * @param array<int, array<string,mixed>> $rows
      */
-    private static function renderLeaderboard( string $title, array $rows, string $key, string $column ): void {
+    private static function renderLeaderboard( string $title, array $rows, string $key, string $column, string $report = '' ): void {
         if ( $rows === [] ) return;
 
         self::sectionOpen( $title );
@@ -285,9 +315,16 @@ final class TeamStatisticsTab {
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $row ) {
+            $n   = (string) (int) ( $row[ $key ] ?? 0 );
+            $pid = (int) ( $row['player_id'] ?? 0 );
             echo '<tr>';
             echo '<th scope="row">' . self::playerLink( $row ) . '</th>';
-            echo '<td class="tt-ts-table__n">' . esc_html( (string) (int) ( $row[ $key ] ?? 0 ) ) . '</td>';
+            if ( $report !== '' && $pid > 0 ) {
+                $url = BackLink::appendTo( add_query_arg( 'player_id', $pid, $report ) );
+                echo '<td class="tt-ts-table__n"><a class="tt-ts-count" href="' . esc_url( $url ) . '">' . esc_html( $n ) . '</a></td>';
+            } else {
+                echo '<td class="tt-ts-table__n">' . esc_html( $n ) . '</td>';
+            }
             echo '</tr>';
         }
 
