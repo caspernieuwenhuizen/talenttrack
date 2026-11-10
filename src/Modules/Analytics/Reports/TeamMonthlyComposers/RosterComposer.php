@@ -28,9 +28,15 @@ final class RosterComposer {
         $goals    = ( new GoalsRepository() )->openCountsForTeam( $ctx->team_id );
         $verdicts = $ctx->verdictsAt( $ctx->to );
 
-        $injured = [];
-        foreach ( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) as $i ) {
-            $injured[ (int) ( $i->player_id ?? 0 ) ] = true;
+        // #4991 — the injury flag is injury information: only when every
+        // reader may read the squad's injury records. Otherwise the key is
+        // left out, so the renderer draws no injury column.
+        $reads_injuries = $ctx->readsInjuries();
+        $injured        = [];
+        if ( $reads_injuries ) {
+            foreach ( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) as $i ) {
+                $injured[ (int) ( $i->player_id ?? 0 ) ] = true;
+            }
         }
 
         $rows = [];
@@ -38,7 +44,7 @@ final class RosterComposer {
             $att    = $attendance[ $pid ] ?? null;
             $min    = $minutes[ $pid ] ?? null;
             $jersey = $p->jersey_number ?? null;
-            $rows[] = [
+            $row = [
                 'player_id'      => $pid,
                 'name'           => TeamReportFigures::name( $p ),
                 'jersey_number'  => $jersey !== null ? (int) $jersey : null,
@@ -52,6 +58,8 @@ final class RosterComposer {
                 // (#4102), so a suspension is not a gap nobody can explain.
                 'suspended'      => $att !== null ? $att['suspended'] : 0,
             ];
+            if ( ! $reads_injuries ) unset( $row['injured'] );
+            $rows[] = $row;
         }
         return [ 'rows' => $rows ];
     }

@@ -1960,6 +1960,9 @@ final class TeamMonthlyReportDocument {
         // for them either, rather than an empty one.
         $first   = is_array( $rows[0] ?? null ) ? $rows[0] : [];
         $has_att = $rows === [] || array_key_exists( 'attendance_pct', $first );
+        // #4991 — likewise a report for readers who may not all read the
+        // squad's injury records carries no injury flag, and no column.
+        $has_inj = $rows === [] || array_key_exists( 'injured', $first );
 
         // [ label, alignment class, full label, show ]. A column keeps its
         // own width class (`.w<n>`) whether or not the ones before it show.
@@ -1972,7 +1975,7 @@ final class TeamMonthlyReportDocument {
         $cols[] = [ $labels['share'], 'r', '', true ];
         if ( $wide ) $cols[] = [ '', '', '', true ];
         $cols[] = [ $short['goals'], 'r', $labels['goals'], true ];
-        $cols[] = [ $short['injured'], 'c', $labels['injured'], true ];
+        $cols[] = [ $short['injured'], 'c', $labels['injured'], $has_inj ];
         $cols[] = [ $labels['suspended'], 'c', '', $has_att ];
 
         $out .= '<table class="tbl ' . StackTable::classes( StackTable::ALWAYS ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
@@ -2007,7 +2010,7 @@ final class TeamMonthlyReportDocument {
                 . '<td class="r"' . StackTable::attrs( 'cell', $labels['share'] ) . '>' . esc_html( self::pct( $share ) ) . '</td>'
                 . ( $wide ? '<td class="bar"' . StackTable::attrs( 'cell' ) . '>' . self::miniBar( $share ) . '</td>' : '' )
                 . '<td class="r"' . StackTable::attrs( 'cell', $labels['goals'] ) . '>' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
-                . '<td class="c"' . StackTable::attrs( 'cell', $labels['injured'] ) . '>' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
+                . ( $has_inj ? '<td class="c"' . StackTable::attrs( 'cell', $labels['injured'] ) . '>' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>' : '' )
                 . ( $has_att ? '<td class="c"' . StackTable::attrs( 'cell', $labels['suspended'] ) . '>' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>' : '' )
                 . '</tr>';
         }

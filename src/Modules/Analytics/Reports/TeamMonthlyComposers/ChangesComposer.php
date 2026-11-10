@@ -37,9 +37,13 @@ final class ChangesComposer {
             ];
         }
 
-        return [
-            'events'        => $items,
-            'open_injuries' => count( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) ),
-        ];
+        $out = [ 'events' => $items ];
+        // #4991 — how many are injured is injury information: counted only
+        // when every reader may read the squad's injury records, and left
+        // out otherwise, so the section names no count at all.
+        if ( $ctx->readsInjuries() ) {
+            $out['open_injuries'] = count( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) );
+        }
+        return $out;
     }
 }

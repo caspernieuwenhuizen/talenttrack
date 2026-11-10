@@ -237,6 +237,9 @@ iedereen weg. **Wat veranderde** toont alleen de momenten uit de
 ontwikkelingsreis die elk van hen mag zien: een moment dat alleen voor de
 technische staf, de medische staf of veiligheid en welzijn is bedoeld, of een
 PDP-besluit, staat er alleen in als elke ontvanger het in de plugin mag zien.
+De blessurekolom in **Per speler** en het aantal spelers dat nu
+geblesseerd is, staan er alleen in als elke ontvanger de blessuregegevens van
+de spelers mag lezen.
 Wat wegvalt, valt voor iedereen weg, ook voor een ontvanger die het daar wel
 kan zien. Een ontvanger van wie de rechten niet te controleren zijn, telt als
 iemand zonder rechten: een adres zonder account hier, een lid van een rol van

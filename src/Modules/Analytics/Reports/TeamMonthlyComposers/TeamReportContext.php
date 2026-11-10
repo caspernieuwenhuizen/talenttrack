@@ -56,6 +56,14 @@ final class TeamReportContext {
      */
     public readonly array $readers;
 
+    /**
+     * #4991 — composed for a shared copy (`TeamMonthlyReport::forReaders()`),
+     * as a scheduled PDF is, rather than for the one reader of a screen.
+     */
+    private bool $shared;
+
+    private ?bool $reads_injuries = null;
+
     /** @var Window the window a delta is taken against */
     public readonly array $previous;
 
@@ -111,6 +119,7 @@ final class TeamReportContext {
         $this->readers        = $readers !== null
             ? array_values( array_unique( array_map( 'intval', $readers ) ) )
             : ( $viewer_user_id > 0 ? [ $viewer_user_id ] : [] );
+        $this->shared         = $readers !== null;
         $this->previous       = TeamMonthlyReport::previousWindow( $from, $to );
         $this->options        = $options;
     }
@@ -159,6 +168,32 @@ final class TeamReportContext {
             $this->reads_attendance = $reads;
         }
         return $this->reads_attendance;
+    }
+
+    /**
+     * #4991 — may every reader of a shared copy read the squad's injury
+     * records (`player_injuries`, per player)? The roster's injury flag and
+     * the count of injured players in "what changed" are injury information,
+     * so a shared copy carries them only then. The report for one reader on
+     * screen keeps them as it always did: it follows the team report read
+     * rule there. Asked once per report.
+     */
+    public function readsInjuries(): bool {
+        if ( ! $this->shared ) return true;
+        if ( $this->reads_injuries === null ) {
+            $reads = $this->readers !== [];
+            foreach ( $this->readers as $reader ) {
+                if ( ! $reads ) break;
+                foreach ( array_keys( $this->players() ) as $player_id ) {
+                    if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $reader, (int) $player_id, 'player_injuries' ) ) {
+                        $reads = false;
+                        break;
+                    }
+                }
+            }
+            $this->reads_injuries = $reads;
+        }
+        return $this->reads_injuries;
     }
 
     /**

@@ -224,7 +224,9 @@ headline number and the attendance figures in the other sections are left out
 for everyone. **What changed** lists only the journey entries every one of
 them may see: an entry kept to coaching staff, to medical staff or to
 safeguarding, or a PDP verdict, appears only when every recipient may see it
-in the plugin. Something left out is left out for everyone, even for a
+in the plugin. The injury column in **Player by player** and the number of
+players currently injured appear only when every recipient may read the
+players' injury records. Something left out is left out for everyone, even for a
 recipient who could see it there. A recipient whose rights cannot be checked
 counts as having none: an address with no account here, a member of a role
 from outside the academy, or a role with no members. This is checked again at

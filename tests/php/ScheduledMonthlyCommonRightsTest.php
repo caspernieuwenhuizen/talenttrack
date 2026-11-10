@@ -302,6 +302,41 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertNotContains( 'attendance', $report['blocks'] );
     }
 
+    /**
+     * The roster's injury flag and the count of injured players are injury
+     * information: one recipient who may not read the squad's injury
+     * records takes both out of the shared copy. The same reader's report
+     * on screen keeps them, as it did.
+     */
+    public function test_one_recipient_without_the_injury_right_takes_the_injury_column_and_count_out(): void {
+        $observer = $this->observer( 'observer-4991@example.test' );
+        $this->assertFalse( AuthorizationService::canReadPlayerSection( $observer, $this->player, 'player_injuries' ), 'Precondition: the observer may not read the injury records.' );
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $this->owner, $this->player, 'player_injuries' ), 'Precondition: the owner may.' );
+
+        [ $from, $to ] = $this->lastMonth();
+        $shared = $this->teamFor( [ 'owner-4991@example.test', 'observer-4991@example.test' ], $from, $to );
+        $this->assertNotEmpty( $shared['data']['roster']['rows'] );
+        foreach ( $shared['data']['roster']['rows'] as $row ) {
+            $this->assertArrayNotHasKey( 'injured', $row, 'no injury flag per player' );
+        }
+        $this->assertArrayNotHasKey( 'open_injuries', $shared['data']['changes'], 'no count of injured players' );
+
+        $prepared = TeamMonthlyReportDocument::prepare( $shared, 'B' );
+        $html     = TeamMonthlyReportDocument::html( $prepared['report'], 'B', 'Shared U13', [], $prepared['fit']['groups'] );
+        $this->assertStringNotContainsString( 'title="Injured"', $html, 'no injury column' );
+        $this->assertStringNotContainsString( 'currently injured', $html, 'no injury count' );
+
+        $this->flush();
+        $alone = $this->teamFor( [ 'owner-4991@example.test' ], $from, $to );
+        $this->assertArrayHasKey( 'injured', $alone['data']['roster']['rows'][0], 'a copy for readers who all may keeps the flag' );
+        $this->assertArrayHasKey( 'open_injuries', $alone['data']['changes'] );
+
+        $this->flush();
+        $screen = ( new TeamMonthlyReport() )->forTeam( $this->team, $from, $to, [], $observer );
+        $this->assertArrayHasKey( 'injured', $screen['data']['roster']['rows'][0], 'the report on screen stays as it is' );
+        $this->assertArrayHasKey( 'open_injuries', $screen['data']['changes'] );
+    }
+
     public function test_recipients_all_holding_full_rights_get_the_full_team_report(): void {
         $this->seedJourney();
         $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'hod-4991@example.test' ] );

@@ -349,13 +349,16 @@ final class TeamMonthlyReport {
                 return sprintf( _n( '%d player · most urgent first', '%d players · most urgent first', $n, 'talenttrack' ), $n );
 
             case TeamMonthlyReportBlock::CHANGES:
-                $events = count( $list( 'events' ) );
-                $open   = (int) ( $d['open_injuries'] ?? 0 );
-                return sprintf(
+                $events  = count( $list( 'events' ) );
+                $changes = sprintf(
                     /* translators: %d: entries under "what changed" */
                     _nx( '%d change', '%d changes', $events, 'monthly report: entries under what changed', 'talenttrack' ),
                     $events
-                ) . ' · ' . sprintf(
+                );
+                // #4991 — no count when the report carries none.
+                if ( ! array_key_exists( 'open_injuries', $d ) ) return $changes . '.';
+                $open = (int) $d['open_injuries'];
+                return $changes . ' · ' . sprintf(
                     /* translators: %d: players with an open injury */
                     _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
                     $open
