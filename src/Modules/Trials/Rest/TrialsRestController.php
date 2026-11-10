@@ -1198,8 +1198,8 @@ class TrialsRestController {
             if ( $raw === null || $raw === '' ) {
                 $data['overall_rating'] = null;
             } else {
-                $min = (float) QueryHelpers::get_config( 'rating_min', '5' );
-                $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+                $min = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+                $max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
                 if ( ! is_numeric( $raw ) || (float) $raw < $min || (float) $raw > $max ) {
                     return RestResponse::error( 'bad_rating', sprintf(
                         /* translators: 1: rating min, 2: rating max */

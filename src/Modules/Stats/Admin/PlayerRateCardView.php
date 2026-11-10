@@ -86,7 +86,7 @@ class PlayerRateCardView {
         $trend_notes = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'category_notes', get_current_user_id(), $player_id )
             ? []
             : $svc->getTrendNotes( $player_id, $filters );
-        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ), $trend_notes );
+        self::renderCharts( $trend, $radar, (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax(), $trend_notes );
     }
 
     private static function renderViewToggle( string $current, string $base_url, int $player_id ): void {

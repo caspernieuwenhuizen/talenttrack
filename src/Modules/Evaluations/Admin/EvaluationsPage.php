@@ -345,9 +345,9 @@ class EvaluationsPage {
         }
         // #4976 — without the PDP conversation types, except this one's own.
         $types      = QueryHelpers::get_pickable_eval_types( $eval ? (int) ( $eval->eval_type_id ?? 0 ) : 0 );
-        $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '5' );
-        $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '10' );
-        $rstep = (float) QueryHelpers::get_config( 'rating_step', '0.5' );
+        $rmin  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $rstep = (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep();
 
         // Load the full category tree (mains + their subs) for the ratings UI.
         $cats_repo = new EvalCategoriesRepository();
@@ -817,7 +817,7 @@ class EvaluationsPage {
         $eval = QueryHelpers::get_evaluation( $id );
         if ( ! $eval ) { echo '<div class="wrap"><p>' . esc_html__( 'Not found.', 'talenttrack' ) . '</p></div>'; return; }
         $player = QueryHelpers::get_player( (int) $eval->player_id );
-        $max    = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max    = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         // Compute effective rating per main category (direct value OR
         // subcategory rollup). Also collect per-main subcategory ratings
@@ -1046,8 +1046,8 @@ class EvaluationsPage {
         // Categories not represented in tt_rating_mode are handled as "direct"
         // for back-compat (e.g. if an admin created a main with no subs, or
         // JS failed to load and the fallback is the direct input).
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         $ratings_repo = new EvalRatingsRepository();
         $cats_repo    = new EvalCategoriesRepository();

@@ -2208,7 +2208,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( ! $run ) return;
 
         $query = new \TT\Modules\Analytics\Reports\PlayerRadarQuery();
-        $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max   = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         echo '<section class="tt-rep-section">';
         if ( $mode === 'progress' ) {

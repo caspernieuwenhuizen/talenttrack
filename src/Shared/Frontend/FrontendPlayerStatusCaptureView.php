@@ -147,8 +147,8 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 // v3.74.2 — gate against the configured rating scale so
                 // clubs that customise min/max/step still validate
                 // correctly (was hardcoded 1.0–5.0).
-                $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
-                $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+                $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+                $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
                 if ( $rating >= $rmin && $rating <= $rmax ) {
                     ( new PlayerBehaviourRatingsRepository() )->create( [
                         'player_id'           => $player_id,
@@ -204,9 +204,9 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             // v3.74.2 — pull rating-scale settings + the player's recent
             // completed activities so the form matches club config and
             // can tie a rating to "during game X".
-            $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
-            $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
-            $rstep = (float) QueryHelpers::get_config( 'rating_step', '1' );
+            $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+            $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+            $rstep = (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep();
             $rstep = $rstep > 0 ? $rstep : 1.0;
             $recent_activities = self::loadRecentActivitiesForPlayer( $player_id, 20 );
             ?>

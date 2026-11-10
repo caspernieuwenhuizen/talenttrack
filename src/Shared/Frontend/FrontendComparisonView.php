@@ -556,7 +556,7 @@ class FrontendComparisonView extends FrontendViewBase {
             ];
         }
 
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         // #3352 — a data island, not an inline <script>.
         //

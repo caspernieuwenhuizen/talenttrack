@@ -140,7 +140,7 @@ class CompatibilityEngine {
         // config. Lower bound stays at 0 because fit scores can
         // legitimately read "absent / no signal" (below the rating
         // floor), distinct from a rated value.
-        $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $score = max( 0.0, min( $rmax, $score + $modifier ) );
 
         $rationale = self::buildRationale( $breakdown, $modifier, (string) ( $slot['label'] ?? '' ) );

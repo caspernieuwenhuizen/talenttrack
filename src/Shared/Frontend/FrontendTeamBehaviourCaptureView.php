@@ -96,8 +96,8 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
         $players = QueryHelpers::get_players( $team_id );
         $recent_activities = self::loadRecentActivitiesForTeam( $team_id, 20 );
 
-        $rmin = (int) round( (float) QueryHelpers::get_config( 'rating_min', '5' ) );
-        $rmax = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        $rmin = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
+        $rmax = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         self::enqueueAssets();
         self::enqueueViewCss();
@@ -200,8 +200,8 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
      * @return array{0:string, 1:array<int,string>}
      */
     private static function handlePost( int $team_id ): array {
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         $related_activity_id = isset( $_POST['related_activity_id'] ) ? absint( $_POST['related_activity_id'] ) : 0;
         $entries = isset( $_POST['behaviour'] ) && is_array( $_POST['behaviour'] )

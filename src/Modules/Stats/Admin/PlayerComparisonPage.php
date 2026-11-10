@@ -528,7 +528,7 @@ class PlayerComparisonPage {
             ];
         }
 
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         ?>
         <script>
         (function(){

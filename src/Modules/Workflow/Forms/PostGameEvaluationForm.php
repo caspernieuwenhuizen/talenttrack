@@ -22,8 +22,8 @@ class PostGameEvaluationForm implements FormInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
-        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '5' );
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $rating_min = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
 
         $player_label = self::playerLabel( (int) ( $task['player_id'] ?? 0 ) );
 
@@ -87,8 +87,8 @@ class PostGameEvaluationForm implements FormInterface {
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
-        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '5' );
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_min = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $rating = isset( $raw['overall_rating'] ) ? (float) $raw['overall_rating'] : 0.0;
         if ( $rating < $rating_min || $rating > $rating_max ) {
             $errors['overall_rating'] = __( 'Rating is outside the configured range.', 'talenttrack' );

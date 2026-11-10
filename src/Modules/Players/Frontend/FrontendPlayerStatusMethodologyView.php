@@ -153,13 +153,13 @@ final class FrontendPlayerStatusMethodologyView {
                 // tt_config, not the legacy 0.0..5.0 range.
                 'behaviour_floor_below' => isset( $post['behaviour_floor'] )
                     ? max(
-                        (float) QueryHelpers::get_config( 'rating_min', '5' ),
+                        (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin(),
                         min(
-                            (float) QueryHelpers::get_config( 'rating_max', '10' ),
+                            (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax(),
                             (float) $post['behaviour_floor']
                         )
                     )
-                    : (float) QueryHelpers::get_config( 'rating_min', '5' ),
+                    : (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin(),
             ],
         ];
 
@@ -267,8 +267,8 @@ final class FrontendPlayerStatusMethodologyView {
                 // hardcoded `min="0" max="5"` and default `3.0`).
                 // Pick the new scale's midpoint as the default
                 // (e.g. 7.5 for a 5–10 scale).
-                $rmax_cfg = (float) QueryHelpers::get_config( 'rating_max', '10' );
-                $rmin_cfg = (float) QueryHelpers::get_config( 'rating_min', '5' );
+                $rmax_cfg = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+                $rmin_cfg = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
                 $floor_default = ( $rmin_cfg + $rmax_cfg ) / 2;
                 ?>
                 <h4 style="margin:0 0 8px;"><?php esc_html_e( 'Behaviour floor', 'talenttrack' ); ?></h4>

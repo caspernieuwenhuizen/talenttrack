@@ -899,8 +899,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
         // v3.110.116 — bounds + label follow `tt_config` rating scale.
         // v3.110.206 (#423) — adds inputmode="decimal" so mobile keyboards
         // pop up the decimal keypad on this rating input.
-        $tt_rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-        $tt_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $tt_rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $tt_rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $tt_label = sprintf(
             /* translators: 1: rating min, 2: rating max */
             __( 'Overall rating (%1$s–%2$s)', 'talenttrack' ),

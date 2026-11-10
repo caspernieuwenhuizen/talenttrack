@@ -337,7 +337,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
      * @param array<string,mixed> $chem
      */
     private static function renderRosterSidebar( int $team_id, array $chem ): void {
-        $rmax_cfg         = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmax_cfg         = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $strong_threshold = $rmax_cfg * 0.80;
         $weak_threshold   = $rmax_cfg * 0.40;
 
@@ -469,7 +469,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
      * @param array<string,mixed> $chem
      */
     private static function renderRightColumn( int $team_id, array $blueprint, array $chem, bool $can_manage ): void {
-        $rmax_cfg = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmax_cfg = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         echo '<aside class="tt-tc-rightcol" aria-label="' . esc_attr__( 'Chemistry insights', 'talenttrack' ) . '">';
         self::renderScoreboard( $blueprint, $chem, $rmax_cfg );
         self::renderPairingsCard( $team_id, $can_manage );

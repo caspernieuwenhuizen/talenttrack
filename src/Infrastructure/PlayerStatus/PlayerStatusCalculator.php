@@ -93,7 +93,7 @@ final class PlayerStatusCalculator {
         $behaviour     = $this->behaviourRepo->averagesInWindow( $ids, $window_from . ' 00:00:00', $window_to . ' 23:59:59' );
         $attendance    = $this->attendanceCalc->scoresFor( $ids, $window_from, $window_to );
         $potential     = $this->potentialRepo->latestForMany( $ids );
-        $rating_max    = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        $rating_max    = max( 1.0, (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         $out = [];
         foreach ( $ids as $id ) {

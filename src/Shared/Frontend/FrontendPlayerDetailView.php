@@ -102,8 +102,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ];
         }
 
-        $rmin = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
-        $rmax = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
+        $rmin = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
+        $rmax = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         // #3226 — one source for the band labels. This map and the capture
         // screen's had drifted apart ("First-team" here, "First team"
@@ -1216,7 +1216,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $avg_class = '';
         if ( $avg_row && (int) $avg_row->n > 0 ) {
             $avg_value = number_format_i18n( (float) $avg_row->avg_r, 1 );
-            $rmax_cfg  = (float) QueryHelpers::get_config( 'rating_max', '10' );
+            $rmax_cfg  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
             if ( $rmax_cfg > 0 ) {
                 $avg_scale = '/' . (int) round( $rmax_cfg );
             }
@@ -1451,7 +1451,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      */
     private static function renderCardTab( object $player ): void {
         $player_id = (int) $player->id;
-        $max       = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max       = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $scores    = self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' );
         $heads     = $scores ? ( new PlayerStatsService() )->getHeadlineNumbers( $player_id, [], 5 ) : [];
         $radar     = $scores ? QueryHelpers::player_radar_datasets( $player_id, 3 ) : [];
@@ -2329,7 +2329,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         // #1096 — Evaluations received preset (Explorer →).
         $eval_explore_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
             'evaluations_received',

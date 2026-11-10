@@ -42,9 +42,9 @@ final class DemoRatingScale {
 
     public static function fromConfig(): self {
         return new self(
-            (float) QueryHelpers::get_config( 'rating_min', '5' ),
-            (float) QueryHelpers::get_config( 'rating_max', '10' ),
-            (float) QueryHelpers::get_config( 'rating_step', '0.5' )
+            (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin(),
+            (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax(),
+            (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep()
         );
     }
 

@@ -366,15 +366,13 @@ final class RatingsGridQuery {
 
     /** @return array{min:float,max:float,step:float} */
     public static function scale(): array {
-        $get = static fn( string $k, string $d ): float =>
-            (float) \TT\Infrastructure\Query\QueryHelpers::get_config( $k, $d );
+        // #4987 — through the scale's one reader, with its defaults.
+        $min  = \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $max  = \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $step = \TT\Infrastructure\Evaluations\RatingScale::currentStep();
 
-        $min  = $get( 'rating_min', '5' );
-        $max  = $get( 'rating_max', '10' );
-        $step = $get( 'rating_step', '0.5' );
-
-        if ( $max <= $min ) { $min = 5.0; $max = 10.0; }
-        if ( $step <= 0 )   { $step = 0.5; }
+        if ( $max <= $min ) { $min = (float) \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_MIN; $max = (float) \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_MAX; }
+        if ( $step <= 0 )   { $step = (float) \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_STEP; }
 
         return [ 'min' => $min, 'max' => $max, 'step' => $step ];
     }

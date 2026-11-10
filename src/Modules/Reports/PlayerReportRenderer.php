@@ -57,7 +57,7 @@ class PlayerReportRenderer {
         $report_date = TTDate::date( time() );
         $period      = self::formatFilterPeriod( $config->filters );
 
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $chart_payload = $this->buildChartPayload( $trend, $radar, $rating_max );
 
         ob_start();

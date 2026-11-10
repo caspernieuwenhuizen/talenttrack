@@ -571,8 +571,8 @@ final class ExcelImporter {
         // v3.110.116 — was hardcoded 1–5. Reads the configured scale
         // so installs with a non-default range don't silently skip
         // valid ratings outside the legacy bounds.
-        $rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $counts['eval_ratings'] = 0;
         foreach ( $rows['evaluation_ratings'] ?? [] as $r ) {
             $eval_id = $eval_id_by_key[ (string) ( $r['evaluation_key'] ?? '' ) ] ?? 0;

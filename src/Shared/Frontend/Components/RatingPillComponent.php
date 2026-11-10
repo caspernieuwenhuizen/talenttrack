@@ -53,7 +53,7 @@ class RatingPillComponent {
      * so every rating registered as "strong" / green).
      */
     public static function tierFor( float $rating, ?float $max = null ): string {
-        $max = $max ?? (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = $max ?? (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         if ( $max <= 0 ) return self::TIER_DEVELOPING;
         // Percent-of-max thresholds (see class docblock).
         $pct = ( $rating / $max ) * 100.0;
@@ -78,7 +78,7 @@ class RatingPillComponent {
      * (was hardcoded `5.0`).
      */
     public static function pill( string $label, float $rating, ?float $max = null ): string {
-        $max = $max ?? (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = $max ?? (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $tier = self::tierFor( $rating, $max );
         $aria = sprintf(
             /* translators: 1: category label, 2: rating value, 3: max scale, 4: tier label */
@@ -105,7 +105,7 @@ class RatingPillComponent {
      * v3.110.116 — see `pill()` note on `$max` default.
      */
     public static function chip( float $rating, ?float $max = null ): string {
-        $max = $max ?? (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = $max ?? (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $tier = self::tierFor( $rating, $max );
         $aria = sprintf(
             /* translators: 1: rating value, 2: max scale, 3: tier label */
@@ -129,7 +129,7 @@ class RatingPillComponent {
      * v3.110.116 — see `pill()` note on `$max` default.
      */
     public static function badge( float $rating, ?float $max = null ): string {
-        $max = $max ?? (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = $max ?? (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $tier = self::tierFor( $rating, $max );
         $aria = sprintf(
             /* translators: 1: rating value, 2: max scale */

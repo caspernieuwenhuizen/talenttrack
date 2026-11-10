@@ -196,9 +196,9 @@ class RatingInputComponent {
      * @return array{0:float,1:float,2:float}
      */
     private static function scale( array $args ): array {
-        $min  = isset( $args['min'] )  ? (float) $args['min']  : (float) QueryHelpers::get_config( 'rating_min',  '5' );
-        $max  = isset( $args['max'] )  ? (float) $args['max']  : (float) QueryHelpers::get_config( 'rating_max',  '9' );
-        $step = isset( $args['step'] ) ? (float) $args['step'] : (float) QueryHelpers::get_config( 'rating_step', '1' );
+        $min  = isset( $args['min'] )  ? (float) $args['min']  : (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $max  = isset( $args['max'] )  ? (float) $args['max']  : (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $step = isset( $args['step'] ) ? (float) $args['step'] : (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep();
         return [ $min, $max, $step ];
     }
 

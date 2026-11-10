@@ -111,8 +111,8 @@ final class RateActorsStep implements WizardStepInterface, ConditionalStepInterf
         // / `rating_min` instead so the wizard input bounds track the
         // active scale (5–10 default post-migration). The dead SELECT
         // on tt_eval_categories also removed — never read.
-        $min = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
-        $max = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
+        $min = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
+        $max = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         if ( empty( $players ) ) :
             ?><p class="tt-notice"><?php esc_html_e( 'No players to rate. Mark attendance first or pick another activity.', 'talenttrack' ); ?></p><?php
