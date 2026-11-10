@@ -1,0 +1,90 @@
+{
+    "team_id": "{team:1}",
+    "window": {
+        "from": "2020-01-01",
+        "to": "{day:+30}",
+        "source": "custom",
+        "season": ""
+    },
+    "record": {
+        "played": 5,
+        "won": 2,
+        "drawn": 1,
+        "lost": 1,
+        "goals_for": 6,
+        "goals_against": 4,
+        "goal_difference": 2,
+        "clean_sheets": 1,
+        "without_a_score": 1,
+        "tournaments_excluded": 1
+    },
+    "form": [
+        {
+            "activity_id": "{activity:12}",
+            "session_date": "2020-03-29",
+            "opponent": "",
+            "home_away": "home",
+            "team_score": 2,
+            "opp_score": 1,
+            "outcome": "W"
+        },
+        {
+            "activity_id": "{activity:10}",
+            "session_date": "2020-03-21",
+            "opponent": "Groen",
+            "home_away": "home",
+            "team_score": 1,
+            "opp_score": 1,
+            "outcome": "D"
+        },
+        {
+            "activity_id": "{activity:9}",
+            "session_date": "2020-03-14",
+            "opponent": "Blauw",
+            "home_away": "away",
+            "team_score": 0,
+            "opp_score": 2,
+            "outcome": "L"
+        },
+        {
+            "activity_id": "{activity:8}",
+            "session_date": "2020-03-07",
+            "opponent": "Rood",
+            "home_away": "home",
+            "team_score": 3,
+            "opp_score": 0,
+            "outcome": "W"
+        }
+    ],
+    "scorers": [],
+    "assists": [],
+    "appearances": [
+        {
+            "player_id": "{player:3}",
+            "name": "Cas Dijk",
+            "jersey_number": 10,
+            "matches": 4,
+            "starts": 0,
+            "subs_in": 0,
+            "minutes": 210
+        },
+        {
+            "player_id": "{player:1}",
+            "name": "Anna Akker",
+            "jersey_number": 7,
+            "matches": 4,
+            "starts": 0,
+            "subs_in": 0,
+            "minutes": 200
+        },
+        {
+            "player_id": "{player:2}",
+            "name": "Bram Bos",
+            "jersey_number": 3,
+            "matches": 4,
+            "starts": 0,
+            "subs_in": 0,
+            "minutes": 190
+        }
+    ]
+}

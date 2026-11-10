@@ -1,0 +1,97 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "attendance"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "attendance": {
+            "level": "details",
+            "team_avg_pct": 87.5,
+            "amber_below": 70,
+            "red_below": 60,
+            "below": [],
+            "absences": {
+                "absent": 3,
+                "excused": 1,
+                "injured": 0,
+                "suspended": 0
+            },
+            "rows": [
+                {
+                    "player_id": "{player:2}",
+                    "name": "Bram Bos",
+                    "activities": 8,
+                    "present": 7,
+                    "late": 0,
+                    "absent": 0,
+                    "excused": 1,
+                    "injured": 0,
+                    "suspended": 0,
+                    "present_pct": 87.5,
+                    "band": "green",
+                    "flagged": false
+                },
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "activities": 8,
+                    "present": 7,
+                    "late": 0,
+                    "absent": 1,
+                    "excused": 0,
+                    "injured": 0,
+                    "suspended": 0,
+                    "present_pct": 87.5,
+                    "band": "green",
+                    "flagged": false
+                },
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk",
+                    "activities": 8,
+                    "present": 7,
+                    "late": 0,
+                    "absent": 1,
+                    "excused": 0,
+                    "injured": 0,
+                    "suspended": 0,
+                    "present_pct": 87.5,
+                    "band": "green",
+                    "flagged": false
+                },
+                {
+                    "player_id": "{player:4}",
+                    "name": "Daan Eik",
+                    "activities": 8,
+                    "present": 6,
+                    "late": 1,
+                    "absent": 1,
+                    "excused": 0,
+                    "injured": 0,
+                    "suspended": 0,
+                    "present_pct": 87.5,
+                    "band": "green",
+                    "flagged": false
+                }
+            ]
+        }
+    }
+}

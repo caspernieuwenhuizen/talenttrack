@@ -1,0 +1,78 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "minutes"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "minutes": {
+            "level": "details",
+            "matches_recorded": 4,
+            "matches_played": 5,
+            "target_pct": 50,
+            "median_share_pct": 69.6,
+            "under": [
+                {
+                    "player_id": "{player:4}",
+                    "name": "Daan Eik",
+                    "pct": 0
+                }
+            ],
+            "rows": [
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk",
+                    "total_minutes": 210,
+                    "available_minutes": 280,
+                    "matches": 4,
+                    "starts": 0,
+                    "share_pct": 75
+                },
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "total_minutes": 200,
+                    "available_minutes": 280,
+                    "matches": 4,
+                    "starts": 0,
+                    "share_pct": 71.4
+                },
+                {
+                    "player_id": "{player:2}",
+                    "name": "Bram Bos",
+                    "total_minutes": 190,
+                    "available_minutes": 280,
+                    "matches": 4,
+                    "starts": 0,
+                    "share_pct": 67.9
+                },
+                {
+                    "player_id": "{player:4}",
+                    "name": "Daan Eik",
+                    "total_minutes": 0,
+                    "available_minutes": 280,
+                    "matches": 0,
+                    "starts": 0,
+                    "share_pct": 0
+                }
+            ]
+        }
+    }
+}

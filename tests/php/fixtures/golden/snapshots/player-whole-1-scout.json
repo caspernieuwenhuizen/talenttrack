@@ -1,0 +1,146 @@
+{
+    "player_id": "{player:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "ratings",
+        "attendance",
+        "minutes",
+        "tests"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:1}",
+            "name": "Anna Akker",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": 7,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "ratings": {
+            "evaluation_count": 2,
+            "latest": 9,
+            "latest_date": "2020-03-25",
+            "average": 8,
+            "series": [
+                {
+                    "date": "2020-03-12",
+                    "value": 7
+                },
+                {
+                    "date": "2020-03-25",
+                    "value": 9
+                }
+            ],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "latest": 7,
+                    "average": 7,
+                    "count": 1,
+                    "subcategories": [
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "latest": 9,
+                            "average": 8.5,
+                            "count": 2
+                        }
+                    ]
+                }
+            ],
+            "evaluations": [
+                {
+                    "id": "{evaluation:4}",
+                    "eval_date": "2020-03-25",
+                    "rating": 9,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 9
+                        }
+                    ]
+                },
+                {
+                    "id": "{evaluation:1}",
+                    "eval_date": "2020-03-12",
+                    "rating": 7,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:1}",
+                            "label": "Golden technical",
+                            "is_main": true,
+                            "parent_id": null,
+                            "rating": 7
+                        },
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 8
+                        }
+                    ]
+                }
+            ],
+            "has_subcategories": true,
+            "detail": "sub"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 7,
+            "late": 0,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 4,
+            "minutes": 200,
+            "matches": 4,
+            "share": 71
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 11.667,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 12,
+                    "delta": -0.33,
+                    "trend": "up",
+                    "score": "ok",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        }
+    },
+    "audience": "scout"
+}

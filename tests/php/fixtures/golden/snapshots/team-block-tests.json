@@ -1,0 +1,227 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "tests"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "tests": {
+            "rounds": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "unit": "min",
+                    "unit_label": "mm:ss",
+                    "is_duration": true,
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "previous_date": "2020-02-12",
+                    "tested": 4,
+                    "squad": 4,
+                    "improved": [
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "delta": -0.3333333333333339
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "delta": -0.3333333333333339
+                        },
+                        {
+                            "player_id": "{player:4}",
+                            "name": "Daan Eik",
+                            "delta": -0.6666666666666661
+                        }
+                    ],
+                    "declined": [
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "delta": 0.6666666666666661
+                        }
+                    ],
+                    "average": {
+                        "value": 13.333333333333334,
+                        "display": "13:20",
+                        "previous": 13.5,
+                        "previous_display": "13:30",
+                        "delta_display": "−10 s",
+                        "trend": "flat"
+                    },
+                    "best": {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "value_display": "11:40"
+                    },
+                    "worst": {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "value_display": "15:40"
+                    },
+                    "moves": {
+                        "up": 3,
+                        "down": 1,
+                        "flat": 0,
+                        "first": 0
+                    },
+                    "bands": {
+                        "age_group": "U14",
+                        "ok": 1,
+                        "warn": 2,
+                        "bad": 1,
+                        "of": 4
+                    },
+                    "target": "≤ 12:30",
+                    "target_age_group": "U14",
+                    "target_absent": false,
+                    "history": [
+                        {
+                            "date": "2020-02-12",
+                            "value": 13.5,
+                            "display": "13:30",
+                            "pct": 100
+                        },
+                        {
+                            "date": "2020-03-11",
+                            "value": 13.333333333333334,
+                            "display": "13:20",
+                            "pct": 98.8
+                        }
+                    ],
+                    "readings": [
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "delta": -0.3333333333333339,
+                            "value": 11.666666666666666,
+                            "value_display": "11:40",
+                            "previous": 12,
+                            "previous_display": "12:00",
+                            "delta_display": "−20 s",
+                            "trend": "up",
+                            "first": false,
+                            "pb": true,
+                            "flag": "ok",
+                            "verdict_label": "on target",
+                            "verdict_tone": "ok",
+                            "rank": 1,
+                            "bar_pct": 74.5,
+                            "vs_avg": -1.6666666666666679,
+                            "vs_avg_display": "−1:40",
+                            "worse_than_avg": false
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "delta": -0.3333333333333339,
+                            "value": 12.666666666666666,
+                            "value_display": "12:40",
+                            "previous": 13,
+                            "previous_display": "13:00",
+                            "delta_display": "−20 s",
+                            "trend": "up",
+                            "first": false,
+                            "pb": true,
+                            "flag": "warn",
+                            "verdict_label": "just over target",
+                            "verdict_tone": "warn",
+                            "rank": 2,
+                            "bar_pct": 80.9,
+                            "vs_avg": -0.6666666666666679,
+                            "vs_avg_display": "−0:40",
+                            "worse_than_avg": false
+                        },
+                        {
+                            "player_id": "{player:4}",
+                            "name": "Daan Eik",
+                            "delta": -0.6666666666666661,
+                            "value": 13.333333333333334,
+                            "value_display": "13:20",
+                            "previous": 14,
+                            "previous_display": "14:00",
+                            "delta_display": "−40 s",
+                            "trend": "up",
+                            "first": false,
+                            "pb": true,
+                            "flag": "warn",
+                            "verdict_label": "just over target",
+                            "verdict_tone": "warn",
+                            "rank": 3,
+                            "bar_pct": 85.1,
+                            "vs_avg": 0,
+                            "vs_avg_display": "0:00",
+                            "worse_than_avg": false
+                        },
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "delta": 0.6666666666666661,
+                            "value": 15.666666666666666,
+                            "value_display": "15:40",
+                            "previous": 15,
+                            "previous_display": "15:00",
+                            "delta_display": "+40 s",
+                            "trend": "down",
+                            "first": false,
+                            "pb": false,
+                            "flag": "bad",
+                            "verdict_label": "well over target",
+                            "verdict_tone": "bad",
+                            "rank": 4,
+                            "bar_pct": 100,
+                            "vs_avg": 2.333333333333332,
+                            "vs_avg_display": "+2:20",
+                            "worse_than_avg": true
+                        }
+                    ]
+                },
+                {
+                    "definition_id": "{definition:2}",
+                    "name": "Golden jump",
+                    "unit": "cm",
+                    "unit_label": "cm",
+                    "is_duration": false,
+                    "direction": "",
+                    "date": "",
+                    "previous_date": null,
+                    "average": null,
+                    "best": null,
+                    "worst": null,
+                    "moves": null,
+                    "bands": null,
+                    "target": null,
+                    "target_age_group": "",
+                    "target_absent": false,
+                    "history": [],
+                    "tested": 0,
+                    "squad": 4,
+                    "improved": [],
+                    "declined": [],
+                    "readings": [],
+                    "empty": true
+                }
+            ],
+            "show": "values_trend",
+            "level": "details"
+        }
+    }
+}

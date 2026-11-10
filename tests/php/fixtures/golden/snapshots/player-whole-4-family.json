@@ -1,0 +1,129 @@
+{
+    "player_id": "{player:4}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "tests"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:4}",
+            "name": "Daan Eik",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": null,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "ratings": {
+            "evaluation_count": 1,
+            "latest": 1,
+            "latest_date": "2020-03-20",
+            "average": 1,
+            "series": [
+                {
+                    "date": "2020-03-20",
+                    "value": 1
+                }
+            ],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "latest": 1,
+                    "average": 1,
+                    "count": 1,
+                    "subcategories": [
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "latest": 1.5,
+                            "average": 1.5,
+                            "count": 1
+                        }
+                    ]
+                }
+            ],
+            "evaluations": [
+                {
+                    "id": "{evaluation:5}",
+                    "eval_date": "2020-03-20",
+                    "rating": 1,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:1}",
+                            "label": "Golden technical",
+                            "is_main": true,
+                            "parent_id": null,
+                            "rating": 1
+                        },
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 1.5
+                        }
+                    ]
+                }
+            ],
+            "has_subcategories": true,
+            "detail": "sub"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 6,
+            "late": 1,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 0,
+            "minutes": 0,
+            "matches": 0,
+            "share": 0
+        },
+        "goals": {
+            "items": []
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 13.333,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 14,
+                    "delta": -0.67,
+                    "trend": "up",
+                    "score": "warn",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        }
+    },
+    "audience": "family"
+}

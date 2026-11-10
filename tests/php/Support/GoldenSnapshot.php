@@ -47,21 +47,28 @@ final class GoldenSnapshot {
         'source_entity' => 'event_source',
     ];
 
-    /** Collection names whose items' `id` is of that kind. */
+    /**
+     * Names under which an `id` is of a known kind: the nearest one above an
+     * `id` decides, through any lists in between (`goals.items.0.id` is a
+     * goal).
+     */
     private const COLLECTIONS = [
-        'evaluations'   => 'evaluation',
-        'items'         => null,
-        'goals'         => 'goal',
-        'injuries'      => 'injury',
-        'conversations' => 'conversation',
-        'notes'         => 'thread_message',
-        'events'        => 'event',
-        'recent_journey'=> 'event',
-        'players'       => 'player',
-        'rows'          => null,
-        'fixtures'      => 'activity',
-        'matches'       => 'activity',
-        'activities'    => 'activity',
+        'evaluations'    => 'evaluation',
+        'goals'          => 'goal',
+        'injuries'       => 'injury',
+        'conversations'  => 'conversation',
+        'notes'          => 'thread_message',
+        'thread_notes'   => 'thread_message',
+        'events'         => 'event',
+        'journey'        => 'event',
+        'recent_journey' => 'event',
+        'players'        => 'player',
+        'fixtures'       => 'activity',
+        'activities'     => 'activity',
+        'file'           => 'pdp_file',
+        'behaviour'      => 'behaviour',
+        'potential'      => 'potential',
+        'tests'          => 'definition',
     ];
 
     /** @var array<string, array<int,int>> kind => id => its number */
@@ -144,7 +151,8 @@ final class GoldenSnapshot {
                     $token = self::tokenFor( $k, self::kindOfKey( $key ), $here, false );
                     if ( $token !== null ) $new_key = $token;
                 }
-                $out[ $new_key ] = self::tokenise( $v, is_string( $k ) ? $k : $key, $here, $is_list ? $key : $collection );
+                $inner           = is_string( $k ) && isset( self::COLLECTIONS[ $k ] ) ? $k : $collection;
+                $out[ $new_key ] = self::tokenise( $v, is_string( $k ) ? $k : $key, $here, $inner );
             }
             return $out;
         }

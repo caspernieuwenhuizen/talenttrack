@@ -1,0 +1,59 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "kpi"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "kpi": {
+            "activities": {
+                "value": 11,
+                "previous": 1,
+                "delta": 10
+            },
+            "attendance_pct": {
+                "value": 87.5,
+                "previous": 100,
+                "delta": -12.5
+            },
+            "minutes_share_median_pct": {
+                "value": 69.6,
+                "previous": null,
+                "delta": null
+            },
+            "evaluated": {
+                "value": 3,
+                "of": 4,
+                "pct": 75,
+                "delta": 50
+            },
+            "squad_rating": {
+                "value": 5.4,
+                "previous": 6.3,
+                "delta": -0.9
+            },
+            "needs_attention": {
+                "value": 1,
+                "previous": 0,
+                "delta": 1
+            }
+        }
+    }
+}

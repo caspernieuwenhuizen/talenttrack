@@ -1,0 +1,114 @@
+{
+    "internal": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead",
+            "matches"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "matches": {
+                "items": [
+                    {
+                        "activity_id": "{activity:8}",
+                        "session_date": "2020-03-07",
+                        "title": "Thuis tegen Rood",
+                        "type_key": "unknown",
+                        "minutes": 60,
+                        "record_type": "actual"
+                    },
+                    {
+                        "activity_id": "{activity:9}",
+                        "session_date": "2020-03-14",
+                        "title": "Uit bij Blauw",
+                        "type_key": "unknown",
+                        "minutes": 50,
+                        "record_type": "actual"
+                    },
+                    {
+                        "activity_id": "{activity:10}",
+                        "session_date": "2020-03-21",
+                        "title": "Thuis tegen Groen",
+                        "type_key": "unknown",
+                        "minutes": 40,
+                        "record_type": "actual"
+                    },
+                    {
+                        "activity_id": "{activity:12}",
+                        "session_date": "2020-03-29",
+                        "title": "Oefenwedstrijd",
+                        "type_key": "unknown",
+                        "minutes": 50,
+                        "record_type": "actual"
+                    }
+                ]
+            }
+        },
+        "audience": "internal"
+    },
+    "scout": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            }
+        },
+        "audience": "scout"
+    },
+    "family": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            }
+        },
+        "audience": "family"
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "quality"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "quality": {
+            "activities_without_register": [
+                {
+                    "activity_id": "{activity:13}",
+                    "title": "Toernooi",
+                    "date": "2020-03-15"
+                },
+                {
+                    "activity_id": "{activity:5}",
+                    "title": "Training zonder lijst",
+                    "date": "2020-03-24"
+                }
+            ],
+            "activities_never_closed": [
+                {
+                    "activity_id": "{activity:6}",
+                    "title": "Nooit afgesloten",
+                    "date": "2020-03-26"
+                }
+            ],
+            "matches_without_minutes": 1,
+            "matches_without_opponent": [
+                {
+                    "activity_id": "{activity:12}",
+                    "date": "2020-03-29",
+                    "title": "Oefenwedstrijd"
+                }
+            ],
+            "players_not_evaluated": [
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk"
+                }
+            ],
+            "players_with_incomplete_status": [
+                {
+                    "player_id": "{player:2}",
+                    "name": "Bram Bos",
+                    "missing_inputs": [
+                        "behaviour",
+                        "potential"
+                    ]
+                },
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk",
+                    "missing_inputs": [
+                        "ratings",
+                        "behaviour",
+                        "potential"
+                    ]
+                }
+            ]
+        }
+    }
+}

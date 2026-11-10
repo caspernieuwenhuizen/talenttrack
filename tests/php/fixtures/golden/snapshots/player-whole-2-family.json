@@ -1,0 +1,113 @@
+{
+    "player_id": "{player:2}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "tests"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:2}",
+            "name": "Bram Bos",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": 3,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "ratings": {
+            "evaluation_count": 1,
+            "latest": 6,
+            "latest_date": "2020-03-19",
+            "average": 6,
+            "series": [
+                {
+                    "date": "2020-03-19",
+                    "value": 6
+                }
+            ],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "latest": 6,
+                    "average": 6,
+                    "count": 1
+                }
+            ],
+            "evaluations": [
+                {
+                    "id": "{evaluation:2}",
+                    "eval_date": "2020-03-19",
+                    "rating": 6,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:1}",
+                            "label": "Golden technical",
+                            "is_main": true,
+                            "parent_id": null,
+                            "rating": 6
+                        }
+                    ]
+                }
+            ],
+            "has_subcategories": false,
+            "detail": "main"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 7,
+            "late": 0,
+            "absent": 0,
+            "excused": 1,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 4,
+            "minutes": 190,
+            "matches": 4,
+            "share": 68
+        },
+        "goals": {
+            "items": []
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 15.667,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 15,
+                    "delta": 0.67,
+                    "trend": "down",
+                    "score": "bad",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        }
+    },
+    "audience": "family"
+}

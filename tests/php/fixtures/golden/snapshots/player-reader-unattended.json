@@ -1,0 +1,340 @@
+{
+    "player_id": "{player:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "status",
+        "talking_points",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "pdp",
+        "notes",
+        "matches",
+        "tests",
+        "journey",
+        "injuries",
+        "behaviour",
+        "potential",
+        "thread_notes"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:1}",
+            "name": "Anna Akker",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": 7,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "status": {
+            "color": "green",
+            "score": 80,
+            "inputs": {
+                "ratings": {
+                    "value": null,
+                    "weight": 40,
+                    "score": null
+                },
+                "behaviour": {
+                    "value": null,
+                    "weight": 25,
+                    "score": null
+                },
+                "attendance": {
+                    "value": null,
+                    "weight": 20,
+                    "score": null
+                },
+                "potential": {
+                    "value": 80,
+                    "weight": 15,
+                    "score": 80
+                }
+            },
+            "reasons": [
+                "No evaluations in the last 90 days.",
+                "Sparse attendance data — confidence reduced.",
+                "Computed without evaluations, behaviour, attendance."
+            ],
+            "as_of": "2020-04-01 00:00:00",
+            "methodology_version": "shipped",
+            "coverage": 0.15,
+            "missing_inputs": [
+                "ratings",
+                "behaviour",
+                "attendance"
+            ],
+            "coverage_note": "Computed without evaluations, behaviour, attendance."
+        },
+        "talking_points": {
+            "items": [
+                {
+                    "key": "transition",
+                    "level": "info",
+                    "text": "Moved to centre back. (March 20, 2020).",
+                    "evidence": ""
+                },
+                {
+                    "key": "missing_inputs",
+                    "level": "info",
+                    "text": "The academy has no evaluations, behaviour, attendance on record for this player yet.",
+                    "evidence": "The status above was worked out without it."
+                }
+            ]
+        },
+        "ratings": {
+            "evaluation_count": 2,
+            "latest": 9,
+            "latest_date": "2020-03-25",
+            "average": 8,
+            "series": [
+                {
+                    "date": "2020-03-12",
+                    "value": 7
+                },
+                {
+                    "date": "2020-03-25",
+                    "value": 9
+                }
+            ],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "latest": 7,
+                    "average": 7,
+                    "count": 1
+                }
+            ],
+            "evaluations": [
+                {
+                    "id": "{evaluation:4}",
+                    "eval_date": "2020-03-25",
+                    "rating": 9,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 9
+                        }
+                    ],
+                    "notes_hidden": true
+                },
+                {
+                    "id": "{evaluation:1}",
+                    "eval_date": "2020-03-12",
+                    "rating": 7,
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:1}",
+                            "label": "Golden technical",
+                            "is_main": true,
+                            "parent_id": null,
+                            "rating": 7
+                        },
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 8
+                        }
+                    ],
+                    "notes_hidden": true
+                }
+            ],
+            "has_subcategories": true,
+            "detail": "main"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 7,
+            "late": 0,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 4,
+            "minutes": 200,
+            "matches": 4,
+            "share": 71,
+            "comparison": {
+                "team": 54,
+                "position": {
+                    "positions": [
+                        "CB"
+                    ],
+                    "count": 1,
+                    "share": 68
+                },
+                "player_positions": [
+                    "CB"
+                ]
+            }
+        },
+        "goals": {
+            "items": [
+                {
+                    "id": "{goal:1}",
+                    "title": "Win more headers",
+                    "status": "in_progress",
+                    "priority": "medium",
+                    "due_date": "",
+                    "created_at": "2020-03-05 09:00:00",
+                    "updated_at": "2020-03-05 09:00:00",
+                    "created_in_window": true,
+                    "changed_in_window": true,
+                    "is_closed": false
+                }
+            ]
+        },
+        "pdp": {
+            "available": false,
+            "file": null,
+            "conversations": [],
+            "verdict": null,
+            "last_agreed_actions": ""
+        },
+        "notes": {
+            "lines": 6
+        },
+        "matches": {
+            "items": [
+                {
+                    "activity_id": "{activity:8}",
+                    "session_date": "2020-03-07",
+                    "title": "Thuis tegen Rood",
+                    "type_key": "unknown",
+                    "minutes": 60,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:9}",
+                    "session_date": "2020-03-14",
+                    "title": "Uit bij Blauw",
+                    "type_key": "unknown",
+                    "minutes": 50,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:10}",
+                    "session_date": "2020-03-21",
+                    "title": "Thuis tegen Groen",
+                    "type_key": "unknown",
+                    "minutes": 40,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:12}",
+                    "session_date": "2020-03-29",
+                    "title": "Oefenwedstrijd",
+                    "type_key": "unknown",
+                    "minutes": 50,
+                    "record_type": "actual"
+                }
+            ]
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 11.667,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 12,
+                    "delta": -0.33,
+                    "trend": "up",
+                    "score": "ok",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        },
+        "journey": {
+            "items": [
+                {
+                    "id": "{event:1}",
+                    "event_type": "position_changed",
+                    "date": "2020-03-20",
+                    "summary": "Moved to centre back.",
+                    "activity": null
+                }
+            ]
+        },
+        "injuries": {
+            "items": []
+        },
+        "behaviour": {
+            "items": [
+                {
+                    "id": "116",
+                    "club_id": "1",
+                    "player_id": "168",
+                    "rated_at": "2020-03-24 10:00:00",
+                    "rated_by": "40",
+                    "rating": "7.0",
+                    "context": "match",
+                    "notes": null,
+                    "related_activity_id": null,
+                    "created_at": "{day:+0} 23:45:05"
+                },
+                {
+                    "id": "115",
+                    "club_id": "1",
+                    "player_id": "168",
+                    "rated_at": "2020-03-10 10:00:00",
+                    "rated_by": "40",
+                    "rating": "8.0",
+                    "context": "training",
+                    "notes": "Leads the warm-up.",
+                    "related_activity_id": null,
+                    "created_at": "{day:+0} 23:45:05"
+                }
+            ]
+        },
+        "potential": {
+            "items": [
+                {
+                    "id": "77",
+                    "club_id": "1",
+                    "player_id": "168",
+                    "set_at": "2020-03-15 10:00:00",
+                    "set_by": "40",
+                    "potential_band": "ahead",
+                    "notes": "Reads the game early.",
+                    "created_at": "{day:+0} 23:45:05"
+                }
+            ]
+        },
+        "thread_notes": {
+            "items": []
+        }
+    },
+    "audience": "internal"
+}

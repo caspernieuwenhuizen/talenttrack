@@ -1,0 +1,143 @@
+{
+    "internal": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead",
+            "tests"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "tests": {
+                "items": [
+                    {
+                        "definition_id": "{definition:1}",
+                        "name": "Golden laps",
+                        "category": "",
+                        "unit": "min",
+                        "direction": "lower",
+                        "date": "2020-03-11",
+                        "value": 11.667,
+                        "text": null,
+                        "previous_date": "2020-02-12",
+                        "previous": 12,
+                        "delta": -0.33,
+                        "trend": "up",
+                        "score": "ok",
+                        "level_token": "",
+                        "readings": 1
+                    }
+                ]
+            }
+        },
+        "audience": "internal"
+    },
+    "scout": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead",
+            "tests"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "tests": {
+                "items": [
+                    {
+                        "definition_id": "{definition:1}",
+                        "name": "Golden laps",
+                        "category": "",
+                        "unit": "min",
+                        "direction": "lower",
+                        "date": "2020-03-11",
+                        "value": 11.667,
+                        "text": null,
+                        "previous_date": "2020-02-12",
+                        "previous": 12,
+                        "delta": -0.33,
+                        "trend": "up",
+                        "score": "ok",
+                        "level_token": "",
+                        "readings": 1
+                    }
+                ]
+            }
+        },
+        "audience": "scout"
+    },
+    "family": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead",
+            "tests"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "tests": {
+                "items": [
+                    {
+                        "definition_id": "{definition:1}",
+                        "name": "Golden laps",
+                        "category": "",
+                        "unit": "min",
+                        "direction": "lower",
+                        "date": "2020-03-11",
+                        "value": 11.667,
+                        "text": null,
+                        "previous_date": "2020-02-12",
+                        "previous": 12,
+                        "delta": -0.33,
+                        "trend": "up",
+                        "score": "ok",
+                        "level_token": "",
+                        "readings": 1
+                    }
+                ]
+            }
+        },
+        "audience": "family"
+    }
+}
