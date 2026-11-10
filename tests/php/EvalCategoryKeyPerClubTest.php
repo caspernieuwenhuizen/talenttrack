@@ -99,26 +99,35 @@ final class EvalCategoryKeyPerClubTest extends WP_UnitTestCase {
     }
 
     /**
-     * The suite builds its schema from the migrations, so the Activator's
-     * CREATE is run here explicitly: `ensureSchema()` runs on every
-     * activation, and `dbDelta` adds any key the CREATE declares. With the
-     * old CREATE it put the install-wide key back.
+     * The Activator's CREATE runs through `dbDelta` on every activation, and
+     * `dbDelta` adds any key the CREATE declares that the table lacks; with
+     * the old CREATE it put the install-wide key back on a migrated install.
+     *
+     * The suite builds its schema from the migrations, and running the
+     * Activator's `dbDelta` inside it rewrites tables under the rest of the
+     * suite, so this reads what the CREATE declares instead: the per-club key
+     * and `club_id`, and not the install-wide key. It fails on the CREATE
+     * before #4986.
      */
-    public function test_the_activator_schema_keeps_the_per_club_key_and_not_the_old_one(): void {
-        $this->migration()->up();
-        $this->assertTrue( $this->hasIndex( 'uniq_club_category_key' ) );
+    public function test_the_activator_schema_declares_the_per_club_key_and_not_the_old_one(): void {
+        $source = (string) file_get_contents( dirname( __DIR__, 2 ) . '/src/Core/Activator.php' );
+        $this->assertSame( 1, preg_match( '/"CREATE TABLE \{\$p\}tt_eval_categories \((.*?)\) \$c;"/s', $source, $m ), 'the Activator declares the table' );
+        $create = $m[1];
 
-        $ensure = new \ReflectionMethod( \TT\Core\Activator::class, 'ensureSchema' );
-        $ensure->setAccessible( true );
+        $this->assertMatchesRegularExpression( '/^\s*club_id INT UNSIGNED NOT NULL DEFAULT 1,/m', $create, 'it has club_id' );
+        $this->assertMatchesRegularExpression( '/UNIQUE KEY uniq_club_category_key \(club_id, category_key\)/', $create, 'it declares the per-club key' );
+        $this->assertStringNotContainsString( 'uniq_category_key', $create, 'and not the install-wide key, which dbDelta would add back' );
+
+        // And what activation does with it: this one table's CREATE through
+        // dbDelta, after the migration, leaves the per-club key and no other.
         global $wpdb;
+        $this->migration()->up();
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $wpdb->suppress_errors( true );
-        ob_start();
-        $ensure->invoke( null );
-        ob_end_clean();
+        dbDelta( 'CREATE TABLE ' . $wpdb->prefix . 'tt_eval_categories (' . $create . ') ' . $wpdb->get_charset_collate() . ';' );
         $wpdb->suppress_errors( false );
-
-        $this->assertTrue( $this->hasIndex( 'uniq_club_category_key' ), 'the per-club key stays' );
-        $this->assertFalse( $this->hasIndex( 'uniq_category_key' ), 'and the install-wide key is not added back' );
+        $this->assertTrue( $this->hasIndex( 'uniq_club_category_key' ), 'activation keeps the per-club key' );
+        $this->assertFalse( $this->hasIndex( 'uniq_category_key' ), 'and does not add the install-wide key back' );
     }
 
     public function test_duplicates_within_one_club_refuse_the_migration_and_change_nothing(): void {
