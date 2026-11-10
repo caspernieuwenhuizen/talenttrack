@@ -62,11 +62,9 @@ if ( ! is_array( $refusal ) ) {
 }
 QueryHelpers::set_config( PdpFormRegistry::CONFIG_KEY, (string) wp_json_encode( $forms ) );
 
-$team = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$p}tt_teams WHERE club_id = %d AND name = %s LIMIT 1", $club, 'E2E POP O15' ) );
-if ( $team <= 0 ) {
-	$wpdb->insert( "{$p}tt_teams", [ 'club_id' => $club, 'name' => 'E2E POP O15' ] );
-	$team = (int) $wpdb->insert_id;
-}
+// No team: the preparation needs none, and a team here would change what
+// other specs find on a fresh site (the attendance grid draws its date range
+// only once a team exists).
 
 /**
  * One player with an account, a PDP file in the current season and its
@@ -74,7 +72,7 @@ if ( $team <= 0 ) {
  *
  * @param array{scores?:array<string,int>, answers?:array<string,string>} $entries
  */
-$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries ) use ( $wpdb, $p, $club, $team, $season ): void {
+$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries ) use ( $wpdb, $p, $club, $season ): void {
 	$user = get_user_by( 'login', $login );
 	$uid  = $user ? (int) $user->ID : (int) wp_insert_user( [
 		'user_login' => $login,
@@ -90,7 +88,7 @@ $tt_e2e_player = static function ( string $login, string $first, int $scheduled,
 	$player = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$p}tt_players WHERE club_id = %d AND wp_user_id = %d", $club, $uid ) );
 	if ( $player <= 0 ) {
 		$wpdb->insert( "{$p}tt_players", [
-			'club_id' => $club, 'team_id' => $team, 'first_name' => $first, 'last_name' => 'E2E',
+			'club_id' => $club, 'first_name' => $first, 'last_name' => 'E2E',
 			'status' => 'active', 'wp_user_id' => $uid, 'preferred_positions' => '["CB"]',
 		] );
 		$player = (int) $wpdb->insert_id;

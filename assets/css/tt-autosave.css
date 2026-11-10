@@ -48,8 +48,13 @@
 	background: currentColor;
 }
 
+/*
+ * #4979 — the words take the text-safe ink of each status colour. The fill
+ * colours (`--tt-success` and kin) read at about 3:1 on white and on the
+ * page background, under the 4.5:1 body text needs.
+ */
 .tt-save-state.is-saved {
-	color: var(--tt-success, #2f9e5e);
+	color: var(--tt-success-ink, #1f6d41);
 }
 
 .tt-save-state.is-dirty {
@@ -57,11 +62,11 @@
 }
 
 .tt-save-state.is-saving {
-	color: var(--tt-info, #2d6fb3);
+	color: var(--tt-info-ink, #1c5aa0);
 }
 
 .tt-save-state.is-error {
-	color: var(--tt-danger, #d8453b);
+	color: var(--tt-danger-ink, #a32b22);
 	font-weight: 600;
 }
 
