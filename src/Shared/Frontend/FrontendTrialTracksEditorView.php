@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendTrialTracksEditorView (#0017 Sprint 6) — track-template
@@ -86,19 +87,32 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
             echo '<p class="tt-player-empty">' . esc_html__( 'No tracks exist yet. Create one to get started.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #4911 — on the stack-table primitive: a table from 480px, one card
+        // per track below it. The edit button's column has no header, so its
+        // cell shows the button alone at the end of the card.
+        $c_name     = __( 'Name', 'talenttrack' );
+        $c_slug     = __( 'Slug', 'talenttrack' );
+        $c_duration = __( 'Default duration', 'talenttrack' );
+        $c_seeded   = __( 'Seeded?', 'talenttrack' );
+        $c_status   = __( 'Status', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Name', 'talenttrack' ) . '</th><th>' . esc_html__( 'Slug', 'talenttrack' ) . '</th><th>' . esc_html__( 'Default duration', 'talenttrack' ) . '</th><th>' . esc_html__( 'Seeded?', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th></th></tr></thead><tbody>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( [ $c_name, $c_slug, $c_duration, $c_seeded, $c_status, '' ] as $header ) {
+            echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $tracks as $t ) {
             $url = add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $t->id ], $base );
             $status = $t->archived_at ? __( 'Archived', 'talenttrack' ) : __( 'Active', 'talenttrack' );
             $seeded = (int) $t->is_seeded ? __( 'Yes', 'talenttrack' ) : __( 'No', 'talenttrack' );
-            echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $t->name ) . '</a></td>';
-            echo '<td>' . esc_html( (string) $t->slug ) . '</td>';
-            echo '<td>' . (int) $t->default_duration_days . '</td>';
-            echo '<td>' . esc_html( $seeded ) . '</td>';
-            echo '<td>' . esc_html( $status ) . '</td>';
-            echo '<td><a class="tt-btn tt-btn-sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_name ) . '><a href="' . esc_url( $url ) . '">' . esc_html( (string) $t->name ) . '</a></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_slug ) . '>' . esc_html( (string) $t->slug ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_duration ) . '>' . (int) $t->default_duration_days . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_seeded ) . '>' . esc_html( $seeded ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_status ) . '>' . esc_html( $status ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell' ) . '><a class="tt-btn tt-btn-sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';

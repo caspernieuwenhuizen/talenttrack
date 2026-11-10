@@ -10,6 +10,7 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Services\TrialCaseOpener;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\StaffPickerComponent;
 
 /**
@@ -380,25 +381,32 @@ class FrontendTrialsManageView extends FrontendViewBase {
         echo '</ul>';
 
         // ---- Desktop: table ----
+        // #4911 — on the stack-table primitive from 768px, the width at which
+        // frontend-trials.css swaps the cards above for this table; below it
+        // the table is hidden, so it never stacks.
+        $c_player   = __( 'Player', 'talenttrack' );
+        $c_track    = __( 'Track', 'talenttrack' );
+        $c_window   = __( 'Window', 'talenttrack' );
+        $c_status   = __( 'Status', 'talenttrack' );
+        $c_decision = __( 'Decision', 'talenttrack' );
+        $c_staff    = __( 'Staff', 'talenttrack' );
+        $c_actions  = __( 'Actions', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap tt-trials-table-wrap">';
-        echo '<table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Track', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Window', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Staff', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_768 ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( [ $c_player, $c_track, $c_window, $c_status, $c_decision, $c_staff, $c_actions ] as $header ) {
+            echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $view_rows as $vr ) {
-            echo '<tr>';
-            echo '<td><a href="' . esc_url( $vr['detail'] ) . '">' . esc_html( $vr['name'] ) . '</a></td>';
-            echo '<td>' . esc_html( $vr['track'] ) . '</td>';
-            echo '<td>' . esc_html( $vr['window'] ) . '</td>';
-            echo '<td><span class="tt-trial-chip tt-trial-chip--status-' . esc_attr( $vr['status'] ) . '">' . esc_html( $vr['status_label'] ) . '</span></td>';
-            echo '<td>' . ( $vr['decision'] !== '' ? '<span class="tt-trial-chip tt-trial-chip--decision">' . esc_html( $vr['decision'] ) . '</span>' : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) $vr['staff_count'] ) . '</td>';
-            echo '<td><a class="tt-btn tt-btn-sm" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a href="' . esc_url( $vr['detail'] ) . '">' . esc_html( $vr['name'] ) . '</a></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_track ) . '>' . esc_html( $vr['track'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_window ) . '>' . esc_html( $vr['window'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_status ) . '><span class="tt-trial-chip tt-trial-chip--status-' . esc_attr( $vr['status'] ) . '">' . esc_html( $vr['status_label'] ) . '</span></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_decision ) . '>' . ( $vr['decision'] !== '' ? '<span class="tt-trial-chip tt-trial-chip--decision">' . esc_html( $vr['decision'] ) . '</span>' : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_staff ) . '>' . esc_html( (string) $vr['staff_count'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_actions ) . '><a class="tt-btn tt-btn-sm" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';

@@ -12,6 +12,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Dates\TTDate;
@@ -311,24 +312,36 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             echo '</section>';
             return;
         }
+        // #4911 — on the stack-table primitive: a table from 768px, one card
+        // per prospect below it. Its seven columns do not fit a narrower
+        // screen, so it stays cards up to a tablet rather than scrolling. The
+        // actions column is named for a screen reader only, so its cell shows
+        // the button alone.
+        $c_name     = __( 'Name', 'talenttrack' );
+        $c_birth    = __( 'Birth year', 'talenttrack' );
+        $c_club     = __( 'Club', 'talenttrack' );
+        $c_position = __( 'Position', 'talenttrack' );
+        $c_seen     = _x( 'Seen', 'date a prospect was watched at this scouting visit', 'talenttrack' );
+        $c_status   = __( 'Status', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
         ?>
         <p class="tt-observation-status" role="status" aria-live="polite" data-tt-observation-status></p>
         <div class="tt-table-wrap">
-            <table class="tt-table tt-table-sortable">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Birth year', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Club', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Position', 'talenttrack' ); ?></th>
-                        <th><?php echo esc_html( _x( 'Seen', 'date a prospect was watched at this scouting visit', 'talenttrack' ) ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+            <table class="tt-table tt-table-sortable <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_birth ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_club ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_position ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_seen ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
                         <?php if ( $can_link ) : ?>
-                            <th><span class="tt-sr-only"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-sr-only"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $rows as $p ) :
                         $name = trim( (string) $p->first_name . ' ' . (string) $p->last_name );
                         $birth_year = '';
@@ -345,17 +358,17 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                         // #3604 — the same derivation the REST read uses.
                         $status = ProspectOutcome::label( ProspectOutcome::forRow( (array) $p ) );
                         ?>
-                        <tr>
-                            <td data-sort="<?php echo esc_attr( $p->last_name . ' ' . $p->first_name ); ?>">
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-sort="<?php echo esc_attr( $p->last_name . ' ' . $p->first_name ); ?>">
                                 <?php if ( $record_url !== '' ) : ?>
                                     <a href="<?php echo esc_url( $record_url ); ?>"><?php echo esc_html( $name ); ?></a>
                                 <?php else : ?>
                                     <?php echo esc_html( $name ); ?>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo esc_html( $birth_year ); ?></td>
-                            <td><?php echo esc_html( (string) ( $p->current_club ?? '' ) ); ?></td>
-                            <td><?php echo esc_html( (string) ( $p->position ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_birth ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $birth_year ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_club ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $p->current_club ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_position ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $p->position ?? '' ) ); ?></td>
                             <?php
                             // #3711 — the date of THIS sighting, not the
                             // prospect's discovery date. They are the same
@@ -365,15 +378,15 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             if ( $seen_at === '' ) $seen_at = (string) ( $p->discovered_at ?? '' );
                             $observation_id = (int) ( $p->observation_id ?? 0 );
                             ?>
-                            <td data-sort="<?php echo esc_attr( $seen_at ); ?>">
+                            <td<?php echo StackTable::attrs( 'cell', $c_seen ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-sort="<?php echo esc_attr( $seen_at ); ?>"><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                                 <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $seen_at ) ); ?>
                                 <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === $visit_id ) : ?>
                                     <span class="tt-observation-badge"><?php echo esc_html_x( 'Discovered here', 'scouting visit', 'talenttrack' ); ?></span>
                                 <?php endif; ?>
-                            </td>
-                            <td><?php echo esc_html( $status ); ?></td>
+                            </span></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $status ); ?></td>
                             <?php if ( $can_link ) : ?>
-                                <td>
+                                <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $observation_id > 0 ? '' : ' data-empty'; ?>>
                                     <?php if ( $observation_id > 0 ) : ?>
                                         <button type="button" class="tt-btn tt-btn-secondary tt-observation-unlink"
                                             data-tt-observation-unlink="<?php echo esc_attr( (string) $observation_id ); ?>">
