@@ -58,9 +58,9 @@ final class GoalContributionsRenderer {
     /**
      * One player's drill-down: the totals, then every match behind them.
      *
-     * @param array<string, mixed>   $data        {@see GoalContributionDrilldown::payload()}
-     * @param callable(array):string $match_url   match row => link to the match
-     * @param callable(array):string $correct_url match row => link to the grid, or '' for a reader who may not edit
+     * @param array<string, mixed>                  $data        {@see GoalContributionDrilldown::payload()}
+     * @param callable(array<string, mixed>):string $match_url   match row => link to the match
+     * @param callable(array<string, mixed>):string $correct_url match row => link to the grid, or '' for a reader who may not edit
      */
     public static function drilldown( array $data, callable $match_url, callable $correct_url ): string {
         $matches = is_array( $data['matches'] ?? null ) ? $data['matches'] : [];
@@ -136,7 +136,11 @@ final class GoalContributionsRenderer {
         return $title !== '' ? $title : __( 'Match', 'talenttrack' );
     }
 
-    /** Date, venue and score, each only when known. @param array<string, mixed> $m */
+    /**
+     * Date, venue and score, each only when known.
+     *
+     * @param array<string, mixed> $m
+     */
     private static function matchMeta( array $m ): string {
         $parts = [ TTDate::date( (string) ( $m['date'] ?? '' ) ) ];
 
@@ -185,7 +189,11 @@ final class GoalContributionsRenderer {
         return $html . '</li>';
     }
 
-    /** Where and when the entry was recorded, and by whom when that is stored. @param array<string, mixed> $e */
+    /**
+     * Where and when the entry was recorded, and by whom when that is stored.
+     *
+     * @param array<string, mixed> $e
+     */
     private static function provenance( array $e ): string {
         $parts = [ GoalContributionDrilldown::sourceLabel( (string) $e['source'] ) ];
 

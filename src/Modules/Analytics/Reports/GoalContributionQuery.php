@@ -244,7 +244,7 @@ final class GoalContributionQuery {
             return array_merge( $out, [
                 'from'      => (string) $row->start_date,
                 'to'        => (string) $row->end_date,
-                'season_id' => (int) $row->id,
+                'season_id' => (int) ( ( (array) $row )['id'] ?? 0 ),
                 'season'    => (string) ( $row->name ?? '' ),
                 'source'    => 'season',
             ] );
@@ -264,7 +264,7 @@ final class GoalContributionQuery {
             return array_merge( $out, [
                 'from'      => (string) $current->start_date,
                 'to'        => (string) $current->end_date,
-                'season_id' => (int) $current->id,
+                'season_id' => (int) ( ( (array) $current )['id'] ?? 0 ),
                 'season'    => (string) ( $current->name ?? '' ),
                 'source'    => 'season',
             ] );
@@ -274,7 +274,11 @@ final class GoalContributionQuery {
         return array_merge( $out, [ 'from' => '1970-01-01', 'to' => '2999-12-31', 'source' => 'all_time' ] );
     }
 
-    /** Whether a goal event is a goal of ours that is not an own goal. */
+    /**
+     * Whether a goal event is a goal of ours that is not an own goal.
+     *
+     * @param array<string, mixed> $row
+     */
     private static function isOurGoal( array $row ): bool {
         return (string) ( $row['team'] ?? 'home' ) === 'home' && empty( $row['is_own_goal'] );
     }
@@ -310,7 +314,6 @@ final class GoalContributionQuery {
         if ( $team_id <= 0 || $player_id <= 0 ) return $out;
 
         $filters['team_id'] = $team_id;
-        unset( $filters['player_id'] );
         $rows = $this->fetchEvents( $filters, true );
 
         // Match totals, over every event of the match.

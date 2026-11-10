@@ -349,10 +349,11 @@ class MatchExecutionRepository {
      */
     public function markGoalSourceForActivity( int $activity_id, string $source ): void {
         if ( $activity_id <= 0 || ! in_array( $source, [ self::SOURCE_LIVE_SHEET, self::SOURCE_MATCH_FORM, self::SOURCE_DEMO ], true ) ) return;
-        $this->wpdb->query( $this->wpdb->prepare(
-            "UPDATE {$this->t_goals} SET source = %s WHERE activity_id = %d AND club_id = %d",
-            $source, $activity_id, CurrentClub::id()
-        ) );
+        $this->wpdb->update(
+            $this->t_goals,
+            [ 'source' => $source ],
+            [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
     }
 
     private function activityForExecution( int $execution_id ): int {

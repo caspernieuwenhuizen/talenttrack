@@ -332,8 +332,15 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
     // ---------------------------------------------------------------
 
     public function test_an_out_of_scope_team_is_forbidden_team(): void {
+        // A coach of one team, asking about another. Roles installed so the
+        // coach holds the team read the route's gate asks for.
+        ( new RolesService() )->installRoles();
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
         $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $this->coachOf( $coach, $this->team );
         wp_set_current_user( $coach );
+
+        $this->assertSame( 200, $this->get( $this->team, $this->striker )->get_status(), 'fixture sanity: their own team opens' );
 
         $res = $this->get( $this->other_team, $this->striker );
         $this->assertSame( 403, $res->get_status() );
@@ -409,6 +416,25 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
     // ---------------------------------------------------------------
     // Fixtures
     // ---------------------------------------------------------------
+
+    /** A tt_people row plus an active team scope — what get_teams_for_coach reads. */
+    private function coachOf( int $user_id, int $team_id ): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Team',
+            'last_name'  => 'Coach',
+            'role_type'  => 'head_coach',
+            'wp_user_id' => $user_id,
+            'status'     => 'active',
+        ] );
+        $wpdb->insert( "{$this->p}tt_user_role_scopes", [
+            'person_id'  => (int) $wpdb->insert_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => $team_id,
+        ] );
+    }
 
     private function player( string $first, string $last, int $team_id ): int {
         global $wpdb;
