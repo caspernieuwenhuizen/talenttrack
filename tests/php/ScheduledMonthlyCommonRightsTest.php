@@ -337,6 +337,42 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'open_injuries', $screen['data']['changes'] );
     }
 
+    /**
+     * The Tests section: a test kept to a level one recipient does not hold
+     * is left out of the shared copy, with its per-player values; with every
+     * recipient holding it, it is there. The report on screen keeps it.
+     */
+    public function test_a_test_at_a_level_one_recipient_lacks_is_left_out(): void {
+        $observer = $this->observer( 'observer-4991@example.test' );
+        $missing  = array_values( array_diff(
+            \TT\Infrastructure\Visibility\RecordVisibility::forMeasurements( $this->owner ),
+            \TT\Infrastructure\Visibility\RecordVisibility::forMeasurements( $observer )
+        ) );
+        $this->assertNotSame( [], $missing, 'Precondition: the owner holds a test level the observer does not.' );
+        $this->seedTest( $missing[0] );
+
+        [ $from, $to ] = $this->lastMonth();
+        $names = static fn( array $report ): array => array_column( (array) ( $report['data']['tests']['rounds'] ?? [] ), 'name' );
+
+        $full = $this->teamFor( [ 'owner-4991@example.test' ], $from, $to );
+        $this->assertContains( self::TEST_NAME, $names( $full ), 'every recipient holds the level: the round is there' );
+
+        $this->flush();
+        $shared = $this->teamFor( [ 'owner-4991@example.test', 'observer-4991@example.test' ], $from, $to );
+        $this->assertNotContains( self::TEST_NAME, $names( $shared ), 'one recipient lacks it: the round is left out' );
+        $prepared = TeamMonthlyReportDocument::prepare( $shared, 'B' );
+        $html     = TeamMonthlyReportDocument::html( $prepared['report'], 'B', 'Shared U13', [], $prepared['fit']['groups'] );
+        $this->assertStringNotContainsString( self::TEST_NAME, $html, 'nor in the document' );
+
+        $this->flush();
+        $nobody = $this->teamFor( [ 'owner-4991@example.test', 'nobody-4991@example.test' ], $from, $to );
+        $this->assertNotContains( self::TEST_NAME, $names( $nobody ), 'a recipient whose rights cannot be checked takes it out too' );
+
+        $this->flush();
+        $screen = ( new TeamMonthlyReport() )->forTeam( $this->team, $from, $to, [], $observer );
+        $this->assertContains( self::TEST_NAME, $names( $screen ), 'the report on screen stays as it is' );
+    }
+
     public function test_recipients_all_holding_full_rights_get_the_full_team_report(): void {
         $this->seedJourney();
         $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'hod-4991@example.test' ] );
@@ -433,6 +469,30 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
 
     private const PLAYER_BLOCKS = [ 'letterhead', 'journey', 'pdp', 'thread_notes' ];
 
+    private const TEST_NAME = 'Sprint 4991';
+
+    /** A test at this level, taken by the squad mid last month. */
+    private function seedTest( string $level ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->insert( "{$p}tt_measurement_definitions", [
+            'club_id' => CurrentClub::id(), 'category_id' => 0, 'name' => self::TEST_NAME, 'value_type' => 'numeric',
+            'unit' => 's', 'direction' => 'lower', 'is_active' => 1, 'show_on_profile' => 1, 'visibility' => $level,
+        ] );
+        $def  = (int) $wpdb->insert_id;
+        $date = gmdate( 'Y-m-12', strtotime( 'first day of last month' ) );
+        $wpdb->insert( "{$p}tt_measurement_sessions", [
+            'club_id' => CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'definition_id' => $def,
+            'team_id' => $this->team, 'planned_date' => $date, 'status' => 'completed',
+        ] );
+        $wpdb->insert( "{$p}tt_measurement_results", [
+            'club_id' => CurrentClub::id(), 'definition_id' => $def, 'player_id' => $this->player,
+            'recorded_date' => $date, 'value_numeric' => 4.2,
+        ] );
+        $this->assertGreaterThan( 0, (int) $wpdb->insert_id, 'fixture: the reading was written: ' . $wpdb->last_error );
+        $this->flush();
+    }
+
     private int $player = 0;
 
     /**
@@ -509,7 +569,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
      */
     private function fullEntries( array $readers ): array {
         $levels = [ 'public' => self::ENTRY_PUBLIC, 'coaching_staff' => self::ENTRY_STAFF, 'medical' => self::ENTRY_MEDICAL, 'safeguarding' => self::ENTRY_SAFEGUARDING ];
-        $held   = \TT\Infrastructure\Journey\PlayerEventsRepository::visibilitiesForReaders( $readers );
+        $held   = \TT\Infrastructure\Visibility\ReaderSet::of( $readers )->journeyLevels();
         $out    = [];
         foreach ( $levels as $level => $summary ) {
             if ( in_array( $level, $held, true ) ) $out[] = $summary;

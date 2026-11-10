@@ -193,13 +193,13 @@ final class PlayerReportDelivery {
         $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'], 'players' => $plan['players'] ];
         if ( ! $plan['ok'] ) return $out;
 
-        $c       = $plan['composition'];
-        $readers = self::readers( $plan['players'], $recipients, $plan['owner'] );
+        $c = $plan['composition'];
+        // #4991 — once per run: the rights that do not depend on the player
+        // are worked out once for the whole round. Every read in the compose
+        // path takes these readers; none reads the current user, so the run
+        // does not switch to the owner.
+        $readers = \TT\Infrastructure\Visibility\ReaderSet::of( self::readers( $plan['players'], $recipients, $plan['owner'] ) );
 
-        // Composed as its owner, who stays the current user while it renders.
-        // Restored whatever happens.
-        $previous = get_current_user_id();
-        wp_set_current_user( $plan['owner'] );
         try {
             $reports = [];
             foreach ( $plan['players'] as $player_id ) {
@@ -228,8 +228,6 @@ final class PlayerReportDelivery {
                 'error'       => $e->getMessage(),
             ] );
             return $out;
-        } finally {
-            wp_set_current_user( $previous );
         }
 
         if ( $bytes === '' ) {

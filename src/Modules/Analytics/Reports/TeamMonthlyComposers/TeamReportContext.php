@@ -9,6 +9,8 @@ use TT\Infrastructure\PlayerStatus\StatusVerdict;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Visibility\ReaderSet;
+use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
@@ -63,6 +65,8 @@ final class TeamReportContext {
     private bool $shared;
 
     private ?bool $reads_injuries = null;
+
+    private ?ReaderSet $rights = null;
 
     /** @var Window the window a delta is taken against */
     public readonly array $previous;
@@ -158,16 +162,30 @@ final class TeamReportContext {
      */
     public function readsAttendance(): bool {
         if ( $this->reads_attendance === null ) {
-            $reads = $this->readers !== [];
-            foreach ( $this->readers as $reader ) {
-                if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $reader, $this->team_id ) ) {
-                    $reads = false;
-                    break;
-                }
-            }
-            $this->reads_attendance = $reads;
+            $team_id                = $this->team_id;
+            $this->reads_attendance = $this->readers !== [] && $this->rights()->every(
+                static fn( int $reader ): bool => \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $reader, $team_id )
+            );
         }
         return $this->reads_attendance;
+    }
+
+    /**
+     * #4991 — the measurement levels the Tests section may show. A shared
+     * copy shows only the test levels every reader holds
+     * (`ReaderSet::testLevels()`; public only for a reader without rights).
+     * The report for one reader on screen shows every level, as it always
+     * did: it answers to the team report read rule there.
+     *
+     * @return list<string>
+     */
+    public function testLevels(): array {
+        return $this->shared ? $this->rights()->testLevels() : RecordVisibility::measurementLevels();
+    }
+
+    /** #4991 — the readers' shared rights, worked out once per report. */
+    private function rights(): ReaderSet {
+        return $this->rights ??= ReaderSet::of( $this->readers );
     }
 
     /**
@@ -181,17 +199,13 @@ final class TeamReportContext {
     public function readsInjuries(): bool {
         if ( ! $this->shared ) return true;
         if ( $this->reads_injuries === null ) {
-            $reads = $this->readers !== [];
-            foreach ( $this->readers as $reader ) {
-                if ( ! $reads ) break;
-                foreach ( array_keys( $this->players() ) as $player_id ) {
-                    if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $reader, (int) $player_id, 'player_injuries' ) ) {
-                        $reads = false;
-                        break;
-                    }
+            $players              = array_keys( $this->players() );
+            $this->reads_injuries = $this->rights()->every( static function ( int $reader ) use ( $players ): bool {
+                foreach ( $players as $player_id ) {
+                    if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $reader, (int) $player_id, 'player_injuries' ) ) return false;
                 }
-            }
-            $this->reads_injuries = $reads;
+                return true;
+            } );
         }
         return $this->reads_injuries;
     }
@@ -206,7 +220,7 @@ final class TeamReportContext {
      */
     public function journeyVisibilities(): array {
         if ( $this->readers === [] ) return [ 'public', 'coaching_staff' ];
-        return \TT\Infrastructure\Journey\PlayerEventsRepository::visibilitiesForReaders( $this->readers );
+        return $this->rights()->journeyLevels();
     }
 
     /**

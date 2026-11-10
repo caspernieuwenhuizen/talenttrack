@@ -44,23 +44,6 @@ final class PlayerEventsRepository {
     }
 
     /**
-     * #4991 — the visibility levels every one of these readers holds: what a
-     * document read by all of them at once may carry. A reader of 0 holds
-     * the public level only.
-     *
-     * @param list<int> $user_ids
-     * @return list<string>
-     */
-    public static function visibilitiesForReaders( array $user_ids ): array {
-        $out = null;
-        foreach ( $user_ids as $user_id ) {
-            $levels = self::visibilitiesForUser( (int) $user_id );
-            $out    = $out === null ? $levels : array_values( array_intersect( $out, $levels ) );
-        }
-        return $out ?? [];
-    }
-
-    /**
      * #4991 — the entries as every one of these readers may see them:
      * `readableBy()` for each in turn, so an entry one reader may not see is
      * gone, and one a reader sees only as its type and date stays that way.

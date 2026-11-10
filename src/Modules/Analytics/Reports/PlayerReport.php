@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\JourneyActivityResolver;
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\EvidenceComposer;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\LetterheadComposer;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\MinutesComposer;
@@ -61,19 +62,21 @@ final class PlayerReport {
      * composed as (a schedule's owner).
      *
      * @param list<string>                      $blocks  as `forPlayer()`
-     * @param list<int>                         $readers at least one
+     * @param ReaderSet|list<int>               $readers build the set once per run and pass it
+     *        to every player's report, so the rights that do not depend on
+     *        the player are worked out once
      * @param array<string,array<string,mixed>> $options as `forPlayer()`
      * @param string|null                       $audience as `forPlayer()`; null resolves it from the readers
      * @return Report|null
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
-    public function forReaders( int $player_id, string $from, string $to, array $blocks, array $readers, array $options = [], ?string $audience = null ): ?array {
+    public function forReaders( int $player_id, string $from, string $to, array $blocks, ReaderSet|array $readers, array $options = [], ?string $audience = null ): ?array {
         $unknown = PlayerReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
         }
-        $readers = $readers === [] ? [ 0 ] : array_map( 'intval', $readers );
-        $ctx     = PlayerReportContext::make( $player_id, $from, $to, $readers[0], $audience, $options, array_slice( $readers, 1 ) );
+        $readers = $readers instanceof ReaderSet ? $readers : ReaderSet::of( $readers );
+        $ctx     = PlayerReportContext::make( $player_id, $from, $to, $readers->first(), $audience, $options, $readers );
         if ( $ctx === null ) return null;
         $audience = $ctx->audience;
 
