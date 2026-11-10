@@ -62,8 +62,8 @@ final class PdpConversationFormTest extends WP_UnitTestCase {
         $this->seed();
 
         wp_set_current_user( $this->trainer );
-        [ , $status ] = $this->send( 'PATCH', 'form', [ 'form_key' => self::FORM ] );
-        $this->assertSame( 200, $status, 'the trainer pins the form' );
+        [ $pinned, $status ] = $this->send( 'PATCH', 'form', [ 'form_key' => self::FORM ] );
+        $this->assertSame( 200, $status, 'the trainer pins the form: ' . wp_json_encode( $pinned ) );
         wp_set_current_user( 0 );
     }
 
@@ -493,7 +493,10 @@ final class PdpConversationFormTest extends WP_UnitTestCase {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_teams", [ 'club_id' => $this->club, 'name' => 'O17-1' ] );
         $this->team = (int) $wpdb->insert_id;
-        $wpdb->insert( "{$this->p}tt_players", [ 'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => 'Sem', 'last_name' => 'de Vries', 'status' => 'active' ] );
+        // `wp_user_id` NULL, not the column's 0: one account per player is a
+        // UNIQUE key, and a 0 another test left behind would refuse this row.
+        $ok = $wpdb->insert( "{$this->p}tt_players", [ 'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => 'Sem', 'last_name' => 'de Vries', 'status' => 'active', 'wp_user_id' => null ] );
+        $this->assertNotFalse( $ok, 'the player fixture: ' . $wpdb->last_error );
         $this->player = (int) $wpdb->insert_id;
         $wpdb->insert( "{$this->p}tt_seasons", [ 'club_id' => $this->club, 'name' => '2026/27', 'start_date' => '2026-07-01', 'end_date' => '2027-06-30', 'is_current' => 1 ] );
         $season = (int) $wpdb->insert_id;
