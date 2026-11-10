@@ -129,7 +129,8 @@ tegelijk.
 Een staflid dat ook ouder is binnen de academie, vindt de records van het
 eigen kind zoals elke ouder dat doet, volgens de regels voor gezinnen, en
 nooit ook nog als staf: elk record staat er één keer, en een onderdeel dat
-het kind privé houdt wordt niet gevonden en niet geteld.
+het kind privé houdt wordt niet gevonden en niet geteld. De notities over het
+eigen kind staan niet in de resultaten onder *Notities*.
 
 ## Uitgeschakelde modules
 

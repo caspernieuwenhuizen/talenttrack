@@ -125,7 +125,8 @@ On the results page the *Evaluations & goals* chip shows both kinds at once.
 A staff member who is also a parent at the academy finds their own child's
 records the way any parent does, by the family rules, and never also as
 staff: each record is listed once, and a section their child keeps private
-is not found or counted.
+is not found or counted. Their own child's notes are not in their *Notes*
+results.
 
 ## Switched-off modules
 

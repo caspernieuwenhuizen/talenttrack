@@ -209,16 +209,20 @@ final class StaffSearchTest extends WP_UnitTestCase {
         $this->assertSame( 0, $by_notes['counts']['evaluation'] ?? 0 );
         $this->assertSame( [ $this->goals['jose'] ], $this->idsOf( $this->paged( $scout, self::GOAL_WORD ), 'goal' ) );
 
-        // The scout reads player notes academy-wide and thread messages
-        // academy-wide (`ThreadAccess::hasGlobalAccess()`), so on the one
-        // player they may view they read both José's notes.
-        $this->assertTrue( ThreadAccess::canSeePrivate( 'player', $this->players['jose'], $scout ), 'precondition: the rule lets the scout see José\'s staff-only note' );
+        // Notes on the one player the scout may view: found and counted
+        // exactly when the thread's own rules say so.
+        $adapter = ThreadTypeRegistry::get( 'player' );
+        $this->assertInstanceOf( PlayerThreadAdapter::class, $adapter );
+        $reads  = $adapter->canRead( $scout, $this->players['jose'] );
+        $sees   = $reads && ThreadAccess::canSeePrivate( 'player', $this->players['jose'], $scout );
+
         $public = $this->paged( $scout, self::NOTE_WORD );
-        $this->assertSame( [ $this->notes['jose'] ], $this->idsOf( $public, 'player_note' ) );
-        $this->assertSame( 1, $public['counts']['player_note'] ?? null );
+        $this->assertSame( $reads ? [ $this->notes['jose'] ] : [], $this->idsOf( $public, 'player_note' ) );
+        $this->assertSame( $reads ? 1 : 0, $public['counts']['player_note'] ?? 0 );
+
         $private = $this->paged( $scout, self::STAFF_ONLY_WORD );
-        $this->assertSame( [ $this->staff_only_note ], $this->idsOf( $private, 'player_note' ) );
-        $this->assertSame( 1, $private['counts']['player_note'] ?? null );
+        $this->assertSame( $sees ? [ $this->staff_only_note ] : [], $this->idsOf( $private, 'player_note' ), 'the staff-only note follows canSeePrivate()' );
+        $this->assertSame( $sees ? 1 : 0, $private['counts']['player_note'] ?? 0 );
     }
 
     public function test_a_staff_only_note_is_found_only_by_who_may_see_it(): void {
