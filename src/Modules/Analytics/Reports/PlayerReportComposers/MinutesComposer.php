@@ -149,15 +149,8 @@ final class MinutesComposer {
      * @return list<string>
      */
     private static function positionCodes( string $raw ): array {
-        $raw = trim( $raw );
-        if ( $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $raw );
-        $out     = [];
-        foreach ( $codes as $code ) {
-            $code = is_scalar( $code ) ? strtoupper( trim( (string) $code ) ) : '';
-            if ( $code !== '' && ! in_array( $code, $out, true ) ) $out[] = $code;
-        }
-        return $out;
+        // #4978 — the column has one reader (P7 on #4975); this composer
+        // compares codes upper-cased and once each.
+        return array_values( array_unique( array_map( 'strtoupper', \TT\Infrastructure\Players\PlayerPosition::codes( $raw ) ) ) );
     }
 }

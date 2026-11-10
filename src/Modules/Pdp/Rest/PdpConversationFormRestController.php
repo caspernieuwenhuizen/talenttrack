@@ -166,10 +166,11 @@ final class PdpConversationFormRestController extends BaseController {
         $current = (string) ( ( (array) $conv )['form_key'] ?? '' );
         if ( $current !== $form_key ) {
             $entries = new PdpFormEntriesRepository();
-            $refused = self::locked( $entries, $id, static function () use ( $entries, $id, $current, $form_key ): ?WP_REST_Response {
+            $refused = self::locked( $entries, $id, static function ( array $locked ) use ( $entries, $id, $form_key ): ?WP_REST_Response {
+                if ( (string) ( $locked['form_key'] ?? '' ) === $form_key ) return null;
                 // Owner decision 6 on #4975: the form is fixed at the player's
                 // first save. Before that the trainer may switch it.
-                if ( $current !== '' && $entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
+                if ( $entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
                     return RestResponse::error( 'form_fixed', __( 'The player has started on this form, so it can no longer be switched.', 'talenttrack' ), 409 );
                 }
                 $ok = ( new PdpConversationsRepository() )->update( $id, [ 'form_key' => $form_key, 'form_version' => PdpFormRegistry::latestVersion( $form_key ) ] );
@@ -188,7 +189,7 @@ final class PdpConversationFormRestController extends BaseController {
         if ( $access === null ) return self::notFound();
         if ( ! $access->canRead() || ! $access->isPlayer() ) return self::forbidden();
         $conv       = $access->conversation();
-        $definition = PdpFormReader::definitionFor( $conv );
+        $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
@@ -197,8 +198,11 @@ final class PdpConversationFormRestController extends BaseController {
         if ( $parsed instanceof WP_REST_Response ) return $parsed;
 
         // The player's part closes at sign-off too, so it takes the same lock.
+        // The player's first save pins the form (decision 6).
         $id      = (int) ( (array) $conv )['id'];
-        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function () use ( $id, $definition, $parsed ): ?WP_REST_Response {
+        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function ( array $locked ) use ( $id, $definition, $parsed ): ?WP_REST_Response {
+            $pin = self::pin( $locked, $id, $definition );
+            if ( $pin !== null ) return $pin;
             return self::writeEntries( $id, $definition, PdpFormAuthor::PLAYER, $parsed ) ? null : self::dbError();
         } );
         if ( $refused !== null ) return self::lockedAnswer( $refused );
@@ -223,7 +227,7 @@ final class PdpConversationFormRestController extends BaseController {
         $conv = $access->conversation();
         if ( ! empty( ( (array) $conv )['coach_signoff_at'] ) ) return self::signedOffError();
         if ( ! $access->writesCoachPart() ) return self::forbidden();
-        $definition = PdpFormReader::definitionFor( $conv );
+        $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
         // #2041 — the trainer's part is talk content, written in order like
@@ -236,7 +240,9 @@ final class PdpConversationFormRestController extends BaseController {
 
         $id      = (int) ( (array) $conv )['id'];
         $entries = new PdpFormEntriesRepository();
-        $refused = self::locked( $entries, $id, static function () use ( $id, $definition, $parsed ): ?WP_REST_Response {
+        $refused = self::locked( $entries, $id, static function ( array $locked ) use ( $id, $definition, $parsed ): ?WP_REST_Response {
+            $pin = self::pin( $locked, $id, $definition );
+            if ( $pin !== null ) return $pin;
             return self::writeEntries( $id, $definition, PdpFormAuthor::COACH, $parsed ) ? null : self::dbError();
         } );
         if ( $refused !== null ) return $refused;
@@ -272,8 +278,9 @@ final class PdpConversationFormRestController extends BaseController {
         $access = PdpFormAccess::forConversation( get_current_user_id(), absint( $r['id'] ) );
         if ( $access === null ) return self::notFound();
         if ( ! $access->canRead() || ! $access->isPlayer() ) return self::forbidden();
-        $conv = $access->conversation();
-        if ( PdpFormReader::definitionFor( $conv ) === null ) return self::noForm();
+        $conv       = $access->conversation();
+        $definition = self::chosenDefinition( $access );
+        if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
 
@@ -283,7 +290,9 @@ final class PdpConversationFormRestController extends BaseController {
         if ( $prepared === ( $now !== '' ) ) return self::fresh( $id );
 
         $patch   = [ 'player_prepared_at' => $prepared ? current_time( 'mysql', true ) : null ];
-        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function () use ( $id, $patch ): ?WP_REST_Response {
+        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function ( array $locked ) use ( $id, $patch, $definition ): ?WP_REST_Response {
+            $pin = self::pin( $locked, $id, $definition );
+            if ( $pin !== null ) return $pin;
             return ( new PdpConversationsRepository() )->update( $id, $patch ) ? null : self::dbError();
         } );
         if ( $refused !== null ) return self::lockedAnswer( $refused );
@@ -399,12 +408,12 @@ final class PdpConversationFormRestController extends BaseController {
      * takes (#5005 review). A conversation signed off meanwhile answers
      * `409 already_signed_off`; the write is rolled back on any refusal.
      *
-     * @param callable(): ?WP_REST_Response $write null when it succeeded
+     * @param callable(array<string,mixed>): ?WP_REST_Response $write receives the locked row; null when it succeeded
      */
     private static function locked( PdpFormEntriesRepository $entries, int $conversation_id, callable $write ): ?WP_REST_Response {
         try {
-            return $entries->underLock( $conversation_id, static function () use ( $write ): ?WP_REST_Response {
-                $answer = $write();
+            return $entries->underLock( $conversation_id, static function ( array $locked ) use ( $write ): ?WP_REST_Response {
+                $answer = $write( $locked );
                 // A refusal must not commit what was written before it.
                 if ( $answer !== null ) throw new \TT\Modules\Pdp\Forms\PdpFormSignoffRefused( new \WP_Error( 'refused', '', [ 'response' => $answer ] ) );
                 return null;
@@ -426,6 +435,37 @@ final class PdpConversationFormRestController extends BaseController {
         $data = (array) $refused->get_data();
         if ( ( $data['errors'][0]['code'] ?? '' ) === 'already_signed_off' ) return self::lockedError();
         return $refused;
+    }
+
+    /**
+     * #4978 — the definition a write goes against: the pinned form, or the
+     * one the player's position chooses before the first write.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function chosenDefinition( PdpFormAccess $access ): ?array {
+        $choice = \TT\Modules\Pdp\Forms\PdpFormChoice::formFor( $access->conversation(), $access->playerId() );
+        return $choice !== null ? PdpFormRegistry::definition( $choice['key'], $choice['version'] ) : null;
+    }
+
+    /**
+     * #4978 — pin the form on the conversation at its first write, inside
+     * the write's lock. A form pinned meanwhile that is not the one the
+     * write was checked against refuses the write, rather than store
+     * entries under the wrong form.
+     *
+     * @param array<string,mixed> $locked     the locked conversation row
+     * @param array<string,mixed> $definition
+     */
+    private static function pin( array $locked, int $conversation_id, array $definition ): ?WP_REST_Response {
+        $form_key = (string) $definition['form_key'];
+        $pinned   = (string) ( $locked['form_key'] ?? '' );
+        if ( $pinned === $form_key ) return null;
+        if ( $pinned !== '' ) {
+            return RestResponse::error( 'form_changed', __( 'The conversation form was changed meanwhile. Reload the form and try again.', 'talenttrack' ), 409 );
+        }
+        $ok = ( new PdpConversationsRepository() )->update( $conversation_id, [ 'form_key' => $form_key, 'form_version' => (int) $definition['version'] ] );
+        return $ok ? null : self::dbError();
     }
 
     /** Is this the talk the file is on now (#2041)? */

@@ -931,6 +931,24 @@
 .tt-pdp-not-held__form .tt-input { font-size: 1rem; }
 
 /*
+ * #4978 — which conversation form the talk uses, and the trainer's switch.
+ * Mobile-first: the line and the button stack; the button keeps the shared
+ * .tt-btn tap floor.
+ */
+.tt-pdp-form-switch {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.tt-pdp-form-switch__current { margin: 0; }
+.tt-pdp-form-switch__form {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+}
+.tt-pdp-form-switch__form .tt-help-text { margin: 0; }
+
+/*
  * #2042 — proxy-acknowledgement block on the coach conversation form.
  * Lets a coach record the player's / parent's acknowledgement on their
  * behalf (each behind a confirm dialog) once the talk is signed off.

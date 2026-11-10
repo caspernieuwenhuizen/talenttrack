@@ -30,7 +30,9 @@ final class PdpFormReader {
 
     /**
      * The pinned definition of a conversation, or null when it uses no form
-     * (or one that is no longer shipped).
+     * yet (or one that is no longer shipped). Sign-off reads this one: by
+     * then a write has pinned the form. Before the first write, what the
+     * form will be is `PdpFormChoice::formFor()`.
      *
      * @return array<string,mixed>|null
      */
@@ -55,9 +57,19 @@ final class PdpFormReader {
     public function read( PdpFormAccess $access, object $conversation, ?int $now_ts = null ): array {
         $row        = (array) $conversation;
         $id         = (int) ( $row['id'] ?? 0 );
-        $definition = self::definitionFor( $conversation );
+        // #4978 — before the first write the form follows the position; it
+        // is pinned on the conversation by that write.
+        $choice     = PdpFormChoice::formFor( $conversation, $access->playerId() );
+        $definition = $choice !== null ? PdpFormRegistry::definition( $choice['key'], $choice['version'] ) : null;
         $form_key   = $definition !== null ? (string) $definition['form_key'] : '';
         $prepared   = self::nullable( $row['player_prepared_at'] ?? null );
+        $signed     = self::nullable( $row['coach_signoff_at'] ?? null ) !== null;
+
+        // Decision 6: the trainer may switch until the player's first save.
+        $switch_to = null;
+        if ( $definition !== null && ! $signed && $access->choosesForm() && ! $this->entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
+            $switch_to = PdpFormChoice::switchTarget( $form_key );
+        }
 
         $player = null;
         $coach  = null;
@@ -103,6 +115,8 @@ final class PdpFormReader {
             'state'           => [
                 'form_key'                      => $form_key !== '' ? $form_key : null,
                 'form_version'                  => $definition !== null ? (int) $definition['version'] : null,
+                'form_pinned'                   => $choice !== null && $choice['pinned'],
+                'form_switch_to'                => $switch_to,
                 'player_prepared_at'            => $prepared,
                 'player_changed_after_prepared' => $changed_after,
                 'coach_signoff_at'              => self::nullable( $row['coach_signoff_at'] ?? null ),

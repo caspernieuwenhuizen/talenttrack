@@ -1573,15 +1573,8 @@ final class ActivitiesRepository {
      * (§2155's long-form switch was only for profiles/cards/dashboards).
      */
     private static function primaryPreferredPositions( string $raw ): string {
-        $raw = trim( $raw );
-        if ( $raw === '' ) return '';
-        $decoded = json_decode( $raw, true );
-        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $raw );
-        $parts   = array_values( array_filter(
-            array_map( static fn ( $v ): string => trim( (string) $v ), $codes ),
-            static fn ( string $v ): bool => $v !== ''
-        ) );
-        return implode( ', ', $parts );
+        // #4978 — the column has one reader (P7 on #4975).
+        return implode( ', ', \TT\Infrastructure\Players\PlayerPosition::codes( $raw ) );
     }
 
     /**

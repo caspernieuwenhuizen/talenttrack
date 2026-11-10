@@ -1388,6 +1388,10 @@ class FrontendPdpManageView extends FrontendViewBase {
             . ' aria-labelledby="' . esc_attr( \TT\Shared\Frontend\Components\RecordSpine::tabId( 'tt-pdp-pane-conversation' ) ) . '"'
             . ( $prep_is_open ? ' hidden' : '' ) . '>';
 
+        // #4978 — which conversation form the talk uses, and the trainer's
+        // switch while the player has not saved anything yet.
+        self::renderFormSwitch( $conv_id, $user_id );
+
         // v3.110.197 (#809) — locked banner. Names the signatory chain so
         // the coach knows why edits are blocked.
         if ( $is_locked ) {
@@ -2295,6 +2299,50 @@ class FrontendPdpManageView extends FrontendViewBase {
      * #4298 — "This talk did not take place", behind a disclosure so it is
      * a deliberate second step, with a required reason and a confirm.
      */
+    /**
+     * #4978 (epic #4975) — the conversation form this talk uses, and the
+     * trainer's switch between the keeper and the outfield form.
+     *
+     * Composes `PdpFormReader`: the form follows the player's position until
+     * the first save, and the switch is offered only while the reader says
+     * so (staff who may choose, before sign-off, while the player has saved
+     * nothing; owner decision 6). The switch is saved through
+     * `PATCH /pdp-conversations/{id}/form`. Nothing renders when the
+     * academy uses no conversation forms.
+     */
+    private static function renderFormSwitch( int $conv_id, int $user_id ): void {
+        $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $user_id, $conv_id );
+        if ( $access === null || ! $access->canRead() ) return;
+        $form = ( new \TT\Modules\Pdp\Forms\PdpFormReader() )->read( $access, $access->conversation() );
+        if ( $form['form'] === null ) return;
+
+        $group = (string) ( $form['form']['definition']['position_group'] ?? '' );
+        echo '<div class="tt-pdp-form-switch">';
+        echo '<p class="tt-pdp-form-switch__current">' . esc_html(
+            $group === \TT\Modules\Pdp\Forms\PdpFormRegistry::GROUP_GOALKEEPER
+                ? __( 'This talk uses the goalkeeper form.', 'talenttrack' )
+                : __( 'This talk uses the outfield form.', 'talenttrack' )
+        ) . '</p>';
+
+        $target = $form['state']['form_switch_to'] ?? null;
+        if ( is_string( $target ) && $target !== '' ) {
+            echo '<form class="tt-ajax-form tt-pdp-form-switch__form"'
+                . ' data-rest-path="' . esc_attr( 'pdp-conversations/' . $conv_id . '/form' ) . '"'
+                . ' data-rest-method="PATCH"'
+                . ' data-redirect-after-save="reload">';
+            echo '<input type="hidden" name="form_key" value="' . esc_attr( $target ) . '" />';
+            echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html(
+                $group === \TT\Modules\Pdp\Forms\PdpFormRegistry::GROUP_GOALKEEPER
+                    ? __( 'Switch to the outfield form', 'talenttrack' )
+                    : __( 'Switch to the goalkeeper form', 'talenttrack' )
+            ) . '</button>';
+            echo '<p class="tt-help-text">' . esc_html__( 'You can switch until the player starts filling in the form.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-form-msg" role="status" aria-live="polite"></div>';
+            echo '</form>';
+        }
+        echo '</div>';
+    }
+
     private static function renderNotHeldForm( string $rest_path, string $back_to_file_url ): void {
         $field = 'tt-pdp-not-held-reason';
         echo '<details class="tt-pdp-not-held">';
