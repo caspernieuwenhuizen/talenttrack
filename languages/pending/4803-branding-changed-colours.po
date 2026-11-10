@@ -1,0 +1,4 @@
+#. translators: %s: the name of a colour setting, such as "Primary color".
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Reset %s to default"
+msgstr "%s terug naar standaard"

@@ -1631,6 +1631,23 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
+     * #4803 — "Reset to default" for one Branding colour. It puts the
+     * colour's default back in the field; Save then stores the colour as
+     * unset (`BrandStyles::saveColor()`), so it follows `tokens.css` again.
+     * A button, not a gesture, with the colour's name in its accessible name.
+     */
+    private static function renderColorReset( string $input_id, string $default, string $label ): void {
+        printf(
+            '<button type="button" class="tt-btn tt-btn-secondary tt-color-reset" data-tt-color-reset="%1$s" data-tt-color-default="%2$s" aria-label="%3$s">%4$s</button>',
+            esc_attr( $input_id ),
+            esc_attr( $default ),
+            /* translators: %s: the name of a colour setting, such as "Primary color". */
+            esc_attr( sprintf( __( 'Reset %s to default', 'talenttrack' ), $label ) ),
+            esc_html__( 'Reset to default', 'talenttrack' )
+        );
+    }
+
+    /**
      * #1531 — single "Appearance" surface consolidating the former
      * Branding and Theme & fonts tiles. Stacked sections: Identity,
      * Colours (primary/secondary + the accent palette, all in one place),
@@ -1640,6 +1657,9 @@ class FrontendConfigurationView extends FrontendViewBase {
      * theme form into Colours.
      */
     private static function renderAppearanceForm(): void {
+        // #4803 — the per-colour "Reset to default" buttons.
+        wp_enqueue_style( 'tt-frontend-branding-colors', TT_PLUGIN_URL . 'assets/css/frontend-branding-colors.css', [], TT_VERSION );
+        wp_enqueue_script( 'tt-frontend-branding-colors', TT_PLUGIN_URL . 'assets/js/frontend-branding-colors.js', [], TT_VERSION, true );
         $logo            = QueryHelpers::get_config( 'logo_url', '' );
         $club_short_code = QueryHelpers::get_config( 'club_short_code', '' );
         $font_display    = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
@@ -1746,11 +1766,17 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-primary-color"><?php esc_html_e( 'Primary color', 'talenttrack' ); ?></label>
-                        <input type="color" id="tt-cfg-primary-color" name="config[primary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'primary_color', '#0b3d2e' ) ); ?>" />
+                        <div class="tt-color-field">
+                            <input type="color" id="tt-cfg-primary-color" name="config[primary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'primary_color', '#0b3d2e' ) ); ?>" />
+                            <?php self::renderColorReset( 'tt-cfg-primary-color', '#0b3d2e', __( 'Primary color', 'talenttrack' ) ); ?>
+                        </div>
                     </div>
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-secondary-color"><?php esc_html_e( 'Secondary color', 'talenttrack' ); ?></label>
-                        <input type="color" id="tt-cfg-secondary-color" name="config[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" />
+                        <div class="tt-color-field">
+                            <input type="color" id="tt-cfg-secondary-color" name="config[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" />
+                            <?php self::renderColorReset( 'tt-cfg-secondary-color', '#e8b624', __( 'Secondary color', 'talenttrack' ) ); ?>
+                        </div>
                     </div>
                     <?php
                     foreach ( [
@@ -1765,7 +1791,10 @@ class FrontendConfigurationView extends FrontendViewBase {
                         ?>
                         <div class="tt-field">
                             <label class="tt-field-label" for="tt-cfg-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
-                            <input type="color" id="tt-cfg-<?php echo esc_attr( $key ); ?>" name="config[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( QueryHelpers::get_config( $key, $default ) ); ?>" />
+                            <div class="tt-color-field">
+                                <input type="color" id="tt-cfg-<?php echo esc_attr( $key ); ?>" name="config[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( QueryHelpers::get_config( $key, $default ) ); ?>" />
+                                <?php self::renderColorReset( 'tt-cfg-' . $key, $default, $label ); ?>
+                            </div>
                             <?php
                             // #4829 — what the focus colour does, and a warning when
                             // the saved one is too faint to serve as a focus ring.

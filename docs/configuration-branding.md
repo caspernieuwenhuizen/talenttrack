@@ -180,7 +180,9 @@ Six semantic colors, each backed by a `--tt-*` CSS custom property used througho
 
 Leaving a field empty restores the default token from the plugin's stylesheet. The operator's chosen colours are added to the plugin's design tokens on the page and, because canvas mode strips the active theme's CSS, nothing can override them.
 
-**Focus ring color.** Without a focus colour, the keyboard focus ring follows the primary colour. The blue the field shows before you pick anything (`#1e88e5`) counts as no focus colour, because the form saves it with every other Branding setting. A focus colour you set takes its place, as long as it stands out against the page (a contrast of at least 3 to 1). A fainter colour is still saved, but the form warns that it is hard to see as a focus outline, and the ring keeps following the primary colour so keyboard users can always see where they are. Under a visual theme the theme decides the ring.
+**Only the colours you change are saved.** Saving the form stores a colour only when it differs from the colour the field shows when nothing has been chosen; a colour left at that default is saved as not set, so it follows the design's own colour. Each colour has a **Reset to default** button that puts the default back in the field; save the form to clear the colour. A danger, warning, success or info colour set to black is treated as not set as well, so alerts never turn black by accident. The accent colour is the exception: its default blue is the accent the dashboard shows, so it is saved as it stands.
+
+**Focus ring color.** Without a focus colour, the keyboard focus ring follows the primary colour. The blue the field shows before you pick anything (`#1e88e5`) counts as no focus colour. A focus colour you set takes its place, as long as it stands out against the page (a contrast of at least 3 to 1). A fainter colour is still saved, but the form warns that it is hard to see as a focus outline, and the ring keeps following the primary colour so keyboard users can always see where they are. Under a visual theme the theme decides the ring.
 
 ### Backward compatibility
 

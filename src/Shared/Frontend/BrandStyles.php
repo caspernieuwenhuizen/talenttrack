@@ -80,6 +80,29 @@ class BrandStyles {
         return true;
     }
 
+    /** Is this config key one of the Branding colours? */
+    public static function isColorKey( string $key ): bool {
+        return isset( self::COLOR_TOKENS[ $key ] );
+    }
+
+    /**
+     * #4803 — store a Branding colour only when the academy chose it.
+     *
+     * The form submits every colour on every save. A value that is not a
+     * choice (empty, the form's default, `#000000` for a status colour)
+     * removes the stored row instead, so the colour stays unset and falls
+     * back to `tokens.css`, and TalentTrack can tell a chosen colour from a
+     * default. Both save paths (the Configuration REST route and the
+     * wp-admin form) write through here.
+     */
+    public static function saveColor( string $key, string $value ): void {
+        if ( self::isChosen( $key, $value ) ) {
+            \TT\Infrastructure\Query\QueryHelpers::set_config( $key, $value );
+            return;
+        }
+        \TT\Infrastructure\Query\QueryHelpers::delete_config( $key );
+    }
+
     /**
      * The Branding rule for `.tt-root`, or '' when the academy chose
      * nothing. Only the values it chose are written, so every other token

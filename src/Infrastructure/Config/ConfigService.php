@@ -48,6 +48,20 @@ class ConfigService {
     }
 
     /**
+     * #4803 — remove a key for the current club, so `get()` answers with the
+     * caller's default again. Storing `''` would not: an empty row is a
+     * value, and every reader would get `''` instead of its default.
+     */
+    public function delete( string $key ): void {
+        global $wpdb;
+        $wpdb->delete( $wpdb->prefix . 'tt_config', [
+            'club_id'    => CurrentClub::id(),
+            'config_key' => $key,
+        ] );
+        unset( $this->cache[ $this->cacheKey( $key ) ] );
+    }
+
+    /**
      * Every stored key/value pair for the current club, ordered by key.
      *
      * The per-key `get()` above is the hot path and stays as-is; this is

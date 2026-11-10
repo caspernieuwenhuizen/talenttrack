@@ -1,0 +1,20 @@
+/*
+ * #4803 — a Branding colour field with its "Reset to default" button.
+ * Mobile-first: the swatch and the button sit side by side and wrap on a
+ * narrow screen; the button keeps the shared .tt-btn tap floor.
+ */
+.tt-color-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-color-field input[type="color"] {
+    min-width: 3rem;
+    min-height: var(--tt-tap-min, 3rem);
+}
+
+.tt-color-reset {
+    touch-action: manipulation;
+}
