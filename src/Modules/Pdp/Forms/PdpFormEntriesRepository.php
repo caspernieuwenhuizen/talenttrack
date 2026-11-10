@@ -41,7 +41,7 @@ final class PdpFormEntriesRepository {
         return \TT\Infrastructure\Database\Transaction::run( static function () use ( $conversation_id, $work ) {
             global $wpdb;
             $locked = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, coach_signoff_at, conducted_at, form_key, form_version FROM {$wpdb->prefix}tt_pdp_conversations WHERE id = %d AND club_id = %d FOR UPDATE",
+                "SELECT id, coach_signoff_at, conducted_at, form_key, form_version, player_prepared_at FROM {$wpdb->prefix}tt_pdp_conversations WHERE id = %d AND club_id = %d FOR UPDATE",
                 $conversation_id, CurrentClub::id()
             ), ARRAY_A );
             if ( ! is_array( $locked ) ) {

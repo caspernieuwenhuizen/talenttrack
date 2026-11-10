@@ -95,6 +95,18 @@ final class PdpFormSignoff {
             $result = $entries->underLock( $conv_id, static function ( array $locked ) use ( $user_id, $conv_id, $player_id, $type_id, $category_ids, $scale, $definition, $entries, $form_key ): array {
                 global $wpdb;
 
+                // #4978 — the form was read from the row loaded before the
+                // lock. A switch that landed in between would have the
+                // evaluation built from the wrong form's categories.
+                if ( (string) ( $locked['form_key'] ?? '' ) !== $form_key
+                    || (int) ( $locked['form_version'] ?? 0 ) !== (int) $definition['version'] ) {
+                    throw new PdpFormSignoffRefused( new \WP_Error(
+                        'form_changed',
+                        __( 'The conversation form was changed meanwhile. Reload the form and try again.', 'talenttrack' ),
+                        [ 'status' => 409 ]
+                    ) );
+                }
+
                 $scores  = $entries->scores( $conv_id, $form_key, PdpFormAuthor::COACH );
                 $answers = $entries->answers( $conv_id, $form_key, PdpFormAuthor::COACH );
                 $goals   = $entries->goals( $conv_id );

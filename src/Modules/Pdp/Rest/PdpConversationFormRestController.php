@@ -152,6 +152,7 @@ final class PdpConversationFormRestController extends BaseController {
         $conv = $access->conversation();
         if ( ! empty( ( (array) $conv )['coach_signoff_at'] ) ) return self::signedOffError();
         if ( ! $access->choosesForm() ) return self::forbidden();
+        if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
 
         $form_key = sanitize_key( (string) $r->get_param( 'form_key' ) );
         if ( $form_key === '' ) {
@@ -169,8 +170,9 @@ final class PdpConversationFormRestController extends BaseController {
             $refused = self::locked( $entries, $id, static function ( array $locked ) use ( $entries, $id, $form_key ): ?WP_REST_Response {
                 if ( (string) ( $locked['form_key'] ?? '' ) === $form_key ) return null;
                 // Owner decision 6 on #4975: the form is fixed at the player's
-                // first save. Before that the trainer may switch it.
-                if ( $entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
+                // first save, and marking the preparation ready is one. Before
+                // that the trainer may switch it.
+                if ( ! empty( $locked['player_prepared_at'] ) || $entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
                     return RestResponse::error( 'form_fixed', __( 'The player has started on this form, so it can no longer be switched.', 'talenttrack' ), 409 );
                 }
                 $ok = ( new PdpConversationsRepository() )->update( $id, [ 'form_key' => $form_key, 'form_version' => PdpFormRegistry::latestVersion( $form_key ) ] );

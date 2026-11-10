@@ -65,9 +65,11 @@ final class PdpFormReader {
         $prepared   = self::nullable( $row['player_prepared_at'] ?? null );
         $signed     = self::nullable( $row['coach_signoff_at'] ?? null ) !== null;
 
-        // Decision 6: the trainer may switch until the player's first save.
+        // Decision 6: the trainer may switch until the player's first save;
+        // "klaar" counts as one. Not on a talk that did not take place.
         $switch_to = null;
-        if ( $definition !== null && ! $signed && $access->choosesForm() && ! $this->entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
+        if ( $definition !== null && ! $signed && $prepared === null && ! PdpCycleState::isNotHeld( $conversation )
+            && $access->choosesForm() && ! $this->entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
             $switch_to = PdpFormChoice::switchTarget( $form_key );
         }
 

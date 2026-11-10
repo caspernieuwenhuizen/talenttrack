@@ -2296,10 +2296,6 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * #4298 — "This talk did not take place", behind a disclosure so it is
-     * a deliberate second step, with a required reason and a confirm.
-     */
-    /**
      * #4978 (epic #4975) — the conversation form this talk uses, and the
      * trainer's switch between the keeper and the outfield form.
      *
@@ -2343,6 +2339,10 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '</div>';
     }
 
+    /**
+     * #4298 — "This talk did not take place", behind a disclosure so it is
+     * a deliberate second step, with a required reason and a confirm.
+     */
     private static function renderNotHeldForm( string $rest_path, string $back_to_file_url ): void {
         $field = 'tt-pdp-not-held-reason';
         echo '<details class="tt-pdp-not-held">';

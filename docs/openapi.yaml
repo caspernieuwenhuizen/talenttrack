@@ -618,20 +618,20 @@ paths:
 
   /pdp-conversations/{id}/form:
     get: { tags: [pdp], summary: 'The conversation form as the caller may read it; a hidden part is null (#4977)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '403': { description: Forbidden }, '404': { description: Not found } } }
-    patch: { tags: [pdp], summary: 'Pin the conversation form ({ form_key }); 409 form_fixed once the player started', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Invalid field }, '409': { description: Conflict } } }
+    patch: { tags: [pdp], summary: 'Switch the conversation form ({ form_key }) before the player starts; the form follows the position and is pinned at the first write; 409 form_fixed once the player has saved or marked ready', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Invalid field }, '409': { description: Conflict } } }
 
   /pdp-conversations/{id}/form/player:
-    patch: { tags: [pdp], summary: "The player's scores and answers, partial (autosave); the linked player only", parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Unknown or invalid field }, '403': { description: Forbidden }, '409': { description: form_locked } } }
+    patch: { tags: [pdp], summary: "The player's scores and answers, partial (autosave); the linked player only", parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Unknown or invalid field }, '403': { description: Forbidden }, '409': { description: 'form_locked, form_changed' } } }
 
   /pdp-conversations/{id}/form/player/preparation:
-    put: { tags: [pdp], summary: 'The player marks the preparation finished (idempotent)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '409': { description: form_locked } } }
-    delete: { tags: [pdp], summary: 'The player takes the preparation back while unlocked', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '409': { description: form_locked } } }
+    put: { tags: [pdp], summary: 'The player marks the preparation finished (idempotent)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '409': { description: 'form_locked, form_changed' } } }
+    delete: { tags: [pdp], summary: 'The player takes the preparation back while unlocked', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '409': { description: 'form_locked, form_changed' } } }
 
   /pdp-conversations/{id}/form/coach:
-    patch: { tags: [pdp], summary: "The trainer's scores, answers and SMART points, partial (autosave)", parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Unknown or invalid field }, '403': { description: Forbidden }, '409': { description: already_signed_off } } }
+    patch: { tags: [pdp], summary: "The trainer's scores, answers and SMART points, partial (autosave)", parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Unknown or invalid field }, '403': { description: Forbidden }, '409': { description: 'already_signed_off, form_changed, conversation_not_active' } } }
 
   /pdp-conversations/{id}/signoff:
-    post: { tags: [pdp], summary: 'Sign the form off: one evaluation, two goals and the sign-off in one transaction', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '201': { description: Created }, '400': { description: missing_fields }, '403': { description: Forbidden }, '409': { description: already_signed_off } } }
+    post: { tags: [pdp], summary: 'Sign the form off: one evaluation, two goals and the sign-off in one transaction', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '201': { description: Created }, '400': { description: missing_fields }, '403': { description: Forbidden }, '409': { description: 'already_signed_off, form_changed, conversation_not_active' } } }
 
   /pdp-files:
     get: { tags: [pdp], summary: List PDP files, responses: { '200': { description: OK } } }

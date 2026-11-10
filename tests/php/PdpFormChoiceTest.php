@@ -155,10 +155,101 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
     }
 
     public function test_the_player_and_a_parent_are_offered_no_switch(): void {
-        [ , $conv, $account ] = $this->conversation( '["CB"]', true );
+        global $wpdb;
+        [ $player, $conv, $account ] = $this->conversation( '["CB"]', true );
         wp_set_current_user( $account );
         $this->assertNull( $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'] );
         $this->assertSame( 403, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
+
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$this->p}tt_player_parents", [ 'club_id' => $this->club, 'player_id' => $player, 'parent_user_id' => $parent ] );
+        wp_set_current_user( $parent );
+        $this->assertSame( 403, $this->send( 'GET', $conv, 'form', [] )[1], 'a parent reads nothing before sign-off' );
+        $this->assertSame( 403, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1], 'and switches nothing' );
+        $this->assertSame( self::OUTFIELD, PdpFormChoice::formFor( $this->row( $conv ), $player )['key'] ?? null );
+    }
+
+    public function test_staff_who_may_see_the_file_but_not_edit_it_get_no_switch(): void {
+        [ , $conv ] = $this->conversation( '["CB"]' );
+        $reader = (int) self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
+        ( new MatrixRepository() )->setRow( 'team_manager', 'pdp_file', \TT\Modules\Authorization\MatrixGate::READ, \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL, '' );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        $this->assertTrue( \TT\Modules\Pdp\PdpAccess::canSeeFile( $reader, $this->playerOf( $conv ) ), 'precondition: the seat reads the file' );
+        $this->assertFalse( \TT\Modules\Pdp\PdpAccess::canEditFile( $reader, $this->playerOf( $conv ) ), 'precondition: and does not edit it' );
+
+        wp_set_current_user( $reader );
+        [ $data, $status ] = $this->send( 'GET', $conv, 'form', [] );
+        $this->assertSame( 200, $status );
+        $this->assertNull( $data['data']['state']['form_switch_to'], 'no switch is offered' );
+        $this->assertSame( 403, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
+        $this->assertStringNotContainsString( 'Switch to the', $this->switchControl( $conv ) );
+    }
+
+    public function test_klaar_fixes_the_form_too(): void {
+        [ , $conv, $account ] = $this->conversation( '["CB"]', true );
+        wp_set_current_user( $account );
+        $this->assertSame( 200, $this->send( 'PUT', $conv, 'form/player/preparation', [] )[1], 'ready, with nothing filled in' );
+
+        wp_set_current_user( $this->trainer );
+        $this->assertNull( $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'] );
+        [ $data, $status ] = $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'form_fixed', $data['errors'][0]['code'] );
+    }
+
+    public function test_a_talk_marked_not_held_takes_no_switch(): void {
+        global $wpdb;
+        [ , $conv ] = $this->conversation( '["CB"]' );
+        $wpdb->update( "{$this->p}tt_pdp_conversations", [ 'not_held_at' => gmdate( 'Y-m-d H:i:s' ), 'not_held_reason' => 'Ziek' ], [ 'id' => $conv ] );
+
+        wp_set_current_user( $this->trainer );
+        $this->assertNull( $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'] );
+        [ $data, $status ] = $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'conversation_not_held', $data['errors'][0]['code'] );
+    }
+
+    // ---- a form switched under a write ---------------------------------------------
+
+    public function test_a_write_that_finds_another_form_pinned_is_refused(): void {
+        $method = new \ReflectionMethod( \TT\Modules\Pdp\Rest\PdpConversationFormRestController::class, 'pin' );
+        $method->setAccessible( true );
+        $definition = PdpFormRegistry::definition( self::OUTFIELD );
+        $this->assertNotNull( $definition );
+
+        $this->assertNull( $method->invoke( null, [ 'form_key' => self::OUTFIELD ], 1, $definition ), 'the same form: nothing to do' );
+        $refused = $method->invoke( null, [ 'form_key' => self::GOALKEEPER ], 1, $definition );
+        $this->assertInstanceOf( \WP_REST_Response::class, $refused );
+        $this->assertSame( 409, $refused->get_status() );
+        $this->assertSame( 'form_changed', $refused->get_data()['errors'][0]['code'] );
+    }
+
+    public function test_sign_off_against_a_form_switched_meanwhile_writes_nothing(): void {
+        global $wpdb;
+        [ $player, $conv ] = $this->conversation( '["CB"]' );
+        wp_set_current_user( $this->trainer );
+        $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form/coach', [ 'scores' => [ 'aannames' => 3 ] ] )[1] );
+
+        // The sign-off loaded this row; then the switch landed.
+        $stale = $this->row( $conv );
+        $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
+
+        $result = \TT\Modules\Pdp\Forms\PdpFormSignoff::signOff( $this->trainer, $stale, $player );
+        $this->assertInstanceOf( \WP_Error::class, $result );
+        $this->assertSame( 'form_changed', $result->get_error_code() );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->p}tt_evaluations WHERE pdp_conversation_id = %d", $conv ) ), 'no evaluation' );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->p}tt_goals WHERE player_id = %d", $player ) ), 'no goals' );
+        $this->assertSame( '', (string) $this->row( $conv )->coach_signoff_at, 'not signed off' );
+    }
+
+    // ---- the rate card's primary position -----------------------------------------
+
+    public function test_the_rate_card_shows_no_position_for_an_empty_list(): void {
+        $method = new \ReflectionMethod( \TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget::class, 'primaryPosition' );
+        $method->setAccessible( true );
+        $this->assertSame( '', $method->invoke( null, (object) [ 'preferred_positions' => '[]' ] ), 'used to print the literal "[]"' );
+        $this->assertSame( LabelTranslator::positionLabel( 'CB' ), $method->invoke( null, (object) [ 'preferred_positions' => '["","CB"]' ] ), 'a blank first code gives the next one' );
     }
 
     // ---- versions ------------------------------------------------------------------
@@ -244,6 +335,10 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
             $wpdb->update( "{$this->p}tt_players", [ 'wp_user_id' => $account ], [ 'id' => $player ] );
         }
         return [ $player, $conv, $account ];
+    }
+
+    private function playerOf( int $conv ): int {
+        return \TT\Modules\Pdp\Prep\PdpPrepAccess::playerFor( $conv );
     }
 
     private function row( int $conv ): object {
