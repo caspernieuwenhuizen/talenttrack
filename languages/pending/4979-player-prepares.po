@@ -34,6 +34,10 @@ msgid "Your preparation can no longer be saved. Reload the page to see why."
 msgstr "Je voorbereiding kan niet meer worden opgeslagen. Laad de pagina opnieuw om te zien waarom."
 
 #: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your last change has not been saved yet. Check your connection and try Ready again."
+msgstr "Je laatste wijziging is nog niet opgeslagen. Controleer je verbinding en probeer Klaar opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
 msgctxt "PDP preparation step: the strongest quality"
 msgid "Strength"
 msgstr "Wapen"

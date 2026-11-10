@@ -49,17 +49,6 @@
 		if (msg) msg.textContent = text;
 	}
 
-	/** Wait for the autosave to settle: a save queued behind one in flight. */
-	function settled(saver) {
-		return new Promise(function (resolve) {
-			var tries = 0;
-			(function check() {
-				if (!saver.isPending() || tries++ > 40) { resolve(); return; }
-				setTimeout(check, 150);
-			}());
-		});
-	}
-
 	function wireForm(form) {
 		var steps   = Array.prototype.slice.call(form.querySelectorAll('[data-tt-prep-step]'));
 		var marks   = Array.prototype.slice.call(form.querySelectorAll('[data-tt-prep-goto]'));
@@ -117,18 +106,39 @@
 
 		if (done) {
 			done.addEventListener('click', function () {
+				if (!saver) return;
 				done.disabled = true;
 				say(form, t('saving', 'Saving your preparation…'));
-				var flush = saver ? saver.saveNow().then(function () { return settled(saver); }) : Promise.resolve();
-				flush.then(function () {
-					return request('PUT', String(form.getAttribute('data-prepared-path') || ''));
-				}).then(function (res) {
-					if (res.ok) { window.location.reload(); return; }
+
+				function stay(text) {
 					done.disabled = false;
-					say(form, errorText(res, t('failed', 'Your preparation could not be marked ready. Try again.')));
+					say(form, text);
+				}
+
+				// The form as it stands, through the saver: `send()` queues
+				// behind a save already on its way, so this lands after it.
+				// "Ready" goes out only once that has been stored. A failed
+				// save leaves the form on screen, with the edit in it, to try
+				// again; a reload now would draw a summary without it.
+				saver.send({
+					method: 'PATCH',
+					url: restBase() + String(form.getAttribute('data-rest-path') || ''),
+					body: TT.FormAutosave.body(form)
+				}).then(function (saved) {
+					if (!saved || saver.isPending()) {
+						stay(t('unsaved', 'Your last change has not been saved yet. Check your connection and try Ready again.'));
+						return null;
+					}
+					return saver.send({
+						method: 'PUT',
+						url: restBase() + String(form.getAttribute('data-prepared-path') || ''),
+						body: null
+					}).then(function (marked) {
+						if (marked) { window.location.reload(); return; }
+						stay(t('failed', 'Your preparation could not be marked ready. Try again.'));
+					});
 				}, function () {
-					done.disabled = false;
-					say(form, t('failed', 'Your preparation could not be marked ready. Try again.'));
+					stay(t('failed', 'Your preparation could not be marked ready. Try again.'));
 				});
 			});
 		}

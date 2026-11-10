@@ -213,6 +213,33 @@ final class PdpPreparationTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'You can prepare once the conversation is planned.', $this->myPdp( null ) );
     }
 
+    /**
+     * The opening date is a UTC moment. Just after local midnight it falls on
+     * the day before in UTC; the page and the refusal both name the local
+     * day, the same one.
+     */
+    public function test_the_opening_date_reads_in_the_sites_timezone(): void {
+        $before = get_option( 'timezone_string' );
+        update_option( 'timezone_string', 'Europe/Amsterdam' );
+        try {
+            $tz    = new \DateTimeZone( 'Europe/Amsterdam' );
+            $talk  = ( new \DateTimeImmutable( 'today +20 days', $tz ) )->setTime( 0, 30 );
+            $opens = $talk->modify( '-14 days' );
+            $this->plan( $talk->getTimestamp() );
+            $this->assertNotSame( $opens->format( 'Y-m-d' ), gmdate( 'Y-m-d', $opens->getTimestamp() ), 'Precondition: in UTC it is the day before.' );
+
+            $line = sprintf( 'You can prepare from %s.', \TT\Shared\Dates\TTDate::date( $opens->format( 'Y-m-d' ) ) );
+            $this->assertStringContainsString( $line, $this->myPdp(), 'the page names the local day' );
+
+            wp_set_current_user( $this->account );
+            [ $data, $status ] = $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 3 ] ] );
+            $this->assertSame( 409, $status );
+            $this->assertSame( $line, $data['errors'][0]['message'], 'and the refusal names the same day' );
+        } finally {
+            update_option( 'timezone_string', $before );
+        }
+    }
+
     public function test_my_pdp_draws_one_step_per_section_and_the_strongest_quality(): void {
         $html = $this->myPdp();
         $definition = PdpFormRegistry::definition( self::OUTFIELD );

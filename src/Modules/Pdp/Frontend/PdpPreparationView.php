@@ -32,9 +32,11 @@ final class PdpPreparationView {
     /**
      * Draw the preparation for the next talk, when it uses a conversation
      * form. False when it does not, so the caller draws the free-text
-     * reflection instead. A reader other than the player sees nothing of the
-     * preparation before sign-off, so for them this draws nothing and still
-     * answers true.
+     * reflection instead. This view is the player's own: for anyone else it
+     * draws nothing and still answers true, so no reflection appears in its
+     * place. Staff read the player's part elsewhere, once it is marked ready
+     * (the conversation screen and `GET …/form`); a parent reads it only
+     * after sign-off.
      *
      * @param array<string,mixed>|null $conv the next talk, from `PdpFamilyReader`
      */
@@ -71,7 +73,8 @@ final class PdpPreparationView {
             echo '<p class="tt-pdp-prep__guard">' . esc_html( sprintf(
                 /* translators: %s: the date the player's preparation opens */
                 __( 'You can prepare from %s.', 'talenttrack' ),
-                TTDate::date( (string) $opens_at )
+                // `opens_at` is UTC; the date the player reads is the site's.
+                TTDate::date( get_date_from_gmt( (string) $opens_at ) )
             ) ) . '</p>';
         } elseif ( ! empty( $state['player_locked'] ) ) {
             echo '<p class="tt-pdp-prep__guard">' . esc_html__( 'The conversation has started, so your part of the form can no longer be changed.', 'talenttrack' ) . '</p>';
@@ -104,6 +107,7 @@ final class PdpPreparationView {
                 'failed'    => __( 'Your preparation could not be marked ready. Try again.', 'talenttrack' ),
                 'reopenErr' => __( 'Your preparation could not be reopened. Try again.', 'talenttrack' ),
                 'closed'    => __( 'Your preparation can no longer be saved. Reload the page to see why.', 'talenttrack' ),
+                'unsaved'   => __( 'Your last change has not been saved yet. Check your connection and try Ready again.', 'talenttrack' ),
             ],
         ] );
     }
@@ -117,7 +121,7 @@ final class PdpPreparationView {
     private static function renderSteps( int $id, array $definition, array $player ): void {
         $steps = [];
         foreach ( (array) $definition['sections'] as $section ) {
-            $steps[] = self::stepLabel( (string) $section['main'] );
+            $steps[] = self::stepLabel( (string) $section['main'], (string) $section['title'] );
         }
         $fields = self::playerFields( $definition );
         if ( $fields !== [] ) $steps[] = _x( 'Strength', 'PDP preparation step: the strongest quality', 'talenttrack' );
@@ -318,14 +322,17 @@ final class PdpPreparationView {
         return $out;
     }
 
-    /** The short name of a section's step in the progress bar. */
-    private static function stepLabel( string $main ): string {
+    /**
+     * The short name of a section's step in the progress bar; a section
+     * outside the four main categories keeps its own title.
+     */
+    private static function stepLabel( string $main, string $title ): string {
         switch ( $main ) {
             case 'technical': return _x( 'Technique', 'PDP preparation step', 'talenttrack' );
             case 'tactical':  return _x( 'Tactics', 'PDP preparation step', 'talenttrack' );
             case 'physical':  return _x( 'Physical', 'PDP preparation step', 'talenttrack' );
             case 'mental':    return _x( 'Mental', 'PDP preparation step', 'talenttrack' );
         }
-        return $main;
+        return $title;
     }
 }

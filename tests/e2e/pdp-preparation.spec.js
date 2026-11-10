@@ -129,6 +129,47 @@ test( 'the arrow keys move the choice, as in a radio group', async ( { browser, 
 	}
 } );
 
+test( 'klaar after a save that failed keeps the form, and does not mark it ready', async ( { browser, baseURL } ) => {
+	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
+	try {
+		const form = page.locator( '[data-tt-pdp-prep]' );
+		await expect( form ).toBeVisible();
+		const formPath = String( await form.getAttribute( 'data-rest-path' ) );
+
+		// The player's scores route fails; "klaar" itself is left alone.
+		const failing = ( url ) => {
+			const u = decodeURIComponent( url.href );
+			return u.includes( '/form/player' ) && ! u.includes( '/preparation' );
+		};
+		await page.route( failing, ( route ) => ( route.request().method() === 'PATCH' ? route.abort() : route.continue() ) );
+
+		const row = form.locator( '[data-tt-prep-step]:not([hidden]) .tt-rating-stars--choices' ).first();
+		const now = Number( await row.locator( '[aria-checked="true"]' ).getAttribute( 'data-value' ) );
+		await row.locator( `button[data-value="${ now === 5 ? 4 : 5 }"]` ).tap();
+
+		const last = await form.locator( '[data-tt-prep-goto]' ).count();
+		await form.locator( `[data-tt-prep-goto="${ last - 1 }"]` ).tap();
+		await form.locator( '[data-tt-prep-done]' ).tap();
+
+		await expect( form.locator( '.tt-form-msg' ), 'the player is told the change is not saved' ).not.toBeEmpty( { timeout: 15000 } );
+		await expect( form, 'the form stays, with the edit in it' ).toBeVisible();
+		await expect( form.locator( '[data-tt-prep-done]' ) ).toBeEnabled();
+
+		await page.unroute( failing );
+		const state = await page.evaluate( async ( path ) => {
+			const res = await fetch( window.TT.rest_url + path.replace( /\/player$/, '' ), {
+				credentials: 'same-origin',
+				headers: { 'X-WP-Nonce': window.TT.rest_nonce },
+			} );
+			const json = await res.json();
+			return json && json.data ? json.data.state : null;
+		}, formPath );
+		expect( state && state.player_prepared_at, 'not marked ready' ).toBeNull();
+	} finally {
+		await context.close();
+	}
+} );
+
 test( 'klaar shows the summary, and toch aanpassen opens the form again', async ( { browser, baseURL } ) => {
 	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
 	try {
