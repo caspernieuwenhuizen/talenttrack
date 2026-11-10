@@ -99,6 +99,22 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
         $this->assertSame( 2, ( new GoalContributionQuery() )->eventsFor( $this->team, $this->striker, $window )['assists'] );
     }
 
+    public function test_the_statistics_tab_opens_the_drilldown_from_each_count(): void {
+        $a = $this->match( '2026-02-01', 1, 0 );
+        $this->goal( $a, $this->striker, $this->playmaker );
+
+        $_GET = [ 'stats_from' => self::FROM, 'stats_to' => self::TO ];
+        ob_start();
+        \TT\Modules\Analytics\Frontend\TeamStatisticsTab::render( $this->team );
+        $html = (string) ob_get_clean();
+        $_GET = [];
+
+        $this->assertStringContainsString( 'tt-ts-count', $html );
+        $this->assertStringContainsString( 'tt_view=goals-assists', $html );
+        $this->assertMatchesRegularExpression( '/player_id=' . $this->striker . '\b/', $html );
+        $this->assertStringContainsString( 'from=' . self::FROM, $html, 'the tab\'s window travels with the link' );
+    }
+
     public function test_the_rest_route_answers_the_same_totals_with_plain_urls(): void {
         $a = $this->match( '2026-02-01', 2, 0 );
         $this->goal( $a, $this->striker, $this->playmaker );
