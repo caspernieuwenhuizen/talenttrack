@@ -199,7 +199,9 @@ final class MySettingsGroups {
     public static function parentVisibilityPlayerId( int $user_id ): int {
         $player = QueryHelpers::get_player_for_user( $user_id );
         if ( ! $player ) return 0;
-        $player_id = (int) $player->id;
+        // Through an array cast: the helper answers a bare object.
+        $player_id = (int) ( ( (array) $player )['id'] ?? 0 );
+        if ( $player_id <= 0 ) return 0;
 
         $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id );
         return empty( $parents ) ? 0 : $player_id;

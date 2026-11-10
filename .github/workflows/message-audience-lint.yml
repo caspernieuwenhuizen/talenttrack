@@ -24,6 +24,7 @@ on:
       - 'src/Modules/Comms/Domain/MessageType.php'
       - 'src/Modules/Comms/Domain/MessageAudience.php'
       - 'src/Shared/Frontend/FrontendMySettingsView.php'
+      - 'src/Infrastructure/Identity/MySettingsGroups.php'
       - 'tools/check-message-audiences.php'
       - '.github/workflows/message-audience-lint.yml'
 
