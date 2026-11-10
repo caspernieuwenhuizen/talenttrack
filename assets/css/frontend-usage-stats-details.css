@@ -23,6 +23,16 @@
 .tt-dashboard .tt-usage-card .tt-table-wrap { margin: 0; overflow-x: auto; }
 .tt-dashboard .tt-usage-card .tt-table { margin: 0; width: 100%; }
 
+/* #4917 — the usage tables' inline styles, moved here when the tables moved
+   onto the stack-table primitive. The usage dashboard enqueues this sheet
+   too. Qualified so they outrank the shared table cell rules, as the inline
+   styles did. */
+.tt-dashboard .tt-table .tt-usage-num { text-align: right; }
+.tt-dashboard .tt-table .tt-usage-tabular { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-table .tt-usage-nowrap { white-space: nowrap; }
+/* The primitive centres a spanning cell; the empty state reads from the left. */
+.tt-dashboard .tt-table td.tt-usage-empty-cell[colspan] { text-align: left; }
+
 /* day-picker — card row with ≥48px nav targets */
 .tt-dashboard .tt-usage-daypicker {
     display: flex;

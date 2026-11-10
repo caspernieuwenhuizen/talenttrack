@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Usage\UsageTracker;
 use TT\Modules\Analytics\Reports\ReportFilters;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendUsageStatsView — Application KPIs dashboard.
@@ -166,16 +167,23 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     /* translators: %d is the number of days */
                     printf( esc_html__( 'Active users by role (%d days)', 'talenttrack' ), (int) $days );
                 ?></h3>
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
-                        <th style="text-align:right;"><?php esc_html_e( 'Users', 'talenttrack' ); ?></th>
+                <?php
+                // #4917 — this view's four tables are on the stack-table
+                // primitive: a table from 480px, one card per row below it.
+                $th      = StackTable::attrs( 'columnheader' );
+                $c_role  = __( 'Role', 'talenttrack' );
+                $c_users = __( 'Users', 'talenttrack' );
+                ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_role ); ?></th>
+                        <th class="tt-usage-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_users ); ?></th>
                     </tr></thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $roles as $role => $count ) : ?>
-                        <tr>
-                            <td><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $role ) ); ?></span></td>
-                            <td style="text-align:right;"><?php echo (int) $count; ?></td>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_role ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $role ) ); ?></span></td>
+                            <td class="tt-usage-num"<?php echo StackTable::attrs( 'cell', $c_users ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $count; ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -197,23 +205,29 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     }
                 ?></h3>
                 <div class="tt-table-wrap">
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Last seen', 'talenttrack' ); ?></th>
+                <?php
+                $th     = StackTable::attrs( 'columnheader' );
+                $c_name = __( 'Name', 'talenttrack' );
+                $c_role = __( 'Role', 'talenttrack' );
+                $c_seen = __( 'Last seen', 'talenttrack' );
+                ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_role ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_seen ); ?></th>
                     </tr></thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $active_user_rows as $u ) :
                         $name_url = \TT\Shared\Frontend\FrontendUsageStatsDetailsView::detailsUrl( [
                             'metric' => 'user_timeline',
                             'uid'    => (int) $u['user_id'],
                         ] );
                         ?>
-                        <tr>
-                            <td data-label="<?php esc_attr_e( 'Name', 'talenttrack' ); ?>"><a href="<?php echo esc_url( $name_url ); ?>"><?php echo esc_html( (string) $u['display_name'] ); ?></a></td>
-                            <td data-label="<?php esc_attr_e( 'Role', 'talenttrack' ); ?>"><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $u['role'] ) ); ?></span></td>
-                            <td data-label="<?php esc_attr_e( 'Last seen', 'talenttrack' ); ?>"><?php echo esc_html( (string) $u['last_active'] ); ?></td>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><a href="<?php echo esc_url( $name_url ); ?>"><?php echo esc_html( (string) $u['display_name'] ); ?></a></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_role ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $u['role'] ) ); ?></span></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_seen ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $u['last_active'] ); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -234,22 +248,28 @@ class FrontendUsageStatsView extends FrontendViewBase {
             <?php if ( empty( $top_features ) ) : ?>
                 <p class="tt-notice"><?php esc_html_e( 'No views recorded in this window yet. Widen the period above, or check back once people start using the app.', 'talenttrack' ); ?></p>
             <?php else : ?>
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'Feature', 'talenttrack' ); ?></th>
-                        <th style="text-align:right;"><?php esc_html_e( 'Views', 'talenttrack' ); ?></th>
-                        <th style="text-align:right;"><?php esc_html_e( 'Share', 'talenttrack' ); ?></th>
+                <?php
+                $th        = StackTable::attrs( 'columnheader' );
+                $c_feature = __( 'Feature', 'talenttrack' );
+                $c_views   = __( 'Views', 'talenttrack' );
+                $c_share   = __( 'Share', 'talenttrack' );
+                ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_feature ); ?></th>
+                        <th class="tt-usage-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_views ); ?></th>
+                        <th class="tt-usage-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_share ); ?></th>
                     </tr></thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $top_features as $row ) :
                         $count = (int) $row['count'];
                         $pct   = $total_views > 0 ? ( $count / $total_views ) * 100 : 0;
                         ?>
-                        <tr>
-                            <td><?php echo esc_html( self::featureLabel( (string) $row['target'] ) ); ?></td>
-                            <td style="text-align:right; font-variant-numeric: tabular-nums;"><?php echo (int) $count; ?></td>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_feature ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( self::featureLabel( (string) $row['target'] ) ); ?></td>
+                            <td class="tt-usage-num tt-usage-tabular"<?php echo StackTable::attrs( 'cell', $c_views ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $count; ?></td>
                             <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — shareBar() escapes internally. ?>
-                            <td><?php echo self::shareBar( (float) $pct ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_share ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo self::shareBar( (float) $pct ); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -277,16 +297,21 @@ class FrontendUsageStatsView extends FrontendViewBase {
             <?php if ( empty( $dormant ) ) : ?>
                 <p class="tt-notice"><?php esc_html_e( 'Everyone with an account has logged in recently — no one to nudge right now.', 'talenttrack' ); ?></p>
             <?php else : ?>
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
-                        <th style="text-align:right;"><?php esc_html_e( 'Last login', 'talenttrack' ); ?></th>
+                <?php
+                $th      = StackTable::attrs( 'columnheader' );
+                $c_user  = __( 'User', 'talenttrack' );
+                $c_login = __( 'Last login', 'talenttrack' );
+                ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_user ); ?></th>
+                        <th class="tt-usage-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_login ); ?></th>
                     </tr></thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $dormant as $row ) : ?>
-                        <tr>
-                            <td><?php echo esc_html( (string) $row['display_name'] ); ?></td>
-                            <td style="text-align:right;"><?php
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_user ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row['display_name'] ); ?></td>
+                            <td class="tt-usage-num"<?php echo StackTable::attrs( 'cell', $c_login ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php
                                 $ts = strtotime( (string) $row['last_login'] );
                                 echo esc_html( $ts ? \TT\Shared\Dates\TTDate::date( $ts ) : '—' );
                             ?></td>
