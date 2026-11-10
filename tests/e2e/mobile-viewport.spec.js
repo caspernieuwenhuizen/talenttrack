@@ -239,6 +239,19 @@ const RECORD_SURFACES = [
 ];
 
 /**
+ * #4969 — pages of a surface reached by a query argument rather than a slug
+ * of their own. My settings opens on an overview; its forms and checkboxes
+ * live on the group pages, so the slug walk alone stopped measuring them.
+ * Each is walked by every persona whose walk includes the slug, under its
+ * own key in the baseline.
+ */
+const PAGE_SURFACES = [
+	{ key: 'my-settings#account', slug: 'my-settings', url: '/?tt_view=my-settings&group=account' },
+	{ key: 'my-settings#messages', slug: 'my-settings', url: '/?tt_view=my-settings&group=messages' },
+	{ key: 'my-settings#privacy', slug: 'my-settings', url: '/?tt_view=my-settings&group=privacy' },
+];
+
+/**
  * WordPress's own admin bar declares `min-width: 600px`, which fakes
  * roughly 240px of overflow at 360 and 210 at 390 — on every surface, in
  * every run. Measuring it would mean every page fails for a reason that
@@ -727,6 +740,14 @@ test.describe( 'mobile viewport gate', () => {
 		for ( const { slug, cls } of surfaces ) {
 			const why = await visit( slug, cls, `/?tt_view=${ slug }`, slug );
 			if ( why ) skipped.push( `${ slug } (${ why })` );
+		}
+
+		// #4969 — the group pages of a surface in this walk.
+		for ( const sub of PAGE_SURFACES ) {
+			const surface = surfaces.find( ( s ) => s.slug === sub.slug );
+			if ( ! surface ) continue;
+			const why = await visit( sub.key, surface.cls, sub.url, sub.slug );
+			if ( why ) skipped.push( `${ sub.key } (${ why })` );
 		}
 
 		// #4780 — the persona dashboard home, the page everyone lands on.

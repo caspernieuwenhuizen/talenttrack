@@ -187,6 +187,61 @@
     scroll-margin-inline: 12px;
 }
 
+/*
+ * Side layout (#4969) — a column of navigating tabs beside the open
+ * section. Hidden on a phone, where the section page stands alone and the
+ * breadcrumb leads back; a column from 1024px. Not sticky and not a pill
+ * row: one row per section, its summary underneath.
+ */
+.tt-spine--side {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .tt-spine.tt-spine--side,
+    .tt-shell-app .tt-spine.tt-spine--side {
+        position: static;
+        display: grid;
+        margin: 0;
+        padding: 0;
+        background: var(--tt-paper, #fff);
+        border: 1px solid var(--tt-line, #e3e6e1);
+        border-radius: var(--tt-radius-lg, 14px);
+        box-shadow: none;
+        overflow: hidden;
+    }
+    .tt-spine__tab.tt-spine__tab--side {
+        display: grid;
+        gap: 0.125rem;
+        align-content: center;
+        min-height: var(--tt-tap-min, 48px);
+        padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+        border: 0;
+        border-radius: 0;
+        color: var(--tt-ink, #0e1a14);
+        font-size: inherit;
+    }
+    .tt-spine__tab.tt-spine__tab--side + .tt-spine__tab--side {
+        border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    }
+    .tt-spine__tab.tt-spine__tab--side.is-active {
+        background: var(--tt-bg-soft, #f4f6f3);
+        border-color: var(--tt-line-soft, #eef0ec);
+        color: var(--tt-ink, #0e1a14);
+        box-shadow: inset 3px 0 0 var(--tt-primary, #0b3d2e);
+    }
+    .tt-spine__tab-label {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+    .tt-spine__tab-summary {
+        font-size: var(--tt-fs-sm, 0.85rem);
+        line-height: 1.35;
+        color: var(--tt-muted, #6a6d66);
+        overflow-wrap: anywhere;
+    }
+}
+
 @media (min-width: 768px) {
     .tt-shell-app .tt-spine__id {
         padding-inline: 16px;

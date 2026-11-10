@@ -1,0 +1,107 @@
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Account"
+msgstr "Account"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Messages"
+msgstr "Meldingen"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Appearance"
+msgstr "Weergave"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Privacy"
+msgstr "Privacy"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "two-factor on"
+msgstr "tweestapsverificatie aan"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "two-factor off"
+msgstr "tweestapsverificatie uit"
+
+#. translators: 1: message types switched on, 2: message types offered
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgctxt "my settings summary"
+msgid "%1$d of %2$d on"
+msgstr "%1$d van %2$d aan"
+
+#. translators: %s: the short name of a visual theme, e.g. "Default"
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgctxt "my settings summary"
+msgid "theme %s"
+msgstr "thema %s"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "Your parent sees everything"
+msgstr "Je ouder ziet alles"
+
+#. translators: %d: number of record sections hidden from the player's parent
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgid "%d part hidden"
+msgid_plural "%d parts hidden"
+msgstr[0] "%d onderdeel verborgen"
+msgstr[1] "%d onderdelen verborgen"
+
+#. translators: %d: number of places the academy keeps the user's contact details
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgid "Your details are kept in %d place"
+msgid_plural "Your details are kept in %d places"
+msgstr[0] "Je gegevens staan op %d plek"
+msgstr[1] "Je gegevens staan op %d plekken"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Manage two-factor"
+msgstr "Tweestapsverificatie beheren"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Your account details are yours to change under Account."
+msgstr "Je accountgegevens wijzig je zelf onder Account."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Something wrong or out of date? Your account details are yours to change "
+"under Account. Anything recorded on your child's file is changed by the "
+"academy — ask them and they will correct it."
+msgstr ""
+"Klopt er iets niet of is het verouderd? Je accountgegevens wijzig je zelf "
+"onder Account. Wat in het dossier van je kind staat, wijzigt de academie — "
+"vraag het hun en zij passen het aan."
+
+#: src/Shared/Frontend/ShellPreference.php
+msgctxt "navigation layout"
+msgid "Classic"
+msgstr "Klassiek"
+
+#: src/Shared/Frontend/ShellPreference.php
+msgctxt "navigation layout"
+msgid "App"
+msgstr "App"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Default"
+msgstr "Standaard"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Federation"
+msgstr "Federation"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Leon Hutten"
+msgstr "Leon Hutten"

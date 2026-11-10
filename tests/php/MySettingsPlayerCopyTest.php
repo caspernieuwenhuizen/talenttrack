@@ -78,7 +78,7 @@ final class MySettingsPlayerCopyTest extends WP_UnitTestCase {
 
     private function render(): string {
         ob_start();
-        FrontendMySettingsView::render();
+        FrontendMySettingsView::render( \TT\Infrastructure\Identity\MySettingsGroups::MESSAGES );
         return (string) ob_get_clean();
     }
 }

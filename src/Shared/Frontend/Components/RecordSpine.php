@@ -85,6 +85,18 @@ use TT\Shared\Frontend\ShellPreference;
  *
  * Keeping panel ownership with the caller is what stops this component
  * needing to know anything about a record.
+ *
+ * ## Side layout (#4969)
+ *
+ * `'layout' => 'side'` draws a **navigating** strip as a column beside the
+ * open section rather than a row above it: the master-detail shape a
+ * settings page uses, where each section is its own page. Each tab may
+ * carry a one-line `summary` under its label. The column is hidden on a
+ * phone, where the section page stands alone and the breadcrumb leads back,
+ * and shows from 1024px. It has no identity strip, survives `classic` (the
+ * tabs are the only route between the sections), and takes navigating tabs
+ * only: an in-page entry is ignored. `label` names the strip for assistive
+ * tech. The caller lays out the column and the section beside it.
  */
 final class RecordSpine {
 
@@ -103,11 +115,19 @@ final class RecordSpine {
      *   status?: string,
      *   meta?: string,
      *   tabs_always?: bool,
-     *   tabs?: list<array{label?: string, url?: string, panel?: string, active?: bool}>
+     *   layout?: string,
+     *   label?: string,
+     *   tabs?: list<array{label?: string, url?: string, panel?: string, active?: bool, summary?: string}>
      * } $config
      */
     public static function render( array $config ): void {
         $tabs    = is_array( $config['tabs'] ?? null ) ? $config['tabs'] : [];
+
+        if ( ( $config['layout'] ?? '' ) === 'side' ) {
+            self::renderSide( $tabs, (string) ( $config['label'] ?? '' ) );
+            return;
+        }
+
         $in_page = self::isInPage( $tabs );
         // #2822 — a navigating strip the caller has declared to be the only
         // route to its sections survives `classic` and an absent identity,
@@ -243,6 +263,34 @@ final class RecordSpine {
         }
 
         echo $in_page ? '</div>' : '</nav>';
+    }
+
+    /**
+     * The side layout: navigating tabs as a column of rows, each a label
+     * with an optional summary. See the class docblock.
+     *
+     * @param list<array<string,mixed>> $tabs
+     */
+    private static function renderSide( array $tabs, string $label ): void {
+        $links = '';
+        foreach ( $tabs as $tab ) {
+            $text = trim( (string) ( $tab['label'] ?? '' ) );
+            $url  = trim( (string) ( $tab['url'] ?? '' ) );
+            if ( $text === '' || $url === '' ) continue;
+
+            $active  = ! empty( $tab['active'] );
+            $summary = trim( (string) ( $tab['summary'] ?? '' ) );
+            $links  .= '<a class="tt-spine__tab tt-spine__tab--side' . ( $active ? ' is-active' : '' ) . '"'
+                . ' href="' . esc_url( $url ) . '"'
+                . ( $active ? ' aria-current="page"' : '' ) . '>'
+                . '<span class="tt-spine__tab-label">' . esc_html( $text ) . '</span>'
+                . ( $summary !== '' ? '<span class="tt-spine__tab-summary">' . esc_html( $summary ) . '</span>' : '' )
+                . '</a>';
+        }
+        if ( $links === '' ) return;
+
+        $aria = $label !== '' ? $label : __( 'Record sections', 'talenttrack' );
+        echo '<nav class="tt-spine tt-spine--side" aria-label="' . esc_attr( $aria ) . '">' . $links . '</nav>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above.
     }
 
     /**

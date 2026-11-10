@@ -3,7 +3,13 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\MySettingsGroups;
 use TT\Modules\MatchExecution\MatchExecutionLayout;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\RecordSpine;
 
 /**
  * FrontendMySettingsView — TT-rendered account settings (#0061 round 3).
@@ -25,6 +31,10 @@ use TT\Modules\MatchExecution\MatchExecutionLayout;
  * Saves through the existing WP user APIs (`wp_update_user` for
  * profile fields, `check_password_reset_key` is not used because
  * this is an authenticated change-password flow).
+ *
+ * #4969 — opens on an overview of four groups (`MySettingsGroups`), each
+ * on its own page. Every form keeps its own Save; the Account forms add
+ * Cancel back to the overview.
  */
 class FrontendMySettingsView extends FrontendViewBase {
 
@@ -43,22 +53,39 @@ class FrontendMySettingsView extends FrontendViewBase {
     }
 
     /**
-     * Renders for the current WP user. Where a section needs the user's
-     * player record, it looks it up itself.
+     * #4969 — an overview of the groups the user has, or one group.
+     *
+     * `?tt_view=my-settings` is the overview; `&group=<key>` opens one
+     * group. `$group` overrides the query string (tests pass it). A form
+     * posted without a group lands on the group it belongs to, so a save
+     * from an old link still shows its own settings afterwards.
      */
-    public static function render(): void {
+    public static function render( ?string $group = null ): void {
         self::enqueueAssets();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My settings', 'talenttrack' ) );
-        self::renderHeader( __( 'My settings', 'talenttrack' ) );
 
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'My settings', 'talenttrack' ) );
+            self::renderHeader( __( 'My settings', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
             return;
         }
 
         $messages = self::handlePost( $user_id );
-        $user = get_userdata( $user_id );
+        $group    = self::resolveGroup( $group, $user_id );
+        $user     = get_userdata( $user_id );
+
+        if ( $group === '' ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'My settings', 'talenttrack' ) );
+            self::renderHeader( __( 'My settings', 'talenttrack' ) );
+        } else {
+            FrontendBreadcrumbs::fromDashboard(
+                MySettingsGroups::label( $group ),
+                [ [ 'label' => __( 'My settings', 'talenttrack' ), 'url' => MySettingsGroups::url() ] ]
+            );
+            self::renderHeader( MySettingsGroups::label( $group ) );
+        }
+
         if ( ! $user ) {
             echo '<p class="tt-notice">' . esc_html__( 'Could not load your account.', 'talenttrack' ) . '</p>';
             return;
@@ -71,8 +98,132 @@ class FrontendMySettingsView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-error">' . esc_html( $err ) . '</div>';
         }
 
+        $groups = MySettingsGroups::forUser( $user_id );
+
+        if ( $group === '' ) {
+            echo '<div class="tt-msettings tt-msettings--overview">';
+            self::renderGroupList( $groups );
+            echo '</div>';
+            return;
+        }
+
+        echo '<div class="tt-msettings tt-msettings--group">';
+        // Beside the open group from 1024px, the groups through the shared
+        // spine (CLAUDE.md §5c): hidden on a phone, where the breadcrumb
+        // leads back to the overview.
+        RecordSpine::render( [
+            'layout' => 'side',
+            'label'  => __( 'My settings', 'talenttrack' ),
+            'tabs'   => array_map(
+                static fn( array $g ): array => [
+                    'label'   => $g['label'],
+                    'url'     => $g['url'],
+                    'summary' => $g['summary'],
+                    'active'  => $g['key'] === $group,
+                ],
+                $groups
+            ),
+        ] );
+        echo '<div class="tt-msettings-panel">';
+        switch ( $group ) {
+            case MySettingsGroups::ACCOUNT:
+                self::renderProfileCard( $user );
+                self::renderPasswordCard();
+                self::renderTwoFactorCard( $user_id );
+                break;
+            case MySettingsGroups::MESSAGES:
+                // #4272 — the hints were written for a parent and showed to
+                // every account. #4393 — and a player read about "the
+                // players you work with".
+                self::renderMessagePreferencesCard(
+                    $user_id,
+                    \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 0,
+                    \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id ) !== null
+                );
+                break;
+            case MySettingsGroups::APPEARANCE:
+                self::renderAppearanceCard( $user_id );
+                // #3388 — the card configures the live-match surface, which
+                // `FrontendMatchExecutionView::render()` gates on
+                // `tt_edit_activities`. `match-execution` registers no tile,
+                // so `CrossViewLinkRegistry::fallbackAllows()` would admit
+                // everyone: the gate has to be explicit. Passing `gate` also
+                // routes through `surfaceSwitchedOff()` (#2599).
+                if ( CrossViewLink::allows( 'match-execution', [ 'gate' => 'tt_edit_activities' ] ) ) {
+                    self::renderMatchLayoutCard( $user_id );
+                }
+                self::renderThemeCard( $user_id );
+                break;
+            case MySettingsGroups::PRIVACY:
+                self::renderParentVisibilityCard( $user_id );
+                self::renderHeldContactCard( $user_id );
+                break;
+        }
+        echo '</div></div>';
+    }
+
+    /**
+     * The group to open: the one asked for, else the one a posted form
+     * belongs to. '' (the overview) for an unknown group or one this user
+     * does not have.
+     */
+    private static function resolveGroup( ?string $group, int $user_id ): string {
+        $key = $group ?? ( isset( $_GET['group'] ) ? sanitize_key( wp_unslash( (string) $_GET['group'] ) ) : '' );
+        if ( $key === '' && ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'POST' && isset( $_POST['tt_my_settings_action'] ) ) {
+            $key = MySettingsGroups::groupForAction( sanitize_key( (string) $_POST['tt_my_settings_action'] ) );
+        }
+        if ( ! MySettingsGroups::isGroup( $key ) || ! MySettingsGroups::has( $key, $user_id ) ) return '';
+        return $key;
+    }
+
+    /**
+     * The overview: the groups as a list of rows, each one link with its
+     * summary underneath, so Tab and Enter reach every group. This is the
+     * page's content; beside an open group the spine draws the same list.
+     *
+     * @param list<array{key:string, label:string, summary:string, url:string}> $groups
+     */
+    private static function renderGroupList( array $groups ): void {
+        echo '<ul class="tt-msettings-groups" aria-label="' . esc_attr__( 'My settings', 'talenttrack' ) . '">';
+        foreach ( $groups as $g ) {
+            echo '<li class="tt-msettings-groups__item">';
+            echo '<a class="tt-msettings-group" href="' . esc_url( $g['url'] ) . '">';
+            echo '<span class="tt-msettings-group__label">' . esc_html( $g['label'] ) . '</span>';
+            if ( $g['summary'] !== '' ) {
+                echo '<span class="tt-msettings-group__summary">' . esc_html( $g['summary'] ) . '</span>';
+            }
+            echo '</a></li>';
+        }
+        echo '</ul>';
+    }
+
+    /**
+     * Two-factor authentication lives in Account. The enrolment itself stays
+     * on its own screen with its own handlers; this card says whether it is
+     * on and opens that screen. Gated by the same answer the Account summary
+     * reads, so the two never disagree.
+     */
+    private static function renderTwoFactorCard( int $user_id ): void {
+        if ( ! MySettingsGroups::twoFactorAvailable() ) return;
+
+        $on  = MySettingsGroups::twoFactorOn( $user_id );
+        $url = BackLink::appendTo( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::url() );
+        echo '<section class="tt-msettings-card">';
+        echo '<h3>' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-field-hint">' . ( $on ? esc_html__( 'Two-factor is on', 'talenttrack' ) : esc_html__( 'Two-factor is off', 'talenttrack' ) ) . '</p>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">'
+            . ( $on ? esc_html__( 'Manage two-factor', 'talenttrack' ) : esc_html__( 'Set up two-factor', 'talenttrack' ) )
+            . '</a>';
+        echo '</section>';
+    }
+
+    /**
+     * Profile. Its own record form with Cancel + Save (CLAUDE.md §6);
+     * Cancel returns to the overview.
+     */
+    private static function renderProfileCard( \WP_User $user ): void {
+        $user_id = (int) $user->ID;
         ?>
-        <div class="tt-msettings">
             <form method="post" class="tt-form tt-msettings-card">
                 <?php wp_nonce_field( 'tt_my_settings_profile', 'tt_my_settings_profile_nonce' ); ?>
                 <input type="hidden" name="tt_my_settings_action" value="update_profile" />
@@ -126,11 +277,19 @@ class FrontendMySettingsView extends FrontendViewBase {
                     <p class="tt-field-hint"><?php esc_html_e( 'Start with your country code, for example +31 6 12345678. Your academy uses this to reach you about training, matches and injuries. Leave it empty to remove the number.', 'talenttrack' ); ?></p>
                 </div>
 
-                <div class="tt-form-actions">
-                    <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save profile', 'talenttrack' ); ?></button>
-                </div>
+                <?php
+                echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the helper escapes.
+                    'label'      => __( 'Save profile', 'talenttrack' ),
+                    'cancel_url' => MySettingsGroups::url(),
+                ] );
+                ?>
             </form>
+        <?php
+    }
 
+    /** Change password. Cancel + Save, Cancel back to the overview. */
+    private static function renderPasswordCard(): void {
+        ?>
             <form method="post" class="tt-form tt-msettings-card">
                 <?php wp_nonce_field( 'tt_my_settings_password', 'tt_my_settings_password_nonce' ); ?>
                 <input type="hidden" name="tt_my_settings_action" value="change_password" />
@@ -151,51 +310,15 @@ class FrontendMySettingsView extends FrontendViewBase {
                         <input type="password" id="tt-ms-confirm" name="confirm_password" class="tt-input" autocomplete="new-password" minlength="8" required />
                     </div>
                 </div>
-                <p class="tt-field-hint" style="margin:0 0 12px;"><?php esc_html_e( 'At least 8 characters. Saving will end any other active sessions.', 'talenttrack' ); ?></p>
+                <p class="tt-field-hint tt-msettings-password-hint"><?php esc_html_e( 'At least 8 characters. Saving will end any other active sessions.', 'talenttrack' ); ?></p>
 
-                <div class="tt-form-actions">
-                    <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Change password', 'talenttrack' ); ?></button>
-                </div>
+                <?php
+                echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the helper escapes.
+                    'label'      => __( 'Change password', 'talenttrack' ),
+                    'cancel_url' => MySettingsGroups::url(),
+                ] );
+                ?>
             </form>
-
-            <?php self::renderAppearanceCard( $user_id ); ?>
-            <?php
-            // #3388 — #2934's card configures the live-match surface, which
-            // `FrontendMatchExecutionView::render()` gates on
-            // `tt_edit_activities`. A player or parent cannot open it, so
-            // the card was a switch that did nothing on a page that should
-            // hold two or three settings, not five.
-            //
-            // The usual safety net does not reach this one: `match-execution`
-            // registers no tile, so `entityForViewSlug()` returns null and
-            // `CrossViewLinkRegistry::fallbackAllows()` admits everyone.
-            // Nothing was ever going to hide it on its own — hence the
-            // explicit gate rather than a registration fix.
-            //
-            // Passing `gate` also routes through `surfaceSwitchedOff()`, so
-            // the card correctly disappears when Match execution is switched
-            // off (#2599).
-            if ( \TT\Shared\Frontend\Components\CrossViewLink::allows( 'match-execution', [ 'gate' => 'tt_edit_activities' ] ) ) {
-                self::renderMatchLayoutCard( $user_id );
-            }
-            ?>
-            <?php self::renderThemeCard( $user_id ); ?>
-
-            <?php
-            // #4272 — the hints below were written for a parent and showed
-            // to every account; staff read about "your child" they don't have.
-            // #4393 — and a player read about "the players you work with".
-            self::renderMessagePreferencesCard(
-                $user_id,
-                \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 0,
-                \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id ) !== null
-            );
-            ?>
-
-            <?php self::renderParentVisibilityCard( $user_id ); ?>
-
-            <?php self::renderHeldContactCard( $user_id ); ?>
-        </div>
         <?php
     }
 
@@ -283,9 +406,9 @@ class FrontendMySettingsView extends FrontendViewBase {
 
             <p class="tt-field-hint">
                 <?php if ( $has_children ) : ?>
-                    <?php esc_html_e( 'Something wrong or out of date? Your account details are yours to change above. Anything recorded on your child\'s file is changed by the academy — ask them and they will correct it.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Something wrong or out of date? Your account details are yours to change under Account. Anything recorded on your child\'s file is changed by the academy — ask them and they will correct it.', 'talenttrack' ); ?>
                 <?php else : ?>
-                    <?php esc_html_e( 'Your account details are yours to change above.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Your account details are yours to change under Account.', 'talenttrack' ); ?>
                 <?php endif; ?>
             </p>
         </section>
@@ -322,7 +445,7 @@ class FrontendMySettingsView extends FrontendViewBase {
      */
     private static function renderMessagePreferencesCard( int $user_id, bool $has_children, bool $is_player ): void {
         $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
-        $labels = self::visibleMessageTypeLabels( $user_id );
+        $labels = MySettingsGroups::visibleMessageTypes( $user_id );
         ?>
         <form method="post" class="tt-form tt-msettings-card">
             <?php wp_nonce_field( 'tt_my_settings_comms', 'tt_my_settings_comms_nonce' ); ?>
@@ -396,81 +519,6 @@ class FrontendMySettingsView extends FrontendViewBase {
             </div>
         </form>
         <?php
-    }
-
-    /**
-     * Message types a user may refuse, in display order.
-     *
-     * Deliberately the full non-operational set rather than a role-filtered
-     * one: a coach and a parent both land on this screen, and a row for a
-     * message you never receive costs nothing, while a missing row for one
-     * you do receive is exactly the gap this card exists to close.
-     *
-     * @return array<string,string> message_type => user-facing label
-     */
-    private static function messageTypeLabels(): array {
-        return [
-            // #3382 — "A training is cancelled" used to be here. It is now
-            // operational and appears in the always-sent block below.
-            \TT\Modules\Comms\Domain\MessageType::SCHEDULE_CHANGE_FROM_SPOND => __( 'An activity changes time or place', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::SELECTION_LETTER           => __( 'Selection decisions', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::PDP_READY                  => __( 'A development plan is ready to read', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::PARENT_MEETING_INVITE      => __( 'Invitations to parent meetings', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::TRIAL_PLAYER_WELCOME       => __( 'Welcome messages for trial players', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::GUEST_PLAYER_INVITE        => __( 'Invitations to join an activity as a guest', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::GOAL_NUDGE                 => __( 'Reminders to update a goal', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::ATTENDANCE_FLAG            => __( 'Alerts about repeated absence', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::METHODOLOGY_DELIVERED      => __( 'New training plans are published', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::ONBOARDING_NUDGE_INACTIVE  => __( 'Reminders when you have not logged in for a while', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::STAFF_DEVELOPMENT_REMINDER => __( 'Reminders about your own development review', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::LETTER_DELIVERY            => __( 'Formal letters', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::MASS_ANNOUNCEMENT          => __( 'Academy-wide announcements', 'talenttrack' ),
-            // #2604 — notifications raised in-product (a task assigned to
-            // you, a reply on a conversation) now route through Comms, so
-            // they belong on this list like everything else that reaches you.
-            \TT\Modules\Comms\Domain\MessageType::NOTIFICATION               => __( 'Notifications about your tasks and conversations', 'talenttrack' ),
-            // #3389 — these five are opt-outable and had no toggle
-            // anywhere. Three of them reach players. That is precisely the
-            // failure this card's docblock warned about, already present:
-            // mail you receive with no way to refuse it.
-            \TT\Modules\Comms\Domain\MessageType::ALERT_DIGEST              => __( 'A summary of your open alerts', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::DIRECT_MESSAGE            => __( 'Messages written to you by academy staff', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::SCHEDULED_REPORT          => __( 'Reports delivered on a schedule', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::SCHEDULED_REPORT_NOT_SENT => __( 'When a report you scheduled could not be sent', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::TRIAL_INPUT_REMINDER      => __( 'Reminders that a trial still needs your input', 'talenttrack' ),
-            \TT\Modules\Comms\Domain\MessageType::SCOUT_REPORT_DELIVERY     => __( 'Scout reports sent to you', 'talenttrack' ),
-        ];
-    }
-
-    /**
-     * The rows this particular user should see.
-     *
-     * #3389 — the full list above is the vocabulary; this is the view of
-     * it for one reader. A row renders when the user's audience overlaps
-     * the type's: a coach who is also a parent at the academy keeps every
-     * row either of them receives.
-     *
-     * Render and save both call this, with the same `$user_id`. That is
-     * load-bearing rather than tidy — {@see handlePost()} writes an
-     * opt-out for every type it iterates, so if it iterated the unfiltered
-     * list it would silently mute every hidden type the moment a user
-     * pressed Save on a card that never offered them.
-     *
-     * @return array<string,string> message_type => user-facing label
-     */
-    private static function visibleMessageTypeLabels( int $user_id ): array {
-        $mine = \TT\Modules\Comms\Domain\MessageAudience::forUser( $user_id );
-
-        return array_filter(
-            self::messageTypeLabels(),
-            static function ( string $type ) use ( $mine ): bool {
-                return array_intersect(
-                    \TT\Modules\Comms\Domain\MessageType::audiences( $type ),
-                    $mine
-                ) !== [];
-            },
-            ARRAY_FILTER_USE_KEY
-        );
     }
 
     /** @return string[] labels for the types that cannot be refused. */
@@ -643,15 +691,12 @@ class FrontendMySettingsView extends FrontendViewBase {
      * cap-gated and are not listed here.
      */
     private static function renderParentVisibilityCard( int $user_id ): void {
-        $player = \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id );
-        if ( ! $player ) return;
-        $player_id = (int) $player->id;
-
-        $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id );
-        if ( empty( $parents ) ) return; // No linked parent — nothing to control.
+        // No player record, or no linked parent: nothing to control.
+        $player_id = MySettingsGroups::parentVisibilityPlayerId( $user_id );
+        if ( $player_id <= 0 ) return;
 
         $prefs  = ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->preferencesForPlayer( $player_id );
-        $labels = self::visibilitySectionLabels();
+        $labels = MySettingsGroups::parentVisibilitySectionLabels();
         \TT\Shared\Frontend\Components\FrontendPrivateSection::enqueue();
         ?>
         <form method="post" class="tt-form tt-msettings-card">
@@ -679,25 +724,6 @@ class FrontendMySettingsView extends FrontendViewBase {
             </div>
         </form>
         <?php
-    }
-
-    /** @return array<string,string> section_key => user-facing label, in display order. */
-    private static function visibilitySectionLabels(): array {
-        return [
-            'evaluations'  => __( 'Evaluations', 'talenttrack' ),
-            'goals'        => __( 'Goals', 'talenttrack' ),
-            'journey'      => __( 'Journey', 'talenttrack' ),
-            'measurements' => __( 'Measurements', 'talenttrack' ),
-            // #3666 — how many minutes you played, and in which matches.
-            'minutes'      => __( 'Playing time', 'talenttrack' ),
-            'pdp'          => __( 'Development plan (PDP)', 'talenttrack' ),
-            // #3560 — the tournament days you played and your minutes in
-            // them. Beside Playing time, because it is the same number.
-            'tournaments'  => __( 'Tournaments', 'talenttrack' ),
-            // #2500 — minutes trained per principle, and which ones have
-            // never been trained.
-            'training'     => __( 'Training history', 'talenttrack' ),
-        ];
     }
 
     /**
@@ -886,7 +912,7 @@ class FrontendMySettingsView extends FrontendViewBase {
             // something else entirely. Filtering the write to what was
             // rendered is what makes the audience filter a render concern
             // rather than a silent data migration.
-            foreach ( array_keys( self::visibleMessageTypeLabels( $user_id ) ) as $type ) {
+            foreach ( array_keys( MySettingsGroups::visibleMessageTypes( $user_id ) ) as $type ) {
                 $policy->setOptedOut( $user_id, $type, ! in_array( $type, $opted_in, true ) );
             }
             $out['success'] = __( 'Message preferences saved.', 'talenttrack' );

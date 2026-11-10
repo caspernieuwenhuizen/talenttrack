@@ -172,7 +172,7 @@ final class MeContactDetailsTest extends WP_UnitTestCase {
 
         wp_set_current_user( $parent );
         ob_start();
-        FrontendMySettingsView::render();
+        FrontendMySettingsView::render( \TT\Infrastructure\Identity\MySettingsGroups::PRIVACY );
         $html = (string) ob_get_clean();
 
         $this->assertStringContainsString( 'tt-msettings-held', $html );

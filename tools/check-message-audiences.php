@@ -38,7 +38,9 @@ declare( strict_types = 1 );
 $root = dirname( __DIR__ );
 
 $typePath = $root . '/src/Modules/Comms/Domain/MessageType.php';
-$viewPath = $root . '/src/Shared/Frontend/FrontendMySettingsView.php';
+// #4969 — the labels moved with the My settings groups, which the page
+// renders the Messages group from.
+$viewPath = $root . '/src/Infrastructure/Identity/MySettingsGroups.php';
 
 foreach ( [ $typePath, $viewPath ] as $path ) {
     if ( ! is_file( $path ) ) {
@@ -168,7 +170,7 @@ if ( $unlabelled ) {
     foreach ( $unlabelled as $name ) {
         printf( "  MessageType::%s\n", $name );
     }
-    echo "\nAdd a label to FrontendMySettingsView::messageTypeLabels().\n";
+    echo "\nAdd a label to MySettingsGroups::messageTypeLabels().\n";
     echo "A type somebody can be sent, and cannot refuse because no screen\n";
     echo "offers it, is the failure that card exists to prevent.\n\n";
 }

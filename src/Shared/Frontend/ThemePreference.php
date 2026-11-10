@@ -171,4 +171,18 @@ final class ThemePreference {
             self::LEON_HUTTEN   => __( 'Leon Hutten — black and cyan', 'talenttrack' ),
         ];
     }
+
+    /**
+     * The theme names without their colour description, for a summary line
+     * such as the My settings overview (#4969).
+     *
+     * @return array<string, string>
+     */
+    public static function shortLabels(): array {
+        return [
+            self::DEFAULT_THEME => _x( 'Default', 'visual theme', 'talenttrack' ),
+            self::FEDERATION    => _x( 'Federation', 'visual theme', 'talenttrack' ),
+            self::LEON_HUTTEN   => _x( 'Leon Hutten', 'visual theme', 'talenttrack' ),
+        ];
+    }
 }

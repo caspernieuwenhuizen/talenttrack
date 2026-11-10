@@ -52,10 +52,15 @@ final class MySettingsMatchLayoutGateTest extends WP_UnitTestCase {
     public function test_the_page_still_renders_its_other_cards_for_a_player(): void {
         // A gate that removed the whole page would pass the assertions
         // above for the wrong reason.
-        $html = $this->renderFor( $this->userWith( 'tt_player' ) );
+        $user = $this->userWith( 'tt_player' );
+        $html = $this->renderFor( $user );
 
-        $this->assertStringContainsString( 'update_profile', $html );
-        $this->assertStringContainsString( 'change_password', $html );
+        $this->assertStringContainsString( 'update_shell', $html );
+        $this->assertStringContainsString( 'update_theme', $html );
+
+        $account = $this->renderFor( $user, \TT\Infrastructure\Identity\MySettingsGroups::ACCOUNT );
+        $this->assertStringContainsString( 'update_profile', $account );
+        $this->assertStringContainsString( 'change_password', $account );
     }
 
     public function test_posting_the_layout_as_a_player_is_refused(): void {
@@ -101,10 +106,11 @@ final class MySettingsMatchLayoutGateTest extends WP_UnitTestCase {
         return (int) self::factory()->user->create( [ 'role' => $role ] );
     }
 
-    private function renderFor( int $user_id ): string {
+    /** The card sits in the Appearance group (#4969). */
+    private function renderFor( int $user_id, string $group = \TT\Infrastructure\Identity\MySettingsGroups::APPEARANCE ): string {
         wp_set_current_user( $user_id );
         ob_start();
-        FrontendMySettingsView::render();
+        FrontendMySettingsView::render( $group );
         return (string) ob_get_clean();
     }
 
