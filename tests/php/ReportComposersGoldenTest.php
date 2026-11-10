@@ -5,9 +5,6 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
-use TT\Modules\Analytics\Reports\LegacyPlayerReport;
-use TT\Modules\Analytics\Reports\LegacyTeamMatchStatsQuery;
-use TT\Modules\Analytics\Reports\LegacyTeamMonthlyReport;
 use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
@@ -28,24 +25,26 @@ use TT\Tests\Php\Support\GoldenSnapshot;
  * #4590 — the block composers came out of the team monthly report and the
  * player report without changing a byte of either.
  *
- * The "before" is the code as it stood when the composers were extracted,
- * frozen under `fixtures/golden/`: `LegacyTeamMonthlyReport`,
- * `LegacyPlayerReport` and `LegacyTeamMatchStatsQuery`. Both versions compose
- * the same fixture in the same process, and their payloads are compared as
- * JSON, byte for byte, per block and whole; the HTML and the PDF data array
- * each renderer builds from them are compared the same way. Only
- * `generated_at` and the status block's `as_of` (`StatusVerdict`, the one
- * payload that carries that key) are levelled, because both come from the
- * clock and the two runs may fall either side of a second.
+ * The "before" is stored data, not code (#4958): snapshots under
+ * `fixtures/golden/snapshots/`, recorded from the frozen copies of the
+ * readers as they stood when the composers were extracted
+ * (`LegacyTeamMonthlyReport`, `LegacyPlayerReport`,
+ * `LegacyTeamMatchStatsQuery`, deleted with that recording). Each payload,
+ * per block and whole, and the HTML and the PDF data array each renderer
+ * builds from it, is compared with its snapshot byte for byte, after
+ * `GoldenSnapshot` replaces the ids the fixture made with stable tokens.
+ * Only `generated_at` and the status block's `as_of` (`StatusVerdict`, the
+ * one payload that carries that key) are levelled, because both come from
+ * the clock.
  *
  * A comparison of two empty payloads proves nothing, so every block is also
  * checked against the same block composed for a squad and a player with no
  * records at all: the fixture has to give each composer something to do.
  *
- * A deliberate change to a figure updates the frozen copy in the same PR, so
- * the change is visible in review as a change to the "before". The frozen
- * copies are deleted when the id-tokenising snapshot harness lands (#4958);
- * the per-block comparisons then move to stored JSON snapshots.
+ * A deliberate change to a figure records the snapshots again in the same
+ * PR (`TT_GOLDEN_RECORD=1`, see docs/contributing.md), so the change shows
+ * in review as a diff of the stored "before". `TT_GOLDEN_SHIFT=N` runs the
+ * suite with every id moved on, as a second fresh database would.
  *
  * Dates are in 2020, so nothing depends on the runner's clock, apart from the
  * one fixture dated next week that pins the statistics tab's "date has
@@ -57,13 +56,14 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     private const TO   = '2020-03-31';
 
     /**
-     * The most queries each report may issue on this fixture. Recorded once
-     * from the frozen copies (`LegacyTeamMonthlyReport`, `LegacyPlayerReport`)
-     * before they were deleted (#4958): the report as it read before its
-     * composers were split out. Lowering a number is fine.
+     * The most queries each report may issue on this fixture: the count of
+     * the frozen copies (`LegacyTeamMonthlyReport`, `LegacyPlayerReport`),
+     * recorded once on 10 November 2026 at the commit that deleted them
+     * (#4958), so the report as it read before its composers were split
+     * out. Lowering a number is fine; raising one needs a reason in review.
      */
-    private const TEAM_QUERY_BASELINE   = PHP_INT_MAX;
-    private const PLAYER_QUERY_BASELINE = PHP_INT_MAX;
+    private const TEAM_QUERY_BASELINE   = 191;
+    private const PLAYER_QUERY_BASELINE = 76;
 
     private int $admin = 0;
     private int $team  = 0;
@@ -79,9 +79,6 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
-        require_once __DIR__ . '/fixtures/golden/LegacyTeamMonthlyReport.php';
-        require_once __DIR__ . '/fixtures/golden/LegacyPlayerReport.php';
-        require_once __DIR__ . '/fixtures/golden/LegacyTeamMatchStatsQuery.php';
         GoldenSnapshot::reset();
         $this->shiftIds();
 
@@ -122,12 +119,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
             );
         }
 
-        $this->golden(
-            'team-block-' . $block,
-            fn() => ( new LegacyTeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ $block ], $this->admin, $options ),
-            $after,
-            "the {$block} block composes the same bytes"
-        );
+        $this->golden( 'team-block-' . $block, $after, "the {$block} block composes the same bytes" );
     }
 
     public function test_the_whole_team_report_is_unchanged_with_options(): void {
@@ -149,17 +141,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
                 // in the roster or the attention list.
                 $this->assertSame( [], self::attendanceKeys( $after['data'] ), "viewer {$viewer}" );
             }
-            $this->golden(
-                'team-whole-' . $who,
-                function () use ( $viewer, $options ) {
-                    $before = ( new LegacyTeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $viewer, $options );
-                    return \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer, $this->team )
-                        ? $before
-                        : TeamMonthlyReport::withoutAttendance( $before );
-                },
-                $after,
-                "viewer {$who}"
-            );
+            $this->golden( 'team-whole-' . $who, $after, "viewer {$who}" );
             $changes[ $viewer ] = array_column( $after['data']['changes']['events'], 'summary' );
         }
 
@@ -171,21 +153,15 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     }
 
     public function test_the_team_report_html_and_pdf_data_are_unchanged(): void {
-        $before = fn() => ( new LegacyTeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin );
-        $after  = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin );
+        $after = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin );
 
         foreach ( [ TeamMonthlyReportLayout::ONE_PAGER, TeamMonthlyReportLayout::PACK, TeamMonthlyReportLayout::MATRIX ] as $layout ) {
-            $prep_after = TeamMonthlyReportDocument::prepare( $this->level( $after ), $layout );
-            $prep_before = fn() => TeamMonthlyReportDocument::prepare( $this->level( $before() ), $layout );
+            $prep = TeamMonthlyReportDocument::prepare( $this->level( $after ), $layout );
 
-            $this->golden( 'team-pdf-data-' . $layout, $prep_before, $prep_after, "PDF data, layout {$layout}" );
+            $this->golden( 'team-pdf-data-' . $layout, $prep, "PDF data, layout {$layout}" );
             $this->golden(
                 'team-html-' . $layout,
-                function () use ( $prep_before, $layout ) {
-                    $prep = $prep_before();
-                    return TeamMonthlyReportDocument::html( $prep['report'], $layout, 'Golden U14', [], $prep['fit']['groups'] );
-                },
-                TeamMonthlyReportDocument::html( $prep_after['report'], $layout, 'Golden U14', [], $prep_after['fit']['groups'] ),
+                TeamMonthlyReportDocument::html( $prep['report'], $layout, 'Golden U14', [], $prep['fit']['groups'] ),
                 "HTML, layout {$layout}"
             );
         }
@@ -196,9 +172,6 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin );
 
         $after = $this->countQueries( fn() => ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin ) );
-        if ( GoldenSnapshot::recording() ) {
-            fwrite( STDERR, 'GOLDEN team legacy queries: ' . $this->countQueries( fn() => ( new LegacyTeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->admin ) ) . "\n" );
-        }
 
         $this->assertGreaterThan( 0, $after, 'Precondition: the report reads something.' );
         $this->assertLessThanOrEqual( self::TEAM_QUERY_BASELINE, $after );
@@ -230,18 +203,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         foreach ( $audiences as $audience ) {
             $after[ $audience ] = ( new PlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, [ $block ], $this->admin, $audience );
         }
-        $this->golden(
-            'player-block-' . $block,
-            function () use ( $audiences, $block ) {
-                $before = [];
-                foreach ( $audiences as $audience ) {
-                    $before[ $audience ] = ( new LegacyPlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, [ $block ], $this->admin, $audience );
-                }
-                return $before;
-            },
-            $after,
-            "the {$block} block composes the same bytes for every audience"
-        );
+        $this->golden( 'player-block-' . $block, $after, "the {$block} block composes the same bytes for every audience" );
     }
 
     public function test_the_whole_player_report_and_its_html_are_unchanged(): void {
@@ -249,15 +211,13 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
 
         foreach ( $this->players as $i => $player ) {
             foreach ( [ null, PlayerReportAudience::SCOUT, PlayerReportAudience::FAMILY ] as $audience ) {
-                $name   = 'player-whole-' . ( $i + 1 ) . '-' . ( $audience ?? 'reader' );
-                $before = fn() => ( new LegacyPlayerReport() )->forPlayer( $player, self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin, $audience, $options );
-                $after  = ( new PlayerReport() )->forPlayer( $player, self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin, $audience, $options );
+                $name  = 'player-whole-' . ( $i + 1 ) . '-' . ( $audience ?? 'reader' );
+                $after = ( new PlayerReport() )->forPlayer( $player, self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin, $audience, $options );
 
                 $this->assertNotNull( $after );
-                $this->golden( $name, $before, $after, "player {$player}" );
+                $this->golden( $name, $after, "player {$player}" );
                 $this->golden(
                     $name,
-                    fn() => PlayerReportPdfDocument::html( $this->level( (array) $before() ), [], $audience === PlayerReportAudience::FAMILY ),
                     PlayerReportPdfDocument::html( $this->level( (array) $after ), [], $audience === PlayerReportAudience::FAMILY ),
                     "player {$player} HTML"
                 );
@@ -273,9 +233,6 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         ( new PlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin );
 
         $after = $this->countQueries( fn() => ( new PlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin ) );
-        if ( GoldenSnapshot::recording() ) {
-            fwrite( STDERR, 'GOLDEN player legacy queries: ' . $this->countQueries( fn() => ( new LegacyPlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, PlayerReportBlock::ALL, $this->admin ) ) . "\n" );
-        }
 
         $this->assertGreaterThan( 0, $after );
         $this->assertLessThanOrEqual( self::PLAYER_QUERY_BASELINE, $after );
@@ -285,11 +242,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
 
     public function test_the_team_statistics_are_unchanged(): void {
         $filters = [ 'from' => self::FROM, 'to' => self::TO ];
-        $this->golden(
-            'team-statistics',
-            fn() => ( new LegacyTeamMatchStatsQuery() )->forTeam( $this->team, $filters ),
-            ( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters )
-        );
+        $this->golden( 'team-statistics', ( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters ) );
     }
 
     /**
@@ -324,12 +277,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
             wp_set_current_user( $viewer );
             $after = ( new PlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, PlayerReportBlock::ALL, $viewer, PlayerReportAudience::INTERNAL );
             $this->assertNotNull( $after );
-            $this->golden(
-                'player-reader-' . $who,
-                fn() => ( new LegacyPlayerReport() )->forPlayer( $this->players[0], self::FROM, self::TO, PlayerReportBlock::ALL, $viewer, PlayerReportAudience::INTERNAL ),
-                $after,
-                "viewer {$who}"
-            );
+            $this->golden( 'player-reader-' . $who, $after, "viewer {$who}" );
             $seen[ $viewer ] = [
                 'journey' => array_column( $after['data']['journey']['items'], 'summary' ),
                 'notes'   => array_column( $after['data']['thread_notes']['items'], 'body' ),
@@ -354,11 +302,7 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         $future    = $this->activity( $next_week, 'Volgende week', 'game', 'planned', [ 'opponent' => 'Paars', 'home_away' => 'home' ] );
         $filters   = [ 'from' => '2020-01-01', 'to' => gmdate( 'Y-m-d', time() + 30 * DAY_IN_SECONDS ) ];
 
-        $this->golden(
-            'team-statistics-to-come',
-            fn() => ( new LegacyTeamMatchStatsQuery() )->forTeam( $this->team, $filters ),
-            ( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters )
-        );
+        $this->golden( 'team-statistics-to-come', ( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters ) );
 
         $record =( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters )['record'];
         $this->assertSame( 1, $record['without_a_score'], 'Only the 2020 match without a score; next week is not missing one.' );
@@ -396,18 +340,13 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     }
 
     /**
-     * Compare a payload with its stored snapshot. When recording, the
-     * snapshot is first written from `$before`, the frozen copy, so the
-     * comparison that follows holds the live code to it.
+     * Compare a payload, levelled, with its stored snapshot; with
+     * `TT_GOLDEN_RECORD=1`, store it.
      *
-     * @param array<mixed>|string|null $after
+     * @param array<mixed>|string|null $payload
      */
-    private function golden( string $name, callable $before, $after, string $message = '' ): void {
-        if ( GoldenSnapshot::recording() ) {
-            $recorded = $before();
-            GoldenSnapshot::assertMatches( $name, is_string( $recorded ) ? $recorded : (array) $this->level( $recorded ) );
-        }
-        GoldenSnapshot::compare( $name, is_string( $after ) ? $after : (array) $this->level( $after ), $message );
+    private function golden( string $name, $payload, string $message = '' ): void {
+        GoldenSnapshot::assertMatches( $name, is_string( $payload ) ? $payload : (array) $this->level( $payload ), $message );
     }
 
     /**

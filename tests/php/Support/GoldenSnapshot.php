@@ -128,8 +128,19 @@ final class GoldenSnapshot {
      * @param array<mixed>|string $payload
      */
     public static function serialise( $payload ): string {
-        if ( is_string( $payload ) ) return self::tokeniseString( $payload ) . "\n";
-        $tokenised = self::tokenise( $payload, '', '' );
+        if ( is_string( $payload ) ) {
+            // A rendered document prints when it was made: level it, as a
+            // test levels the payload's own clock fields.
+            $payload = (string) preg_replace( '/Generated [^<]*/', 'Generated {now}', $payload );
+            // One tag per line, so a changed figure in rendered HTML shows
+            // as a changed line rather than as one line of the whole page.
+            return (string) preg_replace( '/>\s*</', ">\n<", self::tokeniseString( $payload ) ) . "\n";
+        }
+        // Rows a repository returns as objects become arrays first, so they
+        // are tokenised (and guarded) like everything else.
+        $plain = json_decode( (string) wp_json_encode( $payload ), true );
+        Assert::assertIsArray( $plain, 'The payload must encode.' );
+        $tokenised = self::tokenise( $plain, '', '' );
         $json      = wp_json_encode( $tokenised, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
         Assert::assertIsString( $json, 'The payload must encode.' );
         return $json . "\n";
@@ -205,14 +216,18 @@ final class GoldenSnapshot {
             $value
         );
 
+        // A date near today is relative to the run, and a time on it is the
+        // moment the fixture ran: neither belongs in a snapshot.
         $today = strtotime( gmdate( 'Y-m-d' ) . ' UTC' );
         return (string) preg_replace_callback(
-            '/\b(\d{4})-(\d{2})-(\d{2})\b/',
+            '/\b(\d{4})-(\d{2})-(\d{2})((?:[ T]\d{2}:\d{2}(?::\d{2})?)?)\b/',
             static function ( array $m ) use ( $today ): string {
-                $ts = strtotime( $m[0] . ' UTC' );
+                $date = $m[1] . '-' . $m[2] . '-' . $m[3];
+                $ts   = strtotime( $date . ' UTC' );
                 if ( $ts === false || ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) return $m[0];
                 $days = (int) round( ( $ts - $today ) / DAY_IN_SECONDS );
-                return abs( $days ) <= 366 ? '{day:' . ( $days >= 0 ? '+' : '' ) . $days . '}' : $m[0];
+                if ( abs( $days ) > 366 ) return $m[0];
+                return '{day:' . ( $days >= 0 ? '+' : '' ) . $days . '}' . ( $m[4] !== '' ? ' {time}' : '' );
             },
             $value
         );
