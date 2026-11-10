@@ -259,14 +259,14 @@ class Activator {
         ) $c;";
 
         // Teams & players
+        // #1315 — `head_coach_id` retired. Head-coach assignment lives in
+        // tt_team_people via the functional-role system; migration 0150
+        // drops the column on installs that already have it. #5020 — kept
+        // out of the SQL: dbDelta reads a `--` line as a column to add.
         $queries[] = "CREATE TABLE {$p}tt_teams (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             age_group VARCHAR(100) DEFAULT '',
-            -- #1315 — `head_coach_id` retired. Head-coach assignment
-            -- lives in tt_team_people via the functional-role system.
-            -- Migration 0150 drops the column on installs that already
-            -- have it.
             notes TEXT,
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
@@ -299,7 +299,7 @@ class Activator {
             guardian_name VARCHAR(255) DEFAULT '',
             guardian_email VARCHAR(255) DEFAULT '',
             guardian_phone VARCHAR(50) DEFAULT '',
-            wp_user_id BIGINT UNSIGNED DEFAULT 0,
+            wp_user_id BIGINT UNSIGNED DEFAULT NULL,
             status VARCHAR(50) DEFAULT 'active',
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
