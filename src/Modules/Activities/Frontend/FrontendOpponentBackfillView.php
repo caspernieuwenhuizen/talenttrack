@@ -102,11 +102,11 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
         wp_nonce_field( 'tt_opponent_backfill_save', 'tt_nonce' );
         echo '<input type="hidden" name="action" value="tt_opponent_backfill_save" />';
 
-        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // #4916 — on the stack-table primitive: a table from 768px, one card
         // per match below it. Each cell's parts (a control with its hidden
         // label, a title with its flag) are one value block.
         $th = StackTable::attrs( 'columnheader' );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ob-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ob-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( self::columns() as $header ) {
             echo '<th scope="col"' . $th . '>' . esc_html( $header ) . '</th>';
         }
