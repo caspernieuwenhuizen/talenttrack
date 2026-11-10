@@ -32,7 +32,7 @@ final class MySettingsStaffCopyTest extends WP_UnitTestCase {
             $this->assertStringNotContainsString( $phrase, $html );
         }
         $this->assertStringContainsString( 'concern you or the players you work with.', $html );
-        $this->assertStringContainsString( 'Your account details are yours to change above.', $html );
+        $this->assertStringContainsString( 'Your account details are yours to change under Account.', $html );
     }
 
     public function test_a_linked_parent_keeps_the_child_wording(): void {
@@ -61,9 +61,11 @@ final class MySettingsStaffCopyTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'the players you work with', $html );
     }
 
+    /** The message card and the held-contact card sit in two groups (#4969). */
     private function render(): string {
         ob_start();
-        FrontendMySettingsView::render();
+        FrontendMySettingsView::render( \TT\Infrastructure\Identity\MySettingsGroups::MESSAGES );
+        FrontendMySettingsView::render( \TT\Infrastructure\Identity\MySettingsGroups::PRIVACY );
         return (string) ob_get_clean();
     }
 }

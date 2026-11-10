@@ -151,4 +151,17 @@ final class ShellPreference {
             self::APP     => __( 'App shell — sidebar navigation', 'talenttrack' ),
         ];
     }
+
+    /**
+     * One-word names for the shells, for a summary line such as the
+     * My settings overview (#4969).
+     *
+     * @return array<string, string>
+     */
+    public static function shortLabels(): array {
+        return [
+            self::CLASSIC => _x( 'Classic', 'navigation layout', 'talenttrack' ),
+            self::APP     => _x( 'App', 'navigation layout', 'talenttrack' ),
+        ];
+    }
 }

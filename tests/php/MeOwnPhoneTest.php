@@ -247,7 +247,7 @@ final class MeOwnPhoneTest extends WP_UnitTestCase {
     private function renderFor( int $user_id ): string {
         wp_set_current_user( $user_id );
         ob_start();
-        FrontendMySettingsView::render();
+        FrontendMySettingsView::render( \TT\Infrastructure\Identity\MySettingsGroups::ACCOUNT );
         return (string) ob_get_clean();
     }
 

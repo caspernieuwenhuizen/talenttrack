@@ -158,7 +158,7 @@ final class FrontendAlertSettingsView extends FrontendViewBase {
         // per line, and the CrossViewLink call that actually gates this
         // affordance is two lines up rather than on the URL line itself.
         CrossViewLink::render( 'my-settings', static function (): void {
-            $url = add_query_arg( [ 'tt_view' => 'my-settings' ], self::dashboardUrl() ); /* tt-xview-ok */
+            $url = add_query_arg( [ 'tt_view' => 'my-settings', 'group' => 'messages' ], self::dashboardUrl() ); /* tt-xview-ok */
             echo '<p class="tt-alert-settings-crosslink">';
             printf(
                 /* translators: %s: link to the message preferences screen */

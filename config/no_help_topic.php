@@ -25,7 +25,6 @@ if ( ! defined( 'ABSPATH' ) && PHP_SAPI !== 'cli' ) exit;
 
 return [
     'docs'        => 'The help surface itself. A topic pointing at the page you are already reading is a loop, not help.',
-    'my-settings' => 'Personal account settings — notification preferences, password, locale. Nothing here is academy behaviour to document; the mobile and notification setup topics cover the parts that need explaining.',
 
     // Pre-auth screens. Each of these renders before the login guard (or,
     // for the MFA prompt, before a half-authenticated session is allowed

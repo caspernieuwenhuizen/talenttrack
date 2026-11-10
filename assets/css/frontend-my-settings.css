@@ -8,7 +8,77 @@
  * .tt-dashboard. App-chrome loads first.
  */
 
-.tt-dashboard .tt-msettings { max-width: 560px; }
+/*
+ * #4969 — the overview of groups, and one group per page. On a phone the
+ * overview is the list and a group page is the group alone; from 1024px a
+ * group page puts the list on the left and the group on the right.
+ */
+.tt-dashboard .tt-msettings {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+    min-width: 0;
+}
+.tt-dashboard .tt-msettings-panel {
+    min-width: 0;
+    max-width: 35rem;
+}
+
+.tt-dashboard .tt-msettings-groups {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 35rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    overflow: hidden;
+}
+.tt-dashboard .tt-msettings-groups__item + .tt-msettings-groups__item {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-msettings-group {
+    display: grid;
+    gap: 0.125rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-msettings-group:hover,
+.tt-dashboard .tt-msettings-group:active,
+.tt-dashboard .tt-msettings-group.is-current {
+    background: var(--tt-bg-soft, #f4f5f2);
+}
+.tt-dashboard .tt-msettings-group:focus-visible {
+    outline: 2px solid var(--tt-link, #1d6b45);
+    outline-offset: -2px;
+}
+.tt-dashboard .tt-msettings-group__label {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-msettings-group__summary {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    line-height: 1.35;
+    color: var(--tt-muted, #6a6d66);
+    overflow-wrap: anywhere;
+}
+
+/* A group page on a phone shows the group only; the breadcrumb leads back. */
+.tt-dashboard .tt-msettings--group .tt-msettings-groups {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-msettings--group {
+        grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+        align-items: start;
+    }
+    .tt-dashboard .tt-msettings--group .tt-msettings-groups {
+        display: block;
+    }
+}
 
 .tt-dashboard .tt-msettings-card {
     background: var(--tt-paper, #fff);
