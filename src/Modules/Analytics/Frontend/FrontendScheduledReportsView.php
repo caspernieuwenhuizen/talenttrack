@@ -202,6 +202,9 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '</label>';
         echo '<p class="tt-sched-intro">' . esc_html__( 'The report names players and describes their development. Send it to staff only.', 'talenttrack' ) . '</p>';
         echo '<p class="tt-sched-intro">' . esc_html__( 'Each recipient is checked every time the report is sent. An account receives it only when it may read this team\'s reports. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run.', 'talenttrack' ) . '</p>';
+        // #4991 — one PDF for everyone, so the least-privileged recipient
+        // decides what is in it.
+        echo '<p class="tt-sched-intro">' . esc_html( self::sameCopyNote() . ' ' . __( 'After saving, the schedule list shows what the recipients get.', 'talenttrack' ) ) . '</p>';
 
         $back       = BackLink::resolve();
         $cancel_url = $back !== null
@@ -246,6 +249,14 @@ class FrontendScheduledReportsView extends FrontendViewBase {
      * because a monthly schedule of fixed dates would mail the same weeks
      * forever.
      */
+    /**
+     * #4991 — the one-sentence rule both schedule forms state: one PDF for
+     * everyone, holding only what every recipient may read.
+     */
+    private static function sameCopyNote(): string {
+        return __( 'Everyone receives the same PDF, so each section contains only what every recipient may read. A recipient with no account here counts as having no rights.', 'talenttrack' );
+    }
+
     private static function renderPlayerReportForm(): void {
         $period      = isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '';
         $composition = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [
@@ -269,6 +280,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
 
         echo '<p class="tt-sched-intro">' . esc_html__( 'Sent on the 1st of every month as a PDF, over the same period the report had when you scheduled it. The schedule keeps its own copy of the sections.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html( self::sameCopyNote() ) . '</p>';
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-sched-form">';
         wp_nonce_field( 'tt_scheduled_reports_create', 'tt_sched_nonce' );
@@ -404,7 +416,9 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             if ( $status === 'paused' )  $chip .= ' tt-sched-chip--paused';
             echo '<tr>';
             echo '<td>' . esc_html( (string) $schedule['name'] ) . '</td>';
-            echo '<td>' . esc_html( $label ) . '</td>';
+            echo '<td>' . esc_html( $label );
+            self::renderRecipientsGet( $schedule );
+            echo '</td>';
             echo '<td>' . esc_html( self::frequencyLabel( (string) $schedule['frequency'] ) ) . '</td>';
             echo '<td><time>' . esc_html( (string) $schedule['next_run_at'] ) . ' UTC</time></td>';
             echo '<td><span class="' . esc_attr( $chip ) . '">' . esc_html( ucfirst( $status ) ) . '</span>';
@@ -421,6 +435,30 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         }
         echo '</tbody></table>';
         echo '</div></div>';
+    }
+
+    /**
+     * #4991 — under a monthly team report's label: the sections its current
+     * recipients will get. The same service the run uses decides it, with
+     * the recipients resolved now, so adding someone shows its effect here.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    private static function renderRecipientsGet( array $schedule ): void {
+        if ( (string) ( $schedule['report_key'] ?? '' ) !== ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) return;
+
+        $preview = \TT\Modules\Analytics\Reports\TeamMonthlyReportRecipients::preview( $schedule );
+        $text    = $preview['sections'] !== []
+            ? sprintf(
+                /* translators: %s: the report's section titles, as a list */
+                __( 'Recipients get: %s.', 'talenttrack' ),
+                wp_sprintf_l( '%l', $preview['sections'] )
+            )
+            : __( 'Recipients get the headline numbers only.', 'talenttrack' );
+        if ( $preview['without_attendance'] ) {
+            $text .= ' ' . __( 'Attendance is left out, because not every recipient may read it.', 'talenttrack' );
+        }
+        echo '<p class="tt-sched-receives">' . esc_html( $text ) . '</p>';
     }
 
     private static function renderRowActions( int $id, string $status ): void {

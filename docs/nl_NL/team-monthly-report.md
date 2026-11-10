@@ -229,6 +229,26 @@ bij deze academie horen, en een e-mailadres telt alleen als het bij een account
 hier hoort. Een adres zonder account hier ontvangt niets. Wie wordt
 overgeslagen, staat na de verzending op het scherm met planningen.
 
+Alle ontvangers krijgen **dezelfde pdf**, dus elke sectie bevat alleen wat elk
+van hen mag lezen, ook wie de planning heeft aangemaakt. Mag één van hen de
+aanwezigheid van het team niet zien, dan vallen de sectie aanwezigheid, het
+kerncijfer aanwezigheid en de aanwezigheidscijfers in de andere secties voor
+iedereen weg. **Wat veranderde** toont alleen de momenten uit de
+ontwikkelingsreis die elk van hen mag zien: een moment dat alleen voor de
+technische staf, de medische staf of veiligheid en welzijn is bedoeld, of een
+PDP-besluit, staat er alleen in als elke ontvanger het in de plugin mag zien.
+De blessurekolom in **Per speler** en het aantal spelers dat nu
+geblesseerd is, staan er alleen in als elke ontvanger de blessuregegevens van
+de spelers mag lezen. **Testen** toont een test alleen als elke ontvanger
+testen op dat niveau mag zien (openbaar, technische staf of medisch).
+Wat wegvalt, valt voor iedereen weg, ook voor een ontvanger die het daar wel
+kan zien. Een ontvanger van wie de rechten niet te controleren zijn, telt als
+iemand zonder rechten: een adres zonder account hier, een lid van een rol van
+buiten de academie, of een rol zonder leden. Dit wordt bij elke verzending
+opnieuw gecontroleerd, dus een ontvanger die een recht verliest maakt de
+volgende pdf kleiner, en een die het krijgt maakt hem weer volledig. Onder elk
+maandrapport laat het scherm met planningen zien wat de ontvangers nu krijgen.
+
 De planning bewaart **een eigen kopie** van het rapport. Wat je later aan een
 van je opgeslagen weergaven verandert of verwijdert, verandert niet wat er wordt
 verstuurd. Wil je iets anders versturen, archiveer de planning dan en maak een

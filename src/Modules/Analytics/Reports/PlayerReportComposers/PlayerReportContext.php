@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Visibility\ReaderSet;
+use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportComposition;
 use TT\Modules\Pdp\EvidencePacket;
@@ -29,6 +31,14 @@ final class PlayerReportContext {
     public readonly int $viewer_user_id;
     public readonly string $audience;
 
+    /**
+     * #4991 — everyone the report is read by, the viewer first. One reader on
+     * screen; a scheduled PDF's owner and recipients together, built once
+     * per run. Every reader-dependent read in the packet asks against all
+     * of them.
+     */
+    public readonly ReaderSet $readers;
+
     /** @var array<string,array<string,mixed>> block key => option bag */
     private array $options;
 
@@ -40,7 +50,7 @@ final class PlayerReportContext {
     /**
      * @param array<string,array<string,mixed>> $options
      */
-    private function __construct( object $player, string $from, string $to, int $viewer_user_id, string $audience, array $options ) {
+    private function __construct( object $player, string $from, string $to, int $viewer_user_id, string $audience, array $options, ReaderSet $readers ) {
         $this->player         = $player;
         $this->player_id      = (int) ( $player->id ?? 0 );
         $this->from           = $from;
@@ -48,17 +58,21 @@ final class PlayerReportContext {
         $this->viewer_user_id = $viewer_user_id;
         $this->audience       = $audience;
         $this->options        = $options;
+        $this->readers        = $readers;
     }
 
     /**
      * The context for a player of the current club, or null for anyone else.
      *
-     * @param string|null $audience Null resolves it from the viewer, which is
-     *        what every reader-facing path must do (#3876).
+     * @param string|null $audience Null resolves it from the readers, which
+     *        is what every reader-facing path must do (#3876): the narrowest
+     *        audience any of them reads as.
      * @param array<string,array<string,mixed>> $options per-block option bags.
+     * @param ReaderSet|null $readers #4991 — everyone who reads this same copy,
+     *        the viewer first; null is the viewer alone.
      * @throws \InvalidArgumentException on a malformed window.
      */
-    public static function make( int $player_id, string $from, string $to, int $viewer_user_id, ?string $audience = null, array $options = [] ): ?self {
+    public static function make( int $player_id, string $from, string $to, int $viewer_user_id, ?string $audience = null, array $options = [], ?ReaderSet $readers = null ): ?self {
         if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) {
             throw new \InvalidArgumentException( 'from and to must be Y-m-d dates with from <= to.' );
         }
@@ -68,11 +82,20 @@ final class PlayerReportContext {
             return null;
         }
 
-        $audience = $audience !== null && PlayerReportAudience::isValid( $audience )
-            ? $audience
-            : PlayerReportAudience::forReader( $viewer_user_id );
+        $readers = $readers ?? ReaderSet::of( [ $viewer_user_id ] );
 
-        return new self( $player, $from, $to, $viewer_user_id, $audience, $options );
+        if ( $audience === null || ! PlayerReportAudience::isValid( $audience ) ) {
+            // The narrowest audience any reader reads as, once per run.
+            $audience = (string) $readers->remember( 'player_report_audience', static function () use ( $readers ): string {
+                foreach ( $readers->readers as $reader ) {
+                    $as = PlayerReportAudience::forReader( $reader );
+                    if ( $as !== PlayerReportAudience::INTERNAL ) return $as;
+                }
+                return PlayerReportAudience::INTERNAL;
+            } );
+        }
+
+        return new self( $player, $from, $to, $viewer_user_id, $audience, $options, $readers );
     }
 
     /**
@@ -96,8 +119,8 @@ final class PlayerReportContext {
      */
     public function packet(): ?array {
         if ( ! $this->packet_loaded ) {
-            $tests_viewer        = PlayerReportAudience::isExternal( $this->audience ) ? 0 : $this->viewer_user_id;
-            $this->packet        = EvidencePacket::forPlayer( $this->player_id, $this->from, $this->to, $this->viewer_user_id, $tests_viewer );
+            $test_levels         = PlayerReportAudience::isExternal( $this->audience ) ? RecordVisibility::forMeasurements( 0 ) : null;
+            $this->packet        = EvidencePacket::forReaders( $this->player_id, $this->from, $this->to, $this->readers, $test_levels );
             $this->packet_loaded = true;
         }
         return $this->packet;

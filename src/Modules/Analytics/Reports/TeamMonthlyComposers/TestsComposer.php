@@ -56,6 +56,17 @@ final class TestsComposer {
     }
 
     /**
+     * #4991 — may the report show this test? Its visibility level must be
+     * one the report shows (`TeamReportContext::testLevels()`): every level
+     * on screen, the levels every reader holds in a shared copy. A test with
+     * no level of its own reads as public, the column's default.
+     */
+    private static function visibleTo( TeamReportContext $ctx, ?object $definition ): bool {
+        $level = $definition !== null ? (string) ( $definition->visibility ?? '' ) : '';
+        return in_array( $level !== '' ? $level : \TT\Infrastructure\Visibility\RecordVisibility::LEVEL_PUBLIC, $ctx->testLevels(), true );
+    }
+
+    /**
      * Test rounds actually held in the window, keyed by definition id.
      *
      * @param list<int> $wanted Empty means every test held; otherwise only
@@ -71,19 +82,29 @@ final class TestsComposer {
         $team      = $ctx->team();
         $age_group = $team !== null ? (string) ( $team->age_group ?? '' ) : '';
 
-        $out = [];
+        $out         = [];
+        $definitions = new MeasurementDefinitionsRepository();
+        $skipped     = [];
         foreach ( ( new MeasurementSessionsRepository() )->listForTeam( $ctx->team_id ) as $s ) {
             $def_id  = (int) ( $s->definition_id ?? 0 );
             $planned = (string) ( $s->planned_date ?? '' );
-            if ( $def_id <= 0 || isset( $out[ $def_id ] ) ) continue;
+            if ( $def_id <= 0 || isset( $out[ $def_id ] ) || isset( $skipped[ $def_id ] ) ) continue;
             if ( $planned === '' || $planned < $ctx->from || $planned > $ctx->to ) continue;
             if ( $wanted !== [] && ! in_array( $def_id, $wanted, true ) ) continue;
+
+            // #4991 — a test at a level not every reader holds is left out,
+            // before its trend query, so it costs nothing either.
+            $def_row = $definitions->find( $def_id );
+            if ( ! self::visibleTo( $ctx, $def_row ) ) {
+                $skipped[ $def_id ] = true;
+                continue;
+            }
 
             $trend = $trends->forDefinition( $def_id, [ 'team_id' => $ctx->team_id, 'date_to' => $ctx->to ] );
 
             // #4063 — the trend values are in the test's entry unit; the unit
             // context says how a person reads them (mm:ss for a duration).
-            $units         = UnitContext::forDefinition( ( new MeasurementDefinitionsRepository() )->find( $def_id ) );
+            $units         = UnitContext::forDefinition( $def_row );
             $definition    = $trend['definition'];
             $raw_direction = is_array( $definition ) ? (string) ( $definition['direction'] ?? '' ) : '';
             $direction     = $trend['has_direction'] ? $raw_direction : '';
@@ -426,6 +447,8 @@ final class TestsComposer {
     private static function emptyTestRound( TeamReportContext $ctx, int $definition_id ): ?array {
         $definition = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
         if ( ! $definition ) return null;
+        // #4991 — nor the empty section of a test not every reader may see.
+        if ( ! self::visibleTo( $ctx, $definition ) ) return null;
 
         $units = UnitContext::forDefinition( $definition );
 

@@ -100,13 +100,49 @@ final class TeamMonthlyReport {
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
     public function forTeam( int $team_id, string $from, string $to, array $blocks = [], int $viewer_user_id = 0, array $options = [] ): array {
+        self::refuseUnknown( $blocks );
+        return $this->compose( new TeamReportContext( $team_id, $from, $to, $viewer_user_id, $options ), $blocks );
+    }
+
+    /**
+     * #4991 — compose the report for several readers at once, as one
+     * scheduled PDF is read: every section holds only what every reader may
+     * read. The first reader is the one the report is composed as (a
+     * schedule's owner); 0 is a reader with no rights.
+     *
+     * @param list<string>                      $blocks  as `forTeam()`
+     * @param list<int>                         $readers
+     * @param array<string,array<string,mixed>> $options as `forTeam()`
+     * @return array{team_id:int, from:string, to:string, previous:Window, blocks:list<string>, data:array<string,array<string,mixed>>}
+     * @throws \InvalidArgumentException on unknown block keys or a malformed window.
+     */
+    public function forReaders( int $team_id, string $from, string $to, array $blocks, array $readers, array $options = [] ): array {
+        self::refuseUnknown( $blocks );
+        $readers = $readers === [] ? [ 0 ] : array_map( 'intval', $readers );
+        return $this->compose( new TeamReportContext( $team_id, $from, $to, $readers[0], $options, $readers ), $blocks );
+    }
+
+    /**
+     * @param list<string> $blocks
+     * @throws \InvalidArgumentException on unknown block keys.
+     */
+    private static function refuseUnknown( array $blocks ): void {
         $unknown = TeamMonthlyReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
         }
+    }
+
+    /**
+     * @param list<string> $blocks
+     * @return array{team_id:int, from:string, to:string, previous:Window, blocks:list<string>, data:array<string,array<string,mixed>>}
+     */
+    private function compose( TeamReportContext $ctx, array $blocks ): array {
         // A fresh context per call: every shared read is loaded at most once
         // for this report, and never carried over into the next one.
-        $ctx      = new TeamReportContext( $team_id, $from, $to, $viewer_user_id, $options );
+        $team_id  = $ctx->team_id;
+        $from     = $ctx->from;
+        $to       = $ctx->to;
         $selected = TeamMonthlyReportBlock::normalise( $blocks );
 
         $data = [];
@@ -313,13 +349,16 @@ final class TeamMonthlyReport {
                 return sprintf( _n( '%d player · most urgent first', '%d players · most urgent first', $n, 'talenttrack' ), $n );
 
             case TeamMonthlyReportBlock::CHANGES:
-                $events = count( $list( 'events' ) );
-                $open   = (int) ( $d['open_injuries'] ?? 0 );
-                return sprintf(
+                $events  = count( $list( 'events' ) );
+                $changes = sprintf(
                     /* translators: %d: entries under "what changed" */
                     _nx( '%d change', '%d changes', $events, 'monthly report: entries under what changed', 'talenttrack' ),
                     $events
-                ) . ' · ' . sprintf(
+                );
+                // #4991 — no count when the report carries none.
+                if ( ! array_key_exists( 'open_injuries', $d ) ) return $changes . '.';
+                $open = (int) $d['open_injuries'];
+                return $changes . ' · ' . sprintf(
                     /* translators: %d: players with an open injury */
                     _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
                     $open

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\JourneyActivityResolver;
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\EvidenceComposer;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\LetterheadComposer;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\MinutesComposer;
@@ -50,11 +51,32 @@ final class PlayerReport {
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
     public function forPlayer( int $player_id, string $from, string $to, array $blocks, int $viewer_user_id, ?string $audience = null, array $options = [] ): ?array {
+        return $this->forReaders( $player_id, $from, $to, $blocks, [ $viewer_user_id ], $options, $audience );
+    }
+
+    /**
+     * #4991 — compose the report for several readers at once, as one
+     * scheduled PDF is read: every section holds only what every reader may
+     * read, and the audience is the narrowest any of them reads as. A reader
+     * of 0 holds no rights. The first reader is the one the report is
+     * composed as (a schedule's owner).
+     *
+     * @param list<string>                      $blocks  as `forPlayer()`
+     * @param ReaderSet|list<int>               $readers build the set once per run and pass it
+     *        to every player's report, so the rights that do not depend on
+     *        the player are worked out once
+     * @param array<string,array<string,mixed>> $options as `forPlayer()`
+     * @param string|null                       $audience as `forPlayer()`; null resolves it from the readers
+     * @return Report|null
+     * @throws \InvalidArgumentException on unknown block keys or a malformed window.
+     */
+    public function forReaders( int $player_id, string $from, string $to, array $blocks, ReaderSet|array $readers, array $options = [], ?string $audience = null ): ?array {
         $unknown = PlayerReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
         }
-        $ctx = PlayerReportContext::make( $player_id, $from, $to, $viewer_user_id, $audience, $options );
+        $readers = $readers instanceof ReaderSet ? $readers : ReaderSet::of( $readers );
+        $ctx     = PlayerReportContext::make( $player_id, $from, $to, $readers->first(), $audience, $options, $readers );
         if ( $ctx === null ) return null;
         $audience = $ctx->audience;
 

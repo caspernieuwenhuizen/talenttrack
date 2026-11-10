@@ -217,6 +217,25 @@ email address counts only when it belongs to an account here. An address with no
 account here receives nothing. Whoever is left out is shown on the schedules
 screen after the run.
 
+Every recipient gets **the same PDF**, so each section contains only what every
+one of them may read, the person who set up the schedule included. If one of
+them may not see the team's attendance, the attendance section, the attendance
+headline number and the attendance figures in the other sections are left out
+for everyone. **What changed** lists only the journey entries every one of
+them may see: an entry kept to coaching staff, to medical staff or to
+safeguarding, or a PDP verdict, appears only when every recipient may see it
+in the plugin. The injury column in **Player by player** and the number of
+players currently injured appear only when every recipient may read the
+players' injury records. **Tests** shows a test only when every recipient may
+see tests at its level (public, coaching staff or medical). Something left out
+is left out for everyone, even for a
+recipient who could see it there. A recipient whose rights cannot be checked
+counts as having none: an address with no account here, a member of a role
+from outside the academy, or a role with no members. This is checked again at
+every run, so a recipient who loses a right makes the next PDF smaller, and
+one who gains it makes it whole again. Under each monthly report, the
+schedules screen shows what its recipients get right now.
+
 The schedule keeps **its own copy** of the report. Changing or deleting one of
 your saved views later does not change what it sends. To send something
 different, archive the schedule and set up a new one.

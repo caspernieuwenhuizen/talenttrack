@@ -96,6 +96,12 @@
     font-size: var(--tt-fs-sm, 0.875rem);
     color: var(--tt-danger-ink);
 }
+/* #4991 — what a shared monthly report's recipients get, under its label. */
+.tt-dashboard .tt-sched-receives {
+    margin: var(--tt-sp-1, 0.25rem) 0 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-muted, #6a6d66);
+}
 .tt-dashboard .tt-sched-table th { white-space: nowrap; }
 .tt-dashboard .tt-sched-table td { vertical-align: middle; }
 

@@ -64,6 +64,21 @@ class PlayerMeasurementProfile {
      * flag is the same target expressed as a verdict on the latest value.
      */
     public function forPlayer( int $player_id, ?int $viewer_id = null ): array {
+        return $this->forPlayerAtLevels(
+            $player_id,
+            \TT\Infrastructure\Visibility\RecordVisibility::forMeasurements( $viewer_id ?? get_current_user_id() )
+        );
+    }
+
+    /**
+     * #4991 — the same profile at given visibility levels, for a document
+     * several people read at once (`ReaderSet::testLevels()`), so one
+     * profile serves all of them rather than one per reader.
+     *
+     * @param list<string> $levels
+     * @return array<int,array<string,mixed>>
+     */
+    public function forPlayerAtLevels( int $player_id, array $levels ): array {
         if ( $player_id <= 0 ) return [];
 
         $age_group   = $this->ageGroupFor( $player_id );
@@ -72,15 +87,12 @@ class PlayerMeasurementProfile {
         // (#3392). A test toggled off still records results and appears in
         // reports / exports — it just stops rendering on the player profile.
         //
-        // The viewer defaults to the current user rather than being
-        // required, so every existing caller keeps working; but the filter
-        // lives HERE rather than in the views, because the rendered HTML
-        // and the REST response must not be able to disagree about what a
-        // given reader may see.
-        $viewer_id   = $viewer_id ?? get_current_user_id();
-        $definitions = $this->definitions->listActiveForProfile(
-            \TT\Infrastructure\Visibility\RecordVisibility::forMeasurements( $viewer_id )
-        );
+        // The viewer of `forPlayer()` defaults to the current user rather
+        // than being required, so every existing caller keeps working; but
+        // the filter lives HERE rather than in the views, because the
+        // rendered HTML and the REST response must not be able to disagree
+        // about what a given reader may see.
+        $definitions = $this->definitions->listActiveForProfile( $levels );
         $latest      = $this->results->latestPerDefinitionForPlayer( $player_id );
 
         $grouped = [];

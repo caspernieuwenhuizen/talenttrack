@@ -1,0 +1,26 @@
+#. translators: %s: the report's section titles, as a list
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Recipients get: %s."
+msgstr "Ontvangers krijgen: %s."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Recipients get the headline numbers only."
+msgstr "Ontvangers krijgen alleen de kerncijfers."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Attendance is left out, because not every recipient may read it."
+msgstr "Aanwezigheid is weggelaten, omdat niet elke ontvanger die mag lezen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid ""
+"Everyone receives the same PDF, so each section contains only what every "
+"recipient may read. A recipient with no account here counts as having no "
+"rights."
+msgstr ""
+"Iedereen ontvangt dezelfde pdf, dus elk onderdeel bevat alleen wat elke "
+"ontvanger mag lezen. Een ontvanger zonder account hier telt als iemand "
+"zonder rechten."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "After saving, the schedule list shows what the recipients get."
+msgstr "Na het opslaan toont de lijst met planningen wat de ontvangers krijgen."

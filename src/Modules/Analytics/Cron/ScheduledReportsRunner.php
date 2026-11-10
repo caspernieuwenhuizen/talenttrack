@@ -529,7 +529,7 @@ final class ScheduledReportsRunner {
      * path does it.
      *
      * @param array<string,mixed> $schedule
-     * @param callable(array<string,mixed>, string): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>} $render
+     * @param callable(array<string,mixed>, string, array{recipients: list<Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>}): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>} $render
      * @param callable(int, array<string,mixed>): bool $may_receive
      */
     private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render, callable $may_receive ): void {
@@ -545,7 +545,9 @@ final class ScheduledReportsRunner {
         }
 
         $now_ts = strtotime( $now_utc . ' UTC' );
-        $result = $render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ) );
+        // #4991 — the render is told who it is for, resolved this run, so a
+        // shared PDF carries only what every recipient may read.
+        $result = $render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ), $resolved );
         if ( ! $result['ok'] ) {
             $repo->recordError( $id, $result['error'] );
             self::auditLog( $schedule, count( $recipients ), false, $skipped );
@@ -702,18 +704,27 @@ final class ScheduledReportsRunner {
      * club (`not_in_club`). Empty and invalid entries are dropped; each
      * account is listed once.
      *
+     * #4991 — public, and resolved again wherever it is asked (each run, each
+     * view of the schedules list), so a role change between saving a
+     * schedule and sending it is honoured. `unresolved` lists the role keys
+     * that matched no account in this club with an address: a recipient
+     * whose rights cannot be checked, which `TeamMonthlyReportRecipients`
+     * counts as having none.
+     *
      * @param string[] $entries
      * @return array{
      *     recipients: list<Recipient>,
      *     via: array<int, string>,
-     *     skipped: list<array{email: string, user_id: int, reason: string, via: string}>
+     *     skipped: list<array{email: string, user_id: int, reason: string, via: string}>,
+     *     unresolved: list<string>
      * }
      */
-    private static function resolveRecipients( array $entries ): array {
-        $users   = [];
-        $via     = [];
-        $skipped = [];
-        $seen    = [];
+    public static function resolveRecipients( array $entries ): array {
+        $users      = [];
+        $via        = [];
+        $skipped    = [];
+        $seen       = [];
+        $unresolved = [];
         foreach ( $entries as $entry ) {
             $entry = trim( (string) $entry );
             if ( $entry === '' ) continue;
@@ -733,9 +744,15 @@ final class ScheduledReportsRunner {
             }
 
             // Treat as a WP role key.
+            $matched = false;
             foreach ( get_users( [ 'role' => $entry, 'fields' => [ 'ID' ] ] ) as $u ) {
                 $user_id = (int) ( $u->ID ?? 0 );
-                if ( $user_id <= 0 || isset( $users[ $user_id ] ) || isset( $seen[ $user_id ] ) ) continue;
+                if ( $user_id <= 0 ) continue;
+                if ( isset( $users[ $user_id ] ) ) {
+                    $matched = true;
+                    continue;
+                }
+                if ( isset( $seen[ $user_id ] ) ) continue;
                 if ( ! self::inClub( $user_id ) ) {
                     $seen[ $user_id ] = true;
                     $skipped[]        = self::notInClub( $entry );
@@ -745,9 +762,11 @@ final class ScheduledReportsRunner {
                 if ( $email === '' || ! is_email( $email ) ) continue;
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
                 $via[ $user_id ]   = $entry;
+                $matched           = true;
             }
+            if ( ! $matched ) $unresolved[] = $entry;
         }
-        return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => $skipped ];
+        return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => $skipped, 'unresolved' => $unresolved ];
     }
 
     /**

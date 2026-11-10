@@ -9,21 +9,20 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 
 /**
  * "What changed" (#4590): the squad's journey events in the window, as the
- * reader may see them, and how many players are injured now.
+ * readers may see them, and how many players are injured now.
  */
 final class ChangesComposer {
 
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
-        // An unattended caller (viewer 0) gets the conservative set: public
-        // and coaching-staff events only, never medical or safeguarding ones.
-        $visibilities = $ctx->viewer_user_id > 0
-            ? PlayerEventsRepository::visibilitiesForUser( $ctx->viewer_user_id )
-            : [ 'public', 'coaching_staff' ];
+        // #4991 — the levels every reader holds; an unattended caller gets
+        // the conservative set: public and coaching-staff events only, never
+        // medical or safeguarding ones.
+        $visibilities = $ctx->journeyVisibilities();
 
         // A PDP verdict entry follows the PDP verdict right, as on the
-        // timeline; an unattended caller holds none, so it gets none.
-        $events = PlayerEventsRepository::readableBy( $ctx->viewer_user_id, ( new PlayerEventsRepository() )->forTeamBetween(
+        // timeline, for every reader; an unattended caller holds none.
+        $events = $visibilities === [] ? [] : $ctx->readableEntries( ( new PlayerEventsRepository() )->forTeamBetween(
             $ctx->team_id, $ctx->from, $ctx->to, TeamMonthlyReport::CHANGE_EVENT_TYPES, $visibilities
         ) );
 
@@ -38,9 +37,13 @@ final class ChangesComposer {
             ];
         }
 
-        return [
-            'events'        => $items,
-            'open_injuries' => count( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) ),
-        ];
+        $out = [ 'events' => $items ];
+        // #4991 — how many are injured is injury information: counted only
+        // when every reader may read the squad's injury records, and left
+        // out otherwise, so the section names no count at all.
+        if ( $ctx->readsInjuries() ) {
+            $out['open_injuries'] = count( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) );
+        }
+        return $out;
     }
 }

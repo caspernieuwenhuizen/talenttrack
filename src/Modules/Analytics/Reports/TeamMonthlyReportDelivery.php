@@ -95,17 +95,26 @@ final class TeamMonthlyReportDelivery {
     /**
      * The plan plus the PDF.
      *
+     * #4991 — composed once, for the schedule's owner and every recipient
+     * together (`TeamMonthlyReportRecipients::readers()`), so each section
+     * of the one shared PDF holds only what every one of them may read.
+     * The recipients are required: there is no way to render a schedule's PDF
+     * without saying who it is for.
+     *
      * @param array<string,mixed> $schedule
+     * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $recipients
+     *        `ScheduledReportsRunner::resolveRecipients()` for this run
      * @return array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string}
      */
-    public static function render( array $schedule, string $today ): array {
+    public static function render( array $schedule, string $today, array $recipients ): array {
         $plan = self::plan( $schedule, $today );
         $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'] ];
         if ( ! $plan['ok'] ) return $out;
 
         $c = $plan['composition'];
         try {
-            $report = ( new TeamMonthlyReport() )->forTeam( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'], $c['options'] );
+            $readers = TeamMonthlyReportRecipients::readers( $c['team_id'], $recipients, $plan['owner'] );
+            $report  = ( new TeamMonthlyReport() )->forReaders( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $c['layout'], $plan['team_name'] );
 
             $request = new ExportRequest( 'team_monthly_report_pdf', 'pdf', CurrentClub::id(), $plan['owner'], null, [
