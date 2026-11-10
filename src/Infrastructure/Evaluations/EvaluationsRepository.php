@@ -288,10 +288,6 @@ class EvaluationsRepository {
     }
 
     /**
-     * #1385 — count of non-archived evaluations recorded for a player,
-     * for the `MyEvaluationsReceived` player KPI.
-     */
-    /**
      * #4977 — the PDP conversation whose signed form wrote this evaluation,
      * or 0. Such an evaluation is read-only: the signed form is the record.
      */
@@ -304,6 +300,10 @@ class EvaluationsRepository {
         ) );
     }
 
+    /**
+     * #1385 — count of non-archived evaluations recorded for a player,
+     * for the `MyEvaluationsReceived` player KPI.
+     */
     public function countForPlayer( int $player_id ): int {
         if ( $player_id <= 0 ) return 0;
 

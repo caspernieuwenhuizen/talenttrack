@@ -8,7 +8,6 @@ use TT\Domain\Vocabularies\Enums\PdpFormAuthor;
 use TT\Domain\Vocabularies\Lookups\GoalPriority;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Database\AfterCommit;
-use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Evaluations\RatingScale;
 use TT\Infrastructure\Goals\GoalsRepository;
@@ -22,7 +21,9 @@ use TT\Modules\Wizards\Evaluation\EvaluationInserter;
  * conversation form.
  *
  * In one transaction, in this order:
- *  1. lock the conversation row and check it is not signed off;
+ *  1. lock the conversation row (`PdpFormEntriesRepository::underLock()`,
+ *     the lock the trainer's writes take too), check it is not signed off,
+ *     and read the trainer's part and check it is complete;
  *  2. write the trainer's scores as an evaluation through
  *     `EvaluationInserter::insert()` (P3 on #4975): the type of the form's
  *     position group, each item's score mapped through `RatingScale` onto
@@ -61,21 +62,10 @@ final class PdpFormSignoff {
 
         $entries  = new PdpFormEntriesRepository();
         $form_key = (string) $definition['form_key'];
-        $scores   = $entries->scores( $conv_id, $form_key, PdpFormAuthor::COACH );
-        $answers  = $entries->answers( $conv_id, $form_key, PdpFormAuthor::COACH );
-        $goals    = $entries->goals( $conv_id );
-
-        $missing = self::missing( $definition, $scores, $answers, $goals );
-        if ( $missing !== [] ) {
-            return new \WP_Error(
-                'missing_fields',
-                __( 'The form is not complete yet. Score every item, fill in the strongest quality, and give both development points an action, the trainer\'s help and a deadline.', 'talenttrack' ),
-                [ 'status' => 400, 'fields' => $missing ]
-            );
-        }
 
         // The form's categories and type, up to date and active, before the
         // first write that needs them (#4976 review: the seeder owns them).
+        // Idempotent, so it runs before the lock.
         $group  = (string) $definition['position_group'];
         $seeded = PdpFormCategorySeeder::ensure( [ $group => $form_key ] );
         if ( $seeded instanceof \WP_Error ) {
@@ -83,36 +73,42 @@ final class PdpFormSignoff {
         }
         $type_id = PdpFormCategorySeeder::typeIdFor( $group );
 
-        try {
-            $scale   = RatingScale::current();
-            $ratings = [];
-            $repo    = new EvalCategoriesRepository();
-            foreach ( PdpFormRegistry::items( $definition ) as $item ) {
-                $category = $repo->getByKey( PdpFormRegistry::categoryKey( $definition, $item['key'] ) );
-                $cat_id   = $category !== null ? (int) ( ( (array) $category )['id'] ?? 0 ) : 0;
-                if ( $cat_id <= 0 ) {
-                    return new \WP_Error( 'seed_failed', __( 'The evaluation categories of the conversation form are missing. Ask your administrator to save the conversation forms setting again.', 'talenttrack' ), [ 'status' => 422 ] );
-                }
-                $ratings[ $cat_id ] = $scale->toStored( (int) $scores[ $item['key'] ] );
+        $category_ids = [];
+        $repo         = new EvalCategoriesRepository();
+        foreach ( PdpFormRegistry::items( $definition ) as $item ) {
+            $category = $repo->getByKey( PdpFormRegistry::categoryKey( $definition, $item['key'] ) );
+            $cat_id   = $category !== null ? (int) ( ( (array) $category )['id'] ?? 0 ) : 0;
+            if ( $cat_id <= 0 ) {
+                return new \WP_Error( 'seed_failed', __( 'The evaluation categories of the conversation form are missing. Ask your administrator to save the conversation forms setting again.', 'talenttrack' ), [ 'status' => 422 ] );
             }
+            $category_ids[ $item['key'] ] = $cat_id;
+        }
+        try {
+            $scale = RatingScale::current();
         } catch ( \DomainException $e ) {
             return new \WP_Error( 'rating_scale', $e->getMessage(), [ 'status' => 422 ] );
         }
 
         try {
-            $result = Transaction::run( static function () use ( $user_id, $conv_id, $player_id, $type_id, $ratings, $goals, $definition, $entries ): array {
+            // The form is read under the lock the trainer's writes take too
+            // (#5005 review), so the evaluation is what the signed form says.
+            $result = $entries->underLock( $conv_id, static function ( array $locked ) use ( $user_id, $conv_id, $player_id, $type_id, $category_ids, $scale, $definition, $entries, $form_key ): array {
                 global $wpdb;
-                $table = "{$wpdb->prefix}tt_pdp_conversations";
 
-                $locked = $wpdb->get_row( $wpdb->prepare(
-                    "SELECT coach_signoff_at, conducted_at FROM {$table} WHERE id = %d AND club_id = %d FOR UPDATE",
-                    $conv_id, CurrentClub::id()
-                ), ARRAY_A );
-                if ( ! is_array( $locked ) ) {
-                    throw new PdpFormSignoffRefused( new \WP_Error( 'not_found', __( 'Conversation not found.', 'talenttrack' ), [ 'status' => 404 ] ) );
+                $scores  = $entries->scores( $conv_id, $form_key, PdpFormAuthor::COACH );
+                $answers = $entries->answers( $conv_id, $form_key, PdpFormAuthor::COACH );
+                $goals   = $entries->goals( $conv_id );
+                $missing = self::missing( $definition, $scores, $answers, $goals );
+                if ( $missing !== [] ) {
+                    throw new PdpFormSignoffRefused( new \WP_Error(
+                        'missing_fields',
+                        __( 'The form is not complete yet. Score every item, fill in the strongest quality, and give both development points an action, the trainer\'s help and a deadline.', 'talenttrack' ),
+                        [ 'status' => 400, 'fields' => $missing ]
+                    ) );
                 }
-                if ( ! empty( $locked['coach_signoff_at'] ) ) {
-                    throw new PdpFormSignoffRefused( self::alreadySignedOff() );
+                $ratings = [];
+                foreach ( $category_ids as $item_key => $cat_id ) {
+                    $ratings[ $cat_id ] = $scale->toStored( (int) $scores[ $item_key ] );
                 }
 
                 $now        = current_time( 'mysql', true );
@@ -171,6 +167,8 @@ final class PdpFormSignoff {
             } );
         } catch ( PdpFormSignoffRefused $refused ) {
             return $refused->error();
+        } catch ( \DomainException $e ) {
+            return new \WP_Error( 'rating_scale', $e->getMessage(), [ 'status' => 422 ] );
         }
 
         AfterCommit::run( static function () use ( $conv_id, $result ): void {

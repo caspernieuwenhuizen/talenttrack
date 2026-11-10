@@ -389,6 +389,87 @@ final class PdpConversationFormTest extends WP_UnitTestCase {
         $this->assertSame( 404, $this->send( 'GET', '', [], 'pdp-conversations/999999/form' )[1] );
     }
 
+    public function test_another_players_account_and_a_parent_are_refused(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_players", [ 'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => 'Daan', 'last_name' => 'Bakker', 'status' => 'active', 'wp_user_id' => null ] );
+        $teammate = (int) $wpdb->insert_id;
+        $other    = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $wpdb->update( "{$this->p}tt_players", [ 'wp_user_id' => $other ], [ 'id' => $teammate ] );
+
+        wp_set_current_user( $other );
+        $this->assertSame( 403, $this->send( 'GET', 'form', [] )[1], 'another player does not read the form' );
+        $this->assertSame( 403, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 2 ] ] )[1], 'another player does not write the player\'s part' );
+        $this->assertSame( 403, $this->send( 'PUT', 'form/player/preparation', [] )[1], 'another player does not mark it ready' );
+
+        wp_set_current_user( $this->parent );
+        $this->assertSame( 403, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 2 ] ] )[1], 'a parent writes nothing' );
+
+        $this->assertSame( [], ( new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository() )->scores( $this->conv, self::FORM, 'player' ), 'nothing was written' );
+    }
+
+    public function test_a_parent_whose_child_keeps_the_pdp_private_reads_nothing_after_sign_off(): void {
+        wp_set_current_user( $this->trainer );
+        $this->fillTrainerPart();
+        $this->assertSame( 201, $this->send( 'POST', 'signoff', [], 'pdp-conversations/' . $this->conv . '/signoff' )[1] );
+
+        ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'pdp', false );
+        wp_set_current_user( $this->parent );
+        $this->assertSame( 403, $this->send( 'GET', 'form', [] )[1], 'decision 7: the pdp switch keeps the form from the parent' );
+    }
+
+    public function test_writes_after_sign_off_are_refused_and_change_nothing(): void {
+        wp_set_current_user( $this->trainer );
+        $this->fillTrainerPart();
+        $this->assertSame( 201, $this->send( 'POST', 'signoff', [], 'pdp-conversations/' . $this->conv . '/signoff' )[1] );
+
+        [ $data, $status ] = $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'technisch_rechts' => 1 ] ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'already_signed_off', $data['errors'][0]['code'] );
+        $this->assertSame( 409, $this->send( 'PATCH', 'form', [ 'form_key' => 'jg4it_elite_goalkeeper' ] )[1], 'nor is the form switched' );
+
+        wp_set_current_user( $this->account );
+        [ $data, $status ] = $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'technisch_rechts' => 1 ] ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'form_locked', $data['errors'][0]['code'] );
+
+        $coach = ( new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository() )->scores( $this->conv, self::FORM, 'coach' );
+        $this->assertSame( 5, $coach['technisch_rechts'], 'the signed scores stand' );
+    }
+
+    public function test_an_acknowledgement_waits_for_the_signed_form(): void {
+        wp_set_current_user( $this->account );
+        [ $data, $status ] = $this->send( 'PATCH', '', [ 'player_ack_at' => '2026-11-10 10:00:00' ], 'pdp-conversations/' . $this->conv );
+        $this->assertSame( 409, $status, 'the player cannot acknowledge an unsigned form' );
+        $this->assertSame( 'form_not_signed_off', $data['errors'][0]['code'] );
+
+        wp_set_current_user( $this->parent );
+        $this->assertSame( 409, $this->send( 'PATCH', '', [ 'parent_ack_at' => '2026-11-10 10:00:00' ], 'pdp-conversations/' . $this->conv )[1], 'nor can a parent' );
+
+        wp_set_current_user( $this->trainer );
+        $this->fillTrainerPart();
+        $this->assertSame( 201, $this->send( 'POST', 'signoff', [], 'pdp-conversations/' . $this->conv . '/signoff' )[1] );
+
+        wp_set_current_user( $this->account );
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'player_ack_at' => '2026-11-10 10:00:00' ], 'pdp-conversations/' . $this->conv )[1], 'after sign-off the player acknowledges it' );
+    }
+
+    public function test_the_trainers_part_is_written_on_the_current_talk_only(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_pdp_conversations", [
+            'club_id' => $this->club, 'pdp_file_id' => $this->file, 'sequence' => 2, 'template_key' => 'end',
+            'scheduled_at' => gmdate( 'Y-m-d H:i:s', time() + 60 * DAY_IN_SECONDS ),
+            'form_key' => self::FORM, 'form_version' => 1,
+        ] );
+        $later = (int) $wpdb->insert_id;
+
+        wp_set_current_user( $this->trainer );
+        [ $data, $status ] = $this->send( 'PATCH', '', [ 'scores' => [ 'aannames' => 3 ] ], 'pdp-conversations/' . $later . '/form/coach' );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'conversation_not_active', $data['errors'][0]['code'] );
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'form_key' => 'jg4it_elite_goalkeeper' ], 'pdp-conversations/' . $later . '/form' )[1], 'choosing the form stays open, like scheduling' );
+        $this->assertSame( 409, $this->send( 'POST', '', [], 'pdp-conversations/' . $later . '/signoff' )[1] );
+    }
+
     // ---- the player's scores reach no other reader ------------------------
 
     public function test_only_the_form_classes_read_the_form_tables(): void {

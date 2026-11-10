@@ -49,6 +49,14 @@ msgid "Only the current talk can be signed off. Earlier talks come first."
 msgstr "Alleen het huidige gesprek kan worden ondertekend. Eerdere gesprekken gaan voor."
 
 #: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Only the current talk can be filled in. Earlier talks come first."
+msgstr "Alleen het huidige gesprek kan worden ingevuld. Eerdere gesprekken gaan voor."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This conversation form has not been signed off yet, so there is nothing to acknowledge."
+msgstr "Dit gespreksformulier is nog niet ondertekend, dus er is nog niets om voor gezien te tekenen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
 msgid "Send the scores as an object of item => score."
 msgstr "Stuur de scores als object van onderdeel => score."
 

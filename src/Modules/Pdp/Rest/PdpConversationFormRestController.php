@@ -165,13 +165,17 @@ final class PdpConversationFormRestController extends BaseController {
         $id      = (int) ( (array) $conv )['id'];
         $current = (string) ( ( (array) $conv )['form_key'] ?? '' );
         if ( $current !== $form_key ) {
-            // Owner decision 6 on #4975: the form is fixed at the player's
-            // first save. Before that the trainer may switch it.
-            if ( $current !== '' && ( new PdpFormEntriesRepository() )->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
-                return RestResponse::error( 'form_fixed', __( 'The player has started on this form, so it can no longer be switched.', 'talenttrack' ), 409 );
-            }
-            $ok = ( new PdpConversationsRepository() )->update( $id, [ 'form_key' => $form_key, 'form_version' => PdpFormRegistry::latestVersion( $form_key ) ] );
-            if ( ! $ok ) return self::dbError();
+            $entries = new PdpFormEntriesRepository();
+            $refused = self::locked( $entries, $id, static function () use ( $entries, $id, $current, $form_key ): ?WP_REST_Response {
+                // Owner decision 6 on #4975: the form is fixed at the player's
+                // first save. Before that the trainer may switch it.
+                if ( $current !== '' && $entries->hasEntries( $id, PdpFormAuthor::PLAYER ) ) {
+                    return RestResponse::error( 'form_fixed', __( 'The player has started on this form, so it can no longer be switched.', 'talenttrack' ), 409 );
+                }
+                $ok = ( new PdpConversationsRepository() )->update( $id, [ 'form_key' => $form_key, 'form_version' => PdpFormRegistry::latestVersion( $form_key ) ] );
+                return $ok ? null : self::dbError();
+            } );
+            if ( $refused !== null ) return $refused;
         }
         return self::fresh( $id );
     }
@@ -192,9 +196,13 @@ final class PdpConversationFormRestController extends BaseController {
         $parsed = self::parseEntries( $r, $definition, PdpFormAuthor::PLAYER, false );
         if ( $parsed instanceof WP_REST_Response ) return $parsed;
 
-        $written = self::writeEntries( (int) ( (array) $conv )['id'], $definition, PdpFormAuthor::PLAYER, $parsed );
-        if ( ! $written ) return self::dbError();
-        return self::fresh( (int) ( (array) $conv )['id'] );
+        // The player's part closes at sign-off too, so it takes the same lock.
+        $id      = (int) ( (array) $conv )['id'];
+        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function () use ( $id, $definition, $parsed ): ?WP_REST_Response {
+            return self::writeEntries( $id, $definition, PdpFormAuthor::PLAYER, $parsed ) ? null : self::dbError();
+        } );
+        if ( $refused !== null ) return self::lockedAnswer( $refused );
+        return self::fresh( $id );
     }
 
     public static function markPrepared( WP_REST_Request $r ): WP_REST_Response {
@@ -218,13 +226,21 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = PdpFormReader::definitionFor( $conv );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        // #2041 — the trainer's part is talk content, written in order like
+        // the conversation route's notes. Choosing the form stays open, as
+        // scheduling does.
+        if ( ! self::isCurrentTalk( $conv ) ) return self::notActive( __( 'Only the current talk can be filled in. Earlier talks come first.', 'talenttrack' ) );
 
         $parsed = self::parseEntries( $r, $definition, PdpFormAuthor::COACH, true );
         if ( $parsed instanceof WP_REST_Response ) return $parsed;
 
-        $written = self::writeEntries( (int) ( (array) $conv )['id'], $definition, PdpFormAuthor::COACH, $parsed );
-        if ( ! $written ) return self::dbError();
-        return self::fresh( (int) ( (array) $conv )['id'] );
+        $id      = (int) ( (array) $conv )['id'];
+        $entries = new PdpFormEntriesRepository();
+        $refused = self::locked( $entries, $id, static function () use ( $id, $definition, $parsed ): ?WP_REST_Response {
+            return self::writeEntries( $id, $definition, PdpFormAuthor::COACH, $parsed ) ? null : self::dbError();
+        } );
+        if ( $refused !== null ) return $refused;
+        return self::fresh( $id );
     }
 
     public static function signOff( WP_REST_Request $r ): WP_REST_Response {
@@ -237,10 +253,7 @@ final class PdpConversationFormRestController extends BaseController {
         if ( ! $access->signsOff() ) return self::forbidden();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
         // #2041 — talks are signed off in order, as on the conversation route.
-        $row = (array) $conv;
-        if ( (int) $row['id'] !== ( new PdpConversationsRepository() )->activeConversationId( (int) ( $row['pdp_file_id'] ?? 0 ) ) ) {
-            return RestResponse::error( 'conversation_not_active', __( 'Only the current talk can be signed off. Earlier talks come first.', 'talenttrack' ), 409 );
-        }
+        if ( ! self::isCurrentTalk( $conv ) ) return self::notActive( __( 'Only the current talk can be signed off. Earlier talks come first.', 'talenttrack' ) );
 
         $result = PdpFormSignoff::signOff( $uid, $conv, $access->playerId() );
         if ( $result instanceof \WP_Error ) {
@@ -269,8 +282,11 @@ final class PdpConversationFormRestController extends BaseController {
         $now  = (string) ( $row['player_prepared_at'] ?? '' );
         if ( $prepared === ( $now !== '' ) ) return self::fresh( $id );
 
-        $patch = [ 'player_prepared_at' => $prepared ? current_time( 'mysql', true ) : null ];
-        if ( ! ( new PdpConversationsRepository() )->update( $id, $patch ) ) return self::dbError();
+        $patch   = [ 'player_prepared_at' => $prepared ? current_time( 'mysql', true ) : null ];
+        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function () use ( $id, $patch ): ?WP_REST_Response {
+            return ( new PdpConversationsRepository() )->update( $id, $patch ) ? null : self::dbError();
+        } );
+        if ( $refused !== null ) return self::lockedAnswer( $refused );
 
         $file = ( new \TT\Modules\Pdp\Repositories\PdpFilesRepository() )->find( (int) ( $row['pdp_file_id'] ?? 0 ) );
         if ( $file !== null ) PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $patch );
@@ -376,6 +392,50 @@ final class PdpConversationFormRestController extends BaseController {
             if ( ! $repo->saveGoal( $conversation_id, $slot, $fields, $uid ) ) return false;
         }
         return true;
+    }
+
+    /**
+     * Run a staff write under the conversation's row lock, the lock sign-off
+     * takes (#5005 review). A conversation signed off meanwhile answers
+     * `409 already_signed_off`; the write is rolled back on any refusal.
+     *
+     * @param callable(): ?WP_REST_Response $write null when it succeeded
+     */
+    private static function locked( PdpFormEntriesRepository $entries, int $conversation_id, callable $write ): ?WP_REST_Response {
+        try {
+            return $entries->underLock( $conversation_id, static function () use ( $write ): ?WP_REST_Response {
+                $answer = $write();
+                // A refusal must not commit what was written before it.
+                if ( $answer !== null ) throw new \TT\Modules\Pdp\Forms\PdpFormSignoffRefused( new \WP_Error( 'refused', '', [ 'response' => $answer ] ) );
+                return null;
+            } );
+        } catch ( \TT\Modules\Pdp\Forms\PdpFormSignoffRefused $refused ) {
+            $error = $refused->error();
+            $data  = (array) $error->get_error_data();
+            if ( ( $data['response'] ?? null ) instanceof WP_REST_Response ) return $data['response'];
+            $status = (int) ( $data['status'] ?? 409 );
+            return RestResponse::error( (string) $error->get_error_code(), $error->get_error_message(), $status );
+        }
+    }
+
+    /**
+     * For the player, a conversation signed off meanwhile reads as their part
+     * having locked, which is what it means to them.
+     */
+    private static function lockedAnswer( WP_REST_Response $refused ): WP_REST_Response {
+        $data = (array) $refused->get_data();
+        if ( ( $data['errors'][0]['code'] ?? '' ) === 'already_signed_off' ) return self::lockedError();
+        return $refused;
+    }
+
+    /** Is this the talk the file is on now (#2041)? */
+    private static function isCurrentTalk( object $conv ): bool {
+        $row = (array) $conv;
+        return (int) $row['id'] === ( new PdpConversationsRepository() )->activeConversationId( (int) ( $row['pdp_file_id'] ?? 0 ) );
+    }
+
+    private static function notActive( string $message ): WP_REST_Response {
+        return RestResponse::error( 'conversation_not_active', $message, 409 );
     }
 
     /** The form as the caller now reads it, after a write. */

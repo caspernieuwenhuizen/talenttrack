@@ -24,6 +24,37 @@ final class PdpFormEntriesRepository {
     public const GOAL_FIELDS = [ 'action_text', 'support_text', 'due_date', 'item_key' ];
 
     /**
+     * Run `$work` in one transaction, holding the conversation row
+     * (`FOR UPDATE`), once the conversation is found not to be signed off.
+     *
+     * The trainer's writes and the sign-off all take this lock, so an
+     * autosave that lands while the trainer signs either commits before the
+     * sign-off reads the form, or finds it signed and is refused. It never
+     * changes a row after the sign-off read it, and never writes after the
+     * commit. A refusal is thrown as `PdpFormSignoffRefused` and rolls back.
+     *
+     * @template T
+     * @param callable(array<string,mixed>): T $work receives the locked row
+     * @return T
+     */
+    public function underLock( int $conversation_id, callable $work ) {
+        return \TT\Infrastructure\Database\Transaction::run( static function () use ( $conversation_id, $work ) {
+            global $wpdb;
+            $locked = $wpdb->get_row( $wpdb->prepare(
+                "SELECT id, coach_signoff_at, conducted_at FROM {$wpdb->prefix}tt_pdp_conversations WHERE id = %d AND club_id = %d FOR UPDATE",
+                $conversation_id, CurrentClub::id()
+            ), ARRAY_A );
+            if ( ! is_array( $locked ) ) {
+                throw new PdpFormSignoffRefused( new \WP_Error( 'not_found', __( 'Conversation not found.', 'talenttrack' ), [ 'status' => 404 ] ) );
+            }
+            if ( ! empty( $locked['coach_signoff_at'] ) ) {
+                throw new PdpFormSignoffRefused( new \WP_Error( 'already_signed_off', __( 'This conversation has already been signed off.', 'talenttrack' ), [ 'status' => 409 ] ) );
+            }
+            return $work( $locked );
+        } );
+    }
+
+    /**
      * Scores of one author on one form, item key => 1-5 or null.
      *
      * @return array<string, int|null>
@@ -129,16 +160,25 @@ final class PdpFormEntriesRepository {
 
     public function saveScore( int $conversation_id, string $form_key, string $item_key, string $author, ?int $score, int $user_id ): bool {
         global $wpdb;
-        $now = current_time( 'mysql', true );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $sql = "INSERT INTO {$wpdb->prefix}tt_pdp_form_scores
-                    (uuid, club_id, conversation_id, form_key, item_key, author, score, updated_by, created_at, updated_at)
-                VALUES (%s, %d, %d, %s, %s, %s, " . ( $score === null ? 'NULL' : '%d' ) . ", %d, %s, %s)
-                ON DUPLICATE KEY UPDATE score = VALUES(score), updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)";
-        $args = [ wp_generate_uuid4(), CurrentClub::id(), $conversation_id, $form_key, $item_key, $author ];
-        if ( $score !== null ) $args[] = $score;
-        array_push( $args, $user_id, $now, $now );
-        return $wpdb->query( $wpdb->prepare( $sql, ...$args ) ) !== false;
+        $now  = current_time( 'mysql', true );
+        $uuid = wp_generate_uuid4();
+        $club = CurrentClub::id();
+        if ( $score === null ) {
+            return $wpdb->query( $wpdb->prepare(
+                "INSERT INTO {$wpdb->prefix}tt_pdp_form_scores
+                     (uuid, club_id, conversation_id, form_key, item_key, author, score, updated_by, created_at, updated_at)
+                 VALUES (%s, %d, %d, %s, %s, %s, NULL, %d, %s, %s)
+                 ON DUPLICATE KEY UPDATE score = NULL, updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+                $uuid, $club, $conversation_id, $form_key, $item_key, $author, $user_id, $now, $now
+            ) ) !== false;
+        }
+        return $wpdb->query( $wpdb->prepare(
+            "INSERT INTO {$wpdb->prefix}tt_pdp_form_scores
+                 (uuid, club_id, conversation_id, form_key, item_key, author, score, updated_by, created_at, updated_at)
+             VALUES (%s, %d, %d, %s, %s, %s, %d, %d, %s, %s)
+             ON DUPLICATE KEY UPDATE score = VALUES(score), updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+            $uuid, $club, $conversation_id, $form_key, $item_key, $author, $score, $user_id, $now, $now
+        ) ) !== false;
     }
 
     public function saveAnswer( int $conversation_id, string $form_key, string $field_key, string $author, string $body, int $user_id ): bool {
