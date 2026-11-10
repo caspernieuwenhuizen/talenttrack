@@ -198,10 +198,28 @@ class Activator {
 
     private static function ensureSchema(): void {
         global $wpdb;
-        $c = $wpdb->get_charset_collate();
         $p = $wpdb->prefix;
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        foreach ( self::schemaQueries() as $sql ) {
+            dbDelta( $sql );
+        }
+
+        self::ensureLegacyColumns( $p );
+    }
+
+    /**
+     * The install routine's CREATE statements. Each is the shape the
+     * migrations leave the table in, because dbDelta runs them over the
+     * migrated tables on every activation (#5020, docs/migrations.md).
+     *
+     * @return list<string>
+     */
+    private static function schemaQueries(): array {
+        global $wpdb;
+        $c = $wpdb->get_charset_collate();
+        $p = $wpdb->prefix;
 
         $queries = [];
 
@@ -241,14 +259,14 @@ class Activator {
         ) $c;";
 
         // Teams & players
+        // #1315 — `head_coach_id` retired. Head-coach assignment lives in
+        // tt_team_people via the functional-role system; migration 0150
+        // drops the column on installs that already have it. #5020 — kept
+        // out of the SQL: dbDelta reads a `--` line as a column to add.
         $queries[] = "CREATE TABLE {$p}tt_teams (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             age_group VARCHAR(100) DEFAULT '',
-            -- #1315 — `head_coach_id` retired. Head-coach assignment
-            -- lives in tt_team_people via the functional-role system.
-            -- Migration 0150 drops the column on installs that already
-            -- have it.
             notes TEXT,
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
@@ -258,8 +276,13 @@ class Activator {
             KEY idx_archived_at (archived_at)
         ) $c;";
 
+        // #5020 — `wp_user_id` and `uniq_club_user` as migration 0170 left
+        // them: dbDelta runs this on every activation and would otherwise
+        // put `DEFAULT 0` back. The key needs `club_id`, which 0038 adds on
+        // upgrades and a fresh install gets here.
         $queries[] = "CREATE TABLE {$p}tt_players (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            club_id INT UNSIGNED NOT NULL DEFAULT 1,
             first_name VARCHAR(255) NOT NULL,
             last_name VARCHAR(255) NOT NULL,
             date_of_birth DATE,
@@ -276,16 +299,18 @@ class Activator {
             guardian_name VARCHAR(255) DEFAULT '',
             guardian_email VARCHAR(255) DEFAULT '',
             guardian_phone VARCHAR(50) DEFAULT '',
-            wp_user_id BIGINT UNSIGNED DEFAULT 0,
+            wp_user_id BIGINT UNSIGNED DEFAULT NULL,
             status VARCHAR(50) DEFAULT 'active',
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
+            UNIQUE KEY uniq_club_user (club_id, wp_user_id),
             KEY idx_team (team_id),
             KEY idx_user (wp_user_id),
-            KEY idx_archived_at (archived_at)
+            KEY idx_archived_at (archived_at),
+            KEY idx_club_id (club_id)
         ) $c;";
 
         // People & team-staff assignments
@@ -411,7 +436,7 @@ class Activator {
             notes TEXT,
             opponent VARCHAR(255) DEFAULT NULL,
             competition VARCHAR(255) DEFAULT NULL,
-            match_result VARCHAR(50) DEFAULT NULL,
+            game_result VARCHAR(50) DEFAULT NULL,
             home_away VARCHAR(10) DEFAULT NULL,
             minutes_played SMALLINT UNSIGNED DEFAULT NULL,
             category_id BIGINT UNSIGNED DEFAULT NULL,
@@ -526,16 +551,24 @@ class Activator {
         // The table itself, both kinds of row. `record_type` is added by
         // migration 0121 rather than here, which is why this shape does not
         // name it. /* both-kinds-ok */
-        $queries[] = "CREATE TABLE {$p}tt_attendance (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            session_id BIGINT UNSIGNED NOT NULL,
-            player_id BIGINT UNSIGNED NOT NULL,
-            status VARCHAR(50) DEFAULT 'present',
-            notes TEXT,
-            PRIMARY KEY (id),
-            KEY idx_session (session_id),
-            KEY idx_player (player_id)
-        ) $c;";
+        // #5020 — the shape migrations 0020 and 0027 start from: 0020 indexes
+        // `session_id` and 0027 renames it to `activity_id`, so a fresh
+        // install needs it. On a migrated table dbDelta would add
+        // `session_id` back as NOT NULL and make `player_id` NOT NULL again
+        // (what 0101 repaired), so it only creates the table. Never add a
+        // column here: attendance changes go through a migration only.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( "{$p}tt_attendance" ) ) ) !== "{$p}tt_attendance" ) {
+            $queries[] = "CREATE TABLE {$p}tt_attendance (
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                session_id BIGINT UNSIGNED NOT NULL,
+                player_id BIGINT UNSIGNED NOT NULL,
+                status VARCHAR(50) DEFAULT 'present',
+                notes TEXT,
+                PRIMARY KEY (id),
+                KEY idx_session (session_id),
+                KEY idx_player (player_id)
+            ) $c;";
+        }
 
         // Goals
         $queries[] = "CREATE TABLE {$p}tt_goals (
@@ -780,9 +813,11 @@ class Activator {
             KEY idx_player_b (player_b_id)
         ) $c;";
 
-        foreach ( $queries as $sql ) {
-            dbDelta( $sql );
-        }
+        return $queries;
+    }
+
+    private static function ensureLegacyColumns( string $p ): void {
+        global $wpdb;
 
         // #0018 sprint 2 — side-preference column on tt_players.
         $players_table = $p . 'tt_players';
@@ -962,15 +997,17 @@ class Activator {
         }
 
         $defaults = [
-            // v3.110.116 — flipped from 1-5 → 5-10 (Dutch academic
-            // 6-point scale). Migration 0095 remaps existing installs'
-            // data with the linear transform new = 5 + (old-1) × 1.25.
-            'rating_min' => '5', 'rating_max' => '10', 'rating_step' => '0.5',
+            // #5020 — the scale the rest of the plugin falls back to, so a
+            // fresh install whose migrations stop early is not on another one.
+            'rating_min'  => \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_MIN,
+            'rating_max'  => \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_MAX,
+            'rating_step' => \TT\Infrastructure\Evaluations\RatingScale::DEFAULT_STEP,
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',
             'modules_enabled' => '["evaluations","goals","attendance","activities","reports","people","authorization"]',
-            'primary_color' => '#0b3d2e', 'secondary_color' => '#e8b624',
+            // No primary_color / secondary_color: a missing row is the
+            // theme default (#4803), and a seeded one would freeze today's.
             'logo_url' => '',
             'show_logo' => '0',
             'tile_scale' => '100',
