@@ -8,6 +8,7 @@ use TT\Modules\Knowledge\KnowledgePerson;
 use TT\Modules\Knowledge\LearningStatisticsService;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * LearningReports (#2650, epic #2641) — the three tables behind the learning
@@ -59,36 +60,43 @@ final class LearningReports {
         }
 
         echo '<div class="tt-report-card"><div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-learning-report">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Course', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Enrolled', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Not started', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'In progress', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Completed', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Overdue', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Median days', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Stalls at', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // per course below it, headed by the course.
+        $c_enrolled    = __( 'Enrolled', 'talenttrack' );
+        $c_not_started = __( 'Not started', 'talenttrack' );
+        $c_in_progress = __( 'In progress', 'talenttrack' );
+        $c_completed   = __( 'Completed', 'talenttrack' );
+        $c_overdue     = __( 'Overdue', 'talenttrack' );
+        $c_median      = __( 'Median days', 'talenttrack' );
+        $c_stalls      = __( 'Stalls at', 'talenttrack' );
+        $th            = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-learning-report ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Course', 'talenttrack' ) . '</th>';
+        foreach ( [ $c_enrolled, $c_not_started, $c_in_progress, $c_completed, $c_overdue, $c_median ] as $header ) {
+            echo '<th scope="col" class="num"' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_stalls ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         $service = new LearningStatisticsService();
 
         foreach ( $stats as $row ) {
             $drop = $service->dropOffFor( (string) $row['course_slug'] );
 
-            echo '<tr>';
-            echo '<th scope="row">' . esc_html( (string) $row['title'] ) . '</th>';
-            echo '<td class="num">' . (int) $row['enrolled'] . '</td>';
-            echo '<td class="num">' . (int) $row['not_started'] . '</td>';
-            echo '<td class="num">' . (int) $row['in_progress'] . '</td>';
-            echo '<td class="num">' . (int) $row['completed'] . '</td>';
-            echo '<td class="num">' . self::overdueCell( (int) $row['overdue'] ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( (string) $row['title'] ) . '</th>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_enrolled ) . '>' . (int) $row['enrolled'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_not_started ) . '>' . (int) $row['not_started'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_in_progress ) . '>' . (int) $row['in_progress'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_completed ) . '>' . (int) $row['completed'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_overdue ) . '>' . self::overdueCell( (int) $row['overdue'] ) . '</td>';
             // An em dash, not a zero: nobody having finished yet is a
             // different statement from finishing in no time.
-            echo '<td class="num">'
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_median ) . '>'
                 . esc_html( $row['median_days_to_complete'] === null ? '—' : (string) $row['median_days_to_complete'] )
                 . '</td>';
-            echo '<td>' . esc_html(
+            echo '<td' . StackTable::attrs( 'cell', $c_stalls ) . '>' . esc_html(
                 $drop['stalls_at'] === null
                     ? __( 'No drop-off yet', 'talenttrack' )
                     : sprintf(
@@ -124,24 +132,31 @@ final class LearningReports {
         }
 
         echo '<div class="tt-report-card"><div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-learning-report">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Person', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Courses', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Complete', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Overdue', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="num">' . esc_html__( 'Awaiting review', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Last activity', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // per person below it, headed by the person.
+        $c_courses  = __( 'Courses', 'talenttrack' );
+        $c_complete = __( 'Complete', 'talenttrack' );
+        $c_overdue  = __( 'Overdue', 'talenttrack' );
+        $c_review   = __( 'Awaiting review', 'talenttrack' );
+        $c_last     = __( 'Last activity', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-learning-report ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Person', 'talenttrack' ) . '</th>';
+        foreach ( [ $c_courses, $c_complete, $c_overdue, $c_review ] as $header ) {
+            echo '<th scope="col" class="num"' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '<th scope="col"' . $th . '>' . esc_html( $c_last ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $people as $person ) {
-            echo '<tr>';
-            echo '<th scope="row">' . esc_html( (string) $person['name'] ) . '</th>';
-            echo '<td class="num">' . (int) $person['assigned'] . '</td>';
-            echo '<td class="num">' . esc_html( sprintf( '%d%%', (int) $person['percent'] ) ) . '</td>';
-            echo '<td class="num">' . self::overdueCell( (int) $person['overdue'] ) . '</td>';
-            echo '<td class="num">' . (int) $person['awaiting_review'] . '</td>';
-            echo '<td>' . esc_html( self::when( $person['last_activity'] ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( (string) $person['name'] ) . '</th>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_courses ) . '>' . (int) $person['assigned'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_complete ) . '>' . esc_html( sprintf( '%d%%', (int) $person['percent'] ) ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_overdue ) . '>' . self::overdueCell( (int) $person['overdue'] ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_review ) . '>' . (int) $person['awaiting_review'] . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_last ) . '>' . esc_html( self::when( $person['last_activity'] ) ) . '</td>';
             echo '</tr>';
         }
 
@@ -190,28 +205,34 @@ final class LearningReports {
             }
 
             echo '<div class="tt-report-card"><div class="tt-table-wrap">';
-            echo '<table class="tt-table tt-learning-report">';
-            echo '<thead><tr>';
-            echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-            echo '<th scope="col" class="num">' . esc_html__( 'Enrolled', 'talenttrack' ) . '</th>';
-            echo '<th scope="col" class="num">' . esc_html__( 'Staff trained', 'talenttrack' ) . '</th>';
-            echo '<th scope="col">' . esc_html__( 'Coverage', 'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            // #4916 — on the stack-table primitive: a table from 480px, one
+            // card per team below it, headed by the team.
+            $c_enrolled = __( 'Enrolled', 'talenttrack' );
+            $c_trained  = __( 'Staff trained', 'talenttrack' );
+            $c_coverage = __( 'Coverage', 'talenttrack' );
+            $th         = StackTable::attrs( 'columnheader' );
+            echo '<table class="tt-table tt-learning-report ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+            echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="col"' . $th . '>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+            echo '<th scope="col" class="num"' . $th . '>' . esc_html( $c_enrolled ) . '</th>';
+            echo '<th scope="col" class="num"' . $th . '>' . esc_html( $c_trained ) . '</th>';
+            echo '<th scope="col"' . $th . '>' . esc_html( $c_coverage ) . '</th>';
+            echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
             foreach ( $teams as $team ) {
                 $done     = (int) $team['done'];
                 $total    = (int) $team['total'];
                 $assigned = (int) $team['assigned'];
 
-                echo '<tr>';
-                echo '<th scope="row">' . esc_html( (string) $team['team_name'] ) . '</th>';
-                echo '<td class="num">' . esc_html( sprintf(
+                echo '<tr' . StackTable::attrs( 'row' ) . '>';
+                echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( (string) $team['team_name'] ) . '</th>';
+                echo '<td class="num"' . StackTable::attrs( 'cell', $c_enrolled ) . '>' . esc_html( sprintf(
                     /* translators: 1: how many of the team's staff are on the course, 2: how many staff the team has */
                     __( '%1$d of %2$d', 'talenttrack' ),
                     $total,
                     $assigned
                 ) ) . '</td>';
-                echo '<td class="num">' . ( $total === 0
+                echo '<td class="num"' . StackTable::attrs( 'cell', $c_trained ) . '>' . ( $total === 0
                     ? '<span class="tt-learning-report__zero">—</span>'
                     : esc_html( sprintf(
                         /* translators: 1: how many staff finished, 2: how many staff are on the course */
@@ -219,7 +240,7 @@ final class LearningReports {
                         $done,
                         $total
                     ) ) ) . '</td>';
-                echo '<td>' . self::coverageCell( $done, $total ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_coverage ) . '>' . self::coverageCell( $done, $total ) . '</td>';
                 echo '</tr>';
             }
 
@@ -286,8 +307,11 @@ final class LearningReports {
             . '</p>';
 
         echo '<div class="tt-report-card"><div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-learning-report">';
-        echo '<tbody>';
+        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // per figure below it, headed by its name. There is no header row,
+        // so each value shows alone under its row header.
+        echo '<table class="tt-table tt-learning-report ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         self::ownRow( __( 'Courses', 'talenttrack' ), (string) $stats['assigned'] );
         self::ownRow( __( 'Complete', 'talenttrack' ), sprintf( '%d%%', (int) $stats['percent'] ) );
         self::ownRow( __( 'Overdue', 'talenttrack' ), (string) $stats['overdue'] );
@@ -301,8 +325,8 @@ final class LearningReports {
     }
 
     private static function ownRow( string $label, string $value ): void {
-        echo '<tr><th scope="row">' . esc_html( $label ) . '</th>'
-            . '<td class="num">' . esc_html( $value ) . '</td></tr>';
+        echo '<tr' . StackTable::attrs( 'row' ) . '><th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $label ) . '</th>'
+            . '<td class="num"' . StackTable::attrs( 'cell' ) . '>' . esc_html( $value ) . '</td></tr>';
     }
 
     /**

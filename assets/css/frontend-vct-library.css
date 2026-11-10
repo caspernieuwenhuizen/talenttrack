@@ -169,11 +169,33 @@
 .tt-dashboard .tt-vct-lib-archive-form {
     display: inline;
 }
+/* #4916 — on a phone the actions are one value block in a card line, and
+   wrap rather than run off the card; from 480px they sit on one line in
+   their table cell again. */
+.tt-dashboard .tt-vct-lib-rowactions > .tt-stack-table__value {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--tt-sp-2, 8px);
+    white-space: normal;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-vct-lib-rowactions > .tt-stack-table__value {
+        display: block;
+        white-space: nowrap;
+    }
+}
 
 .tt-dashboard .tt-vct-lib-edit-row td {
     padding: var(--tt-sp-4, 16px);
     background: var(--tt-bg-soft);
 }
+/* #4916 — the stack-table primitive gives every row a display, which
+   outranks the `hidden` attribute the search sets, and centres a spanning
+   cell. A filtered-out exercise stays hidden, and the edit form reads from
+   the left. */
+.tt-dashboard tr.tt-vct-lib-row[hidden] { display: none; }
+.tt-dashboard .tt-vct-lib-edit-row > td[colspan] { text-align: left; }
 .tt-dashboard .tt-vct-lib-edit-form {
     display: grid;
     gap: var(--tt-sp-3, 12px);

@@ -9,7 +9,18 @@
 
 .tt-opponent-backfill .tt-ob-table {
     width: 100%;
-    min-width: 40rem; /* below this the inputs are unusable; the wrap scrolls */
+}
+
+/* #4916 — on a phone the stack-table primitive makes each match a card,
+   one labelled line per field; a control takes the rest of its line. */
+.tt-opponent-backfill .tt-ob-table td > .tt-stack-table__value {
+    flex: 1 1 auto;
+}
+
+@media (min-width: 480px) {
+    .tt-opponent-backfill .tt-ob-table {
+        min-width: 40rem; /* below this the inputs are unusable; the wrap scrolls */
+    }
 }
 
 .tt-opponent-backfill .tt-ob-table th,

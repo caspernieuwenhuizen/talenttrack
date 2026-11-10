@@ -9,6 +9,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Dates\TTDate;
 
@@ -101,13 +102,15 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
         wp_nonce_field( 'tt_opponent_backfill_save', 'tt_nonce' );
         echo '<input type="hidden" name="action" value="tt_opponent_backfill_save" />';
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ob-table"><thead><tr>'
-            . '<th scope="col">' . esc_html__( 'Apply', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html__( 'Title as it stands', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html__( 'Opponent', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html__( 'Home or away', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // per match below it. Each cell's parts (a control with its hidden
+        // label, a title with its flag) are one value block.
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ob-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( self::columns() as $header ) {
+            echo '<th scope="col"' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             self::renderRow( $row );
@@ -131,37 +134,54 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
         echo '</form>';
     }
 
+    /**
+     * The column headers, which are also each cell's label on a phone.
+     *
+     * @return array{apply:string,date:string,title:string,opponent:string,venue:string}
+     */
+    private static function columns(): array {
+        return [
+            'apply'    => __( 'Apply', 'talenttrack' ),
+            'date'     => __( 'Date', 'talenttrack' ),
+            'title'    => __( 'Title as it stands', 'talenttrack' ),
+            'opponent' => __( 'Opponent', 'talenttrack' ),
+            'venue'    => __( 'Home or away', 'talenttrack' ),
+        ];
+    }
+
     /** @param array<string,mixed> $row */
     private static function renderRow( array $row ): void {
         $id       = (int) $row['id'];
         $proposed = (string) $row['proposed_opponent'];
         $venue    = (string) $row['proposed_home_away'];
         $checked  = $proposed !== '';
+        $c        = self::columns();
+        $value    = '<span class="' . esc_attr( StackTable::VALUE ) . '">';
 
-        echo '<tr>';
-        echo '<td><label class="tt-ob-apply"><input type="checkbox" name="apply[' . $id . ']" value="1"'
+        echo '<tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<td' . StackTable::attrs( 'cell', $c['apply'] ) . '><label class="tt-ob-apply"><input type="checkbox" name="apply[' . $id . ']" value="1"'
             . ( $checked ? ' checked' : '' ) . ' /><span class="screen-reader-text">'
             . esc_html__( 'Apply this row', 'talenttrack' ) . '</span></label></td>';
 
-        echo '<td>' . esc_html( TTDate::date( (string) $row['session_date'] ) ) . '</td>';
-        echo '<td class="tt-ob-title">' . esc_html( (string) $row['title'] );
+        echo '<td' . StackTable::attrs( 'cell', $c['date'] ) . '>' . esc_html( TTDate::date( (string) $row['session_date'] ) ) . '</td>';
+        echo '<td class="tt-ob-title"' . StackTable::attrs( 'cell', $c['title'] ) . '>' . $value . esc_html( (string) $row['title'] );
         if ( (string) $row['confidence'] === 'low' && $proposed !== '' ) {
             echo ' <span class="tt-ob-flag">' . esc_html__( 'check this one', 'talenttrack' ) . '</span>';
         }
-        echo '</td>';
+        echo '</span></td>';
 
-        echo '<td><label class="screen-reader-text" for="tt-ob-opp-' . $id . '">'
+        echo '<td' . StackTable::attrs( 'cell', $c['opponent'] ) . '>' . $value . '<label class="screen-reader-text" for="tt-ob-opp-' . $id . '">'
             . esc_html__( 'Opponent', 'talenttrack' ) . '</label>'
             . '<input type="text" class="tt-input" id="tt-ob-opp-' . $id . '" name="opponent[' . $id . ']"'
-            . ' value="' . esc_attr( $proposed ) . '" autocomplete="off" /></td>';
+            . ' value="' . esc_attr( $proposed ) . '" autocomplete="off" /></span></td>';
 
-        echo '<td><label class="screen-reader-text" for="tt-ob-ha-' . $id . '">'
+        echo '<td' . StackTable::attrs( 'cell', $c['venue'] ) . '>' . $value . '<label class="screen-reader-text" for="tt-ob-ha-' . $id . '">'
             . esc_html__( 'Home or away', 'talenttrack' ) . '</label>'
             . '<select class="tt-input" id="tt-ob-ha-' . $id . '" name="home_away[' . $id . ']">'
             . '<option value=""' . selected( $venue, '', false ) . '>' . esc_html__( 'Not known', 'talenttrack' ) . '</option>'
             . '<option value="home"' . selected( $venue, 'home', false ) . '>' . esc_html__( 'Home', 'talenttrack' ) . '</option>'
             . '<option value="away"' . selected( $venue, 'away', false ) . '>' . esc_html__( 'Away', 'talenttrack' ) . '</option>'
-            . '</select></td>';
+            . '</select></span></td>';
         echo '</tr>';
     }
 
