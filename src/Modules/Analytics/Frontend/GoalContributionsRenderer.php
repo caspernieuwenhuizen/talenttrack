@@ -21,10 +21,11 @@ final class GoalContributionsRenderer {
      *
      * @param list<array{player_id:int, name:string, goals:int, assists:int}> $rows
      * @param callable(int):string                                             $drill_url player id => drill-down URL
+     * @param string                                                           $source    the window's source: season, custom or all_time
      */
-    public static function table( array $rows, callable $drill_url ): string {
+    public static function table( array $rows, callable $drill_url, string $source ): string {
         if ( $rows === [] ) {
-            return '<p class="tt-ga-empty">' . esc_html__( 'No goals or assists recorded in this season.', 'talenttrack' ) . '</p>';
+            return self::emptyState( $source );
         }
 
         $player  = __( 'Player', 'talenttrack' );
@@ -77,7 +78,8 @@ final class GoalContributionsRenderer {
         $html .= '</ul>';
 
         if ( $matches === [] ) {
-            return $html . '<p class="tt-ga-empty">' . esc_html__( 'No goals or assists recorded in this season.', 'talenttrack' ) . '</p>';
+            $window = is_array( $data['window'] ?? null ) ? $data['window'] : [];
+            return $html . self::emptyState( (string) ( $window['source'] ?? 'season' ) );
         }
 
         $html .= '<ol class="tt-ga-matches">';
@@ -99,12 +101,15 @@ final class GoalContributionsRenderer {
             . ( $url !== '' ? '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a>' : esc_html( $title ) )
             . '</h3>';
         $html .= '<p class="tt-ga-match__meta">' . esc_html( self::matchMeta( $m ) ) . '</p>';
-        $html .= '<p class="tt-ga-match__mine">' . esc_html( sprintf(
-            /* translators: 1: goals by this player in the match, 2: assists by this player in the match */
-            __( '%1$d goals, %2$d assists', 'talenttrack' ),
-            (int) $m['goals'],
-            (int) $m['assists']
-        ) ) . '</p>';
+        $goals   = (int) $m['goals'];
+        $assists = (int) $m['assists'];
+        $html   .= '<p class="tt-ga-match__mine">' . esc_html(
+            /* translators: %d: goals by this player in the match */
+            sprintf( _n( '%d goal', '%d goals', $goals, 'talenttrack' ), $goals )
+            . ', '
+            /* translators: %d: assists by this player in the match */
+            . sprintf( _n( '%d assist', '%d assists', $assists, 'talenttrack' ), $assists )
+        ) . '</p>';
         $html .= '</div>';
 
         foreach ( $flags as $flag ) {
@@ -198,7 +203,7 @@ final class GoalContributionsRenderer {
         $parts = [ GoalContributionDrilldown::sourceLabel( (string) $e['source'] ) ];
 
         $created = (string) ( $e['created_at'] ?? '' );
-        if ( $created !== '' ) $parts[] = TTDate::date( $created );
+        if ( $created !== '' ) $parts[] = self::localDate( $created );
 
         if ( ! empty( $e['source_derived'] ) ) {
             $parts[] = __( 'recorded before tracking began', 'talenttrack' );
@@ -211,11 +216,31 @@ final class GoalContributionsRenderer {
             $who     = (string) ( $e['updated_by_name'] ?? '' );
             $parts[] = $who !== ''
                 /* translators: 1: date of the change, 2: the account that changed it */
-                ? sprintf( __( 'changed %1$s by %2$s', 'talenttrack' ), TTDate::date( (string) $e['updated_at'] ), $who )
+                ? sprintf( __( 'changed %1$s by %2$s', 'talenttrack' ), self::localDate( (string) $e['updated_at'] ), $who )
                 /* translators: %s: date of the change */
-                : sprintf( __( 'changed %s', 'talenttrack' ), TTDate::date( (string) $e['updated_at'] ) );
+                : sprintf( __( 'changed %s', 'talenttrack' ), self::localDate( (string) $e['updated_at'] ) );
         }
 
         return implode( ' · ', $parts );
+    }
+
+    /** A stored UTC stamp, as the academy's local date. */
+    private static function localDate( string $utc ): string {
+        return TTDate::date( get_date_from_gmt( $utc ) );
+    }
+
+    /** Why there is nothing to show, for the window that was asked for. */
+    private static function emptyState( string $source ): string {
+        switch ( $source ) {
+            case 'custom':
+                $text = __( 'No goals or assists recorded in this period.', 'talenttrack' );
+                break;
+            case 'all_time':
+                $text = __( 'No goals or assists recorded yet.', 'talenttrack' );
+                break;
+            default:
+                $text = __( 'No goals or assists recorded in this season.', 'talenttrack' );
+        }
+        return '<p class="tt-ga-empty">' . esc_html( $text ) . '</p>';
     }
 }

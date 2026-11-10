@@ -442,12 +442,13 @@ final class GoalContributionQuery {
             'assister'        => trim( (string) ( $row['assister_first'] ?? '' ) . ' ' . (string) ( $row['assister_last'] ?? '' ) ),
             'source'          => $source,
             'source_derived'  => $derived,
+            // Both stamps are UTC. The two author ids are for the caller to
+            // resolve to a name ({@see GoalContributionDrilldown::payload()},
+            // which never passes an id on).
             'created_at'      => (string) ( $row['created_at'] ?? '' ),
             'created_by'      => (int) ( $row['created_by'] ?? 0 ),
-            'created_by_name' => (string) ( $row['created_by_name'] ?? '' ),
             'updated_at'      => (string) ( $row['updated_at'] ?? '' ),
             'updated_by'      => (int) ( $row['updated_by'] ?? 0 ),
-            'updated_by_name' => (string) ( $row['updated_by_name'] ?? '' ),
             'flags'           => $flags,
         ];
     }
@@ -534,12 +535,9 @@ final class GoalContributionQuery {
                        a.title AS activity_title, a.opponent, a.home_away, a.home_score, a.away_score,
                        a.activity_type_key,
                        ps.first_name AS scorer_first, ps.last_name AS scorer_last,
-                       pa.first_name AS assister_first, pa.last_name AS assister_last,
-                       uc.display_name AS created_by_name, uu.display_name AS updated_by_name";
+                       pa.first_name AS assister_first, pa.last_name AS assister_last";
             $joins = "LEFT JOIN {$p}tt_players ps ON ps.id = ge.player_id AND ps.club_id = ge.club_id
-                      LEFT JOIN {$p}tt_players pa ON pa.id = ge.assist_player_id AND pa.club_id = ge.club_id
-                      LEFT JOIN {$wpdb->users} uc ON uc.ID = ge.created_by
-                      LEFT JOIN {$wpdb->users} uu ON uu.ID = ge.updated_by";
+                      LEFT JOIN {$p}tt_players pa ON pa.id = ge.assist_player_id AND pa.club_id = ge.club_id";
         }
 
         $sql = "SELECT {$columns}

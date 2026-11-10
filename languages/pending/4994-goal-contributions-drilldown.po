@@ -39,11 +39,13 @@ msgctxt "goals and assists report"
 msgid "Matches"
 msgstr "Wedstrijden"
 
-#. translators: 1: goals by this player in the match, 2: assists by this player in the match
 #: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
-#, php-format
-msgid "%1$d goals, %2$d assists"
-msgstr "%1$d doelpunten, %2$d assists"
+msgid "No goals or assists recorded in this period."
+msgstr "Geen doelpunten of assists vastgelegd in deze periode."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded yet."
+msgstr "Nog geen doelpunten of assists vastgelegd."
 
 #: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
 msgid "Correct in the minutes grid"

@@ -35,7 +35,10 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
-        ( new RolesService() )->ensureCapabilities();
+        // The persona tests need the TT roles and the matrix they map onto,
+        // which the wp-env bootstrap does not install.
+        ( new RolesService() )->installRoles();
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
         global $wpdb, $wp_rest_server;
         $wpdb->hide_errors();
         $this->p = $wpdb->prefix;
@@ -200,7 +203,6 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
         $this->assertSame( 'live_sheet', $e['source'], 'derived from execution_id' );
         $this->assertTrue( $e['source_derived'] );
         $this->assertSame( 0, $e['created_by'] );
-        $this->assertSame( '', $e['created_by_name'] );
     }
 
     // ---------------------------------------------------------------
@@ -332,10 +334,7 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
     // ---------------------------------------------------------------
 
     public function test_an_out_of_scope_team_is_forbidden_team(): void {
-        // A coach of one team, asking about another. Roles installed so the
-        // coach holds the team read the route's gate asks for.
-        ( new RolesService() )->installRoles();
-        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
+        // A coach of one team, asking about another.
         $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $this->coachOf( $coach, $this->team );
         wp_set_current_user( $coach );
@@ -353,16 +352,86 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
         $wpdb->insert( "{$this->p}tt_player_parents", [ 'club_id' => 1, 'player_id' => $this->striker, 'parent_user_id' => $parent, 'is_primary' => 1 ] );
         wp_set_current_user( $parent );
 
+        // A parent reads teams at player scope, so the team gate lets them
+        // through and the team check is what refuses: they coach nothing.
         foreach ( [ $this->striker, $this->playmaker ] as $pid ) {
-            $this->assertSame( 403, $this->get( $this->team, $pid )->get_status(), 'a family never opens a team drill-down' );
+            $res = $this->get( $this->team, $pid );
+            $this->assertSame( 403, $res->get_status(), 'a family never opens a team drill-down' );
+            $this->assertSame( 'forbidden_team', $this->errorCode( $res ) );
         }
     }
 
     public function test_a_scout_does_not_see_other_players(): void {
+        // A scout reads every team, so the player check is what refuses.
         $scout = (int) self::factory()->user->create( [ 'role' => 'tt_scout' ] );
         wp_set_current_user( $scout );
 
-        $this->assertSame( 403, $this->get( $this->team, $this->playmaker )->get_status() );
+        $res = $this->get( $this->team, $this->playmaker );
+        $this->assertSame( 403, $res->get_status() );
+        $this->assertSame( 'forbidden_player', $this->errorCode( $res ) );
+    }
+
+    public function test_a_coach_asking_about_another_teams_player_is_forbidden_player(): void {
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $this->coachOf( $coach, $this->team );
+        $elsewhere = $this->player( 'Daan', 'Elders', $this->other_team );
+        wp_set_current_user( $coach );
+
+        $res = $this->get( $this->team, $elsewhere );
+        $this->assertSame( 403, $res->get_status() );
+        $this->assertSame( 'forbidden_player', $this->errorCode( $res ) );
+    }
+
+    public function test_a_player_the_reader_may_not_see_gets_no_link(): void {
+        // A player who scored for this team and has since moved to another:
+        // the coach still reads the team, but not that player.
+        $moved = $this->player( 'Luuk', 'Vertrokken', $this->other_team );
+        $a     = $this->match( '2026-02-01', 2, 0 );
+        $this->goal( $a, $this->striker );
+        $this->goal( $a, $moved );
+
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $this->coachOf( $coach, $this->team );
+        wp_set_current_user( $coach );
+
+        $rows = GoalContributionDrilldown::teamRows( $coach, $this->team, [ 'from' => self::FROM, 'to' => self::TO, 'source' => 'custom' ] );
+        $ids  = array_column( $rows, 'player_id' );
+        $this->assertContains( $this->striker, $ids );
+        $this->assertNotContains( $moved, $ids, 'the report table lists only players the reader may open' );
+
+        $_GET = [ 'stats_from' => self::FROM, 'stats_to' => self::TO ];
+        ob_start();
+        \TT\Modules\Analytics\Frontend\TeamStatisticsTab::render( $this->team );
+        $html = (string) ob_get_clean();
+        $_GET = [];
+
+        $this->assertMatchesRegularExpression( '/player_id=' . $this->striker . '\b/', $html );
+        $this->assertDoesNotMatchRegularExpression( '/player_id=' . $moved . '\b/', $html, 'a plain number, not a link into a refusal' );
+    }
+
+    public function test_the_payload_carries_no_account_ids_and_names_authors_from_the_record(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_people", [
+            'club_id' => 1, 'first_name' => 'Anja', 'last_name' => 'Admin', 'role_type' => 'head_coach',
+            'wp_user_id' => $this->admin, 'status' => 'active',
+        ] );
+        $a = $this->match( '2026-02-01', 1, 0 );
+        $this->goal( $a, $this->striker );
+
+        $data = GoalContributionDrilldown::payload( $this->team, $this->striker, GoalContributionQuery::resolveWindow( '', self::FROM, self::TO ) );
+        $e    = $data['matches'][0]['events'][0];
+
+        $this->assertArrayNotHasKey( 'created_by', $e );
+        $this->assertArrayNotHasKey( 'updated_by', $e );
+        $this->assertSame( 'Anja Admin', $e['created_by_name'] );
+    }
+
+    public function test_an_author_with_no_record_has_no_name(): void {
+        $a = $this->match( '2026-02-01', 1, 0 );
+        $this->goal( $a, $this->striker );
+
+        $data = GoalContributionDrilldown::payload( $this->team, $this->striker, GoalContributionQuery::resolveWindow( '', self::FROM, self::TO ) );
+        $this->assertSame( '', $data['matches'][0]['events'][0]['created_by_name'], 'never the account display name' );
     }
 
     public function test_the_refusal_names_the_player_after_the_team(): void {
@@ -382,14 +451,23 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
         $this->assertSame( 'bad_date', $this->errorCode( $backwards ) );
     }
 
-    public function test_the_report_page_says_so_when_a_season_has_nothing(): void {
+    public function test_the_report_page_says_so_when_a_period_has_nothing(): void {
         $_GET = [ 'tt_view' => 'goals-assists', 'team_id' => (string) $this->team, 'from' => self::FROM, 'to' => self::TO ];
         ob_start();
         \TT\Modules\Analytics\Frontend\FrontendGoalsAssistsReportView::render( $this->admin, true );
         $html = (string) ob_get_clean();
         $_GET = [];
 
-        $this->assertStringContainsString( 'No goals or assists recorded in this season.', $html );
+        $this->assertStringContainsString( 'No goals or assists recorded in this period.', $html );
+    }
+
+    public function test_the_tab_and_the_drilldown_read_the_same_window(): void {
+        $tab   = ( new TeamMatchStatsQuery() )->forTeam( $this->team )['window'];
+        $drill = GoalContributionQuery::resolveWindow( '', '', '' );
+
+        $this->assertSame( $drill['from'], $tab['from'] );
+        $this->assertSame( $drill['to'], $tab['to'] );
+        $this->assertSame( $drill['source'], $tab['source'] );
     }
 
     public function test_the_report_page_lists_the_counts_and_the_drilldown(): void {

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\GoalContributionsRestController;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Analytics\Reports\GoalContributionDrilldown;
 use TT\Modules\Analytics\Reports\GoalContributionQuery;
 use TT\Modules\Authorization\AllTeamsScope;
@@ -186,36 +187,35 @@ final class FrontendGoalsAssistsReportView extends FrontendViewBase {
      * @param array<string, mixed>                         $args
      */
     private static function renderTable( int $team_id, array $window, array $args ): void {
-        $rows = GoalContributionDrilldown::teamRows( $team_id, $window );
+        $rows = GoalContributionDrilldown::teamRows( get_current_user_id(), $team_id, $window );
         $base = array_merge( [ 'tt_view' => self::SLUG ], $args );
         echo '<div class="tt-ga">';
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the renderer escapes.
         echo GoalContributionsRenderer::table( $rows, static function ( int $pid ) use ( $base ): string {
             return BackLink::appendTo( add_query_arg( array_merge( $base, [ 'player_id' => $pid ] ), RecordLink::dashboardUrl() ) );
-        } );
+        }, (string) $window['source'] );
         echo '</div>';
     }
 
     /** @param array{from:string, to:string, season_id:int, season:string, source:string} $window */
     private static function renderDrilldown( int $team_id, int $player_id, array $window ): void {
-        $data = GoalContributionDrilldown::payload( $team_id, $player_id, $window );
-
-        $can_correct = CrossViewLink::allows( 'minutes-grid', [ 'gate' => 'tt_edit_activities' ] );
+        $data    = GoalContributionDrilldown::payload( $team_id, $player_id, $window );
+        $user_id = get_current_user_id();
 
         echo '<div class="tt-ga">';
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the renderer escapes.
         echo GoalContributionsRenderer::drilldown(
             $data,
             static fn( array $m ): string => CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', (int) $m['activity_id'] ) : '',
-            static function ( array $m ) use ( $can_correct, $team_id ): string {
-                if ( ! $can_correct ) return '';
-                $date = (string) $m['date'];
-                return BackLink::appendTo( add_query_arg( [
-                    'tt_view' => 'minutes-grid', /* tt-xview-ok — gated by CrossViewLink::allows() above */
-                    'team_id' => $team_id,
-                    'from'    => $date,
-                    'to'      => $date,
-                ], RecordLink::dashboardUrl() ) );
+            // The entry grids' one chokepoint: their toggle, the team, the
+            // right to edit, and the date-narrowed URL. The row holds the
+            // team and date already, so priming costs no read.
+            static function ( array $m ) use ( $team_id, $user_id ): string {
+                $activity_id = (int) $m['activity_id'];
+                ActivityGridLink::primeAnchor( $activity_id, $team_id, (string) $m['date'] );
+                if ( ! ActivityGridLink::canUseMinutes( $activity_id, $user_id ) ) return '';
+                $url = ActivityGridLink::minutesUrl( $activity_id );
+                return $url !== '' ? BackLink::appendTo( $url ) : '';
             }
         );
         echo '</div>';

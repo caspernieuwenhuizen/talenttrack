@@ -271,12 +271,24 @@ final class TeamStatisticsTab {
             ? self::goalsReportUrl( $team_id, $window )
             : '';
 
+        // Only a player the reader may see gets a link: the drill-down asks
+        // the same question, and a link into a refusal is worse than a plain
+        // number. One batched check for both boards.
+        $visible = [];
+        if ( $report !== '' ) {
+            $ids = array_values( array_unique( array_filter( array_map(
+                static fn( array $row ): int => (int) ( $row['player_id'] ?? 0 ),
+                array_merge( $scorers, $assists )
+            ) ) ) );
+            $visible = $ids !== [] ? \TT\Infrastructure\Security\AuthorizationService::canViewPlayers( get_current_user_id(), $ids ) : [];
+        }
+
         echo '<div class="tt-ts-pair">';
         // `Goals` bare is already translated as "Doelen" — objectives, the PDP
         // sense. On a scorers table that is the wrong word entirely, so both
         // columns take the context #3516 shipped for exactly these two.
-        self::renderLeaderboard( __( 'Top scorers', 'talenttrack' ), $scorers, 'goals', _x( 'Goals', 'monthly report matches column', 'talenttrack' ), $report );
-        self::renderLeaderboard( __( 'Top assists', 'talenttrack' ), $assists, 'assists', _x( 'Assists', 'monthly report matches column', 'talenttrack' ), $report );
+        self::renderLeaderboard( __( 'Top scorers', 'talenttrack' ), $scorers, 'goals', _x( 'Goals', 'monthly report matches column', 'talenttrack' ), $report, $visible );
+        self::renderLeaderboard( __( 'Top assists', 'talenttrack' ), $assists, 'assists', _x( 'Assists', 'monthly report matches column', 'talenttrack' ), $report, $visible );
         echo '</div>';
 
         if ( $report !== '' ) {
@@ -303,8 +315,9 @@ final class TeamStatisticsTab {
 
     /**
      * @param array<int, array<string,mixed>> $rows
+     * @param array<int, bool>                $visible player id => may open the drill-down
      */
-    private static function renderLeaderboard( string $title, array $rows, string $key, string $column, string $report = '' ): void {
+    private static function renderLeaderboard( string $title, array $rows, string $key, string $column, string $report = '', array $visible = [] ): void {
         if ( $rows === [] ) return;
 
         self::sectionOpen( $title );
@@ -319,7 +332,7 @@ final class TeamStatisticsTab {
             $pid = (int) ( $row['player_id'] ?? 0 );
             echo '<tr>';
             echo '<th scope="row">' . self::playerLink( $row ) . '</th>';
-            if ( $report !== '' && $pid > 0 ) {
+            if ( $report !== '' && $pid > 0 && ! empty( $visible[ $pid ] ) ) {
                 $url = BackLink::appendTo( add_query_arg( 'player_id', $pid, $report ) );
                 echo '<td class="tt-ts-table__n"><a class="tt-ts-count" href="' . esc_url( $url ) . '">' . esc_html( $n ) . '</a></td>';
             } else {

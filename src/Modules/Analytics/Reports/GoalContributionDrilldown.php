@@ -45,14 +45,32 @@ final class GoalContributionDrilldown {
      * @return array<string, mixed>
      */
     public static function payload( int $team_id, int $player_id, array $window ): array {
-        $filters = $window['source'] === 'all_time' ? [] : [ 'from' => $window['from'], 'to' => $window['to'] ];
-        $result  = ( new GoalContributionQuery() )->eventsFor( $team_id, $player_id, $filters );
+        $result = ( new GoalContributionQuery() )->eventsFor( $team_id, $player_id, [ 'from' => $window['from'], 'to' => $window['to'] ] );
 
         $player = QueryHelpers::get_player( $player_id );
         $team   = QueryHelpers::get_team( $team_id );
 
+        // Who entered or changed an entry, by the academy's own record of
+        // them (a player or person row), never the account's display name or
+        // its WordPress id: neither is something a consumer should see or
+        // rely on (CLAUDE.md §4, identity is portable). One batched read.
+        $accounts = [];
+        foreach ( $result['matches'] as $m ) {
+            foreach ( $m['events'] as $e ) {
+                $accounts[] = (int) $e['created_by'];
+                $accounts[] = (int) $e['updated_by'];
+            }
+        }
+        $names = \TT\Infrastructure\Identity\AuthorNameResolver::recordNamesFor( $accounts );
+
         $matches = [];
         foreach ( $result['matches'] as $m ) {
+            foreach ( $m['events'] as $i => $e ) {
+                $e['created_by_name'] = (string) ( $names[ (int) $e['created_by'] ] ?? '' );
+                $e['updated_by_name'] = (string) ( $names[ (int) $e['updated_by'] ] ?? '' );
+                unset( $e['created_by'], $e['updated_by'] );
+                $m['events'][ $i ] = $e;
+            }
             $m['match_url'] = RecordLink::detailUrlFor( 'activities', (int) $m['activity_id'] );
             $matches[]      = $m;
         }
@@ -79,16 +97,18 @@ final class GoalContributionDrilldown {
     /**
      * The Goals and assists report's team table: every player who scored or
      * assisted for the team in the window, from {@see GoalContributionQuery::forTeam()}
-     * (the Statistics tab's source), most goals first.
+     * (the Statistics tab's source), most goals first. Narrowed to the
+     * players `$user_id` may see, so no row leads into a refused drill-down.
      *
      * @param array{from:string, to:string, source:string} $window
      * @return list<array{player_id:int, name:string, goals:int, assists:int}>
      */
-    public static function teamRows( int $team_id, array $window ): array {
-        $filters = $window['source'] === 'all_time' ? [] : [ 'from' => $window['from'], 'to' => $window['to'] ];
-        $totals  = ( new GoalContributionQuery() )->forTeam( $team_id, $filters );
+    public static function teamRows( int $user_id, int $team_id, array $window ): array {
+        $totals = ( new GoalContributionQuery() )->forTeam( $team_id, [ 'from' => $window['from'], 'to' => $window['to'] ] );
 
-        $ids = array_values( array_filter( array_map( 'intval', array_keys( $totals ) ), static fn( int $id ): bool => $id > 0 ) );
+        $ids     = array_values( array_filter( array_map( 'intval', array_keys( $totals ) ), static fn( int $id ): bool => $id > 0 ) );
+        $visible = $ids !== [] ? AuthorizationService::canViewPlayers( $user_id, $ids ) : [];
+        $ids     = array_values( array_filter( $ids, static fn( int $id ): bool => ! empty( $visible[ $id ] ) ) );
         $names = [];
         if ( $ids !== [] ) {
             global $wpdb;
@@ -106,6 +126,7 @@ final class GoalContributionDrilldown {
 
         $out = [];
         foreach ( $totals as $pid => $t ) {
+            if ( empty( $visible[ (int) $pid ] ) ) continue;
             if ( (int) $t['goals'] + (int) $t['assists'] <= 0 ) continue;
             $out[] = [
                 'player_id' => (int) $pid,
