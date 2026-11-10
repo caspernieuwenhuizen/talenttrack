@@ -225,7 +225,8 @@ could see them in the plugin. A recipient whose rights cannot be checked
 counts as having none: an address with no account here, a member of a role
 from outside the academy, or a role with no members. This is checked again at
 every run, so a recipient who loses a right makes the next PDF smaller, and
-one who gains it makes it whole again. Under each monthly report, the
+one who gains it makes it whole again, as long as the person who set up the
+schedule may read attendance too: the report is put together as them. Under each monthly report, the
 schedules screen shows what its recipients get right now.
 
 The schedule keeps **its own copy** of the report. Changing or deleting one of

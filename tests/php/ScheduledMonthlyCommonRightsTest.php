@@ -226,6 +226,28 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertNotContains( 'Attendance', $preview['sections'] );
     }
 
+    /**
+     * The report is composed as the person who set the schedule up, so an
+     * owner without the attendance right takes it out however many of the
+     * recipients have it, and the list says so before the run.
+     */
+    public function test_an_owner_without_attendance_leaves_it_out_and_the_list_says_so(): void {
+        $this->needsPdf();
+        $observer = $this->observer( 'observer-owner-4991@example.test' );
+        $id       = $this->createMonthly( [ 'owner-4991@example.test' ], $observer );
+        $schedule = (array) $this->repo->findById( $id );
+        $this->assertSame( $observer, (int) $schedule['created_by'], 'Precondition: the observer owns the schedule.' );
+
+        $preview = TeamMonthlyReportRecipients::preview( $schedule );
+        $this->assertTrue( $preview['without_attendance'], 'the list says attendance is left out' );
+        $this->assertNotContains( 'Attendance', $preview['sections'] );
+
+        $this->runSchedule( $id );
+        $this->assertSame( [ 'owner-4991@example.test' ], $this->sent, 'the recipient, who reads attendance, still receives it' );
+        $this->assertNotContains( 'Attendance', $this->headers( (string) end( $this->pdf_html ) ), 'and the PDF agrees with the list' );
+        $this->assertStringNotContainsString( self::ATTENDANCE_TILE, (string) end( $this->pdf_html ) );
+    }
+
     public function test_the_list_preview_follows_the_recipients(): void {
         $with    = (array) $this->repo->findById( $this->createMonthly( [ 'owner-4991@example.test' ] ) );
         $without = (array) $this->repo->findById( $this->createMonthly( [ 'owner-4991@example.test', 'nobody-4991@example.test' ] ) );
@@ -241,14 +263,14 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertContains( 'attendance', $report['blocks'], 'Precondition: the owner\'s report has attendance.' );
 
         $none = ScheduledReportsRunner::resolveRecipients( [ 'owner-4991@example.test', 'nobody-4991@example.test' ] );
-        $out  = TeamMonthlyReportRecipients::forRecipients( $report, $this->team, $none );
+        $out  = TeamMonthlyReportRecipients::forRecipients( $report, $this->team, $none, $this->owner );
 
         $this->assertNotContains( 'attendance', $out['blocks'] );
         $this->assertArrayNotHasKey( 'attendance', $out['data'] );
         $this->assertArrayNotHasKey( 'attendance_pct', $out['data']['kpi'] ?? [], 'no attendance tile' );
 
         $all = ScheduledReportsRunner::resolveRecipients( [ 'owner-4991@example.test' ] );
-        $this->assertSame( $report, TeamMonthlyReportRecipients::forRecipients( $report, $this->team, $all ), 'unchanged when everyone reads it' );
+        $this->assertSame( $report, TeamMonthlyReportRecipients::forRecipients( $report, $this->team, $all, $this->owner ), 'unchanged when everyone reads it' );
     }
 
     // ===== helpers =====
@@ -278,7 +300,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
     }
 
     /** @param list<string> $recipients */
-    private function createMonthly( array $recipients ): int {
+    private function createMonthly( array $recipients, int $owner = 0 ): int {
         $id = $this->repo->create( [
             'name'        => 'Shared monthly U13',
             'report_key'  => ScheduledReportsRepository::REPORT_TEAM_MONTHLY,
@@ -286,7 +308,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
             'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
             'recipients'  => $recipients,
             'format'      => 'pdf',
-        ], $this->owner );
+        ], $owner > 0 ? $owner : $this->owner );
         $this->assertGreaterThan( 0, $id );
         return $id;
     }

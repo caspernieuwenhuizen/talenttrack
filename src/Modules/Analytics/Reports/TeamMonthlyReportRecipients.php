@@ -26,6 +26,7 @@ use TT\Modules\Export\ExportGate;
  *
  * Who counts:
  *
+ *  - the person who set up the schedule: the report is composed as them;
  *  - every account that receives the PDF: it may export files
  *    (`ExportGate`) and read the team's reports;
  *  - every recipient whose rights cannot be checked: an address with no
@@ -66,11 +67,17 @@ final class TeamMonthlyReportRecipients {
     }
 
     /**
-     * Whether every recipient may read the team's attendance.
+     * Whether every reader of the PDF may read the team's attendance: every
+     * recipient, and the person who set up the schedule. The report is
+     * composed as the owner (`TeamReportContext::readsAttendance()`), so an
+     * owner without the right takes the attendance out whoever receives it,
+     * and the list must not promise it.
      *
      * @param Resolved $resolved
+     * @param int      $owner_id the schedule's `created_by`
      */
-    public static function readsAttendance( int $team_id, array $resolved ): bool {
+    public static function readsAttendance( int $team_id, array $resolved, int $owner_id ): bool {
+        if ( ! AuthorizationService::canReadTeamAttendance( $owner_id, $team_id ) ) return false;
         if ( $resolved['unresolved'] !== [] ) return false;
         foreach ( $resolved['skipped'] as $skip ) {
             if ( in_array( $skip['reason'], self::UNCHECKABLE, true ) ) return false;
@@ -91,10 +98,11 @@ final class TeamMonthlyReportRecipients {
      *
      * @param array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string} $report
      * @param Resolved $resolved
+     * @param int      $owner_id the schedule's `created_by`, as whom the report was composed
      * @return array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string}
      */
-    public static function forRecipients( array $report, int $team_id, array $resolved ): array {
-        return self::readsAttendance( $team_id, $resolved )
+    public static function forRecipients( array $report, int $team_id, array $resolved, int $owner_id ): array {
+        return self::readsAttendance( $team_id, $resolved, $owner_id )
             ? $report
             : TeamMonthlyReport::withoutAttendance( $report );
     }
@@ -110,7 +118,7 @@ final class TeamMonthlyReportRecipients {
     public static function preview( array $schedule ): array {
         $composition = TeamMonthlyReportComposition::normalise( is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [] );
         $resolved    = ScheduledReportsRunner::resolveRecipients( array_map( 'strval', (array) ( $schedule['recipients'] ?? [] ) ) );
-        $attendance  = self::readsAttendance( $composition['team_id'], $resolved );
+        $attendance  = self::readsAttendance( $composition['team_id'], $resolved, (int) ( $schedule['created_by'] ?? 0 ) );
 
         $sections = [];
         foreach ( TeamMonthlyReportBlock::normalise( $composition['blocks'] ) as $block ) {

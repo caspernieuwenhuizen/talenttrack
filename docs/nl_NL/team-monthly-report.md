@@ -238,7 +238,8 @@ niet te controleren zijn, telt als iemand zonder rechten: een adres zonder
 account hier, een lid van een rol van buiten de academie, of een rol zonder
 leden. Dit wordt bij elke verzending opnieuw gecontroleerd, dus een ontvanger
 die een recht verliest maakt de volgende pdf kleiner, en een die het krijgt
-maakt hem weer volledig. Onder elk maandrapport laat het scherm met planningen
+maakt hem weer volledig, zolang ook wie de planning heeft aangemaakt de
+aanwezigheid mag lezen: het rapport wordt als die persoon samengesteld. Onder elk maandrapport laat het scherm met planningen
 zien wat de ontvangers nu krijgen.
 
 De planning bewaart **een eigen kopie** van het rapport. Wat je later aan een

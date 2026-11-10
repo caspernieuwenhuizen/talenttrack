@@ -114,7 +114,7 @@ final class TeamMonthlyReportDelivery {
         $c = $plan['composition'];
         try {
             $report = ( new TeamMonthlyReport() )->forTeam( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'], $c['options'] );
-            $report = TeamMonthlyReportRecipients::forRecipients( $report, $c['team_id'], $recipients );
+            $report = TeamMonthlyReportRecipients::forRecipients( $report, $c['team_id'], $recipients, $plan['owner'] );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $c['layout'], $plan['team_name'] );
 
             $request = new ExportRequest( 'team_monthly_report_pdf', 'pdf', CurrentClub::id(), $plan['owner'], null, [
