@@ -23,7 +23,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * `tt_goal_links` rows of type `pdp_conversation` whose `link_id`
  * pointed at a now-deleted conversation are also removed in step 1.5
- * — see commentary inline.
+ * — see commentary inline. The conversation forms' rows go in step 1.6,
+ * and an evaluation a form's sign-off wrote keeps its row but loses its
+ * conversation link in step 1.7 (#4977).
  *
  * Caller MUST verify the cap (`tt_delete_pdp`) before invoking; this
  * service performs the destructive op without re-checking. Pattern
@@ -87,9 +89,28 @@ final class PdpCascadeDeleter {
                 ) );
                 if ( $n === false ) throw new \RuntimeException( 'Cascade delete failed on tt_goal_links (pdp_conversation): ' . $wpdb->last_error );
                 $deleted['tt_goal_links'] = (int) $n;
+
+                // 1.6 (#4977) the conversation forms' scores, answers and
+                // SMART points. The goals sign-off created stay: they are
+                // the player's goals now.
+                $deleted += ( new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository() )->deleteForConversations( $convo_ids );
+
+                // 1.7 (#4977) the evaluation a form's sign-off wrote is the
+                // trainer's rating of the player, not a part of the talk:
+                // it stays, and only its link to the conversation goes.
+                $n = $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$p}tt_evaluations SET pdp_conversation_id = NULL WHERE club_id = %d AND pdp_conversation_id IN ({$ph})",
+                    $club_id, ...$convo_ids
+                ) );
+                if ( $n === false ) throw new \RuntimeException( 'Cascade update failed on tt_evaluations (pdp_conversation_id): ' . $wpdb->last_error );
+                $deleted['tt_evaluations_unlinked'] = (int) $n;
             } else {
-                $deleted['tt_pdp_calendar_links'] = 0;
-                $deleted['tt_goal_links']         = 0;
+                $deleted['tt_pdp_calendar_links']   = 0;
+                $deleted['tt_goal_links']           = 0;
+                $deleted['tt_pdp_form_scores']      = 0;
+                $deleted['tt_pdp_form_answers']     = 0;
+                $deleted['tt_pdp_form_goals']       = 0;
+                $deleted['tt_evaluations_unlinked'] = 0;
             }
 
             // 2. conversations

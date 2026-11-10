@@ -131,6 +131,9 @@ return [
         'GoalAccess::mayRead',
         'GoalAccess::mayChange',
         'PdpAccess::canSeeFile',
+        // #4977 — a PDP conversation form: the conversation loaded in the
+        // caller's club, then which part this user may read or write.
+        'PdpFormAccess::forConversation',
         'TrialCaseAccessPolicy::canOpenCase',
         'MediaVisibilityService::can',
         'ScoutingVisitsAccess::canReadVisit',

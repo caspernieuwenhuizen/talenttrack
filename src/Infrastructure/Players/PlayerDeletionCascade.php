@@ -126,6 +126,22 @@ class PlayerDeletionCascade {
                 if ( (int) $n > 0 ) $per_table['tt_pdp_calendar_links'] = (int) $n;
             }
 
+            // #4977 — the conversation forms' rows sit at the same distance
+            // (row -> conversation -> pdp_file), so they go first for the same
+            // reason.
+            foreach ( [ 'tt_pdp_form_scores', 'tt_pdp_form_answers', 'tt_pdp_form_goals' ] as $form_table ) {
+                if ( ! TableExists::has( $form_table ) || ! TableExists::has( 'tt_pdp_conversations' ) || ! TableExists::has( 'tt_pdp_files' ) ) continue;
+                $sql = "DELETE fr FROM {$p}{$form_table} fr
+                         INNER JOIN {$p}tt_pdp_conversations cv ON cv.id = fr.conversation_id
+                         INNER JOIN {$p}tt_pdp_files pf ON pf.id = cv.pdp_file_id
+                         WHERE pf.player_id IN ({$ph})";
+                $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                if ( $n === false ) {
+                    throw new \RuntimeException( "Cascade failed on {$form_table}: " . $wpdb->last_error );
+                }
+                if ( (int) $n > 0 ) $per_table[ $form_table ] = (int) $n;
+            }
+
             $children = [
                 [ 'tt_eval_ratings',          'evaluation_id', 'tt_evaluations',  'id' ],
                 [ 'tt_eval_category_notes',   'evaluation_id', 'tt_evaluations',  'id' ],

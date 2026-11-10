@@ -126,6 +126,11 @@ final class PdpFormCategorySeeder {
                     'description'   => $item['definition'],
                     'display_order' => 100 + (int) $order,
                     'is_system'     => 1,
+                    // #4977 — the seeder owns `is_active` for a form-owned
+                    // category: the form writes to every item, so one an admin
+                    // switched off in the categories admin is switched on again
+                    // before the first form write (#4976 review).
+                    'is_active'     => 1,
                     'meta'          => [ EvalCategoriesRepository::META_FORM => $form_key, 'pdp_form_item' => $item['key'] ],
                 ];
                 $existing = $repo->getByKey( $key );
@@ -134,7 +139,7 @@ final class PdpFormCategorySeeder {
                     // already holds, a database error) stops the save: the
                     // choice is stored only when every category is there.
                     // Rows created before it stay; a retry completes them.
-                    $created = $repo->create( $data + [ 'category_key' => $key, 'parent_id' => $mains[ $item['main'] ], 'is_active' => 1 ] );
+                    $created = $repo->create( $data + [ 'category_key' => $key, 'parent_id' => $mains[ $item['main'] ] ] );
                     if ( $created <= 0 ) return self::seedFailed();
                     $summary['categories_created']++;
                 } elseif ( self::differs( (array) $existing, $data ) ) {
@@ -240,6 +245,7 @@ final class PdpFormCategorySeeder {
             || (string) ( $row['description'] ?? '' ) !== $data['description']
             || (int) ( $row['display_order'] ?? 0 ) !== $data['display_order']
             || (int) ( $row['is_system'] ?? 0 ) !== 1
+            || (int) ( $row['is_active'] ?? 0 ) !== 1
             || $meta_now !== $data['meta'];
     }
 }

@@ -154,6 +154,18 @@ class PdpConversationsRestController {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => ! $goal_links_touched ] );
         }
 
+        // #4977 — a conversation held on a form is signed off on its own
+        // route, which writes the evaluation and the goals with it. Setting
+        // the column here would be a second sign-off that writes neither.
+        if ( array_key_exists( 'coach_signoff_at', $patch ) && (string) ( ( (array) $conv )['form_key'] ?? '' ) !== '' ) {
+            return RestResponse::error(
+                'signoff_on_form_route',
+                __( 'This conversation uses a conversation form. Sign it off on the form, so the trainer\'s scores and the development points are saved with it.', 'talenttrack' ),
+                409,
+                [ 'route' => 'pdp-conversations/' . $id . '/signoff' ]
+            );
+        }
+
         // v3.110.197 (#809) — once ANY signature lands on the
         // conversation (coach_signoff_at / parent_ack_at / player_ack_at),
         // the row is read-only end-to-end. The second signatory can
@@ -235,7 +247,7 @@ class PdpConversationsRestController {
 
         if ( array_key_exists( 'player_reflection', $patch )
              && self::isLinkedPlayer( get_current_user_id(), (int) $file->player_id )
-             && ! self::selfReflectionWindowOpen( $conv ) ) {
+             && ! \TT\Modules\Pdp\Services\PdpCycleState::reflectionWindowOpen( $conv ) ) {
             return RestResponse::error(
                 'window_closed',
                 __( 'You can add your self-reflection up to 2 weeks before the planned meeting. Check back closer to the planned date.', 'talenttrack' ),
@@ -429,33 +441,6 @@ class PdpConversationsRestController {
             $player_id, $user_id
         ) );
         return $hit > 0;
-    }
-
-    /**
-     * v3.110.52 — same gate `FrontendMyPdpView::selfReflectionWindowOpen()`
-     * uses on the view side. Returns true when the conversation has a
-     * `scheduled_at` AND that scheduled time is at most 14 days in the
-     * future (or already passed); false when the meeting hasn't been
-     * scheduled yet OR it's more than 2 weeks out.
-     *
-     * Kept here as a private duplicate (not extracted to a shared
-     * helper) because the rule may diverge between the surfaces over
-     * time and a single shared helper would mask that intent. Five
-     * lines is a small price for clarity at each callsite.
-     */
-    private static function selfReflectionWindowOpen( object $conv ): bool {
-        $scheduled = (string) ( $conv->scheduled_at ?? '' );
-        if ( $scheduled === '' ) return false;
-        // `scheduled_at` is stored as a UTC datetime via gmdate(), so
-        // force UTC parsing — PHP's strtotime() otherwise interprets
-        // the bare string in the server's local TZ, producing a skew
-        // on any non-UTC install. See FrontendMyPdpView for the
-        // matching view-side fix and the pilot-operator report.
-        $ts = strtotime( $scheduled . ' UTC' );
-        if ( $ts === false ) return false;
-        $now    = (int) current_time( 'timestamp', true );
-        $window = 14 * DAY_IN_SECONDS;
-        return ( $ts - $now ) <= $window;
     }
 
     /**
