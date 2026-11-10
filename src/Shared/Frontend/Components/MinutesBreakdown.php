@@ -70,13 +70,22 @@ final class MinutesBreakdown {
 		$sum = 0;
 		foreach ( $breakdown as $b ) $sum += (int) $b['minutes'];
 
-		$out .= '<table class="tt-table"><thead><tr>'
-			. '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-			. '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
-			. '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
-			. '<th>' . esc_html__( 'Source', 'talenttrack' ) . '</th>'
-			. '<th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
-			. '</tr></thead><tbody>';
+		// #4912 — on the stack-table primitive: a table from 480px, one card
+		// per match below it. The Total row's spanning label is one block,
+		// its sum a labelled line.
+		$c_date   = __( 'Date', 'talenttrack' );
+		$c_match  = __( 'Match', 'talenttrack' );
+		$c_type   = __( 'Type', 'talenttrack' );
+		$c_source = __( 'Source', 'talenttrack' );
+		$c_min    = __( 'Min', 'talenttrack' );
+		$th       = StackTable::attrs( 'columnheader' );
+		$out .= '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+			. '<th' . $th . '>' . esc_html( $c_date ) . '</th>'
+			. '<th' . $th . '>' . esc_html( $c_match ) . '</th>'
+			. '<th' . $th . '>' . esc_html( $c_type ) . '</th>'
+			. '<th' . $th . '>' . esc_html( $c_source ) . '</th>'
+			. '<th class="num"' . $th . '>' . esc_html( $c_min ) . '</th>'
+			. '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
 		foreach ( $breakdown as $b ) {
 			$url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
@@ -86,16 +95,16 @@ final class MinutesBreakdown {
 			// minutes are never recomputed at report time, so the source is
 			// always "actual".
 			$source = __( 'actual', 'talenttrack' );
-			$out .= '<tr>';
-			$out .= '<td>' . esc_html( TTDate::date( (string) $b['session_date'] ) ) . '</td>';
-			$out .= '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
-			$out .= '<td>' . esc_html( self::typeLabel( (string) $b['type_key'] ) ) . '</td>';
-			$out .= '<td>' . esc_html( $source ) . '</td>';
-			$out .= '<td class="num">' . (int) $b['minutes'] . '</td>';
+			$out .= '<tr' . StackTable::attrs( 'row' ) . '>';
+			$out .= '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( TTDate::date( (string) $b['session_date'] ) ) . '</td>';
+			$out .= '<td' . StackTable::attrs( 'cell', $c_match ) . '><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
+			$out .= '<td' . StackTable::attrs( 'cell', $c_type ) . '>' . esc_html( self::typeLabel( (string) $b['type_key'] ) ) . '</td>';
+			$out .= '<td' . StackTable::attrs( 'cell', $c_source ) . '>' . esc_html( $source ) . '</td>';
+			$out .= '<td class="num"' . StackTable::attrs( 'cell', $c_min ) . '>' . (int) $b['minutes'] . '</td>';
 			$out .= '</tr>';
 		}
 
-		$out .= '<tr class="tt-minutes-breakdown__total"><td colspan="4">' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num">' . (int) $sum . '</td></tr>';
+		$out .= '<tr class="tt-minutes-breakdown__total"' . StackTable::attrs( 'row' ) . '><td colspan="4"' . StackTable::attrs( 'cell' ) . '>' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num"' . StackTable::attrs( 'cell', $c_min ) . '>' . (int) $sum . '</td></tr>';
 		$out .= '</tbody></table>';
 		$out .= '</div>';
 		return $out;

@@ -127,9 +127,9 @@ final class MinutesMatchTypeLabelTest extends WP_UnitTestCase {
             [ 'activity_id' => 2, 'session_date' => '2026-08-29', 'title' => 'Competitie', 'type_key' => 'League', 'minutes' => 70, 'record_type' => 'actual' ],
         ] );
 
-        $this->assertStringContainsString( '<td>Geen type</td>', $html );
-        $this->assertStringNotContainsString( '<td>unknown</td>', $html );
-        $this->assertStringContainsString( '<td>' . esc_html( LookupTranslator::byTypeAndName( 'game_subtype', 'League' ) ) . '</td>', $html );
+        $this->assertMatchesRegularExpression( '#<td[^>]*>Geen type</td>#', $html );
+        $this->assertDoesNotMatchRegularExpression( '#<td[^>]*>unknown</td>#', $html );
+        $this->assertMatchesRegularExpression( '#<td[^>]*>' . preg_quote( esc_html( LookupTranslator::byTypeAndName( 'game_subtype', 'League' ) ), '#' ) . '</td>#', $html );
     }
 
     public function test_the_team_report_columns_label_every_key_and_keep_it(): void {

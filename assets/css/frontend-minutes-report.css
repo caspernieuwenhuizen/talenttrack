@@ -31,3 +31,7 @@
     align-items: center;
     touch-action: manipulation;
 }
+
+/* #4912 — the stack-table primitive centres a spanning cell; the breakdown
+ * table reads from the left. */
+.tt-dashboard .tt-min-breakdown-row > td[colspan] { text-align: left; }

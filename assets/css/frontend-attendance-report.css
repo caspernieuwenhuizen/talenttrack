@@ -73,6 +73,16 @@
     align-items: center;
     gap: 8px;
 }
+/* #4912 — on the stack-table primitive the disclosure and its links sit in
+   one value block, which carries their row and gap. */
+.tt-dashboard .tt-att-team-cell > .tt-stack-table__value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+/* The primitive centres a spanning cell; the sub-table reads from the left. */
+.tt-dashboard .tt-att-sub-row > td.tt-att-sub-cell { text-align: left; }
 
 /* the disclosure button — the primary expand affordance */
 .tt-dashboard .tt-att-disclosure {

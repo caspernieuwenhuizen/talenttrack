@@ -104,8 +104,11 @@ Een tabel die op een telefoon in kaarten met labels verandert, gebruikt de gedee
 - **Kopregel:** alleen visueel verborgen, nooit met `display: none`, zodat de kolomkoppen in de toegankelijkheidsboom blijven. Hij verschijnt zolang een bedieningselement erin de toetsenbordfocus heeft.
 - **Label:** verborgen voor een schermlezer (`content: attr(data-label) / ""`), omdat de kolomkop de cel al benoemt.
 - **Cellen zonder regel:** een lege cel neemt geen regel in, een cel met `data-label=""` is alleen zijn waarde, en een cel over de hele rij is één blok.
+- **Verborgen rijen:** een rij met het attribuut `hidden` (een ingeklapte uitsplitsing, een rij die een zoekopdracht wegfiltert) blijft op elke breedte verborgen. De weergaveregels van de stapeltabel voor rijen zouden het attribuut anders overstemmen, dus een eigen `[hidden]`-regel in een schermstylesheet is nooit nodig.
 
 Andere breekpunten en container queries zijn er niet.
+
+**Het breekpunt kiezen.** Gebruik `TO_768` als de tabel ergens tussen 480 en 767px binnen zijn omhulsel scrolt: als kaarten tot 767 past hij dan op het scherm. Gebruik anders `TO_480`, en altijd voor een tabel die wordt afgedrukt. Een afgedrukte pagina is ongeveer 720 CSS-px breed, dus een `TO_768`-tabel zou als kaarten worden afgedrukt.
 
 **Stylesheets van een scherm.** De eigen stylesheet van een scherm gaat over padding, randen en de opmaak van het label, nooit over het stapelen. De selectors van de stapeltabel zijn `> tbody > tr > td`-ketens (0,1,3, en 0,2,3 voor lege, overspannende en ongelabelde cellen). Een regel van een scherm die moet winnen, gebruikt dus dezelfde ketenvorm of staat onder een scope-class zoals `.tt-dashboard`.
 

@@ -13,6 +13,7 @@ use TT\Modules\Knowledge\Frontend\LearningReports;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\MinutesBreakdown;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendStandardReportsView — six curated reports per the
@@ -807,25 +808,32 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ) . '</span>';
         }
         echo '</div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Match', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per match below it.
+        $c_date  = __( 'Date', 'talenttrack' );
+        $c_match = __( 'Match', 'talenttrack' );
+        $c_type  = __( 'Type', 'talenttrack' );
+        $c_min   = __( 'Min', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_date ) . '</th><th' . $th . '>' . esc_html( $c_match ) . '</th><th' . $th . '>' . esc_html( $c_type ) . '</th><th class="num"' . $th . '>' . esc_html( $c_min ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->activity_id );
-            echo '<tr>';
-            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</td>';
             // #2832 — `.tt-record-link` is the record-reference treatment
             // every other report uses (#2628 applied it to the test-trend
             // player names); this one was a bare anchor with default
             // underline styling in a table of otherwise quiet type.
-            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $r->title ?? '—' ) ) . '</a></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_match ) . '><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $r->title ?? '—' ) ) . '</a></td>';
             // #2832 — `activity_type_key` is a storage key (`game`,
             // `tournament`), and it was echoed straight out: a Dutch install
             // read "game" in an otherwise Dutch table. Resolve it through the
             // same lookup vocabulary the activities list renders.
             $type_key   = (string) ( $r->activity_type_key ?? '' );
             $type_label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type_key );
-            echo '<td>' . esc_html( $type_label !== '' ? $type_label : $type_key ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_type ) . '>' . esc_html( $type_label !== '' ? $type_label : $type_key ) . '</td>';
             $min = (int) ( $r->minutes_played ?? 0 );
-            echo '<td class="num">' . ( $min > 0 ? esc_html( (string) $min ) : '—' ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_min ) . '>' . ( $min > 0 ? esc_html( (string) $min ) : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1013,13 +1021,20 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2>'
             . '<span class="tt-rep-section__hint">' . esc_html__( 'Lowest share first. The share is of every minute of the matches with minutes recorded, whether or not the player was available.', 'talenttrack' ) . '</span></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table">';
-        echo '<thead><tr>'
-            . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Minutes', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Available', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Share', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per player below it.
+        $c_player    = __( 'Player', 'talenttrack' );
+        $c_minutes   = __( 'Minutes', 'talenttrack' );
+        $c_available = __( 'Available', 'talenttrack' );
+        $c_share     = __( 'Share', 'talenttrack' );
+        $th          = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+            . '<th' . $th . '>' . esc_html( $c_player ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_minutes ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_available ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_share ) . '</th>'
+            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $players as $p ) {
             $player_url = RecordLink::detailUrlForWithBack( 'players', (int) $p['player_id'] );
             $share      = $p['share_pct'];
@@ -1032,11 +1047,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     $name
                 );
             }
-            echo '<tr>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td class="num">' . esc_html( (string) (int) $p['minutes'] ) . '</td>';
-            echo '<td class="num">' . esc_html( (string) $available ) . '</td>';
-            echo '<td>' . self::shareBar( $share, $target ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_minutes ) . '>' . esc_html( (string) (int) $p['minutes'] ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_available ) . '>' . esc_html( (string) $available ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_share ) . '>' . self::shareBar( $share, $target ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1458,7 +1473,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             return;
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by average rating, high to low.', 'talenttrack' ) . '</span></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Avg rating', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th><th>' . esc_html__( 'Last evaluated', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per player below it.
+        $c_player = __( 'Player', 'talenttrack' );
+        $c_avg    = __( 'Avg rating', 'talenttrack' );
+        $c_evals  = __( 'Evaluations', 'talenttrack' );
+        $c_last   = __( 'Last evaluated', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_player ) . '</th><th class="num"' . $th . '>' . esc_html( $c_avg ) . '</th><th class="num"' . $th . '>' . esc_html( $c_evals ) . '</th><th' . $th . '>' . esc_html( $c_last ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'players', (int) $r->player_id );
             $avg = $r->avg_rating !== null ? round( (float) $r->avg_rating, 1 ) : null;
@@ -1467,11 +1489,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $last = ! empty( $r->last_eval_date )
                 ? \TT\Shared\Dates\TTDate::date( (string) $r->last_eval_date )
                 : '—';
-            echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a></td>';
-            echo '<td class="num">' . ( $avg !== null ? esc_html( (string) $avg ) : '—' ) . '</td>';
-            echo '<td class="num">' . esc_html( (string) (int) $r->eval_count ) . '</td>';
-            echo '<td>' . esc_html( $last ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a></td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_avg ) . '>' . ( $avg !== null ? esc_html( (string) $avg ) : '—' ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_evals ) . '>' . esc_html( (string) (int) $r->eval_count ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_last ) . '>' . esc_html( $last ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1540,22 +1562,27 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per phase of play', 'talenttrack' ) . '</h2>'
             . '<span class="tt-rep-section__hint">' . esc_html__( 'How often each phase was rated each way. A phase a coach left alone counts as nothing.', 'talenttrack' ) . '</span></div>';
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Phase', 'talenttrack' ) . '</th>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per phase below it.
+        $c_phase = __( 'Phase', 'talenttrack' );
+        $c_rated = __( 'Rated', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_phase ) . '</th>';
         foreach ( $ratings as $label ) {
-            echo '<th class="num">' . esc_html( $label ) . '</th>';
+            echo '<th class="num"' . $th . '>' . esc_html( $label ) . '</th>';
         }
-        echo '<th class="num">' . esc_html__( 'Rated', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th class="num"' . $th . '>' . esc_html( $c_rated ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $trends['sections'] as $section ) {
-            echo '<tr>';
-            echo '<td>' . esc_html( $section['label'] ) . '</td>';
-            foreach ( array_keys( $ratings ) as $rating_key ) {
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_phase ) . '>' . esc_html( $section['label'] ) . '</td>';
+            foreach ( $ratings as $rating_key => $label ) {
                 $n = (int) ( $section['counts'][ $rating_key ] ?? 0 );
-                echo '<td class="num">' . ( $section['total'] > 0 ? esc_html( (string) $n ) : '—' ) . '</td>';
+                echo '<td class="num"' . StackTable::attrs( 'cell', (string) $label ) . '>' . ( $section['total'] > 0 ? esc_html( (string) $n ) : '—' ) . '</td>';
             }
-            echo '<td class="num">' . ( $section['total'] > 0 ? esc_html( (string) $section['total'] ) : '—' ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_rated ) . '>' . ( $section['total'] > 0 ? esc_html( (string) $section['total'] ) : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1673,7 +1700,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             return;
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per team below it.
+        $c_team    = __( 'Team', 'talenttrack' );
+        $c_players = __( 'Players', 'talenttrack' );
+        $c_matches = __( 'Matches', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_team ) . '</th><th class="num"' . $th . '>' . esc_html( $c_players ) . '</th><th class="num"' . $th . '>' . esc_html( $c_matches ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         // #4039 — one question for the whole table: may this reader open a team
         // page at all? A read-only observer may read this report and is refused
         // the team page, and a link into a refusal is worse than no link (§7).
@@ -1682,12 +1715,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $can_open_team = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'teams' );
         foreach ( $by_team as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'teams', (int) $r->id );
-            echo '<tr>';
-            echo '<td>' . ( $can_open_team
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_team ) . '>' . ( $can_open_team
                 ? '<a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a>'
                 : esc_html( (string) $r->name ) ) . '</td>';
-            echo '<td class="num">' . esc_html( (string) (int) $r->player_count ) . '</td>';
-            echo '<td class="num">' . esc_html( (string) (int) $r->match_count ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_players ) . '>' . esc_html( (string) (int) $r->player_count ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_matches ) . '>' . esc_html( (string) (int) $r->match_count ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1784,7 +1817,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         ] );
         if ( $by_scout ) {
             echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per scout', 'talenttrack' ) . '</h2></div>';
-            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Scout', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases opened', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            // #4912 — on the stack-table primitive: a table from 480px, one
+            // card per scout below it.
+            $c_scout  = __( 'Scout', 'talenttrack' );
+            $c_opened = __( 'Cases opened', 'talenttrack' );
+            $th       = StackTable::attrs( 'columnheader' );
+            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_scout ) . '</th><th class="num"' . $th . '>' . esc_html( $c_opened ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
             // #2347 — link each scout to their Scout Report Card. Gated on
             // `tt_view_reports` (§7 hide-don't-tease); this whole funnel is
             // already scope-admin-only, so a viewer here always holds it,
@@ -1794,7 +1832,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             foreach ( $by_scout as $r ) {
                 $scout_name = (string) ( $r->display_name ?? __( '—', 'talenttrack' ) );
                 $scout_id   = (int) ( $r->scout_id ?? 0 );
-                echo '<tr><td>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_scout ) . '>';
                 if ( $can_scout_card && $scout_id > 0 ) {
                     $card_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
                         [ 'tt_view' => 'standard-report', 'slug' => 'scout-report-card', 'scout_id' => $scout_id ],
@@ -1804,24 +1842,29 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 } else {
                     echo esc_html( $scout_name );
                 }
-                echo '</td><td class="num">' . esc_html( (string) (int) $r->opened ) . '</td></tr>';
+                echo '</td><td class="num"' . StackTable::attrs( 'cell', $c_opened ) . '>' . esc_html( (string) (int) $r->opened ) . '</td></tr>';
             }
             echo '</tbody></table></div></div>';
         }
         if ( $by_decision || $cases_pending > 0 ) {
             echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per decision', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Cases opened in the window, by outcome. Pending = opened but not yet decided. Rows sum to Trial cases opened.', 'talenttrack' ) . '</span></div>';
-            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            // #4912 — on the stack-table primitive: a table from 480px, one
+            // card per outcome below it.
+            $c_decision = __( 'Decision', 'talenttrack' );
+            $c_cases    = __( 'Cases', 'talenttrack' );
+            $th         = StackTable::attrs( 'columnheader' );
+            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_decision ) . '</th><th class="num"' . $th . '>' . esc_html( $c_cases ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
             $decided_sum = 0;
             foreach ( $by_decision as $r ) {
                 $decided_sum += (int) $r->n;
-                echo '<tr><td>' . esc_html( (string) ( $r->decision ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num">' . esc_html( (string) (int) $r->n ) . '</td></tr>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_decision ) . '>' . esc_html( (string) ( $r->decision ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num"' . StackTable::attrs( 'cell', $c_cases ) . '>' . esc_html( (string) (int) $r->n ) . '</td></tr>';
             }
             // #2347 — the Pending row makes opened-but-undecided cases visible
             // so the breakdown reconciles with Trial cases opened.
-            echo '<tr><td>' . esc_html__( 'Pending (not yet decided)', 'talenttrack' ) . '</td><td class="num">' . esc_html( (string) $cases_pending ) . '</td></tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_decision ) . '>' . esc_html__( 'Pending (not yet decided)', 'talenttrack' ) . '</td><td class="num"' . StackTable::attrs( 'cell', $c_cases ) . '>' . esc_html( (string) $cases_pending ) . '</td></tr>';
             // #2347 — a total/reconciliation row confirming the sum equals
             // Trial cases opened.
-            echo '<tr class="tt-minutes-breakdown__total"><td>' . esc_html__( 'Total (should equal cases opened)', 'talenttrack' ) . '</td><td class="num">' . esc_html( (string) ( $decided_sum + $cases_pending ) ) . '</td></tr>';
+            echo '<tr class="tt-minutes-breakdown__total"' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_decision ) . '>' . esc_html__( 'Total (should equal cases opened)', 'talenttrack' ) . '</td><td class="num"' . StackTable::attrs( 'cell', $c_cases ) . '>' . esc_html( (string) ( $decided_sum + $cases_pending ) ) . '</td></tr>';
             echo '</tbody></table></div></div>';
         }
         if ( ! $by_scout && ! $by_decision && $cases_pending === 0 ) {
@@ -1914,13 +1957,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             return;
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Recent prospects', 'talenttrack' ) . '</h2></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Prospect', 'talenttrack' ) . '</th><th>' . esc_html__( 'Current club', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per prospect below it.
+        $c_date     = __( 'Date', 'talenttrack' );
+        $c_prospect = __( 'Prospect', 'talenttrack' );
+        $c_club     = __( 'Current club', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_date ) . '</th><th' . $th . '>' . esc_html( $c_prospect ) . '</th><th' . $th . '>' . esc_html( $c_club ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $recent_prospects as $r ) {
             $full = trim( ( (string) ( $r->first_name ?? '' ) ) . ' ' . ( (string) ( $r->last_name ?? '' ) ) );
-            echo '<tr>';
-            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( strtotime( (string) ( $r->created_at ?? '' ) ) ?: time() ) ) . '</td>';
-            echo '<td>' . esc_html( $full !== '' ? $full : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) ( $r->current_club ?? '' ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( \TT\Shared\Dates\TTDate::date( strtotime( (string) ( $r->created_at ?? '' ) ) ?: time() ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_prospect ) . '>' . esc_html( $full !== '' ? $full : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_club ) . '>' . esc_html( (string) ( $r->current_club ?? '' ) ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -2052,46 +2101,61 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
 
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count, so a coach who evaluated nobody in this period sits at the bottom with a row of zeroes. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>'
-            . '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Squad size', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Evaluated this period', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Never evaluated this season', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Ratings', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Mean', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Std dev', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Most-given rating', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Days since', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per coach below it. The coach's name and its flag are one value
+        // block.
+        $c_coach   = __( 'Coach', 'talenttrack' );
+        $c_squad   = __( 'Squad size', 'talenttrack' );
+        $c_period  = __( 'Evaluated this period', 'talenttrack' );
+        $c_never   = __( 'Never evaluated this season', 'talenttrack' );
+        $c_evals   = __( 'Evaluations', 'talenttrack' );
+        $c_ratings = __( 'Ratings', 'talenttrack' );
+        $c_mean    = __( 'Mean', 'talenttrack' );
+        $c_stddev  = __( 'Std dev', 'talenttrack' );
+        $c_modal   = __( 'Most-given rating', 'talenttrack' );
+        $c_last    = __( 'Last evaluation', 'talenttrack' );
+        $c_days    = __( 'Days since', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+            . '<th' . $th . '>' . esc_html( $c_coach ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_squad ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_period ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_never ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_evals ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_ratings ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_mean ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_stddev ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_modal ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_last ) . '</th>'
+            . '<th class="num"' . $th . '>' . esc_html( $c_days ) . '</th>'
+            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $r ) {
             $row_class = $r['low_variance'] ? ' class="tt-rep-row--flag"' : '';
-            echo '<tr' . $row_class . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static attribute.
-            echo '<td>' . esc_html( $r['coach_name'] );
+            echo '<tr' . $row_class . StackTable::attrs( 'row' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static attribute.
+            echo '<td' . StackTable::attrs( 'cell', $c_coach ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">' . esc_html( $r['coach_name'] );
             if ( $r['low_variance'] ) {
                 echo ' <span class="tt-rep-flag-tag">' . esc_html__( 'low variance', 'talenttrack' ) . '</span>';
             }
-            echo '</td>';
-            echo '<td class="num">' . (int) $r['squad_size'] . '</td>';
-            echo '<td class="num">' . (int) $r['players_evaluated'] . '</td>';
-            echo '<td class="num">' . (int) $r['players_never_evaluated'] . '</td>';
-            echo '<td class="num">' . (int) $r['eval_count'] . '</td>';
-            echo '<td class="num">' . (int) $r['rating_count'] . '</td>';
-            echo '<td class="num">' . ( $r['mean_rating'] !== null ? esc_html( number_format_i18n( $r['mean_rating'], 2 ) ) : '—' ) . '</td>';
-            echo '<td class="num">' . ( $r['stddev'] !== null ? esc_html( number_format_i18n( $r['stddev'], 2 ) ) : '—' ) . '</td>';
+            echo '</span></td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_squad ) . '>' . (int) $r['squad_size'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_period ) . '>' . (int) $r['players_evaluated'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_never ) . '>' . (int) $r['players_never_evaluated'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_evals ) . '>' . (int) $r['eval_count'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_ratings ) . '>' . (int) $r['rating_count'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_mean ) . '>' . ( $r['mean_rating'] !== null ? esc_html( number_format_i18n( $r['mean_rating'], 2 ) ) : '—' ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_stddev ) . '>' . ( $r['stddev'] !== null ? esc_html( number_format_i18n( $r['stddev'], 2 ) ) : '—' ) . '</td>';
             if ( $r['modal_value'] !== null && $r['modal_pct'] !== null ) {
-                echo '<td>' . esc_html( sprintf(
+                echo '<td' . StackTable::attrs( 'cell', $c_modal ) . '>' . esc_html( sprintf(
                     /* translators: 1: rating value, 2: percentage of all ratings at that value */
                     __( '%1$s (%2$s%% of ratings)', 'talenttrack' ),
                     number_format_i18n( $r['modal_value'], 1 ),
                     number_format_i18n( $r['modal_pct'], 1 )
                 ) ) . '</td>';
             } else {
-                echo '<td>—</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_modal ) . '>—</td>';
             }
-            echo '<td>' . esc_html( $r['last_eval_date'] ?? '—' ) . '</td>';
-            echo '<td class="num">' . ( $r['days_since_last_eval'] !== null ? esc_html( number_format_i18n( $r['days_since_last_eval'] ) ) : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_last ) . '>' . esc_html( $r['last_eval_date'] ?? '—' ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_days ) . '>' . ( $r['days_since_last_eval'] !== null ? esc_html( number_format_i18n( $r['days_since_last_eval'] ) ) : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

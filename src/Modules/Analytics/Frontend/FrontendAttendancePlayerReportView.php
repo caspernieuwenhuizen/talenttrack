@@ -12,6 +12,7 @@ use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -217,23 +218,36 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             echo '</ul></div>';
         }
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Player',    'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Team',      'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per player below it. The sheet's `.tt-report-card .tt-table` rule
+        // already sets the full width the inline style used to.
+        $c_player     = __( 'Player', 'talenttrack' );
+        $c_team       = __( 'Team', 'talenttrack' );
+        $c_activities = __( 'Activities', 'talenttrack' );
+        $c_present    = __( 'Present %', 'talenttrack' );
+        $c_states     = [
+            'late'      => __( 'Late', 'talenttrack' ),
+            'absent'    => __( 'Absent', 'talenttrack' ),
+            'excused'   => __( 'Excused', 'talenttrack' ),
+            'injured'   => __( 'Injured', 'talenttrack' ),
+            'suspended' => __( 'Suspended', 'talenttrack' ),
+        ];
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_player ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
+        echo '<th class="tt-att-num"' . $th . '>' . esc_html( $c_activities ) . '</th>';
         // #2834 — Present keeps its percentage because it is the figure an
         // academy reports on and compares across a squad; the other four drop
         // theirs and show the count instead. A percentage of a three-activity
         // denominator is noise — "66,7% excused" is two missed sessions, and
         // "2" says that without arithmetic.
-        echo '<th class="tt-att-num">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Late',    'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Absent',  'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Excused', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Injured', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-att-num">' . esc_html__( 'Suspended', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th class="tt-att-num"' . $th . '>' . esc_html( $c_present ) . '</th>';
+        foreach ( $c_states as $c_state ) {
+            echo '<th class="tt-att-num"' . $th . '>' . esc_html( $c_state ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         // #2185 — drill-down: the "Activities" count links to the activities
         // list filtered to this player + the report's team + date window, so
@@ -288,11 +302,11 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             // #4013 — the percentage the shared query derived (present + late
             // over total), not a second numerator computed here.
             $present_pct = $r['present_pct'] !== null ? (float) $r['present_pct'] : null;
-            echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
-            echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
+            echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><span class="' . esc_attr( StackTable::VALUE ) . '"><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</span></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_team ) . '>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             $activities_count = (int) $r['activities'];
-            echo '<td class="tt-att-num">';
+            echo '<td class="tt-att-num"' . StackTable::attrs( 'cell', $c_activities ) . '>';
             if ( $activities_count > 0 ) {
                 echo '<a class="tt-att-drill" href="' . esc_url( $activities_url ) . '" aria-label="'
                     . esc_attr( sprintf(
@@ -306,13 +320,13 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             }
             echo '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct, AttendanceFlagService::attended( (object) $r ), (int) $r['total'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_present ) . '>' . self::attendanceBar( $present_pct, AttendanceFlagService::attended( (object) $r ), (int) $r['total'] ) . '</td>';
             // #2834 — the count, not the percentage. `data-sort` carries the
             // number so the client-side sorter orders 2 before 10 instead of
             // lexically.
-            foreach ( [ 'late', 'absent', 'excused', 'injured', 'suspended' ] as $state ) {
+            foreach ( $c_states as $state => $c_state ) {
                 $n = (int) $r[ $state ];
-                echo '<td class="tt-att-num" data-sort="' . esc_attr( (string) $n ) . '">'
+                echo '<td class="tt-att-num"' . StackTable::attrs( 'cell', $c_state ) . ' data-sort="' . esc_attr( (string) $n ) . '">'
                     . esc_html( number_format_i18n( $n ) ) . '</td>';
             }
             echo '</tr>';

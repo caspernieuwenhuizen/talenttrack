@@ -6,10 +6,6 @@
 # baseline stays exact and only falls. Regenerate the list the lint prints.
 assets/js/frontend-attendance-report.js 1
 src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php 1
-src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php 1
-src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php 1
-src/Modules/Analytics/Frontend/FrontendExploreView.php 2
-src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php 1
 src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php 1
 src/Modules/Analytics/Frontend/TeamStatisticsTab.php 2
 src/Modules/Knowledge/Frontend/LearningReports.php 4
@@ -25,11 +21,8 @@ src/Modules/Wizards/Prospect/IdentityStep.php 1
 src/Modules/Wizards/Prospect/ReviewStep.php 1
 src/Modules/Wizards/Team/ReviewStep.php 1
 src/Modules/Wizards/TeamBlueprint/ReviewStep.php 1
-src/Shared/Frontend/Components/MinutesBreakdown.php 1
 src/Shared/Frontend/FrontendAuditLogView.php 5
 src/Shared/Frontend/FrontendMigrationsView.php 2
-src/Shared/Frontend/FrontendReportDetailView.php 2
-src/Shared/Frontend/FrontendStandardReportsView.php 9
 src/Shared/Frontend/FrontendUsageStatsDetailsView.php 7
 src/Shared/Frontend/FrontendUsageStatsView.php 4
 src/Shared/Frontend/FrontendWizardsAdminView.php 1

@@ -11,6 +11,7 @@ use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -169,17 +170,29 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</div>';
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable tt-att-team-table" data-tt-att-from="' . esc_attr( $from ) . '" data-tt-att-to="' . esc_attr( $to ) . '" data-tt-att-type="' . esc_attr( $type_key ) . '">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Late %',    'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Absent %',  'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Excused %', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Injured %', 'talenttrack' ) . '</th>';
-        echo '<th class="tt-num">' . esc_html__( 'Suspended %', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per team below it. The team cell's disclosure and links are one
+        // value block; the lazy sub-row is a row with one spanning cell.
+        $c_team       = __( 'Team', 'talenttrack' );
+        $c_activities = __( 'Activities', 'talenttrack' );
+        $c_present    = __( 'Present %', 'talenttrack' );
+        $c_states     = [
+            'late'      => __( 'Late %', 'talenttrack' ),
+            'absent'    => __( 'Absent %', 'talenttrack' ),
+            'excused'   => __( 'Excused %', 'talenttrack' ),
+            'injured'   => __( 'Injured %', 'talenttrack' ),
+            'suspended' => __( 'Suspended %', 'talenttrack' ),
+        ];
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable tt-att-team-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . ' data-tt-att-from="' . esc_attr( $from ) . '" data-tt-att-to="' . esc_attr( $to ) . '" data-tt-att-type="' . esc_attr( $type_key ) . '">';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
+        echo '<th class="tt-num"' . $th . '>' . esc_html( $c_activities ) . '</th>';
+        echo '<th class="tt-num"' . $th . '>' . esc_html( $c_present ) . '</th>';
+        foreach ( $c_states as $c_state ) {
+            echo '<th class="tt-num"' . $th . '>' . esc_html( $c_state ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $r ) {
             $team_id = $r['team_id'];
@@ -202,30 +215,28 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
                 'activity_type_key' => $type_key !== '' ? $type_key : null,
             ] ), RecordLink::dashboardUrl() ) );
 
-            echo '<tr class="tt-att-team-row" data-tt-att-team="' . esc_attr( (string) $team_id ) . '">';
-            echo '<td class="tt-att-team-cell">';
+            echo '<tr class="tt-att-team-row" data-tt-att-team="' . esc_attr( (string) $team_id ) . '"' . StackTable::attrs( 'row' ) . '>';
+            echo '<td class="tt-att-team-cell"' . StackTable::attrs( 'cell', $c_team ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">';
             echo '<button type="button" class="tt-att-disclosure" aria-expanded="false" aria-controls="tt-att-sub-' . esc_attr( (string) $team_id ) . '">';
             echo '<span class="tt-att-disclosure__chev" aria-hidden="true"></span>';
             echo '<span class="tt-att-disclosure__label">' . esc_html( $name ) . '</span>';
             echo '</button>';
             echo '<a class="tt-att-team-link tt-record-link" href="' . esc_url( $team_url ) . '">' . esc_html__( 'Open team', 'talenttrack' ) . '</a>';
             echo ' <a class="tt-att-team-drill" href="' . esc_url( $drill_url ) . '">' . esc_html__( 'View players', 'talenttrack' ) . '</a>';
-            echo '</td>';
-            echo '<td class="tt-num">' . (int) $r['activities'] . '</td>';
+            echo '</span></td>';
+            echo '<td class="tt-num"' . StackTable::attrs( 'cell', $c_activities ) . '>' . (int) $r['activities'] . '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r['suspended'], $r['total'] ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_present ) . '>' . self::attendanceBar( $present_pct ) . '</td>';
+            foreach ( $c_states as $state => $c_state ) {
+                echo '<td class="tt-num"' . StackTable::attrs( 'cell', $c_state ) . '>' . esc_html( self::pct( $r[ $state ], $r['total'] ) ) . '</td>';
+            }
             echo '</tr>';
             // Lazy target row — JS injects the per-player sub-table here.
             // #2893 — `data-tt-table-noop` keeps it out of the table
             // tools' row count. Every team emits one of these, so without
             // it the counter read exactly twice the number of teams.
-            echo '<tr class="tt-att-sub-row" data-tt-table-noop="true" id="tt-att-sub-' . esc_attr( (string) $team_id ) . '" hidden>';
-            echo '<td colspan="8" class="tt-att-sub-cell"></td>';
+            echo '<tr class="tt-att-sub-row" data-tt-table-noop="true" id="tt-att-sub-' . esc_attr( (string) $team_id ) . '"' . StackTable::attrs( 'row' ) . ' hidden>';
+            echo '<td colspan="8" class="tt-att-sub-cell"' . StackTable::attrs( 'cell' ) . '></td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

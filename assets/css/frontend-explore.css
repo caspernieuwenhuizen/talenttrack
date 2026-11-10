@@ -171,14 +171,20 @@
     color: var(--tt-muted);
 }
 .tt-dashboard .tt-explore-table { max-width: 760px; margin-top: var(--tt-sp-2); }
-.tt-dashboard .tt-explore-table--wide { min-width: 760px; max-width: none; }
+.tt-dashboard .tt-explore-table--wide { max-width: none; }
 .tt-dashboard th.tt-explore-num,
 .tt-dashboard td.tt-explore-num {
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
+/* #4912 — the stack-table primitive centres a spanning cell; the empty
+   hint reads from the left, as before. */
+.tt-dashboard .tt-explore-table td.tt-explore-hint { text-align: left; }
 
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-dashboard .tt-explore-field { flex: 0 1 auto; }
+    /* #4912 — the wide drilldown keeps its width once it is a table; on a
+       phone it is a list of cards that fits the screen. */
+    .tt-dashboard .tt-explore-table--wide { min-width: 760px; }
 }

@@ -1,0 +1,3 @@
+# Report tables on a phone read like every other table (#4912)
+
+The attendance reports (per player and per team), the minutes report and its per-match breakdown, the Explore result and drilldown tables, the standard reports (minutes per match, minutes share, team evaluations, match analysis phases, season summary, scouting funnel, recent prospects, coach evaluation quality) and the team averages and coach activity reports now use the shared table layout. On a phone each row is a card with each value beside its column's label, as on the other screens that have moved. The Explore drilldown no longer scrolls sideways inside its card on a phone. From 480px wide, and in print, nothing changes. Screen readers read each table as a table with its column headers.

@@ -339,6 +339,9 @@
 .tt-dashboard .tt-minutes-breakdown { padding: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px); }
 .tt-dashboard .tt-minutes-breakdown table { width: 100%; }
 .tt-dashboard .tt-minutes-breakdown__total td { font-weight: 600; }
+/* #4912 — on the stack-table primitive the Total label spans four columns,
+   which the primitive centres; it reads from the left, as before. */
+.tt-dashboard .tt-minutes-breakdown__total > td[colspan] { text-align: left; }
 
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 560px) {

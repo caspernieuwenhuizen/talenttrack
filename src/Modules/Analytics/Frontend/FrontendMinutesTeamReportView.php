@@ -14,6 +14,7 @@ use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\MinutesBreakdown;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -220,25 +221,34 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</div>';
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Starts', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Subs in', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Subs off', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Avg / match', 'talenttrack' ) . '</th>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per player below it. The breakdown row is a row with one spanning
+        // cell.
+        $c_player    = __( 'Player', 'talenttrack' );
+        $c_total     = __( 'Total', 'talenttrack' );
+        $c_matches   = __( 'Matches', 'talenttrack' );
+        $c_starts    = __( 'Starts', 'talenttrack' );
+        $c_subs_in   = __( 'Subs in', 'talenttrack' );
+        $c_subs_off  = __( 'Subs off', 'talenttrack' );
+        $c_avg       = __( 'Avg / match', 'talenttrack' );
         // #2859 — output beside exposure. Reading "played 340 minutes" and
         // "scored 6" off two different screens is what made the comparison
         // nobody was making; they belong in one row.
-        echo '<th class="num">' . esc_html_x( 'Goals scored', 'goals scored in matches', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html_x( 'Assists', 'who created a goal', 'talenttrack' ) . '</th>';
-        foreach ( $type_keys as $key ) {
-            echo '<th class="num">' . esc_html( $type_labels[ $key ] ) . '</th>';
+        $c_goals     = _x( 'Goals scored', 'goals scored in matches', 'talenttrack' );
+        $c_assists   = _x( 'Assists', 'who created a goal', 'talenttrack' );
+        $c_available = __( '% available', 'talenttrack' );
+        $th          = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_player ) . '</th>';
+        foreach ( [ $c_total, $c_matches, $c_starts, $c_subs_in, $c_subs_off, $c_avg, $c_goals, $c_assists ] as $header ) {
+            echo '<th class="num"' . $th . '>' . esc_html( $header ) . '</th>';
         }
-        echo '<th class="num">' . esc_html__( '% available', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        foreach ( $type_keys as $key ) {
+            echo '<th class="num"' . $th . '>' . esc_html( $type_labels[ $key ] ) . '</th>';
+        }
+        echo '<th class="num"' . $th . '>' . esc_html( $c_available ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         // #2160 — total column count for the drill-down row's colspan.
         // #2859 — +2 for the goals / assists columns.
@@ -257,30 +267,30 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             ) );
 
             $pid = (int) $r['player_id'];
-            echo '<tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
             // #2160 — the player's Total cell expands to a per-match trace.
             // The breakdown reuses the same MinutesQuery + window so its
             // rows sum exactly to this Total. <details> = keyboard-operable,
             // no-JS, reconciles at 360px.
-            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td class="num"><a class="tt-record-link" href="#tt-min-bd-' . $pid . '" data-tt-minutes-toggle="' . $pid . '" aria-controls="tt-min-bd-' . $pid . '">' . esc_html( number_format_i18n( $r['__effective_total'] ) ) . '</a></td>';
-            echo '<td class="num">' . (int) $r['matches'] . '</td>';
-            echo '<td class="num">' . (int) $r['starts'] . '</td>';
-            echo '<td class="num">' . (int) $r['subs_in'] . '</td>';
-            echo '<td class="num">' . (int) $r['subs_off'] . '</td>';
-            echo '<td class="num">' . (int) $r['__avg'] . '</td>';
-            echo '<td class="num">' . (int) ( $contributions[ $pid ]['goals'] ?? 0 ) . '</td>';
-            echo '<td class="num">' . (int) ( $contributions[ $pid ]['assists'] ?? 0 ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_total ) . '><a class="tt-record-link" href="#tt-min-bd-' . $pid . '" data-tt-minutes-toggle="' . $pid . '" aria-controls="tt-min-bd-' . $pid . '">' . esc_html( number_format_i18n( $r['__effective_total'] ) ) . '</a></td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_matches ) . '>' . (int) $r['matches'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_starts ) . '>' . (int) $r['starts'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_subs_in ) . '>' . (int) $r['subs_in'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_subs_off ) . '>' . (int) $r['subs_off'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_avg ) . '>' . (int) $r['__avg'] . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_goals ) . '>' . (int) ( $contributions[ $pid ]['goals'] ?? 0 ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_assists ) . '>' . (int) ( $contributions[ $pid ]['assists'] ?? 0 ) . '</td>';
             foreach ( $type_keys as $key ) {
                 $v = (int) ( $r['by_type'][ $key ] ?? 0 );
-                echo '<td class="num">' . esc_html( number_format_i18n( $v ) ) . '</td>';
+                echo '<td class="num"' . StackTable::attrs( 'cell', (string) $type_labels[ $key ] ) . '>' . esc_html( number_format_i18n( $v ) ) . '</td>';
             }
-            echo '<td class="num">' . (int) $r['__pct_avail'] . '%</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_available ) . '>' . (int) $r['__pct_avail'] . '%</td>';
             echo '</tr>';
 
             $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, $pid, $from, $to );
-            echo '<tr class="tt-min-breakdown-row" id="tt-min-bd-' . $pid . '">';
-            echo '<td colspan="' . (int) $col_count . '">';
+            echo '<tr class="tt-min-breakdown-row" id="tt-min-bd-' . $pid . '"' . StackTable::attrs( 'row' ) . '>';
+            echo '<td colspan="' . (int) $col_count . '"' . StackTable::attrs( 'cell' ) . '>';
             // #2348 — shared breakdown component; identical rows to the
             // former per-file renderer, still reconciling to the Total.
             MinutesBreakdown::render( $breakdown, $pid );
