@@ -155,7 +155,7 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         }
 
         $coached = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) $coached[ (int) $team->id ] = true;
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) $coached[ (int) ( $team->id ?? 0 ) ] = true;
         foreach ( $team_by_player as $player_id => $team_id ) {
             $out[ (int) $player_id ] = (int) $team_id > 0 && isset( $coached[ (int) $team_id ] );
         }

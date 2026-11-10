@@ -112,7 +112,6 @@ abstract class StaffRecordSearchProvider implements SearchProvider {
 
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            if ( ! is_object( $row ) ) continue;
             $hit          = $this->toHit( $row, $user_id );
             $hit['score'] = (int) ( $row->tt_score ?? 0 );
             $out[]        = $hit;

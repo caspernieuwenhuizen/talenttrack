@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Threads\Adapters\PlayerThreadAdapter;
 use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
@@ -56,7 +57,7 @@ final class NoteSearchProvider extends StaffRecordSearchProvider {
         if ( ! self::adapter() instanceof PlayerThreadAdapter ) return null;
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return null;
 
-        $coached = array_map( static fn( $t ): int => (int) $t->id, QueryHelpers::get_teams_for_coach( $user_id ) );
+        $coached = ActivityAccess::coachedTeamIds( $user_id );
         if ( QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
             $parts  = [ '1=1' ];
             $params = [];
@@ -113,7 +114,10 @@ final class NoteSearchProvider extends StaffRecordSearchProvider {
         if ( ! $adapter instanceof PlayerThreadAdapter ) return [];
 
         $team_by_player = [];
-        foreach ( $hits as $hit ) $team_by_player[ (int) ( $hit['player_id'] ?? 0 ) ] = (int) ( $hit['tt_row']['team_id'] ?? 0 );
+        foreach ( $hits as $hit ) {
+            $row = (array) ( $hit['tt_row'] ?? [] );
+            $team_by_player[ (int) ( $hit['player_id'] ?? 0 ) ] = (int) ( $row['team_id'] ?? 0 );
+        }
         unset( $team_by_player[0] );
         if ( $team_by_player === [] ) return [];
 
@@ -125,8 +129,9 @@ final class NoteSearchProvider extends StaffRecordSearchProvider {
         foreach ( $hits as $hit ) {
             $pid = (int) ( $hit['player_id'] ?? 0 );
             if ( empty( $view[ $pid ] ) || empty( $read[ $pid ] ) ) continue;
-            $public = ( $hit['tt_row']['visibility'] ?? '' ) === ThreadVisibility::PUBLIC_LEVEL;
-            if ( ! $public && ! $reach['all'] && empty( $reach['teams'][ (int) ( $hit['tt_row']['team_id'] ?? 0 ) ] ) ) continue;
+            $row    = (array) ( $hit['tt_row'] ?? [] );
+            $public = (string) ( $row['visibility'] ?? '' ) === ThreadVisibility::PUBLIC_LEVEL;
+            if ( ! $public && ! $reach['all'] && empty( $reach['teams'][ (int) ( $row['team_id'] ?? 0 ) ] ) ) continue;
             $out[] = $hit;
         }
         return $out;

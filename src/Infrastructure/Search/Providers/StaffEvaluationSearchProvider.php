@@ -135,12 +135,16 @@ final class StaffEvaluationSearchProvider extends StaffRecordSearchProvider {
         if ( $kept === [] ) return [];
 
         $team_by_player = [];
-        foreach ( $kept as $hit ) $team_by_player[ (int) $hit['player_id'] ] = (int) ( $hit['tt_row']['team_id'] ?? 0 );
+        foreach ( $kept as $hit ) {
+            $row = (array) ( $hit['tt_row'] ?? [] );
+            $team_by_player[ (int) ( $hit['player_id'] ?? 0 ) ] = (int) ( $row['team_id'] ?? 0 );
+        }
         RecordRedactor::prime( $user_id, $team_by_player );
 
         foreach ( $kept as $i => $hit ) {
-            $notes = (string) ( $hit['tt_row']['notes'] ?? '' );
-            if ( $notes === '' || RecordRedactor::isMasked( 'evaluations', 'notes', $user_id, (int) $hit['player_id'] ) ) continue;
+            $row   = (array) ( $hit['tt_row'] ?? [] );
+            $notes = (string) ( $row['notes'] ?? '' );
+            if ( $notes === '' || RecordRedactor::isMasked( 'evaluations', 'notes', $user_id, (int) ( $hit['player_id'] ?? 0 ) ) ) continue;
             $excerpt = self::excerpt( $notes );
             if ( $excerpt !== '' ) $kept[ $i ]['excerpt'] = $excerpt;
         }
