@@ -61,11 +61,11 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
     }
 
     /**
-     * #2521 asserted that the player-file Activities badge ignored planned
-     * activities. **#2862 supersedes that**, deliberately: the badge sits on
-     * the tab and is read as "how many things are in here", so it counts
-     * what the tab renders — and the tab has always rendered upcoming and
-     * not-yet-completed activities.
+     * The badge sits on the tab and is read as "how many things are in
+     * here", so it counts what the tab renders (#2862). Since #4968 the tab
+     * renders completed activities only, and since #4990 "completed" is the
+     * activity's status; the badge asks the same read
+     * (`ActivitiesRepository::countForPlayer()`).
      *
      * What #2521 was actually protecting is untouched and still asserted
      * below: an `expected` row alongside an `actual` row on the SAME

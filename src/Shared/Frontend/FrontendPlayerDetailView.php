@@ -2462,10 +2462,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             (int) $player_id,
             25,
             'DESC',
-            [
-                'record_types'   => null,
-                'completed_only' => true,
-            ]
+            \TT\Modules\Activities\Repositories\ActivitiesRepository::TAB_FILTERS
         );
         if ( empty( $rows ) ) {
             $team_id = $player !== null ? (int) ( $player->team_id ?? 0 ) : 0;

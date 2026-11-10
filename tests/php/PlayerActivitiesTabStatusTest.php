@@ -53,6 +53,8 @@ final class PlayerActivitiesTabStatusTest extends WP_UnitTestCase {
         $this->activity( 'Cancelled 4990', $past, 'cancelled', 'completed' );
         // Completed by status but dated ahead.
         $this->activity( 'Completed ahead 4990', $future, 'completed', 'completed' );
+        // Completed today, on the site's clock: it counts.
+        $this->activity( 'Done today 4990', \TT\Modules\Activities\Services\AttendanceDateRule::today(), 'completed', 'completed' );
     }
 
     public function tear_down(): void {
@@ -68,6 +70,23 @@ final class PlayerActivitiesTabStatusTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'Plan state only 4990', $html, 'a planned activity whose plan state defaulted to completed is not on the tab' );
         $this->assertStringNotContainsString( 'Cancelled 4990', $html );
         $this->assertStringNotContainsString( 'Completed ahead 4990', $html, 'nor one dated in the future' );
+        $this->assertStringContainsString( 'Done today 4990', $html, 'one completed today counts' );
+    }
+
+    /**
+     * "Today" is the site's date (`AttendanceDateRule::today()`), not the
+     * database server's: with the site a day ahead of UTC, an activity
+     * completed on the site's today still counts.
+     */
+    public function test_today_is_the_sites_date(): void {
+        update_option( 'timezone_string', 'Pacific/Kiritimati' ); // UTC+14
+        try {
+            $today = \TT\Modules\Activities\Services\AttendanceDateRule::today();
+            $this->activity( 'Site today 4990', $today, 'completed', 'completed' );
+            $this->assertStringContainsString( 'Site today 4990', $this->renderTab() );
+        } finally {
+            update_option( 'timezone_string', '' );
+        }
     }
 
     public function test_the_badge_counts_the_activities_with_that_status_in_the_same_window(): void {
@@ -75,13 +94,13 @@ final class PlayerActivitiesTabStatusTest extends WP_UnitTestCase {
         $by_status = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT a.id) FROM {$wpdb->prefix}tt_activities a
                JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id
-              WHERE att.player_id = %d AND a.activity_status_key = 'completed' AND a.session_date <= CURDATE() AND a.archived_at IS NULL",
-            $this->player
+              WHERE att.player_id = %d AND a.activity_status_key = 'completed' AND a.session_date <= %s AND a.archived_at IS NULL",
+            $this->player, \TT\Modules\Activities\Services\AttendanceDateRule::today()
         ) );
-        $this->assertSame( 2, $by_status, 'precondition: two completed activities in the window' );
+        $this->assertSame( 3, $by_status, 'precondition: three completed activities in the window, today included' );
         $this->assertSame( $by_status, (int) PlayerFileCounts::for( $this->player )['activities'], 'the badge counts them' );
 
-        $listed = ( new ActivitiesRepository() )->listForPlayer( $this->player, 25, 'DESC', [ 'record_types' => null, 'completed_only' => true ] );
+        $listed = ( new ActivitiesRepository() )->listForPlayer( $this->player, 25, 'DESC', ActivitiesRepository::TAB_FILTERS );
         $this->assertCount( $by_status, $listed, 'and the tab lists the same' );
     }
 

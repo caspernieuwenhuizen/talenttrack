@@ -45,49 +45,18 @@ final class PlayerFileCounts {
         // #2522 — a player on the plan who also has a recorded row was
         // counted twice. DISTINCT on the activity handles that now.
         //
-        // #2862 — COUNT(DISTINCT att.activity_id), not COUNT(*). The tab
-        // counts activities, and while `record_type = 'actual'` should mean
-        // one row per player per activity, the badge should not be the thing
-        // that discovers otherwise: a stray second recorded row would inflate
-        // the number beside a list that renders one entry.
-        //
         // Decided 2026-08-26: the badge counts **what the tab renders**, not
-        // what the player attended. A number sitting on a tab is read as
-        // "how many things are in here", and a badge saying 14 above a list
-        // of 19 rows is the disagreement the pilot reported.
+        // what the player attended — a badge saying 14 above a list of 19
+        // rows is the disagreement the pilot reported.
         //
-        // So this mirrors `ActivitiesRepository::listForPlayer()`'s filter
-        // set exactly — same plan states, same past-completed rule, same
-        // archived guard — minus its 25-row recent-window cap, because the
-        // badge is a total and the list is a window.
-        //
-        // #4968 — the tab shows completed activities only, dated today or
-        // earlier, so the badge counts exactly those. Planned and scheduled
-        // activities, past or future, count on neither.
-        //
-        // #4990 — "completed" is the activity's status (owner decision, 9
-        // November 2026), through the shared gate, as the list asks it
-        // (`ActivitiesRepository::listForPlayer( …, [ 'completed_only' ] )`).
-        // `plan_state` defaults to 'completed' on rows the planner never
-        // created (#2521), so it is not the gate on either.
-        //
-        // `record_type` is deliberately absent for the same reason: the list
-        // reads both record types (`record_types => null`), so a completed
-        // activity the player was only planned for still shows. DISTINCT on
-        // the activity is what stops a player holding both rows counting
-        // twice.
-        // /* both-kinds-ok */ — the paragraph above is the decision.
-        $activities = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(DISTINCT att.activity_id)
-               FROM {$p}tt_attendance att
-               JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.is_guest = 0
-                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
-                AND " . ActivityLifecycle::completedClause( 'a' ) . "
-                AND a.session_date <= CURDATE()",
-            $player_id
-        ) );
+        // #4990 — so it asks the tab's own read with the tab's own filters
+        // (`ActivitiesRepository::TAB_FILTERS`): completed by the activity's
+        // status, dated today or earlier, both record types, one per
+        // activity. `countForPlayer()` and `listForPlayer()` share one
+        // where-clause and one dedupe; this used to be a copy of that SQL,
+        // and the copy drifted three times (#2862, #4968, #4990).
+        $activities = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->countForPlayer( $player_id, \TT\Modules\Activities\Repositories\ActivitiesRepository::TAB_FILTERS );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_pdp_files WHERE player_id = %d",
             $player_id
