@@ -18283,42 +18283,6 @@ parameters:
 			path: src/Modules/Wizards/Evaluation/BehaviourStep.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<int\|string, int\|string\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
-			message: '#^Comparison operation "\<\=" between 0 and 0 is always true\.$#'
-			identifier: smallerOrEqual.alwaysTrue
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
-			message: '#^Offset ''eval_type_id'' on array\{activity_id\?\: int, eval_date\?\: string, coach_id\?\: int, player_id\: int, ratings\: array\<int\|string, int\|string\>, notes\?\: string, player_feedback\?\: string\} on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
-			message: '#^Offset ''player_id'' on array\{activity_id\?\: int, eval_date\?\: string, coach_id\?\: int, player_id\: int, ratings\: array\<int\|string, int\|string\>, notes\?\: string, player_feedback\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
-			message: '#^Offset ''ratings'' on array\{activity_id\?\: int, eval_date\?\: string, coach_id\?\: int, player_id\: int, ratings\: array\<int\|string, int\|string\>, notes\?\: string, player_feedback\?\: string\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
-			message: '#^Parameter \#1 \$row of static method TT\\Modules\\Wizards\\Evaluation\\EvaluationInserter\:\:insert\(\) expects array\{activity_id\?\: int, eval_date\?\: string, coach_id\?\: int, player_id\: int, ratings\: array\<int\|string, int\|string\>, notes\?\: string, player_feedback\?\: string\}, array\{player_id\: int\<1, max\>, activity_id\: int\<1, max\>, coach_id\: int, eval_date\: string, ratings\: array\<int\|string, float\|int\|string\|null\>\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Modules/Wizards/Evaluation/EvaluationInserter.php
-
-		-
 			message: '#^Method TT\\Modules\\Wizards\\Evaluation\\EvaluationModeStep\:\:nextStep\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1

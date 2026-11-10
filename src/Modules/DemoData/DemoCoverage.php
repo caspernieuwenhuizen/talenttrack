@@ -361,6 +361,13 @@ class DemoCoverage {
             'written_by'  => PdpGenerator::class,
             'depends_on'  => [ 'pdp_conversation' ],
         ],
+        // #4977 (epic #4975) — what a PDP conversation form holds: both
+        // authors' scores and answers, and the SMART points. Demo content
+        // once a generator fills a form; that lands with the trainer's form
+        // view, which is the first surface that shows them.
+        'tt_pdp_form_scores'  => [ 'planned' => '#4980' ],
+        'tt_pdp_form_answers' => [ 'planned' => '#4980' ],
+        'tt_pdp_form_goals'   => [ 'planned' => '#4980' ],
 
         // ===== Activity content =====
 

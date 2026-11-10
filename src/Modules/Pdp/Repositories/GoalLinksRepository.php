@@ -162,6 +162,33 @@ class GoalLinksRepository {
     }
 
     /**
+     * #4977 — link one goal to a conversation, keeping its other links.
+     *
+     * Sign-off of a form conversation links the goals it creates this way.
+     * `setGoalsForConversation()` replaces every link of the conversation,
+     * which would drop the goals the coach marked as discussed. Linking a
+     * goal that is already linked changes nothing. False when the insert is
+     * refused.
+     */
+    public function linkGoalToConversation( int $conv_id, int $goal_id ): bool {
+        if ( $conv_id <= 0 || $goal_id <= 0 ) return false;
+
+        global $wpdb;
+        $linked = $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}tt_goal_links WHERE goal_id = %d AND link_type = %s AND link_id = %d AND club_id = %d LIMIT 1",
+            $goal_id, self::TYPE_PDP_CONVERSATION, $conv_id, CurrentClub::id()
+        ) );
+        if ( $linked !== null ) return true;
+
+        return $this->wpdb->insert( $this->table, [
+            'club_id'   => CurrentClub::id(),
+            'goal_id'   => $goal_id,
+            'link_type' => self::TYPE_PDP_CONVERSATION,
+            'link_id'   => $conv_id,
+        ] ) !== false;
+    }
+
+    /**
      * Replace the set of goals linked to a conversation (the coach's
      * "goals discussed in this talk" multi-select). Only touches this
      * conversation's `pdp_conversation` rows. Returns true.

@@ -59,6 +59,8 @@ class PdpModule implements ModuleInterface {
         PdpPrepRestController::init();
         // #4976 — which conversation forms the academy uses.
         PdpFormsRestController::init();
+        // #4977 — the conversation form: scores, answers, "klaar", sign-off.
+        \TT\Modules\Pdp\Rest\PdpConversationFormRestController::init();
         // #3645 — the family read route. `pdp-files/*` stays a staff
         // surface; a player and their guardians read the plan here.
         PdpFamilyRestController::init();

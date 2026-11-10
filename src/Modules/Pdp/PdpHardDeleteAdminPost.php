@@ -320,6 +320,48 @@ final class PdpHardDeleteAdminPost {
                 ] );
             }
         }
+        fputcsv( $fh, [] );
+
+        // 7. (#4977) The conversation forms: both authors' scores and
+        // answers, and the SMART points, which the cascade removes.
+        fputcsv( $fh, [ 'kind', 'conversation_id', 'form_key', 'key', 'author', 'value' ] );
+        if ( ! empty( $conv_ids ) ) {
+            $ph   = implode( ',', array_fill( 0, count( $conv_ids ), '%d' ) );
+            $club = (int) CurrentClub::id();
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT conversation_id, form_key, item_key, author, score FROM {$p}tt_pdp_form_scores
+                  WHERE club_id = %d AND conversation_id IN ({$ph}) ORDER BY conversation_id, id",
+                $club, ...$conv_ids
+            ), ARRAY_A );
+            foreach ( (array) $rows as $s ) {
+                fputcsv( $fh, [ 'pdp_form_score', (int) $s['conversation_id'], (string) $s['form_key'], (string) $s['item_key'], (string) $s['author'], (string) ( $s['score'] ?? '' ) ] );
+            }
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT conversation_id, form_key, field_key, author, body FROM {$p}tt_pdp_form_answers
+                  WHERE club_id = %d AND conversation_id IN ({$ph}) ORDER BY conversation_id, id",
+                $club, ...$conv_ids
+            ), ARRAY_A );
+            foreach ( (array) $rows as $a ) {
+                fputcsv( $fh, [ 'pdp_form_answer', (int) $a['conversation_id'], (string) $a['form_key'], (string) $a['field_key'], (string) $a['author'], (string) ( $a['body'] ?? '' ) ] );
+            }
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT conversation_id, slot, action_text, support_text, due_date, item_key, goal_id FROM {$p}tt_pdp_form_goals
+                  WHERE club_id = %d AND conversation_id IN ({$ph}) ORDER BY conversation_id, slot",
+                $club, ...$conv_ids
+            ), ARRAY_A );
+            foreach ( (array) $rows as $g ) {
+                fputcsv( $fh, [
+                    'pdp_form_goal', (int) $g['conversation_id'], '', (string) $g['slot'], 'coach',
+                    (string) wp_json_encode( [
+                        'action'   => (string) ( $g['action_text'] ?? '' ),
+                        'support'  => (string) ( $g['support_text'] ?? '' ),
+                        'due_date' => (string) ( $g['due_date'] ?? '' ),
+                        'item_key' => (string) ( $g['item_key'] ?? '' ),
+                        'goal_id'  => (int) ( $g['goal_id'] ?? 0 ),
+                    ] ),
+                ] );
+            }
+        }
 
         fclose( $fh );
 
@@ -336,6 +378,7 @@ final class PdpHardDeleteAdminPost {
      *   calendar_links:int,
      *   blocks:int,
      *   goal_links:int,
+     *   form_entries:int,
      *   total:int,
      * }
      */
@@ -348,6 +391,7 @@ final class PdpHardDeleteAdminPost {
             'calendar_links' => 0,
             'blocks'         => 0,
             'goal_links'     => 0,
+            'form_entries'   => 0,
             'total'          => 0,
         ];
 
@@ -375,6 +419,14 @@ final class PdpHardDeleteAdminPost {
                 "SELECT COUNT(*) FROM {$p}tt_goal_links WHERE link_type = %s AND link_id IN ({$ph})",
                 'pdp_conversation', ...$conv_ids
             ) );
+            // #4977 — the conversation forms' rows go with the file.
+            $out['form_entries'] = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT
+                    ( SELECT COUNT(*) FROM {$p}tt_pdp_form_scores  WHERE club_id = %d AND conversation_id IN ({$ph}) )
+                  + ( SELECT COUNT(*) FROM {$p}tt_pdp_form_answers WHERE club_id = %d AND conversation_id IN ({$ph}) )
+                  + ( SELECT COUNT(*) FROM {$p}tt_pdp_form_goals   WHERE club_id = %d AND conversation_id IN ({$ph}) )",
+                $club, ...array_merge( $conv_ids, [ $club ], $conv_ids, [ $club ], $conv_ids )
+            ) );
         }
 
         // Blocks are season-scoped (see PdpCascadeDeleter step 4),
@@ -382,7 +434,7 @@ final class PdpHardDeleteAdminPost {
         // so the summary mirrors reality.
         $out['blocks'] = 0;
 
-        $out['total'] = $out['conversations'] + $out['verdict'] + $out['calendar_links'] + $out['blocks'] + $out['goal_links'];
+        $out['total'] = $out['conversations'] + $out['verdict'] + $out['calendar_links'] + $out['blocks'] + $out['goal_links'] + $out['form_entries'];
         return $out;
     }
 

@@ -193,6 +193,24 @@ The ordinary evaluation forms never offer these items or types: they belong to t
 
 A form never changes once it is in use. When the wording or the items change, a new version of the form is added, and conversations already held keep the version they were held on.
 
+#### Who sees what on the form, and when
+
+The player and the trainer each fill in their own part, and each part saves itself as it is filled in.
+
+| Part | The player | A parent | Staff who may open the file | Staff who may edit the file |
+| --- | --- | --- | --- | --- |
+| The player's part, before the player marks it ready | reads and changes it | nothing | nothing | nothing |
+| The player's part, after "ready", before sign-off | reads it, changes it until the talk starts | nothing | reads it | reads it |
+| The trainer's part, before sign-off | nothing | nothing | reads it | reads and changes it |
+| Everything, after sign-off | reads it | reads it, unless the player keeps their PDP from them | reads it | reads it |
+
+- **The player's scores are the player's own.** Nobody else can change them, and nobody else sees them before the player marks the preparation ready, the head of development and the academy admin included. A parent sees nothing of the form until it is signed off.
+- **The player's part closes when the talk starts**, at its planned time, or at sign-off if that comes first. Until then the player can also take "ready" back.
+- **The form is fixed once the player has started.** Before that, the trainer can switch to the other form.
+- **Signing off saves it all at once.** The trainer's scores become an evaluation, linked to the conversation and shown in the radar and the history like any other. The two development points become goals, linked to the conversation next to the goals that were discussed. If any of it cannot be saved, nothing is. Sign-off asks for a trainer score on every item, the agreed strongest quality, and both development points with an action, the trainer's help and a deadline. It does not wait for the player: a player who never marked the preparation ready keeps an empty column.
+- **The player's scores are never an evaluation**, so a self-assessment never mixes into the coach ratings in reports.
+- The evaluation a signed form saved cannot be edited or removed on its own; the signed form is the record.
+
 ## Workflow nudges
 
 Three task templates are registered:

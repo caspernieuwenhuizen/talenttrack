@@ -70,10 +70,12 @@ final class EvaluationInserter {
      *   activity_id?: int,
      *   eval_date?: string,
      *   coach_id?: int,
-     *   player_id: int,
-     *   ratings: array<int|string,int|string>,
+     *   player_id?: int,
+     *   ratings?: array<int|string,int|float|string|null>,
      *   notes?: string,
      *   player_feedback?: string,
+     *   eval_type_id?: int,
+     *   pdp_conversation_id?: int,
      * } $row
      * @return int|\WP_Error  evaluation id on success, WP_Error on failure
      */
@@ -119,6 +121,10 @@ final class EvaluationInserter {
         ];
         if ( $aid > 0 )         $insert['activity_id']  = $aid;
         if ( $eval_type_id > 0 ) $insert['eval_type_id'] = $eval_type_id;
+        // #4977 — the evaluation a PDP form's sign-off writes, linked to its
+        // conversation. The column's UNIQUE key allows one per conversation.
+        $pdp_conversation_id = (int) ( $row['pdp_conversation_id'] ?? 0 );
+        if ( $pdp_conversation_id > 0 ) $insert['pdp_conversation_id'] = $pdp_conversation_id;
         // #4985 — the evaluation's portable identity (CLAUDE.md §4).
         $insert['uuid'] = wp_generate_uuid4();
 

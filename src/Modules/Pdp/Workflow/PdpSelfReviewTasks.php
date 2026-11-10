@@ -17,6 +17,8 @@ use TT\Modules\Workflow\TaskStatus;
  *   - The talk is conducted → the nudge **auto-resolves with no penalty**
  *     (skipped), even if the reflection was never filled in.
  *   - The talk's not-held mark comes off → a skipped nudge **opens** again.
+ *   - On a form conversation (#4977) the player marks the preparation
+ *     finished → **completed**; takes it back → **opens** again.
  *
  * Never blocks: if there's no matching active task (window not open yet,
  * no linked account, already resolved), these are no-ops.
@@ -66,6 +68,25 @@ class PdpSelfReviewTasks {
             }
             return;
         }
+
+        // #4977 — on a form conversation the preparation is the form, so the
+        // nudge follows "klaar": done when marked, open again when the
+        // player takes it back. The reflection no longer decides it.
+        if ( array_key_exists( 'player_prepared_at', $patch ) ) {
+            if ( ! empty( $patch['player_prepared_at'] ) ) {
+                $task = $tasks->findByNaturalKey( PdpSelfReviewTemplate::KEY, $uid, $player_id, $due_at, $active );
+                if ( $task !== null ) {
+                    $tasks->complete( (int) $task['id'], [ 'source' => 'form_prepared' ] );
+                }
+            } else {
+                $task = $tasks->findByNaturalKey( PdpSelfReviewTemplate::KEY, $uid, $player_id, $due_at, [ TaskStatus::COMPLETED ] );
+                if ( $task !== null ) {
+                    $tasks->update( (int) $task['id'], [ 'status' => TaskStatus::OPEN, 'completed_at' => null ] );
+                }
+            }
+            return;
+        }
+        if ( (string) ( ( (array) $conv )['form_key'] ?? '' ) !== '' ) return;
 
         // Player filled in their reflection → mark the nudge done.
         if ( array_key_exists( 'player_reflection', $patch ) ) {

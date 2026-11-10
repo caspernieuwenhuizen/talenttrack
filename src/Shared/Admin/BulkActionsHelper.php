@@ -258,7 +258,13 @@ class BulkActionsHelper {
 
         switch ( $action ) {
             case 'archive':
-                $count = $repo->archive( $entity, $ids, get_current_user_id() );
+                // #4977 — an evaluation a signed PDP conversation form wrote
+                // is read-only, so it is left out of a bulk archive. The
+                // count says how many were archived.
+                if ( $entity === 'evaluation' ) {
+                    $ids = array_values( array_filter( $ids, static fn( int $id ): bool => \TT\Infrastructure\Evaluations\EvaluationsRepository::pdpConversationIdOf( $id ) <= 0 ) );
+                }
+                $count = $ids === [] ? 0 : $repo->archive( $entity, $ids, get_current_user_id() );
                 $msg_key = 'archived';
                 break;
             case 'restore':

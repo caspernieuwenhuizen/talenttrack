@@ -970,6 +970,11 @@ class EvaluationsPage {
         if ( ! AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
+        // #4977 — an evaluation a signed PDP conversation form wrote is
+        // read-only; the signed form is the record.
+        if ( $id && \TT\Infrastructure\Evaluations\EvaluationsRepository::pdpConversationIdOf( $id ) > 0 ) {
+            wp_die( esc_html__( 'This evaluation was saved by a signed PDP conversation form, so it cannot be changed. Open the conversation to read it.', 'talenttrack' ) );
+        }
 
         $header = [
             'player_id'    => $player_id,
@@ -1115,6 +1120,12 @@ class EvaluationsPage {
         ) );
         if ( ! AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+        // #4977 — an evaluation a signed PDP conversation form wrote is
+        // read-only. Erasure stays possible through the recycle bin's
+        // permanent delete (`tt_manage_recycle_bin`).
+        if ( \TT\Infrastructure\Evaluations\EvaluationsRepository::pdpConversationIdOf( $id ) > 0 ) {
+            wp_die( esc_html__( 'This evaluation was saved by a signed PDP conversation form, so it cannot be changed. Open the conversation to read it.', 'talenttrack' ) );
         }
 
         $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );

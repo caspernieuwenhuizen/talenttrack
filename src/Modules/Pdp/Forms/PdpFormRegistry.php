@@ -326,6 +326,57 @@ final class PdpFormRegistry {
         return (string) $definition['category_prefix'] . '_' . $item_key;
     }
 
+    /**
+     * #4977 — the text fields one author answers on a definition: the text
+     * prompts written by that author or by both, section notes included.
+     *
+     * @param array<string,mixed> $definition
+     * @param string              $author `player` or `coach`
+     * @return list<string> field keys, in form order
+     */
+    public static function answerFields( array $definition, string $author ): array {
+        $out = [];
+        foreach ( (array) $definition['prompts'] as $prompt ) {
+            if ( (string) $prompt['kind'] !== 'text' ) continue;
+            $by = (string) $prompt['author'];
+            if ( $by === $author || $by === 'both' ) $out[] = (string) $prompt['key'];
+        }
+        return $out;
+    }
+
+    /**
+     * #4977 — the text fields both authors answer, such as the strongest
+     * quality. The trainer's answer to each is what was agreed, so sign-off
+     * asks for it.
+     *
+     * @param array<string,mixed> $definition
+     * @return list<string>
+     */
+    public static function sharedFields( array $definition ): array {
+        $out = [];
+        foreach ( (array) $definition['prompts'] as $prompt ) {
+            if ( (string) $prompt['kind'] === 'text' && (string) $prompt['author'] === 'both' ) $out[] = (string) $prompt['key'];
+        }
+        return $out;
+    }
+
+    /**
+     * #4977 — the SMART slots of a definition: slot number (from 1, in form
+     * order) => the prompt's key. Each slot becomes a goal at sign-off.
+     *
+     * @param array<string,mixed> $definition
+     * @return array<int,string>
+     */
+    public static function goalSlots( array $definition ): array {
+        $out  = [];
+        $slot = 0;
+        foreach ( (array) $definition['prompts'] as $prompt ) {
+            if ( (string) $prompt['kind'] !== 'smart_goal' ) continue;
+            $out[ ++$slot ] = (string) $prompt['key'];
+        }
+        return $out;
+    }
+
     /** @param mixed $v */
     private static function isKey( $v ): bool {
         return is_string( $v ) && (bool) preg_match( '/^[a-z0-9_]+$/', $v );

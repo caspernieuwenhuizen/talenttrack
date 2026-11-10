@@ -193,6 +193,24 @@ De gewone evaluatieformulieren bieden deze onderdelen en typen nooit aan: die ho
 
 Een formulier verandert nooit meer als het in gebruik is. Veranderen de tekst of de onderdelen, dan komt er een nieuwe versie van het formulier bij, en gesprekken die al gevoerd zijn houden de versie waarop ze gevoerd zijn.
 
+#### Wie ziet wat op het formulier, en wanneer
+
+De speler en de trainer vullen elk hun eigen deel in, en elk deel slaat zichzelf op terwijl het wordt ingevuld.
+
+| Deel | De speler | Een ouder | Staf die het dossier mag openen | Staf die het dossier mag bewerken |
+| --- | --- | --- | --- | --- |
+| Het deel van de speler, voordat de speler het klaar meldt | leest en wijzigt het | niets | niets | niets |
+| Het deel van de speler, na "klaar", voor het ondertekenen | leest het, wijzigt het tot het gesprek begint | niets | leest het | leest het |
+| Het deel van de trainer, voor het ondertekenen | niets | niets | leest het | leest en wijzigt het |
+| Alles, na het ondertekenen | leest het | leest het, tenzij de speler het POP voor hen afschermt | leest het | leest het |
+
+- **De scores van de speler zijn van de speler.** Niemand anders kan ze wijzigen, en niemand anders ziet ze voordat de speler de voorbereiding klaar meldt, ook het hoofd ontwikkeling en de academiebeheerder niet. Een ouder ziet niets van het formulier tot het is ondertekend.
+- **Het deel van de speler sluit als het gesprek begint**, op de geplande tijd, of bij het ondertekenen als dat eerder is. Tot dan kan de speler "klaar" ook terugdraaien.
+- **Het formulier ligt vast zodra de speler is begonnen.** Daarvoor kan de trainer nog naar het andere formulier wisselen.
+- **Ondertekenen slaat alles in één keer op.** De scores van de trainer worden een evaluatie, gekoppeld aan het gesprek en zichtbaar in het radardiagram en de geschiedenis zoals elke andere. De twee ontwikkelpunten worden doelen, gekoppeld aan het gesprek naast de doelen die besproken zijn. Lukt een deel daarvan niet, dan wordt niets opgeslagen. Ondertekenen vraagt om een score van de trainer op elk onderdeel, de afgesproken grootste kwaliteit, en beide ontwikkelpunten met een actie, de hulp van de trainer en een deadline. Het wacht niet op de speler: een speler die de voorbereiding nooit klaar meldde, houdt een lege kolom.
+- **De scores van de speler worden nooit een evaluatie**, zodat een zelfbeoordeling zich in rapporten nooit mengt met de beoordelingen van de trainer.
+- De evaluatie die een ondertekend formulier opsloeg, kan niet los worden gewijzigd of verwijderd; het ondertekende formulier is het verslag.
+
 ## Werkflow­herinneringen
 
 Er zijn drie taaktemplates geregistreerd:

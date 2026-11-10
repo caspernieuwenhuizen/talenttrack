@@ -300,6 +300,9 @@ class PdpConversationsRepository {
             'coach_signoff_at', 'parent_ack_at', 'player_ack_at',
             'planning_window_start', 'planning_window_end',
             'not_held_at', 'not_held_reason',
+            // #4977 — written by the form routes only; the generic PATCH
+            // route's own whitelist leaves them out.
+            'form_key', 'form_version', 'player_prepared_at',
         ];
         $clean = [];
         foreach ( $patch as $k => $v ) {

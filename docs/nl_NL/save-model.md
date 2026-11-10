@@ -34,6 +34,7 @@ maken** en **Wijzigingen terugdraaien**.
 | [POP-gesprek](pdp-cycle.md) | Tot het is ondertekend |
 | [POP-voorbereiding](pdp-cycle.md) | De antwoorden van de trainer, tot het gesprek is ondertekend |
 | [POP-zelfreflectie](pdp-cycle.md) | Zolang het reflectievenster open staat |
+| [POP-gespreksformulier](pdp-cycle.md#gespreksformulieren) | De scores en antwoorden van de speler tot het gesprek begint; de scores, antwoorden en ontwikkelpunten van de trainer tot het ondertekenen |
 | [Report Studio](reports.md#report-studio--een-rapport-bouwen) | Het concept van een rapport; **Publiceren** maakt er een versie van |
 
 **Waarom juist deze.** Het zijn allemaal plekken waar je *schrijft* — zinnen
@@ -92,7 +93,12 @@ Deze schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
   de stafdeellink dat de analyse nog niet af is; daarna toont de link het
   document. Een definitieve analyse daarna bewerken laat hem definitief.
 - **Ondertekenen** op een POP-gesprek. Alles daarboven is al opgeslagen;
-  ondertekenen sluit het gesprek voor bewerken, voor iedereen.
+  ondertekenen sluit het gesprek voor bewerken, voor iedereen. Op een
+  gespreksformulier slaat het ook de scores van de trainer op als evaluatie
+  en maakt het van de twee ontwikkelpunten doelen, alles tegelijk of niets.
+- **Klaar** op het deel van de speler in een gespreksformulier. De scores en
+  antwoorden slaan zichzelf op; de voorbereiding afronden is wat de trainer
+  ze laat zien. De speler kan het terugdraaien tot het gesprek begint.
 - **Markeren als niet doorgegaan** op een POP-gesprek, voor een gesprek dat
   nooit zal plaatsvinden. Het zet de cyclus door naar het volgende gesprek,
   dus het staat naast Ondertekenen, met een eigen bevestiging en een

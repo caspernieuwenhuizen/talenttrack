@@ -152,7 +152,8 @@ class PdpCycleState {
      * away (the 2-week pre-talk window). Mirrors windowOpen()'s
      * scheduled-at fallback but is the canonical guard the My PDP view
      * uses for the single reflection input, so the rule lives in the
-     * domain layer rather than the view.
+     * domain layer rather than the view. #4977 — the conversations REST
+     * route asks it too, instead of its own copy (P6 on #4975).
      *
      * Once the meeting passes, the window stays open (no upper bound) —
      * the caller's "not signed off" check is the close condition.
@@ -164,6 +165,31 @@ class PdpCycleState {
         if ( $ts === false ) return false;
         $now = $now_ts !== null ? $now_ts : (int) current_time( 'timestamp', true );
         return ( $ts - $now ) <= 14 * DAY_IN_SECONDS;
+    }
+
+    /**
+     * #4977 — is the player's part of a form conversation locked?
+     *
+     * Owner decision 3 on #4975: it locks at the conversation's planned time
+     * (`scheduled_at`), or at sign-off when that comes first. A conversation
+     * with no planned time stays open until sign-off. The time is compared to
+     * the minute, not by date: the player can still finish on the morning of
+     * an afternoon talk.
+     *
+     * @param int|null $now_ts Unix timestamp for "now" (UTC). Injectable
+     *        for tests; defaults to current_time('timestamp', true).
+     */
+    public static function playerPartLocked( object $conv, ?int $now_ts = null ): bool {
+        $row = (array) $conv;
+        if ( ! empty( $row['coach_signoff_at'] ) ) return true;
+
+        $scheduled = (string) ( $row['scheduled_at'] ?? '' );
+        if ( $scheduled === '' ) return false;
+        $ts = strtotime( $scheduled . ' UTC' );
+        if ( $ts === false ) return false;
+
+        $now = $now_ts !== null ? $now_ts : (int) current_time( 'timestamp', true );
+        return $now >= $ts;
     }
 
     /**

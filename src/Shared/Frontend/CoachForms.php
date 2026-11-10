@@ -130,6 +130,31 @@ class CoachForms {
         // wrong player). Existing ratings are fetched once and merged
         // into the inputs as `value="..."`.
         $is_edit          = $existing_eval !== null;
+        // #4977 — an evaluation a signed PDP conversation form wrote is
+        // read-only: the signed form is the record. The edit surface says so
+        // and links to the conversation instead of offering the inputs.
+        if ( $is_edit ) {
+            $pdp_conversation_id = \TT\Infrastructure\Evaluations\EvaluationsRepository::pdpConversationIdOf( (int) $existing_eval->id );
+            if ( $pdp_conversation_id > 0 ) {
+                $conversation = ( new \TT\Modules\Pdp\Repositories\PdpConversationsRepository() )->find( $pdp_conversation_id );
+                $file_id      = $conversation !== null ? (int) ( ( (array) $conversation )['pdp_file_id'] ?? 0 ) : 0;
+                echo '<p class="tt-notice">' . esc_html__( 'This evaluation was saved by a signed PDP conversation form, so it cannot be changed here.', 'talenttrack' );
+                $player_id = (int) ( $existing_eval->player_id ?? 0 );
+                if ( $file_id > 0 ) {
+                    \TT\Shared\Frontend\Components\CrossViewLink::render(
+                        'pdp',
+                        static function () use ( $file_id ): void {
+                            $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'pdp', 'id' => $file_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) ); /* tt-xview-ok */
+                            echo ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Open the conversation', 'talenttrack' ) . '</a>';
+                        },
+                        // The file opens for whoever may see this player's PDP.
+                        [ 'gate' => static fn( int $uid ): bool => \TT\Modules\Pdp\PdpAccess::canSeeFile( $uid, $player_id ) ]
+                    );
+                }
+                echo '</p>';
+                return;
+            }
+        }
         $rest_path        = $is_edit ? 'evaluations/' . (int) $existing_eval->id : 'evaluations';
         $rest_method      = $is_edit ? 'PUT' : 'POST';
         $submit_label     = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Save', 'talenttrack' );
