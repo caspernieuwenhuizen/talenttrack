@@ -138,6 +138,11 @@ first in tab order and Save on the right where the thumb finds it.
   so it commits once, on Save, and Cancel leaves the policy as it was.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.
+- The note under a block of a [Report Studio snapshot](reports.md#report-studio--snapshots),
+  as on the player report's snapshots: a half-written note on the record of a
+  conversation is worse than a lost one. Taking the snapshot itself is its own
+  control with its own confirm, because a family report's snapshot reaches the
+  family.
 
 **Why the cycle calendar.** Changing one week shifts every week after it for
 the rest of the season. Saving each toggle as it was tapped would apply a run

@@ -37,6 +37,7 @@ use TT\Modules\Export\Exporters\TeamPlannerXlsxExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Exporters\TeamMonthlyReportPdfExporter;
 use TT\Modules\Export\Exporters\PlayerReportPdfExporter;
+use TT\Modules\Export\Exporters\ReportStudioPdfExporter;
 use TT\Modules\Export\Exporters\TeamPlanningPdfExporter;
 use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
 use TT\Modules\Export\Rest\ExportRestController;
@@ -142,6 +143,10 @@ class ExportModule implements ModuleInterface {
 
         // #3874 — the player report on paper; the report page links to it.
         ExporterRegistry::register( new PlayerReportPdfExporter() );
+
+        // #5021 — a Report Studio report on paper, the document its reader's
+        // view shows.
+        ExporterRegistry::register( new ReportStudioPdfExporter() );
 
         ExportRestController::init();
 

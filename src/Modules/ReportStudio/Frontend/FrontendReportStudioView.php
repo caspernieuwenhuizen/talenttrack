@@ -4,6 +4,7 @@ namespace TT\Modules\ReportStudio\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Authorization\PersonaLabels;
+use TT\Modules\Export\ExportGate;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\License\UpgradePanel;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
@@ -163,10 +164,14 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-rs-open-library" data-tt-rs-open-library>' . esc_html__( 'Add block', 'talenttrack' ) . '</button>';
         echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rs-open-versions>' . esc_html__( 'Versions', 'talenttrack' ) . '</button>';
         echo '<button type="button" class="tt-btn tt-btn-secondary" disabled aria-describedby="tt-rs-later">' . esc_html__( 'Share and schedule', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="tt-btn tt-btn-secondary" disabled aria-describedby="tt-rs-later">' . esc_html__( 'Make PDF', 'talenttrack' ) . '</button>';
+        // #5021 — the draft on paper, for the subject, period and audience
+        // the canvas reads; the script keeps the link on them.
+        if ( ExportGate::mayExport( get_current_user_id() ) ) {
+            echo '<a class="tt-btn tt-btn-secondary" data-tt-rs-pdf href="#">' . esc_html__( 'Make PDF', 'talenttrack' ) . '</a>';
+        }
         echo '<button type="button" class="tt-btn tt-btn-primary" data-tt-rs-open-publish>' . esc_html__( 'Publish', 'talenttrack' ) . '</button>';
         echo '</div>';
-        echo '<p class="tt-rs-hint" id="tt-rs-later">' . esc_html__( 'Sharing, scheduling and the PDF come in a later release.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-rs-hint" id="tt-rs-later">' . esc_html__( 'Sharing and scheduling come in a later release.', 'talenttrack' ) . '</p>';
         echo '</div>';
 
         echo '<div class="tt-rs-context">';
@@ -190,6 +195,8 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<div class="tt-rs-main">';
         echo '<div class="tt-rs-meter" data-tt-rs-meter hidden></div>';
         echo '<ol class="tt-rs-canvas" data-tt-rs-canvas data-view="screen" aria-label="' . esc_attr__( 'Report blocks', 'talenttrack' ) . '"></ol>';
+        // #5021 — the A4 view is the document the PDF prints, from the server.
+        echo '<div class="tt-rs-a4" data-tt-rs-document aria-live="polite" hidden></div>';
         echo '</div>';
 
         echo '<dialog class="tt-rs-sheet tt-rs-library" data-tt-rs-library aria-labelledby="tt-rs-library-title">';
@@ -248,12 +255,16 @@ final class FrontendReportStudioView extends FrontendViewBase {
     private static function enqueue( int $id, string $scope ): void {
         self::enqueueStyle();
         SaveState::enqueue();
+        StudioDocumentView::enqueue();
         wp_enqueue_script( 'tt-report-blocks', TT_PLUGIN_URL . 'assets/js/tt-report-blocks.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-report-studio', TT_PLUGIN_URL . 'assets/js/frontend-report-studio.js', [ 'tt-autosave', 'tt-report-blocks' ], TT_VERSION, true );
         wp_localize_script( 'tt-report-studio', 'TTReportStudio', [
             'id'         => $id,
             'rest'       => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
             'nonce'      => wp_create_nonce( 'wp_rest' ),
+            'pdf'        => ExportGate::mayExport( get_current_user_id() )
+                ? esc_url_raw( add_query_arg( [ 'format' => 'pdf', 'report_id' => $id, '_wpnonce' => wp_create_nonce( 'wp_rest' ) ], rest_url( 'talenttrack/v1/exports/report_studio_pdf' ) ) )
+                : '',
             'maxBlocks'  => ReportDefinition::MAX_BLOCKS,
             'scopeLabel' => ReportStartRules::label( 'scope', $scope ),
             'columns'    => self::columns(),

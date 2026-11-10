@@ -214,8 +214,18 @@ final class TeamMonthlyReportDocument {
      * PHP source of the colours and sizes feeds paper and screen.
      */
     public static function screenCss( string $layout ): string {
+        return '@media (min-width: 1024px){' . self::sheetReset() . self::stackUndo() . self::scopedCss( $layout ) . '}';
+    }
+
+    /**
+     * `css()` scoped under the report wrapper with its classes prefixed, as
+     * the screen markup's are, without a breakpoint: the rules the screen
+     * applies from the desktop up, and the ones a Report Studio document
+     * prints a monthly section with (#5021).
+     */
+    public static function scopedCss( string $layout ): string {
         self::$primary = ReportBrandColour::primary();
-        $scoped = (string) preg_replace_callback(
+        return (string) preg_replace_callback(
             '/([^{}]+)\{([^{}]*)\}/',
             static function ( array $m ): string {
                 $selectors = trim( $m[1] );
@@ -234,8 +244,6 @@ final class TeamMonthlyReportDocument {
             },
             self::css( $layout )
         );
-
-        return '@media (min-width: 1024px){' . self::sheetReset() . self::stackUndo() . $scoped . '}';
     }
 
     /**
@@ -282,6 +290,29 @@ final class TeamMonthlyReportDocument {
             . 'vertical-align:middle;text-align:inherit;white-space:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}'
             . $in . ':where(th){font-weight:bold;text-align:center}'
             . $in . ':where(abbr){text-decoration:none;border:0;cursor:help}';
+    }
+
+    /**
+     * #5021 — one section as this document prints it, from its composer
+     * payload, for a Report Studio block that is that section: the markup
+     * the monthly report's page shows for it, with its classes prefixed as on
+     * that page. Rendered on its own, it carries no section number, no
+     * snapshot note and no record links, as on paper.
+     *
+     * @param array<string,mixed> $payload the section's composer payload
+     */
+    public static function sectionHtml( string $block, array $payload ): string {
+        self::$notes         = [];
+        self::$layout        = TeamMonthlyReportLayout::PACK;
+        self::$numbers       = [];
+        self::$data          = [ $block => $payload ];
+        self::$primary       = ReportBrandColour::primary();
+        self::$screen        = false;
+        self::$after_section = null;
+
+        $html        = self::section( $block, $payload, false );
+        self::$data  = [];
+        return self::prefixClasses( $html );
     }
 
     /**

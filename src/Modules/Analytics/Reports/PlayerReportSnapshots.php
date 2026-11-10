@@ -194,7 +194,11 @@ final class PlayerReportSnapshots {
      * @return array{uuid:string, player_id:int, title:string, audience:string, created_by:int, created_at:string,
      *     composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>},
      *     report:array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>},
-     *     notes:array<string,array{body:string, author:int, updated_at:string}>}|null
+     *     notes:array<string,array{body:string, author:int, updated_at:string}>,
+     *     document:array{report_id:int, version_id:int, name:string, context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>}|null}|null
+     *
+     * `document` is set on a Report Studio report's snapshot (#5021), whose
+     * frozen blocks it holds; `report` is then empty.
      */
     public static function read( string $uuid, int $user_id ): ?array {
         $row = ( new PlayerReportSnapshotRepository() )->find( $uuid );
@@ -204,11 +208,14 @@ final class PlayerReportSnapshots {
         $audience  = PlayerReportSnapshotRepository::audienceOf( $row );
         $report    = PlayerReportSnapshotRepository::reportOf( $row );
         $notes     = PlayerReportSnapshotRepository::notesOf( $row );
+        // #5021 — a Report Studio report's snapshot: its frozen document.
+        $document  = StudioSnapshot::is( $row ) ? StudioSnapshot::documentOf( $row ) : null;
 
         if ( ! PlayerReportAccess::canRead( $user_id, $player_id ) ) {
             if ( $audience !== PlayerReportAudience::FAMILY || ! self::isFamilyReader( $user_id, $player_id ) ) return null;
 
             $report = self::forFamilyReader( $report, $user_id, $player_id );
+            if ( $document !== null ) $document = self::documentForFamilyReader( $document, $user_id, $player_id );
             $notes  = [];
         }
 
@@ -222,6 +229,7 @@ final class PlayerReportSnapshots {
             'composition' => PlayerReportSnapshotRepository::compositionOf( $row ),
             'report'      => $report,
             'notes'       => $notes,
+            'document'    => $document,
         ];
     }
 
@@ -281,5 +289,51 @@ final class PlayerReportSnapshots {
         $report['blocks'] = $keep;
         $report['data']   = array_intersect_key( $report['data'], array_flip( $keep ) );
         return $report;
+    }
+
+    /**
+     * #5021 — which section of the child's file each Report Studio block a
+     * family can receive is made of, so a shared Studio report answers to the
+     * same rules, section by section, as a shared player report. The layout
+     * blocks are the document's own words and always stay. A block not
+     * listed here never reaches a family reader.
+     */
+    private const STUDIO_SECTIONS = [
+        'category_averages'   => PlayerReportBlock::RATINGS,
+        'attendance_per_week' => PlayerReportBlock::ATTENDANCE,
+        'minutes_share'       => PlayerReportBlock::MINUTES,
+        'minutes_per_match'   => PlayerReportBlock::MINUTES,
+        'goals_assists'       => PlayerReportBlock::MINUTES,
+        'open_goals'          => PlayerReportBlock::GOALS,
+        'goals_completed'     => PlayerReportBlock::GOALS,
+    ];
+
+    /** The layout blocks: the letterhead, and the coach's own headings and text. */
+    private const STUDIO_LAYOUT = [ 'letterhead', 'heading', 'text', 'page_break' ];
+
+    /**
+     * A shared Studio report cut to what this family reader may read on the
+     * child's file today. Blocks are dropped, never rewritten.
+     *
+     * @param array{report_id:int, version_id:int, name:string, context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>} $document
+     * @return array{report_id:int, version_id:int, name:string, context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>}
+     */
+    private static function documentForFamilyReader( array $document, int $user_id, int $player_id ): array {
+        $keep = [];
+        foreach ( $document['blocks'] as $block ) {
+            $key = (string) ( $block['key'] ?? '' );
+            if ( in_array( $key, self::STUDIO_LAYOUT, true ) ) { $keep[] = $block; continue; }
+
+            $section = self::STUDIO_SECTIONS[ $key ] ?? null;
+            $rule    = $section !== null ? ( self::FAMILY_SECTIONS[ $section ] ?? null ) : null;
+            if ( $rule === null ) continue;
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) continue;
+            if ( $rule['section'] !== ''
+                && ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, $rule['section'] ) ) continue;
+
+            $keep[] = $block;
+        }
+        $document['blocks'] = $keep;
+        return $document;
     }
 }

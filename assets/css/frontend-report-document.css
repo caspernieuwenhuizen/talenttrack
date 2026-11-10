@@ -1,0 +1,182 @@
+/*
+ * frontend-report-document.css — a Report Studio report as a document
+ * (#5021): the reader's view, the canvas's A4 view and a frozen copy, which
+ * all show the markup the PDF prints (`StudioDocument::body()`).
+ *
+ * Mobile-first (CLAUDE.md §2). On a phone the same markup stacks: every
+ * block is a card, two half blocks are two rows, and a data table is on the
+ * stack-table primitive, so it reads as labelled lines with nothing behind a
+ * sideways scroll. From 768px `StudioDocument::screenCss()`, the PDF's own
+ * stylesheet, lays it out as the paper; this sheet only adds the sheet edge
+ * and takes the card look back off. Colours come from tokens.css.
+ */
+
+.tt-dashboard .tt-sd {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-body, 1rem);
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-sd-page + .tt-sd-page {
+    margin-top: var(--tt-sp-5, 24px);
+    padding-top: var(--tt-sp-4, 16px);
+    border-top: 1px dashed var(--tt-line);
+}
+
+.tt-dashboard .tt-sd-block {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line-soft, var(--tt-line));
+    border-radius: var(--tt-r-md, 8px);
+}
+
+.tt-dashboard .tt-sd-pair,
+.tt-dashboard .tt-sd-pair > tbody,
+.tt-dashboard .tt-sd-pair > tbody > tr,
+.tt-dashboard .tt-sd-pair > tbody > tr > td,
+.tt-dashboard .tt-sd-lh,
+.tt-dashboard .tt-sd-lh > tbody,
+.tt-dashboard .tt-sd-lh > tbody > tr,
+.tt-dashboard .tt-sd-lh > tbody > tr > td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+}
+
+.tt-dashboard .tt-sd-half--empty {
+    display: none;
+}
+
+.tt-dashboard .tt-sd-title,
+.tt-dashboard .tt-sd-heading,
+.tt-dashboard .tt-sd-lh-title {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-h3, 1.125rem);
+    line-height: 1.3;
+}
+
+.tt-dashboard .tt-sd-lh-title {
+    font-size: var(--tt-fs-h2, 1.375rem);
+}
+
+.tt-dashboard .tt-sd-lh-meta,
+.tt-dashboard .tt-sd-msg,
+.tt-dashboard .tt-sd-figure-label,
+.tt-dashboard .tt-sd-foot {
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-muted);
+}
+
+.tt-dashboard .tt-sd-text {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    line-height: var(--tt-lh-body, 1.5);
+    white-space: pre-line;
+}
+
+.tt-dashboard .tt-sd-figure {
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-sd-figure-value {
+    font-size: var(--tt-fs-xl, 1.75rem);
+    font-weight: 700;
+}
+
+.tt-dashboard .tt-sd-table {
+    width: 100%;
+    margin: 0 0 var(--tt-sp-2, 8px);
+    border-collapse: collapse;
+}
+
+.tt-dashboard .tt-sd-table > tbody > tr {
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, var(--tt-line));
+}
+
+.tt-dashboard .tt-sd-note {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-left: 3px solid var(--tt-ink);
+    font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+.tt-dashboard .tt-sd-foot {
+    text-align: center;
+}
+
+/* From the tablet up the document is the paper: StudioDocument::screenCss()
+   sets the sizes, and the page gets an A4 sheet's edge. */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sd {
+        max-inline-size: 210mm;
+        padding: 12mm;
+        background: var(--tt-paper);
+        box-shadow: var(--tt-shadow-sm);
+        font-size: 9pt;
+    }
+
+    .tt-dashboard .tt-sd-block {
+        padding: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .tt-dashboard .tt-sd-pair,
+    .tt-dashboard .tt-sd-lh {
+        display: table;
+        width: 100%;
+    }
+
+    .tt-dashboard .tt-sd-pair > tbody,
+    .tt-dashboard .tt-sd-lh > tbody {
+        display: table-row-group;
+    }
+
+    .tt-dashboard .tt-sd-pair > tbody > tr,
+    .tt-dashboard .tt-sd-lh > tbody > tr {
+        display: table-row;
+    }
+
+    .tt-dashboard .tt-sd-pair > tbody > tr > td,
+    .tt-dashboard .tt-sd-lh > tbody > tr > td {
+        display: table-cell;
+    }
+
+    .tt-dashboard .tt-sd-half--empty {
+        display: table-cell;
+    }
+
+    .tt-dashboard .tt-sd-table > tbody > tr {
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    .tt-dashboard .tt-sd-title,
+    .tt-dashboard .tt-sd-heading,
+    .tt-dashboard .tt-sd-lh-title,
+    .tt-dashboard .tt-sd-lh-meta,
+    .tt-dashboard .tt-sd-msg,
+    .tt-dashboard .tt-sd-figure-label,
+    .tt-dashboard .tt-sd-figure-value,
+    .tt-dashboard .tt-sd-foot,
+    .tt-dashboard .tt-sd-note {
+        line-height: normal;
+    }
+}
+
+@media print {
+    .tt-dashboard .tt-sd {
+        max-inline-size: none;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .tt-dashboard .tt-sd-break {
+        break-before: page;
+    }
+}

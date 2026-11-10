@@ -1724,6 +1724,11 @@ routes, not an empty list.
 | `GET /reports/{id}/versions` | `tt_build_reports` | The versions, newest first, without their definitions. |
 | `POST /reports/{id}/versions` | `tt_build_reports` | Publish my draft as the next version. |
 | `GET /reports/{id}/data` | `tt_view_reports` + *read* | Every block's data, for me. |
+| `GET /reports/{id}/document` | `tt_view_reports` + *read* | The same, with the document's HTML (#5021). |
+| `GET /reports/{id}/snapshots` | `tt_view_reports` + *read* | The report's snapshots I may open (#5021). |
+| `POST /reports/{id}/snapshots` | `tt_view_reports` + *read* | Freeze the published version for a subject and period (#5021). |
+| `GET /report-snapshots/{uuid}` | the snapshot's subject | One snapshot, with its document (#5021). |
+| `PUT /report-snapshots/{uuid}/notes/{block}` | the snapshot's subject | The note on one block of a staff snapshot (#5021). |
 | `GET /reports/{id}/reach` | `tt_build_reports` | How many people publishing to personas reaches. |
 | `GET /reports/subject-options` | `tt_build_reports` | The teams and players I build reports about. |
 | `GET /reports/{id}/subjects` | `tt_view_reports` + *read* | The subjects I may switch a report I read to. |
@@ -1953,6 +1958,56 @@ row scope. `source` is `draft` (a builder's own, their default) or
     { "id": "b2", "key": "playing_time", "width": "half", "error": { "code": "invalid_field", "message": "…" } } ],
   "page_fit": { "pages": 1, "fill": [ 46 ], "breaks": [] } }
 ```
+
+- **`page_fit` is the one estimate** (#5021). A block that prints with another
+  report's renderer (a monthly section, `RendersDocument`) is measured with
+  that report's height for it: `key_figures` takes the monthly report's KPI
+  height, so the Studio and the monthly report agree about the room it takes.
+
+### `GET /reports/{id}/document` (#5021)
+
+The query and the rules of `/data`, answered with the report as one document:
+`report_id`, `source`, `version_no`, `context`, `page_fit` and `html`. The HTML
+is what the reader's view, the canvas's A4 view and the PDF
+(`GET /exports/report_studio_pdf?format=pdf&report_id=…`, the same query, or
+`snapshot=<uuid>`) all show, every value escaped: DomPDF-safe tables, the
+pages split where `page_fit.breaks` splits them, and a table on the
+stack-table primitive. A block that is a monthly section prints with the
+monthly report's own section renderer. `/data` stays the contract for a front
+end that draws the blocks itself.
+
+### Snapshots (#5021)
+
+A snapshot is the published version, read for one player or one team over one
+period, frozen into the snapshot table that subject already has
+(`tt_player_report_snapshots`, `tt_team_report_snapshots`, with `report_id` and
+`report_version_id`). It answers to its own subject, never to the report, so it
+stays readable after the report changes or is archived.
+
+- `POST /reports/{id}/snapshots` — body `player_id` / `team_id` (a subject
+  chosen when opened), `from` / `to` or `period`, `title` (optional; the report
+  name and the period otherwise). The subject and the period follow the
+  report's rules as on `/data`. A player report needs
+  `PlayerReportAccess::canCreate()`, a team report `TeamReportAccess::canRead()`
+  (`403 forbidden_player` / `forbidden_team`). A group or academy report has no
+  snapshot: `400 invalid_field` on `scope`. A report never published is `404
+  not_published`. A family report's snapshot is shared with the player and
+  their parents: it is listed by `GET /players/{id}/report-snapshots` and on the
+  player's Reports tab next to the shared player reports. `201` with the
+  snapshot as below.
+- `GET /reports/{id}/snapshots` — the report's snapshots the caller may open,
+  newest first, without payloads.
+- `GET /report-snapshots/{uuid}` — `uuid`, `report_id`, `scope`, `player_id`,
+  `team_id`, `title`, `audience`, `created_by`, `created_at`, `context`,
+  `blocks`, `page_fit`, `notes` (by block id), `can_note` and `html`. A family
+  reader reads a family snapshot cut to the blocks their access to the child's
+  file allows, without notes; `GET /player-report-snapshots/{uuid}` answers the
+  same snapshot with its frozen blocks in `document`. An unknown uuid and one
+  the caller may not read are the same `403`.
+- `PUT /report-snapshots/{uuid}/notes/{block}` — body `body`; an empty one
+  removes the note. Kept in the snapshot's section notes under the block id,
+  never in a draft or a version. A block that is not on the snapshot is `400
+  unknown_section`; a family snapshot takes no notes (`403`).
 
 ### Payload
 

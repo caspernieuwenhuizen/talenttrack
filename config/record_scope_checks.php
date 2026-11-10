@@ -123,6 +123,12 @@ return [
         // academy through club-wide analytics read.
         'ReportSubjectAccess::check',
         'ReportSubjectAccess::canRead',
+        // #5021 — a Studio report's snapshot: read and noted on its own
+        // player (PlayerReportAccess / the family rule) or team
+        // (TeamReportAccess), never on the report.
+        'ReportSnapshots::read',
+        'ReportSnapshots::canNote',
+        'ReportSnapshots::note',
 
         // Entities with an access rule of their own.
         'canViewTournament',

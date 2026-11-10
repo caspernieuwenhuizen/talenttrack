@@ -146,6 +146,11 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
   het beleid zoals het was.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.
+- De notitie onder een blok van een [momentopname uit de Report Studio](reports.md#report-studio--momentopnames),
+  zoals bij de momentopnames van het spelersrapport: een half geschreven
+  notitie bij het verslag van een gesprek is erger dan een verloren notitie.
+  De momentopname maken is zelf een eigen knop met een eigen bevestiging,
+  omdat de momentopname van een rapport voor het gezin het gezin bereikt.
 
 **Waarom de cycluskalender.** Eén week wijzigen verschuift elke week erna
 voor de rest van het seizoen. Elke schakelaar opslaan op het moment dat hij

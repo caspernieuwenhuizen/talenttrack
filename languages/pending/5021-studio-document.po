@@ -1,0 +1,55 @@
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "Only a report about one player or one team can be frozen."
+msgstr "Alleen een rapport over één speler of één team kan worden vastgezet."
+
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "You may not freeze a report about this player."
+msgstr "Je mag geen rapport over deze speler vastzetten."
+
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "You may not freeze a report about this team."
+msgstr "Je mag geen rapport over dit team vastzetten."
+
+#: src/Modules/ReportStudio/Rest/ReportSnapshotsRestController.php
+msgid "This block is not on the snapshot."
+msgstr "Dit blok staat niet op de momentopname."
+
+#: src/Modules/Export/Exporters/ReportStudioPdfExporter.php
+msgid "Report Studio report (PDF)"
+msgstr "Report Studio-rapport (PDF)"
+
+#: src/Modules/Export/Exporters/ReportStudioPdfExporter.php
+msgid "Report Studio is not part of your plan."
+msgstr "Report Studio hoort niet bij je abonnement."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Take snapshot"
+msgstr "Momentopname maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Snapshots"
+msgstr "Momentopnames"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "No snapshots yet. A snapshot keeps this report as it reads today, for a conversation or for the family."
+msgstr "Nog geen momentopnames. Een momentopname bewaart dit rapport zoals het vandaag leest, voor een gesprek of voor het gezin."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The report is frozen as it reads now, for the subject and period shown, and the player and their parents see it on the player's file."
+msgstr "Het rapport wordt vastgezet zoals het nu leest, voor het getoonde onderwerp en de getoonde periode, en de speler en de ouders zien het in het dossier van de speler."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The report is frozen as it reads now, for the subject and period shown. Staff who can see the subject can open it."
+msgstr "Het rapport wordt vastgezet zoals het nu leest, voor het getoonde onderwerp en de getoonde periode. Staf die het onderwerp mag zien, kan het openen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The snapshot is saved."
+msgstr "De momentopname is opgeslagen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Note for this block"
+msgstr "Notitie bij dit blok"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Sharing and scheduling come in a later release."
+msgstr "Delen en plannen komen in een latere release."

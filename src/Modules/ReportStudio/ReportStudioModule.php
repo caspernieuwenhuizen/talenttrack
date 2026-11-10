@@ -27,6 +27,7 @@ use TT\Modules\ReportStudio\Blocks\ProgressRadarBlock;
 use TT\Modules\ReportStudio\Blocks\TextBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
+use TT\Modules\ReportStudio\Rest\ReportSnapshotsRestController;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
 use TT\Shared\Tiles\TileRegistry;
@@ -67,6 +68,7 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new OwnQuestionBlock() );
         ReportBlocksRestController::init();
         ReportsRestController::init();
+        ReportSnapshotsRestController::init();
 
         // #4570 — the start wizard. Registered on `init` so the registry is
         // populated before a request resolves `?tt_view=wizard&slug=new-report`.

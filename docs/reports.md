@@ -702,8 +702,8 @@ Building needs the **Report Studio: build and read reports** permission at creat
 
 The **Report Studio** tile under Reports lists the reports you made, with the **Add report** button above them. Open one, or finish the wizard, and you are on the canvas: the report, built from blocks, each showing real figures for the subject and period, never placeholders.
 
-- **At the top**: the report's name (type to rename it), the save state, **Undo**, **Versions** and **Publish**. **Share and schedule** and **Make PDF** come in a later release. A rename waits for publish, like every other change: the people the report is published for keep seeing the old name until you publish again, and until then the name is marked **Changed since publish**, here and in your list of reports.
-- **Above the canvas**: who the report is about and the period. You can switch to another of your players or teams, or another period, to check how the report reads for them; that is not saved. **Read as** shows the report as staff, a scout or the family would get it, worked out by the server, so a block a family never sees says so instead of showing its figures. **Screen**, **A4** and **Phone** show the canvas as it fits each: A4 shows the page breaks and how full the pages are, Phone stacks half blocks.
+- **At the top**: the report's name (type to rename it), the save state, **Undo**, **Versions**, **Make PDF** and **Publish**. **Make PDF** prints your draft as the canvas reads it: for the subject, the period and the **Read as** choice above the canvas. **Share and schedule** comes in a later release. A rename waits for publish, like every other change: the people the report is published for keep seeing the old name until you publish again, and until then the name is marked **Changed since publish**, here and in your list of reports.
+- **Above the canvas**: who the report is about and the period. You can switch to another of your players or teams, or another period, to check how the report reads for them; that is not saved. **Read as** shows the report as staff, a scout or the family would get it, worked out by the server, so a block a family never sees says so instead of showing its figures. **Screen**, **A4** and **Phone** show the canvas as it fits each. A4 shows the report as it prints: the same document as the PDF and the reader's view, with its page breaks and how full the pages are. You change blocks on **Screen** or **Phone**; A4 is for reading. Phone stacks half blocks.
 - **Blocks**: tap a block to add it at the end, or drag it onto the canvas by its handle. A block that does not fit this report stays in the list, switched off, with the reason. On a phone or a tablet the list opens from **Add block**.
 - **On each block**: move it up or down with the arrows or drag it by its handle, make it full or half width, duplicate it, remove it, or open its settings. With the keyboard, Tab to a block, Enter opens its settings and Delete removes it.
 - **Settings**: the block's choices in plain words, whether a family may see it, and where its figures come from.
@@ -724,7 +724,7 @@ Each block shows the same figure as the report it comes from, for the same subje
 **Layout and text**
 
 - **Letterhead**: the team or the player, the period and the club colours. For a team it names the age group, the head coach, the squad size and how many activities the period held, as the team monthly report does; for a player the team and the head coach, as the player report does. A family and a scout may see a player's letterhead.
-- **Key figures**: the team monthly report's headline figures (activities, attendance, the median minutes share, how many players were evaluated, the squad rating and how many need attention), each with the change against the period before. For a team only, and for staff only.
+- **Key figures**: the team monthly report's headline figures (activities, attendance, the median minutes share, how many players were evaluated, the squad rating and how many need attention), each with the change against the period before. On paper and in the A4 view it prints exactly as the monthly report prints its key figures, and it takes the same room on the page. For a team only, and for staff only.
 - **Heading**: a title between blocks.
 - **Text**: a heading and a paragraph about the report, for example what it is for or how to read it. It is plain text, at most 2,000 characters. Do not write about a player here: a note about a player belongs on a snapshot.
 - **Page break**: the block after it starts on a new page when the report is printed. Only for a report laid out in rows; the A4 view shows where the new page starts.
@@ -773,9 +773,18 @@ A report someone published for your role appears on the Reports launcher under *
 - **Who it is about** depends on how it was made. A report about a fixed team or player shows that team or player. A report chosen when it is opened lets you pick one of your own teams or players. A report that follows whoever opens it shows your own team.
 - **The period** is the one the report was made for. When it is chosen on opening, pick one of the period options: last week, last month, this month or this season.
 - **A block you may not see** says "Not available to you." and shows no figures. Contact details of a family you do not work with are never shown.
-- On a phone the blocks stack one under the other.
-- A letterhead, a heading and a text are shown without a block name above them, and a page break only acts on paper.
+- **What you read is what prints.** The report on screen is the same document as its PDF, page for page. **Download PDF** prints it for the subject and period you chose. From a tablet up it is shown as A4 pages; on a phone the blocks stack one under the other, and a table reads as labelled lines.
+- A letterhead, a heading and a text are shown without a block name above them, and a page break starts a new page.
 
 A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
 
 The Report Studio is closed to the read-only observer: no report is published to that role, and an observer opens none.
+
+## Report Studio — snapshots
+
+A snapshot keeps a report as it reads today, so it can sit on the table in a conversation and still say the same thing next season. It is the published version, for the subject and the period you are looking at, frozen: the numbers in it do not change when new data comes in, when the report is changed or when it is archived.
+
+- **Taking one.** On a published report about one player or one team, choose **Take snapshot**, give it a name or keep the one it suggests (the report's name and the period), and confirm. You land on the snapshot. A report about a group of players or about the whole academy has no snapshots. Who may take one is who may take that player's or that team's report snapshots.
+- **Opening one.** The report's snapshots are listed under **Snapshots** on the report. Each opens for whoever may see its player or its team, by the same rules as the player report's and the monthly report's snapshots, even after the report itself has changed. **Download PDF** prints it.
+- **For the family.** A snapshot of a report made for the family is shared with the player and their parents: it appears on the player's file under **Reports**, next to the player reports shared with them. Each of them sees the blocks their own access to the player's file allows, as with a shared player report: evaluation averages follow the evaluations, playing time and goals and assists the minutes, attendance the attendance, goals the goals. The letterhead, headings and text are always there. A block the family could not see on the player's file is left out.
+- **Notes.** A snapshot for staff takes a note under each block, written with the snapshot's notes, never into the report itself. A snapshot shared with the family takes no notes: nothing written on it would reach the people it was written for.
