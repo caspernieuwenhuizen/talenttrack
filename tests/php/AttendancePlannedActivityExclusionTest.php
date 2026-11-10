@@ -73,11 +73,12 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
      * planned-activity exclusion was the shape the fix happened to take.
      *
      * Note what this fixture demonstrates about `plan_state`. The second
-     * activity is created with no plan state, and the column defaults to
-     * `completed`, so nothing downstream can tell it apart from a genuinely
-     * completed one — the trap #2521's comment names. That weakness is
-     * unchanged here: the point is that the badge and the list now read the
-     * same column, so whatever they conclude, they conclude together.
+     * activity is created with no plan state and no status, and the plan
+     * state column defaults to `completed` — the trap #2521's comment names.
+     * #4990 closes it: the tab and the badge decide "completed" by the
+     * activity's status (`completed_only`, the shared gate), so that row is
+     * on neither. The badge and the list still read the same rule, so
+     * whatever they conclude, they conclude together.
      */
     public function test_player_file_badge_counts_what_the_tab_renders(): void {
         $team_id   = $this->insertTeam( 'U14 badge' );
@@ -96,9 +97,8 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
             25,
             'ASC',
             [
-                'record_types'        => null,
-                'plan_states'         => [ 'completed' ],
-                'only_past_completed' => true,
+                'record_types'   => null,
+                'completed_only' => true,
             ]
         );
 
@@ -110,9 +110,9 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
             'the badge and the list must agree about how many activities there are'
         );
         $this->assertSame(
-            2,
+            1,
             (int) $counts['activities'],
-            'two activities, each counted once despite the duplicate attendance row'
+            'the completed activity, counted once despite the duplicate attendance row; the one whose plan state only defaulted to completed is not'
         );
     }
 
