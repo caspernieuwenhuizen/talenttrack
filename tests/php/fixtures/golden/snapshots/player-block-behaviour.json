@@ -25,11 +25,11 @@
             "behaviour": {
                 "items": [
                     {
-                        "id": "92",
+                        "id": "{behaviour:2}",
                         "club_id": "1",
-                        "player_id": "133",
+                        "player_id": "{player:1}",
                         "rated_at": "2020-03-24 10:00:00",
-                        "rated_by": "32",
+                        "rated_by": "{user:1}",
                         "rating": "7.0",
                         "context": "match",
                         "notes": null,
@@ -37,11 +37,11 @@
                         "created_at": "{day:+1} {time}"
                     },
                     {
-                        "id": "91",
+                        "id": "{behaviour:1}",
                         "club_id": "1",
-                        "player_id": "133",
+                        "player_id": "{player:1}",
                         "rated_at": "2020-03-10 10:00:00",
-                        "rated_by": "32",
+                        "rated_by": "{user:1}",
                         "rating": "8.0",
                         "context": "training",
                         "notes": "Leads the warm-up.",

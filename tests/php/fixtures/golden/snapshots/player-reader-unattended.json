@@ -293,11 +293,11 @@
         "behaviour": {
             "items": [
                 {
-                    "id": "116",
+                    "id": "{behaviour:2}",
                     "club_id": "1",
-                    "player_id": "168",
+                    "player_id": "{player:1}",
                     "rated_at": "2020-03-24 10:00:00",
-                    "rated_by": "40",
+                    "rated_by": "{user:1}",
                     "rating": "7.0",
                     "context": "match",
                     "notes": null,
@@ -305,11 +305,11 @@
                     "created_at": "{day:+1} {time}"
                 },
                 {
-                    "id": "115",
+                    "id": "{behaviour:1}",
                     "club_id": "1",
-                    "player_id": "168",
+                    "player_id": "{player:1}",
                     "rated_at": "2020-03-10 10:00:00",
-                    "rated_by": "40",
+                    "rated_by": "{user:1}",
                     "rating": "8.0",
                     "context": "training",
                     "notes": "Leads the warm-up.",
@@ -321,11 +321,11 @@
         "potential": {
             "items": [
                 {
-                    "id": "77",
+                    "id": "{potential:1}",
                     "club_id": "1",
-                    "player_id": "168",
+                    "player_id": "{player:1}",
                     "set_at": "2020-03-15 10:00:00",
-                    "set_by": "40",
+                    "set_by": "{user:1}",
                     "potential_band": "ahead",
                     "notes": "Reads the game early.",
                     "created_at": "{day:+1} {time}"
