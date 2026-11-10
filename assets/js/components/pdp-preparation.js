@@ -115,6 +115,16 @@
 					say(form, text);
 				}
 
+				// A 409 halted the saver: the window closed or the talk was
+				// signed off. Trying again cannot help, so say what the save
+				// state says, not "check your connection".
+				function halted() {
+					if (!saver.halted) return false;
+					stay(t('closed', 'Your preparation can no longer be saved. Reload the page to see why.'));
+					return true;
+				}
+				if (halted()) return;
+
 				// The form as it stands, through the saver: `send()` queues
 				// behind a save already on its way, so this lands after it.
 				// "Ready" goes out only once that has been stored. A failed
@@ -125,6 +135,7 @@
 					url: restBase() + String(form.getAttribute('data-rest-path') || ''),
 					body: TT.FormAutosave.body(form)
 				}).then(function (saved) {
+					if (halted()) return null;
 					if (!saved || saver.isPending()) {
 						stay(t('unsaved', 'Your last change has not been saved yet. Check your connection and try Ready again.'));
 						return null;
@@ -135,6 +146,7 @@
 						body: null
 					}).then(function (marked) {
 						if (marked) { window.location.reload(); return; }
+						if (halted()) return;
 						stay(t('failed', 'Your preparation could not be marked ready. Try again.'));
 					});
 				}, function () {

@@ -21,6 +21,9 @@
 	gap: var(--tt-sp-2, 0.5rem);
 	align-items: center;
 	flex-wrap: wrap;
+	/* #4979 — never wider than its container, so a wrapped error fits. */
+	max-width: 100%;
+	min-width: 0;
 }
 
 .tt-save-state {
@@ -68,6 +71,10 @@
 .tt-save-state.is-error {
 	color: var(--tt-danger-ink, #a32b22);
 	font-weight: 600;
+	/* #4979 — an error or a halt is a sentence; it wraps inside the screen
+	   rather than widening it. The short states stay on one line. */
+	white-space: normal;
+	max-width: 100%;
 }
 
 /*

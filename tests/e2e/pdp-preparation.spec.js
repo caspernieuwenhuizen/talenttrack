@@ -170,6 +170,46 @@ test( 'klaar after a save that failed keeps the form, and does not mark it ready
 	}
 } );
 
+test( 'after a 409 halts the save, klaar gives the reload advice, and the line wraps at 360', async ( { browser, baseURL } ) => {
+	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
+	try {
+		const form = page.locator( '[data-tt-pdp-prep]' );
+		await expect( form ).toBeVisible();
+
+		// The scores route answers as it does once the talk has started.
+		const scores = ( url ) => {
+			const u = decodeURIComponent( url.href );
+			return u.includes( '/form/player' ) && ! u.includes( '/preparation' );
+		};
+		await page.route( scores, ( route ) => ( route.request().method() === 'PATCH'
+			? route.fulfill( {
+				status: 409,
+				contentType: 'application/json',
+				body: JSON.stringify( { success: false, data: null, errors: [ { code: 'form_locked', message: 'Locked.', details: {} } ] } ),
+			} )
+			: route.continue() ) );
+
+		const row = form.locator( '[data-tt-prep-step]:not([hidden]) .tt-rating-stars--choices' ).first();
+		const now = Number( await row.locator( '[aria-checked="true"]' ).getAttribute( 'data-value' ) );
+		await row.locator( `button[data-value="${ now === 5 ? 4 : 5 }"]` ).tap();
+		await expect( form.locator( '[data-tt-save-state]' ), 'the save halts' ).toHaveClass( /is-error/, { timeout: 15000 } );
+
+		const last = await form.locator( '[data-tt-prep-goto]' ).count();
+		await form.locator( `[data-tt-prep-goto="${ last - 1 }"]` ).tap();
+		await form.locator( '[data-tt-prep-done]' ).tap();
+
+		const msg = form.locator( '.tt-form-msg' );
+		await expect( msg ).toContainText( 'Reload the page' );
+		await expect( msg, 'not the connection advice, which would contradict the halt' ).not.toContainText( 'connection' );
+
+		const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );
+		expect( overflow, 'the halt line wraps: no sideways scroll at 360' ).toBeLessThanOrEqual( 0 );
+		await page.unroute( scores );
+	} finally {
+		await context.close();
+	}
+} );
+
 test( 'klaar shows the summary, and toch aanpassen opens the form again', async ( { browser, baseURL } ) => {
 	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
 	try {
