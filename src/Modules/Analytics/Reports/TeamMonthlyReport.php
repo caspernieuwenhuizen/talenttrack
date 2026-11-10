@@ -118,7 +118,7 @@ final class TeamMonthlyReport {
      */
     public function forReaders( int $team_id, string $from, string $to, array $blocks, array $readers, array $options = [] ): array {
         self::refuseUnknown( $blocks );
-        $readers = $readers === [] ? [ 0 ] : array_values( array_map( 'intval', $readers ) );
+        $readers = $readers === [] ? [ 0 ] : array_map( 'intval', $readers );
         return $this->compose( new TeamReportContext( $team_id, $from, $to, $readers[0], $options, $readers ), $blocks );
     }
 

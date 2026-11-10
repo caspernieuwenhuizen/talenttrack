@@ -72,7 +72,7 @@ final class PlayerReport {
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
         }
-        $readers = $readers === [] ? [ 0 ] : array_values( array_map( 'intval', $readers ) );
+        $readers = $readers === [] ? [ 0 ] : array_map( 'intval', $readers );
         $ctx     = PlayerReportContext::make( $player_id, $from, $to, $readers[0], $audience, $options, array_slice( $readers, 1 ) );
         if ( $ctx === null ) return null;
         $audience = $ctx->audience;
