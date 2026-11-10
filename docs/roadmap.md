@@ -14,7 +14,7 @@ tracker issue, with the value an academy gets from it. An epic moves to
 "shipped" when every child has shipped; a line that has been "later" for two
 cycles is either moved up or removed.
 
-Last reviewed: 2026-11-08.
+Last reviewed: 2026-11-10.
 
 ## Direction
 
@@ -38,22 +38,21 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| Report Studio: one builder for reports and dashboards ([#4564](https://github.com/caspernieuwenhuizen/talenttrack/issues/4564)) | Coaches and the head of development build the report they need from the same numbers the standard reports use, and share it with the right people | Foundation, storage, start wizard, builder canvas and the "Shared with me" viewer released by v4.147.0. The first wave of blocks (layout, playing time, attendance, evaluations, goals and PDP, your own question) has merged for the next release, with the match blocks being finished. Later phases are filed and held for shaping: the two reports as templates, grid layout and dashboards, scheduling, group subjects, and the parity check before the old builders retire |
-| Search and settings grouped by task ([#4668](https://github.com/caspernieuwenhuizen/talenttrack/issues/4668)) | Anyone finds a player, team, match, help topic or setting from one box, and an admin never loses a setting again | The keyed tile groups shipped in v4.146.0 and the Configuratie page grouped by task in v4.147.0. The search engine, the search screen and parent and player search have merged and ship with the next release; richer search results and the dashboard clean-up follow |
-| The read-only observer reads everything, with sensitive fields masked ([#4687](https://github.com/caspernieuwenhuizen/talenttrack/issues/4687)) | A director or board member follows every player's journey, while a minor's private details stay with the people who work with them | Guardian contact follows the staff rule since v4.146.0. The masking (guardian contact, date of birth, absence reasons, evaluation comments) and the wider read rights shipped in v4.147.0. Trials, prospects and potential, and the walk of every screen as the observer, follow |
+| JG4IT PDP forms online ([#4975](https://github.com/caspernieuwenhuizen/talenttrack/issues/4975)) | The player prepares their PDP talk on their phone, the trainer scores and agrees points in the talk, the points become goals, and player and parent confirm online, on the academy's own forms | Main priority. The two JG4IT forms ship as versioned data with a setting to switch them on, and PDP access follows the matrix. The storage and routes are being built; the form by position, player preparation, the trainer's conversation, confirmation per item and the printout follow in order |
+| Report Studio: one builder for reports and dashboards ([#4564](https://github.com/caspernieuwenhuizen/talenttrack/issues/4564)) | Coaches and the head of development build the report they need from the same numbers the standard reports use, and share it with the right people | The first wave of blocks (layout, playing time, attendance, evaluations, goals and PDP, results and team statistics, your own question) shipped in v4.148.0, with "played" meaning one thing on every screen. Later phases are filed and held for shaping: the two reports as templates, grid layout and dashboards, scheduling, group subjects, and the parity check before the old builders retire |
+| The read-only observer reads everything, with sensitive fields masked ([#4687](https://github.com/caspernieuwenhuizen/talenttrack/issues/4687)) | A director or board member follows every player's journey, while a minor's private details stay with the people who work with them | The masking and wider read rights shipped in v4.147.0, and the observer opens the evaluations list since v4.148.0. Trials, prospects and potential, and the walk of every screen as the observer, follow |
 
 ## Next
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| Next release | Report Studio's first wave of blocks, the search screen with parent and player search, two-step login re-setup and one setup per account, the match prep share link, and the Configuratie tables on phones | Being finished and checked; the release comes to the owner for a yes |
-| Configuratie by task with search, phase 1 ([#4669](https://github.com/caspernieuwenhuizen/talenttrack/issues/4669), [#4670](https://github.com/caspernieuwenhuizen/talenttrack/issues/4670), [#4671](https://github.com/caspernieuwenhuizen/talenttrack/issues/4671), [#4672](https://github.com/caspernieuwenhuizen/talenttrack/issues/4672), [#4673](https://github.com/caspernieuwenhuizen/talenttrack/issues/4673)) | Settings in ten task sections, each once; one search box in every layout and on the phone, over players, teams, staff, activities, help and settings, for staff, parents and players | Phase 1 completes with the next release |
+| Next release | The first PDP forms groundwork, PDP access by the matrix, and every evaluation with its own permanent id | Merging; the release comes to the owner for a yes after a check of the head of development's PDP rights on both live installs |
+| The dashboard shows daily work only ([#4674](https://github.com/caspernieuwenhuizen/talenttrack/issues/4674)) | Staff reach their player screens without wading through setup tiles | Ready now that the search screen has shipped |
 
 ## Later
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| The dashboard shows daily work only ([#4674](https://github.com/caspernieuwenhuizen/talenttrack/issues/4674)) | Staff reach their player screens without wading through setup tiles | Ready; ships in the release after the settings page and search |
 | Search, phases 2 and 3 ([#4668](https://github.com/caspernieuwenhuizen/talenttrack/issues/4668)) | Evaluation text, goals, PDP and notes become findable for staff who may read them; then the exercise library, reports and media | Filed when phase 1 has shipped |
 | Player report round three | A coach brings one document to a talk that covers the whole player | Awaiting pilot feedback |
 
@@ -61,6 +60,9 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Decision | What it means for the academy |
 | --- | --- |
+| The JG4IT PDP forms are fixed forms stored as data, chosen by position; trainer scores are also an evaluation, the player's own scores stay theirs, and agreed points become goals | The talk the academy already holds on paper runs online, and its outcome lands in the player's evaluations and goals |
+| A PDP form is fixed at the player's first save; the player's part locks at the talk or at sign-off; sign-off needs a complete form, but a missing preparation does not block it | A player's preparation cannot be swapped under them, and a talk can always be finished |
+| A scheduled monthly report holds only the sections every recipient may read | A shared PDF never carries a section one of its readers could not open |
 | Report Studio is the one builder; the old builders retire only when it replaces all they do | Nothing an academy uses today disappears before its replacement works |
 | Report Studio: head of development and admin build for anyone, coaches for their own team; the player and monthly reports become templates on the same engine | One engine, so a number is the same in every report |
 | Report Studio starts with choices: kind, scope, subject, audience, period, layout and sharing, with the grid layout as an option | A report that cannot work (a family report about a whole team) cannot be started |
@@ -77,6 +79,7 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Epic | Released |
 | --- | --- |
+| Report Studio's first wave of blocks, the search box in every layout with parent and player search, settings and search phase 1 complete ([#4669](https://github.com/caspernieuwenhuizen/talenttrack/issues/4669), [#4670](https://github.com/caspernieuwenhuizen/talenttrack/issues/4670), [#4671](https://github.com/caspernieuwenhuizen/talenttrack/issues/4671), [#4672](https://github.com/caspernieuwenhuizen/talenttrack/issues/4672), [#4673](https://github.com/caspernieuwenhuizen/talenttrack/issues/4673)), two-step login re-setup and one setup per account, the match prep share link with absence reasons, one rule for "played", and the observer on the evaluations list | v4.148.0 |
 | The Report Studio builder canvas and viewer, the Configuratie page grouped by task, the read-only observer's masking and wider read rights, journey entries that follow each record's read right, phone tables that stack, 48 px dashboard links, reports that refuse unknown fields, and the mobile gate in Dutch: 117 changes | v4.147.0 |
 | Report Studio storage, keyed tile groups, guardian contact following the staff rule, match preparation under one access rule, tournament squads that follow the planner, 48 px grid targets, report fixes | v4.146.0 |
 | Report Studio foundation: block registry, measure engine and shared composers ([#4568](https://github.com/caspernieuwenhuizen/talenttrack/issues/4568), [#4590](https://github.com/caspernieuwenhuizen/talenttrack/issues/4590)) | v4.145.0 |
