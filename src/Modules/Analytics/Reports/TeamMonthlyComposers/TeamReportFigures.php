@@ -72,18 +72,25 @@ final class TeamReportFigures {
         return $available > 0 ? round( $minutes / $available * 100, 1 ) : null;
     }
 
-    /** @param list<MinutesRow> $rows */
-    public static function medianShare( array $rows ): ?float {
-        $shares = [];
+    /**
+     * #4993 — the minutes rows as the shares `MinutesShareQuery::medianShare()`
+     * takes the median of: unrounded, null where nothing was available. The
+     * median is that one function's, so this report and the minutes-share
+     * report cannot round it two ways.
+     *
+     * @param list<MinutesRow> $rows
+     * @return list<array{share_pct:?float}>
+     */
+    public static function shareRows( array $rows ): array {
+        $out = [];
         foreach ( $rows as $r ) {
-            $s = self::share( $r['total_minutes'], $r['available_minutes'] );
-            if ( $s !== null ) $shares[] = $s;
+            $out[] = [
+                'share_pct' => $r['available_minutes'] > 0
+                    ? $r['total_minutes'] / $r['available_minutes'] * 100
+                    : null,
+            ];
         }
-        if ( $shares === [] ) return null;
-        sort( $shares );
-        $n   = count( $shares );
-        $mid = intdiv( $n, 2 );
-        return $n % 2 === 1 ? $shares[ $mid ] : round( ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2, 1 );
+        return $out;
     }
 
     /**

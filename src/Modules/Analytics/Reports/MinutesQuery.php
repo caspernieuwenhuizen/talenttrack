@@ -11,6 +11,7 @@ use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
+use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
@@ -629,6 +630,76 @@ final class MinutesQuery {
             // #4556 — on the row the minutes read picks, not any row: a
             // duplicate corrected to 0 does not make the match played.
             . "                " . PlayerMatchMinutes::newestRowClause( 'played_att' ) . " ) )";
+    }
+
+    /**
+     * #4993 — "this match has recorded minutes", as a SQL condition on a
+     * `tt_activities` alias: the question {@see minutesForActivities()}
+     * answers per match (a figure above 0 for at least one register player),
+     * asked inside a query so a caller can count or filter matches without
+     * loading their minutes rows.
+     *
+     * The same two ways in as the PHP read:
+     *
+     *  1. **The register:** a recorded, non-guest row whose figure
+     *     (`COALESCE(minutes_override, minutes_played)`) is above 0, on the
+     *     row the minutes read picks (`PlayerMatchMinutes::newestRowClause()`,
+     *     #4556), so a duplicate corrected to 0 does not count.
+     *  2. **The rotation plan (#4053):** a register player with no figure on
+     *     any of their rows, on a completed tournament fixture where the plan
+     *     puts them on the pitch (an assignment that is not the bench) and a
+     *     period of the fixture is at least a minute long, so the plan's
+     *     figure is above 0. That is the case
+     *     `TournamentMinutesResolver::arbitrate()` answers from the plan: a
+     *     register figure wins, and a confirmed `0` stays 0.
+     *
+     * `MinutesRecordedSqlTest` holds the two to the same answer on every
+     * one of these cases.
+     *
+     * @param string $alias table alias for `tt_activities`; must be a real alias,
+     *                      as in {@see playedMatchSql()}
+     */
+    public static function recordedMinutesSql( string $alias = 'a' ): string {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $q = ( $alias !== '' ? $alias : 'a' ) . '.';
+
+        $register = "EXISTS ( SELECT 1 FROM {$p}tt_attendance rec_att"
+            . " WHERE rec_att.activity_id = {$q}id"
+            . "   AND rec_att.club_id = {$q}club_id"
+            . "   AND rec_att.record_type = 'actual'"
+            . "   AND rec_att.is_guest = 0"
+            . "   AND rec_att.player_id > 0"
+            . "   AND COALESCE( rec_att.minutes_override, rec_att.minutes_played ) > 0"
+            . "   " . PlayerMatchMinutes::newestRowClause( 'rec_att' ) . " )";
+
+        $plan = "EXISTS ( SELECT 1 FROM {$p}tt_attendance plan_att"
+            . " JOIN {$p}tt_tournament_matches plan_m"
+            . "   ON plan_m.activity_id = plan_att.activity_id"
+            . "  AND plan_m.club_id = plan_att.club_id"
+            . "  AND plan_m.completed_at IS NOT NULL"
+            // `TournamentMinutesCalculator::fixtureShape()`'s period length,
+            // round( duration / ( windows + 1 ) ), at least one minute. The
+            // windows count as PHP's `count( json_decode( …, true ) )` does:
+            // an array or object counts its members, anything else is 0.
+            . "  AND ROUND( plan_m.duration_min / ( 1 + CASE WHEN JSON_VALID( plan_m.substitution_windows )"
+            . "        THEN CASE WHEN JSON_TYPE( plan_m.substitution_windows ) IN ( 'ARRAY', 'OBJECT' )"
+            . "             THEN JSON_LENGTH( plan_m.substitution_windows ) ELSE 0 END"
+            . "        ELSE 0 END ) ) >= 1"
+            . " JOIN {$p}tt_tournament_assignments plan_ta"
+            . "   ON plan_ta.match_id = plan_m.id"
+            . "  AND plan_ta.club_id = plan_m.club_id"
+            . "  AND plan_ta.player_id = plan_att.player_id"
+            . "  AND plan_ta.position_code <> '" . TournamentMinutesCalculator::BENCH . "'"
+            . " WHERE plan_att.activity_id = {$q}id"
+            . "   AND plan_att.club_id = {$q}club_id"
+            . "   AND plan_att.record_type = 'actual'"
+            . "   AND plan_att.is_guest = 0"
+            . "   AND plan_att.player_id > 0"
+            . "   AND COALESCE( plan_att.minutes_override, plan_att.minutes_played ) IS NULL"
+            . "   " . PlayerMatchMinutes::newestRowClause( 'plan_att' ) . " )";
+
+        return "( {$register} OR {$plan} )";
     }
 
     /**

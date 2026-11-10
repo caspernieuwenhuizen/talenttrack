@@ -98,6 +98,10 @@ the **From** / **To** range or the **This season** pill above the report.
 - *This team has no played matches on record at all* — nothing to widen onto.
  Check the Activities log: either the fixtures are not in yet, or they are
  there but not marked as played.
+- *This team has played matches, but none of them have minutes recorded* — the
+ team did play, outside this period, but no minutes were recorded for any of
+ those matches, so widening the period would not fill the report. Check the
+ minutes on the Activities log.
 - *Matches were played but no minutes are recorded* — the matches are there,
  the minutes are not. Record them from the activity; **Minutes distribution**
  shows which matches are missing them.

@@ -1,0 +1,3 @@
+# Minutes share and the monthly report show one median (#4993)
+
+The minutes share report and the team monthly report now take the squad's median minutes share in the same way: from the unrounded shares, rounded once. For a squad with an even number of players the two could differ by 0.1 before. An empty Minutes share report no longer says a team has no played matches at all when the team did play, outside the period, but has no minutes recorded for those matches; it says so and points to the Activities log. Counting the matches outside the period no longer reads every one of them.

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Teams\TeamKpisRepository;
 use TT\Modules\Analytics\EvalCoverageService;
+use TT\Modules\Analytics\Reports\MinutesShareQuery;
 
 /**
  * The headline tiles, each against the previous window (#4590). A previous
@@ -48,8 +49,8 @@ final class KpiComposer {
         $att_now  = TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $ctx->from, $ctx->to ) );
         $att_prev = $has_prev ? TeamReportFigures::squadAttendancePct( $ctx->attendanceRowsIn( $previous['from'], $previous['to'] ) ) : null;
 
-        $min_now  = TeamReportFigures::medianShare( $ctx->minutesIn( $ctx->from, $ctx->to ) );
-        $min_prev = $has_prev ? TeamReportFigures::medianShare( $ctx->minutesIn( $previous['from'], $previous['to'] ) ) : null;
+        $min_now  = MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $ctx->minutesIn( $ctx->from, $ctx->to ) ) );
+        $min_prev = $has_prev ? MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $ctx->minutesIn( $previous['from'], $previous['to'] ) ) ) : null;
 
         $eval_now      = $cover->coverageBetween( $ctx->team_id, $ctx->from, $ctx->to );
         $eval_pct      = TeamReportFigures::pct( $eval_now['evaluated'], $eval_now['squad'] );
