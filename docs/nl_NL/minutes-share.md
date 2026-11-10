@@ -105,6 +105,10 @@ rapport.
 - *Dit team heeft helemaal geen gespeelde wedstrijden vastgelegd* — er valt
  niets te verruimen. Kijk in het activiteitenlogboek: of de wedstrijden staan
  er nog niet in, of ze staan er wel maar zijn niet als gespeeld gemarkeerd.
+- *Dit team heeft wedstrijden gespeeld, maar bij geen ervan zijn minuten
+ vastgelegd* — het team speelde wel, buiten deze periode, maar voor geen van
+ die wedstrijden zijn minuten vastgelegd, dus de periode verruimen vult het
+ rapport niet. Controleer de minuten in het activiteitenlog.
 - *Er zijn wedstrijden gespeeld maar geen minuten vastgelegd* — de wedstrijden
  zijn er, de minuten niet. Leg ze vast vanuit de activiteit;
  **Minutenverdeling** laat zien welke wedstrijden ze missen.

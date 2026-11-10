@@ -1851,16 +1851,18 @@ final class LegacyTeamMonthlyReport {
 
     /** @param list<MinutesRow> $rows */
     private static function medianShare( array $rows ): ?float {
+        // #4993 — the median of the unrounded shares, rounded once, as the
+        // minutes share report takes it. Rounding each share first moved an
+        // even squad's median by 0.1 (69.7 against 69.6 in the golden data).
         $shares = [];
         foreach ( $rows as $r ) {
-            $s = self::share( $r['total_minutes'], $r['available_minutes'] );
-            if ( $s !== null ) $shares[] = $s;
+            if ( $r['available_minutes'] > 0 ) $shares[] = $r['total_minutes'] / $r['available_minutes'] * 100;
         }
         if ( $shares === [] ) return null;
         sort( $shares );
         $n   = count( $shares );
         $mid = intdiv( $n, 2 );
-        return $n % 2 === 1 ? $shares[ $mid ] : round( ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2, 1 );
+        return round( $n % 2 === 1 ? $shares[ $mid ] : ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2, 1 );
     }
 
     /**

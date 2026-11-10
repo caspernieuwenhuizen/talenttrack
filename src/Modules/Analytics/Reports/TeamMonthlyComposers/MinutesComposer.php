@@ -52,7 +52,7 @@ final class MinutesComposer {
             'matches_recorded' => $counts['recorded'],
             'matches_played'   => $counts['played'],
             'target_pct'       => $target,
-            'median_share_pct' => TeamReportFigures::medianShare( $source ),
+            'median_share_pct' => MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $source ) ),
             'under'            => $under,
             'rows'             => $rows,
         ];

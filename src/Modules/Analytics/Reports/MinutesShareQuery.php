@@ -94,16 +94,20 @@ final class MinutesShareQuery {
 
         if ( $team_id <= 0 ) return [ 'minutes' => 0, 'matches' => 0, 'played' => 0 ];
 
-        $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql = MinutesQuery::playedMatchSql( 'a' );
+        $date_col     = 'sess' . 'ion_date'; // #0035 lint-safe
+        $played_sql   = MinutesQuery::playedMatchSql( 'a' );
+        $recorded_sql = MinutesQuery::recordedMinutesSql( 'a' );
 
         // The prep row's half length is the per-match override
         // MatchLengthResolver takes first; pulling it in the same query
-        // saves a lookup per match on a full season.
+        // saves a lookup per match on a full season. #4993 — whether the
+        // match has minutes recorded is asked in the same query, by the
+        // predicate `outsideWindowForTeam()` counts with.
         $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id,
-                    COALESCE( mp.half_length_minutes, 0 ) AS half_length_minutes
+                    COALESCE( mp.half_length_minutes, 0 ) AS half_length_minutes,
+                    CASE WHEN {$recorded_sql} THEN 1 ELSE 0 END AS has_minutes
                FROM {$p}tt_activities a
                LEFT JOIN {$p}tt_match_prep mp ON mp.activity_id = a.id
               WHERE a.club_id = %d
@@ -118,7 +122,7 @@ final class MinutesShareQuery {
         ) );
         $rows   = is_array( $rows ) ? $rows : [];
         $played = count( $rows );
-        $rows   = self::withRecordedMinutes( $rows );
+        $rows   = array_values( array_filter( $rows, static fn( $r ): bool => is_object( $r ) && (int) ( $r->has_minutes ?? 0 ) === 1 ) );
 
         // #4087 — the prep's period length times the periods the match was
         // played in, as the minutes report counts it: a quarters match is
@@ -154,63 +158,61 @@ final class MinutesShareQuery {
      * Same "played match" predicate as the window query, so the two counts
      * partition the team's matches between them and cannot overlap.
      *
-     * @return array{matches:int, earliest:string, latest:string}
+     * - `matches`: the played matches outside the window with minutes
+     *   recorded, the ones `availableForTeam()` would count (#4966), and
+     *   `earliest` / `latest` their dates.
+     * - `played` (#4993): every played match outside the window, recorded or
+     *   not, so a team whose matches all lack minutes is not told it has
+     *   played none.
+     *
+     * #4993 — one query, whatever the team's history: the counts and dates
+     * are aggregates over `MinutesQuery::recordedMinutesSql()`, the predicate
+     * the window query flags its matches with. No match or minutes row is
+     * loaded.
+     *
+     * @return array{matches:int, played:int, earliest:string, latest:string}
      */
     public function outsideWindowForTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
-        $empty   = [ 'matches' => 0, 'earliest' => '', 'latest' => '' ];
+        $empty   = [ 'matches' => 0, 'played' => 0, 'earliest' => '', 'latest' => '' ];
 
         if ( $team_id <= 0 ) return $empty;
 
-        $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql = MinutesQuery::playedMatchSql( 'a' );
+        $date_col     = 'sess' . 'ion_date'; // #0035 lint-safe
+        $played_sql   = MinutesQuery::playedMatchSql( 'a' );
+        $recorded_sql = MinutesQuery::recordedMinutesSql( 'a' );
 
         $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.{$date_col} AS match_date
-               FROM {$p}tt_activities a
-              WHERE a.club_id = %d
-                AND a.team_id = %d
-                AND {$is_match_sql}
-                AND a.{$date_col} IS NOT NULL
-                AND a.{$date_col} NOT BETWEEN %s AND %s
-                AND {$played_sql}
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(*) AS played,
+                    COALESCE( SUM( r.has_minutes ), 0 ) AS matches,
+                    MIN( CASE WHEN r.has_minutes = 1 THEN r.match_date END ) AS earliest,
+                    MAX( CASE WHEN r.has_minutes = 1 THEN r.match_date END ) AS latest
+               FROM ( SELECT a.{$date_col} AS match_date,
+                             CASE WHEN {$recorded_sql} THEN 1 ELSE 0 END AS has_minutes
+                        FROM {$p}tt_activities a
+                       WHERE a.club_id = %d
+                         AND a.team_id = %d
+                         AND {$is_match_sql}
+                         AND a.{$date_col} IS NOT NULL
+                         AND a.{$date_col} NOT BETWEEN %s AND %s
+                         AND {$played_sql}
+                         AND a.archived_at IS NULL
+                         AND a.trashed_at IS NULL
+                         AND " . ActivityLifecycle::notCancelledClause( 'a' ) . " ) r",
             $club_id, $team_id, $from, $to
         ) );
-        // #4966 — the matches `availableForTeam()` would count, so the two
-        // still partition the team's matches.
-        $rows = self::withRecordedMinutes( is_array( $rows ) ? $rows : [] );
-        if ( $rows === [] ) return $empty;
+        if ( ! is_object( $row ) ) return $empty;
 
-        $dates = array_map( static fn( object $r ): string => substr( (string) ( $r->match_date ?? '' ), 0, 10 ), $rows );
-        sort( $dates );
+        $matches = (int) ( $row->matches ?? 0 );
         return [
-            'matches'  => count( $rows ),
-            'earliest' => (string) reset( $dates ),
-            'latest'   => (string) end( $dates ),
+            'matches'  => $matches,
+            'played'   => (int) ( $row->played ?? 0 ),
+            'earliest' => $matches > 0 ? substr( (string) ( $row->earliest ?? '' ), 0, 10 ) : '',
+            'latest'   => $matches > 0 ? substr( (string) ( $row->latest ?? '' ), 0, 10 ) : '',
         ];
-    }
-
-    /**
-     * #4966 — the matches among these rows whose minutes were recorded: the
-     * minutes reports' own read of a match's minutes
-     * (`MinutesQuery::minutesForActivities()`, a figure above 0 for at least
-     * one player). One rule with `MinutesQuery::forTeam()`, which counts a
-     * match toward the minutes available on the same condition (#2252).
-     *
-     * @param array<int, mixed> $rows activity rows carrying `id`
-     * @return list<object>
-     */
-    private static function withRecordedMinutes( array $rows ): array {
-        $rows = array_values( array_filter( $rows, 'is_object' ) );
-        if ( $rows === [] ) return [];
-        $recorded = MinutesQuery::minutesForActivities( array_map( static fn( object $r ): int => (int) ( $r->id ?? 0 ), $rows ) );
-        return array_values( array_filter( $rows, static fn( object $r ): bool => isset( $recorded[ (int) ( $r->id ?? 0 ) ] ) ) );
     }
 
     /**
@@ -228,7 +230,7 @@ final class MinutesShareQuery {
      *
      * @return array{
      *   available_minutes:int, matches:int, played_matches:int, target_pct:int,
-     *   outside_window: array{matches:int, earliest:string, latest:string},
+     *   outside_window: array{matches:int, played:int, earliest:string, latest:string},
      *   players: list<array{player_id:int, name:string, jersey_number:?int,
      *                       minutes:int, share_pct:?float, below_target:bool}>
      * }
@@ -244,7 +246,7 @@ final class MinutesShareQuery {
             'matches'           => 0,
             'played_matches'    => 0,
             'target_pct'        => $target,
-            'outside_window'    => [ 'matches' => 0, 'earliest' => '', 'latest' => '' ],
+            'outside_window'    => [ 'matches' => 0, 'played' => 0, 'earliest' => '', 'latest' => '' ],
             'players'           => [],
         ];
         if ( $team_id <= 0 ) return $empty;
@@ -326,7 +328,7 @@ final class MinutesShareQuery {
      *
      * @return array{
      *   available_minutes:int, matches:int, played_matches:int, target_pct:int,
-     *   outside_window: array{matches:int, earliest:string, latest:string},
+     *   outside_window: array{matches:int, played:int, earliest:string, latest:string},
      *   minutes:int, share_pct:?float, below_target:bool
      * }|null  null when the player is not in the team's squad for the window
      */
@@ -353,11 +355,18 @@ final class MinutesShareQuery {
     }
 
     /**
-     * Median share across the squad, or null on an empty squad. Median
-     * rather than mean: one player who played every minute of every match
-     * drags a mean above the line the rest of the squad is nowhere near.
+     * Median share across the squad, as a percentage to one decimal, or null
+     * on an empty squad. Median rather than mean: one player who played every
+     * minute of every match drags a mean above the line the rest of the squad
+     * is nowhere near.
      *
-     * @param list<array{share_pct:?float}> $players
+     * #4993 — the one median of a minutes share; the team monthly report
+     * reads it too (`TeamReportFigures::shareRows()`). The median is taken
+     * on the unrounded shares and rounded once. Rounding each share first,
+     * as the monthly report used to, moved an even squad's median by 0.1
+     * against this report's for the same squad and window.
+     *
+     * @param list<array{share_pct:?float}> $players shares as unrounded percentages
      */
     public static function medianShare( array $players ): ?float {
         $shares = [];
@@ -370,8 +379,10 @@ final class MinutesShareQuery {
         $n   = count( $shares );
         $mid = intdiv( $n, 2 );
 
-        return $n % 2 === 1
+        $median = $n % 2 === 1
             ? $shares[ $mid ]
             : ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2;
+
+        return round( $median, 1 );
     }
 }

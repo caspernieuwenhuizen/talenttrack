@@ -527,7 +527,7 @@ and a non-WordPress front end cannot disagree.
 {
   "team_id": 12, "from": "2025-08-25", "to": "2026-08-25",
   "matches": 10, "played_matches": 11, "available_minutes": 700, "target_pct": 30,
-  "outside_window": { "matches": 3, "earliest": "2024-09-14", "latest": "2025-06-07" },
+  "outside_window": { "matches": 3, "played": 4, "earliest": "2024-09-14", "latest": "2025-06-07" },
   "players": [
     { "player_id": 41, "name": "…", "jersey_number": 9, "minutes": 140, "share_pct": 20.0, "below_target": true },
     { "player_id": 38, "name": "…", "jersey_number": 4, "minutes": 350, "share_pct": 50.0, "below_target": false }
@@ -559,7 +559,18 @@ outside the resolved window, with the earliest and latest of their dates
 played nothing" and "everything this team played is on the other side of your
 window", which an `available_minutes` of `0` alone cannot express. It uses the
 same rule as `matches`, played with minutes recorded (#4966), so the two counts
-partition the team's matches and never overlap.
+partition the team's matches and never overlap. `played` (#4993) counts every
+played match outside the window, recorded or not, so a client can tell "this
+team played nothing" from "this team played, but no minutes were recorded".
+Both counts come from one query, whatever the team's history, using
+`MinutesQuery::recordedMinutesSql()`, the SQL form of the minutes read's
+"has recorded minutes"; the in-window `matches` uses the same predicate.
+
+**The median.** A client that shows a squad median reads
+`MinutesShareQuery::medianShare()`'s rule: the median of the unrounded
+`share_pct` values, rounded once to one decimal. The team monthly report's
+`median_share_pct` is the same function's answer, so the two never differ by
+a rounding step (#4993).
 
 `GET /teams/{id}/minutes-share/{player_id}` returns one player's row out of the
 same answer (`minutes`, `share_pct`, `below_target`, plus the team's

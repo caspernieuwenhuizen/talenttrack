@@ -977,6 +977,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             self::renderEmpty( __( 'Matches were played but no minutes are recorded for this team yet. Record them from the activity.', 'talenttrack' ) );
             return;
         }
+        if ( $available <= 0 && $outside_n === 0 && $outside['played'] > 0 ) {
+            // #4993 — played matches exist, outside the window, but none of
+            // them have minutes: widening would not help, and "no played
+            // matches on record at all" would be untrue.
+            self::renderEmpty( __( 'This team has played matches, but none of them have minutes recorded. Check the minutes on the Activities log.', 'talenttrack' ) );
+            return;
+        }
         if ( $available <= 0 ) {
             // "Widen the window" is only advice worth giving when there is
             // something to widen onto. Told apart, because the two ask the
