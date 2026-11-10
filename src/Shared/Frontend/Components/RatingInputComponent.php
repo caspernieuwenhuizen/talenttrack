@@ -31,8 +31,22 @@ use TT\Infrastructure\Query\QueryHelpers;
  *
  * CSS in `assets/css/components/rating-input.css`; click / keyboard /
  * recalc-sync JS in `assets/js/components/rating-input.js`.
+ *
+ * #4979 — `renderListRow()` also draws the row as five numbered choices
+ * (`variant` `choices`) with labels a caller brings (`labels`), for a PDP
+ * conversation form, whose scale is the academy's own. The same hidden
+ * input, radiogroup and JS, so there is no third rating control.
  */
 class RatingInputComponent {
+
+    /** Each star a numbered choice, only the chosen one marked. */
+    public const VARIANT_CHOICES = 'choices';
+
+    /** Enqueue the component's stylesheet and script. Idempotent. */
+    public static function enqueue(): void {
+        wp_enqueue_style( 'tt-rating-input', TT_PLUGIN_URL . 'assets/css/components/rating-input.css', [], TT_VERSION );
+        wp_enqueue_script( 'tt-rating-input', TT_PLUGIN_URL . 'assets/js/components/rating-input.js', [], TT_VERSION, true );
+    }
 
     /**
      * Qualitative labels for the five stars, lowest → highest. Indexed
@@ -80,8 +94,14 @@ class RatingInputComponent {
      *   name:string, value?:float|string|null, label:string,
      *   sub_label?:string, sub?:bool, label_hidden?:bool, min?:float,
      *   max?:float, step?:float, disabled?:bool, input_class?:string,
-     *   data_attrs?:array<string,string|int>, after_html?:string
+     *   data_attrs?:array<string,string|int>, after_html?:string,
+     *   variant?:string, labels?:list<string>, empty_text?:string,
+     *   readout_format?:string
      * } $args
+     *        `labels`: one label per value, lowest first, in place of the
+     *        qualitative words. `empty_text`: the readout before a choice.
+     *        `readout_format`: a sprintf pattern for the readout, given the
+     *        number and the label (`%1$s`, `%2$s`).
      */
     public static function renderListRow( array $args ): string {
         $name         = (string) $args['name'];
@@ -93,10 +113,15 @@ class RatingInputComponent {
         $disabled     = ! empty( $args['disabled'] );
         $input_class  = (string) ( $args['input_class'] ?? '' );
         $data_attrs   = ( ! empty( $args['data_attrs'] ) && is_array( $args['data_attrs'] ) ) ? $args['data_attrs'] : [];
+        $choices      = ( $args['variant'] ?? '' ) === self::VARIANT_CHOICES;
+        $labels       = is_array( $args['labels'] ?? null ) ? array_values( array_map( 'strval', $args['labels'] ) ) : [];
+        $empty_text   = (string) ( $args['empty_text'] ?? '' );
+        $format       = (string) ( $args['readout_format'] ?? '' );
 
         [ $min, $max, $step ] = self::scale( $args );
 
         $classes = 'tt-rating-row tt-rating-row--stars';
+        if ( $choices )      $classes .= ' tt-rating-row--choices';
         if ( $is_sub )       $classes .= ' tt-rating-row--sub';
         if ( $label_hidden ) $classes .= ' tt-rating-row--nolabel';
 
@@ -111,7 +136,7 @@ class RatingInputComponent {
             }
             $out .= '</label>';
         }
-        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false );
+        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false, $labels, $empty_text, $format, $choices );
         // #3949 — trusted, already-escaped markup a caller hangs on the row,
         // such as the category-note toggle and its panel.
         $out .= (string) ( $args['after_html'] ?? '' );
@@ -123,15 +148,24 @@ class RatingInputComponent {
      * Shared star widget — hidden value input + star buttons + readout.
      *
      * @param array<string,string|int> $data_attrs
+     * @param list<string>             $custom_labels one per value, or none for the qualitative words
      */
     private static function renderStars(
         string $name, string $value, string $aria_label,
         float $min, float $max, float $step,
-        bool $disabled, string $input_class, array $data_attrs, bool $required
+        bool $disabled, string $input_class, array $data_attrs, bool $required,
+        array $custom_labels = [], string $empty_text = '', string $format = '', bool $choices = false
     ): string {
         $values     = self::stepSeries( $min, $max, $step );
-        $labels     = self::qualitativeLabels();
+        $labels     = $custom_labels !== [] ? $custom_labels : self::qualitativeLabels();
         $has_labels = ( count( $values ) === count( $labels ) );
+        if ( $has_labels && $format !== '' ) {
+            // The readout as the caller words it: "Your score: 4 · Good".
+            foreach ( $values as $i => $v ) {
+                $labels[ $i ] = sprintf( $format, self::format( $v ), $labels[ $i ] );
+            }
+        }
+        $empty = $empty_text !== '' ? $empty_text : '—';
 
         $is_empty = ( $value === '' || (float) $value === 0.0 );
         $cur      = $is_empty ? null : (float) $value;
@@ -146,7 +180,7 @@ class RatingInputComponent {
 
         // Readout for the current value: the qualitative word when the
         // scale yields the five labelled stars, otherwise the number.
-        $readout = '—';
+        $readout = $empty;
         if ( ! $is_empty ) {
             $readout = self::format( (float) $cur );
             if ( $has_labels ) {
@@ -163,9 +197,12 @@ class RatingInputComponent {
         if ( $required )  $out .= ' required';
         $out .= $data_attr_str . ' />';
 
-        $out .= '<div class="tt-rating-stars" role="radiogroup" aria-label="' . esc_attr( $aria_label ) . '"';
+        $out .= '<div class="tt-rating-stars' . ( $choices ? ' tt-rating-stars--choices' : '' ) . '" role="radiogroup" aria-label="' . esc_attr( $aria_label ) . '"';
         if ( $has_labels ) {
             $out .= ' data-labels="' . esc_attr( (string) wp_json_encode( array_values( $labels ) ) ) . '"';
+        }
+        if ( $empty_text !== '' ) {
+            $out .= ' data-empty-text="' . esc_attr( $empty_text ) . '"';
         }
         $out .= '>';
         foreach ( $values as $i => $v ) {
@@ -173,13 +210,14 @@ class RatingInputComponent {
             $sel = ( ! $is_empty && abs( (float) $cur - $v ) < 0.001 );
             $star_label = $has_labels ? $labels[ $i ] : self::format( $v );
             $tabindex   = ( $sel || ( $is_empty && $i === 0 ) ) ? '0' : '-1';
-            $out .= '<button type="button" class="tt-rating-star' . ( $on ? ' is-on' : '' ) . '"';
+            $out .= '<button type="button" class="tt-rating-star' . ( $choices ? ' tt-rating-choice' : '' ) . ( $on ? ' is-on' : '' ) . '"';
             $out .= ' role="radio" aria-checked="' . ( $sel ? 'true' : 'false' ) . '"';
             $out .= ' data-value="' . esc_attr( self::format( $v ) ) . '"';
             $out .= ' aria-label="' . esc_attr( $star_label ) . '"';
             $out .= ' tabindex="' . $tabindex . '"';
             if ( $disabled ) $out .= ' disabled';
-            $out .= '>&#9733;</button>';
+            // A choice shows its number; the label is its accessible name.
+            $out .= '>' . ( $choices ? esc_html( self::format( $v ) ) : '&#9733;' ) . '</button>';
         }
         $out .= '</div>';
 

@@ -2309,6 +2309,8 @@ class FrontendPdpManageView extends FrontendViewBase {
     private static function renderFormSwitch( int $conv_id, int $user_id ): void {
         $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $user_id, $conv_id );
         if ( $access === null || ! $access->canRead() ) return;
+        // #4979 — a talk that did not take place shows only its not-held line.
+        if ( \TT\Modules\Pdp\Services\PdpCycleState::isNotHeld( $access->conversation() ) ) return;
         $form = ( new \TT\Modules\Pdp\Forms\PdpFormReader() )->read( $access, $access->conversation() );
         if ( $form['form'] === null ) return;
 

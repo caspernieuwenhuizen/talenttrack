@@ -33,6 +33,7 @@ not. Beside it, **Undo** and **Revert changes**.
 | [PDP conversation](pdp-cycle.md) | Until it is signed off |
 | [PDP preparation](pdp-cycle.md) | The coach's answers, until the conversation is signed off |
 | [PDP self-reflection](pdp-cycle.md) | While the reflection window is open |
+| [The player's preparation on a PDP conversation form](pdp-cycle.md) | From 14 days before the talk until it starts. **Ready** is its own button, not a field. |
 | [PDP conversation form](pdp-cycle.md#conversation-forms) | The player's scores and answers until the talk starts; the trainer's scores, answers and development points until sign-off |
 | [Report Studio](reports.md#report-studio--building-a-report) | The draft of a report; **Publish** makes a version |
 

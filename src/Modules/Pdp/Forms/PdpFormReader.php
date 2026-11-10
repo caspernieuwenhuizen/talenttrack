@@ -123,6 +123,10 @@ final class PdpFormReader {
                 'player_changed_after_prepared' => $changed_after,
                 'coach_signoff_at'              => self::nullable( $row['coach_signoff_at'] ?? null ),
                 'player_locked'                 => PdpCycleState::playerPartLocked( $conversation, $now_ts ),
+                // #4979 — the player's preparation window: open from 14 days
+                // before the planned time, never without one.
+                'preparation_open'              => PdpCycleState::preparationOpen( $conversation, $now_ts ),
+                'preparation_opens_at'          => self::opensAt( $conversation ),
             ],
             'player'          => $player,
             'coach'           => $coach,
@@ -147,6 +151,12 @@ final class PdpFormReader {
             if ( $other !== null && $other !== $score ) $out[] = (string) $item;
         }
         return $out;
+    }
+
+    /** When the preparation opens (UTC, `Y-m-d H:i:s`), or null without a planned time. */
+    private static function opensAt( object $conversation ): ?string {
+        $ts = PdpCycleState::preparationOpensAt( $conversation );
+        return $ts !== null ? gmdate( 'Y-m-d H:i:s', $ts ) : null;
     }
 
     /** @param mixed $value */

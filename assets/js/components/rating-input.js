@@ -61,7 +61,7 @@
 
         if (p.readout) {
             if (empty) {
-                p.readout.textContent = '—';
+                p.readout.textContent = group.getAttribute('data-empty-text') || '—';
                 p.readout.classList.add('tt-rating-row__val--unset');
             } else {
                 p.readout.textContent = (p.labels && p.labels[idx]) ? p.labels[idx]
@@ -135,6 +135,15 @@
                 form.querySelectorAll('[data-tt-rating-value][data-tt-rating-empty]').forEach(function (h) {
                     h.removeAttribute('name');
                 });
+            });
+            // #4979 — an autosave undo or revert puts values back into the
+            // hidden inputs without an event of their own; repaint from them.
+            form.addEventListener('tt:form-remounted', function () {
+                form.querySelectorAll('[data-tt-rating-value]').forEach(function (h) {
+                    if (h.value === '') h.setAttribute('data-tt-rating-empty', '1');
+                    else h.removeAttribute('data-tt-rating-empty');
+                });
+                refresh(form);
             });
         }
 

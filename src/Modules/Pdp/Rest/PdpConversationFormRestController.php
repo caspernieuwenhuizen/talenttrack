@@ -152,7 +152,9 @@ final class PdpConversationFormRestController extends BaseController {
         $conv = $access->conversation();
         if ( ! empty( ( (array) $conv )['coach_signoff_at'] ) ) return self::signedOffError();
         if ( ! $access->choosesForm() ) return self::forbidden();
-        if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        if ( PdpCycleState::isNotHeld( $conv ) ) {
+            return RestResponse::error( 'conversation_not_held', __( 'This talk did not take place, so the form can no longer be switched.', 'talenttrack' ), 409 );
+        }
 
         $form_key = sanitize_key( (string) $r->get_param( 'form_key' ) );
         if ( $form_key === '' ) {
@@ -194,6 +196,7 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        if ( ! PdpCycleState::preparationOpen( $conv ) ) return self::notOpen( $conv );
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
 
         $parsed = self::parseEntries( $r, $definition, PdpFormAuthor::PLAYER, false );
@@ -284,6 +287,10 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        // #4979 — "klaar" only inside the preparation window. Taking it back
+        // stays possible while the part is unlocked, so a talk moved later
+        // after "klaar" can still be reopened.
+        if ( $prepared && ! PdpCycleState::preparationOpen( $conv ) ) return self::notOpen( $conv );
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
 
         $row  = (array) $conv;
@@ -528,6 +535,28 @@ final class PdpConversationFormRestController extends BaseController {
 
     private static function notHeld(): WP_REST_Response {
         return RestResponse::error( 'conversation_not_held', __( 'This talk did not take place, so its form takes no entries.', 'talenttrack' ), 409 );
+    }
+
+    /**
+     * #4979 — outside the preparation window: before it opens, or with no
+     * planned date. `opens_at` (UTC, `Y-m-d H:i:s`) says when it does, or is
+     * null until the talk is planned.
+     */
+    private static function notOpen( object $conv ): WP_REST_Response {
+        $opens = PdpCycleState::preparationOpensAt( $conv );
+        if ( $opens === null ) {
+            return RestResponse::error( 'preparation_not_open', __( 'You can prepare once the conversation is planned.', 'talenttrack' ), 409, [ 'opens_at' => null ] );
+        }
+        return RestResponse::error(
+            'preparation_not_open',
+            sprintf(
+                /* translators: %s: the date the player's preparation opens */
+                __( 'You can prepare from %s.', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::date( $opens )
+            ),
+            409,
+            [ 'opens_at' => gmdate( 'Y-m-d H:i:s', $opens ) ]
+        );
     }
 
     private static function lockedError(): WP_REST_Response {
