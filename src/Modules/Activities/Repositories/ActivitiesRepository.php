@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -230,13 +231,19 @@ final class ActivitiesRepository {
      *                          `session_date <= CURDATE()` (the
      *                          Activities tab's "no future-dated
      *                          completed shows" rule).
+     *   - `completed_only`     (default false, #4990) — only activities
+     *                          whose status is completed
+     *                          (`ActivityLifecycle::completedClause()`),
+     *                          dated today or earlier. The Activities tab
+     *                          and its badge count.
      *
      * @param array{
      *     include_guests?: bool,
      *     record_types?: list<string>|null,
      *     include_archived?: bool,
      *     plan_states?: list<string>,
-     *     only_past_completed?: bool
+     *     only_past_completed?: bool,
+     *     completed_only?: bool
      * } $filters
      * @param 'ASC'|'DESC' $display_order
      * @return list<object>
@@ -260,6 +267,7 @@ final class ActivitiesRepository {
             ? array_values( array_filter( array_map( 'strval', $filters['plan_states'] ) ) )
             : [];
         $only_past_completed = ! empty( $filters['only_past_completed'] );
+        $completed_only      = ! empty( $filters['completed_only'] );
 
         // #4565 — the current club's rows only; the join and the dedupe
         // subquery below carry the same club.
@@ -296,6 +304,14 @@ final class ActivitiesRepository {
             // Completed rows must be in the past; in-flight rows
             // (planned/scheduled) pass through regardless of date.
             $where[] = "( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() ) OR a.plan_state IN ( 'planned', 'scheduled' ) )";
+        }
+
+        if ( $completed_only ) {
+            // #4990 — what happened, by the activity's status: the shared
+            // gate the activity page and every report use, dated today or
+            // earlier. `plan_state` defaults to completed on a row the
+            // planner never created, so it is not the gate.
+            $where[] = ActivityLifecycle::completedClause( 'a' ) . ' AND a.session_date <= CURDATE()';
         }
 
         $where_sql = implode( ' AND ', $where );

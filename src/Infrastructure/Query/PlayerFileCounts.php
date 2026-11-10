@@ -65,15 +65,11 @@ final class PlayerFileCounts {
         // earlier, so the badge counts exactly those. Planned and scheduled
         // activities, past or future, count on neither.
         //
-        // #2521 is not being reverted, but it does need reading first. Its
-        // point was that `plan_state` defaults to 'completed' on rows the
-        // planner never created, so a plan-state filter counts still-planned
-        // sessions. That was a bug when the badge claimed to count
-        // *attendance*. It is not one now: those same rows are exactly what
-        // the list puts on screen, so counting them is what makes the two
-        // agree. The `activity_status_key` question moves to the list, which
-        // is where "should a planner-less row show as completed" actually
-        // belongs.
+        // #4990 — "completed" is the activity's status (owner decision, 9
+        // November 2026), through the shared gate, as the list asks it
+        // (`ActivitiesRepository::listForPlayer( …, [ 'completed_only' ] )`).
+        // `plan_state` defaults to 'completed' on rows the planner never
+        // created (#2521), so it is not the gate on either.
         //
         // `record_type` is deliberately absent for the same reason: the list
         // reads both record types (`record_types => null`), so a completed
@@ -88,7 +84,7 @@ final class PlayerFileCounts {
               WHERE att.player_id = %d
                 AND att.is_guest = 0
                 AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
-                AND a.plan_state = 'completed'
+                AND " . ActivityLifecycle::completedClause( 'a' ) . "
                 AND a.session_date <= CURDATE()",
             $player_id
         ) );
