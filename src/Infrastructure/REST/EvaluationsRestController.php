@@ -758,6 +758,7 @@ class EvaluationsRestController {
 
         do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
 
+        $header['uuid'] = wp_generate_uuid4();
         $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
         if ( $ok === false ) {
             Logger::error( 'rest.evaluation.create.failed', [ 'db_error' => (string) $wpdb->last_error, 'payload' => $header ] );

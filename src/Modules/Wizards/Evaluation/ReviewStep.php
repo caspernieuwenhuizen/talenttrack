@@ -461,6 +461,7 @@ final class ReviewStep implements WizardStepInterface {
             'notes'     => $reason,
         ];
         if ( $type_id > 0 ) $insert_payload['eval_type_id'] = $type_id;
+        $insert_payload['uuid'] = wp_generate_uuid4();
         $wpdb->insert( "{$p}tt_evaluations", $insert_payload );
         $eval_id = (int) $wpdb->insert_id;
 

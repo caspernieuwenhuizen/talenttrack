@@ -153,6 +153,7 @@ class DemoEvaluationWriter {
     private function insert( array $row, int $player_id, string $archetype, array $tag ): int {
         global $wpdb;
 
+        if ( (string) ( $row['uuid'] ?? '' ) === '' ) $row['uuid'] = wp_generate_uuid4();
         $wpdb->insert( "{$wpdb->prefix}tt_evaluations", $row );
         $eval_id = (int) $wpdb->insert_id;
         if ( ! $eval_id ) return 0;
