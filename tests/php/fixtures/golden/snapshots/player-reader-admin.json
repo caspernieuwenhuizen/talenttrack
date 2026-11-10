@@ -344,7 +344,7 @@
                     "context": "match",
                     "notes": null,
                     "related_activity_id": null,
-                    "created_at": "{day:+0} 23:45:05"
+                    "created_at": "{day:+1} {time}"
                 },
                 {
                     "id": "115",
@@ -356,7 +356,7 @@
                     "context": "training",
                     "notes": "Leads the warm-up.",
                     "related_activity_id": null,
-                    "created_at": "{day:+0} 23:45:05"
+                    "created_at": "{day:+1} {time}"
                 }
             ]
         },
@@ -370,7 +370,7 @@
                     "set_by": "40",
                     "potential_band": "ahead",
                     "notes": "Reads the game early.",
-                    "created_at": "{day:+0} 23:45:05"
+                    "created_at": "{day:+1} {time}"
                 }
             ]
         },

@@ -234,7 +234,7 @@
                     "context": "match",
                     "notes": null,
                     "related_activity_id": null,
-                    "created_at": "{day:+0} 23:45:03"
+                    "created_at": "{day:+1} {time}"
                 }
             ]
         },
@@ -248,7 +248,7 @@
                     "set_by": "35",
                     "potential_band": "below_level",
                     "notes": null,
-                    "created_at": "{day:+0} 23:45:03"
+                    "created_at": "{day:+1} {time}"
                 }
             ]
         },

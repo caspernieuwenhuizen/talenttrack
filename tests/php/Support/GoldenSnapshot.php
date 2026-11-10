@@ -168,13 +168,13 @@ final class GoldenSnapshot {
             return $out;
         }
 
-        if ( is_string( $value ) ) return self::tokeniseString( $value );
-
+        // An id field first: a repository row carries its ids as strings.
         if ( ( is_int( $value ) || ( is_string( $value ) && ctype_digit( $value ) ) ) && self::isIdKey( $key ) ) {
             $kind  = $key === 'id' ? ( self::COLLECTIONS[ $collection ] ?? null ) : self::kindOfField( $key );
             $token = self::tokenFor( (int) $value, $kind, $path, true );
             return $token ?? $value;
         }
+        if ( is_string( $value ) ) return self::tokeniseString( $value );
         return $value;
     }
 
@@ -233,7 +233,11 @@ final class GoldenSnapshot {
         );
     }
 
+    /** Id fields that are not a record the fixture made: the tenant. */
+    private const NOT_FIXTURE_IDS = [ 'club_id' ];
+
     private static function isIdKey( string $key ): bool {
+        if ( in_array( $key, self::NOT_FIXTURE_IDS, true ) ) return false;
         return $key === 'id' || str_ends_with( $key, '_id' ) || isset( self::ALIASES[ $key ] );
     }
 
