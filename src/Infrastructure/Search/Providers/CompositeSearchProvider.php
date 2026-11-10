@@ -36,7 +36,7 @@ final class CompositeSearchProvider implements SearchProvider {
     /** @param list<SearchProvider> $providers non-empty, all of one kind */
     public function __construct( string $kind, array $providers ) {
         $this->kind      = $kind;
-        $this->providers = array_values( $providers );
+        $this->providers = $providers;
     }
 
     /** @return list<SearchProvider> */
