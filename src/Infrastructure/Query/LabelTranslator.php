@@ -430,15 +430,9 @@ class LabelTranslator {
      * Empty or unparseable input gives an empty string.
      */
     public static function primaryPositionLabel( string $stored ): string {
-        $stored = trim( $stored );
-        if ( $stored === '' ) return '';
-        $decoded = json_decode( $stored, true );
-        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $stored );
-        foreach ( $codes as $code ) {
-            $code = is_scalar( $code ) ? trim( (string) $code ) : '';
-            if ( $code !== '' ) return self::positionLabel( $code );
-        }
-        return '';
+        // #4978 — the column has one reader (P7 on #4975).
+        $code = \TT\Infrastructure\Players\PlayerPosition::primaryCode( $stored );
+        return $code !== '' ? self::positionLabel( $code ) : '';
     }
 
     /**

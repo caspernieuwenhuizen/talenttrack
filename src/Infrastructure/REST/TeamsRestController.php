@@ -779,21 +779,8 @@ class TeamsRestController {
      * @return list<string>
      */
     private static function positionCodes( object $player ): array {
-        $raw = trim( (string) ( $player->preferred_positions ?? '' ) );
-        if ( $raw === '' ) return [];
-
-        $codes = json_decode( $raw, true );
-        if ( ! is_array( $codes ) ) {
-            $codes = explode( ',', $raw );
-        }
-
-        $out = [];
-        foreach ( $codes as $code ) {
-            if ( ! is_scalar( $code ) ) continue;
-            $code = trim( (string) $code );
-            if ( $code !== '' ) $out[] = $code;
-        }
-        return $out;
+        // #4978 — the column has one reader (P7 on #4975).
+        return \TT\Infrastructure\Players\PlayerPosition::codes( (string) ( $player->preferred_positions ?? '' ) );
     }
 
     /**

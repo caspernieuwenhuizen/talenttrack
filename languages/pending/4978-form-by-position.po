@@ -1,0 +1,19 @@
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This talk uses the goalkeeper form."
+msgstr "Dit gesprek gebruikt het keepersformulier."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This talk uses the outfield form."
+msgstr "Dit gesprek gebruikt het formulier voor veldspelers."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Switch form"
+msgstr "Formulier wisselen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "You can switch until the player starts filling in the form."
+msgstr "Je kunt wisselen tot de speler het formulier begint in te vullen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The conversation form was changed meanwhile. Reload the form and try again."
+msgstr "Het gespreksformulier is intussen gewijzigd. Laad het formulier opnieuw en probeer het nog eens."
