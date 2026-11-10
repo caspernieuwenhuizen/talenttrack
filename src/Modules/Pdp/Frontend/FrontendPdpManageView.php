@@ -2327,11 +2327,17 @@ class FrontendPdpManageView extends FrontendViewBase {
                 . ' data-rest-method="PATCH"'
                 . ' data-redirect-after-save="reload">';
             echo '<input type="hidden" name="form_key" value="' . esc_attr( $target ) . '" />';
-            echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html(
-                $group === \TT\Modules\Pdp\Forms\PdpFormRegistry::GROUP_GOALKEEPER
-                    ? __( 'Switch to the outfield form', 'talenttrack' )
-                    : __( 'Switch to the goalkeeper form', 'talenttrack' )
-            ) . '</button>';
+            // FormSaveButton, so the shared script drives its states from the
+            // button's own labels; a plain button would read "Save" after a
+            // refused switch. One label for every state (ui-copy §3).
+            $label = __( 'Switch form', 'talenttrack' );
+            echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the helper escapes its own output.
+                'label'        => $label,
+                'label_saving' => $label,
+                'label_saved'  => $label,
+                'label_error'  => $label,
+                'variant'      => 'secondary',
+            ] );
             echo '<p class="tt-help-text">' . esc_html__( 'You can switch until the player starts filling in the form.', 'talenttrack' ) . '</p>';
             echo '<div class="tt-form-msg" role="status" aria-live="polite"></div>';
             echo '</form>';

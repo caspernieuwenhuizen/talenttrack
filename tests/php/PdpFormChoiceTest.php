@@ -134,7 +134,11 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
         wp_set_current_user( $this->trainer );
 
         $this->assertSame( self::GOALKEEPER, $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'] );
-        $this->assertStringContainsString( 'Switch to the goalkeeper form', $this->switchControl( $conv ) );
+        $control = $this->switchControl( $conv );
+        $this->assertStringContainsString( 'Switch form', $control );
+        $this->assertStringContainsString( 'tt-save-btn', $control, 'the shared save-button states, not the plain-button fallback' );
+        $this->assertStringContainsString( 'data-label-error="Switch form"', $control, 'a refused switch keeps the label' );
+        $this->assertStringContainsString( 'value="' . self::GOALKEEPER . '"', $control, 'it switches to the goalkeeper form' );
         $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
         $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::OUTFIELD ] )[1], 'and back' );
         $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form/coach', [ 'scores' => [ 'aannames' => 3 ] ] )[1] );
@@ -151,7 +155,7 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
         $this->assertNull( $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'], 'the reader offers no switch' );
         $control = $this->switchControl( $conv );
         $this->assertStringContainsString( 'This talk uses the outfield form.', $control );
-        $this->assertStringNotContainsString( 'Switch to the', $control, 'and the control is gone' );
+        $this->assertStringNotContainsString( 'Switch form', $control, 'and the control is gone' );
     }
 
     public function test_the_player_and_a_parent_are_offered_no_switch(): void {
@@ -183,7 +187,7 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
         $this->assertSame( 200, $status );
         $this->assertNull( $data['data']['state']['form_switch_to'], 'no switch is offered' );
         $this->assertSame( 403, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
-        $this->assertStringNotContainsString( 'Switch to the', $this->switchControl( $conv ) );
+        $this->assertStringNotContainsString( 'Switch form', $this->switchControl( $conv ) );
     }
 
     public function test_klaar_fixes_the_form_too(): void {

@@ -7,12 +7,8 @@ msgid "This talk uses the outfield form."
 msgstr "Dit gesprek gebruikt het formulier voor veldspelers."
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
-msgid "Switch to the outfield form"
-msgstr "Wissel naar het formulier voor veldspelers"
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
-msgid "Switch to the goalkeeper form"
-msgstr "Wissel naar het keepersformulier"
+msgid "Switch form"
+msgstr "Formulier wisselen"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
 msgid "You can switch until the player starts filling in the form."
