@@ -13,12 +13,14 @@ msgstr "Aanwezigheid is weggelaten, omdat niet elke ontvanger die mag lezen."
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
 msgid ""
-"Everyone receives the same PDF, so it contains only the sections every "
-"recipient may read. If one recipient may not read attendance, or has no "
-"account here, attendance is left out for all. After saving, the schedule "
-"list shows what the recipients get."
+"Everyone receives the same PDF, so each section contains only what every "
+"recipient may read. A recipient with no account here counts as having no "
+"rights."
 msgstr ""
-"Iedereen ontvangt dezelfde pdf, dus die bevat alleen de secties die elke "
-"ontvanger mag lezen. Mag één ontvanger de aanwezigheid niet lezen, of heeft "
-"die hier geen account, dan wordt aanwezigheid voor iedereen weggelaten. Na "
-"het opslaan toont de lijst met planningen wat de ontvangers krijgen."
+"Iedereen ontvangt dezelfde pdf, dus elk onderdeel bevat alleen wat elke "
+"ontvanger mag lezen. Een ontvanger zonder account hier telt als iemand "
+"zonder rechten."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "After saving, the schedule list shows what the recipients get."
+msgstr "Na het opslaan toont de lijst met planningen wat de ontvangers krijgen."

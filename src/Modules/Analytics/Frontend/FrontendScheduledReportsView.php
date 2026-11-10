@@ -204,7 +204,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<p class="tt-sched-intro">' . esc_html__( 'Each recipient is checked every time the report is sent. An account receives it only when it may read this team\'s reports. An address with no account here receives nothing. Whoever is left out is named on the schedule after the run.', 'talenttrack' ) . '</p>';
         // #4991 — one PDF for everyone, so the least-privileged recipient
         // decides what is in it.
-        echo '<p class="tt-sched-intro">' . esc_html__( 'Everyone receives the same PDF, so it contains only the sections every recipient may read. If one recipient may not read attendance, or has no account here, attendance is left out for all. After saving, the schedule list shows what the recipients get.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html( self::sameCopyNote() . ' ' . __( 'After saving, the schedule list shows what the recipients get.', 'talenttrack' ) ) . '</p>';
 
         $back       = BackLink::resolve();
         $cancel_url = $back !== null
@@ -249,6 +249,14 @@ class FrontendScheduledReportsView extends FrontendViewBase {
      * because a monthly schedule of fixed dates would mail the same weeks
      * forever.
      */
+    /**
+     * #4991 — the one-sentence rule both schedule forms state: one PDF for
+     * everyone, holding only what every recipient may read.
+     */
+    private static function sameCopyNote(): string {
+        return __( 'Everyone receives the same PDF, so each section contains only what every recipient may read. A recipient with no account here counts as having no rights.', 'talenttrack' );
+    }
+
     private static function renderPlayerReportForm(): void {
         $period      = isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '';
         $composition = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [
@@ -272,6 +280,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
 
         echo '<p class="tt-sched-intro">' . esc_html__( 'Sent on the 1st of every month as a PDF, over the same period the report had when you scheduled it. The schedule keeps its own copy of the sections.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html( self::sameCopyNote() ) . '</p>';
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-sched-form">';
         wp_nonce_field( 'tt_scheduled_reports_create', 'tt_sched_nonce' );

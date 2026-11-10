@@ -176,8 +176,8 @@ who it covers:
 
 It is sent on the 1st of every month, over the same period the report had when
 you scheduled it, with its own copy of the sections — changing your saved views
-later does not change what it sends. The report is written as you would see it,
-so send it to staff only.
+later does not change what it sends. It is a staff document, so send it to staff
+only.
 
 Every recipient is checked each time it runs. An account receives the PDF only
 when it may read the report about every player in it, the same check as opening
@@ -186,6 +186,16 @@ never do. A role key reaches its
 members who are part of this academy, and an email address counts only when it
 belongs to an account here. An address with no account here receives nothing.
 Whoever is left out is shown on the schedules screen after the run.
+
+Every recipient gets **the same PDF**, so each section contains only what every
+one of them may read, you included. A journey entry, the development plan, the
+staff notes, the injuries, a test or an evaluation's written notes appear only
+when every recipient may see them in the plugin; otherwise they are left out
+for everyone, even for a recipient who could see them there. A recipient whose
+rights cannot be checked counts as having none: an address with no account
+here, a member of a role from outside the academy, or a role with no members.
+This is checked again at every run, so the next PDF follows the rights the
+recipients have on the day it is sent.
 
 A schedule stops rather than sends when its team or player is archived or
 removed, or when you can no longer read their reports; the schedules screen says

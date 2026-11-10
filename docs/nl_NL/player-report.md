@@ -187,8 +187,7 @@ inplannen** en daarna voor wie het is:
 Het wordt op de 1e van elke maand verstuurd, over dezelfde periode die het
 rapport had toen je het inplande, met een eigen kopie van de onderdelen — je
 opgeslagen weergaven later wijzigen verandert niet wat er wordt verstuurd. Het
-rapport wordt opgesteld zoals jij het zou zien, dus stuur het alleen naar de
-staf.
+is een stafdocument, dus stuur het alleen naar de staf.
 
 Elke ontvanger wordt bij elke verzending gecontroleerd. Een account ontvangt de
 pdf alleen als het het rapport over elke speler erin mag lezen, dezelfde
@@ -197,6 +196,17 @@ ontvangen ouders en spelers het nooit. Een rolsleutel bereikt de leden die bij d
 horen, en een e-mailadres telt alleen als het bij een account hier hoort. Een
 adres zonder account hier ontvangt niets. Wie wordt overgeslagen, staat na de
 verzending op het scherm met planningen.
+
+Alle ontvangers krijgen **dezelfde pdf**, dus elk onderdeel bevat alleen wat
+elk van hen mag lezen, jij ook. Een moment uit de ontwikkelingsreis, het
+ontwikkelplan, de stafnotities, de blessures, een test of de geschreven
+toelichting bij een evaluatie staat er alleen in als elke ontvanger het in de
+plugin mag zien; anders valt het voor iedereen weg, ook voor een ontvanger die
+het daar wel kan zien. Een ontvanger van wie de rechten niet te controleren
+zijn, telt als iemand zonder rechten: een adres zonder account hier, een lid
+van een rol van buiten de academie, of een rol zonder leden. Dit wordt bij
+elke verzending opnieuw gecontroleerd, dus de volgende pdf volgt de rechten
+die de ontvangers hebben op de dag dat hij wordt verstuurd.
 
 Een planning stopt in plaats van te versturen als het team of de speler is
 gearchiveerd of verwijderd, of als jij hun rapporten niet meer mag inzien; het
