@@ -4,8 +4,8 @@ namespace TT\Modules\Analytics\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
-use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Teams\TeamRoster;
 
 /**
@@ -67,9 +67,16 @@ final class AttendanceFlagService {
     public const REASON_ABSENCE  = 'absence';
     public const REASON_LATENESS = 'lateness';
 
-    /** Operator-configured absence threshold, clamped to a sane floor of 1. */
+    /**
+     * Operator-configured absence threshold, clamped to a sane floor of 1.
+     *
+     * #4948 — both thresholds are read through `QueryHelpers::get_config()`,
+     * the request's one config service, so a ranking of a whole squad reads
+     * each key once rather than once per player. A save through the same
+     * service updates its cache, so the next read sees the new value.
+     */
     public static function threshold(): int {
-        $raw = (int) ( new ConfigService() )->get( self::CONFIG_KEY, (string) self::DEFAULT_THRESHOLD );
+        $raw = (int) QueryHelpers::get_config( self::CONFIG_KEY, (string) self::DEFAULT_THRESHOLD );
         return $raw >= 1 ? $raw : self::DEFAULT_THRESHOLD;
     }
 
@@ -93,7 +100,7 @@ final class AttendanceFlagService {
      * as unset, which is what the fallback already does with it.
      */
     public static function lateThresholdOverride(): ?int {
-        $raw = (int) ( new ConfigService() )->get( self::LATE_CONFIG_KEY, '' );
+        $raw = (int) QueryHelpers::get_config( self::LATE_CONFIG_KEY, '' );
         return $raw >= 1 ? $raw : null;
     }
 

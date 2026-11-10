@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
@@ -50,6 +51,10 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
         parent::set_up();
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
+        // The thresholds are read through QueryHelpers' one ConfigService
+        // (#4948), whose cache outlives the per-test rollback: a fresh one
+        // keeps a threshold set here from leaking into the next case.
+        QueryHelpers::setConfigService( new ConfigService() );
         QueryHelpers::set_config( AttendanceFlagService::CONFIG_KEY, '3' );
         QueryHelpers::set_config( AttendanceFlagService::LATE_CONFIG_KEY, '' );
         $this->flush();
@@ -88,6 +93,7 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        QueryHelpers::setConfigService( new ConfigService() );
         $this->flush();
         wp_set_current_user( 0 );
         parent::tear_down();
@@ -217,14 +223,65 @@ final class ReportStudioAttendanceBlocksTest extends WP_UnitTestCase {
             foreach ( $this->sessions as $a ) $this->insertAttendance( $a, $pid, 'Present' );
         }
 
-        // Both blocks read `AttendanceRankingQuery::rows()`, whose flag
-        // thresholds are read from the configuration once per player today
-        // (a `ConfigService` per call, #4948). The blocks add nothing per
-        // player on top of that read: their growth is exactly the read's.
+        // Both blocks read `AttendanceRankingQuery::rows()`. Since #4948 its
+        // flag thresholds come from the request's one config service, read
+        // once rather than per player. The blocks add nothing per player on
+        // top of that read: their growth is exactly the read's.
         $read_growth = $this->readStatements() - $read_before;
         foreach ( [ 'attendance_per_player', 'attendance_flags' ] as $key ) {
             $this->assertSame( $read_growth, $this->statementsFor( $key, $context ) - $before[ $key ], "{$key} costs more per player than the attendance read" );
         }
+    }
+
+    /**
+     * #4948 — the thresholds cost no statement per player. Each
+     * `flagReasons()` call used to build its own `ConfigService`, so six
+     * more players cost 18 more `tt_config` reads.
+     */
+    public function test_the_ranking_reads_the_thresholds_once_not_per_player(): void {
+        $before = $this->configStatementsForRows();
+
+        for ( $i = 0; $i < 6; $i++ ) {
+            $pid = $this->insertPlayer( $this->team_a, 'More' . $i, 30 + $i );
+            foreach ( $this->sessions as $a ) $this->insertAttendance( $a, $pid, 'Present' );
+        }
+
+        $this->assertSame( 0, $this->configStatementsForRows() - $before, 'six more players, no more config reads' );
+        $this->assertSame( 0, $before, 'set_up stored both keys through the same service, so they are already read' );
+    }
+
+    /** A threshold saved mid-request is the one the next ranking flags on. */
+    public function test_the_ranking_follows_a_threshold_change_in_the_same_process(): void {
+        $flagged = static fn( array $rows ): array => array_values( array_map(
+            static fn( array $r ): int => (int) $r['player_id'],
+            array_filter( $rows, static fn( array $r ): bool => (bool) $r['flagged'] )
+        ) );
+        $rows = ( new AttendanceRankingQuery() )->rows( self::FROM, self::TO, $this->team_a );
+        $this->assertNotContains( $this->low, $flagged( $rows ), 'two misses are under a threshold of 3' );
+
+        QueryHelpers::set_config( AttendanceFlagService::CONFIG_KEY, '2' );
+        $this->flush();
+
+        $rows = ( new AttendanceRankingQuery() )->rows( self::FROM, self::TO, $this->team_a );
+        $this->assertContains( $this->low, $flagged( $rows ), 'and reach a threshold of 2' );
+        $this->assertSame( 2, AttendanceFlagService::threshold() );
+        $this->assertSame( 2, AttendanceFlagService::lateThreshold(), 'lateness still follows the absence threshold' );
+    }
+
+    private function configStatementsForRows(): int {
+        $this->flush();
+        $count   = 0;
+        $counter = static function ( string $sql ) use ( &$count ): string {
+            if ( strpos( $sql, 'tt_config' ) !== false ) $count++;
+            return $sql;
+        };
+        add_filter( 'query', $counter );
+        try {
+            ( new AttendanceRankingQuery() )->rows( self::FROM, self::TO, $this->team_a );
+        } finally {
+            remove_filter( 'query', $counter );
+        }
+        return $count;
     }
 
     private function readStatements(): int {
