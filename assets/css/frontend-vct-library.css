@@ -170,7 +170,7 @@
     display: inline;
 }
 /* #4916 — on a phone the actions are one value block in a card line, and
-   wrap rather than run off the card; from 480px they sit on one line in
+   wrap rather than run off the card; from 768px they sit on one line in
    their table cell again. */
 .tt-dashboard .tt-vct-lib-rowactions > .tt-stack-table__value {
     display: flex;
@@ -179,7 +179,7 @@
     gap: var(--tt-sp-2, 8px);
     white-space: normal;
 }
-@media (min-width: 480px) {
+@media (min-width: 768px) {
     .tt-dashboard .tt-vct-lib-rowactions > .tt-stack-table__value {
         display: block;
         white-space: nowrap;

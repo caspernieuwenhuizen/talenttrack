@@ -208,7 +208,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
     /** @param list<array<string,mixed>> $rows */
     private static function renderTable( array $rows, bool $can_write, int $edit_id = 0 ): void {
         $base_url = remove_query_arg( 'edit' );
-        // #4916 — on the stack-table primitive: a table from 480px, one card
+        // #4916 — on the stack-table primitive: a table from 768px, one card
         // per exercise below it. The name, its band edge and its code are one
         // value block; the actions column has no header, so its cell shows
         // its buttons alone. The inline edit row spans the table.
@@ -219,7 +219,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $c_age      = __( 'Age', 'talenttrack' );
         $c_status   = __( 'Status', 'talenttrack' );
         $th         = StackTable::attrs( 'columnheader' );
-        echo '<div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( [ $c_name, $c_category, $c_theme, $c_band, $c_age, $c_status ] as $header ) {
             echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
         }
