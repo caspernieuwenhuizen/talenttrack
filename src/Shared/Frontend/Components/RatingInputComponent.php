@@ -114,7 +114,7 @@ class RatingInputComponent {
         $input_class  = (string) ( $args['input_class'] ?? '' );
         $data_attrs   = ( ! empty( $args['data_attrs'] ) && is_array( $args['data_attrs'] ) ) ? $args['data_attrs'] : [];
         $choices      = ( $args['variant'] ?? '' ) === self::VARIANT_CHOICES;
-        $labels       = is_array( $args['labels'] ?? null ) ? array_values( array_map( 'strval', $args['labels'] ) ) : [];
+        $labels       = isset( $args['labels'] ) ? array_map( 'strval', $args['labels'] ) : [];
         $empty_text   = (string) ( $args['empty_text'] ?? '' );
         $format       = (string) ( $args['readout_format'] ?? '' );
 
