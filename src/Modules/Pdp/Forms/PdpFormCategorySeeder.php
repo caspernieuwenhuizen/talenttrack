@@ -63,18 +63,33 @@ final class PdpFormCategorySeeder {
                 __( 'The conversation forms score on five steps, and the academy\'s rating scale does not have five. Set the rating scale to five steps first.', 'talenttrack' )
             );
         }
-        $missing = array_keys( array_filter( self::mains(), static fn( int $id ): bool => $id <= 0 ) );
+        $missing = [];
+        foreach ( self::mainRows() as $key => $row ) {
+            if ( $row !== null && (int) ( $row['is_active'] ?? 0 ) === 1 ) continue;
+            // A main that exists but is switched off is named as the admin
+            // sees it; only one that does not exist at all has just its key.
+            $missing[] = $row !== null
+                ? EvalCategoriesRepository::displayLabel( (string) ( $row['label'] ?? $key ), (int) ( $row['id'] ?? 0 ) )
+                : $key;
+        }
         if ( $missing !== [] ) {
             return new \WP_Error(
                 'missing_main',
                 sprintf(
-                    /* translators: %s: the keys of the main evaluation categories that are missing or switched off. */
+                    /* translators: %s: the main evaluation categories that are missing or switched off. */
                     __( 'The conversation forms score under the four main evaluation categories, and these are missing or switched off: %s.', 'talenttrack' ),
                     implode( ', ', $missing )
                 )
             );
         }
         return null;
+    }
+
+    private static function seedFailed(): \WP_Error {
+        return new \WP_Error(
+            'seed_failed',
+            __( 'The evaluation categories of the conversation forms could not be saved, so the forms were not switched on. Try again; if it keeps failing, ask your administrator.', 'talenttrack' )
+        );
     }
 
     /**
@@ -115,7 +130,12 @@ final class PdpFormCategorySeeder {
                 ];
                 $existing = $repo->getByKey( $key );
                 if ( $existing === null ) {
-                    $repo->create( $data + [ 'category_key' => $key, 'parent_id' => $mains[ $item['main'] ], 'is_active' => 1 ] );
+                    // A refused insert (a key another club on this install
+                    // already holds, a database error) stops the save: the
+                    // choice is stored only when every category is there.
+                    // Rows created before it stay; a retry completes them.
+                    $created = $repo->create( $data + [ 'category_key' => $key, 'parent_id' => $mains[ $item['main'] ], 'is_active' => 1 ] );
+                    if ( $created <= 0 ) return self::seedFailed();
                     $summary['categories_created']++;
                 } elseif ( self::differs( (array) $existing, $data ) ) {
                     $repo->update( (int) ( ( (array) $existing )['id'] ?? 0 ), $data );
@@ -123,7 +143,9 @@ final class PdpFormCategorySeeder {
                 }
             }
 
-            if ( self::ensureType( $group, array_values( $mains ) ) ) $summary['types_created']++;
+            $type = self::ensureType( $group, array_values( $mains ) );
+            if ( $type instanceof \WP_Error ) return $type;
+            if ( $type ) $summary['types_created']++;
         }
 
         return $summary;
@@ -147,41 +169,57 @@ final class PdpFormCategorySeeder {
      * @return array<string,int>
      */
     private static function mains(): array {
+        $out = [];
+        foreach ( self::mainRows() as $key => $row ) {
+            $out[ $key ] = ( $row !== null && (int) ( $row['is_active'] ?? 0 ) === 1 ) ? (int) ( $row['id'] ?? 0 ) : 0;
+        }
+        return $out;
+    }
+
+    /**
+     * The four mains by key, as rows; null for one that does not exist at
+     * this academy as a main.
+     *
+     * @return array<string, array<string,mixed>|null>
+     */
+    private static function mainRows(): array {
         $repo = new EvalCategoriesRepository();
         $out  = [];
         foreach ( PdpFormRegistry::MAINS as $key ) {
             $found = $repo->getByKey( $key );
             $row   = $found !== null ? (array) $found : [];
-            $out[ $key ] = ( $row !== [] && ( $row['parent_id'] ?? null ) === null && (int) ( $row['is_active'] ?? 0 ) === 1 ) ? (int) ( $row['id'] ?? 0 ) : 0;
+            $out[ $key ] = ( $row !== [] && ( $row['parent_id'] ?? null ) === null ) ? $row : null;
         }
         return $out;
     }
 
     /**
      * Create the group's type when it is missing, and map it to the mains.
-     * True when it was created.
+     * True when it was created, false when it was there; an error when it
+     * could not be written.
      *
      * @param list<int> $main_ids
+     * @return bool|\WP_Error
      */
-    private static function ensureType( string $group, array $main_ids ): bool {
+    private static function ensureType( string $group, array $main_ids ) {
         global $wpdb;
         $created = false;
         $type_id = self::typeIdFor( $group );
         if ( $type_id <= 0 ) {
-            $wpdb->insert( "{$wpdb->prefix}tt_lookups", [
+            $ok = $wpdb->insert( "{$wpdb->prefix}tt_lookups", [
                 'club_id'     => CurrentClub::id(),
                 'lookup_type' => 'eval_type',
                 'name'        => self::TYPE_NAMES[ $group ],
                 'meta'        => (string) wp_json_encode( [ self::META_GROUP => $group, 'picker_hidden' => true ] ),
                 'sort_order'  => 900,
             ] );
-            $type_id = (int) $wpdb->insert_id;
-            $created = $type_id > 0;
-            if ( $created && TranslatableFieldRegistry::isRegistered( TranslatableFieldRegistry::ENTITY_LOOKUP, 'name' ) ) {
+            $type_id = $ok === false ? 0 : (int) $wpdb->insert_id;
+            if ( $type_id <= 0 ) return self::seedFailed();
+            $created = true;
+            if ( TranslatableFieldRegistry::isRegistered( TranslatableFieldRegistry::ENTITY_LOOKUP, 'name' ) ) {
                 ( new TranslationsRepository() )->upsert( TranslatableFieldRegistry::ENTITY_LOOKUP, $type_id, 'name', 'nl_NL', self::TYPE_NAMES_NL[ $group ], 0 );
             }
         }
-        if ( $type_id <= 0 ) return false;
 
         $mapping = new EvalTypeCategoriesRepository();
         $current = $mapping->categoryIdsFor( $type_id );

@@ -2513,14 +2513,6 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * #4707 — the academy-wide two-step rule: which roles must enrol.
-     *
-     * Save model B (explicit Save + Cancel, CLAUDE.md §6): one short form,
-     * one commit, and Cancel returns to the Configuration landing. What is
-     * stored, the counts and the audit row all come from
-     * `MfaPolicyService`; this method paints. Counts only, never names.
-     */
-    /**
      * #4976 (epic #4975) — the one select that switches the PDP conversation
      * forms on: a set of forms (one per position group), or none. Saved
      * through `PUT /pdp-forms`, which checks the scale and the main
@@ -2555,6 +2547,14 @@ class FrontendConfigurationView extends FrontendViewBase {
         echo '</form>';
     }
 
+    /**
+     * #4707 — the academy-wide two-step rule: which roles must enrol.
+     *
+     * Save model B (explicit Save + Cancel, CLAUDE.md §6): one short form,
+     * one commit, and Cancel returns to the Configuration landing. What is
+     * stored, the counts and the audit row all come from
+     * `MfaPolicyService`; this method paints. Counts only, never names.
+     */
     private static function renderMfaPolicyForm(): void {
         if ( ! current_user_can( \TT\Modules\Mfa\Rest\MfaPolicyRestController::CAP ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';

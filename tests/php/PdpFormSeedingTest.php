@@ -121,7 +121,53 @@ final class PdpFormSeedingTest extends WP_UnitTestCase {
         $refused = PdpFormCategorySeeder::ensure( self::FORMS );
         $this->assertInstanceOf( \WP_Error::class, $refused );
         $this->assertSame( 'missing_main', $refused->get_error_code() );
+        $this->assertStringContainsString(
+            EvalCategoriesRepository::displayLabel( (string) $mental->label, (int) $mental->id ),
+            $refused->get_error_message(),
+            'a main that is switched off is named as the admin sees it'
+        );
         $this->assertNull( ( new EvalCategoriesRepository() )->getByKey( 'jg4it_of_technisch_rechts' ), 'nothing was written' );
+    }
+
+    /**
+     * `category_key` is unique across the install while categories are read
+     * per club, so a second club picking the same forms has its insert
+     * refused. The save must then store no choice, rather than switch the
+     * forms on with no categories under them.
+     */
+    public function test_a_category_that_cannot_be_written_stores_no_choice(): void {
+        global $wpdb;
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $definition = PdpFormRegistry::definition( self::FORMS['outfield'] );
+        $this->assertNotNull( $definition );
+        $first = PdpFormRegistry::items( $definition )[0];
+        $wpdb->insert( "{$wpdb->prefix}tt_eval_categories", [
+            'club_id'      => (int) CurrentClub::id() + 1,
+            'category_key' => PdpFormRegistry::categoryKey( $definition, $first['key'] ),
+            'label'        => 'Another club',
+            'is_active'    => 1,
+        ] );
+        $this->assertGreaterThan( 0, (int) $wpdb->insert_id );
+
+        $wpdb->suppress_errors( true );
+        $response = $this->put( 'jg4it_elite' );
+        $wpdb->suppress_errors( false );
+
+        $this->assertSame( 422, $response->get_status(), (string) wp_json_encode( $response->get_data() ) );
+        $this->assertSame( 'seed_failed', $response->get_data()['errors'][0]['code'] ?? null );
+        $this->assertSame( '', (string) QueryHelpers::get_config( PdpFormRegistry::CONFIG_KEY, '' ), 'the choice is not stored' );
+        $this->assertSame( [ 'outfield' => null, 'goalkeeper' => null ], PdpFormRegistry::formsForClub() );
+    }
+
+    public function test_a_set_that_is_not_on_offer_is_an_invalid_field(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $response = $this->put( 'not_a_set' );
+
+        $this->assertSame( 400, $response->get_status() );
+        $error = $response->get_data()['errors'][0] ?? [];
+        $this->assertSame( 'invalid_field', $error['code'] ?? null );
+        $this->assertEquals( (object) [ 'field' => 'set', 'allowed' => [ 'jg4it_elite' ] ], $error['details'] ?? null );
+        $this->assertSame( '', (string) QueryHelpers::get_config( PdpFormRegistry::CONFIG_KEY, '' ) );
     }
 
     public function test_a_scale_without_five_steps_refuses_the_enabling(): void {

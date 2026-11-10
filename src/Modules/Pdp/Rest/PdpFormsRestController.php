@@ -78,7 +78,12 @@ final class PdpFormsRestController extends BaseController {
 
         $sets = PdpFormRegistry::sets();
         if ( ! isset( $sets[ $set_key ] ) ) {
-            return RestResponse::error( 'unknown_set', __( 'That set of conversation forms is not available.', 'talenttrack' ), 422 );
+            return RestResponse::error(
+                'invalid_field',
+                __( 'That set of conversation forms is not available.', 'talenttrack' ),
+                400,
+                [ 'field' => 'set', 'allowed' => array_keys( $sets ) ]
+            );
         }
 
         $forms  = $sets[ $set_key ]['forms'];

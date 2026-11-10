@@ -32,7 +32,11 @@ msgstr "Een keeper krijgt het keepersformulier en elke andere speler het formuli
 msgid "The conversation forms score on five steps, and the academy's rating scale does not have five. Set the rating scale to five steps first."
 msgstr "De gespreksformulieren scoren in vijf stappen, en de beoordelingsschaal van de academie heeft er geen vijf. Stel de beoordelingsschaal eerst in op vijf stappen."
 
-#. translators: %s: the keys of the main evaluation categories that are missing or switched off.
+#: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
+msgid "The evaluation categories of the conversation forms could not be saved, so the forms were not switched on. Try again; if it keeps failing, ask your administrator."
+msgstr "De evaluatiecategorieën van de gespreksformulieren konden niet worden opgeslagen, dus de formulieren zijn niet ingeschakeld. Probeer het opnieuw; lukt het steeds niet, vraag het dan je beheerder."
+
+#. translators: %s: the main evaluation categories that are missing or switched off.
 #: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
 msgid "The conversation forms score under the four main evaluation categories, and these are missing or switched off: %s."
 msgstr "De gespreksformulieren scoren onder de vier hoofdcategorieën voor evaluaties, en deze ontbreken of staan uit: %s."

@@ -241,7 +241,8 @@ class EvalCategoriesRepository {
         global $wpdb;
         $normalized = $this->normalize( $data, true );
         $normalized['club_id'] = CurrentClub::id();
-        $wpdb->insert( $this->table(), $normalized );
+        // A failed insert leaves the previous insert's id in `insert_id`.
+        if ( $wpdb->insert( $this->table(), $normalized ) === false ) return 0;
         return (int) $wpdb->insert_id;
     }
 
