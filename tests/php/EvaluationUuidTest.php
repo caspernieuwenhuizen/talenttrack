@@ -176,6 +176,68 @@ final class EvaluationUuidTest extends WP_UnitTestCase {
         $this->assertSame( $before, $wpdb->get_results( "SELECT id, uuid FROM {$table} ORDER BY id", ARRAY_A ), 'a second run changes nothing' );
     }
 
+    public function test_a_refused_write_fails_the_migration_instead_of_marking_it_applied(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", [
+            'club_id' => (int) CurrentClub::id(), 'player_id' => $this->player,
+            'eval_date' => current_time( 'Y-m-d' ), 'notes' => '', 'uuid' => null,
+        ] );
+        // The database refuses the backfill's UPDATE.
+        $refuse = static function ( string $sql ): string {
+            return strpos( $sql, 'tt_evaluations` SET uuid' ) !== false ? 'UPDATE `tt_no_such_table_4985` SET uuid = 1' : $sql;
+        };
+        add_filter( 'query', $refuse );
+        $wpdb->suppress_errors( true );
+
+        try {
+            $this->migration()->up();
+            $this->fail( 'a refused write should fail the migration' );
+        } catch ( \RuntimeException $e ) {
+            $this->assertStringContainsString( 'Migration statement failed', $e->getMessage() );
+        } finally {
+            remove_filter( 'query', $refuse );
+            $wpdb->suppress_errors( false );
+        }
+        $this->assertSame( 1, $this->emptyCount(), 'the row is left for the next run' );
+    }
+
+    /**
+     * The six paths each set the uuid themselves (#4985). A seventh that
+     * writes `tt_evaluations` directly would forget it again, so this lists
+     * them: adding one fails here until it sets the uuid or goes through
+     * `EvaluationInserter::insert()`, and is then added below.
+     */
+    public function test_every_direct_evaluation_insert_is_one_that_sets_the_uuid(): void {
+        $known = [
+            'src/Infrastructure/REST/EvaluationsRestController.php',
+            'src/Modules/DemoData/DemoEvaluationWriter.php',
+            'src/Modules/Evaluations/Admin/EvaluationsPage.php',
+            'src/Modules/Import/Excel/ExcelImporter.php',
+            'src/Modules/Wizards/Evaluation/EvaluationInserter.php',
+            'src/Modules/Wizards/Evaluation/ReviewStep.php',
+        ];
+        $root  = dirname( __DIR__, 2 );
+        $found = [];
+        $files = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root . '/src', \FilesystemIterator::SKIP_DOTS ) );
+        foreach ( $files as $file ) {
+            if ( ! $file instanceof \SplFileInfo || $file->getExtension() !== 'php' ) continue;
+            $code = (string) file_get_contents( $file->getPathname() );
+            if ( preg_match( '/->insert\(\s*[^,;]*tt_evaluations[\'"]\s*,/', $code ) === 1 ) {
+                $found[] = str_replace( '\\', '/', substr( $file->getPathname(), strlen( $root ) + 1 ) );
+            }
+        }
+        sort( $found );
+
+        $this->assertSame(
+            $known,
+            $found,
+            'A file writes tt_evaluations directly and is not on the list. Set uuid => wp_generate_uuid4() on its insert, or write through EvaluationInserter::insert(), then add it here.'
+        );
+        foreach ( $known as $path ) {
+            $this->assertStringContainsString( 'wp_generate_uuid4()', (string) file_get_contents( $root . '/' . $path ), $path . ' writes an evaluation without a uuid' );
+        }
+    }
+
     private function migration(): object {
         return require dirname( __DIR__, 2 ) . self::MIGRATION;
     }

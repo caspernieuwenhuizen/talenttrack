@@ -9,8 +9,9 @@
  *
  * Data only. It walks the rows whose uuid is NULL or empty in batches of
  * 500 and gives each a fresh `wp_generate_uuid4()`. Rows that have one are
- * never touched, so a second run writes nothing. A batch that fills nothing
- * (a write the database refuses) stops the walk rather than loop on it.
+ * never touched, so a second run writes nothing. A write the database
+ * refuses throws, and so do rows still empty when the walk ends, so the
+ * runner records the migration as failed and it runs again next time.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -39,22 +40,40 @@ return new class extends Migration {
         }
 
         $filled = 0;
+        $first  = true;
         while ( true ) {
             $ids = $wpdb->get_col( $wpdb->prepare(
                 "SELECT id FROM `$table` WHERE uuid IS NULL OR uuid = '' ORDER BY id LIMIT %d",
                 self::BATCH
             ) );
-            if ( empty( $ids ) ) break;
+            if ( empty( $ids ) ) {
+                if ( $first ) {
+                    $this->report( 0, 'every evaluation already has a uuid' );
+                    return;
+                }
+                break;
+            }
+            $first = false;
 
+            // `exec()` throws on a refused write, so the runner records the
+            // migration as failed rather than applied with rows left empty.
             $in_batch = 0;
             foreach ( $ids as $id ) {
-                $ok = $wpdb->update( $table, [ 'uuid' => wp_generate_uuid4() ], [ 'id' => (int) $id ] );
-                if ( $ok ) $in_batch++;
+                $in_batch += $this->exec( $wpdb->prepare(
+                    "UPDATE `$table` SET uuid = %s WHERE id = %d AND ( uuid IS NULL OR uuid = '' )",
+                    wp_generate_uuid4(),
+                    (int) $id
+                ) );
             }
             $filled += $in_batch;
             if ( $in_batch === 0 ) break;
         }
 
-        $this->report( $filled, $filled > 0 ? 'evaluations given a uuid' : 'every evaluation already has a uuid' );
+        $left = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$table` WHERE uuid IS NULL OR uuid = ''" );
+        if ( $left > 0 ) {
+            throw new \RuntimeException( sprintf( '0322: %d evaluation(s) still have no uuid after the backfill', $left ) );
+        }
+
+        $this->report( $filled, 'evaluations given a uuid' );
     }
 };
