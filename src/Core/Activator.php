@@ -198,10 +198,28 @@ class Activator {
 
     private static function ensureSchema(): void {
         global $wpdb;
-        $c = $wpdb->get_charset_collate();
         $p = $wpdb->prefix;
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        foreach ( self::schemaQueries() as $sql ) {
+            dbDelta( $sql );
+        }
+
+        self::ensureLegacyColumns( $p );
+    }
+
+    /**
+     * The install routine's CREATE statements. Each is the shape the
+     * migrations leave the table in, because dbDelta runs them over the
+     * migrated tables on every activation (#5020, docs/migrations.md).
+     *
+     * @return list<string>
+     */
+    private static function schemaQueries(): array {
+        global $wpdb;
+        $c = $wpdb->get_charset_collate();
+        $p = $wpdb->prefix;
 
         $queries = [];
 
@@ -281,7 +299,7 @@ class Activator {
             guardian_name VARCHAR(255) DEFAULT '',
             guardian_email VARCHAR(255) DEFAULT '',
             guardian_phone VARCHAR(50) DEFAULT '',
-            wp_user_id BIGINT UNSIGNED DEFAULT NULL,
+            wp_user_id BIGINT UNSIGNED DEFAULT 0,
             status VARCHAR(50) DEFAULT 'active',
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
@@ -537,8 +555,9 @@ class Activator {
         // `session_id` and 0027 renames it to `activity_id`, so a fresh
         // install needs it. On a migrated table dbDelta would add
         // `session_id` back as NOT NULL and make `player_id` NOT NULL again
-        // (what 0101 repaired), so it only creates the table.
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_attendance" ) ) !== "{$p}tt_attendance" ) {
+        // (what 0101 repaired), so it only creates the table. Never add a
+        // column here: attendance changes go through a migration only.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( "{$p}tt_attendance" ) ) ) !== "{$p}tt_attendance" ) {
             $queries[] = "CREATE TABLE {$p}tt_attendance (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 session_id BIGINT UNSIGNED NOT NULL,
@@ -794,9 +813,11 @@ class Activator {
             KEY idx_player_b (player_b_id)
         ) $c;";
 
-        foreach ( $queries as $sql ) {
-            dbDelta( $sql );
-        }
+        return $queries;
+    }
+
+    private static function ensureLegacyColumns( string $p ): void {
+        global $wpdb;
 
         // #0018 sprint 2 — side-preference column on tt_players.
         $players_table = $p . 'tt_players';

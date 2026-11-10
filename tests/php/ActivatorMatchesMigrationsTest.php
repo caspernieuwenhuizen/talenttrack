@@ -11,72 +11,65 @@ use TT\Modules\Workflow\Forms\RecordTestTrainingOutcomeForm;
 /**
  * #5020 — the install routine matches the migrations.
  *
- * `Activator::ensureSchema()` runs on activation and on "Retry migrations
- * now", after the migrations have shaped the tables, and its CREATEs go
- * through dbDelta. A CREATE that disagrees with a migration puts the old
- * shape back: `tt_players.wp_user_id` went back to `DEFAULT 0` after
- * migration 0170 made it nullable and unique per club.
+ * `Activator::ensureSchema()` runs `schemaQueries()` through dbDelta on
+ * activation and on "Retry migrations now", over tables the migrations have
+ * already shaped. A CREATE that disagrees with a migration puts the old shape
+ * back: `tt_players.wp_user_id` went back to `DEFAULT 0` after migration 0170
+ * made it nullable and unique per club.
  *
- * The suite's schema is the migrations' (the plugin is activated, then
- * migrated), so a re-activation here is the operator's re-activation on a
- * live install. When the CREATEs match, it changes nothing. When one does
- * not, dbDelta rewrites that table for the rest of the run, so a failure
- * here can show up in later tests too: fix this one first.
+ * The suite's schema is what an install gets: wp-env activates the plugin
+ * (which runs `ensureSchema()` and the migrations) before PHPUnit starts.
+ *
+ * Nothing here alters a real table. Missing tables, columns, indexes and
+ * defaults come from dbDelta's dry run. A column dbDelta would re-declare
+ * ("Changed type of …") is judged on a temporary copy of its table: the
+ * copy takes the CREATE for real and is compared with itself before. On
+ * MariaDB, which wp-env runs, dbDelta reports every integer column declared
+ * without a display width as a type change, and re-applying that column's
+ * definition is how a stale default or NOT NULL comes back, so the copy is
+ * where that shows.
  */
 final class ActivatorMatchesMigrationsTest extends WP_UnitTestCase {
 
+    private const PROBE = 'tt_probe_5020';
+
     public function test_a_reactivation_changes_no_tt_table(): void {
-        $before = $this->createStatements();
-        $this->assertNotEmpty( $before, 'Precondition: the suite has tt_ tables.' );
-
-        $this->reactivate();
-
-        $after = $this->createStatements();
-        $drift = [];
-        foreach ( $before as $table => $sql ) {
-            if ( ! isset( $after[ $table ] ) ) {
-                $drift[] = "{$table}: gone after ensureSchema()";
-                continue;
-            }
-            if ( $after[ $table ] === $sql ) continue;
-            $was = explode( "\n", $sql );
-            $now = explode( "\n", $after[ $table ] );
-            foreach ( array_diff( $was, $now ) as $line ) $drift[] = "{$table}: migrations  " . trim( $line );
-            foreach ( array_diff( $now, $was ) as $line ) $drift[] = "{$table}: install     " . trim( $line );
-        }
-        foreach ( array_diff_key( $after, $before ) as $table => $sql ) {
-            $drift[] = "{$table}: created by ensureSchema() only";
+        $drift = $this->dryRun();
+        foreach ( $this->schemaQueries() as $sql ) {
+            $probe = $this->reapply( $sql );
+            if ( $probe === null ) continue;
+            foreach ( $probe['drift'] as $line ) $drift[] = $line;
+            $this->dropProbe();
         }
 
-        $this->assertSame( [], $drift, "ensureSchema() changed what the migrations built:\n" . implode( "\n", $drift ) );
+        $this->assertSame( [], $drift, "A re-activation would change what the migrations built:\n" . implode( "\n", $drift ) );
     }
 
     public function test_a_reactivation_keeps_one_account_per_player(): void {
-        $this->reactivate();
-
         global $wpdb;
-        $table  = $wpdb->prefix . 'tt_players';
-        $column = $wpdb->get_row( $wpdb->prepare(
-            'SELECT IS_NULLABLE, COLUMN_DEFAULT FROM information_schema.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s',
-            $table, 'wp_user_id'
-        ) );
-        $this->assertNotNull( $column );
-        $this->assertSame( 'YES', $column->IS_NULLABLE );
-        // MySQL reports a NULL default as NULL, MariaDB as the string 'NULL'.
-        $this->assertContains( $column->COLUMN_DEFAULT, [ null, 'NULL' ], 'no account is NULL, not 0' );
+        $probe = $this->reapply( $this->queryFor( 'tt_players' ) );
+        $this->assertNotNull( $probe, 'tt_players exists and the install routine declares it' );
+        $table = $wpdb->prefix . self::PROBE;
 
-        $key = $wpdb->get_col( $wpdb->prepare(
-            'SELECT COLUMN_NAME FROM information_schema.STATISTICS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND INDEX_NAME = %s AND NON_UNIQUE = 0
-              ORDER BY SEQ_IN_INDEX',
-            $table, 'uniq_club_user'
-        ) );
-        $this->assertSame( [ 'club_id', 'wp_user_id' ], $key );
+        $column = $wpdb->get_row( "SHOW COLUMNS FROM `{$table}` LIKE 'wp_user_id'" );
+        $index  = $wpdb->get_results( "SHOW INDEX FROM `{$table}` WHERE Key_name = 'uniq_club_user'" );
+        $this->dropProbe();
+
+        $this->assertNotNull( $column );
+        $this->assertSame( 'YES', $column->Null );
+        $this->assertContains( $column->Default, [ null, 'NULL' ], 'no account is NULL, not 0' );
+
+        $this->assertSame( [ 'club_id', 'wp_user_id' ], array_map( static fn( $r ): string => (string) $r->Column_name, $index ) );
+        $this->assertSame( '0', (string) ( $index[0]->Non_unique ?? '' ) );
     }
 
     public function test_two_promotions_in_one_club_both_succeed_after_a_reactivation(): void {
-        $this->reactivate();
+        // A re-activation leaves tt_players as the migrations built it, so
+        // promoting on the suite's table is promoting after one.
+        $probe = $this->reapply( $this->queryFor( 'tt_players' ) );
+        $this->assertNotNull( $probe );
+        $this->dropProbe();
+        $this->assertSame( [], $probe['drift'], 'a re-activation leaves tt_players unchanged' );
 
         $id = ( new TrialTracksRepository() )->create( [ 'name' => 'Reactivation', 'sort_order' => 0 ] );
         $this->assertGreaterThan( 0, $id );
@@ -117,29 +110,86 @@ final class ActivatorMatchesMigrationsTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( 'secondary_color', $config );
     }
 
-    /** The install routine's schema pass, as activation runs it. */
-    private function reactivate(): void {
-        global $wpdb;
-        $schema = new \ReflectionMethod( Activator::class, 'ensureSchema' );
-        $schema->setAccessible( true );
-        $wpdb->suppress_errors( true );
-        $schema->invoke( null );
-        $wpdb->suppress_errors( false );
+    /** @return list<string> */
+    private function schemaQueries(): array {
+        $queries = new \ReflectionMethod( Activator::class, 'schemaQueries' );
+        $queries->setAccessible( true );
+        return (array) $queries->invoke( null );
     }
 
-    /** @return array<string,string> table => SHOW CREATE TABLE, without the counter */
-    private function createStatements(): array {
+    private function queryFor( string $bare ): string {
         global $wpdb;
-        $tables = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $wpdb->prefix . 'tt_' ) . '%' ) );
-        sort( $tables );
+        $found = '';
+        foreach ( $this->schemaQueries() as $sql ) {
+            if ( $this->tableOf( $sql ) === $wpdb->prefix . $bare ) $found = $sql;
+        }
+        $this->assertNotSame( '', $found, "The install routine declares {$bare}." );
+        return $found;
+    }
 
+    private function tableOf( string $sql ): string {
+        return preg_match( '/CREATE TABLE\s+(\S+)\s*\(/', $sql, $m ) === 1 ? $m[1] : '';
+    }
+
+    /**
+     * What dbDelta reports without running anything, less the type changes
+     * `reapply()` judges.
+     *
+     * @return list<string>
+     */
+    private function dryRun(): array {
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $out = [];
-        foreach ( $tables as $table ) {
-            $row = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
-            if ( ! is_array( $row ) || ! isset( $row[1] ) ) continue;
-            $out[ (string) $table ] = (string) preg_replace( '/ AUTO_INCREMENT=\d+/', '', (string) $row[1] );
+        foreach ( (array) dbDelta( $this->schemaQueries(), false ) as $message ) {
+            $message = (string) $message;
+            if ( strpos( $message, 'Changed type of ' ) === 0 ) continue;
+            $out[] = $message;
         }
         return $out;
+    }
+
+    /**
+     * Runs one CREATE for real on a temporary copy of its table and reports
+     * how the copy changed. Null when the table does not exist; the dry run
+     * reports that one. The copy stays until `dropProbe()`.
+     *
+     * @return array{drift: list<string>}|null
+     */
+    private function reapply( string $sql ): ?array {
+        global $wpdb;
+        $table = $this->tableOf( $sql );
+        if ( $table === '' ) return null;
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) !== $table ) return null;
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        $probe = $wpdb->prefix . self::PROBE;
+        $this->dropProbe();
+        $wpdb->query( "CREATE TEMPORARY TABLE `{$probe}` LIKE `{$table}`" );
+        $before = $this->createOf( $probe );
+
+        $wpdb->suppress_errors( true );
+        dbDelta( (string) preg_replace( '/CREATE TABLE\s+' . preg_quote( $table, '/' ) . '\s*\(/', 'CREATE TABLE ' . $probe . ' (', $sql, 1 ) );
+        $wpdb->suppress_errors( false );
+
+        $after = $this->createOf( $probe );
+        $drift = [];
+        foreach ( array_diff( $before, $after ) as $line ) $drift[] = "{$table}: migrations  {$line}";
+        foreach ( array_diff( $after, $before ) as $line ) $drift[] = "{$table}: install     {$line}";
+        return [ 'drift' => $drift ];
+    }
+
+    private function dropProbe(): void {
+        global $wpdb;
+        $wpdb->query( 'DROP TEMPORARY TABLE IF EXISTS `' . $wpdb->prefix . self::PROBE . '`' );
+    }
+
+    /** @return list<string> the table's definition lines, trailing commas and the counter dropped */
+    private function createOf( string $table ): array {
+        global $wpdb;
+        $row = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
+        $sql = is_array( $row ) ? (string) ( $row[1] ?? '' ) : '';
+        $sql = (string) preg_replace( '/ AUTO_INCREMENT=\d+/', '', $sql );
+        return array_values( array_map( static fn( string $l ): string => rtrim( trim( $l ), ',' ), explode( "\n", $sql ) ) );
     }
 
     private function prospect( string $first ): int {
