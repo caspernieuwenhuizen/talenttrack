@@ -139,9 +139,17 @@ class CoachForms {
                 $conversation = ( new \TT\Modules\Pdp\Repositories\PdpConversationsRepository() )->find( $pdp_conversation_id );
                 $file_id      = $conversation !== null ? (int) ( ( (array) $conversation )['pdp_file_id'] ?? 0 ) : 0;
                 echo '<p class="tt-notice">' . esc_html__( 'This evaluation was saved by a signed PDP conversation form, so it cannot be changed here.', 'talenttrack' );
+                $player_id = (int) ( $existing_eval->player_id ?? 0 );
                 if ( $file_id > 0 ) {
-                    $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'pdp', 'id' => $file_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) );
-                    echo ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Open the conversation', 'talenttrack' ) . '</a>';
+                    \TT\Shared\Frontend\Components\CrossViewLink::render(
+                        'pdp',
+                        static function () use ( $file_id ): void {
+                            $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'pdp', 'id' => $file_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) ); /* tt-xview-ok */
+                            echo ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Open the conversation', 'talenttrack' ) . '</a>';
+                        },
+                        // The file opens for whoever may see this player's PDP.
+                        [ 'gate' => static fn( int $uid ): bool => \TT\Modules\Pdp\PdpAccess::canSeeFile( $uid, $player_id ) ]
+                    );
                 }
                 echo '</p>';
                 return;

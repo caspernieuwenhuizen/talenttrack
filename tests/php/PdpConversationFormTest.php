@@ -24,6 +24,11 @@ use TT\Modules\Pdp\Services\PdpCycleState;
  */
 final class PdpConversationFormTest extends WP_UnitTestCase {
 
+    // Sign-off and the file cascade commit their own transaction, which ends
+    // the per-test one: without the sweep, this test's categories, types and
+    // rows would reach the tests after it (#4976's seeding tests saw them).
+    use CommitsAfterCascade;
+
     private const FORM = 'jg4it_elite_outfield';
 
     private string $p     = '';
@@ -38,6 +43,8 @@ final class PdpConversationFormTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->markFixtureFloor();
+        $this->markConfigKeys( PdpFormRegistry::CONFIG_KEY, 'rating_min', 'rating_max', 'rating_step' );
         global $wpdb, $wp_rest_server;
         $this->p    = $wpdb->prefix;
         $this->club = (int) CurrentClub::id();
@@ -71,8 +78,10 @@ final class PdpConversationFormTest extends WP_UnitTestCase {
         global $wp_rest_server;
         $wp_rest_server = null;
         wp_set_current_user( 0 );
+        $this->cleanUpAndCommit();
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
+        PdpFormRegistry::reset();
         parent::tear_down();
     }
 
