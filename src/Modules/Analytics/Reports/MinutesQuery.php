@@ -653,8 +653,8 @@ final class MinutesQuery {
      *     `TournamentMinutesResolver::arbitrate()` answers from the plan: a
      *     register figure wins, and a confirmed `0` stays 0.
      *
-     * `MinutesRecordedSqlTest` holds the two to the same answer on every
-     * one of these cases.
+     * `MinutesShareOneRuleTest::test_the_sql_predicate_agrees_with_the_minutes_read`
+     * holds the two to the same answer on every one of these cases.
      *
      * @param string $alias table alias for `tt_activities`; must be a real alias,
      *                      as in {@see playedMatchSql()}

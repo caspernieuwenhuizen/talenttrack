@@ -193,6 +193,45 @@ final class MinutesShareOneRuleTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'no played matches on record at all', $html );
     }
 
+    /**
+     * The REST contract carries `outside_window.played`, on the squad route
+     * and on the one-player route, so a non-WordPress front end can tell the
+     * two empty cases apart as the rendered report does.
+     */
+    public function test_the_rest_route_carries_the_played_matches_outside_the_window(): void {
+        global $wp_rest_server;
+        $team = $this->insertTeam( 'U13 over REST' );
+        $p    = $this->insertPlayer( $team, 'Fenna' );
+        $this->insertRecordedMatch( $team, $p, '2025-05-01' );
+        $this->insertAttendance( $this->insertMatch( $team, '2025-05-08' ), $p, null );
+        $inside = $this->insertMatch( $team, '2026-03-10' );
+        $this->insertAttendance( $inside, $p, 30 );
+
+        ( new RolesService() )->ensureCapabilities();
+        wp_set_current_user( (int) self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+        try {
+            foreach ( [ "/teams/{$team}/minutes-share", "/teams/{$team}/minutes-share/{$p}" ] as $route ) {
+                $request = new \WP_REST_Request( 'GET', '/talenttrack/v1' . $route );
+                $request->set_param( 'from', '2026-03-01' );
+                $request->set_param( 'to', '2026-03-31' );
+                $response = rest_get_server()->dispatch( $request );
+                $this->assertSame( 200, $response->get_status(), $route );
+
+                $body = (array) $response->get_data();
+                $data = isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : $body;
+                $this->assertSame(
+                    [ 'matches' => 1, 'played' => 2, 'earliest' => '2025-05-01', 'latest' => '2025-05-01' ],
+                    $data['outside_window'] ?? null,
+                    "{$route}: one recorded and one unrecorded match outside the window"
+                );
+            }
+        } finally {
+            $wp_rest_server = null;
+        }
+    }
+
     public function test_a_team_without_played_matches_keeps_its_message(): void {
         $team = $this->insertTeam( 'U13 preseason' );
         $this->insertPlayer( $team, 'Eva' );
