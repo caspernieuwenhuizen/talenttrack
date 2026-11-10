@@ -117,6 +117,54 @@
     font-size: 15px;
 }
 
+/* === Numbered choices (#4979) =============================================
+ * Five numbered buttons filling the row, each at least the coarse-pointer
+ * tap floor, 8px apart. Only the chosen one is marked: a choice is not a
+ * fill. The readout (the chosen label) wraps onto its own line under the
+ * row. */
+
+.tt-rating-row--choices {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    padding: 0;
+}
+.tt-rating-stars--choices {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+.tt-rating-stars--choices .tt-rating-choice {
+    width: auto;
+    min-width: var(--tt-tap-min, 48px);
+    height: auto;
+    min-height: var(--tt-tap-min, 48px);
+    border: 1px solid var(--tt-rating-line);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-rating-ink);
+    font: 700 1.05rem/1 inherit;
+}
+.tt-rating-stars--choices .tt-rating-choice.is-on,
+.tt-rating-stars--choices .tt-rating-choice.is-hover {
+    color: var(--tt-rating-ink);
+}
+.tt-rating-stars--choices .tt-rating-choice[aria-checked="true"] {
+    background: var(--tt-rating-accent);
+    border-color: var(--tt-rating-accent);
+    color: var(--tt-paper, #fff);
+}
+.tt-rating-row--choices .tt-rating-row__val {
+    margin: 0;
+    min-width: 0;
+    text-align: left;
+    color: var(--tt-rating-accent);
+    font-size: 0.8rem;
+}
+.tt-rating-row--choices .tt-rating-row__val--unset {
+    color: var(--tt-rating-soft);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .tt-rating-star { transition: none; }
 }

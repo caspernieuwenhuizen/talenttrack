@@ -34,6 +34,7 @@ maken** en **Wijzigingen terugdraaien**.
 | [POP-gesprek](pdp-cycle.md) | Tot het is ondertekend |
 | [POP-voorbereiding](pdp-cycle.md) | De antwoorden van de trainer, tot het gesprek is ondertekend |
 | [POP-zelfreflectie](pdp-cycle.md) | Zolang het reflectievenster open staat |
+| [De voorbereiding van de speler op een POP-gespreksformulier](pdp-cycle.md) | Vanaf 14 dagen voor het gesprek tot het begint. **Klaar** is een eigen knop, geen veld. |
 | [POP-gespreksformulier](pdp-cycle.md#gespreksformulieren) | De scores en antwoorden van de speler tot het gesprek begint; de scores, antwoorden en ontwikkelpunten van de trainer tot het ondertekenen |
 | [Report Studio](reports.md#report-studio--een-rapport-bouwen) | Het concept van een rapport; **Publiceren** maakt er een versie van |
 

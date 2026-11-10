@@ -1164,3 +1164,146 @@
 @media (min-width: 480px) {
     .tt-pdp-team-gate__form { flex-direction: row; align-items: flex-end; flex-wrap: wrap; }
 }
+
+/*
+ * #4979 — the player's preparation of a form conversation in My PDP.
+ * Mobile-first at 360px: one step at a time, five numbered choices per
+ * item (`rating-input.css`), the step buttons in the thumb zone.
+ */
+/* Five 48px choices with 8px between them need 272px. On a 320px phone the
+   card's own frame would leave less than that, so below 480px the section
+   is unframed and the items are rows with a divider; the frame returns
+   from 480px up. */
+.tt-dashboard .tt-card.tt-pdp-prep {
+    padding: 1rem 0;
+    border-width: 1px 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-card.tt-pdp-prep {
+        padding: var(--tt-sp-5, 1.25rem);
+        border-width: 1px;
+        border-radius: var(--tt-radius-lg, 14px);
+        box-shadow: var(--tt-shadow-md);
+        background: var(--tt-paper, #fff);
+    }
+}
+.tt-pdp-prep__h { margin: 0 0 0.25rem; }
+.tt-pdp-prep__meta { margin: 0 0 0.75rem; color: var(--tt-muted, #5b6470); font-size: 0.9rem; }
+.tt-pdp-prep__guard {
+    margin: 0 0 1rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-radius: var(--tt-radius, 8px);
+    font-size: 0.9rem;
+}
+.tt-pdp-prep__form { display: grid; gap: 0.9rem; min-width: 0; }
+.tt-pdp-prep__progress {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.tt-pdp-prep__pstep { min-width: 0; }
+.tt-pdp-prep__pbtn {
+    display: grid;
+    gap: 0.3rem;
+    width: 100%;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0.35rem 0 0;
+    border: 0;
+    background: none;
+    color: var(--tt-muted, #5b6470);
+    font: inherit;
+    font-size: 0.72rem;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-pdp-prep__pbar {
+    display: block;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--tt-line, #cbd5e1);
+}
+.tt-pdp-prep__plabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-pdp-prep__pbtn[aria-current="step"],
+.tt-pdp-prep__pbtn.is-done { color: var(--tt-primary, #1565c0); font-weight: 600; }
+.tt-pdp-prep__pbtn[aria-current="step"] .tt-pdp-prep__pbar,
+.tt-pdp-prep__pbtn.is-done .tt-pdp-prep__pbar { background: var(--tt-primary, #1565c0); }
+.tt-pdp-prep__pbtn:focus-visible { outline: 2px solid var(--tt-primary, #1565c0); outline-offset: 2px; }
+.tt-pdp-prep__intro { margin: 0; font-size: 0.9rem; line-height: 1.45; }
+.tt-pdp-prep__legend {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: var(--tt-radius, 8px);
+    font-size: 0.85rem;
+}
+.tt-pdp-prep__legend summary {
+    min-height: var(--tt-tap-min, 48px);
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+}
+.tt-pdp-prep__legend ul { display: grid; gap: 0.25rem; margin: 0.25rem 0 0; padding: 0; list-style: none; }
+.tt-pdp-prep__step { display: grid; gap: 0.75rem; min-width: 0; margin: 0; padding: 0; border: 0; }
+.tt-pdp-prep__step[hidden] { display: none; }
+.tt-pdp-prep__sh { padding: 0; font-weight: 700; font-size: 1.05rem; }
+.tt-pdp-prep__item {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--tt-line, #e2e8f0);
+}
+@media (min-width: 480px) {
+    .tt-pdp-prep__item {
+        padding: 0.75rem 0.85rem;
+        border: 1px solid var(--tt-line, #e2e8f0);
+        border-radius: var(--tt-radius, 8px);
+        background: var(--tt-paper, #fff);
+    }
+}
+.tt-pdp-prep__iname { margin: 0; font-weight: 700; }
+.tt-pdp-prep__idef { margin: 0; font-size: 0.85rem; line-height: 1.4; color: var(--tt-muted, #5b6470); }
+.tt-pdp-prep__step .tt-field { display: grid; gap: 0.4rem; }
+.tt-pdp-prep__step .tt-help-text { margin: 0; }
+.tt-pdp-prep__nav { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.tt-pdp-prep__nav .tt-btn { flex: 1 1 8rem; min-height: var(--tt-tap-min, 48px); touch-action: manipulation; }
+.tt-pdp-prep__nav .tt-btn-primary { flex-grow: 2; }
+.tt-pdp-prep__nav .tt-btn[hidden] { display: none; }
+.tt-pdp-prep__save { justify-content: center; }
+.tt-pdp-prep__ready {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-pdp-prep__readyh { margin: 0; font-weight: 700; }
+.tt-pdp-prep__tick { color: var(--tt-success, #15803d); }
+.tt-pdp-prep__readycount,
+.tt-pdp-prep__readytext { margin: 0; font-size: 0.9rem; }
+.tt-pdp-prep__ready .tt-btn { min-height: var(--tt-tap-min, 48px); touch-action: manipulation; }
+.tt-pdp-prep__sumh { margin: 1rem 0 0.4rem; font-size: 1rem; }
+.tt-pdp-prep__sum { margin: 0; padding: 0; list-style: none; border: 1px solid var(--tt-line, #e2e8f0); border-radius: var(--tt-radius, 8px); }
+.tt-pdp-prep__sumrow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 2.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0.5rem 0.85rem;
+    border-top: 1px solid var(--tt-line, #e2e8f0);
+}
+.tt-pdp-prep__sumrow:first-child { border-top: 0; }
+.tt-pdp-prep__sumname { font-weight: 600; overflow-wrap: anywhere; }
+.tt-pdp-prep__sumcount { font-size: 0.8rem; color: var(--tt-muted, #5b6470); }
+.tt-pdp-prep__sumavg { font-weight: 700; text-align: right; color: var(--tt-primary, #1565c0); }
+.tt-pdp-prep__answer { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }

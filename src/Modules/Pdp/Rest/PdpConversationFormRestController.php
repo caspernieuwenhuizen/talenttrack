@@ -152,7 +152,9 @@ final class PdpConversationFormRestController extends BaseController {
         $conv = $access->conversation();
         if ( ! empty( ( (array) $conv )['coach_signoff_at'] ) ) return self::signedOffError();
         if ( ! $access->choosesForm() ) return self::forbidden();
-        if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        if ( PdpCycleState::isNotHeld( $conv ) ) {
+            return RestResponse::error( 'conversation_not_held', __( 'This talk did not take place, so the form can no longer be switched.', 'talenttrack' ), 409 );
+        }
 
         $form_key = sanitize_key( (string) $r->get_param( 'form_key' ) );
         if ( $form_key === '' ) {
@@ -194,6 +196,7 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        if ( ! PdpCycleState::preparationOpen( $conv ) ) return self::notOpen( $conv );
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
 
         $parsed = self::parseEntries( $r, $definition, PdpFormAuthor::PLAYER, false );
@@ -203,6 +206,8 @@ final class PdpConversationFormRestController extends BaseController {
         // The player's first save pins the form (decision 6).
         $id      = (int) ( (array) $conv )['id'];
         $refused = self::locked( new PdpFormEntriesRepository(), $id, static function ( array $locked ) use ( $id, $definition, $parsed ): ?WP_REST_Response {
+            $window = self::playerTimeRefusal( $locked, true );
+            if ( $window !== null ) return $window;
             $pin = self::pin( $locked, $id, $definition );
             if ( $pin !== null ) return $pin;
             return self::writeEntries( $id, $definition, PdpFormAuthor::PLAYER, $parsed ) ? null : self::dbError();
@@ -284,6 +289,10 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
+        // #4979 — "klaar" only inside the preparation window. Taking it back
+        // stays possible while the part is unlocked, so a talk moved later
+        // after "klaar" can still be reopened.
+        if ( $prepared && ! PdpCycleState::preparationOpen( $conv ) ) return self::notOpen( $conv );
         if ( ! $access->writesPlayerPart() ) return self::lockedError();
 
         $row  = (array) $conv;
@@ -292,7 +301,9 @@ final class PdpConversationFormRestController extends BaseController {
         if ( $prepared === ( $now !== '' ) ) return self::fresh( $id );
 
         $patch   = [ 'player_prepared_at' => $prepared ? current_time( 'mysql', true ) : null ];
-        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function ( array $locked ) use ( $id, $patch, $definition ): ?WP_REST_Response {
+        $refused = self::locked( new PdpFormEntriesRepository(), $id, static function ( array $locked ) use ( $id, $patch, $definition, $prepared ): ?WP_REST_Response {
+            $window = self::playerTimeRefusal( $locked, $prepared );
+            if ( $window !== null ) return $window;
             $pin = self::pin( $locked, $id, $definition );
             if ( $pin !== null ) return $pin;
             return ( new PdpConversationsRepository() )->update( $id, $patch ) ? null : self::dbError();
@@ -528,6 +539,46 @@ final class PdpConversationFormRestController extends BaseController {
 
     private static function notHeld(): WP_REST_Response {
         return RestResponse::error( 'conversation_not_held', __( 'This talk did not take place, so its form takes no entries.', 'talenttrack' ), 409 );
+    }
+
+    /**
+     * #4979 — the window and the time lock asked again of the locked row, so
+     * a talk rescheduled while a player's write was on its way cannot let
+     * the write land under the old date: the `FOR UPDATE` reads
+     * `scheduled_at` and serialises against the reschedule.
+     *
+     * @param array<string,mixed> $locked     the locked conversation row
+     * @param bool                $needs_open the write needs the window open
+     *                                        (an entry, or "klaar"); taking
+     *                                        "klaar" back needs only the lock
+     */
+    private static function playerTimeRefusal( array $locked, bool $needs_open ): ?WP_REST_Response {
+        $row = (object) $locked;
+        if ( $needs_open && ! PdpCycleState::preparationOpen( $row ) ) return self::notOpen( $row );
+        if ( PdpCycleState::playerPartLocked( $row ) ) return self::lockedError();
+        return null;
+    }
+
+    /**
+     * #4979 — outside the preparation window: before it opens, or with no
+     * planned date. `opens_at` (UTC, `Y-m-d H:i:s`) says when it does, or is
+     * null until the talk is planned.
+     */
+    private static function notOpen( object $conv ): WP_REST_Response {
+        $opens = PdpCycleState::preparationOpensAt( $conv );
+        if ( $opens === null ) {
+            return RestResponse::error( 'preparation_not_open', __( 'You can prepare once the conversation is planned.', 'talenttrack' ), 409, [ 'opens_at' => null ] );
+        }
+        return RestResponse::error(
+            'preparation_not_open',
+            sprintf(
+                /* translators: %s: the date the player's preparation opens */
+                __( 'You can prepare from %s.', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::date( $opens )
+            ),
+            409,
+            [ 'opens_at' => gmdate( 'Y-m-d H:i:s', $opens ) ]
+        );
     }
 
     private static function lockedError(): WP_REST_Response {

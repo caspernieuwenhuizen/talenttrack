@@ -124,6 +124,9 @@ jobs:
           # #4810 — one message log row, so the stack-table spec has a
           # message log table to read rather than an empty state.
           npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack wp eval-file tests/e2e/setup/message-log-row.php
+          # #4979 — two players with a PDP form talk each (one open, one
+          # locked), for the player's preparation spec.
+          npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack wp eval-file tests/e2e/setup/pdp-preparation.php
 
       - name: Run E2E tests
         run: npm run test:e2e

@@ -159,12 +159,41 @@ class PdpCycleState {
      * the caller's "not signed off" check is the close condition.
      */
     public static function reflectionWindowOpen( object $conv, ?int $now_ts = null ): bool {
-        $scheduled = (string) ( $conv->scheduled_at ?? '' );
-        if ( $scheduled === '' ) return false;
+        return self::preparationOpen( $conv, $now_ts );
+    }
+
+    /** #4979 — how long before the planned talk the player may prepare. */
+    public const PREPARATION_DAYS = 14;
+
+    /**
+     * #4979 — when the player's preparation of this talk opens, as a Unix
+     * timestamp (UTC): 14 days before its planned time. Null when the talk
+     * has no planned time, which cannot be prepared for until one is set
+     * (owner decision of 10 November 2026). The same window the
+     * self-reflection has always had.
+     */
+    public static function preparationOpensAt( object $conv ): ?int {
+        $scheduled = (string) ( ( (array) $conv )['scheduled_at'] ?? '' );
+        if ( $scheduled === '' ) return null;
         $ts = strtotime( $scheduled . ' UTC' );
-        if ( $ts === false ) return false;
+        if ( $ts === false ) return null;
+        return $ts - self::PREPARATION_DAYS * DAY_IN_SECONDS;
+    }
+
+    /**
+     * #4979 — may the player prepare this talk now? From 14 days before its
+     * planned time; never without one. The close is `playerPartLocked()`.
+     * This also bounds the early preparation of a later talk whose form is
+     * already pinned.
+     *
+     * @param int|null $now_ts Unix timestamp for "now" (UTC). Injectable
+     *        for tests; defaults to current_time('timestamp', true).
+     */
+    public static function preparationOpen( object $conv, ?int $now_ts = null ): bool {
+        $opens = self::preparationOpensAt( $conv );
+        if ( $opens === null ) return false;
         $now = $now_ts !== null ? $now_ts : (int) current_time( 'timestamp', true );
-        return ( $ts - $now ) <= 14 * DAY_IN_SECONDS;
+        return $now >= $opens;
     }
 
     /**
@@ -236,11 +265,7 @@ class PdpCycleState {
         if ( $start !== null ) {
             return $today >= $start;
         }
-        $scheduled = (string) ( $conv->scheduled_at ?? '' );
-        if ( $scheduled === '' ) return false;
-        $ts = strtotime( $scheduled . ' UTC' );
-        if ( $ts === false ) return false;
-        return ( $ts - $now ) <= 14 * DAY_IN_SECONDS;
+        return self::preparationOpen( $conv, $now );
     }
 
     /** Normalise a stored datetime/date string to its YYYY-MM-DD part. */

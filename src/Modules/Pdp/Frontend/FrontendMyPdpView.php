@@ -124,7 +124,11 @@ class FrontendMyPdpView extends FrontendViewBase {
             $is_parent
         );
         self::renderActiveGoals( $player, $voice, $plan['goals'] );
-        self::renderSelfReflection( $next_planned, $is_self, $voice );
+        // #4979 — a talk that uses a conversation form is prepared on the
+        // form; the free-text reflection stays for academies without forms.
+        if ( ! PdpPreparationView::render( $next_planned, $is_self ) ) {
+            self::renderSelfReflection( $next_planned, $is_self, $voice );
+        }
 
         $verdict = $plan['verdict'];
         if ( $verdict !== null ) {

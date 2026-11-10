@@ -127,7 +127,7 @@ When the talk happens in person, the coach can also record those acknowledgement
 
 - **Season timeline on top.** The season's development conversations sit on a horizontal rail as markers, each in one of five states: **completed** (a green ✓), **not held** (the talk did not take place; opening it shows the coach's reason), **overdue** (red — the planned date has passed and the talk has not been held), **planned** (the gold next-up talk), and **later** (muted). A talk counts as overdue from the day after its planned date, so a talk due later today still reads *planned*; it stops being overdue the moment it is conducted or signed off. It is the one marker on the rail that needs somebody to act — the coach reschedules it or records that it happened. A progress fill runs along the rail up to the most recent completed talk. Tapping a marker **expands that conversation's detail in place** — notes, agreed actions, the goals discussed, any saved reflection, and the acknowledgement button — so there is no long scroll. The markers are keyboard-operable (Tab to focus, Enter/Space to open, Escape to close).
 - **Active goals below the timeline.** The player's current focus goals (not the full archive), each with its goal-specific status label (e.g. *In ontwikkeling*) and target date.
-- **One self-reflection input.** Only the **single next-planned** conversation can take a reflection — past and future talks never show an input. The input appears once its 2-week pre-talk window opens; before that, a guard line explains when it will appear. Any previously-saved reflection shows **to the right** of the input on wider screens and **stacked below** it on mobile. The self-review is helpful, never required — nothing is blocked if the player skips it.
+- **One self-reflection input.** Only the **single next-planned** conversation can take a reflection — past and future talks never show an input. The input appears once its 2-week pre-talk window opens; before that, a guard line explains when it will appear. Any previously-saved reflection shows **to the right** of the input on wider screens and **stacked below** it on mobile. The self-review is helpful, never required — nothing is blocked if the player skips it. At an academy with conversation forms the form takes its place; see *The player prepares on the form*.
 - **End-of-season verdict** closes the page once recorded.
 
 Parents see the same timeline for their child, read-only and possessive ("&lt;Child&gt;'s development plan"): the saved reflection is shown but there is no editable input, and they acknowledge via their own button. The timeline state is derived from the seeded conversations and their planning windows — no schedule or window data changes.
@@ -211,6 +211,17 @@ The player and the trainer each fill in their own part, and each part saves itse
 - **Signing off saves it all at once.** The trainer's scores become an evaluation, linked to the conversation and shown in the radar and the history like any other. The two development points become goals, linked to the conversation next to the goals that were discussed. If any of it cannot be saved, nothing is. Sign-off asks for a trainer score on every item, the agreed strongest quality, and both development points with an action, the trainer's help and a deadline. It does not wait for the player: a player who never marked the preparation ready keeps an empty column.
 - **The player's scores are never an evaluation**, so a self-assessment never mixes into the coach ratings in reports.
 - The evaluation a signed form saved cannot be edited or removed on its own; the signed form is the record.
+
+#### The player prepares on the form
+
+At an academy with conversation forms, the player prepares the next talk on the form in *My PDP*, in place of the free-text self-reflection. An academy without forms keeps the self-reflection as it was.
+
+- **It opens 14 days before the planned talk.** Before that, *My PDP* says from which date the player can prepare. A talk without a planned date cannot be prepared for yet; *My PDP* says it opens once the talk is planned.
+- **One step per section**, then the strongest quality, with a step bar on top. Each item shows its name and what it means, and a row of five numbered choices; the label of the chosen score shows under the row, and **What do the scores mean?** opens the whole scale. The strongest quality is a text field with the form's own question under its label.
+- **Everything saves itself** as the player chooses and types, with the usual save state, undo and revert.
+- **Ready** is its own button on the last step. It saves what is still pending, marks the preparation ready and shows a summary: how many items are scored, the average per section, and the strongest quality. From then on the trainer can read the player's part. **Change it after all** takes "ready" back and opens the form again, until the talk starts.
+- **Once the talk starts**, at its planned time or at sign-off, the preparation is read-only: *My PDP* shows the summary with a line saying the conversation has started.
+- The trainer sees that the player has started, because the form switch disappears at the player's first save. What the player wrote stays out of sight until "ready".
 
 ## Workflow nudges
 

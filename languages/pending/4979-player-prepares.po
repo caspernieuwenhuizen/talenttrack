@@ -1,0 +1,136 @@
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This talk did not take place, so the form can no longer be switched."
+msgstr "Dit gesprek is niet gehouden, dus het formulier kan niet meer worden gewisseld."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "You can prepare once the conversation is planned."
+msgstr "Je kunt je voorbereiden zodra het gesprek is gepland."
+
+#. translators: %s: the date the player's preparation opens
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "You can prepare from %s."
+msgstr "Je kunt je voorbereiden vanaf %s."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Prepare your development talk"
+msgstr "POP-gesprek voorbereiden"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Saving your preparation…"
+msgstr "Je voorbereiding wordt opgeslagen…"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation could not be marked ready. Try again."
+msgstr "Je voorbereiding kon niet klaar worden gemeld. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation could not be reopened. Try again."
+msgstr "Je voorbereiding kon niet worden heropend. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation can no longer be saved. Reload the page to see why."
+msgstr "Je voorbereiding kan niet meer worden opgeslagen. Laad de pagina opnieuw om te zien waarom."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your last change has not been saved yet. Check your connection and try Ready again."
+msgstr "Je laatste wijziging is nog niet opgeslagen. Controleer je verbinding en probeer Klaar opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step: the strongest quality"
+msgid "Strength"
+msgstr "Wapen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Steps"
+msgstr "Stappen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Give yourself a score from 1 to 5 for each item. Your trainer sees your "
+"scores once you mark your preparation as ready. You can change everything "
+"until the conversation starts."
+msgstr ""
+"Geef jezelf per onderdeel een cijfer van 1 tot 5. Je trainer ziet jouw "
+"cijfers zodra je je voorbereiding klaar meldt. Je kunt alles aanpassen tot "
+"het gesprek begint."
+
+#. translators: %s: the item being scored
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "My score for %s"
+msgstr "Mijn cijfer voor %s"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Not filled in yet"
+msgstr "Nog niet ingevuld"
+
+#. translators: 1: the score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your score: %1$s · %2$s"
+msgstr "Jouw cijfer: %1$s · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation: mark it finished"
+msgid "Ready"
+msgstr "Klaar"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation is ready"
+msgstr "Je voorbereiding is klaar"
+
+#. translators: 1: items scored, 2: items on the form
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "%1$d of %2$d item scored"
+msgid_plural "%1$d of %2$d items scored"
+msgstr[0] "%1$d van %2$d onderdeel ingevuld"
+msgstr[1] "%1$d van %2$d onderdelen ingevuld"
+
+#. translators: %s: date and time of the talk
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Your talk is on %s. Your trainer can now read your scores. You can still "
+"change everything until the conversation starts."
+msgstr ""
+"Je gesprek is op %s. Je trainer kan je cijfers nu lezen. Tot het gesprek "
+"begint kun je nog alles aanpassen."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Your trainer can now read your scores. You can still change everything "
+"until the conversation starts."
+msgstr ""
+"Je trainer kan je cijfers nu lezen. Tot het gesprek begint kun je nog alles "
+"aanpassen."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Change it after all"
+msgstr "Toch aanpassen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "My scores in short"
+msgstr "Mijn cijfers in het kort"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "What do the scores mean?"
+msgstr "Wat betekenen de cijfers?"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Technique"
+msgstr "Techniek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Tactics"
+msgstr "Tactiek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Physical"
+msgstr "Fysiek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Mental"
+msgstr "Mentaal"
