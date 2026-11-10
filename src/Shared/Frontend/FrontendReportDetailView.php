@@ -115,14 +115,14 @@ final class FrontendReportDetailView extends FrontendViewBase {
         $c_team   = __( 'Team', 'talenttrack' );
         $c_evals  = __( 'Evaluations', 'talenttrack' );
         $c_cats   = [];
-        foreach ( $categories as $cat ) {
-            $c_cats[ (int) $cat->id ] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name );
+        foreach ( $categories as $k => $cat ) {
+            $c_cats[ $k ] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name );
         }
         $th = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
-        foreach ( $categories as $cat ) {
-            echo '<th' . $th . '>' . esc_html( $c_cats[ (int) $cat->id ] ) . '</th>';
+        foreach ( $c_cats as $c_cat ) {
+            echo '<th' . $th . '>' . esc_html( $c_cat ) . '</th>';
         }
         echo '<th' . $th . '>' . esc_html( $c_evals ) . '</th>';
         echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
@@ -159,9 +159,9 @@ final class FrontendReportDetailView extends FrontendViewBase {
                 echo ' <span class="tt-rep-detail-muted">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</span>';
             }
             echo '</span></td>';
-            foreach ( $categories as $cat ) {
+            foreach ( $categories as $k => $cat ) {
                 $avg = $cat_avgs[ (int) $team->id ][ (int) $cat->id ] ?? null;
-                echo '<td class="num"' . StackTable::attrs( 'cell', $c_cats[ (int) $cat->id ] ) . '>'
+                echo '<td class="num"' . StackTable::attrs( 'cell', $c_cats[ $k ] ) . '>'
                     . ( $avg === null ? '—' : esc_html( (string) round( (float) $avg, 2 ) ) )
                     . '</td>';
             }

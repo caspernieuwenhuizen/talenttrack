@@ -490,7 +490,7 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         }
 
         $played_html = $this->renderReport( 'renderPlayerMinutesPlayed', [ 'player_id' => (string) $this->player, 'from' => $from, 'to' => $to ] );
-        preg_match_all( '#<td class="num">(\d+)</td>#', $played_html, $m );
+        preg_match_all( '#<td class="num"[^>]*>(\d+)</td>#', $played_html, $m );
         $played = array_sum( array_map( 'intval', $m[1] ) );
 
         $dist_html = $this->renderReport( 'renderTeamMinutesDistribution', [ 'team_id' => (string) self::TEAM, 'from' => $from, 'to' => $to ] );
