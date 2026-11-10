@@ -76,7 +76,7 @@ final class MatchTypeClauseTest extends WP_UnitTestCase {
         $this->assertSame( 60, $report, 'the minutes report' );
 
         $html = $this->renderReport( 'renderPlayerMinutesPlayed', [ 'player_id' => (string) $this->player, 'from' => '2026-03-01', 'to' => '2026-03-31' ] );
-        preg_match_all( '#<td class="num">(\d+)</td>#', $html, $m );
+        preg_match_all( '#<td class="num"[^>]*>(\d+)</td>#', $html, $m );
         $this->assertSame( 60, array_sum( array_map( 'intval', $m[1] ) ), 'the standard Player · Minutes played report' );
 
         $today = $this->activity( current_time( 'Y-m-d' ), 'planned' );

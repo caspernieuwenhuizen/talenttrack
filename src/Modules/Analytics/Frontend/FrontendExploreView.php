@@ -12,6 +12,7 @@ use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
 
@@ -782,14 +783,19 @@ class FrontendExploreView extends FrontendViewBase {
         $measure = $fact->measure( $kpi->measureKey );
         if ( $dim === null || $measure === null ) return;
 
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per group below it.
+        $c_dim     = (string) $dim->label;
+        $c_measure = (string) $measure->label;
+        $th        = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-report-card"><div class="tt-explore-table-wrap">';
-        echo '<table class="tt-table tt-explore-table">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html( $dim->label ) . '</th>';
-        echo '<th class="tt-explore-num">' . esc_html( $measure->label ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table tt-explore-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_dim ) . '</th>';
+        echo '<th class="tt-explore-num"' . $th . '>' . esc_html( $c_measure ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         if ( empty( $rows ) ) {
-            echo '<tr><td colspan="2" class="tt-explore-hint">'
+            echo '<tr' . StackTable::attrs( 'row' ) . '><td colspan="2" class="tt-explore-hint"' . StackTable::attrs( 'cell' ) . '>'
                 . esc_html__( 'No data for the current filters.', 'talenttrack' )
                 . '</td></tr>';
         } else {
@@ -797,9 +803,9 @@ class FrontendExploreView extends FrontendViewBase {
                 $raw   = $row->{ $group_by } ?? null;
                 $label = DimensionValueResolver::resolve( $dim, $raw );
                 $value = $row->{ $kpi->measureKey } ?? null;
-                echo '<tr>';
-                echo '<td>' . esc_html( $label ) . '</td>';
-                echo '<td class="tt-explore-num">' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '>';
+                echo '<td' . StackTable::attrs( 'cell', $c_dim ) . '>' . esc_html( $label ) . '</td>';
+                echo '<td class="tt-explore-num"' . StackTable::attrs( 'cell', $c_measure ) . '>' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>';
                 echo '</tr>';
             }
         }
@@ -880,23 +886,27 @@ class FrontendExploreView extends FrontendViewBase {
         ];
         $link_target = $scope_map[ (string) $fact->entityScope ] ?? null;
 
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per fact row below it. The Open column has no header, so its cell
+        // shows the link alone.
+        $th = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-report-card"><div class="tt-explore-table-wrap">';
-        echo '<table class="tt-table tt-explore-table tt-explore-table--wide">';
-        echo '<thead><tr>';
+        echo '<table class="tt-table tt-explore-table tt-explore-table--wide ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( $dims as $d ) {
-            echo '<th>' . esc_html( $d->label ) . '</th>';
+            echo '<th' . $th . '>' . esc_html( $d->label ) . '</th>';
         }
         if ( $link_target !== null ) {
-            echo '<th></th>';
+            echo '<th' . $th . '></th>';
         }
-        echo '</tr></thead><tbody>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $r ) {
-            echo '<tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
             foreach ( $dims as $d ) {
                 $raw = $r->{ $d->key } ?? null;
                 $label = DimensionValueResolver::resolve( $d, $raw );
-                echo '<td>' . esc_html( (string) $label ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', (string) $d->label ) . '>' . esc_html( (string) $label ) . '</td>';
             }
             if ( $link_target !== null ) {
                 $entity_id = (int) ( $r->{ $link_target['id_key'] } ?? 0 );
@@ -905,9 +915,9 @@ class FrontendExploreView extends FrontendViewBase {
                         $link_target['slug'],
                         $entity_id
                     );
-                    echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+                    echo '<td' . StackTable::attrs( 'cell' ) . '><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
                 } else {
-                    echo '<td></td>';
+                    echo '<td' . StackTable::attrs( 'cell' ) . '></td>';
                 }
             }
             echo '</tr>';

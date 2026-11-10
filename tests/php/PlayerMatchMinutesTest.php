@@ -151,8 +151,8 @@ final class PlayerMatchMinutesTest extends WP_UnitTestCase {
 
         $html = $this->renderReport( 'renderPlayerMinutesPlayed', [ 'player_id' => (string) $this->player ] );
 
-        $this->assertStringContainsString( '<td class="num">60</td>', $html, 'Player · Minutes played: the newest figure' );
-        $this->assertStringNotContainsString( '<td class="num">130</td>', $html, 'not the SUM' );
+        $this->assertMatchesRegularExpression( '#<td class="num"[^>]*>60</td>#', $html, 'Player · Minutes played: the newest figure' );
+        $this->assertDoesNotMatchRegularExpression( '#<td class="num"[^>]*>130</td>#', $html, 'not the SUM' );
     }
 
     public function test_team_minutes_distribution_reads_the_newest_figure(): void {

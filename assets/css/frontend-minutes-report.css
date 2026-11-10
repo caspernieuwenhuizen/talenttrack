@@ -31,3 +31,9 @@
     align-items: center;
     touch-action: manipulation;
 }
+
+/* #4912 — the stack-table primitive gives every row a display, which
+ * outranks the `hidden` attribute the toggle sets, and centres a spanning
+ * cell. The breakdown row stays collapsed and its table reads from the left. */
+.tt-dashboard .tt-report-card .tt-table > tbody > tr.tt-min-breakdown-row[hidden] { display: none; }
+.tt-dashboard .tt-min-breakdown-row > td[colspan] { text-align: left; }

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendReportDetailView — frontend-native renderer for the two
@@ -108,13 +109,23 @@ final class FrontendReportDetailView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per team below it. The team's name and age group are one value
+        // block.
+        $c_team   = __( 'Team', 'talenttrack' );
+        $c_evals  = __( 'Evaluations', 'talenttrack' );
+        $c_cats   = [];
         foreach ( $categories as $cat ) {
-            echo '<th>' . esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name ) ) . '</th>';
+            $c_cats[ (int) $cat->id ] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name );
         }
-        echo '<th>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_team ) . '</th>';
+        foreach ( $categories as $cat ) {
+            echo '<th' . $th . '>' . esc_html( $c_cats[ (int) $cat->id ] ) . '</th>';
+        }
+        echo '<th' . $th . '>' . esc_html( $c_evals ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         // #1359 — two grouped queries replace the teams × (1 + categories)
         // per-cell loop (10 teams × 6 categories used to fire 70 queries).
@@ -143,18 +154,18 @@ final class FrontendReportDetailView extends FrontendViewBase {
         foreach ( $teams as $team ) {
             if ( isset( $team->archived_at ) && $team->archived_at !== null ) continue;
             $eval_count = $eval_counts[ (int) $team->id ] ?? 0;
-            echo '<tr><td><strong>' . esc_html( (string) $team->name ) . '</strong>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_team ) . '><span class="' . esc_attr( StackTable::VALUE ) . '"><strong>' . esc_html( (string) $team->name ) . '</strong>';
             if ( ! empty( $team->age_group ) ) {
                 echo ' <span class="tt-rep-detail-muted">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</span>';
             }
-            echo '</td>';
+            echo '</span></td>';
             foreach ( $categories as $cat ) {
                 $avg = $cat_avgs[ (int) $team->id ][ (int) $cat->id ] ?? null;
-                echo '<td class="num">'
+                echo '<td class="num"' . StackTable::attrs( 'cell', $c_cats[ (int) $cat->id ] ) . '>'
                     . ( $avg === null ? '—' : esc_html( (string) round( (float) $avg, 2 ) ) )
                     . '</td>';
             }
-            echo '<td class="num tt-rep-detail-muted">' . $eval_count . '</td></tr>';
+            echo '<td class="num tt-rep-detail-muted"' . StackTable::attrs( 'cell', $c_evals ) . '>' . $eval_count . '</td></tr>';
         }
         echo '</tbody></table></div></div>';
     }
@@ -205,19 +216,25 @@ final class FrontendReportDetailView extends FrontendViewBase {
         }
 
         echo '<div class="tt-report-card tt-report-card--narrow"><div class="tt-table-wrap">';
-        echo '<table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>';
-        echo '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4912 — on the stack-table primitive: a table from 480px, one card
+        // per coach below it.
+        $c_coach = __( 'Coach', 'talenttrack' );
+        $c_evals = __( 'Evaluations', 'talenttrack' );
+        $c_last  = __( 'Last evaluation', 'talenttrack' );
+        $th      = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_coach ) . '</th>';
+        echo '<th class="num"' . $th . '>' . esc_html( $c_evals ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_last ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $r ) {
             $user = get_userdata( (int) $r->coach_id );
             $name = ( $user && (string) $user->display_name !== '' )
                 ? (string) $user->display_name
                 : __( 'Unknown coach', 'talenttrack' );
-            echo '<tr><td>' . esc_html( $name ) . '</td>';
-            echo '<td class="num">' . (int) $r->total_in_window . '</td>';
-            echo '<td>' . esc_html( (string) $r->last_eval ) . '</td></tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_coach ) . '>' . esc_html( $name ) . '</td>';
+            echo '<td class="num"' . StackTable::attrs( 'cell', $c_evals ) . '>' . (int) $r->total_in_window . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_last ) . '>' . esc_html( (string) $r->last_eval ) . '</td></tr>';
         }
         echo '</tbody></table>';
         echo '</div></div>';
