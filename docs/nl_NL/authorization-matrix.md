@@ -342,7 +342,7 @@ De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pd
 
 De lees-ladder (matrix-bewust, in volgorde):
 
-1. **Globale POP-leestoegang** — een matrixrecht `pdp_file/read/global` (Hoofd Ontwikkeling, Academie-beheerder), de WordPress-sitebeheerder, de oude `tt_edit_settings`-umbrella, of de HoD-/academie-beheerder-persona-terugval voor installaties met een nog slapende matrix.
+1. **Globale POP-leestoegang** — een matrixrecht `pdp_file/read/global` (Hoofd Ontwikkeling, Academie-beheerder), de WordPress-sitebeheerder, of de oude `tt_edit_settings`-umbrella. Er is geen terugval op personanamen: `MatrixGate` leest de geseede matrix ook op een installatie met een nog slapende matrix, dus Hoofd Ontwikkeling en de academie-beheerder krijgen daar hetzelfde antwoord, net als elke rol die een academie dit recht geeft.
 2. **POP-bewerker van het team van de speler** — heeft `tt_edit_pdp` en coacht het team van de speler (`coach_owns_player`).
 3. **POP-lezer van het team van de speler** — heeft `tt_view_pdp` en coacht het team van de speler.
 

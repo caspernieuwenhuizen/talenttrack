@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
-use TT\Modules\Authorization\PersonaResolver;
 
 /**
  * PdpAccess — the single PDP-file visibility decision (#1923, folds in
@@ -24,10 +23,9 @@ use TT\Modules\Authorization\PersonaResolver;
  * The ladder is the matrix-aware one introduced for the files
  * controller (#0080 Wave C3):
  *
- *   1. Global PDP read access (matrix `pdp_file/read/global`, WP site
- *      admin, the legacy `tt_edit_settings` umbrella, or the
- *      HoD / academy-admin persona fallback for installs whose matrix
- *      is dormant).
+ *   1. Global PDP read access (matrix `pdp_file/read/global`, which
+ *      MatrixGate reads on a dormant-matrix install too, WP site admin,
+ *      or the legacy `tt_edit_settings` umbrella).
  *   2. A PDP editor (`tt_edit_pdp`) who coaches the player's team.
  *   3. A PDP viewer (`tt_view_pdp`) who coaches the player's team.
  *
@@ -90,27 +88,16 @@ final class PdpAccess {
     public static function hasGlobalPdpAccess( int $user_id, string $activity ): bool {
         if ( $user_id <= 0 ) return false;
 
-        if ( class_exists( '\TT\Modules\Authorization\MatrixGate' )
-            && MatrixGate::can( $user_id, 'pdp_file', $activity, MatrixGate::SCOPE_GLOBAL )
-        ) {
-            return true;
-        }
+        // #4988 — the matrix decides, not a persona name. `MatrixGate` reads
+        // the seeded matrix whether or not the `user_has_cap` bridge is
+        // active, so an install whose matrix is dormant answers the same:
+        // the head of development and the academy admin hold `pdp_file`
+        // read and change at global scope in the seed, and any seat an
+        // academy grants that row gets the same answer.
+        if ( MatrixGate::can( $user_id, 'pdp_file', $activity, MatrixGate::SCOPE_GLOBAL ) ) return true;
 
-        if ( user_can( $user_id, 'manage_options' ) ) return true;
-        if ( user_can( $user_id, 'tt_edit_settings' ) ) return true;
-
-        // Persona fallback for dormant-matrix installs. `read` is open to
-        // every global reader; `change` is restricted to HoD + academy
-        // admin, mirroring the FunctionalRoles seed.
-        if ( class_exists( '\TT\Modules\Authorization\PersonaResolver' ) ) {
-            $personas       = PersonaResolver::personasFor( $user_id );
-            $global_readers = [ 'head_of_development', 'academy_admin' ];
-            foreach ( $personas as $p ) {
-                if ( in_array( $p, $global_readers, true ) ) return true;
-            }
-        }
-
-        return false;
+        return user_can( $user_id, 'manage_options' )
+            || user_can( $user_id, 'tt_edit_settings' );
     }
 
     /**
@@ -152,16 +139,6 @@ final class PdpAccess {
      */
     public static function isGlobalVerdictAuthority( int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
-        if ( ! class_exists( '\TT\Modules\Authorization\MatrixGate' ) ) {
-            // Matrix unavailable — fall back to the persona lens so the
-            // attribution still distinguishes HoD/admin from a coach.
-            if ( class_exists( '\TT\Modules\Authorization\PersonaResolver' ) ) {
-                foreach ( PersonaResolver::personasFor( $user_id ) as $p ) {
-                    if ( $p === 'head_of_development' || $p === 'academy_admin' ) return true;
-                }
-            }
-            return false;
-        }
         return MatrixGate::can( $user_id, 'pdp_verdict', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL );
     }
 }

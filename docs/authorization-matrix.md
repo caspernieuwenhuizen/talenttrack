@@ -346,7 +346,7 @@ PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Bo
 
 The read ladder (matrix-aware, in order):
 
-1. **Global PDP read** — a matrix `pdp_file/read/global` grant (Head of Development, Academy Admin), the WordPress site admin, the legacy `tt_edit_settings` umbrella, or the HoD / academy-admin persona fallback for installs whose matrix is still dormant.
+1. **Global PDP read** — a matrix `pdp_file/read/global` grant (Head of Development, Academy Admin), the WordPress site admin, or the legacy `tt_edit_settings` umbrella. There is no persona-name fallback: `MatrixGate` reads the seeded matrix on an install whose matrix is still dormant too, so the head of development and the academy admin get the same answer there, and so does any seat an academy grants the row.
 2. **PDP editor of the player's team** — holds `tt_edit_pdp` and coaches the player's team (`coach_owns_player`).
 3. **PDP viewer of the player's team** — holds `tt_view_pdp` and coaches the player's team.
 
