@@ -99,7 +99,8 @@ final class GoalContributionDrilldown {
                 \TT\Infrastructure\Tenancy\CurrentClub::id(), ...$ids
             ) );
             foreach ( (array) $rows as $row ) {
-                $names[ (int) $row->id ] = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+                $r = (array) $row;
+                $names[ (int) ( $r['id'] ?? 0 ) ] = trim( (string) ( $r['first_name'] ?? '' ) . ' ' . (string) ( $r['last_name'] ?? '' ) );
             }
         }
 

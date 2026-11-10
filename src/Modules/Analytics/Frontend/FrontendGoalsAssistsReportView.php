@@ -83,7 +83,9 @@ final class FrontendGoalsAssistsReportView extends FrontendViewBase {
         if ( $team_id > 0 && $player_id > 0 ) {
             $refused = GoalContributionDrilldown::refusal( $user_id, $team_id, $player_id );
             $player  = $refused === null ? QueryHelpers::get_player( $player_id ) : null;
-            $name    = $player ? trim( (string) $player->first_name . ' ' . (string) $player->last_name ) : __( 'Player', 'talenttrack' );
+            $p       = $player ? (array) $player : [];
+            $name    = $p !== [] ? trim( (string) ( $p['first_name'] ?? '' ) . ' ' . (string) ( $p['last_name'] ?? '' ) ) : '';
+            if ( $name === '' ) $name = __( 'Player', 'talenttrack' );
             FrontendBreadcrumbs::fromDashboard( $name, [ $reports, [ 'label' => $title, 'url' => $report_url ] ] );
             self::renderHeader( $name );
             if ( $refused !== null ) {
