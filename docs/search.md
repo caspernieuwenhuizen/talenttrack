@@ -20,9 +20,9 @@ in it and the results appear underneath, grouped:
 1. Players
 2. Teams
 3. Activities
-4. Evaluations & goals (for staff)
+4. Evaluations & goals
 5. Notes (for staff)
-6. Evaluations, goals and messages (for parents and players)
+6. Messages (for parents)
 7. People
 8. Settings & modules
 9. Sections
@@ -122,6 +122,11 @@ notes, and sees no excerpt. The observer gets no *Notes* group at all.
 
 On the results page the *Evaluations & goals* chip shows both kinds at once.
 
+A staff member who is also a parent at the academy finds their own child's
+records the way any parent does, by the family rules, and never also as
+staff: each record is listed once, and a section their child keeps private
+is not found or counted.
+
 ## Switched-off modules
 
 An administrator who may switch modules on also finds the modules that are
@@ -185,8 +190,11 @@ you get no quick actions.
 The box and the page read the same REST routes: `GET /talenttrack/v1/search`
 with `page` for the grouped and paged results, `GET /talenttrack/v1/me/recent`
 for the recent list, and `POST /talenttrack/v1/me/recent` to note an opened
-record. The staff kinds are `staff_evaluation`, `staff_goal` and `note`;
-items may carry `shirt_number`, `position`, `excerpt`, `path` and `disabled`.
+record. Evaluations and goals are the kinds `evaluation` and `goal` for
+everyone: a family finds their own children's, staff the players they read,
+and a staff member who is also a parent finds each record once. Notes are
+the kind `player_note`. Items may carry `shirt_number`, `position`,
+`excerpt`, `path` and `disabled`.
 `GET /talenttrack/v1/me/search` stays for its existing callers: it
 answers in its old shape (`children`, `results`, `total`), built from the same
 engine. The old help topic for the parent search opens this one. Opening a player, team or activity page notes it on the server, so

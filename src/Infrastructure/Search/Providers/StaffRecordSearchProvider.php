@@ -31,9 +31,12 @@ use TT\Modules\Authorization\MatrixGate;
  *
  * `confirm()` asks each hit the record's own check, batched; `count()`
  * counts over the same `WHERE`. A parent or a player is never answered
- * here: their own records are the family kinds (#4673). A staff member's
- * own children are left to those kinds too, so one record is never listed
- * twice.
+ * here: their own records are the family providers' (#4673), which serve
+ * the same kinds. Every player the viewer is family of, their own record
+ * and every linked child whatever the link allows, is left out of every
+ * statement (`SearchViewer::notFamilySql()`), so the two scopes of a kind
+ * never overlap: a record is listed once, and a count never covers a row
+ * the family rules would refuse.
  */
 abstract class StaffRecordSearchProvider implements SearchProvider {
 
@@ -161,14 +164,17 @@ abstract class StaffRecordSearchProvider implements SearchProvider {
 
         $a       = $this->alias();
         $visible = PlayerVisibility::sqlClause( $user_id, 'p' );
+        // Every player the viewer is family of is the family scope's alone,
+        // so the two scopes of a kind never overlap and their counts add up.
+        $family  = SearchViewer::notFamilySql( $user_id, 'p' );
         $tokens  = SearchText::whereSql( 'player', 'p', $query->tokens, $extras );
         $dates   = $this->dateSql( $query );
         $demo    = QueryHelpers::apply_demo_scope( 'p', 'player' );
 
         $where = "{$a}.club_id = %d AND p.club_id = {$a}.club_id AND {$this->live()}"
             . ' AND ' . ArchiveRepository::filterClause( 'active', 'p' ) . " {$demo}"
-            . " AND {$visible['sql']} AND {$scope['sql']} AND {$tokens['sql']} AND {$dates['sql']}";
-        $params = array_merge( [ (int) CurrentClub::id() ], $visible['params'], $scope['params'], $tokens['params'], $dates['params'] );
+            . " AND {$visible['sql']} AND {$family['sql']} AND {$scope['sql']} AND {$tokens['sql']} AND {$dates['sql']}";
+        $params = array_merge( [ (int) CurrentClub::id() ], $visible['params'], $family['params'], $scope['params'], $tokens['params'], $dates['params'] );
 
         return [ 'where' => $where, 'params' => $params, 'extras' => $extras ];
     }
@@ -199,11 +205,10 @@ abstract class StaffRecordSearchProvider implements SearchProvider {
 
     /**
      * The players whose `$entity` section the viewer reads as staff, as a
-     * condition on `p`: the read at global scope, on the teams of their
-     * player scope, or on the players a scout is linked to, the rungs
-     * `AuthorizationService::canReadPlayerSection()` asks. Their own
-     * children and their own record are left to the family kinds. Null when
-     * none is left.
+     * condition on `p`: the read at global scope, on the teams the read is
+     * held on (`MatrixGate::teamIdsFor()`), or on the players a scout is
+     * linked to, the rungs `AuthorizationService::canReadPlayerSection()`
+     * asks. Null when the viewer reads none of it.
      *
      * @return array{sql:string, params:list<mixed>}|null
      */
@@ -217,9 +222,9 @@ abstract class StaffRecordSearchProvider implements SearchProvider {
             $parts  = [];
             $params = [];
             $teams  = [];
-            foreach ( AuthorizationService::playerReadScope( $user_id )['team_ids'] as $team_id ) {
-                if ( MatrixGate::can( $user_id, $entity, MatrixGate::READ, MatrixGate::SCOPE_TEAM, (int) $team_id ) ) $teams[] = (int) $team_id;
-            }
+            // The teams the section read itself holds on, as the gate lists
+            // them: the same per-team question `canReadPlayerSection()` asks.
+            foreach ( MatrixGate::teamIdsFor( $user_id, $entity, MatrixGate::READ ) as $team_id ) $teams[] = (int) $team_id;
             if ( $teams !== [] ) {
                 $parts[] = 'p.team_id IN (' . implode( ',', array_fill( 0, count( $teams ), '%d' ) ) . ')';
                 $params  = array_merge( $params, $teams );
@@ -232,13 +237,7 @@ abstract class StaffRecordSearchProvider implements SearchProvider {
             if ( $parts === [] ) return null;
         }
 
-        $sql    = '( ' . implode( ' OR ', $parts ) . ' )';
-        $family = SearchViewer::playerIdsReading( $user_id, $entity );
-        if ( $family !== [] ) {
-            $sql   .= ' AND p.id NOT IN (' . implode( ',', array_fill( 0, count( $family ), '%d' ) ) . ')';
-            $params = array_merge( $params, $family );
-        }
-        return [ 'sql' => $sql, 'params' => $params ];
+        return [ 'sql' => '( ' . implode( ' OR ', $parts ) . ' )', 'params' => $params ];
     }
 
     /**

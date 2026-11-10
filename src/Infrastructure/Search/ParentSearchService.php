@@ -73,10 +73,20 @@ final class ParentSearchService {
         $results = [];
         foreach ( self::KINDS as $kind ) {
             $taken = 0;
+            // #4936 — the evaluation and goal kinds also answer staff, for the
+            // players they read as staff. This route answers about the
+            // caller's own family, so it asks the family scope alone.
+            $family = null;
+            foreach ( SearchRegistry::providersOf( $kind ) as $provider ) {
+                if ( $provider instanceof Providers\FamilyRecordSearchProvider ) $family = $provider;
+            }
+            $found = $family !== null
+                ? $engine->hitsFrom( $family, $parsed, $parent_user_id, self::PER_TYPE * 3 )
+                : $engine->hits( $parsed, $kind, $parent_user_id, self::PER_TYPE * 3 );
             // Fetched with headroom: for a coach who is also a parent the
             // best activity hits can be their coached teams', which this
             // route leaves out.
-            foreach ( $engine->hits( $parsed, $kind, $parent_user_id, self::PER_TYPE * 3 ) as $hit ) {
+            foreach ( $found as $hit ) {
                 // The route answers about the caller's own children: an
                 // activity that belongs to none of them is not part of it.
                 if ( $kind === self::TYPE_ACTIVITY && (int) ( $hit['player_id'] ?? 0 ) <= 0 ) continue;

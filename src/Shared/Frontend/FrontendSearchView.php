@@ -39,27 +39,26 @@ class FrontendSearchView extends FrontendViewBase {
      * `kind` is the group's key, which the kind filter (`?type=`) takes;
      * for a group of one kind it is that kind.
      *
-     * #4936 — staff get Evaluations & goals and Notes after Activities. The
-     * family's own Evaluations, Goals and Messages (#4673) follow; a viewer
-     * gets one set or the other, both only as a staff member who is also a
-     * parent.
+     * #4936 — one Evaluations & goals group for everyone, the two kinds
+     * together: a family viewer finds their own children's there, staff the
+     * players they read. Staff also get Notes. The order is the owner's:
+     * Players, Teams, Activities, Evaluations & goals, Notes, then the
+     * family's Messages, People, Settings & modules, Sections, Help.
      *
      * @return list<array{kind:string, kinds:list<string>, label:string, limit:int}>
      */
     public static function groups(): array {
         $groups = [
-            [ 'kind' => 'player',            'kinds' => [ 'player' ],                         'label' => _x( 'Players', 'search group', 'talenttrack' ),             'limit' => 4 ],
-            [ 'kind' => 'team',              'kinds' => [ 'team' ],                           'label' => _x( 'Teams', 'search group', 'talenttrack' ),               'limit' => 3 ],
-            [ 'kind' => 'activity',          'kinds' => [ 'activity' ],                       'label' => _x( 'Activities', 'search group', 'talenttrack' ),          'limit' => 3 ],
-            [ 'kind' => 'evaluations_goals', 'kinds' => [ 'staff_evaluation', 'staff_goal' ], 'label' => _x( 'Evaluations & goals', 'search group', 'talenttrack' ), 'limit' => 3 ],
-            [ 'kind' => 'note',              'kinds' => [ 'note' ],                           'label' => _x( 'Notes', 'search group', 'talenttrack' ),               'limit' => 3 ],
-            [ 'kind' => 'evaluation',        'kinds' => [ 'evaluation' ],                     'label' => _x( 'Evaluations', 'search group', 'talenttrack' ),         'limit' => 3 ],
-            [ 'kind' => 'goal',              'kinds' => [ 'goal' ],                           'label' => _x( 'Goals', 'search group', 'talenttrack' ),               'limit' => 3 ],
-            [ 'kind' => 'message',           'kinds' => [ 'message' ],                        'label' => _x( 'Messages', 'search group', 'talenttrack' ),            'limit' => 3 ],
-            [ 'kind' => 'person',            'kinds' => [ 'person' ],                         'label' => _x( 'People', 'search group', 'talenttrack' ),              'limit' => 3 ],
-            [ 'kind' => 'setting',           'kinds' => [ 'setting' ],                        'label' => _x( 'Settings & modules', 'search group', 'talenttrack' ),  'limit' => 3 ],
-            [ 'kind' => 'view',              'kinds' => [ 'view' ],                           'label' => _x( 'Sections', 'search group', 'talenttrack' ),            'limit' => 3 ],
-            [ 'kind' => 'help',              'kinds' => [ 'help' ],                           'label' => _x( 'Help', 'search group', 'talenttrack' ),                'limit' => 3 ],
+            [ 'kind' => 'player',            'kinds' => [ 'player' ],             'label' => _x( 'Players', 'search group', 'talenttrack' ),             'limit' => 4 ],
+            [ 'kind' => 'team',              'kinds' => [ 'team' ],               'label' => _x( 'Teams', 'search group', 'talenttrack' ),               'limit' => 3 ],
+            [ 'kind' => 'activity',          'kinds' => [ 'activity' ],           'label' => _x( 'Activities', 'search group', 'talenttrack' ),          'limit' => 3 ],
+            [ 'kind' => 'evaluations_goals', 'kinds' => [ 'evaluation', 'goal' ], 'label' => _x( 'Evaluations & goals', 'search group', 'talenttrack' ), 'limit' => 3 ],
+            [ 'kind' => 'player_note',       'kinds' => [ 'player_note' ],        'label' => _x( 'Notes', 'search group', 'talenttrack' ),               'limit' => 3 ],
+            [ 'kind' => 'message',           'kinds' => [ 'message' ],            'label' => _x( 'Messages', 'search group', 'talenttrack' ),            'limit' => 3 ],
+            [ 'kind' => 'person',            'kinds' => [ 'person' ],             'label' => _x( 'People', 'search group', 'talenttrack' ),              'limit' => 3 ],
+            [ 'kind' => 'setting',           'kinds' => [ 'setting' ],            'label' => _x( 'Settings & modules', 'search group', 'talenttrack' ),  'limit' => 3 ],
+            [ 'kind' => 'view',              'kinds' => [ 'view' ],               'label' => _x( 'Sections', 'search group', 'talenttrack' ),            'limit' => 3 ],
+            [ 'kind' => 'help',              'kinds' => [ 'help' ],               'label' => _x( 'Help', 'search group', 'talenttrack' ),                'limit' => 3 ],
         ];
         $known = SearchRegistry::kinds();
         $out   = [];
@@ -89,11 +88,9 @@ class FrontendSearchView extends FrontendViewBase {
             case 'player':     return _x( 'Player', 'search result kind', 'talenttrack' );
             case 'team':       return _x( 'Team', 'search result kind', 'talenttrack' );
             case 'activity':   return _x( 'Activity', 'search result kind', 'talenttrack' );
-            case 'evaluation':
-            case 'staff_evaluation': return _x( 'Evaluation', 'search result kind', 'talenttrack' );
-            case 'goal':
-            case 'staff_goal': return _x( 'Goal', 'search result kind', 'talenttrack' );
-            case 'note':       return _x( 'Note', 'search result kind', 'talenttrack' );
+            case 'evaluation': return _x( 'Evaluation', 'search result kind', 'talenttrack' );
+            case 'goal':       return _x( 'Goal', 'search result kind', 'talenttrack' );
+            case 'player_note': return _x( 'Note', 'search result kind', 'talenttrack' );
             case 'message':    return _x( 'Message', 'search result kind', 'talenttrack' );
             case 'person':     return _x( 'Person', 'search result kind', 'talenttrack' );
             case 'setting':    return _x( 'Setting', 'search result kind', 'talenttrack' );

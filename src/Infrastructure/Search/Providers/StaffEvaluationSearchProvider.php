@@ -8,6 +8,7 @@ use TT\Infrastructure\Search\SearchText;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Activities\ActivityAccess;
+use TT\Modules\Authorization\MatrixGate;
 
 /**
  * Evaluations for staff (#4936): the evaluations of the players the viewer
@@ -27,7 +28,7 @@ final class StaffEvaluationSearchProvider extends StaffRecordSearchProvider {
     /** @var array<int, array{sql:string, params:list<mixed>}> user id => where the notes may be matched */
     private array $notes = [];
 
-    public function kind(): string { return 'staff_evaluation'; }
+    public function kind(): string { return 'evaluation'; }
 
     protected function alias(): string { return 'e'; }
 
@@ -86,13 +87,22 @@ final class StaffEvaluationSearchProvider extends StaffRecordSearchProvider {
             return $this->notes[ $user_id ] = [ 'sql' => '1=1', 'params' => [] ];
         }
 
-        $teams = [];
-        $candidates = array_unique( array_merge( AuthorizationService::playerReadScope( $user_id )['team_ids'], ActivityAccess::coachedTeamIds( $user_id ) ) );
+        // The teams the evaluations are read or written on, and the teams the
+        // viewer is staff on: every team `readsOnTeams()` could answer yes for.
+        $teams      = [];
+        $candidates = array_unique( array_merge(
+            MatrixGate::teamIdsFor( $user_id, 'evaluations', MatrixGate::READ ),
+            MatrixGate::teamIdsFor( $user_id, 'evaluations', MatrixGate::CHANGE ),
+            ActivityAccess::coachedTeamIds( $user_id )
+        ) );
         foreach ( $candidates as $team_id ) {
             if ( RecordRedactor::readsOnTeams( 'evaluations', 'notes', $user_id, [ (int) $team_id ] ) ) $teams[] = (int) $team_id;
         }
+        $linked = AuthorizationService::scoutLinkedReadablePlayerIds( $user_id, 'evaluations' );
+        // One read of the linked players' teams, not one per player.
+        if ( $linked !== [] ) RecordRedactor::prime( $user_id, array_fill_keys( $linked, null ) );
         $players = [];
-        foreach ( AuthorizationService::scoutLinkedReadablePlayerIds( $user_id, 'evaluations' ) as $player_id ) {
+        foreach ( $linked as $player_id ) {
             if ( ! RecordRedactor::isMasked( 'evaluations', 'notes', $user_id, (int) $player_id ) ) $players[] = (int) $player_id;
         }
 
@@ -114,7 +124,7 @@ final class StaffEvaluationSearchProvider extends StaffRecordSearchProvider {
         $type      = $names[0] !== '' ? $names[0] : __( 'Evaluation', 'talenttrack' );
         $date      = (string) ( $r['eval_date'] ?? '' );
         $hit       = [
-            'type'      => 'staff_evaluation',
+            'type'      => 'evaluation',
             'id'        => (int) ( $r['id'] ?? 0 ),
             'label'     => self::playerName( $row ),
             'sublabel'  => implode( ' · ', array_filter( [ $type, $date !== '' ? \TT\Shared\Dates\TTDate::date( $date ) : '', (string) ( $r['opponent'] ?? '' ) ] ) ),

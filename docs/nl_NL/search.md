@@ -20,9 +20,9 @@ Typ erin en de resultaten verschijnen eronder, gegroepeerd:
 1. Spelers
 2. Teams
 3. Activiteiten
-4. Evaluaties & doelen (voor staf)
+4. Evaluaties & doelen
 5. Notities (voor staf)
-6. Evaluaties, doelen en berichten (voor ouders en spelers)
+6. Berichten (voor ouders)
 7. Mensen
 8. Instellingen & modules
 9. Onderdelen
@@ -126,6 +126,11 @@ helemaal geen groep *Notities*.
 Op de resultatenpagina toont de knop *Evaluaties & doelen* beide soorten
 tegelijk.
 
+Een staflid dat ook ouder is binnen de academie, vindt de records van het
+eigen kind zoals elke ouder dat doet, volgens de regels voor gezinnen, en
+nooit ook nog als staf: elk record staat er één keer, en een onderdeel dat
+het kind privé houdt wordt niet gevonden en niet geteld.
+
 ## Uitgeschakelde modules
 
 Een beheerder die modules mag aanzetten, vindt onder *Instellingen & modules*
@@ -191,9 +196,12 @@ geen instellingen, en je krijgt geen snelle acties.
 Het veld en de pagina lezen dezelfde REST-routes: `GET /talenttrack/v1/search`
 met `page` voor de gegroepeerde en gepagineerde resultaten,
 `GET /talenttrack/v1/me/recent` voor de lijst van laatst geopend, en
-`POST /talenttrack/v1/me/recent` om een geopend record vast te leggen. De
-soorten voor staf zijn `staff_evaluation`, `staff_goal` en `note`; items
-kunnen `shirt_number`, `position`, `excerpt`, `path` en `disabled` hebben. Het
+`POST /talenttrack/v1/me/recent` om een geopend record vast te leggen. Evaluaties
+en doelen zijn voor iedereen de soorten `evaluation` en `goal`: een gezin
+vindt die van de eigen kinderen, staf die van de spelers die ze lezen, en een
+staflid dat ook ouder is vindt elk record één keer. Notities zijn de soort
+`player_note`. Items kunnen `shirt_number`, `position`, `excerpt`, `path` en
+`disabled` hebben. Het
 openen van een spelers-, team- of activiteitpagina legt dat op de server vast,
 zodat elke frontend dezelfde lijst vult. `GET /talenttrack/v1/me/search` blijft
 bestaan voor wie hem al gebruikt: hij antwoordt in zijn oude vorm (`children`,

@@ -22,15 +22,18 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * note the viewer may not see is neither matched nor counted. Confirmed by
  * the batched forms of the same two checks.
  *
+ * The kind is `player_note`, after the `player_notes` matrix entity: other
+ * records carry threads too, and their notes would be kinds of their own.
+ *
  * The read-only observer, parents and players hold no notes read, so they
  * never get this kind (owner decision on #4687).
  */
-final class NoteSearchProvider extends StaffRecordSearchProvider {
+final class PlayerNoteSearchProvider extends StaffRecordSearchProvider {
 
     /** @var array<int, array{all:bool, teams:array<int,bool>}> */
     private array $private = [];
 
-    public function kind(): string { return 'note'; }
+    public function kind(): string { return 'player_note'; }
 
     protected function alias(): string { return 'm'; }
 
@@ -67,8 +70,15 @@ final class NoteSearchProvider extends StaffRecordSearchProvider {
             $params = $coached;
         }
 
-        // Staff-only notes only where the viewer may see them.
-        $reach = $this->privateReach( $user_id, $coached );
+        // Staff-only notes only where the viewer may see them: every team the
+        // staff-only right is held on, not only the coached ones, so the
+        // statement finds what the per-hit check would keep.
+        $reach = $this->privateReach( $user_id, array_values( array_unique( array_merge(
+            $coached,
+            class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' )
+                ? \TT\Modules\Authorization\MatrixGate::teamIdsFor( $user_id, ThreadAccess::STAFF_ONLY_ENTITY, \TT\Modules\Authorization\MatrixGate::CHANGE )
+                : []
+        ) ) ) );
         if ( ! $reach['all'] ) {
             $teams = array_keys( array_filter( $reach['teams'] ) );
             $sql   = 'm.visibility = %s';
@@ -92,7 +102,7 @@ final class NoteSearchProvider extends StaffRecordSearchProvider {
         $team_id   = (int) ( $r['team_id'] ?? 0 );
         $date      = substr( (string) ( $r['created_at'] ?? '' ), 0, 10 );
         $hit       = [
-            'type'      => 'note',
+            'type'      => 'player_note',
             'id'        => (int) ( $r['id'] ?? 0 ),
             'label'     => self::playerName( $row ),
             'sublabel'  => implode( ' · ', array_filter( [ $date !== '' ? \TT\Shared\Dates\TTDate::date( $date ) : '', (string) ( $r['author_name'] ?? '' ) ] ) ),

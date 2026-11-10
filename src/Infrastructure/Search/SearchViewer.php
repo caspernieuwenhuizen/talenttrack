@@ -77,6 +77,35 @@ final class SearchViewer {
     }
 
     /**
+     * #4936 — a condition on a `tt_players` alias that leaves out every
+     * player this viewer is family of: their own record and every child
+     * linked to them, whatever access the link gives and whatever the child
+     * has switched off. The staff providers add it to every statement, so
+     * about those players the family kinds alone decide, and a staff scope
+     * never counts a row the family rules would refuse.
+     *
+     * @return array{sql:string, params:list<int>}
+     */
+    public static function notFamilySql( int $user_id, string $alias ): array {
+        $alias = preg_replace( '/[^a-zA-Z0-9_]/', '', $alias ) ?: 'p';
+        global $wpdb;
+        $sql    = "( {$alias}.wp_user_id IS NULL OR {$alias}.wp_user_id != %d )"
+            . " AND NOT EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_player_parents tt_pp WHERE tt_pp.player_id = {$alias}.id AND tt_pp.parent_user_id = %d )";
+        $params = [ $user_id, $user_id ];
+
+        $children = [];
+        foreach ( ParentChildResolver::children( $user_id ) as $child ) {
+            $id = (int) ( ( (array) $child )['id'] ?? 0 );
+            if ( $id > 0 ) $children[] = $id;
+        }
+        if ( $children !== [] ) {
+            $sql   .= " AND {$alias}.id NOT IN (" . implode( ',', array_fill( 0, count( $children ), '%d' ) ) . ')';
+            $params = array_merge( $params, $children );
+        }
+        return [ 'sql' => $sql, 'params' => $params ];
+    }
+
+    /**
      * For a guardian, the child each activity belongs to: the child on the
      * activity's team, otherwise the child on its register (a guest
      * appearance for another team). The family pages resolve their subject

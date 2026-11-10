@@ -16,7 +16,7 @@ use TT\Infrastructure\Archive\ArchiveRepository;
  */
 final class StaffGoalSearchProvider extends StaffRecordSearchProvider {
 
-    public function kind(): string { return 'staff_goal'; }
+    public function kind(): string { return 'goal'; }
 
     protected function alias(): string { return 'g'; }
 
@@ -52,7 +52,7 @@ final class StaffGoalSearchProvider extends StaffRecordSearchProvider {
         $team_id   = (int) ( $r['team_id'] ?? 0 );
         $date      = (string) ( $r['due_date'] ?? '' );
         $hit       = [
-            'type'      => 'staff_goal',
+            'type'      => 'goal',
             'id'        => (int) ( $r['id'] ?? 0 ),
             'label'     => (string) ( $r['title'] ?? '' ),
             'sublabel'  => implode( ' · ', array_filter( [ self::playerName( $row ), $date !== '' ? \TT\Shared\Dates\TTDate::date( $date ) : '' ] ) ),

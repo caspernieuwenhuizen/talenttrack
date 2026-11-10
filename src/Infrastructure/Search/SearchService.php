@@ -147,6 +147,17 @@ final class SearchService {
     }
 
     /**
+     * #4936 — {@see self::hits()} from one of a kind's providers alone
+     * (`SearchRegistry::providersOf()`): `GET /me/search` asks the family
+     * scope of a kind that staff are also served.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function hitsFrom( SearchProvider $provider, SearchQuery $query, int $user_id, int $limit ): array {
+        return ScopeMemo::run( fn(): array => $this->confirmRaw( $provider, $provider->match( $query, $user_id, $limit ), $user_id ) );
+    }
+
+    /**
      * A provider's matches, confirmed.
      *
      * @return list<array<string,mixed>>

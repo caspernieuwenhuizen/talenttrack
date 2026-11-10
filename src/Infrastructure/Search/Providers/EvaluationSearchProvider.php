@@ -14,8 +14,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * children's, where the record's own read allows it
  * (`SearchViewer::playerIdsReading( …, 'evaluations' )`). Found by the
  * evaluation type in the viewer's language (`LookupTranslator`) or as
- * stored, by the opponent, and by date. Staff are served by the
- * `staff_evaluation` kind (#4936).
+ * stored, by the opponent, and by date. Staff are served the same
+ * kind by `StaffEvaluationSearchProvider`, a second scope that never
+ * overlaps this one (#4936).
  */
 final class EvaluationSearchProvider extends FamilyRecordSearchProvider {
 

@@ -99,6 +99,13 @@ final class ThreadAccess {
      * staff-only right is held there. Search narrows its note statement and
      * confirms its hits with it, so both read one rule.
      *
+     * Only an answer paired with the thread read
+     * (`PlayerThreadAdapter::canRead()` / `canReadMany()`): unlike
+     * `canSeePrivate()` it does not ask the read itself, so `all` is true
+     * for a `tt_edit_evaluations` holder who may not read the thread at all.
+     * Never use it alone. `StaffSearchTest` pins the pair to
+     * `canSeePrivate()`.
+     *
      * @param list<int> $team_ids
      * @return array{all:bool, teams:array<int,bool>}
      */

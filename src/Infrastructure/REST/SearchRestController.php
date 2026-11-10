@@ -52,7 +52,7 @@ final class SearchRestController extends BaseController {
             'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
             'args'                => [
                 'q'        => [ 'type' => 'string', 'required' => false, 'description' => 'What was typed. Records need 2 characters, sections and settings 1. Recognised patterns: #<n> (shirt number), O<nn>/MO<nn> (age group), dd-mm or a day and month name (a date this season), yyyy-mm-dd or dd-mm-yyyy, a weekday.' ],
-                'types'    => [ 'type' => 'string', 'required' => false, 'description' => 'Comma-separated kinds: view, player, team, person, activity, evaluation, goal, message, staff_evaluation, staff_goal, note, setting, help. All when omitted (without page: view, player, team, activity). An unknown kind is refused with 400 bad_filter when page is set.' ],
+                'types'    => [ 'type' => 'string', 'required' => false, 'description' => 'Comma-separated kinds: view, player, team, person, activity, evaluation, goal, message, player_note, setting, help. All when omitted (without page: view, player, team, activity). An unknown kind is refused with 400 bad_filter when page is set.' ],
                 'team_id'  => [ 'type' => 'string', 'required' => false, 'description' => 'Only records of this team. With page only; anything but a positive id is refused with 400 bad_filter.' ],
                 'from'     => [ 'type' => 'string', 'required' => false, 'description' => 'Activities on or after this day (Y-m-d). With page only; 400 bad_date otherwise.' ],
                 'to'       => [ 'type' => 'string', 'required' => false, 'description' => 'Activities on or before this day (Y-m-d). With page only; 400 bad_date otherwise.' ],
