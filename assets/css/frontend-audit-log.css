@@ -43,7 +43,40 @@
  * person's account right now. That is a different fact from a session
  * that finished last Tuesday, and the row says so without relying on
  * colour alone — the Ended cell reads "Still open" in bold.
+ *
+ * #4917 — qualified so it outranks the stack-table primitive's card rule,
+ * which paints every row (paper on a phone, none from 480px).
  */
-.tt-imp-active {
-    background: var(--tt-warn-soft, #fff6e6);
+.tt-dashboard .tt-audit-table > tbody > tr.tt-imp-active {
+    background: var(--tt-warning-soft);
+}
+
+/*
+ * #4917 — the log and failed-login tables' inline styles, moved here when
+ * the tables moved onto the stack-table primitive. Qualified so they
+ * outrank the shared table cell rules, as the inline styles did.
+ */
+.tt-dashboard .tt-table.tt-audit-compact {
+    width: 100%;
+    font-size: 0.8125rem;
+}
+.tt-dashboard .tt-table .tt-audit-num {
+    text-align: right;
+}
+.tt-dashboard .tt-table .tt-audit-nowrap {
+    white-space: nowrap;
+}
+.tt-dashboard .tt-table td.tt-audit-mono {
+    font-family: monospace;
+}
+.tt-dashboard .tt-table td.tt-audit-mono--sm {
+    font-size: 0.75rem;
+}
+.tt-dashboard .tt-table td.tt-audit-muted {
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-table td.tt-audit-payload {
+    font-size: 0.6875rem;
+    max-width: 22.5rem;
+    overflow-wrap: anywhere;
 }

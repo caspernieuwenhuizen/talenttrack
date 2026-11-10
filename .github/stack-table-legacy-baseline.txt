@@ -16,8 +16,4 @@ src/Modules/Wizards/Prospect/IdentityStep.php 1
 src/Modules/Wizards/Prospect/ReviewStep.php 1
 src/Modules/Wizards/Team/ReviewStep.php 1
 src/Modules/Wizards/TeamBlueprint/ReviewStep.php 1
-src/Shared/Frontend/FrontendAuditLogView.php 5
-src/Shared/Frontend/FrontendMigrationsView.php 2
-src/Shared/Frontend/FrontendUsageStatsDetailsView.php 7
-src/Shared/Frontend/FrontendUsageStatsView.php 4
 src/Shared/Frontend/FrontendWizardsAdminView.php 1

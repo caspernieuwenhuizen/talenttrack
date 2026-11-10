@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Kernel;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendAuditLogView — read-only audit-log browser (#0021).
@@ -208,26 +209,32 @@ class FrontendAuditLogView extends FrontendViewBase {
             $total
         ) ) . '</p>';
 
+        // #4917 — on the stack-table primitive: a table from 480px, one card
+        // per session below it.
+        $c_started = __( 'Started', 'talenttrack' );
+        $c_who     = __( 'Who', 'talenttrack' );
+        $c_as      = __( 'Acted as', 'talenttrack' );
+        $c_ended   = __( 'Ended', 'talenttrack' );
+        $c_reason  = __( 'Reason given', 'talenttrack' );
+        $c_from    = __( 'From', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap">
-        <table class="tt-table tt-audit-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Started', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Who', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Acted as', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Ended', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Reason given', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'From', 'talenttrack' ); ?></th>
+        <table class="tt-table tt-audit-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <?php foreach ( [ $c_started, $c_who, $c_as, $c_ended, $c_reason, $c_from ] as $header ) : ?>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $header ); ?></th>
+                    <?php endforeach; ?>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
             <?php foreach ( $rows as $row ) : ?>
-                <tr<?php echo ! empty( $row['is_active'] ) ? ' class="tt-imp-active"' : ''; ?>>
-                    <td><?php echo esc_html( (string) $row['started_at'] ); ?></td>
-                    <td><?php echo esc_html( (string) $row['actor_name'] ); ?></td>
-                    <td><?php echo esc_html( (string) $row['target_name'] ); ?></td>
-                    <td>
+                <tr<?php echo ! empty( $row['is_active'] ) ? ' class="tt-imp-active"' : ''; ?><?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <td<?php echo StackTable::attrs( 'cell', $c_started ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row['started_at'] ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_who ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row['actor_name'] ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_as ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row['target_name'] ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_ended ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <?php
                         if ( ! empty( $row['is_active'] ) ) {
                             echo '<strong>' . esc_html__( 'Still open', 'talenttrack' ) . '</strong>';
@@ -239,8 +246,8 @@ class FrontendAuditLogView extends FrontendViewBase {
                         }
                         ?>
                     </td>
-                    <td><?php echo esc_html( (string) ( $row['reason'] ?? '' ) ); ?></td>
-                    <td><?php echo esc_html( (string) ( $row['actor_ip'] ?? '' ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_reason ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $row['reason'] ?? '' ) ); ?></td>
+                    <td<?php echo StackTable::attrs( 'cell', $c_from ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $row['actor_ip'] ?? '' ) ); ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -331,6 +338,13 @@ class FrontendAuditLogView extends FrontendViewBase {
             'login_fail', $club_id, $since
         ) );
 
+        // #4917 — the three tables below are on the stack-table primitive:
+        // a table from 480px, one card per line below it.
+        $c_day      = __( 'Day', 'talenttrack' );
+        $c_username = __( 'Username', 'talenttrack' );
+        $c_ip       = __( 'IP address', 'talenttrack' );
+        $c_attempts = __( 'Attempts', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
         ?>
         <div style="display:grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px);">
 
@@ -354,16 +368,16 @@ class FrontendAuditLogView extends FrontendViewBase {
                     <div>
                         <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Daily breakdown — last 30 days', 'talenttrack' ); ?></h3>
                         <div class="tt-table-wrap">
-                        <table class="tt-table" style="width:100%; font-size: 13px;">
-                            <thead><tr>
-                                <th><?php esc_html_e( 'Day', 'talenttrack' ); ?></th>
-                                <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                        <table class="tt-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_day ); ?></th>
+                                <th class="tt-audit-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_attempts ); ?></th>
                             </tr></thead>
-                            <tbody>
+                            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php foreach ( $daily as $row ) : ?>
-                                <tr>
-                                    <td><?php echo esc_html( (string) $row->day ); ?></td>
-                                    <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <td<?php echo StackTable::attrs( 'cell', $c_day ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row->day ); ?></td>
+                                    <td class="tt-audit-num tt-audit-mono"<?php echo StackTable::attrs( 'cell', $c_attempts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $row->n; ?></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -375,16 +389,16 @@ class FrontendAuditLogView extends FrontendViewBase {
                         <div>
                             <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top attempted usernames', 'talenttrack' ); ?></h3>
                             <div class="tt-table-wrap">
-                            <table class="tt-table" style="width:100%; font-size: 13px;">
-                                <thead><tr>
-                                    <th><?php esc_html_e( 'Username', 'talenttrack' ); ?></th>
-                                    <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                            <table class="tt-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_username ); ?></th>
+                                    <th class="tt-audit-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_attempts ); ?></th>
                                 </tr></thead>
-                                <tbody>
+                                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                 <?php foreach ( $top_users as $row ) : ?>
-                                    <tr>
-                                        <td style="font-family: monospace; font-size: 12px;"><?php echo esc_html( (string) ( $row->username ?? '—' ) ); ?></td>
-                                        <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                        <td class="tt-audit-mono tt-audit-mono--sm"<?php echo StackTable::attrs( 'cell', $c_username ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $row->username ?? '—' ) ); ?></td>
+                                        <td class="tt-audit-num tt-audit-mono"<?php echo StackTable::attrs( 'cell', $c_attempts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $row->n; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
@@ -397,16 +411,16 @@ class FrontendAuditLogView extends FrontendViewBase {
                         <div>
                             <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top source IPs', 'talenttrack' ); ?></h3>
                             <div class="tt-table-wrap">
-                            <table class="tt-table" style="width:100%; font-size: 13px;">
-                                <thead><tr>
-                                    <th><?php esc_html_e( 'IP address', 'talenttrack' ); ?></th>
-                                    <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                            <table class="tt-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_ip ); ?></th>
+                                    <th class="tt-audit-num"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_attempts ); ?></th>
                                 </tr></thead>
-                                <tbody>
+                                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                 <?php foreach ( $top_ips as $row ) : ?>
-                                    <tr>
-                                        <td style="font-family: monospace; font-size: 12px;"><?php echo esc_html( (string) $row->ip_address ); ?></td>
-                                        <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                        <td class="tt-audit-mono tt-audit-mono--sm"<?php echo StackTable::attrs( 'cell', $c_ip ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $row->ip_address ); ?></td>
+                                        <td class="tt-audit-num tt-audit-mono"<?php echo StackTable::attrs( 'cell', $c_attempts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $row->n; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
@@ -548,18 +562,25 @@ class FrontendAuditLogView extends FrontendViewBase {
     /** @param object[] $entries */
     private static function renderTable( array $entries ): void {
         if ( empty( $entries ) ) return;
+        // #4917 — on the stack-table primitive: a table from 768px, one card
+        // per entry below it. The entity and its id are one value block.
+        $c_when    = __( 'When', 'talenttrack' );
+        $c_user    = __( 'User', 'talenttrack' );
+        $c_action  = __( 'Action', 'talenttrack' );
+        $c_entity  = __( 'Entity', 'talenttrack' );
+        $c_ip      = __( 'IP', 'talenttrack' );
+        $c_payload = __( 'Payload', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap" style="overflow-x:auto;">
-            <table class="tt-table tt-audit-table" style="width:100%; font-size: 13px;">
-                <thead><tr>
-                    <th style="white-space:nowrap;"><?php esc_html_e( 'When', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Action', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Entity', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'IP', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Payload', 'talenttrack' ); ?></th>
+            <table class="tt-table tt-audit-table tt-audit-compact <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th class="tt-audit-nowrap"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_when ); ?></th>
+                    <?php foreach ( [ $c_user, $c_action, $c_entity, $c_ip, $c_payload ] as $header ) : ?>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $header ); ?></th>
+                    <?php endforeach; ?>
                 </tr></thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $entries as $e ) :
                     $when   = (string) ( $e->created_at ?? '' );
                     $user   = trim( (string) ( $e->user_name ?? '' ) );
@@ -570,9 +591,9 @@ class FrontendAuditLogView extends FrontendViewBase {
                     $ip     = (string) ( $e->ip_address ?? '' );
                     $payload= (string) ( $e->payload ?? '' );
                     ?>
-                    <tr>
-                        <td style="white-space:nowrap; font-family: monospace; font-size: 12px;"><?php echo esc_html( $when ); ?></td>
-                        <td>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td class="tt-audit-nowrap tt-audit-mono tt-audit-mono--sm"<?php echo StackTable::attrs( 'cell', $c_when ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $when ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_user ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <?php
                             if ( $user !== '' ) {
                                 echo esc_html( $user );
@@ -583,8 +604,8 @@ class FrontendAuditLogView extends FrontendViewBase {
                             }
                             ?>
                         </td>
-                        <td><code><?php echo esc_html( $action ); ?></code></td>
-                        <td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_action ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><code><?php echo esc_html( $action ); ?></code></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_entity ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                             <?php
                             if ( $etype !== '' ) {
                                 echo esc_html( $etype );
@@ -593,9 +614,9 @@ class FrontendAuditLogView extends FrontendViewBase {
                                 echo '—';
                             }
                             ?>
-                        </td>
-                        <td style="font-family: monospace; font-size: 12px; color: var(--tt-muted, #6a6d66);"><?php echo esc_html( $ip ); ?></td>
-                        <td style="font-family: monospace; font-size: 11px; max-width: 360px; overflow-wrap: anywhere;"><?php echo esc_html( $payload ); ?></td>
+                        </span></td>
+                        <td class="tt-audit-mono tt-audit-mono--sm tt-audit-muted"<?php echo StackTable::attrs( 'cell', $c_ip ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $ip ); ?></td>
+                        <td class="tt-audit-mono tt-audit-payload"<?php echo StackTable::attrs( 'cell', $c_payload ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $payload ); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

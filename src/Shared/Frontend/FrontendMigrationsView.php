@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\MigrationRunner;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendMigrationsView — read-only migration status.
@@ -87,20 +88,27 @@ class FrontendMigrationsView extends FrontendViewBase {
         <?php if ( ! $applied ) : ?>
             <p><em><?php esc_html_e( 'None applied yet.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <?php
+            // #4917 — both migration tables are on the stack-table
+            // primitive: a table from 480px, one card per migration below it.
+            $th        = StackTable::attrs( 'columnheader' );
+            $c_name    = __( 'Name', 'talenttrack' );
+            $c_applied = __( 'Applied at', 'talenttrack' );
+            ?>
             <div class="tt-admin-card"><div class="tt-table-wrap">
-            <table class="tt-table">
-                <thead><tr>
-                    <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Applied at', 'talenttrack' ); ?></th>
+            <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_applied ); ?></th>
                 </tr></thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $applied as $row ) :
                     $name      = is_array( $row ) ? ( $row['name'] ?? '' ) : ( is_object( $row ) ? ( $row->name ?? '' ) : (string) $row );
                     $applied_at = is_array( $row ) ? ( $row['applied_at'] ?? '' ) : ( is_object( $row ) ? ( $row->applied_at ?? '' ) : '' );
                     ?>
-                    <tr>
-                        <td><code><?php echo esc_html( (string) $name ); ?></code></td>
-                        <td><?php echo esc_html( (string) $applied_at ); ?></td>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><code><?php echo esc_html( (string) $name ); ?></code></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_applied ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) $applied_at ); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -113,11 +121,15 @@ class FrontendMigrationsView extends FrontendViewBase {
             <p><em><?php esc_html_e( 'None pending.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
             <div class="tt-admin-card"><div class="tt-table-wrap">
-            <table class="tt-table">
-                <thead><tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th></tr></thead>
-                <tbody>
+            <?php
+            $th     = StackTable::attrs( 'columnheader' );
+            $c_name = __( 'Name', 'talenttrack' );
+            ?>
+            <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th></tr></thead>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $pending as $name ) : ?>
-                    <tr><td><code><?php echo esc_html( (string) $name ); ?></code></td></tr>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><td<?php echo StackTable::attrs( 'cell', $c_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><code><?php echo esc_html( (string) $name ); ?></code></td></tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
