@@ -130,28 +130,29 @@ final class PdpFormSeedingTest extends WP_UnitTestCase {
     }
 
     /**
-     * `category_key` is unique across the install while categories are read
-     * per club, so a second club picking the same forms has its insert
-     * refused. The save must then store no choice, rather than switch the
-     * forms on with no categories under them.
+     * A category insert the database refuses (here: the first form item's
+     * INSERT is rewritten into one that fails). The save must then store no
+     * choice, rather than switch the forms on with no categories under them.
+     * Until #4986 a second club holding the same key did this; keys are now
+     * per club, so the failure is forced directly.
      */
     public function test_a_category_that_cannot_be_written_stores_no_choice(): void {
         global $wpdb;
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $definition = PdpFormRegistry::definition( self::FORMS['outfield'] );
         $this->assertNotNull( $definition );
-        $first = PdpFormRegistry::items( $definition )[0];
-        $wpdb->insert( "{$wpdb->prefix}tt_eval_categories", [
-            'club_id'      => (int) CurrentClub::id() + 1,
-            'category_key' => PdpFormRegistry::categoryKey( $definition, $first['key'] ),
-            'label'        => 'Another club',
-            'is_active'    => 1,
-        ] );
-        $this->assertGreaterThan( 0, (int) $wpdb->insert_id );
+        $first  = PdpFormRegistry::categoryKey( $definition, PdpFormRegistry::items( $definition )[0]['key'] );
+        $refuse = static function ( string $sql ) use ( $first ): string {
+            return ( stripos( $sql, 'INSERT INTO' ) === 0 && strpos( $sql, 'tt_eval_categories' ) !== false && strpos( $sql, "'{$first}'" ) !== false )
+                ? 'INSERT INTO `tt_no_such_table_4986` (x) VALUES (1)'
+                : $sql;
+        };
+        add_filter( 'query', $refuse );
 
         $wpdb->suppress_errors( true );
         $response = $this->put( 'jg4it_elite' );
         $wpdb->suppress_errors( false );
+        remove_filter( 'query', $refuse );
 
         $this->assertSame( 422, $response->get_status(), (string) wp_json_encode( $response->get_data() ) );
         $this->assertSame( 'seed_failed', $response->get_data()['errors'][0]['code'] ?? null );

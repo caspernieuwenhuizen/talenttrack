@@ -444,8 +444,11 @@ class Activator {
         // live in the .po file keyed by label, while category_key stays
         // constant. v2.12.1: renamed from `key` (which is a MySQL reserved
         // word that dbDelta silently dropped on some hosts) to category_key.
+        // #4986 — the category key is unique per club, not per install
+        // (migration 0324 moves existing installs).
         $queries[] = "CREATE TABLE {$p}tt_eval_categories (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            club_id INT UNSIGNED NOT NULL DEFAULT 1,
             parent_id BIGINT UNSIGNED NULL,
             category_key VARCHAR(64) NOT NULL,
             label VARCHAR(255) NOT NULL,
@@ -456,7 +459,7 @@ class Activator {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            UNIQUE KEY uniq_category_key (category_key),
+            UNIQUE KEY uniq_club_category_key (club_id, category_key),
             KEY idx_parent (parent_id),
             KEY idx_active (is_active)
         ) $c;";
@@ -1228,9 +1231,11 @@ class Activator {
         // alongside user-renamed or migration-seeded mains like the
         // Dutch "Technisch/Tactisch/Fysiek/Mentaal", creating confusing
         // duplicates.
-        $any_main_exists = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE parent_id IS NULL"
-        );
+        // #4986 — keys are the club's, so the seed asks about this club.
+        $club = (int) \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $any_main_exists = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE parent_id IS NULL AND club_id = %d", $club
+        ) );
         if ( $any_main_exists > 0 ) return;
 
         // The 4 canonical main categories.
@@ -1243,10 +1248,11 @@ class Activator {
         foreach ( $mains as $m ) {
             [ $key, $label, $description, $display_order ] = $m;
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s", $key
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s AND club_id = %d", $key, $club
             ) );
             if ( $exists > 0 ) continue;
             $wpdb->insert( "{$p}tt_eval_categories", [
+                'club_id'       => $club,
                 'parent_id'     => null,
                 'category_key'  => $key,
                 'label'         => $label,
@@ -1284,14 +1290,15 @@ class Activator {
         foreach ( $subs as $s ) {
             [ $parent_key, $key, $label, $display_order ] = $s;
             $parent_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_eval_categories WHERE category_key = %s", $parent_key
+                "SELECT id FROM {$p}tt_eval_categories WHERE category_key = %s AND club_id = %d", $parent_key, $club
             ) );
             if ( $parent_id <= 0 ) continue;
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s", $key
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s AND club_id = %d", $key, $club
             ) );
             if ( $exists > 0 ) continue;
             $wpdb->insert( "{$p}tt_eval_categories", [
+                'club_id'       => $club,
                 'parent_id'     => $parent_id,
                 'category_key'  => $key,
                 'label'         => $label,
