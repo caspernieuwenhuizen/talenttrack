@@ -291,6 +291,19 @@ class EvaluationsRepository {
      * #1385 — count of non-archived evaluations recorded for a player,
      * for the `MyEvaluationsReceived` player KPI.
      */
+    /**
+     * #4977 — the PDP conversation whose signed form wrote this evaluation,
+     * or 0. Such an evaluation is read-only: the signed form is the record.
+     */
+    public static function pdpConversationIdOf( int $evaluation_id ): int {
+        if ( $evaluation_id <= 0 ) return 0;
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT pdp_conversation_id FROM {$wpdb->prefix}tt_evaluations WHERE id = %d AND club_id = %d",
+            $evaluation_id, CurrentClub::id()
+        ) );
+    }
+
     public function countForPlayer( int $player_id ): int {
         if ( $player_id <= 0 ) return 0;
 

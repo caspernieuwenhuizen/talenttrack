@@ -65,7 +65,7 @@ return new class extends Migration {
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-        dbDelta( "CREATE TABLE IF NOT EXISTS {$p}tt_pdp_form_scores (
+        $this->createIfMissing( "{$p}tt_pdp_form_scores", "CREATE TABLE {$p}tt_pdp_form_scores (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             uuid CHAR(36) NOT NULL,
             club_id INT UNSIGNED NOT NULL DEFAULT 1,
@@ -83,7 +83,7 @@ return new class extends Migration {
             KEY idx_conversation (club_id, conversation_id)
         ) {$charset};" );
 
-        dbDelta( "CREATE TABLE IF NOT EXISTS {$p}tt_pdp_form_answers (
+        $this->createIfMissing( "{$p}tt_pdp_form_answers", "CREATE TABLE {$p}tt_pdp_form_answers (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             uuid CHAR(36) NOT NULL,
             club_id INT UNSIGNED NOT NULL DEFAULT 1,
@@ -101,7 +101,7 @@ return new class extends Migration {
             KEY idx_conversation (club_id, conversation_id)
         ) {$charset};" );
 
-        dbDelta( "CREATE TABLE IF NOT EXISTS {$p}tt_pdp_form_goals (
+        $this->createIfMissing( "{$p}tt_pdp_form_goals", "CREATE TABLE {$p}tt_pdp_form_goals (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             uuid CHAR(36) NOT NULL,
             club_id INT UNSIGNED NOT NULL DEFAULT 1,
@@ -132,6 +132,17 @@ return new class extends Migration {
         $this->addUniqueIfMissing( $evaluations, 'uniq_pdp_conversation', 'pdp_conversation_id' );
 
         $this->report( 1, 'form columns, the three form tables and the evaluation link are in place' );
+    }
+
+    /**
+     * `dbDelta` for a table that does not exist yet, and nothing for one
+     * that does: a second run must not reach `dbDelta` with an existing
+     * table (docs/migrations.md rule 2).
+     */
+    private function createIfMissing( string $table, string $sql ): void {
+        global $wpdb;
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) return;
+        dbDelta( $sql );
     }
 
     private function addColumn( string $table, string $column, string $definition, string $after ): void {

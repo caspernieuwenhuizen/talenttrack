@@ -93,7 +93,7 @@ final class PdpCascadeDeleter {
                 // 1.6 (#4977) the conversation forms' scores, answers and
                 // SMART points. The goals sign-off created stay: they are
                 // the player's goals now.
-                $deleted += ( new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository() )->deleteForConversations( $convo_ids );
+                $deleted += ( new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository() )->deleteForConversations( array_values( $convo_ids ) );
 
                 // 1.7 (#4977) the evaluation a form's sign-off wrote is the
                 // trainer's rating of the player, not a part of the talk:

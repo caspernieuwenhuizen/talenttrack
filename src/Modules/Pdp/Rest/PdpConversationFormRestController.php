@@ -105,7 +105,10 @@ final class PdpConversationFormRestController extends BaseController {
 
     /** @return array<string, array<string,mixed>> */
     private static function chooseArgs(): array {
-        return [ 'form_key' => [ 'type' => 'string', 'required' => true, 'description' => 'A conversation form the academy uses.' ] ];
+        // Not `required`: core checks required params before the permission
+        // callback, so a caller with no PDP right would get a 400 instead of
+        // its 403. `chooseForm()` refuses a body without it.
+        return [ 'form_key' => [ 'type' => 'string', 'description' => 'A conversation form the academy uses.' ] ];
     }
 
     /** @return array<string, array<string,mixed>> */
@@ -151,6 +154,9 @@ final class PdpConversationFormRestController extends BaseController {
         if ( ! $access->choosesForm() ) return self::forbidden();
 
         $form_key = sanitize_key( (string) $r->get_param( 'form_key' ) );
+        if ( $form_key === '' ) {
+            return RestResponse::error( 'missing_fields', __( 'Say which conversation form to use.', 'talenttrack' ), 400, [ 'fields' => [ 'form_key' ] ] );
+        }
         $offered  = array_values( array_filter( PdpFormRegistry::formsForClub() ) );
         if ( ! in_array( $form_key, $offered, true ) ) {
             return RestResponse::error( 'invalid_field', __( 'That conversation form is not available at this academy.', 'talenttrack' ), 400, [ 'field' => 'form_key', 'allowed' => $offered ] );

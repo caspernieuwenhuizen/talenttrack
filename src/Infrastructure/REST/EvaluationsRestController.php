@@ -591,6 +591,23 @@ class EvaluationsRestController {
         return null;
     }
 
+    /**
+     * #4977 — an evaluation a PDP conversation form's sign-off wrote is
+     * read-only. The signed form is the record; editing or removing the
+     * evaluation would make the radar and the printed form disagree. The
+     * answer names the conversation, so a surface can link to it.
+     */
+    private static function pdp_form_refusal( int $eval_id ): ?\WP_REST_Response {
+        $conversation_id = \TT\Infrastructure\Evaluations\EvaluationsRepository::pdpConversationIdOf( $eval_id );
+        if ( $conversation_id <= 0 ) return null;
+        return RestResponse::error(
+            'evaluation_from_pdp_form',
+            __( 'This evaluation was saved by a signed PDP conversation form, so it cannot be changed. Open the conversation to read it.', 'talenttrack' ),
+            409,
+            [ 'pdp_conversation_id' => $conversation_id ]
+        );
+    }
+
     public static function get_eval( \WP_REST_Request $r ) {
         $e = QueryHelpers::get_evaluation( (int) $r['id'] );
         if ( ! $e ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
@@ -828,6 +845,8 @@ class EvaluationsRestController {
 
         $existing_refusal = self::write_refusal( $id );
         if ( $existing_refusal !== null ) return $existing_refusal;
+        $form_refusal = self::pdp_form_refusal( $id );
+        if ( $form_refusal !== null ) return $form_refusal;
 
         // v4.20.37 (#1197) — Audit 2 (#1176) flagged the cross-club
         // rewrite class on this handler. Pre-fix the UPDATE's WHERE
@@ -981,6 +1000,8 @@ class EvaluationsRestController {
         // could archive that row.
         $existing_refusal = self::write_refusal( $id );
         if ( $existing_refusal !== null ) return $existing_refusal;
+        $form_refusal = self::pdp_form_refusal( $id );
+        if ( $form_refusal !== null ) return $form_refusal;
 
         $ok = $wpdb->update(
             "{$p}tt_evaluations",

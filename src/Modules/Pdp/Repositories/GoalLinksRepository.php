@@ -162,13 +162,6 @@ class GoalLinksRepository {
     }
 
     /**
-     * Replace the set of goals linked to a conversation (the coach's
-     * "goals discussed in this talk" multi-select). Only touches this
-     * conversation's `pdp_conversation` rows. Returns true.
-     *
-     * @param int[] $goal_ids
-     */
-    /**
      * #4977 — link one goal to a conversation, keeping its other links.
      *
      * Sign-off of a form conversation links the goals it creates this way.
@@ -180,8 +173,9 @@ class GoalLinksRepository {
     public function linkGoalToConversation( int $conv_id, int $goal_id ): bool {
         if ( $conv_id <= 0 || $goal_id <= 0 ) return false;
 
-        $linked = $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT 1 FROM {$this->table} WHERE goal_id = %d AND link_type = %s AND link_id = %d AND club_id = %d LIMIT 1",
+        global $wpdb;
+        $linked = $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}tt_goal_links WHERE goal_id = %d AND link_type = %s AND link_id = %d AND club_id = %d LIMIT 1",
             $goal_id, self::TYPE_PDP_CONVERSATION, $conv_id, CurrentClub::id()
         ) );
         if ( $linked !== null ) return true;
@@ -194,6 +188,13 @@ class GoalLinksRepository {
         ] ) !== false;
     }
 
+    /**
+     * Replace the set of goals linked to a conversation (the coach's
+     * "goals discussed in this talk" multi-select). Only touches this
+     * conversation's `pdp_conversation` rows. Returns true.
+     *
+     * @param int[] $goal_ids
+     */
     public function setGoalsForConversation( int $conv_id, array $goal_ids ): bool {
         if ( $conv_id <= 0 ) return false;
 
