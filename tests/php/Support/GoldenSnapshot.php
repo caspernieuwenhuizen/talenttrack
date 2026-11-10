@@ -227,6 +227,10 @@ final class GoldenSnapshot {
                 if ( $ts === false || ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) return $m[0];
                 $days = (int) round( ( $ts - $today ) / DAY_IN_SECONDS );
                 if ( abs( $days ) > 366 ) return $m[0];
+                // A date with a time within a day of now is the moment the
+                // fixture wrote the row, in UTC or in site time: `{now}`,
+                // whichever side of midnight either clock is on.
+                if ( $m[4] !== '' && abs( $days ) <= 1 ) return '{now}';
                 return '{day:' . ( $days >= 0 ? '+' : '' ) . $days . '}' . ( $m[4] !== '' ? ' {time}' : '' );
             },
             $value

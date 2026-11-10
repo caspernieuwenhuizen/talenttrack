@@ -34,7 +34,7 @@
                         "context": "match",
                         "notes": null,
                         "related_activity_id": null,
-                        "created_at": "{day:+1} {time}"
+                        "created_at": "{now}"
                     },
                     {
                         "id": "{behaviour:1}",
@@ -46,7 +46,7 @@
                         "context": "training",
                         "notes": "Leads the warm-up.",
                         "related_activity_id": null,
-                        "created_at": "{day:+1} {time}"
+                        "created_at": "{now}"
                     }
                 ]
             }

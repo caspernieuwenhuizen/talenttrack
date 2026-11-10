@@ -80,6 +80,13 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         GoldenSnapshot::reset();
+        // The rating scale is the academy's setting, and the figures read
+        // it: the snapshots were recorded on 5 to 9 in whole steps, so the
+        // fixture says so rather than inheriting whatever the site has.
+        \TT\Infrastructure\Query\QueryHelpers::setConfigService( new \TT\Infrastructure\Config\ConfigService() );
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'rating_min', '5' );
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'rating_max', '9' );
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'rating_step', '1' );
         $this->shiftIds();
 
         ( new RolesService() )->installRoles();
@@ -92,6 +99,8 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        // The scale set above is rolled back with the test; the cached copy too.
+        \TT\Infrastructure\Query\QueryHelpers::setConfigService( new \TT\Infrastructure\Config\ConfigService() );
         wp_set_current_user( 0 );
         parent::tear_down();
     }
