@@ -379,7 +379,7 @@ final class TeamStatisticsTab {
 
         if ( $player_id <= 0 ) return esc_html( $name );
 
-        $url = RecordLink::detailUrlForWithBack( 'player', $player_id );
+        $url = RecordLink::detailUrlForWithBack( 'players', $player_id );
         if ( $url === '' ) return esc_html( $name );
 
         return '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
