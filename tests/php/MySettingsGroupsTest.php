@@ -112,6 +112,14 @@ final class MySettingsGroupsTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'update_profile', $appearance );
     }
 
+    public function test_a_group_page_draws_the_groups_through_the_spine(): void {
+        $html = $this->render( $this->userWith( 'administrator' ), MySettingsGroups::MESSAGES );
+
+        $this->assertStringContainsString( 'tt-spine--side', $html, 'the shared component, not a hand-rolled list (CLAUDE.md §5c)' );
+        $this->assertStringNotContainsString( 'tt-msettings-groups', $html );
+        $this->assertMatchesRegularExpression( '/group=messages"[^>]*aria-current="page"/', $html );
+    }
+
     public function test_the_account_forms_offer_cancel_back_to_the_overview(): void {
         $html = $this->render( $this->userWith( 'administrator' ), MySettingsGroups::ACCOUNT );
 

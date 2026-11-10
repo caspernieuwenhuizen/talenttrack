@@ -20,13 +20,13 @@ msgstr "Privacy"
 
 #: src/Infrastructure/Identity/MySettingsGroups.php
 msgctxt "my settings summary"
-msgid "two-step on"
-msgstr "tweestaps aan"
+msgid "two-factor on"
+msgstr "tweestapsverificatie aan"
 
 #: src/Infrastructure/Identity/MySettingsGroups.php
 msgctxt "my settings summary"
-msgid "two-step off"
-msgstr "tweestaps uit"
+msgid "two-factor off"
+msgstr "tweestapsverificatie uit"
 
 #. translators: 1: message types switched on, 2: message types offered
 #: src/Infrastructure/Identity/MySettingsGroups.php

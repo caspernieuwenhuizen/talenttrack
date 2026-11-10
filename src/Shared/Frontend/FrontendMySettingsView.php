@@ -5,9 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\MySettingsGroups;
 use TT\Modules\MatchExecution\MatchExecutionLayout;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\RecordSpine;
 
 /**
  * FrontendMySettingsView — TT-rendered account settings (#0061 round 3).
@@ -100,13 +102,28 @@ class FrontendMySettingsView extends FrontendViewBase {
 
         if ( $group === '' ) {
             echo '<div class="tt-msettings tt-msettings--overview">';
-            self::renderGroupList( $groups, '' );
+            self::renderGroupList( $groups );
             echo '</div>';
             return;
         }
 
         echo '<div class="tt-msettings tt-msettings--group">';
-        self::renderGroupList( $groups, $group );
+        // Beside the open group from 1024px, the groups through the shared
+        // spine (CLAUDE.md §5c): hidden on a phone, where the breadcrumb
+        // leads back to the overview.
+        RecordSpine::render( [
+            'layout' => 'side',
+            'label'  => __( 'My settings', 'talenttrack' ),
+            'tabs'   => array_map(
+                static fn( array $g ): array => [
+                    'label'   => $g['label'],
+                    'url'     => $g['url'],
+                    'summary' => $g['summary'],
+                    'active'  => $g['key'] === $group,
+                ],
+                $groups
+            ),
+        ] );
         echo '<div class="tt-msettings-panel">';
         switch ( $group ) {
             case MySettingsGroups::ACCOUNT:
@@ -160,19 +177,17 @@ class FrontendMySettingsView extends FrontendViewBase {
     }
 
     /**
-     * The groups as a list of rows: the whole overview on a phone, and the
-     * column beside the open group from 1024px. Each row is one link with
-     * its summary underneath, so Tab and Enter reach every group.
+     * The overview: the groups as a list of rows, each one link with its
+     * summary underneath, so Tab and Enter reach every group. This is the
+     * page's content; beside an open group the spine draws the same list.
      *
      * @param list<array{key:string, label:string, summary:string, url:string}> $groups
      */
-    private static function renderGroupList( array $groups, string $current ): void {
+    private static function renderGroupList( array $groups ): void {
         echo '<ul class="tt-msettings-groups" aria-label="' . esc_attr__( 'My settings', 'talenttrack' ) . '">';
         foreach ( $groups as $g ) {
-            $is_current = $g['key'] === $current;
             echo '<li class="tt-msettings-groups__item">';
-            echo '<a class="tt-msettings-group' . ( $is_current ? ' is-current' : '' ) . '" href="' . esc_url( $g['url'] ) . '"'
-                . ( $is_current ? ' aria-current="page"' : '' ) . '>';
+            echo '<a class="tt-msettings-group" href="' . esc_url( $g['url'] ) . '">';
             echo '<span class="tt-msettings-group__label">' . esc_html( $g['label'] ) . '</span>';
             if ( $g['summary'] !== '' ) {
                 echo '<span class="tt-msettings-group__summary">' . esc_html( $g['summary'] ) . '</span>';
@@ -183,23 +198,23 @@ class FrontendMySettingsView extends FrontendViewBase {
     }
 
     /**
-     * Two-step login lives in Account. The enrolment itself stays on its
-     * own screen with its own handlers; this card says whether it is on and
-     * opens that screen.
+     * Two-factor authentication lives in Account. The enrolment itself stays
+     * on its own screen with its own handlers; this card says whether it is
+     * on and opens that screen. Gated by the same answer the Account summary
+     * reads, so the two never disagree.
      */
     private static function renderTwoFactorCard( int $user_id ): void {
         if ( ! MySettingsGroups::twoFactorAvailable() ) return;
 
-        CrossViewLink::render( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG, static function () use ( $user_id ): void {
-            $on = MySettingsGroups::twoFactorOn( $user_id );
-            echo '<section class="tt-msettings-card">';
-            echo '<h3>' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</h3>';
-            echo '<p class="tt-field-hint">' . ( $on ? esc_html__( 'Two-factor is on', 'talenttrack' ) : esc_html__( 'Two-factor is off', 'talenttrack' ) ) . '</p>';
-            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::url() ) . '">'
-                . ( $on ? esc_html__( 'Manage two-factor', 'talenttrack' ) : esc_html__( 'Set up two-factor', 'talenttrack' ) )
-                . '</a>';
-            echo '</section>';
-        } );
+        $on  = MySettingsGroups::twoFactorOn( $user_id );
+        $url = BackLink::appendTo( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::url() );
+        echo '<section class="tt-msettings-card">';
+        echo '<h3>' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-field-hint">' . ( $on ? esc_html__( 'Two-factor is on', 'talenttrack' ) : esc_html__( 'Two-factor is off', 'talenttrack' ) ) . '</p>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">'
+            . ( $on ? esc_html__( 'Manage two-factor', 'talenttrack' ) : esc_html__( 'Set up two-factor', 'talenttrack' ) )
+            . '</a>';
+        echo '</section>';
     }
 
     /**
@@ -295,7 +310,7 @@ class FrontendMySettingsView extends FrontendViewBase {
                         <input type="password" id="tt-ms-confirm" name="confirm_password" class="tt-input" autocomplete="new-password" minlength="8" required />
                     </div>
                 </div>
-                <p class="tt-field-hint" style="margin:0 0 12px;"><?php esc_html_e( 'At least 8 characters. Saving will end any other active sessions.', 'talenttrack' ); ?></p>
+                <p class="tt-field-hint tt-msettings-password-hint"><?php esc_html_e( 'At least 8 characters. Saving will end any other active sessions.', 'talenttrack' ); ?></p>
 
                 <?php
                 echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the helper escapes.

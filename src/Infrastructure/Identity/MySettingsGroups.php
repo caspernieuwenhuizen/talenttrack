@@ -207,10 +207,14 @@ final class MySettingsGroups {
         return empty( $parents ) ? 0 : $player_id;
     }
 
-    /** Whether the two-step login surface exists on this install. */
+    /**
+     * Whether the current user can reach their own two-factor screen: the
+     * one answer the Account summary and the Account card both read. The
+     * cross-view gate covers a switched-off surface as well as the reader.
+     */
     public static function twoFactorAvailable(): bool {
         if ( ! class_exists( '\\TT\\Modules\\Mfa\\MfaSecretsRepository' ) ) return false;
-        return ! \TT\Core\FeatureRegistry::viewSlugDisabled( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG );
+        return \TT\Shared\Frontend\Components\CrossViewLink::allows( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG );
     }
 
     public static function twoFactorOn( int $user_id ): bool {
@@ -229,8 +233,8 @@ final class MySettingsGroups {
 
         if ( self::twoFactorAvailable() ) {
             $parts[] = self::twoFactorOn( $user_id )
-                ? _x( 'two-step on', 'my settings summary', 'talenttrack' )
-                : _x( 'two-step off', 'my settings summary', 'talenttrack' );
+                ? _x( 'two-factor on', 'my settings summary', 'talenttrack' )
+                : _x( 'two-factor off', 'my settings summary', 'talenttrack' );
         }
         return implode( ' · ', $parts );
     }

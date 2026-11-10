@@ -46,8 +46,7 @@
     touch-action: manipulation;
 }
 .tt-dashboard .tt-msettings-group:hover,
-.tt-dashboard .tt-msettings-group:active,
-.tt-dashboard .tt-msettings-group.is-current {
+.tt-dashboard .tt-msettings-group:active {
     background: var(--tt-bg-soft, #f4f5f2);
 }
 .tt-dashboard .tt-msettings-group:focus-visible {
@@ -65,19 +64,20 @@
     overflow-wrap: anywhere;
 }
 
-/* A group page on a phone shows the group only; the breadcrumb leads back. */
-.tt-dashboard .tt-msettings--group .tt-msettings-groups {
-    display: none;
-}
-
+/*
+ * A group page: the group alone on a phone (the spine's side column hides
+ * itself there, and the breadcrumb leads back); the column on the left from
+ * 1024px.
+ */
 @media (min-width: 1024px) {
     .tt-dashboard .tt-msettings--group {
         grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
         align-items: start;
     }
-    .tt-dashboard .tt-msettings--group .tt-msettings-groups {
-        display: block;
-    }
+}
+
+.tt-dashboard .tt-msettings-password-hint {
+    margin: 0 0 var(--tt-sp-3, 12px);
 }
 
 .tt-dashboard .tt-msettings-card {

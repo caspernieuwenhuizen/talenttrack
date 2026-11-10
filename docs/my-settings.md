@@ -19,9 +19,9 @@ A group only shows when it has something for you. A player sees the parent-visib
 
 ## Account
 
-Your profile (first and last name, display name, email and phone number), your password, and two-step login.
+Your profile (first and last name, display name, email and phone number), your password, and two-factor authentication.
 
-- The summary line shows your display name, your email address and whether two-step login is on.
+- The summary line shows your display name, your email address and whether two-factor authentication is on.
 - The profile and the password each have their own **Save** and **Cancel**. Cancel takes you back to the overview without saving.
 - A player's display name is set by the academy from their name and can't be changed here.
 - Changing your password signs you out on your other devices.

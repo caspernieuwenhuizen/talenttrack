@@ -275,4 +275,34 @@ class RecordSpineTest extends WP_UnitTestCase {
 
         $this->assertSame( '', $html, 'the flag is opt-in; existing callers are unchanged' );
     }
+
+    public function test_the_side_layout_draws_a_column_of_navigating_rows(): void {
+        $html = $this->render( [
+            'layout' => 'side',
+            'label'  => 'My settings',
+            'tabs'   => [
+                [ 'label' => 'Account', 'url' => '/x?group=account', 'summary' => 'Casper · two-factor on', 'active' => true ],
+                [ 'label' => 'Messages', 'url' => '/x?group=messages', 'summary' => '9 of 12 on' ],
+                [ 'label' => 'Panel', 'panel' => 'tt-panel-x' ],
+            ],
+        ] );
+
+        $this->assertStringContainsString( '<nav class="tt-spine tt-spine--side" aria-label="My settings">', $html );
+        $this->assertStringContainsString( 'aria-current="page"', $html );
+        $this->assertStringContainsString( '9 of 12 on', $html );
+        $this->assertStringNotContainsString( 'tt-spine__id', $html, 'no identity strip' );
+        $this->assertStringNotContainsString( 'role="tab"', $html, 'navigating rows only' );
+        $this->assertStringNotContainsString( 'Panel', $html );
+    }
+
+    public function test_the_side_layout_survives_the_classic_shell(): void {
+        ShellPreference::setClubDefault( ShellPreference::CLASSIC );
+
+        $html = $this->render( [
+            'layout' => 'side',
+            'tabs'   => [ [ 'label' => 'Account', 'url' => '/x?group=account' ] ],
+        ] );
+
+        $this->assertStringContainsString( 'tt-spine--side', $html, 'the rows are the only way between the sections' );
+    }
 }
