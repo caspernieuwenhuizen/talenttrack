@@ -22,8 +22,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  * `toStored()` and `toFormStep()` refuse, and enabling the PDP forms is
  * refused with a message, rather than writing ratings the scale cannot hold.
  *
- * Other readers of the three config keys still read them directly; moving
- * them here is its own issue.
+ * Every reader of the three config keys goes through here (#4987).
  */
 final class RatingScale {
 
@@ -39,13 +38,38 @@ final class RatingScale {
         $this->step = $step;
     }
 
-    /** The academy's current scale. */
+    /**
+     * The defaults when an install has no row for a key. They are the scale
+     * migration 0167 locked every install to (#1641): 5 to 9 in whole steps.
+     * Before #4987 the readers disagreed (a maximum of 10 and a step of 0.5
+     * in most of them, the pre-#1641 scale).
+     */
+    public const DEFAULT_MIN  = '5';
+    public const DEFAULT_MAX  = '9';
+    public const DEFAULT_STEP = '1';
+
+    /**
+     * The academy's current scale. The one reader of `rating_min`,
+     * `rating_max` and `rating_step` (#4987; `RatingScaleReadGuardTest`
+     * fails on a direct read anywhere else).
+     */
     public static function current(): self {
-        return new self(
-            (float) QueryHelpers::get_config( 'rating_min', '5' ),
-            (float) QueryHelpers::get_config( 'rating_max', '9' ),
-            (float) QueryHelpers::get_config( 'rating_step', '1' )
-        );
+        return new self( self::currentMin(), self::currentMax(), self::currentStep() );
+    }
+
+    /** The lowest rating of the academy's scale. */
+    public static function currentMin(): float {
+        return (float) QueryHelpers::get_config( 'rating_min', self::DEFAULT_MIN );
+    }
+
+    /** The highest rating of the academy's scale. */
+    public static function currentMax(): float {
+        return (float) QueryHelpers::get_config( 'rating_max', self::DEFAULT_MAX );
+    }
+
+    /** The step between two ratings of the academy's scale. */
+    public static function currentStep(): float {
+        return (float) QueryHelpers::get_config( 'rating_step', self::DEFAULT_STEP );
     }
 
     public function min(): float { return $this->min; }

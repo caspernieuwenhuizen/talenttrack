@@ -170,7 +170,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        $max      = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max      = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $eval_ids = array_map( static fn( $e ) => (int) ( $e->id ?? 0 ), $evals );
         $overalls = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $eval_ids );
 

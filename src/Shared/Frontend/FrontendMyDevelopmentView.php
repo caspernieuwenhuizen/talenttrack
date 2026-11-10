@@ -307,7 +307,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
 
     /** How you're doing — headline rating + momentum → My evaluations. */
     private static function renderForm( object $player, bool $is_self, SubjectVoice $voice ): void {
-        $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max   = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $heads = ( new PlayerStatsService() )->getHeadlineNumbers( (int) $player->id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
         $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;

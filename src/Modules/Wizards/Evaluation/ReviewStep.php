@@ -235,8 +235,8 @@ final class ReviewStep implements WizardStepInterface {
             // rating scale (defaults 5..10). Better to silently drop OOR
             // values than reject the whole submission — the activity-
             // first path is bulk and one bad row shouldn't kill everyone.
-            $rmin = (int) QueryHelpers::get_config( 'rating_min', '5' );
-            $rmax = (int) QueryHelpers::get_config( 'rating_max', '10' );
+            $rmin = (int) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+            $rmax = (int) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
             $cats = array_filter( $cats, static function ( $v ) use ( $rmin, $rmax ) {
                 $v = (int) $v;
                 return $v >= $rmin && $v <= $rmax;
@@ -408,8 +408,8 @@ final class ReviewStep implements WizardStepInterface {
         // is an integer column; rounded after clamp. Empty submissions
         // were silently producing parent `tt_evaluations` rows with no
         // child rating rows ("an empty evaluation that pollutes the DB").
-        $rmin = (int) QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax = (int) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmin = (int) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax = (int) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         // #819 — if the selected eval_type has a category-allowlist
         // configured (via the new tt_eval_type_categories mapping),

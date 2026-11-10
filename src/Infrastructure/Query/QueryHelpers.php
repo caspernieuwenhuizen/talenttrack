@@ -884,7 +884,7 @@ class QueryHelpers {
     public static function radar_chart_svg( array $labels, array $datasets, ?float $max = null ): string {
         // v3.110.116 — `$max` default now resolved from config when
         // null (was hardcoded `5.0`).
-        $max = $max ?? (float) self::get_config( 'rating_max', '10' );
+        $max = $max ?? (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         // #0080 Wave A — radar charts are a Standard+ feature. Free
         // tier sees the upgrade nudge inline at every consumer site
         // (rate-card, comparison view, persona dashboard, reports,

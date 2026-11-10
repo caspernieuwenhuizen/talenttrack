@@ -467,9 +467,9 @@ final class TeamMonthlyEvaluations {
      */
     public static function scale(): array {
         return self::scaleOf( [
-            'min'  => QueryHelpers::get_config( 'rating_min', '5' ),
-            'max'  => QueryHelpers::get_config( 'rating_max', '10' ),
-            'step' => QueryHelpers::get_config( 'rating_step', '0.5' ),
+            'min'  => \TT\Infrastructure\Evaluations\RatingScale::currentMin(),
+            'max'  => \TT\Infrastructure\Evaluations\RatingScale::currentMax(),
+            'step' => \TT\Infrastructure\Evaluations\RatingScale::currentStep(),
         ] );
     }
 

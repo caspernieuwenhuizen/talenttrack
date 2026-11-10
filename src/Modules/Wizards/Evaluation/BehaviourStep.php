@@ -71,8 +71,8 @@ final class BehaviourStep implements WizardStepInterface, ConditionalStepInterfa
         // #2249 — player-first path: rate the single picked player.
         $players = self::playersForState( $state );
 
-        $min = (int) round( (float) QueryHelpers::get_config( 'rating_min', '5' ) );
-        $max = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        $min = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
+        $max = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         if ( empty( $players ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players to rate. Skip to continue.', 'talenttrack' ) . '</p>';
@@ -152,8 +152,8 @@ final class BehaviourStep implements WizardStepInterface, ConditionalStepInterfa
             ? array_map( 'sanitize_text_field', wp_unslash( $post['behaviour_notes'] ) )
             : [];
 
-        $rmin = (int) round( (float) QueryHelpers::get_config( 'rating_min', '5' ) );
-        $rmax = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        $rmin = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
+        $rmax = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         $ratings = [];
         foreach ( $raw_r as $pid => $v ) {

@@ -70,7 +70,7 @@ class PlayerTeamFitPanel {
         // v4.0.3 (#866) — denominator from tt_config so the panel
         // reads "7.8 / 10" on the active 5-10 scale instead of the
         // legacy hardcoded "/ 5".
-        $rmax_cfg = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $rmax_cfg = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         ob_start();
         ?>

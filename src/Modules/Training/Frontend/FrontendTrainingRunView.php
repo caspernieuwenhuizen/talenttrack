@@ -453,9 +453,9 @@ final class FrontendTrainingRunView extends FrontendViewBase {
      * @return list<float>
      */
     private static function scaleSteps(): array {
-        $min  = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-        $max  = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '9' );
-        $step = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_step', '1' );
+        $min  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $max  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $step = (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep();
 
         if ( $step <= 0 ) $step = 1.0;
         if ( $max < $min ) [ $min, $max ] = [ $max, $min ];

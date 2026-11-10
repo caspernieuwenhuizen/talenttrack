@@ -268,8 +268,8 @@ final class TrainingObservationsRepository {
         if ( ! is_numeric( $raw ) ) return null;
 
         $value = (float) $raw;
-        $min   = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-        $max   = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '9' );
+        $min   = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $max   = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
 
         if ( $value < $min || $value > $max ) return null;
 

@@ -282,7 +282,7 @@ final class PitchSvg {
             // rating max so pitch-fit colours stay meaningful when
             // the operator changes the rating scale. Hardcoded >= 4.0
             // was 40% of max on 5-10 — weak fits showed as strong.
-            $rmax_cfg         = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+            $rmax_cfg         = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
             $strong_threshold = $rmax_cfg * 0.80;
             $mid_threshold    = $rmax_cfg * 0.50;
             $fit_class = $score >= $strong_threshold

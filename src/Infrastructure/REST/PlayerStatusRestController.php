@@ -200,8 +200,8 @@ final class PlayerStatusRestController {
         // configured min/max. New default is 5–10 (Dutch academic
         // 6-point scale); installs that customise rating_min /
         // rating_max in tt_config are honoured.
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rmin = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         if ( $player_id <= 0 || $rating < $rmin || $rating > $rmax ) {
             return RestResponse::error(
                 'bad_input',

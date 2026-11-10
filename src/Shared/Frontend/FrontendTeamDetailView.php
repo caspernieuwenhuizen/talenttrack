@@ -616,7 +616,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         $can_view_rating = current_user_can( 'tt_view_evaluations' );
         $rating          = $can_view_rating ? $repo->avgSquadRating( $team_id ) : null;
 
-        $rmax = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        $rmax = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
 
         $planner_url = add_query_arg(
             [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],

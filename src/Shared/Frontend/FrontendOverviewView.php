@@ -33,7 +33,7 @@ class FrontendOverviewView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My profile', 'talenttrack' ) );
         self::renderHeader( __( 'My profile', 'talenttrack' ) );
 
-        $max     = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max     = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $service = new PlayerStatsService();
         $heads   = $service->getHeadlineNumbers( (int) $player->id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
@@ -122,7 +122,7 @@ class FrontendOverviewView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
-        $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         // The rating badge is an evaluation score: a parent the child keeps
         // evaluations from gets the header without it.
         $player_id = (int) $player->id;

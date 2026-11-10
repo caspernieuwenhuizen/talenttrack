@@ -812,7 +812,7 @@ final class ReportsRestController extends BaseController {
             $payload = [ 'players' => $players ];
         }
         $payload['mode']       = $mode;
-        $payload['rating_max'] = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $payload['rating_max'] = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         return RestResponse::success( $payload );
     }
 

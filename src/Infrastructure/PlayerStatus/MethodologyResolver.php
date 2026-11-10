@@ -31,8 +31,8 @@ final class MethodologyResolver {
         // active scale. Hardcoded 3.0 was the 1-5 midpoint; on 5-10 a
         // behaviour avg below 3.0 is impossible, so the floor veto
         // never fired for fresh installs.
-        $rating_min = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-        $rating_max = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_min = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rating_max = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
         $midpoint   = $rating_min + ( $rating_max - $rating_min ) / 2.0;
 
         return [

@@ -50,9 +50,9 @@ class CoachForms {
         // #4976 — without the PDP conversation types, except the one an
         // evaluation being edited already has.
         $types      = QueryHelpers::get_pickable_eval_types( $existing_eval !== null ? (int) ( $existing_eval->eval_type_id ?? 0 ) : 0 );
-        $rmin  = QueryHelpers::get_config( 'rating_min', '5' );
-        $rmax  = QueryHelpers::get_config( 'rating_max', '10' );
-        $rstep = QueryHelpers::get_config( 'rating_step', '0.5' );
+        $rmin  = \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $rmax  = \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $rstep = \TT\Infrastructure\Evaluations\RatingScale::currentStep();
 
         $type_meta = [];
         foreach ( $types as $t ) {
@@ -425,7 +425,7 @@ class CoachForms {
                         </div>
                     <?php endif; ?>
                     <div class="tt-evf-cat__rate">
-                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $main_input_id ); ?>" data-tt-evf-main-rating name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
+                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $main_input_id ); ?>" data-tt-evf-main-rating name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( (string) $rmin ); ?>" max="<?php echo esc_attr( (string) $rmax ); ?>" step="<?php echo esc_attr( (string) $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     </div>
                 </div>
                 <?php echo \TT\Shared\Frontend\Components\EvalCategoryNote::panel( 'tt-evf-note-' . $cid, 'category_notes[' . $cid . ']', $cat_label, $cat_note, 'tt-evf-cat__note' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes ?>
@@ -445,7 +445,7 @@ class CoachForms {
                         $sub_note = (string) ( $existing_notes[ $scid ] ?? '' );
                         echo \TT\Shared\Frontend\Components\EvalCategoryNote::button( 'tt-evf-note-' . $scid, $sub_label, $sub_note ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
                         ?>
-                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $sub_input_id ); ?>" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
+                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $sub_input_id ); ?>" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( (string) $rmin ); ?>" max="<?php echo esc_attr( (string) $rmax ); ?>" step="<?php echo esc_attr( (string) $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
                         <?php echo \TT\Shared\Frontend\Components\EvalCategoryNote::panel( 'tt-evf-note-' . $scid, 'category_notes[' . $scid . ']', $sub_label, $sub_note ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes ?>
                     </div>
                 <?php

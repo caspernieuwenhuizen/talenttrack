@@ -190,9 +190,9 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
      * @return list<string>
      */
     private function scale(): array {
-        $min  = (float) QueryHelpers::get_config( 'rating_min', '5' );
-        $max  = (float) QueryHelpers::get_config( 'rating_max', '9' );
-        $step = (float) QueryHelpers::get_config( 'rating_step', '1' );
+        $min  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin();
+        $max  = (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax();
+        $step = (float) \TT\Infrastructure\Evaluations\RatingScale::currentStep();
         if ( $step <= 0 ) $step = 1.0;
         if ( $max < $min ) [ $min, $max ] = [ $max, $min ];
 

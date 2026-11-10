@@ -93,8 +93,8 @@ final class HybridDeepRateStep implements WizardStepInterface, ConditionalStepIn
         // v3.110.116 — was reading the stale `wp_options[tt_rating_scale_max]`
         // key. Reads `tt_config[rating_max]` instead so the input
         // bounds track the active scale.
-        $max = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
-        $min = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
+        $max = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMax() );
+        $min = (int) round( (float) \TT\Infrastructure\Evaluations\RatingScale::currentMin() );
 
         // v3.110.67 — unified on the `eval_type` lookup (the same one
         // the flat / edit form uses). Was reading from the parallel
