@@ -44,6 +44,40 @@ final class PlayerEventsRepository {
     }
 
     /**
+     * #4991 — the visibility levels every one of these readers holds: what a
+     * document read by all of them at once may carry. A reader of 0 holds
+     * the public level only.
+     *
+     * @param list<int> $user_ids
+     * @return list<string>
+     */
+    public static function visibilitiesForReaders( array $user_ids ): array {
+        $out = null;
+        foreach ( $user_ids as $user_id ) {
+            $levels = self::visibilitiesForUser( (int) $user_id );
+            $out    = $out === null ? $levels : array_values( array_intersect( $out, $levels ) );
+        }
+        return $out ?? [];
+    }
+
+    /**
+     * #4991 — the entries as every one of these readers may see them:
+     * `readableBy()` for each in turn, so an entry one reader may not see is
+     * gone, and one a reader sees only as its type and date stays that way.
+     *
+     * @param list<int>    $user_ids
+     * @param list<object> $rows
+     * @return list<object>
+     */
+    public static function readableByAll( array $user_ids, array $rows, ?int $player_id = null ): array {
+        if ( $user_ids === [] ) return self::readableBy( 0, $rows, $player_id );
+        foreach ( $user_ids as $user_id ) {
+            $rows = self::readableBy( (int) $user_id, $rows, $player_id );
+        }
+        return $rows;
+    }
+
+    /**
      * Journey entry types that describe a record of their own, and the read
      * right that record asks: `[ entity, parent section, family ]`.
      *

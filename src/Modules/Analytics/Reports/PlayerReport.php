@@ -50,11 +50,30 @@ final class PlayerReport {
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
     public function forPlayer( int $player_id, string $from, string $to, array $blocks, int $viewer_user_id, ?string $audience = null, array $options = [] ): ?array {
+        return $this->forReaders( $player_id, $from, $to, $blocks, [ $viewer_user_id ], $options, $audience );
+    }
+
+    /**
+     * #4991 — compose the report for several readers at once, as one
+     * scheduled PDF is read: every section holds only what every reader may
+     * read, and the audience is the narrowest any of them reads as. A reader
+     * of 0 holds no rights. The first reader is the one the report is
+     * composed as (a schedule's owner).
+     *
+     * @param list<string>                      $blocks  as `forPlayer()`
+     * @param list<int>                         $readers at least one
+     * @param array<string,array<string,mixed>> $options as `forPlayer()`
+     * @param string|null                       $audience as `forPlayer()`; null resolves it from the readers
+     * @return Report|null
+     * @throws \InvalidArgumentException on unknown block keys or a malformed window.
+     */
+    public function forReaders( int $player_id, string $from, string $to, array $blocks, array $readers, array $options = [], ?string $audience = null ): ?array {
         $unknown = PlayerReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
         }
-        $ctx = PlayerReportContext::make( $player_id, $from, $to, $viewer_user_id, $audience, $options );
+        $readers = $readers === [] ? [ 0 ] : array_values( array_map( 'intval', $readers ) );
+        $ctx     = PlayerReportContext::make( $player_id, $from, $to, $readers[0], $audience, $options, array_slice( $readers, 1 ) );
         if ( $ctx === null ) return null;
         $audience = $ctx->audience;
 

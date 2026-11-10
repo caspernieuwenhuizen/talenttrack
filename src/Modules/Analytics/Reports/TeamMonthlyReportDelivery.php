@@ -95,9 +95,9 @@ final class TeamMonthlyReportDelivery {
     /**
      * The plan plus the PDF.
      *
-     * #4991 — composed once, as the schedule's owner, and then narrowed to
-     * what every recipient may read (`TeamMonthlyReportRecipients`), so one
-     * shared PDF never carries a section one of its readers could not open.
+     * #4991 — composed once, for the schedule's owner and every recipient
+     * together (`TeamMonthlyReportRecipients::readers()`), so each section
+     * of the one shared PDF holds only what every one of them may read.
      * The recipients are required: there is no way to render a schedule's PDF
      * without saying who it is for.
      *
@@ -113,8 +113,8 @@ final class TeamMonthlyReportDelivery {
 
         $c = $plan['composition'];
         try {
-            $report = ( new TeamMonthlyReport() )->forTeam( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'], $c['options'] );
-            $report = TeamMonthlyReportRecipients::forRecipients( $report, $c['team_id'], $recipients, $plan['owner'] );
+            $readers = TeamMonthlyReportRecipients::readers( $c['team_id'], $recipients, $plan['owner'] );
+            $report  = ( new TeamMonthlyReport() )->forReaders( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $c['layout'], $plan['team_name'] );
 
             $request = new ExportRequest( 'team_monthly_report_pdf', 'pdf', CurrentClub::id(), $plan['owner'], null, [

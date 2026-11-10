@@ -5,106 +5,59 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Cron\ScheduledReportsRunner;
-use TT\Modules\Export\ExportGate;
 
 /**
- * TeamMonthlyReportRecipients (#4991) — what a scheduled monthly team report
- * may contain, given everyone it goes to.
+ * TeamMonthlyReportRecipients (#4991) — who a scheduled monthly team report
+ * is composed for, and what its schedule says it will contain.
  *
- * Each run builds one PDF for all recipients, with the rights of the
- * least-privileged one (the owner's decision of 9 November 2026). A section
- * is included only when every recipient may read it. A recipient with more
- * rights gets less than they could see on screen; that is the price of one
- * shared document.
+ * The readers are `ScheduledReportReaders`' — the owner, every account that
+ * receives the PDF, and a reader with no rights for every recipient whose
+ * rights cannot be checked — with the team report's read rule
+ * (`TeamReportAccess::canRead()`) deciding who receives it. The delivery
+ * composes the report for all of them at once
+ * (`TeamMonthlyReport::forReaders()`), so every section holds only what each
+ * of them may read:
  *
- * Today one section has a read rule of its own: attendance answers to
- * `AuthorizationService::canReadTeamAttendance()` (#4949), and dropping it
- * is `TeamMonthlyReport::withoutAttendance()`, the same removal the screen,
- * the print and a snapshot use. Every other section follows the team report
- * read rule (`TeamReportAccess::canRead()`), which already decides who
- * receives the PDF at all.
+ *  - the attendance section, the attendance tile and the attendance columns,
+ *    only when every reader may read the team's attendance;
+ *  - "what changed", with only the journey entries every reader may see:
+ *    the visibility levels they all hold (coaching staff, medical,
+ *    safeguarding), and an entry about a record of its own (a PDP verdict,
+ *    an injury, a suspension, a trial) only when every reader may read that
+ *    record.
  *
- * Who counts:
- *
- *  - the person who set up the schedule: the report is composed as them;
- *  - every account that receives the PDF: it may export files
- *    (`ExportGate`) and read the team's reports;
- *  - every recipient whose rights cannot be checked: an address with no
- *    account here, a role member outside the club, a role with no members.
- *    They count as having no rights, so they take the attendance out.
- *
- * An account on the schedule that may not read the team's reports receives
- * nothing (the runner names it on the schedule), and so does not narrow
- * what the others get.
- *
- * The runner and the schedules list both resolve the recipients through
- * `ScheduledReportsRunner::resolveRecipients()` when they ask, never at save
- * time, so a right lost after saving shrinks the next PDF.
- *
- * @phpstan-type Resolved array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>}
+ * @phpstan-import-type Resolved from ScheduledReportReaders
  */
 final class TeamMonthlyReportRecipients {
 
-    /** Skip reasons that leave a recipient's rights unknown. */
-    private const UNCHECKABLE = [ 'no_account', 'not_in_club' ];
-
     /**
-     * The accounts among these that receive the PDF.
+     * Everyone the PDF is composed for, the owner first.
      *
-     * @param list<int> $user_ids
+     * @param Resolved $resolved
+     * @param int      $owner_id the schedule's `created_by`
      * @return list<int>
      */
-    public static function receivers( int $team_id, array $user_ids ): array {
-        $out = [];
-        foreach ( $user_ids as $user_id ) {
-            $user_id = (int) $user_id;
-            if ( $user_id <= 0 ) continue;
-            if ( ! ExportGate::mayExport( $user_id ) ) continue;
-            if ( ! TeamReportAccess::canRead( $user_id, $team_id ) ) continue;
-            $out[] = $user_id;
-        }
-        return $out;
+    public static function readers( int $team_id, array $resolved, int $owner_id ): array {
+        return ScheduledReportReaders::readers(
+            $resolved,
+            $owner_id,
+            static fn( int $user_id ): bool => TeamReportAccess::canRead( $user_id, $team_id )
+        );
     }
 
     /**
-     * Whether every reader of the PDF may read the team's attendance: every
-     * recipient, and the person who set up the schedule. The report is
-     * composed as the owner (`TeamReportContext::readsAttendance()`), so an
-     * owner without the right takes the attendance out whoever receives it,
-     * and the list must not promise it.
+     * Whether every reader of the PDF may read the team's attendance: the
+     * same rule `TeamReportContext::readsAttendance()` applies when the
+     * report is composed for these readers.
      *
      * @param Resolved $resolved
      * @param int      $owner_id the schedule's `created_by`
      */
     public static function readsAttendance( int $team_id, array $resolved, int $owner_id ): bool {
-        if ( ! AuthorizationService::canReadTeamAttendance( $owner_id, $team_id ) ) return false;
-        if ( $resolved['unresolved'] !== [] ) return false;
-        foreach ( $resolved['skipped'] as $skip ) {
-            if ( in_array( $skip['reason'], self::UNCHECKABLE, true ) ) return false;
-        }
-
-        $user_ids = array_map( static fn( $r ): int => (int) $r->userId, $resolved['recipients'] );
-        $receivers = self::receivers( $team_id, $user_ids );
-        if ( $receivers === [] ) return false;
-
-        foreach ( $receivers as $user_id ) {
-            if ( ! AuthorizationService::canReadTeamAttendance( $user_id, $team_id ) ) return false;
+        foreach ( self::readers( $team_id, $resolved, $owner_id ) as $reader ) {
+            if ( ! AuthorizationService::canReadTeamAttendance( $reader, $team_id ) ) return false;
         }
         return true;
-    }
-
-    /**
-     * A composed report as all these recipients may read it.
-     *
-     * @param array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string} $report
-     * @param Resolved $resolved
-     * @param int      $owner_id the schedule's `created_by`, as whom the report was composed
-     * @return array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string}
-     */
-    public static function forRecipients( array $report, int $team_id, array $resolved, int $owner_id ): array {
-        return self::readsAttendance( $team_id, $resolved, $owner_id )
-            ? $report
-            : TeamMonthlyReport::withoutAttendance( $report );
     }
 
     /**

@@ -177,24 +177,33 @@ final class PlayerReportDelivery {
      * The plan plus the PDF, and the players it is about, so the runner
      * sends it only to recipients who may read every one of them.
      *
+     * #4991 — each player's report is composed for the schedule's owner and
+     * every recipient together (`ScheduledReportReaders`), so each section
+     * of the one shared PDF holds only what every one of them may read. The
+     * recipients are required: there is no way to render a schedule's PDF
+     * without saying who it is for.
+     *
      * @param array<string,mixed> $schedule
+     * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $recipients
+     *        `ScheduledReportsRunner::resolveRecipients()` for this run
      * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string, players:list<int>}
      */
-    public static function render( array $schedule, string $today ): array {
+    public static function render( array $schedule, string $today, array $recipients ): array {
         $plan = self::plan( $schedule, $today );
         $out  = [ 'ok' => false, 'stop' => $plan['stop'], 'error' => $plan['error'], 'note' => $plan['note'], 'bytes' => '', 'filename' => $plan['filename'], 'label' => $plan['label'], 'players' => $plan['players'] ];
         if ( ! $plan['ok'] ) return $out;
 
-        $c = $plan['composition'];
+        $c       = $plan['composition'];
+        $readers = self::readers( $plan['players'], $recipients, $plan['owner'] );
 
-        // The report is composed as its owner would see it, thread notes
-        // included, which read the current user. Restored whatever happens.
+        // Composed as its owner, who stays the current user while it renders.
+        // Restored whatever happens.
         $previous = get_current_user_id();
         wp_set_current_user( $plan['owner'] );
         try {
             $reports = [];
             foreach ( $plan['players'] as $player_id ) {
-                $report = ( new PlayerReport() )->forPlayer( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'], null, $c['options'] );
+                $report = ( new PlayerReport() )->forReaders( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] );
                 if ( $report === null ) continue;
                 $fit             = PlayerReportLayout::fit( $report, $c['layout'] );
                 $report['data']  = PlayerReportLayout::degrade( $report, $fit['degraded'] )['data'];
@@ -232,6 +241,25 @@ final class PlayerReportDelivery {
         $out['ok']    = true;
         $out['bytes'] = $bytes;
         return $out;
+    }
+
+    /**
+     * #4991 — everyone a run's PDF is composed for, the owner first. A
+     * recipient receives it only when they may read the report of every
+     * player in it, the rule the runner applies when it sends.
+     *
+     * @param list<int> $players
+     * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $recipients
+     * @return list<int>
+     */
+    public static function readers( array $players, array $recipients, int $owner_id ): array {
+        return ScheduledReportReaders::readers( $recipients, $owner_id, static function ( int $user_id ) use ( $players ): bool {
+            if ( $players === [] ) return false;
+            foreach ( $players as $player_id ) {
+                if ( ! PlayerReportAccess::canRead( $user_id, (int) $player_id ) ) return false;
+            }
+            return true;
+        } );
     }
 
     /** `JO13-1-player-reports-2026-09-30.pdf`: what, whose and as of when. */

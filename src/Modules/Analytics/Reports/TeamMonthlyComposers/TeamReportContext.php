@@ -45,6 +45,17 @@ final class TeamReportContext {
      */
     public readonly int $viewer_user_id;
 
+    /**
+     * #4991 — everyone this copy of the report is read by. One reader on
+     * screen; a scheduled PDF's owner and every recipient together, where 0
+     * stands for a recipient whose rights cannot be checked. Empty is the
+     * unattended caller of old (viewer 0). Every reader-dependent read asks
+     * against all of them, so the report carries only what each may read.
+     *
+     * @var list<int>
+     */
+    public readonly array $readers;
+
     /** @var Window the window a delta is taken against */
     public readonly array $previous;
 
@@ -84,9 +95,11 @@ final class TeamReportContext {
      * @param array<string,array<string,mixed>> $options per-block option bags,
      *        block key => bag. Never throws: an option a later version dropped
      *        must still open a saved report.
+     * @param list<int>|null $readers #4991 — everyone the report is read by;
+     *        null is the viewer alone (none for viewer 0).
      * @throws \InvalidArgumentException on a malformed window.
      */
-    public function __construct( int $team_id, string $from, string $to, int $viewer_user_id = 0, array $options = [] ) {
+    public function __construct( int $team_id, string $from, string $to, int $viewer_user_id = 0, array $options = [], ?array $readers = null ) {
         if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) {
             throw new \InvalidArgumentException( 'from and to must be Y-m-d dates with from <= to.' );
         }
@@ -95,6 +108,9 @@ final class TeamReportContext {
         $this->from           = $from;
         $this->to             = $to;
         $this->viewer_user_id = $viewer_user_id;
+        $this->readers        = $readers !== null
+            ? array_values( array_unique( array_map( 'intval', $readers ) ) )
+            : ( $viewer_user_id > 0 ? [ $viewer_user_id ] : [] );
         $this->previous       = TeamMonthlyReport::previousWindow( $from, $to );
         $this->options        = $options;
     }
@@ -123,15 +139,52 @@ final class TeamReportContext {
     }
 
     /**
-     * #4949 — may the viewer read this team's attendance? The attendance
+     * #4949 — may the readers read this team's attendance? The attendance
      * section and the attendance tile follow the attendance read right, the
      * check `GET /reports/attendance-at-risk` asks
      * (`AuthorizationService::canReadTeamAttendance()`), not the reports
-     * read right the rest of the report answers to. Asked once per report.
-     * An unattended caller (viewer 0) reads none, the conservative set.
+     * read right the rest of the report answers to. Asked once per report,
+     * of every reader (#4991). An unattended caller (no readers) reads none,
+     * the conservative set.
      */
     public function readsAttendance(): bool {
-        return $this->reads_attendance ??= \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $this->viewer_user_id, $this->team_id );
+        if ( $this->reads_attendance === null ) {
+            $reads = $this->readers !== [];
+            foreach ( $this->readers as $reader ) {
+                if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $reader, $this->team_id ) ) {
+                    $reads = false;
+                    break;
+                }
+            }
+            $this->reads_attendance = $reads;
+        }
+        return $this->reads_attendance;
+    }
+
+    /**
+     * #4991 — the journey visibility levels every reader holds, for "what
+     * changed". An unattended caller (no readers) gets the conservative set
+     * it always had: public and coaching-staff entries, never medical or
+     * safeguarding ones. A reader of 0 holds the public level only.
+     *
+     * @return list<string>
+     */
+    public function journeyVisibilities(): array {
+        if ( $this->readers === [] ) return [ 'public', 'coaching_staff' ];
+        return \TT\Infrastructure\Journey\PlayerEventsRepository::visibilitiesForReaders( $this->readers );
+    }
+
+    /**
+     * #4991 — journey entries as every reader may see them: an entry that
+     * describes a record of its own (a PDP verdict, an injury, a suspension,
+     * a trial) shows only when every reader holds that record's read right.
+     * An unattended caller holds none.
+     *
+     * @param list<object> $rows
+     * @return list<object>
+     */
+    public function readableEntries( array $rows ): array {
+        return \TT\Infrastructure\Journey\PlayerEventsRepository::readableByAll( $this->readers, $rows );
     }
 
     /**

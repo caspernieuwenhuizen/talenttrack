@@ -115,6 +115,26 @@ final class EvidencePacket {
      * @return array<string,mixed>|null
      */
     public static function forPlayer( int $player_id, string $from, string $to, int $viewer_user_id, ?int $tests_viewer = null ): ?array {
+        return self::forReaders( $player_id, $from, $to, [ $viewer_user_id ], $tests_viewer === null ? null : [ $tests_viewer ] );
+    }
+
+    /**
+     * #4991 — the packet for one player over any window, assembled for
+     * several readers at once: each group holds only what every one of them
+     * may read. A scheduled report goes out as one PDF to all its
+     * recipients, so it is composed for all of them together, not for the
+     * person who set it up. A reader of 0 holds no rights.
+     *
+     * @param list<int>      $readers      at least one
+     * @param list<int>|null $tests_readers whose test visibility applies; null is `$readers`
+     * @return array<string,mixed>|null
+     */
+    public static function forReaders( int $player_id, string $from, string $to, array $readers, ?array $tests_readers = null ): ?array {
+        $readers = array_values( array_unique( array_map( 'intval', $readers ) ) );
+        if ( $readers === [] ) $readers = [ 0 ];
+        $tests_readers = $tests_readers === null ? $readers : array_values( array_unique( array_map( 'intval', $tests_readers ) ) );
+        if ( $tests_readers === [] ) $tests_readers = [ 0 ];
+
         if ( $player_id <= 0 ) return null;
         if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return null;
 
@@ -143,11 +163,11 @@ final class EvidencePacket {
                 'to'    => $to,
                 'scope' => 'period',
             ],
-        ] + self::groups( $player_id, $club_id, $from, $to, null, $viewer_user_id ) + [
+        ] + self::groups( $player_id, $club_id, $from, $to, null, $readers ) + [
             // #3876 — an external audience reads tests at the public level
             // whoever composed the report; 0 is a reader with no clearance.
-            'tests' => self::tests( $player_id, $from, $to, $tests_viewer ?? $viewer_user_id ),
-            'pdp'   => self::pdp( $player_id, $season ? (int) ( $season->id ?? 0 ) : 0, $viewer_user_id ),
+            'tests' => self::testsFor( $player_id, $from, $to, $tests_readers ),
+            'pdp'   => self::pdp( $player_id, $season ? (int) ( $season->id ?? 0 ) : 0, $readers ),
         ];
     }
 
@@ -205,34 +225,36 @@ final class EvidencePacket {
     /**
      * The evidence groups, in the order every consumer has always read them.
      *
-     * `$viewer_user_id` null is the PDP path, unchanged: its readers are the
-     * file's coach and the head of academy. An int is the player report's
-     * path, which filters journey events by that reader's visibility levels
-     * and drops injuries for a reader without the medical rung.
+     * `$readers` null is the PDP path, unchanged: its readers are the file's
+     * coach and the head of academy. A list is the player report's path,
+     * which filters journey events to the visibility levels every reader
+     * holds, drops injuries unless every reader stands on the medical rung,
+     * and shows the notes thread only as far as every reader may read it.
      *
+     * @param list<int>|null $readers
      * @return array<string,mixed>
      */
-    private static function groups( int $player_id, int $club_id, string $from, string $to, ?\stdClass $conv, ?int $viewer_user_id ): array {
+    private static function groups( int $player_id, int $club_id, string $from, string $to, ?\stdClass $conv, ?array $readers ): array {
         $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id );
 
-        $injuries = $viewer_user_id === null || self::seesMedical( $viewer_user_id )
+        $injuries = $readers === null || self::allSeeMedical( $readers )
             ? self::injuries( $player_id, $from, $to )
             : [];
 
-        $journey = $viewer_user_id === null
+        $journey = $readers === null
             ? self::journey( $player_id, $club_id, $from, $to )
-            : self::visibleJourney( $player_id, $club_id, $from, $to, $viewer_user_id );
+            : self::visibleJourney( $player_id, $club_id, $from, $to, $readers );
 
         return [
             'status'          => $verdict->toArray(),
             'behaviour'       => self::behaviour( $player_id, $from, $to ),
             'potential'       => self::potential( $player_id, $from, $to ),
-            'evaluations'     => self::evaluationsFor( self::evaluations( $player_id, $club_id, $from, $to ), $player_id, $viewer_user_id ),
+            'evaluations'     => self::evaluationsFor( self::evaluations( $player_id, $club_id, $from, $to ), $player_id, $readers ),
             'attendance'      => self::attendance( $player_id, $club_id, $from, $to ),
             'minutes'         => self::minutes( $player_id, $from, $to ),
             'goals'           => self::goals( $player_id, $from, $to ),
             'injuries'        => $injuries,
-            'notes'           => self::notes( $player_id, $from, $to ),
+            'notes'           => self::notes( $player_id, $from, $to, $readers ?? [ get_current_user_id() ] ),
             'self_reflection' => $conv !== null ? (string) ( $conv->player_reflection ?? '' ) : '',
             'recent_journey'  => $journey,
         ];
@@ -302,18 +324,27 @@ final class EvidencePacket {
     }
 
     /**
-     * #4693 — the player report's path (an int viewer) follows the
-     * sensitive-field registry: a reader it hides evaluation notes from gets
-     * each evaluation without `notes`, and `notes_hidden` where there were
-     * some, so the report can say "Hidden" there. The PDP path (null) reads
-     * as before; its readers are the file's coach and the head of academy.
+     * #4693 — the player report's path (a reader list) follows the
+     * sensitive-field registry: when it hides evaluation notes from any of
+     * the readers, each evaluation comes without `notes`, and with
+     * `notes_hidden` where there were some, so the report can say "Hidden"
+     * there. The PDP path (null) reads as before; its readers are the file's
+     * coach and the head of academy.
      *
      * @param list<array<string,mixed>> $evaluations
+     * @param list<int>|null            $readers
      * @return list<array<string,mixed>>
      */
-    private static function evaluationsFor( array $evaluations, int $player_id, ?int $viewer_user_id ): array {
-        if ( $viewer_user_id === null ) return $evaluations;
-        if ( ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $viewer_user_id, $player_id ) ) return $evaluations;
+    private static function evaluationsFor( array $evaluations, int $player_id, ?array $readers ): array {
+        if ( $readers === null ) return $evaluations;
+        $masked = false;
+        foreach ( $readers as $reader ) {
+            if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $reader, $player_id ) ) {
+                $masked = true;
+                break;
+            }
+        }
+        if ( ! $masked ) return $evaluations;
 
         $out = [];
         foreach ( $evaluations as $evaluation ) {
@@ -571,17 +602,20 @@ final class EvidencePacket {
      * and a private-to-coach note stays private. The packet is assembled
      * for a reader, not for a record (CLAUDE.md §1 — privacy and dignity).
      *
+     * @param list<int> $readers the PDP path passes the current user
      * @return list<array<string,mixed>>
      */
-    private static function notes( int $player_id, string $from, string $to ): array {
-        $user_id = get_current_user_id();
-        if ( ! ThreadAccess::canRead( 'player', $player_id, $user_id ) ) return [];
+    private static function notes( int $player_id, string $from, string $to, array $readers ): array {
+        // #4991 — the thread as far as every reader may read it: none of it
+        // unless all may read the thread, private notes only when all may
+        // see them.
+        $private = true;
+        foreach ( $readers as $user_id ) {
+            if ( ! ThreadAccess::canRead( 'player', $player_id, (int) $user_id ) ) return [];
+            if ( $private && ! ThreadAccess::canSeePrivate( 'player', $player_id, (int) $user_id ) ) $private = false;
+        }
 
-        $rows = ( new ThreadMessagesRepository() )->listForThread(
-            'player',
-            $player_id,
-            ThreadAccess::canSeePrivate( 'player', $player_id, $user_id )
-        );
+        $rows = ( new ThreadMessagesRepository() )->listForThread( 'player', $player_id, $private );
 
         $out = [];
         foreach ( $rows as $row ) {
@@ -630,15 +664,16 @@ final class EvidencePacket {
     }
 
     /**
-     * The journey filtered to what this reader may see — the rule the
+     * The journey filtered to what every reader may see — the rule the
      * player's own timeline and the team report's "what changed" apply. A
      * safeguarding or medical entry must not reach a reader because the
      * report asked for it rather than the timeline.
      *
+     * @param list<int> $readers
      * @return list<object>
      */
-    private static function visibleJourney( int $player_id, int $club_id, string $from, string $to, int $viewer_user_id ): array {
-        $allowed = PlayerEventsRepository::visibilitiesForUser( $viewer_user_id );
+    private static function visibleJourney( int $player_id, int $club_id, string $from, string $to, array $readers ): array {
+        $allowed = PlayerEventsRepository::visibilitiesForReaders( $readers );
         if ( $allowed === [] ) return [];
 
         global $wpdb;
@@ -661,7 +696,7 @@ final class EvidencePacket {
         if ( ! is_array( $rows ) ) return [];
 
         // And a PDP verdict entry only for a reader of the PDP verdict.
-        $rows = PlayerEventsRepository::readableBy( $viewer_user_id, array_values( $rows ), $player_id );
+        $rows = PlayerEventsRepository::readableByAll( $readers, array_values( $rows ), $player_id );
 
         JourneySummaryLocaliser::localise( $rows );
         return self::withActivities( $rows, $club_id );
@@ -685,13 +720,37 @@ final class EvidencePacket {
         return $out;
     }
 
-    /** Does this reader stand on the medical rung of the journey ladder? */
-    private static function seesMedical( int $viewer_user_id ): bool {
-        return in_array(
-            RecordVisibility::LEVEL_MEDICAL,
-            RecordVisibility::forJourney( $viewer_user_id ),
-            true
-        );
+    /**
+     * Does every reader stand on the medical rung of the journey ladder?
+     *
+     * @param list<int> $readers
+     */
+    private static function allSeeMedical( array $readers ): bool {
+        foreach ( $readers as $reader ) {
+            if ( ! in_array( RecordVisibility::LEVEL_MEDICAL, RecordVisibility::forJourney( (int) $reader ), true ) ) return false;
+        }
+        return $readers !== [];
+    }
+
+    /**
+     * #4991 — the tests every reader may see: the first reader's list, less
+     * any test another reader's profile does not show.
+     *
+     * @param list<int> $readers
+     * @return list<array<string,mixed>>
+     */
+    private static function testsFor( int $player_id, string $from, string $to, array $readers ): array {
+        $first = array_shift( $readers );
+        $out   = self::tests( $player_id, $from, $to, (int) $first );
+        foreach ( $readers as $reader ) {
+            if ( $out === [] ) break;
+            $seen = [];
+            foreach ( self::tests( $player_id, $from, $to, (int) $reader ) as $test ) {
+                $seen[ (int) $test['definition_id'] ] = true;
+            }
+            $out = array_values( array_filter( $out, static fn( array $test ): bool => isset( $seen[ (int) $test['definition_id'] ] ) ) );
+        }
+        return $out;
     }
 
     /**
@@ -797,13 +856,17 @@ final class EvidencePacket {
      * the head of academy and by nobody else (docs/pdp-cycle.md), and a
      * report is a document that travels.
      *
+     * @param list<int> $readers
      * @return array<string,mixed>
      */
-    private static function pdp( int $player_id, int $season_id, int $viewer_user_id ): array {
+    private static function pdp( int $player_id, int $season_id, array $readers ): array {
         $none = [ 'available' => false, 'file' => null, 'conversations' => [], 'verdict' => null, 'last_agreed_actions' => '' ];
 
         if ( ! ModuleRegistry::isEnabled( PdpModule::class ) ) return $none;
-        if ( ! PdpAccess::canSeeFile( $viewer_user_id, $player_id ) ) return $none;
+        // #4991 — the file only when every reader may see it.
+        foreach ( $readers as $reader ) {
+            if ( ! PdpAccess::canSeeFile( (int) $reader, $player_id ) ) return $none;
+        }
 
         $files = new Repositories\PdpFilesRepository();
         $file  = $season_id > 0 ? $files->findByPlayerSeason( $player_id, $season_id ) : null;
