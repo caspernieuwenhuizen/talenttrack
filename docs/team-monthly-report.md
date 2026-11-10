@@ -217,6 +217,17 @@ email address counts only when it belongs to an account here. An address with no
 account here receives nothing. Whoever is left out is shown on the schedules
 screen after the run.
 
+Every recipient gets **the same PDF**, so it contains only what every one of
+them may read. If one recipient may not see the team's attendance, the
+attendance section, the attendance headline number and the attendance figures
+in the other sections are left out for everyone, even for a recipient who
+could see them in the plugin. A recipient whose rights cannot be checked
+counts as having none: an address with no account here, a member of a role
+from outside the academy, or a role with no members. This is checked again at
+every run, so a recipient who loses a right makes the next PDF smaller, and
+one who gains it makes it whole again. Under each monthly report, the
+schedules screen shows what its recipients get right now.
+
 The schedule keeps **its own copy** of the report. Changing or deleting one of
 your saved views later does not change what it sends. To send something
 different, archive the schedule and set up a new one.

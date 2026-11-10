@@ -1,0 +1,3 @@
+# A scheduled monthly report contains only what every recipient may read (#4991)
+
+A scheduled monthly team report is one PDF for all its recipients, and it now contains only the sections every recipient may read. When one recipient may not see the team's attendance, the attendance section, the attendance headline number and the attendance figures in the other sections are left out for everyone. A recipient whose rights cannot be checked (an address with no account, a role member from outside the academy, a role with no members) counts as having none. The recipients are checked again at every run, so a lost right shrinks the next PDF. The schedules screen shows under each monthly report what its recipients get, and the schedule form explains the rule.
