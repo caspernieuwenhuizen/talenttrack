@@ -4,6 +4,7 @@ namespace TT\Modules\MatchPrep\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchPrep\Print\MatchPrepPrintableRenderer;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
 
 /**
@@ -49,14 +50,11 @@ final class FrontendMatchPrepShareView {
         // Scope reads to the prep's own club: the viewer has no session, so
         // `CurrentClub` would otherwise answer with the install default. The
         // club id is not a secret — the URL already addresses one specific
-        // prep.
-        $club_id     = (int) ( $prep->club_id ?? 1 );
-        $club_filter = static fn( $club ) => $club_id > 0 ? $club_id : $club;
-        add_filter( 'tt_current_club_id', $club_filter );
-
-        $body = MatchPrepPrintableRenderer::bodyHtml( (int) ( $prep->activity_id ?? 0 ), $club_id );
-
-        remove_filter( 'tt_current_club_id', $club_filter );
+        // prep. `withClub()` also restores the club and drops the
+        // per-club caches when the render throws.
+        $club_id = (int) ( $prep->club_id ?? 1 );
+        $render  = static fn(): string => MatchPrepPrintableRenderer::bodyHtml( (int) ( $prep->activity_id ?? 0 ), $club_id );
+        $body    = $club_id > 0 ? (string) ClubIteration::withClub( $club_id, $render ) : $render();
 
         if ( trim( $body ) === '' ) {
             self::renderShareNotFound();

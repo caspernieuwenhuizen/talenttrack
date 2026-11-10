@@ -3,6 +3,7 @@ namespace TT\Modules\MatchAnalysis\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
@@ -187,15 +188,26 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         // Scope reads to the analysis's own club: the viewer has no
         // session, so `CurrentClub` would otherwise answer with the
         // install default. The club id is not a secret — the URL already
-        // addresses one specific analysis.
-        $club_id     = (int) ( $analysis->club_id ?? 1 );
-        $club_filter = static fn( $club ) => $club_id > 0 ? $club_id : $club;
-        add_filter( 'tt_current_club_id', $club_filter );
+        // addresses one specific analysis. `withClub()` also restores the
+        // club and drops the per-club caches when the render throws.
+        $club_id = (int) ( $analysis->club_id ?? 1 );
+        $render  = static function () use ( $analysis, $club_id, $uuid ): void {
+            self::renderSharedAnalysis( $analysis, $club_id, $uuid );
+        };
+        if ( $club_id > 0 ) {
+            ClubIteration::withClub( $club_id, $render );
+        } else {
+            $render();
+        }
+    }
 
+    /**
+     * The shared document itself, with the analysis's club already current.
+     */
+    private static function renderSharedAnalysis( object $analysis, int $club_id, string $uuid ): void {
         $payload = ( new MatchAnalysisComposer() )->forActivity( (int) $analysis->activity_id, false );
 
         if ( $payload === null ) {
-            remove_filter( 'tt_current_club_id', $club_filter );
             self::renderShareNotFound();
             return;
         }
@@ -228,7 +240,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         // if you were sent one and it renders, you are reading a finished
         // document.
         if ( (string) ( $payload['status'] ?? '' ) !== MatchAnalysisEnums::STATUS_FINAL ) {
-            remove_filter( 'tt_current_club_id', $club_filter );
             self::renderShareNotFinal();
             return;
         }
@@ -241,8 +252,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             . '</p>';
         self::renderReadOnly( $payload );
         echo '</div>';
-
-        remove_filter( 'tt_current_club_id', $club_filter );
     }
 
     public static function noindexMeta(): void {
