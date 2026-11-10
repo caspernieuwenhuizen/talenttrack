@@ -764,7 +764,7 @@ Voor een speler vragen de doelenblokken het recht om de doelen van die speler te
 
 **Je eigen vraag**
 
-- **Je eigen vraag**: kies de gegevens (aanwezigheid, evaluaties, doelen en meer), één maat daarvan, en eventueel waarnaar je wilt uitsplitsen, voor het onderwerp en de periode van het rapport. Het leest de cijfers die de dataverkenner leest, met dezelfde telregels als de rapporten: aanwezigheid telt alleen afgeronde, actieve activiteiten van het huidige team van de speler, zodat het percentage per speler het percentage is dat de aanwezigheidsrapporten tonen. Je krijgt alleen gegevens aangeboden die je voor dit onderwerp mag lezen, en een gezin of een scout krijgt nooit een uitsplitsing per speler.
+- **Je eigen vraag**: kies de gegevens (aanwezigheid, evaluaties, doelen en meer), één maat daarvan, en eventueel waarnaar je wilt uitsplitsen, voor het onderwerp en de periode van het rapport. Het leest de cijfers die de dataverkenner leest, met dezelfde telregels als de rapporten: aanwezigheid telt alleen afgeronde, actieve activiteiten van het huidige team van de speler, zodat het percentage per speler het percentage is dat de aanwezigheidsrapporten tonen. Een uitsplitsing toont alleen wat de maat telt: een speler zonder getelde aanwezigheid, bijvoorbeeld iemand die niet in de selectie van het team staat, valt weg, en een speler uit de selectie die elke keer ontbrak, krijgt 0. De dataverkenner toont nog steeds elke rij. Je krijgt alleen gegevens aangeboden die je voor dit onderwerp mag lezen, en een gezin of een scout krijgt nooit een uitsplitsing per speler.
 
 ## Report Studio — een gedeeld rapport lezen
 

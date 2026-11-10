@@ -137,7 +137,9 @@ final class OwnQuestionBlock implements ReportBlock, ChecksFactKeys {
             'own_question:' . $fact->key . ':' . $measure->key . ':' . $breakdown,
             $context,
             static function () use ( $fact, $measure, $dim, $filters, $context ): array {
-                $r = FactQuery::query( $fact->key, $dim !== null ? [ $dim->key ] : [], [ $measure->key ], $filters, ReportSubjectAccess::factScope( $context ) );
+                // #4956 — a report lists the rows its measure counts; the
+                // explorer, which leaves this off, lists every row.
+                $r = FactQuery::query( $fact->key, $dim !== null ? [ $dim->key ] : [], [ $measure->key ], $filters, ReportSubjectAccess::factScope( $context ), true );
                 return [ 'rows' => $r->rows, 'truncated' => $r->truncated ];
             }
         );

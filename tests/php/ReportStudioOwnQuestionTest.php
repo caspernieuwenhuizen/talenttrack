@@ -6,6 +6,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
@@ -33,6 +34,7 @@ final class ReportStudioOwnQuestionTest extends WP_UnitTestCase {
     private int $pa1 = 0;
     private int $pa2 = 0;
     private int $pb1 = 0;
+    private int $done1 = 0;
 
     public function set_up(): void {
         parent::set_up();
@@ -55,6 +57,7 @@ final class ReportStudioOwnQuestionTest extends WP_UnitTestCase {
         // The four kinds of row #4584 is about, on team A's activities.
         $done1     = $this->insertActivity( $this->team_a, '2020-03-02', 'completed' );
         $done2     = $this->insertActivity( $this->team_a, '2020-03-09', 'completed' );
+        $this->done1 = $done1;
         $scheduled = $this->insertActivity( $this->team_a, '2020-03-16', 'planned' );
         $trashed   = $this->insertActivity( $this->team_a, '2020-03-23', 'completed', '2020-03-24 10:00:00' );
 
@@ -97,13 +100,41 @@ final class ReportStudioOwnQuestionTest extends WP_UnitTestCase {
         // out), Bram 2 of 2 (late is attended).
         $this->assertSame( [ $this->pa1 => 50.0, $this->pa2 => 100.0 ], $figures );
 
-        // Known gap, reported with #4572: the fact's rows stay unscoped while
-        // its measures follow the attendance rules (#3451, #4584), so a player
-        // with only uncounted rows — Cor, not on this team's roster — is still
-        // a row of the breakdown, with no figure. When the breakdown drops
-        // such rows this assertion changes.
-        $this->assertArrayHasKey( $this->pb1, $block );
-        $this->assertNull( $block[ $this->pb1 ] );
+        // #4956 — a player with only uncounted rows (Cor, not on this team's
+        // roster) is not a row of the report's breakdown, as the attendance
+        // reports do not list him.
+        $this->assertArrayNotHasKey( $this->pb1, $block );
+    }
+
+    public function test_a_count_breakdown_lists_the_counted_players_only(): void {
+        // Dirk is on team A's roster and was absent: counted, present 0 times.
+        $dirk = $this->insertPlayer( $this->team_a, 'Dirk' );
+        $this->insertAttendance( $this->done1, $dirk, 'Absent' );
+        $this->flush();
+
+        $out = $this->preview( [ 'scope' => 'team', 'team_id' => $this->team_a, 'from' => self::FROM, 'to' => self::TO ],
+            [ 'fact' => 'attendance', 'measure' => 'count_present', 'breakdown' => 'player_id' ] );
+
+        $block = [];
+        foreach ( $out['data']['rows'] as $row ) $block[ (int) $row['key'] ] = $row['value'];
+
+        $this->assertArrayNotHasKey( $this->pb1, $block, 'an off-roster player is not a bare 0' );
+        $this->assertArrayHasKey( $dirk, $block );
+        $this->assertSame( 0.0, $block[ $dirk ], 'a rostered player with only absences keeps his 0' );
+        $this->assertSame( 1.0, $block[ $this->pa1 ] );
+    }
+
+    public function test_the_data_explorer_still_lists_every_row(): void {
+        $rows = FactQuery::run( 'attendance', [ 'player_id' ], [ 'attendance_pct' ],
+            [ 'team_id_eq' => $this->team_a, 'date_after' => self::FROM, 'date_before' => self::TO ],
+            FactScope::forUser( $this->hod ) );
+
+        $by_player = [];
+        foreach ( $rows as $row ) $by_player[ (int) $row->player_id ] = $row->attendance_pct;
+
+        $this->assertArrayHasKey( $this->pb1, $by_player, 'the explorer shows what is there (#3451)' );
+        $this->assertNull( $by_player[ $this->pb1 ] );
+        $this->assertEqualsWithDelta( 50.0, (float) $by_player[ $this->pa1 ], 0.01 );
     }
 
     public function test_one_players_attendance_equals_the_attendance_reports(): void {

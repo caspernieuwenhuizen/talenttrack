@@ -113,6 +113,11 @@ class AnalyticsModule implements ModuleInterface {
         // KPI on the player Analytics tab returned no data because the
         // CASE expression matched zero rows.
         $countable = AttendanceFlagService::countableRowClause( 'f', 'a', 'p' );
+        // #4956 — the rows each measure counts, declared once and embedded in
+        // its CASE. The present / absent counts take guest rows; the squad
+        // measures leave them out.
+        $register = "f.record_type='actual' AND " . $countable;
+        $squad    = "f.record_type='actual' AND f.is_guest = 0 AND " . $countable;
         FactRegistry::register( new Fact(
             key:        'attendance',
             tableName:  'tt_attendance',
@@ -147,10 +152,10 @@ class AnalyticsModule implements ModuleInterface {
             // activity being absent leaves the row out instead of letting a
             // NULL fall through to the next WHEN.
             measures: [
-                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
-                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND f.record_type='actual' AND " . $countable . ' THEN 1 END' ),
+                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND " . $register . ' THEN 1 END', null, null, $register ),
+                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND " . $register . ' THEN 1 END', null, null, $register ),
                 // #4568 — "distinct" is a declared measure, never composed by a reader.
-                new Measure( 'distinct_players', __( 'Players recorded', 'talenttrack' ), Measure::AGG_COUNT, "DISTINCT CASE WHEN f.record_type='actual' AND f.is_guest = 0 AND " . $countable . ' THEN f.player_id END' ),
+                new Measure( 'distinct_players', __( 'Players recorded', 'talenttrack' ), Measure::AGG_COUNT, 'DISTINCT CASE WHEN ' . $squad . ' THEN f.player_id END', null, null, $squad ),
                 // The percentage needs the planned rows out of the
                 // DENOMINATOR as well, so they resolve to NULL rather than
                 // to 0 — `AVG` skips NULLs, and a selection scoring 0%
@@ -160,7 +165,7 @@ class AnalyticsModule implements ModuleInterface {
                 // is present or late, and guest rows are left out of the
                 // denominator too. Changed in place rather than versioned, so
                 // attendance figures in saved explorations move.
-                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type = 'actual' AND f.is_guest = 0 AND " . $countable . ' THEN CASE WHEN ' . AttendanceFlagService::attendedStatusClause( 'f.status' ) . ' THEN 100 ELSE 0 END END', Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, 'CASE WHEN ' . $squad . ' THEN CASE WHEN ' . AttendanceFlagService::attendedStatusClause( 'f.status' ) . ' THEN 100 ELSE 0 END END', Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT, $squad ),
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',

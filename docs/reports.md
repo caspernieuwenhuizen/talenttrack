@@ -724,7 +724,7 @@ For a player, the goals blocks need the right to read that player's goals, as th
 
 **Your own question**
 
-- **Your own question**: pick the data (attendance, evaluations, goals and more), one measure of it, and optionally what to break it down by, for the report's subject and period. It reads the figures the data explorer reads, with the same counting rules as the reports: attendance counts only completed, live activities of the player's current team, so the percentage per player is the one the attendance reports show. You are only offered the data you may read for this subject, and a family or a scout is never offered a breakdown by player.
+- **Your own question**: pick the data (attendance, evaluations, goals and more), one measure of it, and optionally what to break it down by, for the report's subject and period. It reads the figures the data explorer reads, with the same counting rules as the reports: attendance counts only completed, live activities of the player's current team, so the percentage per player is the one the attendance reports show. A breakdown lists only what the measure counts: a player with no counted attendance, such as one who is not on the team's roster, is left out, and a player on the roster who missed every session shows 0. The data explorer still lists every row. You are only offered the data you may read for this subject, and a family or a scout is never offered a breakdown by player.
 
 ## Report Studio — reading a shared report
 

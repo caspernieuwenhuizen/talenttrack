@@ -27,6 +27,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * registry doesn't render — it just labels the data so the
  * presentation layer (#0083 Child 3 explorer) can format
  * consistently across KPIs.
+ *
+ * `population` is the predicate a row must pass to be counted at all, when
+ * the measure counts only some of the fact's rows (attendance counts the
+ * recorded register, not the plan). The measure's own `column` embeds it;
+ * declaring it as well lets `FactQuery` leave out a breakdown group with no
+ * counted row. Null means every row counts.
  */
 final class Measure {
 
@@ -51,6 +57,7 @@ final class Measure {
     public ?string $column;
     public ?string $unit;
     public ?string $format;
+    public ?string $population;
 
     public function __construct(
         string $key,
@@ -58,7 +65,8 @@ final class Measure {
         string $aggregation,
         ?string $column = null,
         ?string $unit = null,
-        ?string $format = null
+        ?string $format = null,
+        ?string $population = null
     ) {
         $this->key         = $key;
         $this->label       = $label;
@@ -66,5 +74,6 @@ final class Measure {
         $this->column      = $column;
         $this->unit        = $unit;
         $this->format     = $format;
+        $this->population = $population;
     }
 }
