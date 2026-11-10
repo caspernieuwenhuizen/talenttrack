@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Reports\ScoutReportsRepository;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -77,22 +78,30 @@ class FrontendScoutHistoryView extends FrontendViewBase {
 
         <?php if ( empty( $rows ) ) : ?>
             <p class="tt-notice"><?php esc_html_e( 'No scout reports yet.', 'talenttrack' ); ?></p>
-        <?php else : ?>
+        <?php else :
+            // #4911 — on the stack-table primitive: a table from 480px, one
+            // card per report below it. The actions column is named for a
+            // screen reader only, so its cell shows the button alone.
+            $c_player    = __( 'Player', 'talenttrack' );
+            $c_recipient = __( 'Recipient', 'talenttrack' );
+            $c_audience  = __( 'Audience', 'talenttrack' );
+            $c_sent      = __( 'Sent', 'talenttrack' );
+            $c_expires   = __( 'Expires', 'talenttrack' );
+            $c_status    = __( 'Status', 'talenttrack' );
+            $c_views     = __( 'Views', 'talenttrack' );
+            $th          = StackTable::attrs( 'columnheader' );
+            ?>
             <div class="tt-sh-tablewrap">
-            <table class="tt-table tt-sh-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Recipient', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Audience', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Sent', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Expires', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Views', 'talenttrack' ); ?></th>
-                        <th><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th>
+            <table class="tt-table tt-sh-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <?php foreach ( [ $c_player, $c_recipient, $c_audience, $c_sent, $c_expires, $c_status, $c_views ] as $header ) : ?>
+                            <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $header ); ?></th>
+                        <?php endforeach; ?>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $rows as $row ) :
                     $player = QueryHelpers::get_player( (int) $row->player_id );
                     $name   = $player ? QueryHelpers::player_display_name( $player ) : '—';
@@ -102,16 +111,16 @@ class FrontendScoutHistoryView extends FrontendViewBase {
                     $chip_mod   = $status_key === 'active' ? 'green' : ( $status_key === 'revoked' ? 'red' : 'gold' );
                     $can_revoke = $is_link && $repo->isAccessibleNow( $row );
                     ?>
-                    <tr>
-                        <td><?php echo esc_html( $name ); ?></td>
-                        <td><?php echo esc_html( $recipient ); ?></td>
-                        <td><?php echo esc_html( self::audienceLabel( (string) $row->audience ) ); ?></td>
-                        <td class="tt-sh-num"><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ); ?></td>
+                    <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_player ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $name ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_recipient ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $recipient ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_audience ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( self::audienceLabel( (string) $row->audience ) ); ?></td>
+                        <td class="tt-sh-num"<?php echo StackTable::attrs( 'cell', $c_sent ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ); ?></td>
                         <?php // #2437 — expires_at is written in UTC (ScoutDelivery builds a DateTimeImmutable under WP's UTC default), unlike created_at, which follows the site-local convention. ?>
-                        <td class="tt-sh-num"><?php echo esc_html( ( $row->expires_at ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::dateTimeFromGmt( (string) $row->expires_at ) : '—' ); ?></td>
-                        <td><span class="tt-sr-chip tt-sr-chip--<?php echo esc_attr( $chip_mod ); ?>"><?php echo esc_html( self::statusLabel( $row, $repo ) ); ?></span></td>
-                        <td class="tt-sh-num"><?php echo (int) $row->access_count; ?></td>
-                        <td class="tt-sh-actions">
+                        <td class="tt-sh-num"<?php echo StackTable::attrs( 'cell', $c_expires ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( ( $row->expires_at ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::dateTimeFromGmt( (string) $row->expires_at ) : '—' ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-sr-chip tt-sr-chip--<?php echo esc_attr( $chip_mod ); ?>"><?php echo esc_html( self::statusLabel( $row, $repo ) ); ?></span></td>
+                        <td class="tt-sh-num"<?php echo StackTable::attrs( 'cell', $c_views ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo (int) $row->access_count; ?></td>
+                        <td class="tt-sh-actions"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $can_revoke ? '' : ' data-empty'; ?>>
                             <?php if ( $can_revoke ) : ?>
                                 <form method="post">
                                     <?php wp_nonce_field( 'tt_scout_revoke', 'tt_scout_revoke_nonce' ); ?>

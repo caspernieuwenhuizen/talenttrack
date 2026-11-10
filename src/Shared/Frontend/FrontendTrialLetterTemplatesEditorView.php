@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Trials\Letters\DefaultLetterTemplates;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
 use TT\Modules\Trials\Repositories\TrialLetterTemplatesRepository;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendTrialLetterTemplatesEditorView (#0017 Sprint 6) — letter
@@ -82,15 +83,22 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '</form>';
 
         $repo = new TrialLetterTemplatesRepository();
+        // #4911 — on the stack-table primitive: a table from 480px, one card
+        // per letter below it, the edit button alone at the end of the card.
+        $c_letter = __( 'Letter', 'talenttrack' );
+        $c_custom = __( 'Customised?', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Letter', 'talenttrack' ) . '</th><th>' . esc_html__( 'Customised?', 'talenttrack' ) . '</th><th></th></tr></thead><tbody>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_letter ) . '</th><th' . $th . '>' . esc_html( $c_custom ) . '</th><th' . $th . '></th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( DefaultLetterTemplates::listKeys() as $k ) {
             $custom = $repo->findCustom( $k, $locale );
             $url = add_query_arg( [ 'tt_view' => 'trial-letter-templates-editor', 'key' => $k, 'locale' => $locale ], $base );
-            echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::friendlyKeyLabel( (string) $k ) ) . '</a></td>';
-            echo '<td>' . esc_html( $custom ? __( 'Customised', 'talenttrack' ) : __( 'Club default', 'talenttrack' ) ) . '</td>';
-            echo '<td><a class="tt-btn tt-btn-sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_letter ) . '><a href="' . esc_url( $url ) . '">' . esc_html( self::friendlyKeyLabel( (string) $k ) ) . '</a></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_custom ) . '>' . esc_html( $custom ? __( 'Customised', 'talenttrack' ) : __( 'Club default', 'talenttrack' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell' ) . '><a class="tt-btn tt-btn-sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';

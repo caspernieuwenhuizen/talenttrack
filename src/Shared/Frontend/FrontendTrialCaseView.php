@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\Components\StaffPickerComponent;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
 use TT\Modules\Trials\Letters\TrialLetterService;
@@ -473,6 +474,34 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '</div></div>';
     }
 
+    /**
+     * #4911 — a plain list on the case (extensions, activities, evaluations,
+     * goals, letters) as a stack-table: a table from 480px, and below it one
+     * card per row with each value under its column's label, as the legacy
+     * phone stack drew it. Values are text and escaped here.
+     *
+     * @param list<string>       $headers
+     * @param list<list<string>> $rows    one value per header, in its order
+     */
+    private static function renderStackTable( array $headers, array $rows ): void {
+        echo '<div class="tt-table-wrap">';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( $headers as $header ) {
+            echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+        foreach ( $rows as $row ) {
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            foreach ( $headers as $i => $header ) {
+                echo '<td' . StackTable::attrs( 'cell', $header ) . '>' . esc_html( $row[ $i ] ?? '' ) . '</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div>';
+    }
+
     /* ===== Overview tab ===== */
 
     private static function renderOverviewTab( object $case, int $user_id ): void {
@@ -544,13 +573,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $extensions ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No extensions yet.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Extended at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Previous end', 'talenttrack' ) . '</th><th>' . esc_html__( 'New end', 'talenttrack' ) . '</th><th>' . esc_html__( 'Justification', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            $rows = [];
             foreach ( $extensions as $e ) {
-                echo '<tr><td>' . esc_html( (string) $e->extended_at ) . '</td><td>' . esc_html( (string) $e->previous_end_date ) . '</td><td>' . esc_html( (string) $e->new_end_date ) . '</td><td>' . esc_html( (string) $e->justification ) . '</td></tr>';
+                $rows[] = [ (string) $e->extended_at, (string) $e->previous_end_date, (string) $e->new_end_date, (string) $e->justification ];
             }
-            echo '</tbody></table>';
-            echo '</div>';
+            self::renderStackTable(
+                [ __( 'Extended at', 'talenttrack' ), __( 'Previous end', 'talenttrack' ), __( 'New end', 'talenttrack' ), __( 'Justification', 'talenttrack' ) ],
+                $rows
+            );
         }
         if ( $is_manager && in_array( $case->status, [ 'open', 'extended' ], true ) ) {
             self::renderExtensionForm( (int) $case->id, (string) $case->end_date );
@@ -718,13 +748,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $activities ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No activities yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th>' . esc_html__( 'Attendance', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            $rows = [];
             foreach ( $activities as $a ) {
-                echo '<tr><td>' . esc_html( (string) $a->activity_date ) . '</td><td>' . esc_html( (string) $a->activity_type_key ) . '</td><td>' . esc_html( (string) ( $a->attendance ?? '—' ) ) . '</td></tr>';
+                $rows[] = [ (string) $a->activity_date, (string) $a->activity_type_key, (string) ( $a->attendance ?? '—' ) ];
             }
-            echo '</tbody></table>';
-            echo '</div>';
+            self::renderStackTable(
+                [ __( 'Date', 'talenttrack' ), __( 'Type', 'talenttrack' ), __( 'Attendance', 'talenttrack' ) ],
+                $rows
+            );
         }
         self::cardClose();
 
@@ -740,14 +771,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $evals ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No evaluations yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Evaluator', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            $rows = [];
             foreach ( $evals as $e ) {
-                $u = get_userdata( (int) $e->evaluator_user_id );
-                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td><td>' . esc_html( $u ? (string) $u->display_name : '#' . (int) $e->evaluator_user_id ) . '</td></tr>';
+                $u      = get_userdata( (int) $e->evaluator_user_id );
+                $rows[] = [ \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ), $u ? (string) $u->display_name : '#' . (int) $e->evaluator_user_id ];
             }
-            echo '</tbody></table>';
-            echo '</div>';
+            self::renderStackTable(
+                [ __( 'Date', 'talenttrack' ), __( 'Evaluator', 'talenttrack' ) ],
+                $rows
+            );
         }
         self::cardClose();
 
@@ -768,13 +800,19 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $goals ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No goals yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Title', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th><th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            $rows = [];
             foreach ( $goals as $g ) {
-                echo '<tr><td>' . esc_html( (string) $g->title ) . '</td><td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</td><td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ) . '</td><td>' . esc_html( (string) $g->updated_at ) . '</td></tr>';
+                $rows[] = [
+                    (string) $g->title,
+                    LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ),
+                    LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ),
+                    (string) $g->updated_at,
+                ];
             }
-            echo '</tbody></table>';
-            echo '</div>';
+            self::renderStackTable(
+                [ __( 'Title', 'talenttrack' ), __( 'Status', 'talenttrack' ), __( 'Priority', 'talenttrack' ), __( 'Updated', 'talenttrack' ) ],
+                $rows
+            );
         }
         self::cardClose();
     }
@@ -1074,8 +1112,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $history = $svc->listForCase( $case_id );
         if ( $history ) {
             self::cardOpen( __( 'Letter history', 'talenttrack' ) );
-            echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html( _x( 'Delivered', 'trial letter', 'talenttrack' ) ) . '</th></tr></thead><tbody>';
+            $rows = [];
             foreach ( $history as $row ) {
                 $status = $row->revoked_at ? __( 'Revoked', 'talenttrack' ) : __( 'Active', 'talenttrack' );
                 // `delivered_at` is written in UTC, like `revoked_at` beside
@@ -1084,10 +1121,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 $delivered = $row_delivered !== ''
                     ? \TT\Shared\Dates\TTDate::date( get_date_from_gmt( $row_delivered ) )
                     : __( 'Not recorded', 'talenttrack' );
-                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td><td>' . esc_html( $delivered ) . '</td></tr>';
+                $rows[] = [ \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ), (string) $row->audience, $status, $delivered ];
             }
-            echo '</tbody></table>';
-            echo '</div>';
+            self::renderStackTable(
+                [ __( 'Generated at', 'talenttrack' ), __( 'Audience', 'talenttrack' ), __( 'Status', 'talenttrack' ), _x( 'Delivered', 'trial letter', 'talenttrack' ) ],
+                $rows
+            );
             self::cardClose();
         }
     }
