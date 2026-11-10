@@ -602,6 +602,8 @@
 .tt-table tbody tr.is-row-link > td { padding-top: 14px; padding-bottom: 14px; }
 
 .tt-dashboard .tt-list-table-actions { white-space: nowrap; text-align: right; }
+/* #4913 — the role types' up/down buttons stay side by side (was inline). */
+.tt-dashboard .tt-fnrole-move { white-space: nowrap; }
 .tt-dashboard .tt-list-table-action {
     display: inline-block;
     padding: 4px 10px;

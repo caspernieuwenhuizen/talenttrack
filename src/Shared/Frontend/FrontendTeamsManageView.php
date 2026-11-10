@@ -8,6 +8,7 @@ use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendTeamsManageView — full-CRUD frontend for teams.
@@ -460,28 +461,36 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 // share an invite from the sideline without a desktop.
                 $can_invite_inline = current_user_can( 'tt_send_invitation' );
                 $here = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) ) : home_url( '/' );
+                // #4913 — on the stack-table primitive: a table from 480px,
+                // one card per player below it. The remove button's column
+                // has no header, so its cell shows the button alone.
+                $c_player = __( 'Player', 'talenttrack' );
+                $c_jersey = __( '#', 'talenttrack' );
+                $c_foot   = __( 'Foot', 'talenttrack' );
+                $c_invite = __( 'Invite', 'talenttrack' );
+                $th       = StackTable::attrs( 'columnheader' );
                 ?>
                 <div class="tt-table-wrap">
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( '#', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
-                        <?php if ( $can_invite_inline ) : ?><th><?php esc_html_e( 'Invite', 'talenttrack' ); ?></th><?php endif; ?>
-                        <?php if ( ! $readonly ) : ?><th></th><?php endif; ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_player ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_jersey ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_foot ); ?></th>
+                        <?php if ( $can_invite_inline ) : ?><th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_invite ); ?></th><?php endif; ?>
+                        <?php if ( ! $readonly ) : ?><th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>></th><?php endif; ?>
                     </tr></thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $current as $pl ) : ?>
-                        <tr data-player-id="<?php echo (int) $pl->id; ?>">
-                            <td>
+                        <tr data-player-id="<?php echo (int) $pl->id; ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_player ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                 <a href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $pl->id ], remove_query_arg( [ 'action', 'id' ] ) ) ); ?>">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
                                 </a>
                             </td>
-                            <td><?php echo esc_html( (string) ( $pl->jersey_number ?? '' ) ); ?></td>
-                            <td><?php echo esc_html( (string) ( $pl->preferred_foot ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_jersey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $pl->jersey_number ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $c_foot ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( (string) ( $pl->preferred_foot ?? '' ) ); ?></td>
                             <?php if ( $can_invite_inline ) : ?>
-                                <td>
+                                <td<?php echo StackTable::attrs( 'cell', $c_invite ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <?php
                                     \TT\Modules\Invitations\Frontend\InviteButton::render( [
                                         'kind'              => \TT\Modules\Invitations\InvitationKind::PLAYER,
@@ -495,7 +504,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                                 </td>
                             <?php endif; ?>
                             <?php if ( ! $readonly ) : ?>
-                                <td>
+                                <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                                     <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-roster-remove="1" data-player-id="<?php echo (int) $pl->id; ?>">
                                         <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
                                     </button>
@@ -572,12 +581,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
             echo '<p><em>' . esc_html__( 'No staff assigned to this team yet.', 'talenttrack' ) . '</em></p>';
         } else {
             $roles_repo = new FunctionalRolesRepository();
+            // #4913 — on the stack-table primitive: a table from 480px, one
+            // card per assignment below it.
+            $c_role   = __( 'Role', 'talenttrack' );
+            $c_person = __( 'Person', 'talenttrack' );
+            $c_email  = __( 'Email', 'talenttrack' );
+            $th       = StackTable::attrs( 'columnheader' );
             echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr>';
-            echo '<th>' . esc_html__( 'Role',    'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Person',  'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Email',   'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th' . $th . '>' . esc_html( $c_role ) . '</th>';
+            echo '<th' . $th . '>' . esc_html( $c_person ) . '</th>';
+            echo '<th' . $th . '>' . esc_html( $c_email ) . '</th>';
+            echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
             foreach ( $grouped as $role_key => $rows ) {
                 foreach ( $rows as $row ) {
                     $role = $roles_repo->findRoleByKey( (string) $role_key );
@@ -586,10 +601,10 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     $person = $row['person'] ?? null;
                     $name   = $person ? trim( ( (string) $person->first_name ) . ' ' . ( (string) $person->last_name ) ) : '';
                     $email  = $person ? (string) ( $person->email ?? '' ) : '';
-                    echo '<tr>';
-                    echo '<td>' . esc_html( $role_label ) . '</td>';
-                    echo '<td>' . esc_html( $name ) . '</td>';
-                    echo '<td>' . esc_html( $email ) . '</td>';
+                    echo '<tr' . StackTable::attrs( 'row' ) . '>';
+                    echo '<td' . StackTable::attrs( 'cell', $c_role ) . '>' . esc_html( $role_label ) . '</td>';
+                    echo '<td' . StackTable::attrs( 'cell', $c_person ) . '>' . esc_html( $name ) . '</td>';
+                    echo '<td' . StackTable::attrs( 'cell', $c_email ) . '>' . esc_html( $email ) . '</td>';
                     echo '</tr>';
                 }
             }

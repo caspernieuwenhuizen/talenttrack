@@ -12,6 +12,7 @@ use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendThreadView;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
 
@@ -144,26 +145,32 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         }
 
         echo '<div class="tt-report-card tt-bp-list-card">';
+        // #4913 — on the stack-table primitive: a table from 480px, one card
+        // per blueprint below it. The actions column has no header, so its
+        // cell shows its buttons alone, as one value block.
+        $c_name      = __( 'Name', 'talenttrack' );
+        $c_formation = __( 'Formation', 'talenttrack' );
+        $c_status    = __( 'Status', 'talenttrack' );
+        $c_updated   = __( 'Updated', 'talenttrack' );
+        $th          = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-bp-list-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Name', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Formation', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th>';
-        echo '<th></th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table tt-bp-list-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( [ $c_name, $c_formation, $c_status, $c_updated, '' ] as $header ) {
+            echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $row ) {
             $open = add_query_arg( [
                 'tt_view' => 'team-blueprints',
                 'id'      => (int) $row['id'],
             ], $base_url );
             $is_locked = (string) ( $row['status'] ?? '' ) === TeamBlueprintsRepository::STATUS_LOCKED;
-            echo '<tr data-tt-row>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $open ) . '">' . esc_html( (string) $row['name'] ) . '</a></td>';
-            echo '<td>' . esc_html( (string) ( $row['template_name'] ?? '—' ) ) . '</td>';
-            echo '<td>' . self::statusPill( (string) $row['status'] ) . '</td>';
-            echo '<td>' . esc_html( (string) $row['updated_at'] ) . '</td>';
-            echo '<td class="tt-bp-list-rowactions">';
+            echo '<tr data-tt-row' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_name ) . '><a class="tt-record-link" href="' . esc_url( $open ) . '">' . esc_html( (string) $row['name'] ) . '</a></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_formation ) . '>' . esc_html( (string) ( $row['template_name'] ?? '—' ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_status ) . '>' . self::statusPill( (string) $row['status'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_updated ) . '>' . esc_html( (string) $row['updated_at'] ) . '</td>';
+            echo '<td class="tt-bp-list-rowactions"' . StackTable::attrs( 'cell' ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">';
             echo '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $open ) . '">'
                 . esc_html__( 'Open', 'talenttrack' ) . '</a>';
             // #1329 — Delete affordance, cap-gated; hidden on locked
@@ -182,7 +189,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                     . esc_html__( 'Delete', 'talenttrack' )
                     . '</button>';
             }
-            echo '</td>';
+            echo '</span></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
@@ -853,20 +860,25 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      */
     private static function renderSharedLineupTable( array $slots, array $primary_lineup ): void {
         echo '<div class="tt-report-card tt-bp-shared-lineup-card">';
+        // #4913 — on the stack-table primitive: a table from 480px, one card
+        // per slot below it.
+        $c_slot   = __( 'Slot', 'talenttrack' );
+        $c_player = __( 'Player', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-bp-shared-lineup">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table tt-bp-shared-lineup ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th' . $th . '>' . esc_html( $c_slot ) . '</th>';
+        echo '<th' . $th . '>' . esc_html( $c_player ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $slots as $slot ) {
             $label = (string) ( $slot['label'] ?? '' );
             if ( $label === '' ) continue;
             $pid   = isset( $primary_lineup[ $label ] ) ? (int) $primary_lineup[ $label ] : 0;
             $name  = $pid > 0 ? QueryHelpers::player_display_name( QueryHelpers::get_player( $pid ) ) : '';
-            echo '<tr>';
-            echo '<td>' . esc_html( $label ) . '</td>';
-            echo '<td>'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_slot ) . '>' . esc_html( $label ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '>'
                 . ( $name !== '' ? esc_html( $name ) : '<em class="tt-bp-shared-empty">' . esc_html__( '— empty —', 'talenttrack' ) . '</em>' )
                 . '</td>';
             echo '</tr>';

@@ -9,6 +9,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Teams\TeamDetailSections;
 use TT\Infrastructure\Teams\TeamKpisRepository;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendTeamDetailView — the team's working surface at
@@ -702,19 +703,27 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             self::cardClose();
             return;
         }
+        // #4913 — on the stack-table primitive: a table from
+        // 480px, one card per player below it. Rows keep their whole-row link
+        // (tt-table-tools.js) and stay table rows; the name's own link is the
+        // keyboard path (#1472).
+        $c_jersey = __( 'Jersey #', 'talenttrack' );
+        $c_player = __( 'Player', 'talenttrack' );
+        $c_status = __( 'Status', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap">
-        <table class="tt-table tt-team-roster-table">
-            <thead>
-                <tr>
-                    <th style="width:80px;"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+        <table class="tt-table tt-team-roster-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th class="tt-team-roster-table__jersey"<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_jersey ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_player ); ?></th>
                     <?php if ( $can_status ) : ?>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                        <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
                     <?php endif; ?>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $players as $pl ) :
                     $name = QueryHelpers::player_display_name( $pl );
                     $url  = RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
@@ -722,15 +731,15 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                         ? (int) $pl->jersey_number
                         : null;
                     ?>
-                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
-                        <td><?php echo $jersey !== null ? (int) $jersey : '<span style="color:var(--tt-muted,#5f6368);">—</span>'; ?></td>
-                        <td>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_jersey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $jersey !== null ? (int) $jersey : '<span class="tt-team-muted">—</span>'; ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_player ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>">
                                 <?php echo esc_html( $name ); ?>
                             </a>
                         </td>
                         <?php if ( $can_status ) : ?>
-                            <td><?php
+                            <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php
                                 if ( class_exists( '\TT\Infrastructure\PlayerStatus\PlayerStatusCalculator' ) ) {
                                     $verdict = ( new \TT\Infrastructure\PlayerStatus\PlayerStatusCalculator() )->calculate( (int) $pl->id );
                                     // #3413 — the verdict, not just its colour: a dot
@@ -771,16 +780,20 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         if ( empty( $rows ) ) return;
 
         self::cardOpen( __( 'Staff', 'talenttrack' ) );
+        // #4913 — on the stack-table primitive, as the roster above.
+        $c_name = __( 'Name', 'talenttrack' );
+        $c_role = __( 'Role', 'talenttrack' );
+        $th     = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap">
-        <table class="tt-table tt-team-staff-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+        <table class="tt-table tt-team-staff-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_name ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_role ); ?></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $rows as $row ) :
                     $p = $row['person'];
                     $person_id = (int) ( $p->id ?? 0 );
@@ -790,11 +803,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
                     $url       = RecordLink::detailUrlForWithBack( 'people', $person_id );
                     ?>
-                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
-                        <td>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                             <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
                         </td>
-                        <td><?php echo $role !== '' ? esc_html( $role ) : '—'; ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_role ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $role !== '' ? esc_html( $role ) : '—'; ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -863,23 +876,27 @@ final class FrontendTeamDetailView extends FrontendViewBase {
     private static function renderTrialRoster( array $players ): void {
         if ( empty( $players ) ) return;
         self::cardOpen( __( 'Trial roster', 'talenttrack' ) );
+        // #4913 — on the stack-table primitive, as the roster.
+        $c_player = __( 'Player', 'talenttrack' );
+        $c_status = __( 'Status', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap">
-        <table class="tt-table tt-team-trial-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+        <table class="tt-table tt-team-trial-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_player ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $players as $pl ) :
                     $url  = RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
                     $name = QueryHelpers::player_display_name( $pl );
                     ?>
-                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
-                        <td><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a></td>
-                        <td><span class="tt-player-row__pill" data-status="trial"><?php esc_html_e( 'Trial', 'talenttrack' ); ?></span></td>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_player ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><span class="tt-player-row__pill" data-status="trial"><?php esc_html_e( 'Trial', 'talenttrack' ); ?></span></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -942,18 +959,24 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             $head_action = [ 'href' => $activity_explore_url, 'label' => __( 'Explorer →', 'talenttrack' ) ];
         }
         self::cardOpen( __( 'Upcoming activities', 'talenttrack' ), $head_action );
+        // #4913 — on the stack-table primitive, as the roster.
+        $c_date   = __( 'Date', 'talenttrack' );
+        $c_title  = __( 'Title', 'talenttrack' );
+        $c_type   = __( 'Type', 'talenttrack' );
+        $c_status = __( 'Status', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         ?>
         <div class="tt-table-wrap">
-        <table class="tt-table tt-team-activities-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+        <table class="tt-table tt-team-activities-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_date ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_title ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_type ); ?></th>
+                    <th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_status ); ?></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php foreach ( $rows as $r ) :
                     $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->id );
                     $type_label   = \TT\Infrastructure\Query\LabelTranslator::activityType( (string) ( $r->activity_type_key ?? '' ) );
@@ -970,11 +993,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                         $date_text .= ' · ' . substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' );
                     }
                     ?>
-                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
-                        <td><?php echo esc_html( $date_text ); ?></td>
-                        <td><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $r->title ); ?></a></td>
-                        <td><?php echo $type_label !== '' ? esc_html( $type_label ) : '—'; ?></td>
-                        <td><?php echo $status_label !== '' ? esc_html( $status_label ) : '—'; ?></td>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <td<?php echo StackTable::attrs( 'cell', $c_date ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $date_text ); ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_title ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $r->title ); ?></a></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $type_label !== '' ? esc_html( $type_label ) : '—'; ?></td>
+                        <td<?php echo StackTable::attrs( 'cell', $c_status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $status_label !== '' ? esc_html( $status_label ) : '—'; ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

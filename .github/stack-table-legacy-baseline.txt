@@ -14,7 +14,6 @@ src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php 1
 src/Modules/Analytics/Frontend/TeamStatisticsTab.php 2
 src/Modules/Knowledge/Frontend/LearningReports.php 4
 src/Modules/Methodology/Frontend/MethodologyView.php 2
-src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php 2
 src/Modules/Vct/Frontend/FrontendVctConfigView.php 1
 src/Modules/Vct/Frontend/FrontendVctLibraryView.php 1
 src/Modules/Vct/Wizard/PreviewStep.php 1
@@ -28,13 +27,9 @@ src/Modules/Wizards/Team/ReviewStep.php 1
 src/Modules/Wizards/TeamBlueprint/ReviewStep.php 1
 src/Shared/Frontend/Components/MinutesBreakdown.php 1
 src/Shared/Frontend/FrontendAuditLogView.php 5
-src/Shared/Frontend/FrontendFunctionalRolesView.php 1
 src/Shared/Frontend/FrontendMigrationsView.php 2
-src/Shared/Frontend/FrontendPeopleManageView.php 1
 src/Shared/Frontend/FrontendReportDetailView.php 2
 src/Shared/Frontend/FrontendStandardReportsView.php 9
-src/Shared/Frontend/FrontendTeamDetailView.php 4
-src/Shared/Frontend/FrontendTeamsManageView.php 2
 src/Shared/Frontend/FrontendUsageStatsDetailsView.php 7
 src/Shared/Frontend/FrontendUsageStatsView.php 4
 src/Shared/Frontend/FrontendWizardsAdminView.php 1
