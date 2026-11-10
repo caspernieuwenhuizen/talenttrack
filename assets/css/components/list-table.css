@@ -216,8 +216,8 @@
    catch most taps. Where it links somewhere other than the row (the goals
    list leads with the player's profile link) the tap must still open the
    row's record: the link lets clicks fall through to the row handler.
-   Keyboard users keep both — the row is focusable with Enter, the link
-   with Tab. The table from 768px restores the link.
+   Keyboard users keep both with Tab: the link, and the anchor to the
+   row's record (#4884). The table from 768px restores the link.
    #4235 — a column outside the title line opts in with `mobile_plain`
    (the people list's e-mail, a 25px-high link to the mail composer): on a
    phone it also reads as text, not as a link. */

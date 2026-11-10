@@ -123,11 +123,15 @@ class FrontendListTable {
         $static_filters = is_array( $config['static_filters'] ?? null ) ? $config['static_filters'] : [];
         // v3.110.169 (#758) — row-link standard. When set, the JS
         // hydrator stamps each <tr> with `data-row-href` + class
-        // `is-row-link` + role/tabindex from the row's value at this
-        // key (a REST controller field, typically `'detail_url'`).
-        // The delegated click handler navigates the row UNLESS the
-        // click target is an interactive descendant (link, button,
-        // input, select, etc.), preserving per-column links.
+        // `is-row-link` from the row's value at this key (a REST
+        // controller field, typically `'detail_url'`). The delegated
+        // click handler navigates the row UNLESS the click target is an
+        // interactive descendant (link, button, input, select, etc.),
+        // preserving per-column links. #4884 — the row stays
+        // `role="row"` with no tabindex: never give it `role="link"`,
+        // which takes it out of the table for a screen reader. The
+        // keyboard path is an anchor to the record inside the row; the
+        // hydrator adds one when no cell links the record.
         $row_url_key = isset( $config['row_url_key'] ) ? sanitize_key( (string) $config['row_url_key'] ) : '';
 
         // #1614 — optional card-grid layout. When `layout` is 'cards',

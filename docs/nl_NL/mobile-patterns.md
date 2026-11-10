@@ -175,9 +175,13 @@ Verder geldt op een telefoon:
 
 - Een cel zonder inhoud neemt geen regel in, net als een lege cel met
   rijacties. Rijacties staan samen rechts.
-- Als de lijst `row_url_key` zet, is de hele rij de link (minstens
-  48 px hoog, bereikbaar met Tab, te openen met Enter of Spatie, met
-  een focusrand). De 48 px-ondergrens op recordlinks in de rij vervalt
+- Als de lijst `row_url_key` zet, opent een tik of klik waar dan ook op
+  de rij het record (de rij is minstens 48 px hoog). De rij blijft een
+  tabelrij, zodat een schermlezer de cellen onder hun kolomkoppen
+  houdt. Het toetsenbord bereikt het record via de link ernaartoe in de
+  rij: Tab gaat erheen, Enter opent hem, hij heeft een focusrand en de
+  rij kleurt mee zolang hij focus heeft. Een lijst waarvan de rijen geen
+  link naar hun record tonen, krijgt er een op de titel. De 48 px-ondergrens op recordlinks in de rij vervalt
   daar, omdat de rij zelf al het doel is. Een link in de titelregel
   vangt de tik op een telefoon niet op: wie erop tikt, opent de rij.
   Zo kan een lijst met de speler beginnen (de doelenlijst) en toch het
