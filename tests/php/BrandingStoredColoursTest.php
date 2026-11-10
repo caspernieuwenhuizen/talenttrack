@@ -95,7 +95,7 @@ final class BrandingStoredColoursTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'aria-label="Reset Danger color to default"', $html, 'the button names its colour' );
     }
 
-    public function test_the_migration_clears_only_stored_defaults_and_black_status_colours(): void {
+    public function test_the_migration_clears_empty_rows_stored_defaults_and_black_status_colours(): void {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_config';
         $club  = (int) CurrentClub::id();
@@ -106,6 +106,9 @@ final class BrandingStoredColoursTest extends WP_UnitTestCase {
             [ $club,  'primary_color',   '#ff6600' ],  // a colour the academy chose
             [ $club,  'color_accent',    '#1e88e5' ],  // the accent stays
             [ $club,  'color_focus',     '#000000' ],  // black is a choice outside the status colours
+            [ $club,  'color_info',      '#123abc' ],  // a chosen status colour
+            [ $club,  'color_success',   '' ],         // stored empty
+            [ $other, 'color_accent',    '  ' ],       // stored empty, the accent too
             [ $other, 'color_warning',   '#000000' ],  // another club, the same rule
         ];
         foreach ( $rows as [ $c, $k, $v ] ) {
@@ -118,6 +121,9 @@ final class BrandingStoredColoursTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( "{$club}:color_danger", $left, 'the black status colour is unset' );
         $this->assertArrayNotHasKey( "{$club}:secondary_color", $left, 'the stored default is unset' );
         $this->assertArrayNotHasKey( "{$other}:color_warning", $left, 'in every club' );
+        $this->assertArrayNotHasKey( "{$club}:color_success", $left, 'an empty row is unset' );
+        $this->assertArrayNotHasKey( "{$other}:color_accent", $left, 'an empty accent is unset too' );
+        $this->assertSame( '#123abc', $left[ "{$club}:color_info" ] ?? null, 'a chosen status colour survives' );
         $this->assertSame( '#ff6600', $left[ "{$club}:primary_color" ] ?? null, 'a chosen colour is never touched' );
         $this->assertSame( '#1e88e5', $left[ "{$club}:color_accent" ] ?? null );
         $this->assertSame( '#000000', $left[ "{$club}:color_focus" ] ?? null );

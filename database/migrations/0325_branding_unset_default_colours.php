@@ -8,14 +8,17 @@
  * nobody picked. Since #4803 the form stores a colour only when it is
  * chosen; this clears what the old form left behind:
  *
+ *  - a colour stored empty, the accent included. An empty row makes the
+ *    form show a black swatch, and the next save would store that black as
+ *    a chosen colour;
  *  - a colour stored equal to its form default (compared case-insensitively);
  *  - a status colour (danger, warning, success, info) stored as `#000000`.
  *
  * Clearing deletes the row, so readers fall back to their own default and the
  * page to `tokens.css`. Nothing renders differently: since #4797 these values
  * already counted as unset on the page. Any other value is a colour the
- * academy chose and is never touched; neither is the accent colour, whose
- * form default is the colour a saved install renders.
+ * academy chose and is never touched. A non-empty accent is never touched
+ * either: its form default is the colour a saved install renders.
  *
  * The defaults are written out here, not read from `BrandStyles`, so what
  * this migration did does not change if the form's defaults ever do. Every
@@ -55,7 +58,7 @@ return new class extends Migration {
             return;
         }
 
-        $keys = array_keys( self::FORM_DEFAULTS );
+        $keys = array_merge( array_keys( self::FORM_DEFAULTS ), [ 'color_accent' ] );
         $in   = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT club_id, config_key, config_value FROM `{$table}` WHERE config_key IN ({$in}) ORDER BY club_id, config_key", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -66,9 +69,17 @@ return new class extends Migration {
         foreach ( (array) $rows as $row ) {
             $key   = (string) $row['config_key'];
             $value = strtolower( trim( (string) $row['config_value'] ) );
-            $is_default = $value === self::FORM_DEFAULTS[ $key ];
+            $is_empty   = $value === '';
+            $is_default = isset( self::FORM_DEFAULTS[ $key ] ) && $value === self::FORM_DEFAULTS[ $key ];
             $is_black   = $value === '#000000' && in_array( $key, self::STATUS_KEYS, true );
-            if ( ! $is_default && ! $is_black ) continue;
+            if ( ! $is_empty && ! $is_default && ! $is_black ) continue;
+            if ( $is_empty ) {
+                $reason = 'stored empty';
+            } elseif ( $is_black ) {
+                $reason = 'status colour stored as #000000';
+            } else {
+                $reason = 'equal to the form default';
+            }
 
             $this->exec( $wpdb->prepare(
                 "DELETE FROM `{$table}` WHERE club_id = %d AND config_key = %s AND config_value = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -78,7 +89,7 @@ return new class extends Migration {
                 'club_id' => (int) $row['club_id'],
                 'key'     => $key,
                 'value'   => (string) $row['config_value'],
-                'reason'  => $is_black ? 'status colour stored as #000000' : 'equal to the form default',
+                'reason'  => $reason,
             ] );
             $cleared++;
         }

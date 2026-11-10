@@ -1631,15 +1631,6 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * #1531 — single "Appearance" surface consolidating the former
-     * Branding and Theme & fonts tiles. Stacked sections: Identity,
-     * Colours (primary/secondary + the accent palette, all in one place),
-     * Typography, Theme, and an Advanced link to Custom CSS. One form +
-     * one Save/Cancel; reuses the existing config keys + save path, so no
-     * data migration. The accent-colour fields simply moved out of the
-     * theme form into Colours.
-     */
-    /**
      * #4803 — "Reset to default" for one Branding colour. It puts the
      * colour's default back in the field; Save then stores the colour as
      * unset (`BrandStyles::saveColor()`), so it follows `tokens.css` again.
@@ -1656,6 +1647,15 @@ class FrontendConfigurationView extends FrontendViewBase {
         );
     }
 
+    /**
+     * #1531 — single "Appearance" surface consolidating the former
+     * Branding and Theme & fonts tiles. Stacked sections: Identity,
+     * Colours (primary/secondary + the accent palette, all in one place),
+     * Typography, Theme, and an Advanced link to Custom CSS. One form +
+     * one Save/Cancel; reuses the existing config keys + save path, so no
+     * data migration. The accent-colour fields simply moved out of the
+     * theme form into Colours.
+     */
     private static function renderAppearanceForm(): void {
         // #4803 — the per-colour "Reset to default" buttons.
         wp_enqueue_style( 'tt-frontend-branding-colors', TT_PLUGIN_URL . 'assets/css/frontend-branding-colors.css', [], TT_VERSION );

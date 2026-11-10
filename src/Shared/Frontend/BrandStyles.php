@@ -86,14 +86,6 @@ class BrandStyles {
     }
 
     /**
-     * The value a Branding colour field shows when the academy has chosen
-     * nothing, or '' for a colour without one.
-     */
-    public static function formDefault( string $key ): string {
-        return self::FORM_DEFAULTS[ $key ] ?? '';
-    }
-
-    /**
      * #4803 — store a Branding colour only when the academy chose it.
      *
      * The form submits every colour on every save. A value that is not a
@@ -109,21 +101,6 @@ class BrandStyles {
             return;
         }
         \TT\Infrastructure\Query\QueryHelpers::delete_config( $key );
-    }
-
-    /**
-     * The colours a stored value of which says nothing about what the
-     * academy wanted, key => form default. Read by migration 0325 (#4803).
-     *
-     * @return array<string,string>
-     */
-    public static function formDefaults(): array {
-        return self::FORM_DEFAULTS;
-    }
-
-    /** @return list<string> */
-    public static function statusKeys(): array {
-        return self::STATUS_KEYS;
     }
 
     /**
