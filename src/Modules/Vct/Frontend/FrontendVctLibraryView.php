@@ -9,6 +9,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Exercises\ExercisesRepository;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -207,15 +208,23 @@ class FrontendVctLibraryView extends FrontendViewBase {
     /** @param list<array<string,mixed>> $rows */
     private static function renderTable( array $rows, bool $can_write, int $edit_id = 0 ): void {
         $base_url = remove_query_arg( 'edit' );
-        echo '<div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Name',     'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Category', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Theme',    'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Band',     'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Age',      'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status',   'talenttrack' ) . '</th>';
-        if ( $can_write ) echo '<th></th>';
-        echo '</tr></thead><tbody>';
+        // #4916 — on the stack-table primitive: a table from 768px, one card
+        // per exercise below it. The name, its band edge and its code are one
+        // value block; the actions column has no header, so its cell shows
+        // its buttons alone. The inline edit row spans the table.
+        $c_name     = __( 'Name', 'talenttrack' );
+        $c_category = __( 'Category', 'talenttrack' );
+        $c_theme    = __( 'Theme', 'talenttrack' );
+        $c_band     = __( 'Band', 'talenttrack' );
+        $c_age      = __( 'Age', 'talenttrack' );
+        $c_status   = __( 'Status', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( [ $c_name, $c_category, $c_theme, $c_band, $c_age, $c_status ] as $header ) {
+            echo '<th' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        if ( $can_write ) echo '<th' . $th . '></th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $is_archived = isset( $row['archived_at'] ) || self::isArchivedById( (int) $row['id'] );
@@ -232,19 +241,19 @@ class FrontendVctLibraryView extends FrontendViewBase {
                 $theme_label,
             ] ) );
 
-            echo '<tr class="tt-vct-lib-row" data-search="' . esc_attr( $search_hay ) . '">';
-            echo '<td>';
+            echo '<tr class="tt-vct-lib-row" data-search="' . esc_attr( $search_hay ) . '"' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $c_name ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">';
             echo '<span class="tt-vct-lib-edge" data-band="' . esc_attr( (string) $band ) . '" title="' . esc_attr( sprintf( /* translators: %d = intensity band 1-10 */ __( 'Intensity band %d', 'talenttrack' ), $band ) ) . '"></span>';
             echo esc_html( (string) $row['name_canonical'] );
-            echo '<br><code class="tt-vct-lib-code">' . esc_html( (string) $row['code'] ) . '</code></td>';
-            echo '<td>' . esc_html( $cat_label ) . '</td>';
-            echo '<td>' . esc_html( $theme_label !== '' ? $theme_label : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) $band ) . '</td>';
-            echo '<td>' . esc_html( (string) $row['age_min'] ) . '-' . esc_html( (string) $row['age_max'] ) . '</td>';
-            echo '<td>' . esc_html( $is_archived ? __( 'Archived', 'talenttrack' ) : __( 'Active', 'talenttrack' ) ) . '</td>';
+            echo '<br><code class="tt-vct-lib-code">' . esc_html( (string) $row['code'] ) . '</code></span></td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_category ) . '>' . esc_html( $cat_label ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_theme ) . '>' . esc_html( $theme_label !== '' ? $theme_label : '—' ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_band ) . '>' . esc_html( (string) $band ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_age ) . '>' . esc_html( (string) $row['age_min'] ) . '-' . esc_html( (string) $row['age_max'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $c_status ) . '>' . esc_html( $is_archived ? __( 'Archived', 'talenttrack' ) : __( 'Active', 'talenttrack' ) ) . '</td>';
 
             if ( $can_write ) {
-                echo '<td class="tt-vct-lib-rowactions">';
+                echo '<td class="tt-vct-lib-rowactions"' . StackTable::attrs( 'cell' ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">';
                 if ( ! $is_archived ) {
                     // #1086 VCT-11 — inline-edit affordance. Clicking
                     // toggles ?edit=N on the URL; the edit form for the
@@ -274,7 +283,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
                         . ' data-tt-archive-redirect="' . esc_attr( add_query_arg( [ 'archived' => '1' ] ) ) . '">'
                         . esc_html__( 'Delete permanently', 'talenttrack' ) . '</button>';
                 }
-                echo '</td>';
+                echo '</span></td>';
             }
             echo '</tr>';
 
@@ -302,8 +311,8 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $current_cat   = (string) $row['category'];
         $current_theme = $row['tactical_theme'] !== null ? (string) $row['tactical_theme'] : '';
         ?>
-        <tr class="tt-vct-lib-edit-row" id="tt-vct-lib-edit-<?php echo (int) $row_id; ?>">
-            <td colspan="7">
+        <tr class="tt-vct-lib-edit-row" id="tt-vct-lib-edit-<?php echo (int) $row_id; ?>"<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+            <td colspan="7"<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <form method="POST" action="" class="tt-vct-lib-edit-form">
                     <?php wp_nonce_field( 'tt_vct_library_update_' . $row_id, '_tt_vct_lib_update_nonce' ); ?>
                     <input type="hidden" name="_tt_action" value="update">

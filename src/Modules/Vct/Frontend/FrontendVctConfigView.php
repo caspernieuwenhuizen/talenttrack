@@ -17,6 +17,7 @@ use TT\Modules\Vct\Services\AgeProfileAdminService;
 use TT\Modules\Vct\Services\VctCycleResolver;
 use TT\Modules\Vct\Validation\VctTeamCycleValidator;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Dates\TTDate;
 
@@ -179,10 +180,15 @@ class FrontendVctConfigView extends FrontendViewBase {
         // Reference templates (read-only) in the shared table.
         if ( $references ) {
             echo '<h3 class="tt-vct-section-title">' . esc_html__( 'Reference phase profiles', 'talenttrack' ) . '</h3>';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html_x( 'Template', 'VCT cycle template', 'talenttrack' ) . '</th><th>' . esc_html__( 'Weeks', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            // #4916 — on the stack-table primitive: a table from 480px, one
+            // card per template below it.
+            $c_template = _x( 'Template', 'VCT cycle template', 'talenttrack' );
+            $c_weeks    = __( 'Weeks', 'talenttrack' );
+            $th         = StackTable::attrs( 'columnheader' );
+            echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '><th' . $th . '>' . esc_html( $c_template ) . '</th><th' . $th . '>' . esc_html( $c_weeks ) . '</th></tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
             foreach ( $references as $r ) {
                 $weeks = is_array( $r['phase_profile'] ) ? count( $r['phase_profile'] ) : 0;
-                echo '<tr><td>' . esc_html( (string) $r['label'] ) . '</td><td>' . esc_html( (string) $weeks ) . '</td></tr>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '><td' . StackTable::attrs( 'cell', $c_template ) . '>' . esc_html( (string) $r['label'] ) . '</td><td' . StackTable::attrs( 'cell', $c_weeks ) . '>' . esc_html( (string) $weeks ) . '</td></tr>';
             }
             echo '</tbody></table>';
         }

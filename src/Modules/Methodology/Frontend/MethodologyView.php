@@ -19,6 +19,7 @@ use TT\Modules\Methodology\Repositories\SetPiecesRepository;
 use TT\Modules\Methodology\Repositories\SubPrinciplesRepository;
 use TT\Modules\Methodology\Repositories\TacticalScenesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -207,13 +208,20 @@ class MethodologyView extends FrontendViewBase {
                 continue;
             }
 
-            echo '<table class="tt-table tt-mlogy-period-table">';
-            echo '<thead><tr>'
-                . '<th>' . esc_html__( 'Week', 'talenttrack' ) . '</th>'
-                . '<th>' . esc_html__( 'Speelwijze-thema', 'talenttrack' ) . '</th>'
-                . '<th>' . esc_html__( 'Conditiefase', 'talenttrack' ) . '</th>'
-                . '<th>' . esc_html__( 'Intensiteit', 'talenttrack' ) . '</th>'
-                . '</tr></thead><tbody>';
+            // #4916 — on the stack-table primitive: a table from 480px, one
+            // card per week below it.
+            $c_week  = __( 'Week', 'talenttrack' );
+            $c_theme = __( 'Speelwijze-thema', 'talenttrack' );
+            $c_phase = __( 'Conditiefase', 'talenttrack' );
+            $c_mult  = __( 'Intensiteit', 'talenttrack' );
+            $th      = StackTable::attrs( 'columnheader' );
+            echo '<table class="tt-table tt-mlogy-period-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+            echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+                . '<th' . $th . '>' . esc_html( $c_week ) . '</th>'
+                . '<th' . $th . '>' . esc_html( $c_theme ) . '</th>'
+                . '<th' . $th . '>' . esc_html( $c_phase ) . '</th>'
+                . '<th' . $th . '>' . esc_html( $c_mult ) . '</th>'
+                . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
             foreach ( $weeks as $wk ) {
                 $week_no = isset( $wk['week'] ) ? (int) $wk['week'] : 0;
                 $theme   = isset( $wk['tactical_theme'] ) && $wk['tactical_theme'] !== null
@@ -223,11 +231,11 @@ class MethodologyView extends FrontendViewBase {
                 $theme_display = $theme !== ''
                     ? ( $theme_labels[ $theme ] ?? $theme )
                     : '—';
-                echo '<tr>';
-                echo '<td>' . esc_html( (string) $week_no ) . '</td>';
-                echo '<td>' . esc_html( $theme_display ) . '</td>';
-                echo '<td>' . esc_html( $phase !== '' ? $phase : '—' ) . '</td>';
-                echo '<td>' . esc_html( number_format_i18n( $mult, 2 ) . '×' ) . '</td>';
+                echo '<tr' . StackTable::attrs( 'row' ) . '>';
+                echo '<td' . StackTable::attrs( 'cell', $c_week ) . '>' . esc_html( (string) $week_no ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_theme ) . '>' . esc_html( $theme_display ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_phase ) . '>' . esc_html( $phase !== '' ? $phase : '—' ) . '</td>';
+                echo '<td' . StackTable::attrs( 'cell', $c_mult ) . '>' . esc_html( number_format_i18n( $mult, 2 ) . '×' ) . '</td>';
                 echo '</tr>';
             }
             echo '</tbody></table>';
@@ -639,6 +647,12 @@ class MethodologyView extends FrontendViewBase {
             return;
         }
         $assets_repo = new MethodologyAssetsRepository();
+        // #4916 — the positions table is on the stack-table primitive: a
+        // table from 480px, one card per position below it. The role and its
+        // tasks are one value block.
+        $c_number = '#';
+        $c_role   = __( 'Role', 'talenttrack' );
+        $th       = StackTable::attrs( 'columnheader' );
         foreach ( $list as $f ) :
             $name = MultilingualField::string( $f->name_json ) ?: $f->slug;
             $positions = $repo->positionsFor( (int) $f->id );
@@ -647,15 +661,15 @@ class MethodologyView extends FrontendViewBase {
             <div style="display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; align-items:start;">
                 <div><?php echo FormationDiagram::render( (int) $f->id ); ?></div>
                 <div>
-                    <table class="tt-table">
-                        <thead><tr><th>#</th><th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th></tr></thead>
-                        <tbody>
+                    <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                        <thead<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_number ); ?></th><th<?php echo $th; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $c_role ); ?></th></tr></thead>
+                        <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                         <?php foreach ( $positions as $pos ) :
                             $primary = $assets_repo->primaryFor( MethodologyAssetsRepository::TYPE_POSITION, (int) $pos->id );
                             ?>
-                            <tr>
-                                <td><strong><?php echo (int) $pos->jersey_number; ?></strong></td>
-                                <td>
+                            <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                                <td<?php echo StackTable::attrs( 'cell', $c_number ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><strong><?php echo (int) $pos->jersey_number; ?></strong></td>
+                                <td<?php echo StackTable::attrs( 'cell', $c_role ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><div class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                                     <?php
                                     $long  = MultilingualField::string( $pos->long_name_json );
                                     $short = MultilingualField::string( $pos->short_name_json );
@@ -678,7 +692,7 @@ class MethodologyView extends FrontendViewBase {
                                             <?php endif; ?>
                                         </details>
                                     <?php endif; ?>
-                                </td>
+                                </div></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
