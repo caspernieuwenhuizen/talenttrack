@@ -305,8 +305,11 @@
             for (var i = 0; i < anchors.length; i++) {
                 if (recordKey(anchors[i].getAttribute('href')) === key) return;
             }
-            var candidates = [ tr.querySelector('td[data-mobile="primary"]') ]
-                .concat(Array.prototype.slice.call(tr.querySelectorAll('td:not(.tt-list-table-actions)')));
+            // A cell hidden on a phone (data-mobile="hide") or empty there
+            // (data-empty) would leave the row without a keyboard path.
+            var plain = 'td:not(.tt-list-table-actions):not([data-mobile="hide"]):not([data-empty])';
+            var candidates = [ tr.querySelector('td[data-mobile="primary"]:not([data-empty])') ]
+                .concat(Array.prototype.slice.call(tr.querySelectorAll(plain)));
             for (var j = 0; j < candidates.length; j++) {
                 var cell = candidates[j];
                 if (!cell || cell.textContent.trim() === '') continue;
