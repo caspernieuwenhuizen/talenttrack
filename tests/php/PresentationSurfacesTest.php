@@ -521,6 +521,9 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
 
         unset( $_SERVER['HTTP_SEC_PURPOSE'] );
 
+        $before = $this->withStableIds( $before );
+        $after  = $this->withStableIds( $after );
+
         $this->assertFalse( PresentationSurfaces::isPresenting() );
         $this->assertSame(
             $before,
@@ -529,6 +532,22 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
         );
 
         return $after;
+    }
+
+    /**
+     * `FrontendListTable` gives each table a random id per render
+     * (`tt-list-` plus eight hex digits). Numbered in order of first
+     * appearance, so the structure is still compared and only the random
+     * part is not.
+     */
+    private function withStableIds( string $html ): string {
+        $seen = [];
+        return (string) preg_replace_callback( '/tt-list-[0-9a-f]{8}\b/', static function ( array $m ) use ( &$seen ): string {
+            if ( ! isset( $seen[ $m[0] ] ) ) {
+                $seen[ $m[0] ] = 'tt-list-n' . count( $seen );
+            }
+            return $seen[ $m[0] ];
+        }, $html );
     }
 
     /** Where two renders part, with some context either side, for the failure message. */
