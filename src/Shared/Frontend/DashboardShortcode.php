@@ -943,15 +943,11 @@ class DashboardShortcode {
                 FrontendTeammateView::render( $player, $teammate_id );
                 return true;
             case 'my-evaluations':
-                // v3.110.215 (#846) — branch by caller context. A coach
-                // (anyone with `tt_edit_evaluations` who has no linked
-                // player record) sees the evaluations THEY authored; a
-                // player (or a parent viewing their child) sees evaluations
-                // OF that player.
-                if ( $target === null && current_user_can( 'tt_edit_evaluations' ) ) {
-                    FrontendMyEvaluationsView::renderForCoach( get_current_user_id() );
-                    return true;
-                }
+                // A player (or a parent viewing their child) sees the
+                // evaluations OF that player. #5048 — the coach branch is
+                // gone: the tile refuses a coach before dispatch, and the
+                // coach's own evaluations are the evaluations list filtered
+                // to `filter[coach_id]`.
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
                 FrontendMyEvaluationsView::render( $target );
                 return true;

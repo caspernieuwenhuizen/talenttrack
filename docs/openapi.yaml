@@ -648,7 +648,9 @@ paths:
     get:
       tags: [evaluations]
       summary: List evaluations
-      description: 'Cap required: `tt_view_evaluations` (tightened in #0052 PR-B from bare `is_user_logged_in`).'
+      description: 'Cap required: `tt_view_evaluations` (tightened in #0052 PR-B from bare `is_user_logged_in`). `filter[coach_id]` narrows the list to the evaluations that user wrote, inside the rows the caller may already read (#5048).'
+      parameters:
+        - { in: query, name: 'filter[coach_id]', required: false, schema: { type: integer } }
       responses: { '200': { description: OK } }
     post:
       tags: [evaluations]

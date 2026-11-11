@@ -59,8 +59,7 @@ class EvaluationsRestController {
             [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'trash_eval' ], 'args' => self::lifecycleArgs(), 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
         ]);
 
-        // #920 — "My evaluations" feed. Mirrors what
-        // FrontendMyEvaluationsView::renderForCoach renders. Defaults
+        // #920 — a coach's "what did I author?" feed. Defaults
         // coach_id to the current user; an explicit coach_id query
         // param is allowed only when the requester holds global-scope
         // read on `evaluations` (so an HoD can audit their staff —
@@ -183,6 +182,7 @@ class EvaluationsRestController {
      *   ?filter[team_id]=<int|CSV>     — via player → team join (single id or comma-separated list, v4.20.26 / #1212)
      *   ?filter[player_id]=<int>
      *   ?filter[eval_type_id]=<int>
+     *   ?filter[coach_id]=<int>        — the author; narrows within the caller's scope (#5048)
      *   ?filter[date_from]=<YYYY-MM-DD>
      *   ?filter[date_to]=<YYYY-MM-DD>
      *   ?orderby=eval_date|player_name|team_name|coach_name|avg_rating
@@ -321,7 +321,9 @@ class EvaluationsRestController {
         }
         // #1380 — coach (evaluator) filter, driven from the evaluation-
         // coverage report's per-coach chips. Filters on the evaluation's
-        // author (`e.coach_id`).
+        // author (`e.coach_id`). #5048 — the coach dashboard's evaluation
+        // cards land here with the coach's own id. It is an AND on the scope
+        // WHERE above, so any id only narrows the rows the caller may read.
         if ( ! empty( $filter['coach_id'] ) ) {
             $where[]  = 'e.coach_id = %d';
             $params[] = absint( $filter['coach_id'] );

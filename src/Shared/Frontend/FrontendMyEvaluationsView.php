@@ -7,7 +7,6 @@ use TT\Infrastructure\Evaluations\PlayerEvaluationsReader;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\RatingPillComponent;
-use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendMyEvaluationsView — the player's "My evaluations" tile.
@@ -25,100 +24,6 @@ use TT\Shared\Frontend\Components\StackTable;
  * language matches `FrontendOverviewView`'s My card tile (#0004).
  */
 class FrontendMyEvaluationsView extends FrontendViewBase {
-
-    /**
-     * v3.110.215 (#846) — coach branch. Renders evaluations AUTHORED
-     * by the current coach, filtered to "this week" + the trailing
-     * 30 days for context. The KPI tile on the coach dashboard counts
-     * `coach_id = current_user_id AND eval_date >= last Monday`; this
-     * surface shows the same scope so the KPI value and the list agree.
-     */
-    public static function renderForCoach( int $coach_user_id ): void {
-        self::enqueueAssets();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );
-        self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
-
-        if ( $coach_user_id <= 0 ) {
-            echo '<p><em>' . esc_html__( 'Sign in to see the evaluations you authored.', 'talenttrack' ) . '</em></p>';
-            return;
-        }
-
-        // #920 — query now lives in `EvaluationsRepository::recentForCoach`
-        // (mirrored by the new `GET /evaluations/recent` REST endpoint).
-        // Default window is 30 days — wider than the strictly-this-week
-        // KPI cut — so coaches always see some recent context.
-        //
-        // v4.20.27 (#1213) — honour `?days=<int>` so the
-        // `MyEvaluationsThisWeek` KPI deep-link can narrow the view to
-        // the same 7-day cut its `compute()` aggregates. Pre-fix, KPI
-        // "3 this week" landed on a 30-day list rendering 11 rows —
-        // breeding KPI ↔ list mistrust. Param clamped to [1, 90] so
-        // URL tampering can't run unbounded windows.
-        $days = isset( $_GET['days'] ) ? (int) wp_unslash( (string) $_GET['days'] ) : 30;
-        if ( $days < 1 ) $days = 30;
-        if ( $days > 90 ) $days = 90;
-
-        $evals = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
-            ->recentForCoach( $coach_user_id, $days );
-
-        if ( empty( $evals ) ) {
-            echo '<p><em>' . sprintf(
-                /* translators: %d is the window size in days */
-                esc_html__( 'No evaluations authored in the last %d days. New evaluations you record will appear here.', 'talenttrack' ),
-                $days
-            ) . '</em></p>';
-            return;
-        }
-
-        echo '<p class="tt-mye-lead">'
-            . sprintf(
-                /* translators: %d is the window size in days */
-                esc_html__( 'Evaluations you authored in the last %d days, newest first.', 'talenttrack' ),
-                $days
-            )
-            . '</p>';
-
-        $c_date   = __( 'Date', 'talenttrack' );
-        $c_player = __( 'Player', 'talenttrack' );
-        $c_type   = __( 'Type', 'talenttrack' );
-        $c_match  = __( 'Match', 'talenttrack' );
-        $th       = StackTable::attrs( 'columnheader' );
-        // #4914 — a card per evaluation on a phone, a table from 480px.
-        // #5042 — each row is a row link (tt-table-tools.js): a tap anywhere
-        // on the card opens the evaluation. The row stays a table row; the
-        // player's link is the keyboard path (#1472, #4884).
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-mye-authored ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
-        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
-            . '<th' . $th . '>' . esc_html( $c_date ) . '</th>'
-            . '<th' . $th . '>' . esc_html( $c_player ) . '</th>'
-            . '<th' . $th . '>' . esc_html( $c_type ) . '</th>'
-            . '<th' . $th . '>' . esc_html( $c_match ) . '</th>'
-            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
-        foreach ( $evals as $e ) {
-            $player_name = trim( ( (string) ( $e->first_name ?? '' ) ) . ' ' . ( (string) ( $e->last_name ?? '' ) ) );
-            if ( $player_name === '' ) $player_name = '—';
-            $detail_url = add_query_arg( [
-                'tt_view' => 'evaluations',
-                'id'      => (int) $e->id,
-            ], remove_query_arg( [ 'tt_view' ] ) );
-            $match_text = '';
-            if ( ! empty( $e->opponent ) ) {
-                $match_text = (string) $e->opponent;
-                if ( ! empty( $e->game_result ) ) $match_text .= ' (' . (string) $e->game_result . ')';
-            }
-            echo '<tr class="is-row-link" data-row-href="' . esc_url( $detail_url ) . '"' . StackTable::attrs( 'row' ) . '>';
-            echo '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td>';
-            echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
-            // #806 — pre-localised by EvaluationsRepository so bypass
-            // becomes structurally impossible. Falls back to the raw
-            // type_name when the lookup row is missing.
-            $type_disp = ! empty( $e->type_name_localised ) ? $e->type_name_localised : ( $e->type_name ?? '—' );
-            echo '<td' . StackTable::attrs( 'cell', $c_type ) . '>' . esc_html( (string) $type_disp ) . '</td>';
-            echo '<td' . StackTable::attrs( 'cell', $c_match ) . '>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table></div></div>';
-    }
 
     /**
      * The player / parent branch.

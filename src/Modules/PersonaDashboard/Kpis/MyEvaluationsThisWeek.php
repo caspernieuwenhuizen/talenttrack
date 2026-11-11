@@ -3,11 +3,13 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
+use TT\Shared\Frontend\Components\BackLink;
 
 class MyEvaluationsThisWeek extends AbstractKpiDataSource {
     public function id(): string { return 'my_evaluations_this_week'; }
@@ -15,54 +17,76 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
     public function context(): string { return PersonaContext::COACH; }
 
     /**
-     * v4.20.27 (#1213) — Deep-link with `?days=7` so the destination
-     * `my-evaluations` view caps its window to the same 7-day cut
-     * compute() aggregates. Pre-fix the destination defaulted to 30d
-     * and the row count never matched the KPI's "3 this week" headline.
-     * The view now honours the `days` query param (clamped to [1, 90]).
-     * Lands live via v4.20.22's KpiCardWidget→linkUrl() routing fix
-     * (#1207).
+     * The evaluations list, filtered to the evaluations this coach wrote
+     * over the same 7 days compute() counts (#1213). #5048 — the card used
+     * to open `my-evaluations`, the player and parent view, which refuses a
+     * coach. The list accepts `filter[coach_id]` for the caller's own id.
      */
     public function linkUrl( RenderContext $ctx ): string {
         $view = $this->linkView();
         if ( $view === '' ) return '';
-        return add_query_arg( [ 'days' => 7 ], $ctx->viewUrl( $view ) );
+        return BackLink::appendTo( add_query_arg( [
+            'filter' => [
+                'coach_id'  => $ctx->user_id,
+                'date_from' => self::daysBeforeToday( self::WINDOW_DAYS ),
+            ],
+        ], $ctx->viewUrl( $view ) ) );
+    }
+
+    /** The window compute() counts and linkUrl() filters, in days before today. */
+    private const WINDOW_DAYS = 7;
+
+    /**
+     * A date `$days` before today, in the site's timezone (`current_time()`,
+     * the clock `EvaluationDateRule` dates an evaluation against). A
+     * negative `$days` is a date after today.
+     */
+    private static function daysBeforeToday( int $days ): string {
+        $today = new \DateTimeImmutable( current_time( 'Y-m-d' ), wp_timezone() );
+        $step  = new \DateInterval( 'P' . abs( $days ) . 'D' );
+        return ( $days >= 0 ? $today->sub( $step ) : $today->add( $step ) )->format( 'Y-m-d' );
     }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
         // tt_evaluations (migration 0001) exists on every install; no table check.
-        // Some installs use `coach_id` for evaluation authorship rather than
-        // `created_by`. Detect once per call and pick the right column.
-        $col = $wpdb->get_var( $wpdb->prepare(
-            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'created_by'",
-            $table
-        ) );
-        $author_col = $col ? 'created_by' : 'coach_id';
+        // The author is `e.coach_id`, the column the list's `filter[coach_id]`
+        // reads. #5048 — no migration adds a `created_by` to this table, so
+        // the per-render INFORMATION_SCHEMA lookup for one is gone.
 
         // v3.110.182 (#781) — demo-mode scope so coach's count matches
         // the evaluations list under the same toggle.
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
-        $since = gmdate( 'Y-m-d 00:00:00', strtotime( '-7 days' ) );
+        // #5048 — counted on `eval_date`, the date of the evaluation and the
+        // column the list this card opens filters on (`filter[date_from]`).
+        // On `created_at`, an evaluation entered today for a match two weeks
+        // ago counted here and was missing from the list.
+        $since = self::daysBeforeToday( self::WINDOW_DAYS );
+        // The list's other narrowing too: this club, and active evaluations
+        // only (no archived or recycle-bin rows), the clause `list_evals`
+        // applies on its default view.
+        $active = ArchiveRepository::filterClause( 'active', 'e' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.created_at >= %s {$scope}",
+            "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.coach_id = %d AND e.eval_date >= %s {$scope}",
+            $club_id,
             $user_id,
             $since
         ) );
 
-        // Sparkline: 4 trailing weekly buckets of *my* evaluations.
+        // Sparkline: 4 trailing weekly buckets of *my* evaluations, on the
+        // same date. The newest bucket is the count's window, so it runs
+        // through today; each older one is the 7 days before it.
         $sparkline = [];
         for ( $w = 3; $w >= 0; $w-- ) {
-            $start = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( ( $w + 1 ) * 7 ) . ' days' ) );
-            $end   = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( $w * 7 ) . ' days' ) );
+            $start = self::daysBeforeToday( ( $w + 1 ) * self::WINDOW_DAYS );
+            $end   = $w === 0 ? self::daysBeforeToday( -1 ) : self::daysBeforeToday( $w * self::WINDOW_DAYS );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.created_at >= %s AND e.created_at < %s {$scope}",
-                $user_id, $start, $end
+                "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.coach_id = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
+                $club_id, $user_id, $start, $end
             ) );
         }
         $trend = null;

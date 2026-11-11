@@ -108,6 +108,10 @@ Spelers (en hun ouders) zien alleen de scores, de notities per categorie en het 
 
 Klik op een rij in de evaluatielijst om de volledige uitsplitsing te zien — een radarchart van je scores, je notities en de datum.
 
+## Je eigen evaluaties
+
+Met het filter **Coach** op de evaluatielijst zie je alleen de evaluaties die één coach heeft geschreven. Als coach kun je daar jezelf kiezen; de kaarten op je dashboard die je evaluaties van deze week of dit seizoen tellen, openen de lijst op die manier gefilterd. Het hoofd opleiding en anderen die het rapport over de evaluatiedekking lezen, kunnen elke coach kiezen. Het filter maakt de lijst alleen kleiner: het laat nooit een evaluatie zien die je anders niet zou zien.
+
 ## Oude evaluaties opruimen
 
 Je kunt een evaluatie **archiveren** om hem uit lijsten te halen maar in de historie van de speler te bewaren, of **verwijderen** als hij per ongeluk is aangemaakt. Gearchiveerde evaluaties tellen niet mee voor de spelerskaarten. De lijst opent met actieve evaluaties; met de **⋯**-knop aan het eind van de filterrij schakel je naar Gearchiveerd, en een label ernaast laat zien dat je daar bent.
