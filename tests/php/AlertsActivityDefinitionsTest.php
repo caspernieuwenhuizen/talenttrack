@@ -489,6 +489,31 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #5116 — a session the planner cancelled (plan state) while its status
+     * still reads planned is not outstanding: it raises neither the unmarked
+     * alert nor the no-coach alert.
+     */
+    public function test_a_planner_cancelled_session_raises_no_alert(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->assignHeadCoach( $team, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->insertActivity( $team, $this->daysAgo( 3 ), 'cancelled', $this->coach, 'planned' );
+        $this->insertActivity( $team, $this->daysAhead( 3 ), 'cancelled', 0, 'planned' );
+
+        $this->assertSame( [], ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ), 'no unmarked-activity alert' );
+        $this->assertSame( [], ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ), 'no no-coach alert' );
+    }
+
+    /** #5116 — a NULL plan state is not a cancellation: the session still alerts. */
+    public function test_a_null_plan_state_session_still_alerts(): void {
+        global $wpdb;
+        $team = $this->insertTeam( 'U14 alerts' );
+        $id   = $this->insertActivity( $team, $this->daysAgo( 3 ), 'scheduled', $this->coach, 'planned' );
+        $wpdb->query( $wpdb->prepare( "UPDATE {$this->p}tt_activities SET plan_state = NULL WHERE id = %d", $id ) );
+
+        $this->assertCount( 1, ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
     // ── fixtures ───────────────────────────────────────────────────────
 
     private function daysAgo( int $n ): string {

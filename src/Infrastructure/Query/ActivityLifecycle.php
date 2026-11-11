@@ -50,10 +50,14 @@ final class ActivityLifecycle {
      * Not the literal negation of `completedClause()`: a cancelled activity
      * never happened and never will, so it is finished in the only sense
      * that matters here. Chasing somebody about it would be noise.
+     *
+     * #5116 — cancelled on either axis, as {@see notCancelledClause()} reads
+     * it: a session the planner called off (`plan_state`) is not outstanding
+     * either. A NULL plan state is not a cancellation.
      */
     public static function outstandingClause( string $alias = 'a' ): string {
         $col = self::column( $alias );
-        return "LOWER(COALESCE({$col}, '')) NOT IN ( 'completed', 'cancelled' )";
+        return "( LOWER(COALESCE({$col}, '')) <> 'completed' AND " . self::notCancelledClause( $alias ) . ' )';
     }
 
     /**
