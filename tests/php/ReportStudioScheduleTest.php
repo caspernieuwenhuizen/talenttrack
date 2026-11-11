@@ -309,7 +309,7 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertSame( 201, $self->get_status(), (string) wp_json_encode( $self->get_data() ) );
 
         wp_set_current_user( $this->coach_b );
-        $this->assertSame( 403, $this->send( 'GET', 'scheduled-reports/' . (int) $self->get_data()['data']['id'] )->get_status(), 'a coach of another team does not open it' );
+        $this->assertSame( 404, $this->send( 'GET', 'scheduled-reports/' . (int) $self->get_data()['data']['id'] )->get_status(), 'a coach of another team does not open it: it answers as one that does not exist' );
         $this->assertSame( 403, $this->send( 'GET', "reports/{$id}/schedules" )->get_status() );
     }
 
@@ -363,8 +363,14 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         foreach ( [ [ 'GET', "reports/{$id}/schedules" ], [ 'POST', "reports/{$id}/schedules" ], [ 'GET', "reports/{$id}/schedules/preview" ],
             [ 'GET', "scheduled-reports/{$schedule}" ], [ 'PATCH', "scheduled-reports/{$schedule}" ], [ 'DELETE', "scheduled-reports/{$schedule}" ] ] as [ $method, $route ] ) {
             $res = $this->send( $method, $route, $method === 'POST' ? [ 'recipients' => [ 'user:' . $this->coach_b ] ] : ( $method === 'PATCH' ? [ 'name' => 'Mine now' ] : [] ) );
-            $this->assertSame( 403, $res->get_status(), "{$method} {$route} by a coach of another team" );
+            // A report answers 403 as the Studio's report routes do; a
+            // schedule id answers as one that does not exist.
+            $expected = strpos( $route, 'scheduled-reports/' ) === 0 ? 404 : 403;
+            $this->assertSame( $expected, $res->get_status(), "{$method} {$route} by a coach of another team" );
         }
+        $row = ( new ScheduledReportsRepository() )->findById( $schedule );
+        $this->assertSame( ScheduledReportsRepository::STATUS_ACTIVE, $row['status'] ?? '', 'the refused DELETE changed nothing' );
+        $this->assertNotSame( 'Mine now', $row['name'] ?? '', 'and so did the refused PATCH' );
 
         wp_set_current_user( $this->hod );
         $this->assertSame( 404, $this->send( 'GET', 'scheduled-reports/999999' )->get_status() );

@@ -132,6 +132,12 @@ return [
         'ReportSnapshots::readLoaded',
         'ReportSnapshots::canNote',
         'ReportSnapshots::noteLoaded',
+        // #4963 — a Studio report's schedule: scheduling asks
+        // `ReportAccess::canEdit` on the report; one schedule asks that and
+        // that the caller owns it or publishes reports.
+        'ReportSchedules::canSchedule',
+        'ReportSchedules::canManage',
+        'ReportSchedules::findForReader',
 
         // Entities with an access rule of their own.
         'canViewTournament',

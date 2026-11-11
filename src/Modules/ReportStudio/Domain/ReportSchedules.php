@@ -348,9 +348,11 @@ final class ReportSchedules {
         if ( $schedule === null || $schedule['report_key'] !== ScheduledReportsRepository::REPORT_STUDIO || $schedule['status'] === ScheduledReportsRepository::STATUS_ARCHIVED ) {
             return new StudioError( 'not_found', __( 'There is no such schedule.', 'talenttrack' ), 404 );
         }
+        // A schedule this reader may not manage answers as one that does not
+        // exist, so an id cannot be walked to learn what the academy sends.
         $report = StudioScheduleDelivery::reportOf( $schedule );
         if ( $report === null || ! self::canManage( $reader, $schedule, $report ) ) {
-            return new StudioError( 'forbidden', __( 'You may not change this schedule.', 'talenttrack' ), 403 );
+            return new StudioError( 'not_found', __( 'There is no such schedule.', 'talenttrack' ), 404 );
         }
         return [ 'schedule' => $schedule, 'report' => $report ];
     }
