@@ -177,7 +177,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
             $res = $this->send( 'POST', 'reports', $body );
             $this->assertSame( 400, $res->get_status(), $why );
             $this->assertSame( 'invalid_field', $this->code( $res ), $why );
-            $this->assertSame( $field, $res->get_data()['errors'][0]['details']['field'] ?? '', $why );
+            $this->assertSame( $field, $this->field( $res ), $why );
         }
         $this->create( [ 'scope' => 'player', 'player_id' => $player, 'layout' => 'grid' ] );
     }
@@ -248,7 +248,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         foreach ( [ 'player', 'parent', 'scout', 'readonly_observer' ] as $persona ) {
             $res = $this->send( 'PUT', "studio-homes/{$persona}", [ 'report_id' => $dashboard ] );
             $this->assertSame( 400, $res->get_status(), $persona );
-            $this->assertSame( 'persona', $res->get_data()['errors'][0]['details']['field'] ?? '', $persona );
+            $this->assertSame( 'persona', $this->field( $res ), $persona );
         }
         $refused = [
             'a fixed subject'       => [ 'head_coach', $fixed ],
@@ -428,6 +428,12 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
 
     private function code( WP_REST_Response $res ): string {
         return (string) ( $res->get_data()['errors'][0]['code'] ?? '' );
+    }
+
+    /** The field a refusal names; the details travel as an object. */
+    private function field( WP_REST_Response $res ): string {
+        $details = (array) ( $res->get_data()['errors'][0]['details'] ?? [] );
+        return (string) ( $details['field'] ?? '' );
     }
 
     private function player( int $team, string $first ): int {
