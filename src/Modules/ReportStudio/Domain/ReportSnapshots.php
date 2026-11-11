@@ -259,11 +259,22 @@ final class ReportSnapshots {
 
             $data = [];
             foreach ( is_array( $block['data'] ?? null ) ? $block['data'] : [] as $k => $v ) $data[ (string) $k ] = $v;
+            // #4961 — a block whose records are gated inside the payload is
+            // cut by the rights its composer asks, so each reader sees only
+            // the records they may read now.
+            if ( $renderer instanceof CutsForReader ) {
+                $data = $renderer->forReader( $data, $user_id, self::playerOf( $document['context'] ) );
+            }
             $block['data'] = BlockEngine::masked( BlockEngine::visibleRows( $data, $user_id ), $user_id );
             $keep[]        = $block;
         }
         $document['blocks'] = $keep;
         return $document;
+    }
+
+    /** @param array<string,mixed> $context */
+    private static function playerOf( array $context ): int {
+        return is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
     }
 
     /**

@@ -19,11 +19,11 @@ use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Analytics\Reports\PlayerSectionRights;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
-use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\ThreadMessagesRepository;
 
 /**
@@ -239,7 +239,7 @@ final class EvidencePacket {
     private static function groups( int $player_id, int $club_id, string $from, string $to, ?\stdClass $conv, ?ReaderSet $readers ): array {
         $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id );
 
-        $injuries = $readers === null || $readers->seesMedical()
+        $injuries = $readers === null || PlayerSectionRights::seesInjuries( $readers )
             ? self::injuries( $player_id, $from, $to )
             : [];
 
@@ -338,17 +338,9 @@ final class EvidencePacket {
      */
     private static function evaluationsFor( array $evaluations, int $player_id, ?ReaderSet $readers ): array {
         if ( $readers === null ) return $evaluations;
-        $shown = $readers->every( static fn( int $reader ): bool => ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'evaluations', 'notes', $reader, $player_id ) );
-        if ( $shown ) return $evaluations;
-
-        $out = [];
-        foreach ( $evaluations as $evaluation ) {
-            $had = trim( (string) ( $evaluation['notes'] ?? '' ) ) !== '';
-            unset( $evaluation['notes'] );
-            if ( $had ) $evaluation['notes_hidden'] = true;
-            $out[] = $evaluation;
-        }
-        return $out;
+        // #4961 — the rule a Studio snapshot asks as well.
+        if ( PlayerSectionRights::seesEvaluationNotes( $readers, $player_id ) ) return $evaluations;
+        return PlayerSectionRights::withoutEvaluationNotes( $evaluations );
     }
 
     /**
@@ -604,11 +596,10 @@ final class EvidencePacket {
         // #4991 — the thread as far as every reader may read it: none of it
         // unless all may read the thread, private notes only when all may
         // see them.
-        $private = true;
-        foreach ( $readers as $user_id ) {
-            if ( ! ThreadAccess::canRead( 'player', $player_id, (int) $user_id ) ) return [];
-            if ( $private && ! ThreadAccess::canSeePrivate( 'player', $player_id, (int) $user_id ) ) $private = false;
-        }
+        // #4961 — the rules a Studio snapshot asks as well.
+        $set = ReaderSet::of( array_map( 'intval', $readers ) );
+        if ( ! PlayerSectionRights::readsThread( $set, $player_id ) ) return [];
+        $private = PlayerSectionRights::seesPrivateNotes( $set, $player_id );
 
         $rows = ( new ThreadMessagesRepository() )->listForThread( 'player', $player_id, $private );
 
@@ -667,7 +658,7 @@ final class EvidencePacket {
      * @return list<object>
      */
     private static function visibleJourney( int $player_id, int $club_id, string $from, string $to, ReaderSet $readers ): array {
-        $allowed = $readers->journeyLevels();
+        $allowed = PlayerSectionRights::journeyLevels( $readers );
         if ( $allowed === [] ) return [];
 
         global $wpdb;
@@ -823,11 +814,11 @@ final class EvidencePacket {
      * @return array<string,mixed>
      */
     private static function pdp( int $player_id, int $season_id, ReaderSet $readers ): array {
-        $none = [ 'available' => false, 'file' => null, 'conversations' => [], 'verdict' => null, 'last_agreed_actions' => '' ];
+        $none = PlayerSectionRights::PDP_NONE;
 
         if ( ! ModuleRegistry::isEnabled( PdpModule::class ) ) return $none;
         // #4991 — the file only when every reader may see it.
-        if ( ! $readers->every( static fn( int $reader ): bool => PdpAccess::canSeeFile( $reader, $player_id ) ) ) return $none;
+        if ( ! PlayerSectionRights::seesPdpFile( $readers, $player_id ) ) return $none;
 
         $files = new Repositories\PdpFilesRepository();
         $file  = $season_id > 0 ? $files->findByPlayerSeason( $player_id, $season_id ) : null;
