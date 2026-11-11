@@ -65,6 +65,9 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
     private const TO     = '2020-03-31';
     private const PERIOD = '2020-03-01/2020-03-31';
 
+    /** Players in the fixture squad. */
+    private const SQUAD = 24;
+
     private int $club = 1;
     private int $team = 0;
     private int $other_team = 0;
@@ -137,11 +140,10 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
                 continue;
             }
             if ( $section === TeamMonthlyReportBlock::KPI ) {
-                // The key figures carry the tiles the section prints, each with
-                // its value, total and change.
-                foreach ( KeyFiguresBlock::section( $block['data'] ) as $tile => $figure ) {
-                    foreach ( $figure as $k => $v ) $this->assertSame( $theirs[ $tile ][ $k ] ?? null, $v, "kpi.{$tile}.{$k}" );
-                }
+                // The section rebuilt from the key figures is the composer's
+                // payload, whole.
+                $kpi = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ TeamMonthlyReportBlock::KPI ], $this->hod );
+                $this->assertSame( wp_json_encode( $kpi['data'][ TeamMonthlyReportBlock::KPI ] ), wp_json_encode( KeyFiguresBlock::section( $block['data'] ) ), 'kpi' );
                 continue;
             }
             $this->assertSame( wp_json_encode( $theirs ), wp_json_encode( $block['data'] ), "{$section} composes the report's payload" );
@@ -166,8 +168,30 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
 
         $studio  = ReportPageFit::estimate( array_map( [ ReportPageFit::class, 'entryOf' ], $doc['blocks'] ) );
         $monthly = TeamMonthlyReportLayout::fit( ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->hod ), TeamMonthlyReportLayout::PACK );
-        $this->assertGreaterThanOrEqual( 1, $studio['pages'] );
+        fwrite( STDERR, sprintf( "\n[#5023] pages: template %d, monthly report %d\n", $studio['pages'], $monthly['pages'] ) );
+        $this->assertGreaterThanOrEqual( 2, $monthly['pages'], 'Precondition: the fixture fills more than one page of the monthly report.' );
+        $this->assertGreaterThanOrEqual( 2, $studio['pages'], 'and more than one page of the template' );
         $this->assertLessThanOrEqual( $monthly['pages'], $studio['pages'], 'within the monthly report\'s estimate' );
+    }
+
+    public function test_the_template_reads_the_squad_once_not_once_per_block(): void {
+        $template = ReportTemplateRegistry::find( TeamMonthlyReportTemplate::KEY );
+        $this->assertNotNull( $template );
+        wp_set_current_user( $this->hod );
+
+        $monthly = $this->statements( fn() => ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->hod ) );
+        $studio  = $this->statements( function () use ( $template ): void {
+            foreach ( $template->definition['blocks'] as $block ) {
+                $this->assertIsArray( BlockEngine::preview( $block['key'], $this->teamContext(), [], $this->hod ), $block['key'] );
+            }
+        } );
+        $blocks = count( $template->definition['blocks'] );
+        fwrite( STDERR, sprintf( "\n[#5023] statements: template %d (%d blocks), monthly report %d\n", $studio, $blocks, $monthly ) );
+
+        // The squad reads are the monthly report's, once; each block adds only
+        // its own gate (capability, subject, data), a few statements at most.
+        $this->assertGreaterThan( 0, $monthly );
+        $this->assertLessThanOrEqual( $monthly + 4 * $blocks, $studio );
     }
 
     public function test_attendance_minutes_and_matches_offer_their_option_classes(): void {
@@ -232,6 +256,16 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
         $res = $this->send( 'POST', 'reports', $this->choices( [ 'template' => 'no_such_template', 'team_id' => $this->team ] ) );
         $this->assertSame( 400, $res->get_status() );
         $this->assertSame( 'template', $this->field( $res ) );
+    }
+
+    /** Statements one call issues, read cold. */
+    private function statements( callable $fn ): int {
+        global $wpdb;
+        $this->flush();
+        \TT\Modules\Activities\Services\ActivityRegisterProgress::forget();
+        $start = (int) $wpdb->num_queries;
+        $fn();
+        return (int) $wpdb->num_queries - $start;
     }
 
     /** The field a refusal names: `details` arrives as an object. */
@@ -373,21 +407,23 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
         global $wpdb;
         $p       = $wpdb->prefix;
         $players = [];
-        foreach ( [ [ 'Anna', 7 ], [ 'Bram', 3 ], [ 'Cas', 10 ] ] as [ $first, $jersey ] ) {
+        // A full squad, so the monthly report's per-player sections run over
+        // more than one page and the page-count check can fail.
+        for ( $n = 1; $n <= self::SQUAD; $n++ ) {
             $wpdb->insert( "{$p}tt_players", [
-                'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => $first, 'last_name' => 'Monthly',
-                'jersey_number' => $jersey, 'status' => 'active', 'date_of_birth' => '2006-04-12',
+                'club_id' => $this->club, 'team_id' => $this->team, 'first_name' => 'Player' . $n, 'last_name' => 'Monthly',
+                'jersey_number' => $n, 'status' => 'active', 'date_of_birth' => '2006-04-12',
             ] );
             $players[] = (int) $wpdb->insert_id;
         }
-        $statuses = [ [ 'Present', 'Absent', 'Late' ], [ 'Present', 'Present', 'Absent' ], [ 'Excused', 'Present', 'Absent' ] ];
-        foreach ( [ '2020-02-11', '2020-03-03', '2020-03-10', '2020-03-17' ] as $i => $date ) {
+        $statuses = [ 'Present', 'Absent', 'Late', 'Excused', 'Present' ];
+        foreach ( [ '2020-02-11', '2020-03-03', '2020-03-10', '2020-03-17', '2020-03-24' ] as $i => $date ) {
             $id = $this->activity( $date, 'training' );
-            foreach ( $players as $j => $pid ) $this->attend( $id, $pid, $statuses[ max( 0, $i - 1 ) ][ $j ] );
+            foreach ( $players as $j => $pid ) $this->attend( $id, $pid, $statuses[ ( $i + $j ) % count( $statuses ) ] );
         }
-        foreach ( [ [ '2020-03-07', 3, 0 ], [ '2020-03-14', 0, 2 ] ] as [ $date, $ours, $theirs ] ) {
+        foreach ( [ [ '2020-03-07', 3, 0 ], [ '2020-03-14', 0, 2 ], [ '2020-03-21', 1, 1 ] ] as $k => [ $date, $ours, $theirs ] ) {
             $id = $this->activity( $date, 'game', [ 'opponent' => 'Rood', 'home_away' => 'home', 'home_score' => $ours, 'away_score' => $theirs ] );
-            foreach ( $players as $j => $pid ) $this->attend( $id, $pid, 'Present', $j === 2 ? 0 : 60 );
+            foreach ( $players as $j => $pid ) $this->attend( $id, $pid, 'Present', ( $j + $k ) % 4 === 0 ? 0 : 60 - 10 * ( ( $j + $k ) % 3 ) );
         }
     }
 

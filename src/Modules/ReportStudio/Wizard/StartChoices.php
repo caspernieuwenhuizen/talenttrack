@@ -182,10 +182,24 @@ final class StartChoices {
     public static function template( array $state ): ?ReportTemplate {
         $key = is_string( $state['template'] ?? null ) ? (string) $state['template'] : '';
         if ( $key === '' ) return null;
-        foreach ( ReportTemplateRegistry::startableBy( get_current_user_id() ) as $template ) {
+        foreach ( self::startable() as $template ) {
             if ( $template->key === $key ) return $template;
         }
         return null;
+    }
+
+    /** @var array<int,list<ReportTemplate>> the templates each user may start, asked once per request */
+    private static array $startable = [];
+
+    /**
+     * The templates the current user may start: the start rules run once per
+     * request, not once for every fieldset on the page.
+     *
+     * @return list<ReportTemplate>
+     */
+    private static function startable(): array {
+        $uid = get_current_user_id();
+        return self::$startable[ $uid ] ??= ReportTemplateRegistry::startableBy( $uid );
     }
 
     /**
@@ -197,7 +211,7 @@ final class StartChoices {
      */
     public static function templateFieldset( array $state ): void {
         self::enqueue();
-        $templates = ReportTemplateRegistry::startableBy( get_current_user_id() );
+        $templates = self::startable();
         if ( $templates === [] ) return;
 
         $chosen  = self::template( $state );

@@ -66,8 +66,9 @@ final class KeyFiguresBlock implements ReportBlock, RendersDocument, CutsForRead
         // them: composed and filtered by the report itself, so the
         // attendance tile follows the attendance right here as it does on
         // the report, with no second check in the block.
-        $report = ( new TeamMonthlyReport() )->forTeam( $context->teamId, $context->from, $context->to, [ TeamMonthlyReportBlock::KPI ], $context->userId );
-        $kpi    = $report['data'][ TeamMonthlyReportBlock::KPI ] ?? [];
+        // #5023 — onto the report's one context, which the section blocks of
+        // the same report share.
+        $kpi = MonthlySectionBlock::sectionOf( $context, TeamMonthlyReportBlock::KPI );
 
         // The monthly report's tiles, in its order and with its labels: one
         // list, the composer's.
@@ -75,7 +76,7 @@ final class KeyFiguresBlock implements ReportBlock, RendersDocument, CutsForRead
         foreach ( KpiComposer::tiles() as $tile ) {
             if ( ! array_key_exists( $tile['key'], $kpi ) ) continue;
             $m = is_array( $kpi[ $tile['key'] ] ?? null ) ? $kpi[ $tile['key'] ] : [];
-            $figures[] = [
+            $figure = [
                 'key'        => $tile['key'],
                 'label'      => $tile['label'],
                 'value'      => $m['value'] ?? null,
@@ -84,11 +85,15 @@ final class KeyFiguresBlock implements ReportBlock, RendersDocument, CutsForRead
                 'delta'      => $m['delta'] ?? null,
                 'delta_unit' => $tile['delta_unit'],
             ];
+            // #5023 — the rest of the tile, so the section comes back whole.
+            if ( array_key_exists( 'previous', $m ) ) $figure['previous_value'] = $m['previous'];
+            if ( array_key_exists( 'pct', $m ) ) $figure['pct'] = $m['pct'];
+            $figures[] = $figure;
         }
 
         return [
             'figures'  => $figures,
-            'previous' => $report['previous'],
+            'previous' => TeamMonthlyReport::previousWindow( $context->from, $context->to ),
         ];
     }
 
@@ -128,9 +133,17 @@ final class KeyFiguresBlock implements ReportBlock, RendersDocument, CutsForRead
         $out = [];
         foreach ( is_array( $data['figures'] ?? null ) ? $data['figures'] : [] as $figure ) {
             if ( ! is_array( $figure ) || ! is_string( $figure['key'] ?? null ) ) continue;
-            $out[ (string) $figure['key'] ] = ( $figure['unit'] ?? '' ) === 'count_of'
-                ? [ 'value' => $figure['value'] ?? null, 'of' => (int) ( $figure['of'] ?? 0 ), 'delta' => $figure['delta'] ?? null ]
-                : [ 'value' => $figure['value'] ?? null, 'delta' => $figure['delta'] ?? null ];
+            // In the composer's key order; the previous value and the share
+            // only when the figure carries them (#5023).
+            $tile = [ 'value' => $figure['value'] ?? null ];
+            if ( ( $figure['unit'] ?? '' ) === 'count_of' ) {
+                $tile['of'] = (int) ( $figure['of'] ?? 0 );
+                if ( array_key_exists( 'pct', $figure ) ) $tile['pct'] = $figure['pct'];
+            } elseif ( array_key_exists( 'previous_value', $figure ) ) {
+                $tile['previous'] = $figure['previous_value'];
+            }
+            $tile['delta'] = $figure['delta'] ?? null;
+            $out[ (string) $figure['key'] ] = $tile;
         }
         return $out;
     }

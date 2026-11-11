@@ -123,6 +123,21 @@ final class TeamMonthlyReport {
     }
 
     /**
+     * #5023 — compose these sections onto a context the caller holds, so the
+     * Report Studio's section blocks of one report read the squad once
+     * between them. The attendance right cuts the payload here as in
+     * `forTeam()` (#4949).
+     *
+     * @param list<string> $blocks as `forTeam()`
+     * @return array{team_id:int, from:string, to:string, previous:Window, blocks:list<string>, data:array<string,array<string,mixed>>}
+     * @throws \InvalidArgumentException on unknown block keys.
+     */
+    public function forContext( TeamReportContext $ctx, array $blocks ): array {
+        self::refuseUnknown( $blocks );
+        return $this->compose( $ctx, $blocks );
+    }
+
+    /**
      * @param list<string> $blocks
      * @throws \InvalidArgumentException on unknown block keys.
      */

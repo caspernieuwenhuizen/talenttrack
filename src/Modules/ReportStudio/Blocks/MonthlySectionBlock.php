@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlockOptions;
@@ -107,10 +108,31 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsFor
     }
 
     public function render( ReportContext $context, array $options ): array {
-        $section = $this->section;
-        $read    = 'monthly_section:' . $section . ':' . md5( (string) wp_json_encode( $options ) );
-        return SharedReads::remember( $read, $context, static function () use ( $context, $section, $options ): array {
-            $report = ( new TeamMonthlyReport() )->forTeam( $context->teamId, $context->from, $context->to, [ $section ], $context->userId, [ $section => $options ] );
+        return self::sectionOf( $context, $this->section, $options );
+    }
+
+    /**
+     * #5023 — one monthly section's payload, composed onto the report's one
+     * context for this team, period and reader, so every section block of a
+     * report (and the key figures) reads the squad once between them. A
+     * section with options of its own is composed onto a context for that
+     * option set; options that are the section's defaults are none.
+     *
+     * @param array<string,mixed> $options the block's validated options
+     * @return array<string,mixed>
+     */
+    public static function sectionOf( ReportContext $context, string $section, array $options = [] ): array {
+        $bag = TeamMonthlyReportBlockOptions::normalise( $section, $options );
+        $set = $bag === [] ? [] : [ $section => $bag ];
+        $key = md5( (string) wp_json_encode( $set ) );
+
+        return SharedReads::remember( 'monthly_section:' . $section . ':' . $key, $context, static function () use ( $context, $section, $set, $key ): array {
+            $held = SharedReads::remember( 'monthly_report_context:' . $key, $context, static fn(): array => [
+                'context' => new TeamReportContext( $context->teamId, $context->from, $context->to, $context->userId, $set ),
+            ] );
+            $ctx = $held['context'] ?? null;
+            if ( ! $ctx instanceof TeamReportContext ) return [];
+            $report = ( new TeamMonthlyReport() )->forContext( $ctx, [ $section ] );
             return is_array( $report['data'][ $section ] ?? null ) ? $report['data'][ $section ] : [];
         } );
     }

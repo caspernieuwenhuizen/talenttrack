@@ -45,7 +45,11 @@ final class ReportCreation {
         if ( $id <= 0 ) {
             return new StudioError( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
         }
-        if ( $definition !== null ) $repo->saveDraft( $id, $user_id, $definition, null );
+        // A report that says it came from a template but holds none of its
+        // blocks is not a report the builder asked for.
+        if ( $definition !== null && $repo->saveDraft( $id, $user_id, $definition, null ) === null ) {
+            return new StudioError( 'db_error', __( 'The report could not be saved.', 'talenttrack' ), 500 );
+        }
         return $id;
     }
 

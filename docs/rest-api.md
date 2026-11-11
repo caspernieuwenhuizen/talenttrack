@@ -1586,7 +1586,9 @@ The blocks:
   `number`: the `ReportBrandColour` values a printed report carries).
 - `key_figures` (team, staff only): the team monthly report's KPI composer as
   `figures`, a list of `{ key, label, value, of, unit, delta, delta_unit }` in
-  the report's tile order, plus `previous`, the window each delta is taken
+  the report's tile order (#5023: plus `previous_value`, the figure over the
+  previous window, and `pct` on the evaluated tile, so the KPI section is
+  rebuilt from the figures whole), plus `previous`, the window each delta is taken
   against. `unit` is `percent`, `count_of` (`value` of `of`) or empty.
 - `heading` (every scope and audience): `{ heading }`, from the `heading`
   text option (at most 120 characters).
