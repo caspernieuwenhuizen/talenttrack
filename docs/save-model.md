@@ -155,6 +155,10 @@ first in tab order and Save on the right where the thumb finds it.
   in, so it commits once, on Save, and Cancel leaves every role's home as it
   was. It sits beside the autosaving canvas as its own dialog, never as a
   field on it.
+- A [schedule of a Report Studio report](reports.md#report-studio--sending-a-report-on-a-schedule),
+  added or changed in place. It decides who receives a PDF about players by
+  email, every week or month, so it commits once, on Save, and Cancel leaves
+  the schedule as it was.
 
 **Why the cycle calendar.** Changing one week shifts every week after it for
 the rest of the season. Saving each toggle as it was tapped would apply a run

@@ -57,14 +57,21 @@ final class StudioScheduleDelivery {
     }
 
     /**
-     * May this account receive the report: it may open it, as an editor or
-     * a recipient of the published version (#4619, #4662).
+     * May this account receive the report (#4619, #4662): it may open it, as
+     * an editor or a recipient of the published version; or it reads the
+     * Studio and may read what the report is about, the recipient rule
+     * without the persona. A report about a fixed team is published to no
+     * role, so without the second half only its builders could receive it,
+     * never the team's own staff. What each block holds is still cut to
+     * every reader's rights (`ReportData::composeForReaders()`).
      *
      * @param Report $report
      */
     public static function mayReceive( int $user_id, array $report ): bool {
         if ( $user_id <= 0 ) return false;
-        return ReportAccess::canRead( ReportReader::for( $user_id ), $report );
+        $reader = ReportReader::for( $user_id );
+        if ( ReportAccess::canRead( $reader, $report ) ) return true;
+        return $reader->readsStudio() && ReportAccess::canReadSubject( $reader, $report );
     }
 
     /**

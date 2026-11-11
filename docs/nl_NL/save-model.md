@@ -163,6 +163,10 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
   ziet, dus het wordt één keer vastgelegd, bij Opslaan, en Annuleren laat de
   startpagina van elke rol zoals hij was. Het staat als eigen venster naast
   het canvas dat zichzelf opslaat, nooit als veld erop.
+- Een [schema van een Report Studio-rapport](reports.md#report-studio--een-rapport-volgens-schema-versturen),
+  toegevoegd of ter plekke gewijzigd. Het bepaalt wie per e-mail, elke week
+  of maand, een pdf over spelers krijgt, dus het wordt één keer vastgelegd,
+  bij Opslaan, en Annuleren laat het schema zoals het was.
 
 **Waarom de cycluskalender.** Eén week wijzigen verschuift elke week erna
 voor de rest van het seizoen. Elke schakelaar opslaan op het moment dat hij
