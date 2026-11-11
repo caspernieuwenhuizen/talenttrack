@@ -491,67 +491,6 @@ final class MinutesQuery {
     }
 
     /**
-     * #4549 — per-player totals over a squad's (player, match) pairs, by
-     * {@see minutesForActivities()}: the total minutes, and the matches with
-     * minutes (appearances). A player on a match's register with no minutes
-     * is in the squad at 0, as the reports have always shown.
-     *
-     * The caller's query names the squad and the matches (its own team,
-     * window and lifecycle filters); this answers the minutes for them, so
-     * Team · Minutes distribution and Minutes share read exactly what
-     * `forTeam()` reads. Sorted by total minutes, highest first, then by
-     * last and first name.
-     *
-     * @param array<mixed> $pairs `get_results()` rows carrying `player_id`,
-     *                            `activity_id`, `first_name`, `last_name`,
-     *                            `jersey_number`; anything else is skipped.
-     * @return list<\stdClass> `player_id`, `name`, `first_name`, `last_name`,
-     *                         `jersey_number`, `total_minutes`, `apps`
-     */
-    public static function squadTotals( array $pairs ): array {
-        $pairs = array_values( array_filter( $pairs, 'is_object' ) );
-
-        $activity_ids = [];
-        foreach ( $pairs as $pair ) {
-            $activity_ids[] = (int) ( $pair->activity_id ?? 0 );
-        }
-        $minutes = self::minutesForActivities( $activity_ids );
-
-        $players = [];
-        foreach ( $pairs as $pair ) {
-            $pid = (int) ( $pair->player_id ?? 0 );
-            $aid = (int) ( $pair->activity_id ?? 0 );
-            if ( $pid <= 0 ) continue;
-            if ( ! isset( $players[ $pid ] ) ) {
-                $first = (string) ( $pair->first_name ?? '' );
-                $last  = (string) ( $pair->last_name ?? '' );
-                $row   = new \stdClass();
-                $row->player_id     = $pid;
-                $row->name          = trim( $first . ' ' . $last );
-                $row->first_name    = $first;
-                $row->last_name     = $last;
-                $row->jersey_number = isset( $pair->jersey_number ) ? (int) $pair->jersey_number : null;
-                $row->total_minutes = 0;
-                $row->apps          = 0;
-                $players[ $pid ]    = $row;
-            }
-            $m = (int) ( $minutes[ $aid ][ $pid ] ?? 0 );
-            if ( $m > 0 ) {
-                $players[ $pid ]->total_minutes += $m;
-                $players[ $pid ]->apps++;
-            }
-        }
-
-        $out = array_values( $players );
-        usort( $out, static function ( \stdClass $a, \stdClass $b ): int {
-            if ( $a->total_minutes !== $b->total_minutes ) return $b->total_minutes <=> $a->total_minutes;
-            $by_last = strcasecmp( $a->last_name, $b->last_name );
-            return $by_last !== 0 ? $by_last : strcasecmp( $a->first_name, $b->first_name );
-        } );
-        return $out;
-    }
-
-    /**
      * #5019 — the minutes squad of a team over a window, read once for every
      * minutes surface: the Minutes share, the monthly report's minutes
      * section, the Minutes distribution and the talking points.
