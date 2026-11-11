@@ -152,7 +152,7 @@ final class CustomWidgetColumnsTest extends WP_UnitTestCase {
 
         $expected = [];
         foreach ( QueryHelpers::get_lookups( 'goal_status' ) as $row ) {
-            $expected[] = strtolower( str_replace( ' ', '_', trim( (string) $row->name ) ) );
+            $expected[] = GoalLifecycle::normalise( (string) $row->name );
         }
         $this->assertSame( $expected, $values );
         foreach ( [ 'active', 'archived' ] as $gone ) {
