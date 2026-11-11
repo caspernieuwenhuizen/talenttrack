@@ -73,23 +73,44 @@ final class MigrationImportUuidTest extends WP_UnitTestCase {
         $this->assertSame( $uuid, $rows[0]['uuid'], 'with the uuid it was archived with' );
     }
 
-    public function test_an_update_keeps_the_rows_own_uuid_when_another_row_holds_the_archived_one(): void {
+    /**
+     * An update writes the archived record over the matched one, but never
+     * its uuid: that is this install's identity for the record, whatever the
+     * archive carries. Three archives: another row's uuid, a free one, none.
+     *
+     * @dataProvider archivedUuids
+     */
+    public function test_an_update_always_keeps_the_matched_rows_own_uuid( string $case ): void {
         global $wpdb;
-        [ $column, $value, $uuid ] = $this->seed( 'Uuid5041 C' )['tt_teams'];
+        [ $column, $value, $uuid ] = $this->seed( 'Uuid5041 ' . $case )['tt_teams'];
+        if ( $case === 'none' ) {
+            // Archived without a uuid, as a team made in the product is.
+            $wpdb->update( "{$this->p}tt_teams", [ 'uuid' => null ], [ 'uuid' => $uuid ] );
+        }
         $snapshot = $this->export();
-        // Here the team has since got another uuid, and the archived one
-        // now belongs to a different team.
+
+        // Here the team has since got a uuid of its own.
         $own = wp_generate_uuid4();
-        $wpdb->update( "{$this->p}tt_teams", [ 'uuid' => $own ], [ 'uuid' => $uuid ] );
-        $wpdb->insert( "{$this->p}tt_teams", [ 'club_id' => $this->club, 'uuid' => $uuid, 'name' => 'Uuid5041 other' ] );
+        $wpdb->update( "{$this->p}tt_teams", [ 'uuid' => $own ], [ $column => $value ] );
+        if ( $case === 'taken' ) {
+            $wpdb->insert( "{$this->p}tt_teams", [ 'club_id' => $this->club, 'uuid' => $uuid, 'name' => 'Uuid5041 other' ] );
+        }
 
         $result = MigrationImporter::commit( $snapshot, [ 'entities' => [ 'teams' ], 'conflict' => [ 'teams' => 'update' ] ] );
         $this->assertTrue( $result['ok'], wp_json_encode( $result ) );
+        $this->assertSame( 1, $result['tables']['tt_teams']['update'] ?? null, 'matched and updated' );
 
         $rows = $this->rows( 'tt_teams', $column, $value );
-        $this->assertCount( 1, $rows, 'matched and updated, not inserted' );
+        $this->assertCount( 1, $rows, 'not inserted again' );
         $this->assertSame( $own, $rows[0]['uuid'], 'the matched team keeps its own uuid' );
-        $this->assertCount( 1, $this->rows( 'tt_teams', 'uuid', $uuid ), 'the other team keeps the archived one' );
+        if ( $case === 'taken' ) {
+            $this->assertCount( 1, $this->rows( 'tt_teams', 'uuid', $uuid ), 'the other team keeps the archived one' );
+        }
+    }
+
+    /** @return array<string, array{0:string}> */
+    public static function archivedUuids(): array {
+        return [ 'taken by another row' => [ 'taken' ], 'free' => [ 'free' ], 'none' => [ 'none' ] ];
     }
 
     /**

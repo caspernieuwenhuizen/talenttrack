@@ -228,11 +228,10 @@ class MigrationImporter {
                         $key      = self::keyOf( $row, $sk['columns'] );
                         $match_id = (int) ( $existing[ $key ] ?? 0 );
                         if ( $match_id > 0 && $strategy === 'update' ) {
-                            // The matched row keeps its own uuid when the
-                            // archived one belongs to another row here.
-                            if ( isset( $has_col['uuid'] ) && self::uuidTaken( $physical, (string) ( $data['uuid'] ?? '' ), $match_id ) ) {
-                                unset( $data['uuid'] );
-                            }
+                            // #5041 — the matched row keeps its own uuid. It
+                            // is this install's identity for the record; the
+                            // archive's may be empty, or another row's here.
+                            unset( $data['uuid'] );
                             if ( ! $dry_run ) {
                                 $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
                                 if ( $ok === false ) { $failed = true; break 2; }
@@ -251,7 +250,7 @@ class MigrationImporter {
                         $uuid = (string) ( $data['uuid'] ?? '' );
                         if ( $uuid === '' ) {
                             $data['uuid'] = null;
-                        } elseif ( self::uuidTaken( $physical, $uuid, 0 ) ) {
+                        } elseif ( self::uuidTaken( $physical, $uuid ) ) {
                             $data['uuid'] = wp_generate_uuid4();
                         }
                     }
@@ -364,14 +363,14 @@ class MigrationImporter {
     }
 
     /**
-     * #5041 — does a row on this install other than `$except_id` hold this
-     * uuid? Every club's rows count: the index is unique across the table.
+     * #5041 — does a row on this install hold this uuid? Every club's rows
+     * count: the index is unique across the table.
      */
-    private static function uuidTaken( string $physical, string $uuid, int $except_id ): bool {
+    private static function uuidTaken( string $physical, string $uuid ): bool {
         if ( $uuid === '' ) return false;
         global $wpdb;
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from the dependency map.
-        $id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `{$physical}` WHERE uuid = %s AND id <> %d LIMIT 1", $uuid, $except_id ) );
+        $id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `{$physical}` WHERE uuid = %s LIMIT 1", $uuid ) );
         return $id > 0;
     }
 
