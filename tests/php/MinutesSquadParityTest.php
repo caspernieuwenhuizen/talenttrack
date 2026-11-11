@@ -98,7 +98,14 @@ final class MinutesSquadParityTest extends WP_UnitTestCase {
 
         // The Minutes distribution lists the same players, and no one else.
         $html = $this->renderDistribution();
-        foreach ( array_keys( $expected ) as $name ) $this->assertStringContainsString( $name . ' Squad', $html, $name );
+        foreach ( $expected as $name => $minutes ) {
+            $this->assertSame(
+                1,
+                preg_match( '#<span>' . preg_quote( $name . ' Squad', '#' ) . '</span>.*?<span class="num">(\d+)</span>#s', $html, $m ),
+                "{$name} is on the distribution"
+            );
+            $this->assertSame( (string) $minutes, $m[1], "{$name}: the same minutes on the distribution" );
+        }
         $this->assertStringNotContainsString( 'Gijs Squad', $html, 'archived' );
         $this->assertStringNotContainsString( 'Hans Squad', $html, 'guest' );
         $this->assertSame( count( $expected ), substr_count( $html, 'tt-rep-bar-details' ) );
@@ -150,6 +157,36 @@ final class MinutesSquadParityTest extends WP_UnitTestCase {
         // The rendered report names every player in the route's answer.
         $html = $this->renderShare();
         foreach ( $data['players'] as $row ) $this->assertStringContainsString( (string) $row['name'], $html );
+    }
+
+    /**
+     * The per-player route answers from the same squad: a roster player who
+     * was never on a register is in it, at 0 (before, a 404); a player who
+     * neither attended nor is on the roster is still a 404 `not_in_squad`.
+     */
+    public function test_the_per_player_route_answers_from_the_squad(): void {
+        global $wp_rest_server;
+        $wp_rest_server = new WP_REST_Server();
+        do_action( 'rest_api_init' );
+        $this->player( 'Iris', $this->other );
+
+        $get = function ( string $name ): \WP_REST_Response {
+            $request = new WP_REST_Request( 'GET', '/talenttrack/v1/teams/' . $this->team . '/minutes-share/' . $this->ids[ $name ] );
+            $request->set_param( 'from', self::FROM );
+            $request->set_param( 'to', self::TO );
+            return rest_get_server()->dispatch( $request );
+        };
+
+        $cor = $get( 'Cor' );
+        $this->assertSame( 200, $cor->get_status(), 'the roster player on no register is in the squad' );
+        $body = (array) $cor->get_data();
+        $data = isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : $body;
+        $this->assertSame( 0, $data['minutes'] );
+        $this->assertSame( 0.0, (float) $data['share_pct'] );
+
+        $iris = $get( 'Iris' );
+        $this->assertSame( 404, $iris->get_status(), 'a player outside the squad is refused' );
+        $this->assertSame( 'not_in_squad', (string) ( ( (array) $iris->get_data() )['errors'][0]['code'] ?? ( (array) $iris->get_data() )['code'] ?? '' ) );
     }
 
     /**

@@ -518,7 +518,7 @@ class TeamsRestController {
         if ( $row === null ) {
             return RestResponse::error(
                 'not_in_squad',
-                __( 'That player has no recorded minutes for this team in this window.', 'talenttrack' ),
+                __( "That player is not in this team's squad for this window.", 'talenttrack' ),
                 404
             );
         }

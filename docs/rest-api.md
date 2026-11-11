@@ -599,8 +599,12 @@ same answer (`minutes`, `share_pct`, `below_target`, plus the team's
 player-facing client
 need not fetch and filter the whole squad. A player who is not in the squad
 (no attendance on the team's played matches in the window, and not on its
-current roster) is a 404 rather than a zero row — they were not in the squad,
-which is different from having played none of it.
+current roster) is a 404 `not_in_squad` rather than a zero row — they were not
+in the squad, which is different from having played none of it. A status
+change, documented as a bug fix: before #5019 a roster player on no register
+answered 404 `not_in_squad`; now 200 with `minutes: 0` (and `share_pct: null`
+when nothing was available). The 404 message now says the player is not in the
+squad, where it said they had no recorded minutes.
 
 Both routes, and `GET /teams/{id}` beside them, gate on the caller's **team
 scope** and not on `tt_view_teams` alone (#3152). `tt_view_teams` is club-wide

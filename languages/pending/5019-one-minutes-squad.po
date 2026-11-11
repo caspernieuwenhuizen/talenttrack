@@ -1,0 +1,3 @@
+#: src/Infrastructure/REST/TeamsRestController.php:521
+msgid "That player is not in this team's squad for this window."
+msgstr "Die speler zit in deze periode niet in de selectie van dit team."
