@@ -98,11 +98,72 @@ final class MigrationImportLinksTest extends WP_UnitTestCase {
         $this->assertWarning( $result, '/^\d+ links? to accounts? in Players (was|were) left empty/' );
         $this->assertWarning( $result, '/^\d+ links? to accounts? in Activities & attendance (was|were) left empty/' );
         $this->assertWarning( $result, '/^\d+ player photos? (was|were) not imported/' );
-        $this->assertWarning( $result, '/^\d+ teams? (was|were) imported without (its|their) Spond connection/' );
         $this->assertWarning( $result, '/^\d+ teams? (was|were) imported without (its|their) methodology/' );
         $this->assertWarning( $result, '/^\d+ activit(y|ies) (was|were) imported without (its|their) tournament/' );
         $this->assertWarning( $result, '/^\d+ activit(y|ies) (was|were) imported without (its|their) training cycle/' );
         $this->assertWarning( $result, '/^\d+ goals? (was|were) imported without (its|their) linked principle/' );
+    }
+
+    public function test_an_export_carries_no_integration_settings(): void {
+        $this->fixture();
+        $snapshot = $this->export();
+        $teams    = $snapshot['tables']['tt_teams'];
+        $bound    = MigrationLinkMap::installBound()['tt_teams']['columns'];
+        $this->assertSame( [], array_values( array_intersect( $bound, $teams['columns'] ) ), 'no Spond column is listed' );
+        $mine = null;
+        foreach ( $teams['rows'] as $row ) {
+            $this->assertSame( [], array_values( array_intersect( $bound, array_keys( $row ) ) ), 'no row carries a Spond value' );
+            if ( (int) $row['id'] === $this->ids['team'] ) $mine = $row;
+        }
+        $this->assertIsArray( $mine, 'the team itself is exported' );
+        $this->assertSame( '777', (string) $mine['methodology_id'] );
+        $this->assertTrue( BackupSerializer::verifyChecksum( $snapshot ), 'the checksum covers the archive without them' );
+        $this->assertStringNotContainsString( 'team@example.test', (string) wp_json_encode( $snapshot ) );
+        $this->assertStringNotContainsString( 'calendar.example', (string) wp_json_encode( $snapshot ) );
+    }
+
+    public function test_an_older_archive_with_integration_settings_imports_without_them(): void {
+        $this->fixture();
+        $snapshot = $this->export();
+        // An archive from before the settings were left out at export.
+        $snapshot['tables']['tt_teams']['columns'][] = 'spond_email';
+        $snapshot['tables']['tt_teams']['columns'][] = 'spond_password_enc';
+        foreach ( $snapshot['tables']['tt_teams']['rows'] as $i => $row ) {
+            $mine = (int) $row['id'] === $this->ids['team'];
+            $snapshot['tables']['tt_teams']['rows'][ $i ]['spond_email']        = $mine ? 'team@example.test' : null;
+            $snapshot['tables']['tt_teams']['rows'][ $i ]['spond_password_enc'] = $mine ? 'enc' : null;
+        }
+        $this->reseal( $snapshot );
+        unset( $snapshot['install'] );
+
+        $result = MigrationImporter::commit( $snapshot, [ 'entities' => [ 'teams' ] ] );
+        $this->assertTrue( $result['ok'], wp_json_encode( $result ) );
+        $copy = $this->teamCopy();
+        $this->assertNull( $copy['spond_email'] );
+        $this->assertNull( $copy['spond_password_enc'] );
+        $this->assertWarning( $result, '/^\d+ teams? (was|were) imported without (its|their) Spond connection/' );
+    }
+
+    public function test_the_install_stamp_holds_only_for_the_content_it_was_made_with(): void {
+        $this->fixture();
+        $snapshot = $this->export();
+        $this->assertTrue( MigrationImporter::fromThisInstall( $snapshot ) );
+
+        // Edited, with a checksum that matches the edit, and the old stamp.
+        foreach ( $snapshot['tables']['tt_activities']['rows'] as $i => $row ) {
+            if ( (int) $row['id'] === $this->ids['activity'] ) $snapshot['tables']['tt_activities']['rows'][ $i ]['coach_id'] = $this->ids['parent'];
+        }
+        $this->reseal( $snapshot );
+        $this->assertTrue( BackupSerializer::verifyChecksum( $snapshot ), 'the archive itself validates' );
+        $this->assertFalse( MigrationImporter::fromThisInstall( $snapshot ), 'but no longer counts as made here' );
+
+        $result = MigrationImporter::commit( $snapshot, [ 'entities' => MigrationImporter::importableGroupKeys() ] );
+        $this->assertTrue( $result['ok'], wp_json_encode( $result ) );
+        $this->assertNull( $this->copies()['activity']['coach_id'], 'so its account links go through the user map' );
+
+        $edited            = $this->export();
+        $edited['tables']['tt_players']['rows'][0]['first_name'] = 'Edited';
+        $this->assertFalse( MigrationImporter::fromThisInstall( $edited ), 'an edit with a stale checksum counts as made elsewhere too' );
     }
 
     public function test_the_user_map_decides_where_an_account_link_goes(): void {
@@ -170,6 +231,19 @@ final class MigrationImportLinksTest extends WP_UnitTestCase {
         $this->assertSame( 'team@example.test', $team['spond_email'], 'the team here keeps its own connection' );
         $this->assertSame( 'enc', $team['spond_password_enc'] );
         $this->assertSame( '777', (string) $team['methodology_id'] );
+    }
+
+    /** @param array<string,mixed> $snapshot recompute the checksum over edited tables */
+    private function reseal( array &$snapshot ): void {
+        $snapshot['checksum'] = 'sha256-' . hash( 'sha256', (string) wp_json_encode( $snapshot['tables'] ) );
+    }
+
+    /** @return array<string,mixed> */
+    private function teamCopy(): array {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->p}tt_teams WHERE name = %s AND id <> %d", self::MARK . ' O13', $this->ids['team'] ), ARRAY_A );
+        $this->assertIsArray( $row, 'the team came in again' );
+        return $row;
     }
 
     /** @param array{warnings:string[]} $result */

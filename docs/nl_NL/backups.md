@@ -139,7 +139,9 @@ Hoe verwijzingen worden behandeld:
 - **Spond-koppelingen** van een team worden nooit geïmporteerd: de koppeling hoort bij de installatie die haar instelde. Stel haar opnieuw in op het geïmporteerde team.
 - **Koppelingen met gegevens die geen migratiearchief bevat** — een toernooi, een trainingscyclus, het gekoppelde principe of de voetbalhandeling van een doel, de methodologie van een team, de functionele rol van een staflid, een POP-gesprek — blijven leeg.
 
-Bij elke koppeling die leeg blijft, verschijnt een waarschuwing met het aantal rijen. Komt het archief terug op **dezelfde installatie die het maakte**, dan blijven accounts, foto's en koppelingen met gegevens die hier nog staan behouden, met twee uitzonderingen: het eigen account van een speler of staflid blijft bij het oorspronkelijke record, en een Spond-koppeling en een POP-gesprek worden nooit gekopieerd.
+Bij elke koppeling die leeg blijft, verschijnt een waarschuwing met het aantal rijen. Komt het archief terug op **dezelfde installatie die het maakte**, dan blijven accounts, foto's en koppelingen met gegevens die hier nog staan behouden, met twee uitzonderingen: het eigen account van een speler of staflid blijft bij het oorspronkelijke record, en een Spond-koppeling en een POP-gesprek worden nooit gekopieerd. Een archief geldt alleen als afkomstig van dezelfde installatie als de inhoud sinds de export niet is gewijzigd. Een kopie van de site met dezelfde beveiligingssleutels en hetzelfde tabelvoorvoegsel, zoals een stagingkloon, geldt als dezelfde installatie.
+
+Spond-koppelingen worden niet in het archief opgenomen, dus een export bevat nooit het agenda-adres, het account of de inloggegevens van een team.
 
 Uploads zijn begrensd op 25 MB. Het importeren van *waarden* van aangepaste velden wordt nog niet gedekt (de records zelf worden geïmporteerd, hun aangepaste waarden niet).
 

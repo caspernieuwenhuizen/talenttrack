@@ -502,14 +502,17 @@ class MigrationImporter {
 
     /**
      * #5053 — did this install make the archive? Account, file and
-     * install-local links hold only there. An archive without the key (made
-     * before it existed) counts as made elsewhere.
+     * install-local links hold only there. The stamp covers the archive's
+     * checksum, so it is checked only once the checksum holds, and an
+     * archive whose content changed since it was stamped counts as made
+     * elsewhere. So does one without a stamp (made before it existed).
      *
      * @param array<string,mixed> $snapshot
      */
     public static function fromThisInstall( array $snapshot ): bool {
-        $key = (string) ( $snapshot['install'] ?? '' );
-        return $key !== '' && hash_equals( MigrationExporter::installKey(), $key );
+        $stamp = (string) ( $snapshot['install'] ?? '' );
+        if ( $stamp === '' || ! BackupSerializer::verifyChecksum( $snapshot ) ) return false;
+        return hash_equals( MigrationExporter::installStamp( (string) $snapshot['checksum'] ), $stamp );
     }
 
     /**

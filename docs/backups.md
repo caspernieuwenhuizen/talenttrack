@@ -139,7 +139,9 @@ How references are handled:
 - **Spond connections** on a team are never imported: the connection belongs to the install that set it up. Set it up again on the imported team.
 - **Links to data no migration archive carries** — a tournament, a training cycle, a goal's linked principle or football action, a team's methodology, a staff member's functional role, a PDP conversation — are left empty.
 
-Every link left empty comes with a warning saying how many rows it affected. When the archive comes back into the **same install that made it**, accounts, photos and links to data that is still here are kept, with two exceptions: a player's or staff member's own account stays with the original record, and a Spond connection and a PDP conversation are never copied.
+Every link left empty comes with a warning saying how many rows it affected. When the archive comes back into the **same install that made it**, accounts, photos and links to data that is still here are kept, with two exceptions: a player's or staff member's own account stays with the original record, and a Spond connection and a PDP conversation are never copied. An archive counts as from the same install only when its content is unchanged since export. A copy of the site that keeps the same security keys and table prefix, such as a staging clone, counts as the same install.
+
+Spond connections are left out of the archive itself, so an export never contains a team's calendar address, account or credentials.
 
 Uploads are capped at 25 MB. Importing custom-field *values* is not yet covered (the records themselves import; their custom values do not).
 

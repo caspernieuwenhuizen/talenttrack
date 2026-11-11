@@ -125,26 +125,35 @@ class MigrationExporter {
         $exclusions  = array_intersect_key( $exclusions, array_flip( $valid ) );
         $row_filters = self::buildRowFilters( $exclusions );
 
-        $snapshot = BackupSerializer::snapshot( array_keys( $tables ), self::KIND, $row_filters );
+        // #5053 — integration settings never leave the install: not in
+        // the archive at all, so not in a file someone downloads.
+        $omit = [];
+        foreach ( MigrationLinkMap::installBound() as $table => $spec ) {
+            $omit[ $table ] = $spec['columns'];
+        }
+
+        $snapshot = BackupSerializer::snapshot( array_keys( $tables ), self::KIND, $row_filters, $omit );
         // Envelope additions — the checksum is computed over the `tables`
         // subtree only, so stamping these extra header fields doesn't
         // invalidate it.
         $snapshot['kind']     = self::KIND;
         $snapshot['entities'] = array_values( array_unique( $valid ) );
-        $snapshot['install']  = self::installKey();
+        $snapshot['install']  = self::installStamp( (string) $snapshot['checksum'] );
 
         return BackupSerializer::toGzippedJson( $snapshot );
     }
 
     /**
-     * #5053 — an opaque key for this install, so an import can tell an
+     * #5053 — this install's stamp on one archive, so an import can tell an
      * archive coming back from one made elsewhere: account, file and other
-     * install-local links hold only on the install that made them. Derived
-     * from the install's own salt, so it says nothing about the install.
+     * install-local links hold only on the install that made them. Keyed
+     * with the install's own salt, so it says nothing about the install,
+     * and computed over the archive's checksum, so it holds only for the
+     * content it was made with.
      */
-    public static function installKey(): string {
+    public static function installStamp( string $checksum ): string {
         global $wpdb;
-        return hash_hmac( 'sha256', 'talenttrack-migration-install|' . $wpdb->prefix, wp_salt( 'auth' ) );
+        return hash_hmac( 'sha256', 'talenttrack-migration-install|' . $wpdb->prefix . '|' . $checksum, wp_salt( 'auth' ) );
     }
 
     /**
