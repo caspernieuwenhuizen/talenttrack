@@ -8,10 +8,6 @@ msgid "This conversation has not been signed off yet. Its form prints once the t
 msgstr "Dit gesprek is nog niet ondertekend. Het formulier print zodra de trainer het heeft ondertekend."
 
 #: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
-msgid "not filled in"
-msgstr "niet ingevuld"
-
-#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
 msgid "S = the player's own score, T = the trainer's score."
 msgstr "S = het eigen cijfer van de speler, T = het cijfer van de trainer."
 
@@ -26,10 +22,6 @@ msgid "T"
 msgstr "T"
 
 #: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
-msgid "Trainer's notes:"
-msgstr "Toelichting van de trainer:"
-
-#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
 msgid "The player wrote"
 msgstr "De speler schreef"
 
@@ -37,10 +29,6 @@ msgstr "De speler schreef"
 msgctxt "PDP form print: what the trainer and player agreed"
 msgid "Agreed"
 msgstr "Afgesproken"
-
-#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
-msgid "Development points"
-msgstr "Ontwikkelpunten"
 
 #: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
 msgid "not yet confirmed"
