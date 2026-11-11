@@ -54,7 +54,7 @@ final class InjuryReads {
     public static function record( string $action, string $surface, array $counts, array $readers, array $extra = [] ): void {
         if ( self::$quiet > 0 ) return;
         $viewer = get_current_user_id();
-        if ( $viewer <= 0 || array_values( array_map( 'intval', $readers ) ) !== [ $viewer ] ) return;
+        if ( $viewer <= 0 || array_map( 'intval', $readers ) !== [ $viewer ] ) return;
 
         $audit = null;
         foreach ( $counts as $player_id => $count ) {
