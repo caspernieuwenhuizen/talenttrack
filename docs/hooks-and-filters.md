@@ -41,6 +41,8 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_onboarding_reset`                    | Wizard re-entered via `?force_welcome=1`                                       | (none)                                     |
 | `tt_license_trial_started`               | A trial activation succeeds                                                    | `int $user_id`, `int $expires_at`          |
 | `tt_freemius_sdk_booted`                 | The optional Freemius SDK has finished loading                                  | (none)                                     |
+| `tt_dashboard_safety_banners`            | Above the body of every signed-in dashboard page, immediately before `tt_dashboard_before_body`, and on a presenting room display too, where `tt_dashboard_before_body` does not fire. For banners that must never be hidden, such as the support-access banner. Anything else hooks `tt_dashboard_before_body` | (none) |
+| `tt_dashboard_before_body`               | Above the body of a dashboard page, below the flash messages: ambient chrome such as the alerts, subscription and broadcast banners. Not fired on a presenting room display | (none) |
 
 ## Filters (`apply_filters`)
 

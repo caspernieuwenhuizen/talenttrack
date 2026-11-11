@@ -249,6 +249,11 @@ Three rules that hold whichever model you pick:
   revert alone, never halts the form for its own refusal, and resolves to the
   server's `{ ok, status, code, message, details, data }`. Not `send()`, which
   belongs to the save stream and retires undo.
+- **Leaving an autosaving page waits for `saver.flush()`.** A link or button
+  that navigates away mid-debounce would lose the last edit. `flush()` resolves
+  at once when nothing is pending, after a pending save has landed, and after a
+  save has failed (with `failed` set, so the caller can say so). It never
+  rejects. `commit()` flushes through it. Don't write a wait of your own.
 - **Say which model the surface is using.** A screen that saves itself shows
   the status line; a screen that does not shows a Save button. Silence is the
   failure this rule exists to remove.

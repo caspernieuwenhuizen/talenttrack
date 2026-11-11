@@ -504,42 +504,26 @@ class DashboardShortcode {
         // intercepts print requests before the shortcode callback fires.
 
         // Authenticated dashboard.
-        ob_start();
-        // #2456 — the resolved shell stamps a root class so per-view CSS
-        // can adapt without JS and without reading the config a second
-        // time. Under `classic` the class is the only difference and
-        // nothing else on this path changes.
-        // #2512 — the resolved theme stamps a second root class on the same
-        // wrapper. `default` returns an empty string, so that path's markup
-        // is byte-identical to before the theme layer existed.
-        $root_classes = trim( 'tt-dashboard ' . ShellPreference::rootClass() . ' ' . ThemePreference::rootClass() );
-        echo '<div class="' . esc_attr( $root_classes ) . '">';
-        self::renderHeader();
-
-        // #2456 — open the shell frame. Under `classic` this emits
-        // nothing at all, which is what keeps that value a complete
-        // rollback: no wrapper, no nav, no DOM for a view to depend on.
-        self::openShell();
-
-        // #0019 Sprint 1 — flush any queued flash messages ahead of the
-        // body so post-save redirects surface their result.
-        FlashMessages::render();
-
-        // #2631 — extension point for chrome that belongs above the body but
-        // below the flash queue. Flash messages are about the action just
-        // taken; anything hooking here is ambient state (the alerts banner is
-        // the first consumer). Emits nothing when nobody is listening.
-        do_action( 'tt_dashboard_before_body' );
-
-        $user_id  = get_current_user_id();
-        $is_admin = current_user_can( 'tt_edit_settings' );
-        $player   = QueryHelpers::get_player_for_user( $user_id );
 
         // v3.0.0 — tile-based routing. Each ?tt_view=<slug> maps to a
         // focused FrontendXyzView class. Me-group slugs are prefixed
         // with "my-" to disambiguate from the coaching slugs of the
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+
+        // #5088 — a slug that may present as a room display holds its body
+        // back and chooses the chrome afterwards. Every other slug runs the
+        // sequence below, unchanged and with no extra buffer.
+        if ( PresentationSurfaces::claims( $view ) && ! self::phoneGateApplies( $view ) ) {
+            return self::renderPresentable( $view );
+        }
+
+        ob_start();
+        self::openChrome();
+
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        $player   = QueryHelpers::get_player_for_user( $user_id );
 
         // v3.110.172 (#764 sustainable fix) — the per-group `$xxx_slugs`
         // allowlist arrays that used to live here have been removed. The
@@ -567,38 +551,15 @@ class DashboardShortcode {
         // `force_mobile_for_user_agents` is on, and the user has not opted
         // out via `?force_mobile=1`, render the polite prompt page instead.
         // Tablets and desktops always pass through.
-        if ( $view !== ''
-             && \TT\Shared\MobileDetector::phoneGateApplies()
-             && \TT\Shared\MobileSurfaceRegistry::isDesktopOnly( $view )
-        ) {
+        if ( self::phoneGateApplies( $view ) ) {
             FrontendMobilePromptView::render( $user_id, $view );
-            self::closeShell();
-            echo '</div>';
+            self::closeChrome();
             $output = ob_get_clean() ?: '';
             return apply_filters( 'tt_dashboard_data', $output, $user_id );
         }
 
         if ( $view !== '' ) {
-            // #0084 Child 2 — conditional mobile-patterns enqueue.
-            // `native`-classed surfaces get the bottom-sheet / CTA-bar /
-            // segmented-control / list-item CSS components plus the
-            // bottom-sheet drag-dismiss helper. Other classes never load
-            // them, keeping the desktop bundle slim.
-            if ( \TT\Shared\MobileSurfaceRegistry::isNative( $view ) ) {
-                wp_enqueue_style(
-                    'tt-mobile-patterns',
-                    TT_PLUGIN_URL . 'assets/css/mobile-patterns.css',
-                    [ 'tt-public' ],
-                    TT_VERSION
-                );
-                wp_enqueue_script(
-                    'tt-mobile-helpers',
-                    TT_PLUGIN_URL . 'assets/js/mobile-helpers.js',
-                    [],
-                    TT_VERSION,
-                    true
-                );
-            }
+            self::enqueueViewAssets( $view );
 
             // #0056 — render the desktop_preferred banner at the top of
             // any dispatched view that carries the flag. CSS-gated
@@ -612,6 +573,159 @@ class DashboardShortcode {
         // view so the prompt is unmissable but not blocking.
         FrontendInstallBanner::render();
 
+        self::recordOpened( $view, $user_id );
+
+        self::renderBody( $view, $user_id, $is_admin, $player, true );
+
+        self::closeChrome();
+
+        /** @var string $output */
+        $output = ob_get_clean() ?: '';
+        /** @var string $filtered */
+        $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
+        return $filtered;
+    }
+
+    /**
+     * #5088 — a slug listed in `config/presentation_surfaces.php`.
+     *
+     * The body renders first, into its own buffer, through the same ladder
+     * every other slug runs. If the view declared on its success path that it
+     * presents (`PresentationSurfaces::present()`), the page is the room
+     * display: a root wrapper, the safety banners and the body, nothing else.
+     * Otherwise, and that covers every refusal, the normal chrome goes around
+     * the same body, with the banners and the development pill where they
+     * always are. An exception in the view propagates as it does elsewhere.
+     */
+    private static function renderPresentable( string $view ): string {
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        $player   = QueryHelpers::get_player_for_user( $user_id );
+
+        self::enqueueViewAssets( $view );
+        self::recordOpened( $view, $user_id );
+
+        $reached = false;
+        $body    = '';
+        ob_start();
+        try {
+            $reached = self::renderBody( $view, $user_id, $is_admin, $player, false );
+        } finally {
+            $body = (string) ob_get_clean();
+        }
+
+        ob_start();
+        if ( PresentationSurfaces::isPresenting() ) {
+            // No header, no shell, no flash messages (a pending one waits for
+            // the next normal page rather than being spent on a TV), no
+            // ambient banners, no install nudge, no development pill.
+            $root_classes = trim( 'tt-dashboard tt-dashboard--presentation ' . ShellPreference::rootClass() . ' ' . ThemePreference::rootClass() );
+            echo '<div class="' . esc_attr( $root_classes ) . '">';
+            do_action( 'tt_dashboard_safety_banners' );
+            echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by the view.
+            echo '</div>';
+        } else {
+            self::openChrome();
+            FrontendDesktopPreferredBanner::render( $view );
+            FrontendInstallBanner::render();
+            if ( $reached ) {
+                \TT\Shared\Frontend\Components\DevelopmentPill::render( $view );
+            }
+            echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by the view.
+            self::closeChrome();
+        }
+
+        /** @var string $output */
+        $output = ob_get_clean() ?: '';
+        /** @var string $filtered */
+        $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
+        return $filtered;
+    }
+
+    /**
+     * The chrome above the body, shared by every path that shows it: the
+     * root wrapper, the header, the shell frame, the flash messages and the
+     * two banner hooks.
+     */
+    private static function openChrome(): void {
+        // #2456 — the resolved shell stamps a root class so per-view CSS
+        // can adapt without JS and without reading the config a second
+        // time. Under `classic` the class is the only difference and
+        // nothing else on this path changes.
+        // #2512 — the resolved theme stamps a second root class on the same
+        // wrapper. `default` returns an empty string, so that path's markup
+        // is byte-identical to before the theme layer existed.
+        $root_classes = trim( 'tt-dashboard ' . ShellPreference::rootClass() . ' ' . ThemePreference::rootClass() );
+        echo '<div class="' . esc_attr( $root_classes ) . '">';
+        self::renderHeader();
+
+        // #2456 — open the shell frame. Under `classic` this emits
+        // nothing at all, which is what keeps that value a complete
+        // rollback: no wrapper, no nav, no DOM for a view to depend on.
+        self::openShell();
+
+        // #0019 Sprint 1 — flush any queued flash messages ahead of the
+        // body so post-save redirects surface their result.
+        FlashMessages::render();
+
+        // #5088 — banners that must never be hidden, a room display
+        // included. Fires first, so they keep their place above the rest.
+        do_action( 'tt_dashboard_safety_banners' );
+
+        // #2631 — extension point for chrome that belongs above the body but
+        // below the flash queue. Flash messages are about the action just
+        // taken; anything hooking here is ambient state (the alerts banner is
+        // the first consumer). Emits nothing when nobody is listening.
+        do_action( 'tt_dashboard_before_body' );
+    }
+
+    /** Counterpart to {@see openChrome()}. */
+    private static function closeChrome(): void {
+        self::closeShell();
+        echo '</div>';
+    }
+
+    /**
+     * #0084 Child 1 — desktop-only mobile gate. When the visitor is
+     * a phone-class user agent, the requested view is classified
+     * `desktop_only` per `MobileSurfaceRegistry`, the per-club setting
+     * `force_mobile_for_user_agents` is on, and the user has not opted
+     * out via `?force_mobile=1`, render the polite prompt page instead.
+     * Tablets and desktops always pass through.
+     */
+    private static function phoneGateApplies( string $view ): bool {
+        return $view !== ''
+            && \TT\Shared\MobileDetector::phoneGateApplies()
+            && \TT\Shared\MobileSurfaceRegistry::isDesktopOnly( $view );
+    }
+
+    /**
+     * #0084 Child 2 — conditional mobile-patterns enqueue.
+     * `native`-classed surfaces get the bottom-sheet / CTA-bar /
+     * segmented-control / list-item CSS components plus the
+     * bottom-sheet drag-dismiss helper. Other classes never load
+     * them, keeping the desktop bundle slim.
+     */
+    private static function enqueueViewAssets( string $view ): void {
+        if ( \TT\Shared\MobileSurfaceRegistry::isNative( $view ) ) {
+            wp_enqueue_style(
+                'tt-mobile-patterns',
+                TT_PLUGIN_URL . 'assets/css/mobile-patterns.css',
+                [ 'tt-public' ],
+                TT_VERSION
+            );
+            wp_enqueue_script(
+                'tt-mobile-helpers',
+                TT_PLUGIN_URL . 'assets/js/mobile-helpers.js',
+                [],
+                TT_VERSION,
+                true
+            );
+        }
+    }
+
+    /** Usage and recent-items bookkeeping for the surface just opened. */
+    private static function recordOpened( string $view, int $user_id ): void {
         // Usage instrumentation — capture the frontend surface the
         // logged-in user landed on (the dashboard root records as
         // `dashboard`). wp-admin views are tracked separately. One cheap
@@ -632,6 +746,16 @@ class DashboardShortcode {
         ) {
             ( new \TT\Infrastructure\Search\RecentItems() )->recordView( $user_id, $view, $opened_id );
         }
+    }
+
+    /**
+     * The body: the landing, a refusal, or the dispatched view. True when
+     * the ladder reached the dispatch rung. The presentation path passes
+     * `$with_pill` false and draws the development pill itself, above the
+     * body, only when it falls back to the normal chrome.
+     */
+    private static function renderBody( string $view, int $user_id, bool $is_admin, ?object $player, bool $with_pill ): bool {
+        $reached = false;
 
         if ( $view === '' ) {
             // #0060 — when the persona-dashboard feature flag is on,
@@ -684,7 +808,10 @@ class DashboardShortcode {
             // view when its owning feature is flagged on the module page.
             // Cosmetic decoration (§5: not a nav affordance); renders
             // nothing for views no flagged feature owns.
-            \TT\Shared\Frontend\Components\DevelopmentPill::render( $view );
+            $reached = true;
+            if ( $with_pill ) {
+                \TT\Shared\Frontend\Components\DevelopmentPill::render( $view );
+            }
 
             if ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
                 // v3.110.172 — every bool-returning dispatcher passed on the
@@ -697,14 +824,7 @@ class DashboardShortcode {
             }
         }
 
-        self::closeShell();
-        echo '</div>';
-
-        /** @var string $output */
-        $output = ob_get_clean() ?: '';
-        /** @var string $filtered */
-        $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
-        return $filtered;
+        return $reached;
     }
 
     /**

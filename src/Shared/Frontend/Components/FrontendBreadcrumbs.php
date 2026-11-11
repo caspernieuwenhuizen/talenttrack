@@ -32,6 +32,24 @@ final class FrontendBreadcrumbs {
         return self::$suppressed;
     }
 
+    /** @var bool Set once a chain or pill has been drawn in this request. */
+    private static $rendered = false;
+
+    /**
+     * True once this request has drawn a chain (#5088). A view that drew its
+     * chain and then tries to present stays a normal view: see
+     * `PresentationSurfaces::present()`.
+     */
+    public static function hasRendered(): bool {
+        return self::$rendered;
+    }
+
+    /** Test seam: clears the suppression and the has-rendered flag. */
+    public static function reset(): void {
+        self::$suppressed = false;
+        self::$rendered   = false;
+    }
+
     /**
      * v3.92.1 sweep helper. Most views need a "Dashboard / [self]" or
      * "Dashboard / [parent list] / [self]" chain. Constructs the
@@ -79,6 +97,11 @@ final class FrontendBreadcrumbs {
      */
     public static function render( array $items ): void {
         if ( self::$suppressed ) return;
+        // #5088 — a presenting request has one way back, the close control
+        // `present()` drew. The declaration triggers this, never the static
+        // claim: a reader refused on a claimed slug keeps the chain.
+        if ( \TT\Shared\Frontend\PresentationSurfaces::isPresenting() ) return;
+        self::$rendered = true;
         // v3.110.0 — auto-render the URL-borne back pill above the
         // breadcrumb chain whenever the current request carries
         // `tt_back`. Empty string when no valid back-target exists, so

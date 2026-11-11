@@ -41,8 +41,23 @@ These are the only views allowed without breadcrumbs:
 - The dashboard root itself (`PersonaLandingRenderer`) — it IS the destination "Dashboard" crumb resolves to.
 - Pre-login flows (`AcceptanceView`, login form) — no logged-in dashboard to chain to yet.
 - Component renderers, sub-views composed into other views, internal containers (`FrontendThreadView`, `FrontendMyProfileView`, `CoachDashboardView`, `PlayerDashboardView`).
+- *Presentation surfaces* listed in `config/presentation_surfaces.php`: a room display of one record. It emits **one** affordance, a close control back to that record's page, instead of the chain and the pill. On every refused path it renders as a normal view, in the shell, with the chain.
 
 If you're adding a new view and it isn't one of these, it MUST emit the chain + pill.
+
+### Presentation surfaces: how the exemption holds
+
+Being on the list only means a slug **may** present. The view declares it on its success path, after every access and record check has passed, before any other output and without calling `fromDashboard()`:
+
+```php
+if ( ! $access->canRead() ) {
+    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );  // normal view, in the shell
+    return;
+}
+PresentationSurfaces::present( $record_url );  // draws the one close control
+```
+
+`present()` returns `false`, draws nothing and leaves the request a normal view when the slug isn't listed, when it was already called, when a chain was already drawn, or when the close URL isn't a same-site record page (`?tt_view=<slug>&id=<n>` and no other query argument, where the slug is not itself a presentation surface; that it is routable is asserted by a test). Call it only after every access and record check has passed: once it has run, the chain stays silent for the rest of the request. Once it returns `true`, the shell leaves out the header, the shell navigation and bottom bar, the flash messages, the ambient banners and the help, and `FrontendBreadcrumbs::render()` draws nothing. Banners on `tt_dashboard_safety_banners` and the impersonation banner still render. The WordPress admin bar goes by the list alone, because WordPress decides it before the view runs.
 
 **Being routable settles it.** A class reachable by its own `?tt_view=` slug is a view and emits the chain, however it is composed elsewhere. `FrontendTeammateView` was listed here as a sub-view until #3395, while being dispatched standalone — so a player who tapped a teammate on My team landed on a screen with no chain and no pill, and only the browser's back button to leave by. Before adding a class to this list, check that `TileRegistry::canAccessViewSlug()` does not route it.
 
@@ -69,7 +84,7 @@ The shell is selectable via `tt_frontend_shell` (see [`frontend-shell.md`](front
 
 Tabs that move **within** one record — a player's Overview / Journey / Evaluations / Goals & PDP / Minutes — do not leave the view's subject, so they are not navigation away from it and don't count against the per-view budget.
 
-They may only be rendered by the shared spine component (`\TT\Shared\Frontend\Components\RecordSpine`), which also hosts the breadcrumb chain and the back-pill. A view that hand-rolls its own tab strip **is** a violation — that's how tab styling, keyboard order and active-state logic drift apart across surfaces.
+They may only be rendered by the shared spine component (`\TT\Shared\Frontend\Components\RecordSpine`). The spine renders the identity strip and the tab strip; the view renders the chain through `FrontendBreadcrumbs::fromDashboard()`, which also renders the back-pill. A view that hand-rolls its own tab strip **is** a violation — that's how tab styling, keyboard order and active-state logic drift apart across surfaces.
 
 **Grandfathered:** tab strips that predate this rule aren't violations until migrated. `FrontendPlayerDetailView` is the one such surface — its capability-gated, counted strip predates the spine and works well, and rewriting it to reach the same markup would be churn on the most trafficked view in the plugin. The rule binds **new** surfaces; existing strips migrate when there's a reason to touch them, not on principle.
 

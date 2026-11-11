@@ -731,6 +731,19 @@
 	};
 
 	/**
+	 * Store what is pending before leaving the page (#5088). Resolves at once
+	 * when nothing is pending, once a pending debounced save has landed, and
+	 * once a save has failed: a failure leaves `failed` set, so the caller
+	 * can read it. Never rejects. Anything that navigates away from an
+	 * autosaving page mid-debounce uses this rather than a wait of its own:
+	 *
+	 *     saver.flush().then(function () { location.href = closeUrl; });
+	 */
+	Autosave.prototype.flush = function () {
+		return this._settle();
+	};
+
+	/**
 	 * A commit beside the autosaving form (#4980): "klaar", a sign-off, a
 	 * publish. The irreversible step CLAUDE.md §6 keeps out of the form, on
 	 * the form's own save stream, so it can neither race a save nor go out
@@ -741,7 +754,7 @@
 	 *         line.textContent = res.message;   // the server's reason
 	 *     });
 	 *
-	 * It flushes first, through `saveNow()`, so undo keeps working. Then it
+	 * It flushes first, through `flush()`, so undo keeps working. Then it
 	 * refuses without sending when the form is halted (`code: 'halted'`,
 	 * `message` the save state's own halt text) or the flush did not store
 	 * (`code: 'not_saved'`). Otherwise it sends the commit and resolves to
@@ -767,7 +780,7 @@
 		if (this._committing) return Promise.resolve(refused('busy'));
 		this._committing = true;
 
-		return this._settle().then(function () {
+		return this.flush().then(function () {
 			if (self.halted) return refused('halted', self.haltMessage);
 			if (self.failed || self.dirty) return refused('not_saved', self.words.error);
 

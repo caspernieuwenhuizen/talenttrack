@@ -157,6 +157,15 @@ The plugin ships a fully frontend-first UI on top of the `[talenttrack_dashboard
 
 Each view extends `FrontendViewBase` and delegates form save to a REST endpoint. List tables are rendered by `FrontendListTable`, which speaks the same orderby/filter/search contract as the REST controllers (see [REST API reference](rest-api.md)).
 
+### Surfaces that change the chrome: a file of decisions and one resolver
+
+A view never switches shell chrome off itself. When a surface needs different chrome, it is listed with its reason in a config file, one resolver reads that file, and the shell honours the declaration. There are two:
+
+- **`FocusSurfaces`** (`config/focus_surfaces.php`) — surfaces that own the thumb zone. The shell's bottom bar is left out on them; the chain stays.
+- **`PresentationSurfaces`** (`config/presentation_surfaces.php`) — surfaces that may show one record as a room display. Being listed is only permission. The view declares on its success path, after every access and record check has passed, with `PresentationSurfaces::present( $close_url )`, which draws the one close control; only then does the page leave out the header, the shell, the flash messages, the ambient banners and the help, and does `FrontendBreadcrumbs::render()` draw nothing. Three readers: `FrontendAccessControl::hideAdminBar()` (the admin bar, by the list, because WordPress decides it before the view runs), `DashboardShortcode` (holds the body back on a listed slug, then picks the presentation wrapper or the normal chrome) and `FrontendBreadcrumbs::render()`. Banners hooked on `tt_dashboard_safety_banners` render in both modes. The contract is the §5a exemption in `CLAUDE.md` and [back navigation](back-navigation.md).
+
+Both resolvers fail safe to "not listed": a missing, unreadable or malformed file changes nothing.
+
 ### Sectioned tile grids (#1543)
 
 The Configuration-family views (Configuration, Lookups index, Modules, Export, Reports launcher) render a *curated, static* tile list grouped under headed sections. `\TT\Shared\Frontend\Components\FrontendSectionedTileGrid` is the shared presenter for that pattern:

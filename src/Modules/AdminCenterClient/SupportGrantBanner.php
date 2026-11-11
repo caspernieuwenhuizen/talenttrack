@@ -18,16 +18,19 @@ use TT\Shared\Dates\TTDate;
  * whose notices are ordinary operator messages.
  *
  * Rendered above every frontend view for every signed-in staff user
- * (`tt_dashboard_before_body`) and as a wp-admin notice. The frontend is the
+ * (`tt_dashboard_safety_banners`, which a room display keeps) and as a
+ * wp-admin notice. The frontend is the
  * one that matters: a frontend-only academy never opens wp-admin, so a notice
  * only there would reach nobody — the #3432 blind spot.
  */
 final class SupportGrantBanner {
 
     public static function init(): void {
-        // Above the broadcast banner (6): access to the club's data outranks
-        // an operator notice about a maintenance window.
-        add_action( 'tt_dashboard_before_body', [ self::class, 'renderFrontend' ], 4 );
+        // A safety banner (#5088): it fires on a room display too, and just
+        // before `tt_dashboard_before_body` on every other page, so it stays
+        // above the broadcast banner. Access to the club's data outranks an
+        // operator notice about a maintenance window.
+        add_action( 'tt_dashboard_safety_banners', [ self::class, 'renderFrontend' ] );
         add_action( 'admin_notices', [ self::class, 'renderAdmin' ] );
     }
 

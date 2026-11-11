@@ -1,0 +1,4 @@
+#: src/Shared/Frontend/PresentationSurfaces.php
+msgctxt "presentation surface: leave the room display"
+msgid "Close"
+msgstr "Sluiten"
