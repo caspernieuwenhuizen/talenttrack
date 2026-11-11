@@ -126,10 +126,16 @@ final class TeamStatsReaderRowsTest extends WP_UnitTestCase {
         $many = $this->rows( 12 );
 
         $this->assertSame(
-            $this->statementsFor( $this->scout( [ $this->striker ] ), $few ),
-            $this->statementsFor( $this->scout( [ $this->striker ] ), $many ),
+            $this->statementsFor( $this->coach(), $few ),
+            $this->statementsFor( $this->coach(), $many ),
             'no statement per row'
         );
+    }
+
+    private function coach(): int {
+        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $this->coachOf( $coach, $this->team );
+        return $coach;
     }
 
     // ---------------------------------------------------------------
