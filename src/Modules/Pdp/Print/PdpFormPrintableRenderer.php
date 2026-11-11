@@ -138,7 +138,7 @@ final class PdpFormPrintableRenderer {
             echo '<table class="tt-pdpform-print__pair"><tr><th>' . esc_html__( 'The player wrote', 'talenttrack' ) . '</th><td>'
                 . ( $wrote === '' ? '<em>' . esc_html( $not_filled ) . '</em>' : esc_html( $wrote ) ) . '</td></tr>';
             if ( $c_part !== null ) {
-                echo '<tr><th>' . esc_html__( 'Agreed', 'talenttrack' ) . '</th><td>' . esc_html( $agreed !== '' ? $agreed : '—' ) . '</td></tr>';
+                echo '<tr><th>' . esc_html_x( 'Agreed', 'PDP form print: what the trainer and player agreed', 'talenttrack' ) . '</th><td>' . esc_html( $agreed !== '' ? $agreed : '—' ) . '</td></tr>';
             }
             echo '</table>';
         }
