@@ -523,14 +523,14 @@ paths:
     get:
       tags: [report-studio]
       summary: Every persona that can have a Studio dashboard as its home, with its dashboard (#4962)
-      description: 'Cap required: `tt_edit_persona_templates`, with the report_studio feature on. Answers homes: [{ persona, label, report_id, report_name }] for each of `ReportAccess::PUBLISHABLE_PERSONAS`; report_id is null where the persona''s own template shows. Stored per club in tt_config (`persona_dashboard.<persona>.studio_report`).'
+      description: 'Cap required: `tt_edit_persona_templates`, with the report_studio feature on. Answers homes: [{ persona, label, report_id, report_name }] for each of `ReportAccess::PUBLISHABLE_PERSONAS`; report_id is null where the persona''s own template shows; report_name is null for a dashboard the caller cannot open. Stored per club in tt_config (`persona_dashboard.<persona>.studio_report`).'
       responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: rest_forbidden } }
 
   /studio-homes/{persona}:
     put:
       tags: [report-studio]
       summary: Make a Studio dashboard a persona's home (#4962)
-      description: 'Cap required: `tt_edit_persona_templates`. Body — report_id. Only a persona a report is published to (a player or a parent is 400 invalid_field on persona). The report must be a dashboard, published, published to that persona, with a binding chosen when opened or following the viewer, or about the academy; otherwise 400 invalid_field on report_id. A dashboard the caller cannot open is 403. Replaces the persona''s home before.'
+      description: 'Cap required: `tt_edit_persona_templates`. Body — report_id. Only a persona a report is published to (a player or a parent is 400 invalid_field on persona). The report must be a dashboard, published, published to that persona, with a binding chosen when opened or following the viewer, or about the academy, and a published version of at most 12 blocks; otherwise 400 invalid_field on report_id. A dashboard the caller cannot open is 403. Replaces the persona''s home before.'
       parameters: [{ in: path, name: persona, required: true, schema: { type: string } }]
       responses: { '200': { description: 'OK — { persona, label, report_id, report_name }' }, '400': { description: 'invalid_field, missing_fields, unknown_field' }, '402': { description: license_required }, '403': { description: 'rest_forbidden or forbidden' }, '404': { description: 'not_found — no such dashboard, or archived' } }
     delete:

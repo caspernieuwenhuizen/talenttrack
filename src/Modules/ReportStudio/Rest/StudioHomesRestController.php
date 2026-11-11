@@ -77,9 +77,14 @@ final class StudioHomesRestController extends BaseController {
         $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
         if ( $blocked ) return $blocked;
 
-        $rows = [];
+        $reader = ReportReader::for( get_current_user_id() );
+        $rows   = [];
         foreach ( ReportAccess::PUBLISHABLE_PERSONAS as $persona ) {
-            $rows[] = self::row( $persona, StudioHome::reportFor( $persona ) );
+            $report = StudioHome::reportFor( $persona );
+            $row    = self::row( $persona, $report );
+            // A dashboard the caller cannot open is named by its id only.
+            if ( $report !== null && ! ReportAccess::canRead( $reader, $report ) ) $row['report_name'] = null;
+            $rows[] = $row;
         }
         return RestResponse::success( [ 'homes' => $rows ] );
     }

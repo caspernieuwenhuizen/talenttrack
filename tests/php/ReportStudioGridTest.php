@@ -24,6 +24,7 @@ use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportData;
+use TT\Modules\ReportStudio\Domain\ReportDefinition;
 use TT\Modules\ReportStudio\Domain\ReportGrid;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportSnapshots;
@@ -276,6 +277,30 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         // Choosing a role's home is the persona dashboard editor's right.
         wp_set_current_user( $this->coach_a );
         $this->assertSame( 403, $this->send( 'PUT', 'studio-homes/head_coach', [ 'report_id' => $dashboard ] )->get_status() );
+    }
+
+    public function test_a_dashboard_published_over_the_block_cap_is_never_a_home(): void {
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $this->patch( $id, [ $this->placed( 'b1', 0, 0, 6, 2 ) ] );
+        $this->publish( $id, [ 'head_coach' ] );
+        $this->assertIsArray( StudioHome::set( 'head_coach', $id ), 'precondition: the twelve-block dashboard is a home' );
+
+        // A version the draft cap never saw: published before the cap, or
+        // restored into the draft and published again.
+        $blocks = [];
+        for ( $i = 0; $i < ReportDefinition::MAX_DASHBOARD_BLOCKS + 1; $i++ ) {
+            $blocks[] = $this->placed( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2 );
+        }
+        $this->assertNotNull( ( new ReportsRepository() )->publish( $id, [ 'blocks' => $blocks ], 'Too big', [ 'head_coach' ], $this->hod ) );
+
+        $this->assertNull( StudioHome::reportFor( 'head_coach' ), 'the stored home falls back to the template' );
+        $this->assertNull( StudioHomeView::resolve( $this->coach_a, 'head_coach' ) );
+
+        wp_set_current_user( $this->admin );
+        $res = $this->send( 'PUT', 'studio-homes/head_coach', [ 'report_id' => $id ] );
+        $this->assertSame( 400, $res->get_status() );
+        $this->assertSame( 'invalid_field', $this->code( $res ) );
+        $this->assertSame( 'report_id', $this->field( $res ) );
     }
 
     public function test_each_reader_of_a_studio_home_reads_their_own_team(): void {

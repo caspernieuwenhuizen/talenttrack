@@ -1036,15 +1036,24 @@
 			}, Promise.resolve()).then(function () {
 				dialog.close();
 				notice(t.homeSaved, false);
-			})['catch'](function (err) { error.textContent = err.message; });
+			})['catch'](function (err) {
+				// Some steps may have landed before the one that failed: show
+				// the homes as they are stored now, then the reason.
+				loadHomes().then(function () { error.textContent = err.message; });
+			});
 		};
 
 		if (!published.length) {
 			roles.appendChild(el('p', 'tt-rs-hint', t.homeNeedsRole));
 			return;
 		}
+		loadHomes();
+
+		function loadHomes() {
+		roles.querySelectorAll('label, p').forEach(function (n) { n.remove(); });
+		homes = {};
 		roles.appendChild(el('p', 'tt-rs-hint', t.loading));
-		api('GET', 'studio-homes').then(function (r) {
+		return api('GET', 'studio-homes').then(function (r) {
 			roles.querySelectorAll('p').forEach(function (n) { n.remove(); });
 			(r.homes || []).forEach(function (h) {
 				if (published.indexOf(h.persona) === -1) return;
@@ -1060,6 +1069,7 @@
 				roles.appendChild(lab);
 			});
 		})['catch'](function (err) { error.textContent = err.message; });
+		}
 	}
 
 	// ---- drag and drop (pointer events, no library) ----------------------------

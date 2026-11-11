@@ -2133,9 +2133,13 @@ report. **Which dashboards** (`StudioHome::refusal()`, `400 invalid_field` on
 `report_id` unless said otherwise): a `kind: dashboard`, not archived (`404
 not_found` otherwise), published, published to that persona, and with a
 subject each reader resolves: `binding` `on_open` or `viewer`, or the academy
-scope, the rule a report published for a role already follows. A missing
-`report_id` is `400 missing_fields`; a dashboard the caller cannot open is
-`403 forbidden`.
+scope, the rule a report published for a role already follows. Its
+**published version** holds at most 12 blocks: the cap is checked on the draft
+write, but a version restored through `POST /reports/{id}/draft` or published
+before the cap existed can hold more, and the landing reads the published
+version. A missing `report_id` is `400 missing_fields`; a dashboard the caller
+cannot open is `403 forbidden`. In `GET /studio-homes`, a home the caller
+cannot open carries its `report_id` and a `null` `report_name`.
 
 **Storage.** One `tt_config` row per club, key
 `persona_dashboard.<persona>.studio_report`, holding the report id, next to

@@ -74,8 +74,17 @@ final class StudioHome {
         if ( $report['published_version_id'] === null ) {
             return self::invalid( __( 'Publish the dashboard before it becomes a home page.', 'talenttrack' ) );
         }
-        if ( ! in_array( $persona, ( new ReportsRepository() )->personaKeys( $report['id'] ), true ) ) {
+        $repo = new ReportsRepository();
+        if ( ! in_array( $persona, $repo->personaKeys( $report['id'] ), true ) ) {
             return self::invalid( __( 'This dashboard is not published to that role.', 'talenttrack' ) );
+        }
+        // The cap is checked on the draft write, but a version restored into
+        // the draft or published before the cap existed can hold more. The
+        // landing reads the published version, so that is what is counted.
+        $version = $repo->versionById( $report['id'], $report['published_version_id'] );
+        if ( $version === null || count( ReportDefinition::blocks( $version['definition'] ) ) > ReportDefinition::MAX_DASHBOARD_BLOCKS ) {
+            /* translators: %d: maximum number of blocks */
+            return self::invalid( sprintf( __( 'A dashboard holds at most %d blocks.', 'talenttrack' ), ReportDefinition::MAX_DASHBOARD_BLOCKS ) );
         }
         return null;
     }
