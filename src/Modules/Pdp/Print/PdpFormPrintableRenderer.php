@@ -204,15 +204,17 @@ final class PdpFormPrintableRenderer {
         .tt-pdpform-print h1 { font-size: 13pt; margin: 0 0 2mm; }
         .tt-pdpform-print h2 { font-size: 9.5pt; margin: 2.5mm 0 1mm; }
         .tt-pdpform-print table { width: 100%; border-collapse: collapse; margin: 0 0 1.5mm; }
-        .tt-pdpform-print th, .tt-pdpform-print td { padding: 0.6mm 1.5mm; text-align: left; vertical-align: top; border-bottom: 0.2mm solid #d6dadd; }
+        .tt-pdpform-print th, .tt-pdpform-print td { padding: 0.4mm 1.5mm; font-size: 8pt; line-height: 1.2; text-align: left; vertical-align: top; border-bottom: 0.2mm solid #d6dadd; }
         .tt-pdpform-print th { font-weight: 700; background: #f0f2f4; }
         .tt-pdpform-print__head td, .tt-pdpform-print__confirm td { width: 25%; border: 0.2mm solid #d6dadd; }
         .tt-pdpform-print__confirm td { width: 33%; }
-        .tt-pdpform-print__head span, .tt-pdpform-print__confirm span { display: block; font-size: 7pt; color: #5b6e75; text-transform: uppercase; }
+        .tt-pdpform-print__head span, .tt-pdpform-print__confirm span { display: block; font-size: 6.5pt; color: #5b6e75; text-transform: uppercase; }
         .tt-pdpform-print__scale td { width: 20%; font-size: 7.5pt; border: 0.2mm solid #d6dadd; }
-        .tt-pdpform-print__key { margin: 0 0 1.5mm; font-size: 7.5pt; color: #5b6e75; }
-        .tt-pdpform-print__s, .tt-pdpform-print__t { width: 16mm; text-align: center; }
-        .tt-pdpform-print__items td.tt-pdpform-print__s, .tt-pdpform-print__items td.tt-pdpform-print__t { text-align: center; }
+        .tt-pdpform-print__key { margin: 0 0 1mm; font-size: 7.5pt; color: #5b6e75; }
+        .tt-pdpform-print__s { width: 24mm; text-align: center; white-space: nowrap; }
+        .tt-pdpform-print__t { width: 10mm; text-align: center; }
+        .tt-pdpform-print__items th.tt-pdpform-print__s, .tt-pdpform-print__items th.tt-pdpform-print__t, .tt-pdpform-print__items td.tt-pdpform-print__s, .tt-pdpform-print__items td.tt-pdpform-print__t { text-align: center; }
+        .tt-pdpform-print__items td.tt-pdpform-print__s em { font-size: 7pt; }
         .tt-pdpform-print__note { margin: 0 0 1.5mm; font-size: 8pt; }
         .tt-pdpform-print__pair th { width: 32mm; }
         .tt-pdpform-print__goals td:first-child { width: 6mm; }

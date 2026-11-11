@@ -212,8 +212,7 @@ final class PdpFormPrintTest extends WP_UnitTestCase {
     private function pdfPages( int $user ): int {
         wp_set_current_user( $user );
         $request = $this->request( $user, 0 );
-        $bytes   = ( new PdfRenderer() )->render( $request, ( new PdpPdfExporter() )->collect( $request ) )->bytes;
-        return (int) preg_match_all( '#/Type\s*/Page[^s]#', $bytes );
+        $bytes   = ( new PdfRenderer() )->render( $request, ( new PdpPdfExporter() )->collect( $request ) )->bytes;        return (int) preg_match_all( '#/Type\s*/Page[^s]#', $bytes );
     }
 
     private function request( int $user, int $conv ): ExportRequest {
@@ -231,11 +230,16 @@ final class PdpFormPrintTest extends WP_UnitTestCase {
         global $wpdb;
         $scores = [];
         foreach ( PdpFormRegistry::items( (array) PdpFormRegistry::definition( $form ) ) as $i => $item ) $scores[ $item['key'] ] = ( $i % 3 ) + 2;
-        $first = (string) ( (array) PdpFormRegistry::definition( $form ) )['sections'][0]['key'];
+        // A note on every section, as a trainer writes them: the fuller case
+        // for the one-A4 check.
+        $answers = [ 'strongest_quality' => 'Afgesproken: rust aan de bal, en eerst kijken voor je de bal krijgt.' ];
+        foreach ( (array) ( (array) PdpFormRegistry::definition( $form ) )['sections'] as $section ) {
+            $answers[ 'notes.' . (string) $section['key'] ] = 'Toelichting 4982: goede stappen gezet dit blok, nog wisselend onder druk; blijven herhalen in de positiespellen.';
+        }
         wp_set_current_user( $this->trainer );
         [ $data, $status ] = $this->send( 'PATCH', 'form/coach', [
             'scores'  => $scores,
-            'answers' => [ 'strongest_quality' => 'Afgesproken: rust aan de bal.', 'notes.' . $first => 'Toelichting 4982' ],
+            'answers' => $answers,
             'goals'   => [
                 '1' => [ 'action' => 'Twintig passes links per training.', 'support' => 'Extra oefenvorm.', 'due_date' => '2027-01-31' ],
                 '2' => [ 'action' => 'Kijken voor de aanname.', 'support' => 'Video na elke wedstrijd.', 'due_date' => '2027-02-28' ],
