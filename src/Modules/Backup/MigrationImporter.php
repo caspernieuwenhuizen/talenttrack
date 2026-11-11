@@ -228,6 +228,10 @@ class MigrationImporter {
                         $key      = self::keyOf( $row, $sk['columns'] );
                         $match_id = (int) ( $existing[ $key ] ?? 0 );
                         if ( $match_id > 0 && $strategy === 'update' ) {
+                            // #5041 — the matched row keeps its own uuid. It
+                            // is this install's identity for the record; the
+                            // archive's may be empty, or another row's here.
+                            unset( $data['uuid'] );
                             if ( ! $dry_run ) {
                                 $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
                                 if ( $ok === false ) { $failed = true; break 2; }
@@ -238,7 +242,18 @@ class MigrationImporter {
                         }
                     }
 
-                    // Insert as new.
+                    // Insert as new. #5041 — a new row cannot carry a uuid
+                    // another row here already holds: the unique index would
+                    // refuse it and roll the whole import back. A free uuid
+                    // is kept, so a record keeps its identity across installs.
+                    if ( isset( $has_col['uuid'] ) ) {
+                        $uuid = (string) ( $data['uuid'] ?? '' );
+                        if ( $uuid === '' ) {
+                            $data['uuid'] = null;
+                        } elseif ( self::uuidTaken( $physical, $uuid ) ) {
+                            $data['uuid'] = wp_generate_uuid4();
+                        }
+                    }
                     if ( $dry_run ) {
                         $new_id = --$synthetic;
                     } else {
@@ -345,6 +360,18 @@ class MigrationImporter {
             if ( $tid > 0 ) $map[ (int) $row['id'] ] = $tid;
         }
         return $map;
+    }
+
+    /**
+     * #5041 — does a row on this install hold this uuid? Every club's rows
+     * count: the index is unique across the table.
+     */
+    private static function uuidTaken( string $physical, string $uuid ): bool {
+        if ( $uuid === '' ) return false;
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from the dependency map.
+        $id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `{$physical}` WHERE uuid = %s LIMIT 1", $uuid ) );
+        return $id > 0;
     }
 
     /**
