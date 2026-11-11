@@ -8,6 +8,7 @@ use TT\Domain\Vocabularies\Lookups\GoalPriority;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\GoalLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\GoalLinksRepository;
@@ -516,10 +517,11 @@ class GoalsRestController {
      *   - `active`   → the goal is open: `GoalLifecycle::openClause()`, the
      *                  statuses in `GoalStatus::OPEN` in any spelling. A goal
      *                  with no status, or a rejected one, is in no bucket.
-     *   - `achieved` → status = 'completed'
-     *   - `missed`   → status = 'cancelled'
+     *   - `achieved` → completed, any spelling
+     *   - `missed`   → cancelled, any spelling
      * Any other non-empty value is treated as a raw lookup code for
-     * back-compat with existing deep links (exact match).
+     * back-compat with existing deep links, matched in any spelling
+     * (`GoalLifecycle::statusClause()`, #5099).
      *
      * @return array{0:string,1:array<int,string>}|null clause + params, or
      *         null when the value should apply no status constraint.
@@ -531,14 +533,15 @@ class GoalsRestController {
                 // renders, so `?filter[player_id]=N&filter[status]=active`
                 // returns exactly what the tab shows.
                 return [ \TT\Infrastructure\Goals\GoalsRepository::activeStatusClause( 'g' ), [] ];
+            // #5099 — every bucket and raw code matches any stored spelling.
             case 'achieved':
-                return [ 'g.status = %s', [ 'completed' ] ];
+                return [ GoalLifecycle::statusClause( 'g' ), [ GoalLifecycle::normalise( GoalStatus::COMPLETED ) ] ];
             case 'missed':
-                return [ 'g.status = %s', [ 'cancelled' ] ];
+                return [ GoalLifecycle::statusClause( 'g' ), [ GoalLifecycle::normalise( GoalStatus::CANCELLED ) ] ];
             case '':
                 return null;
             default:
-                return [ 'g.status = %s', [ $status ] ];
+                return [ GoalLifecycle::statusClause( 'g' ), [ GoalLifecycle::normalise( $status ) ] ];
         }
     }
 

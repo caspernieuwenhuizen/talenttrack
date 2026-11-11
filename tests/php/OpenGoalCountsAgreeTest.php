@@ -132,6 +132,21 @@ final class OpenGoalCountsAgreeTest extends WP_UnitTestCase {
         $this->assertSame( 'in_progress', $wpdb->get_var( $wpdb->prepare( "SELECT status FROM {$wpdb->prefix}tt_goals WHERE id = %d", $id ) ) );
     }
 
+    /** #5099 — the Admin Center's open-goal signal counts the same five. */
+    public function test_the_admin_center_value_signal_counts_the_same_open_goals(): void {
+        global $wpdb;
+        $before = \TT\Modules\AdminCenterClient\PayloadBuilder::valueSignals();
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [ 'club_id' => $this->club, 'first_name' => 'Ogc', 'last_name' => 'Tweede', 'status' => 'active' ] );
+        $second = (int) $wpdb->insert_id;
+        foreach ( [ 'pending', 'Pending Approval', 'in_progress', 'On Hold', 'Approved', 'completed', 'Cancelled', 'rejected', null ] as $i => $status ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_goals", [ 'club_id' => $this->club, 'player_id' => $second, 'title' => 'Ogc tweede ' . $i, 'status' => $status, 'created_by' => 0 ] );
+        }
+        $after = \TT\Modules\AdminCenterClient\PayloadBuilder::valueSignals();
+
+        $this->assertSame( self::OPEN, $after['goals_active'] - $before['goals_active'] );
+        $this->assertSame( self::OPEN, ( new GoalsRepository() )->countActiveForPlayer( $second ), 'the same five as the Goals tab' );
+    }
+
     public function test_open_and_not_open_split_every_goal(): void {
         $repo = new GoalsRepository();
         $this->assertSame( 9, $repo->countActiveForPlayer( $this->player ) + $repo->countClosedForPlayer( $this->player ), 'every goal is in exactly one of the two' );

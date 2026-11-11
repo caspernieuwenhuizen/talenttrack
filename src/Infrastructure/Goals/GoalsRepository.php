@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Domain\Vocabularies\Enums\GoalOrigin;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\GoalLifecycle;
 use TT\Infrastructure\Query\LabelTranslator;
@@ -491,7 +492,7 @@ class GoalsRepository {
             "SELECT COUNT(*) FROM {$p}tt_goals
               WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )
-                AND status = 'completed'",
+                AND " . GoalLifecycle::hasStatusClause( '', GoalStatus::COMPLETED ),
             $player_id, CurrentClub::id()
         ) );
     }

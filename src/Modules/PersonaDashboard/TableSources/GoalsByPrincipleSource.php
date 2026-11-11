@@ -53,7 +53,7 @@ final class GoalsByPrincipleSource implements TableRowSource {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pr.id, pr.code, pr.title_json,
                     COUNT(DISTINCT CASE WHEN " . \TT\Infrastructure\Query\GoalLifecycle::openClause( 'g' ) . " THEN g.id END) AS active,
-                    COUNT(DISTINCT CASE WHEN g.status = 'completed' THEN g.id END) AS completed
+                    COUNT(DISTINCT CASE WHEN " . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( 'g', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ) . " THEN g.id END) AS completed
                FROM {$p}tt_principles pr
           LEFT JOIN {$p}tt_goals g
                  ON g.club_id = pr.club_id

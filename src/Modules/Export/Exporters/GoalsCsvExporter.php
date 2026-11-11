@@ -82,8 +82,9 @@ final class GoalsCsvExporter implements ExporterInterface, ScopeGatedExporter {
         $params = [ (int) $request->clubId ];
 
         if ( $status !== 'all' ) {
-            $where[]  = 'g.status = %s';
-            $params[] = $status;
+            // #5099 — the chosen status in any stored spelling.
+            $where[]  = \TT\Infrastructure\Query\GoalLifecycle::statusClause( 'g' );
+            $params[] = \TT\Infrastructure\Query\GoalLifecycle::normalise( $status );
         }
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
