@@ -29,6 +29,14 @@
     --tt-tc-success:   var(--tt-success, #2f9e5e);
     --tt-tc-warn:      var(--tt-warning, #e8902b);
     --tt-tc-danger:    var(--tt-danger, #d8453b);
+}
+
+/* The fit marks' fills follow the theme's own subtle status fill. A custom
+   property resolves its var() where it is declared, and a theme sets its
+   fills on `.tt-dashboard`, so these are declared there too, as tokens.css
+   does for --tt-focus. Declared on `.tt-root` alone they kept the default's. */
+.tt-root,
+.tt-dashboard {
     --tt-tc-strong:    var(--tt-success-subtle, #cfe7da);
     --tt-tc-weak:      var(--tt-danger-subtle, #fbe5e6);
 }
