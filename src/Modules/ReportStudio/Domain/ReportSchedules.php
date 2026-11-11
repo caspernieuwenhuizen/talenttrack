@@ -306,7 +306,7 @@ final class ReportSchedules {
         foreach ( wp_roles()->roles as $key => $role ) {
             $key = (string) $key;
             if ( strpos( $key, 'tt_' ) !== 0 || in_array( $key, self::FAMILY_ROLES, true ) ) continue;
-            $out[ $key ] = translate_user_role( is_array( $role ) && is_string( $role['name'] ?? null ) ? $role['name'] : $key );
+            $out[ $key ] = translate_user_role( is_string( $role['name'] ?? null ) ? $role['name'] : $key );
         }
         asort( $out );
         return $out;
@@ -407,7 +407,7 @@ final class ReportSchedules {
      * @param Found               $found
      * @param array<string,mixed> $in
      */
-    public static function update( array $found, array $in, ReportReader $reader ): true|StudioError {
+    public static function update( array $found, array $in, ReportReader $reader ): bool|StudioError {
         $fields = self::fields( $in, $found['report'], $reader, true );
         if ( $fields instanceof StudioError ) return $fields;
         if ( $fields === [] ) return true;
@@ -430,7 +430,7 @@ final class ReportSchedules {
      *
      * @param Found $found
      */
-    public static function archive( array $found ): true|StudioError {
+    public static function archive( array $found ): bool|StudioError {
         $id = (int) $found['schedule']['id'];
         if ( ! ( new ScheduledReportsRepository() )->setStatus( $id, ScheduledReportsRepository::STATUS_ARCHIVED ) ) {
             return new StudioError( 'db_error', __( 'The schedule could not be saved.', 'talenttrack' ), 500 );

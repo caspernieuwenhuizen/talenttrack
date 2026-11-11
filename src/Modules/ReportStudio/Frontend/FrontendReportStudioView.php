@@ -186,7 +186,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rs-open-versions>' . esc_html__( 'Versions', 'talenttrack' ) . '</button>';
         // #4963 — a report in rows can be sent on a schedule.
         if ( $printable && $report['kind'] === ReportStartRules::KIND_REPORT ) {
-            $schedules = add_query_arg( [ 'tt_view' => self::SLUG, 'id' => $report['id'], 'schedules' => '1' ], RecordLink::dashboardUrl() );
+            $schedules = add_query_arg( [ 'tt_view' => self::SLUG, 'id' => $report['id'], 'schedules' => '1' ], RecordLink::dashboardUrl() ); /* tt-xview-ok: the report's own Studio view, which the caller already edits */
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( BackLink::appendTo( $schedules ) ) . '">' . esc_html_x( 'Schedule', 'report studio: send this report on a schedule', 'talenttrack' ) . '</a>';
         }
         // #5021 — the draft on paper, for the subject, period and audience

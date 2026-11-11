@@ -20,9 +20,9 @@ use TT\Shared\Frontend\Components\RecordLink;
  * ReportScheduleScreen (#4963, epic #4564) — a report's schedules, and the
  * form that adds or changes one, on the Studio's own route:
  *
- *   ?tt_view=report-studio&id=N&schedules=1    the report's schedules
- *   ?tt_view=report-studio&id=N&schedule=new   a new schedule
- *   ?tt_view=report-studio&id=N&schedule=S     schedule S, changed in place
+ *   report-studio, id=N, schedules=1    the report's schedules
+ *   report-studio, id=N, schedule=new   a new schedule
+ *   report-studio, id=N, schedule=S     schedule S, changed in place
  *
  * Save model B: Save + Cancel, Cancel back to the report or to `tt_back`.
  * Wizard plan: exemption — a schedule is four fields on an existing,
@@ -133,7 +133,7 @@ final class ReportScheduleScreen {
 
         $composition = $schedule !== null && is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [ 'report_id' => $report['id'], 'period' => ReportSchedules::DEFAULT_PERIOD ];
         $self_entry  = ScheduledReportsRunner::ACCOUNT_PREFIX . $reader->userId;
-        $chosen      = $schedule !== null ? array_map( 'strval', (array) $schedule['recipients'] ) : [ $self_entry ];
+        $chosen      = $schedule !== null ? array_values( array_map( "strval", (array) $schedule["recipients"] ) ) : [ $self_entry ];
         $publishes   = $reader->publishesReports();
 
         echo '<p class="tt-rsch-intro">' . esc_html__( 'The schedule sends the report\'s published version as a PDF, laid out in rows. One copy goes to everyone, so it holds only what every recipient may read. Each recipient is checked again on every run.', 'talenttrack' ) . '</p>';
@@ -213,7 +213,7 @@ final class ReportScheduleScreen {
         self::renderPreview( $preview );
         echo '</section>';
 
-        $cancel = add_query_arg( [ 'tt_view' => FrontendReportStudioView::SLUG, 'id' => $report['id'] ], RecordLink::dashboardUrl() );
+        $cancel = add_query_arg( [ 'tt_view' => FrontendReportStudioView::SLUG, 'id' => $report['id'] ], RecordLink::dashboardUrl() ); /* tt-xview-ok: the report's own Studio view, which the caller already edits */
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
             'label'      => $schedule !== null ? __( 'Save', 'talenttrack' ) : __( 'Schedule report', 'talenttrack' ),
             'cancel_url' => $cancel,
@@ -316,7 +316,7 @@ final class ReportScheduleScreen {
      * @param array<string,string> $args
      */
     private static function url( array $report, array $args ): string {
-        return add_query_arg( [ 'tt_view' => FrontendReportStudioView::SLUG, 'id' => $report['id'] ] + $args, RecordLink::dashboardUrl() );
+        return add_query_arg( [ 'tt_view' => FrontendReportStudioView::SLUG, 'id' => $report['id'] ] + $args, RecordLink::dashboardUrl() ); /* tt-xview-ok: the report's own Studio view, which the caller already edits */
     }
 
     /**
