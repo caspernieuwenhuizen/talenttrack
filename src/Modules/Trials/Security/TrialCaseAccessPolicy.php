@@ -52,6 +52,8 @@ final class TrialCaseAccessPolicy {
      */
     public static function canOpenCase( int $user_id, int $case_id ): bool {
         return self::canViewSynthesis( $user_id, $case_id )
+            // #4694 — read-only, every case: see readsEveryCase().
+            || self::readsEveryCase( $user_id )
             // #3238 — `isInputAuthor()`, NOT `canSubmitInput()`. Once the
             // case is decided the latter is false, and routing this through
             // it would lock an assigned assistant coach out of the case
@@ -94,6 +96,7 @@ final class TrialCaseAccessPolicy {
         if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' ) ) {
             return null;
         }
+        if ( self::readsEveryCase( $user_id ) ) return null;
 
         $ids = [];
 
@@ -155,6 +158,49 @@ final class TrialCaseAccessPolicy {
             ...array_merge( $team_ids, [ \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
         ) );
         return array_values( array_map( 'intval', (array) $ids ) );
+    }
+
+    /**
+     * #4694 — does this user read every case, read-only, through a
+     * `trial_cases` read at global scope? Only the head of development and
+     * the admin hold it in the seed, and both manage trials already; the
+     * read-only observer is the seat this rung is for. It opens and lists a
+     * case, never the synthesis and never a write.
+     */
+    public static function readsEveryCase( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        return \TT\Modules\Authorization\MatrixGate::can(
+            $user_id,
+            'trial_cases',
+            \TT\Modules\Authorization\MatrixGate::READ,
+            \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL
+        );
+    }
+
+    /**
+     * #4694 — may this user read the free text on a case: the summary
+     * notes, the extension justifications and the panel's input notes? A
+     * manager or a panellist may; so may anyone who does not read every case
+     * academy-wide, whose reach the other rungs already decided. A reader
+     * who reaches the case only through readsEveryCase() sees the dates, the
+     * status, the decision and the ratings, without the text.
+     */
+    public static function seesCaseText( int $user_id, int $case_id ): bool {
+        if ( self::isManager( $user_id ) ) return true;
+        if ( ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id ) ) return true;
+        return ! self::readsEveryCase( $user_id );
+    }
+
+    /**
+     * #4694 — may this user read the panel's released inputs on this case:
+     * who handed in, when, the rating and the notes? A manager, or someone
+     * seated on the case. The panel's inputs stay with the panel, so a
+     * reader who opens the case through readsEveryCase() reads none of them.
+     */
+    public static function readsReleasedInputs( int $user_id, int $case_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( self::isManager( $user_id ) ) return true;
+        return ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id );
     }
 
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {

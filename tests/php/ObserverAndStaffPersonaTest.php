@@ -77,6 +77,12 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         foreach ( (array) constant( get_class( $prospects ) . '::ENTITIES' ) as $entity ) {
             $entities[] = (string) $entity;
         }
+
+        // #4694 — and the trials 0333 brings.
+        $trials = require dirname( __DIR__, 2 ) . '/database/migrations/0333_authorization_observer_reads_trials.php';
+        foreach ( (array) constant( get_class( $trials ) . '::ENTITIES' ) as $entity ) {
+            $entities[] = (string) $entity;
+        }
         return $entities;
     }
 

@@ -213,8 +213,11 @@ class FrontendTrialsManageView extends FrontendViewBase {
         // cases: own team (where the grant holds), assigned, scout-linked.
         // Managers and admins keep the unscoped view. An empty allow-list
         // yields zero rows.
+        // #4694 — null is every case: a manager, or a reader who reads every
+        // case academy-wide.
         if ( ! $is_admin && ! $can_manage ) {
-            $filters['case_ids'] = \TT\Modules\Trials\Security\TrialCaseAccessPolicy::visibleCaseFilter( $user_id ) ?? [];
+            $visible = \TT\Modules\Trials\Security\TrialCaseAccessPolicy::visibleCaseFilter( $user_id );
+            if ( $visible !== null ) $filters['case_ids'] = $visible;
         }
 
         $rows   = $cases_repo->search( $filters );

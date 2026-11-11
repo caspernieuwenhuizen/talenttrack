@@ -111,15 +111,18 @@ final class FamilyTrialJourneyTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->timelineStatus(), 'the journey is kept private' );
     }
 
-    public function test_the_observer_sees_no_trial_entry(): void {
+    /**
+     * #4694 (b) — the observer reads trials, so the trial entries, which
+     * carry no free text, reach its journey too.
+     */
+    public function test_the_observer_sees_the_trial_entry_it_reads(): void {
         $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
         $this->flush();
 
         wp_set_current_user( $observer );
         $types = array_column( $this->timeline(), 'event_type' );
         $this->assertContains( 'position_changed', $types, 'precondition: the observer reads the journey' );
-        $this->assertNotContains( 'trial_started', $types );
-        $this->assertNotContains( 'trial_ended', $types );
+        $this->assertContains( 'trial_started', $types );
     }
 
     public function test_staff_with_the_trial_read_see_the_entry_as_before(): void {
