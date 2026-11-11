@@ -122,3 +122,7 @@ msgstr[1] "Er staan ondertekende ontwikkelgesprekken voor je klaar om te lezen e
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
 msgid "Read %s"
 msgstr "%s lezen"
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "An acknowledgement time is a date and time (YYYY-MM-DD HH:MM:SS, UTC)."
+msgstr "Een bevestigingstijd is een datum en tijd (JJJJ-MM-DD UU:MM:SS, UTC)."

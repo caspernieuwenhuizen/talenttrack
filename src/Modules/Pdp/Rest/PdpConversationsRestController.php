@@ -181,14 +181,31 @@ class PdpConversationsRestController {
         }
 
         // #4981 (#5040 review) — the player and a parent confirm what they
-        // read, at the moment they confirm it. The server stamps the time:
-        // a value from the browser is the page's render time, or any date a
-        // hand-made request chose. Staff recording an acknowledgement on the
-        // family's behalf keep the time they enter.
-        $is_staff = PdpAccess::canEditFile( get_current_user_id(), (int) $file->player_id );
-        if ( ! $is_staff ) {
-            foreach ( $acks as $field ) {
-                if ( $patch[ $field ] !== null ) $patch[ $field ] = current_time( 'mysql', true );
+        // read, at the moment they confirm it. The server stamps the time on
+        // the caller's own column, whatever else they may do on the file (a
+        // coach who is also the parent): a value from the browser is the
+        // page's render time, or any date a hand-made request chose. Staff
+        // recording an acknowledgement for someone else keep the time they
+        // enter, as long as it is one.
+        $uid      = get_current_user_id();
+        $is_staff = PdpAccess::canEditFile( $uid, (int) $file->player_id );
+        foreach ( $acks as $field ) {
+            if ( $patch[ $field ] === null ) continue;
+            $own = $field === 'player_ack_at'
+                ? self::isLinkedPlayer( $uid, (int) $file->player_id )
+                : self::isParentOfPlayer( $uid, (int) $file->player_id );
+            if ( $own ) {
+                $patch[ $field ] = current_time( 'mysql', true );
+                continue;
+            }
+            $at = \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) $patch[ $field ], new \DateTimeZone( 'UTC' ) );
+            if ( $at === false || $at->format( 'Y-m-d H:i:s' ) !== (string) $patch[ $field ] ) {
+                return RestResponse::error(
+                    'bad_date',
+                    __( 'An acknowledgement time is a date and time (YYYY-MM-DD HH:MM:SS, UTC).', 'talenttrack' ),
+                    400,
+                    [ 'field' => $field ]
+                );
             }
         }
         // On a form talk a parent confirms the signed form, so only a parent

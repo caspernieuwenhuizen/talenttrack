@@ -187,6 +187,31 @@ final class PdpReadConfirmTest extends WP_UnitTestCase {
         $this->assertLessThan( 120, abs( strtotime( $stored . ' UTC' ) - time() ), 'now, not the date the request carried: ' . $stored );
     }
 
+    public function test_a_coach_who_is_the_parent_gets_the_servers_time_on_their_own_column(): void {
+        global $wpdb;
+        $this->signOff();
+        // The trainer is also the child's parent.
+        ( new PlayerParentsRepository() )->link( $this->player, $this->trainer, false );
+        $this->flush();
+        wp_set_current_user( $this->trainer );
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'parent_ack_at' => 'now' ], 'pdp-conversations/' . $this->conv )[1] );
+        $stored = (string) $wpdb->get_var( $wpdb->prepare( "SELECT parent_ack_at FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) );
+        $this->assertLessThan( 120, abs( strtotime( $stored . ' UTC' ) - time() ), 'stamped now, never "now" in a DATETIME: ' . $stored );
+    }
+
+    public function test_staff_recording_for_the_family_keep_their_time_but_it_must_be_one(): void {
+        global $wpdb;
+        $this->signOff();
+        wp_set_current_user( $this->trainer );
+        [ $data, $status ] = $this->send( 'PATCH', '', [ 'player_ack_at' => 'yesterday-ish' ], 'pdp-conversations/' . $this->conv );
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'bad_date', $data['errors'][0]['code'] );
+        $this->assertNull( $wpdb->get_var( $wpdb->prepare( "SELECT player_ack_at FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) ), 'nothing written' );
+
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'player_ack_at' => '2026-10-07 18:15:00' ], 'pdp-conversations/' . $this->conv )[1] );
+        $this->assertSame( '2026-10-07 18:15:00', (string) $wpdb->get_var( $wpdb->prepare( "SELECT player_ack_at FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) ), 'a real time is kept' );
+    }
+
     public function test_a_parent_who_may_not_read_the_form_is_offered_no_confirmation_and_refused_one(): void {
         global $wpdb;
         $this->signOff();
