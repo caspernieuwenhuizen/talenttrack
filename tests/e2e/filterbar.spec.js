@@ -300,14 +300,28 @@ test.describe( 'FilterBar list filtering (Players)', () => {
         await openBtn.click();
         await expect( sheet ).toBeVisible( { timeout: 10000 } );
 
-        // The grid needs a team to render its date range; without seeded
-        // teams the bar collapses to fewer groups. Skip rather than fail.
+        // The grid needs a team to render its date range; the e2e site gets
+        // one from tests/e2e/setup/attendance-grid-team.php (#5035). Without
+        // it this guard skipped on every run, which is how it missed #3331.
         const from = sheet.locator( 'input[name="from"]' ).first();
         const to   = sheet.locator( 'input[name="to"]' ).first();
         if ( await from.count() === 0 || await to.count() === 0 ) {
             test.skip( true, 'Attendance grid renders no date range on this install.' );
             return;
         }
+
+        // #3331 moved the dates into the period control: in the sheet they
+        // sit under "Custom range…", a <details> that is closed until a
+        // custom window is what the page ran on. The reader opens it first,
+        // and so does this test.
+        const custom = sheet.locator( 'details.tt-percustom' ).first();
+        await expect( custom.locator( 'summary' ) ).toBeVisible();
+        if ( ! ( await custom.evaluate( ( el ) => el.open ) ) ) {
+            await custom.locator( 'summary' ).click();
+        }
+        await expect( from, 'the dates show once the custom range is open' ).toBeVisible();
+        const box = await custom.locator( 'summary' ).boundingBox();
+        expect( box && box.height >= 48, 'the custom range toggle is a 48px target' ).toBe( true );
 
         await from.fill( '2026-03-01' );
         await to.fill( '2026-03-31' );
