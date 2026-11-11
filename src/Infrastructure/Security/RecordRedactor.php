@@ -43,8 +43,14 @@ final class RecordRedactor {
      *    reads this prospect through their own squads' age groups
      *    (`ProspectScope`) rather than academy-wide. A seat that reads every
      *    prospect and changes none, the read-only observer, does not.
+     *  - `scouting_visit_staff`: on a scouting visit (the id is the
+     *    visit's), whoever may change the visit; not a reader who reaches it
+     *    only through `scouting_visits_all` (`ScoutingVisitsAccess::seesNotes()`).
      */
-    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment', 'prospect_staff' ];
+    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment', 'prospect_staff', 'scouting_visit_staff' ];
+
+    /** The rules whose id is not a player's, so a list primes no player. */
+    private const NON_PLAYER_RULES = [ 'prospect_staff', 'scouting_visit_staff' ];
 
     /** @var array<string, bool> "user|prospect" => may read that prospect's sensitive fields */
     private static array $prospect = [];
@@ -129,6 +135,9 @@ final class RecordRedactor {
 
         if ( $rule === 'prospect_staff' ) {
             return AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
+        }
+        if ( $rule === 'scouting_visit_staff' ) {
+            return AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' );
         }
 
         // Academy-wide staff are staff for every child, so for every
@@ -347,6 +356,20 @@ final class RecordRedactor {
             return self::$prospect[ $key ];
         }
 
+        if ( $rule === 'scouting_visit_staff' ) {
+            // The id is a scouting visit's.
+            $key = 'visit|' . $user_id . '|' . $player_id;
+            if ( ! isset( self::$prospect[ $key ] ) ) {
+                $visit = ( new \TT\Modules\Prospects\Repositories\ScoutingVisitsRepository() )->find( $player_id );
+                self::$prospect[ $key ] = $visit !== null && \TT\Modules\Prospects\ScoutingVisitsAccess::seesNotes(
+                    $user_id,
+                    $visit,
+                    AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_settings' )
+                );
+            }
+            return self::$prospect[ $key ];
+        }
+
         if ( $rule === 'guardian_contact' ) {
             // The id is a person's, not a player's.
             self::primePeople( $user_id, [ $player_id ] );
@@ -404,7 +427,7 @@ final class RecordRedactor {
     private static function primeRows( string $entity, array $rows, string $id_key, int $user_id ): void {
         // Prospect rows carry no player to prime; their rule is answered per
         // prospect in mayRead().
-        if ( array_diff( array_values( self::fields( $entity ) ), [ 'prospect_staff' ] ) === [] ) return;
+        if ( array_diff( array_values( self::fields( $entity ) ), self::NON_PLAYER_RULES ) === [] ) return;
 
         if ( in_array( 'guardian_contact', self::fields( $entity ), true ) ) {
             $ids = [];

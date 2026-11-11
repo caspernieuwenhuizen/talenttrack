@@ -149,6 +149,31 @@ return [
         ],
     ],
 
+    // #5085 — the scout's notes on a visit and the observations at it stay
+    // with whoever may change the visit. The id is the visit's.
+    'scouting_visits' => [
+        'routes' => [
+            '/talenttrack/v1/scouting-visits'             => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/scouting-visits/(?P<id>\d+)' => [ 'rows' => 'data.visit' ],
+        ],
+        'id_key' => 'id',
+        'fields' => [
+            'notes' => 'scouting_visit_staff',
+        ],
+    ],
+
+    // #5085 — what the scout noted on a prospect at a visit, as the
+    // prospect's page lists it.
+    'scouting_visit_observations' => [
+        'routes' => [
+            '/talenttrack/v1/prospects/(?P<id>\d+)/visits' => [ 'rows' => 'data.visits.*' ],
+        ],
+        'id_key' => 'visit_id',
+        'fields' => [
+            'notes' => 'scouting_visit_staff',
+        ],
+    ],
+
     'people' => [
         'routes' => [
             '/talenttrack/v1/people'              => [ 'rows' => 'data.rows.*' ],

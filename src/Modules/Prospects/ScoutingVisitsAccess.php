@@ -41,6 +41,9 @@ final class ScoutingVisitsAccess {
 
     public const ENTITY = 'scouting_visits_panel';
 
+    /** #5085 — read every visit in the club, read-only. */
+    public const ALL_ENTITY = 'scouting_visits_all';
+
     /**
      * True when this user should reach the scouting-visit surfaces.
      *
@@ -70,6 +73,17 @@ final class ScoutingVisitsAccess {
      *                         kept as the bypass every matrix consumer applies.
      */
     public static function canReadVisit( int $user_id, object $visit, bool $is_admin = false ): bool {
+        if ( self::canEditVisit( $user_id, $visit, $is_admin ) ) return true;
+        return self::readsEveryVisit( $user_id );
+    }
+
+    /**
+     * May this user change this visit? Their own, or every visit for
+     * `tt_manage_prospects`. Reading every visit (#5085) never adds a write.
+     *
+     * @param object $visit a `tt_scouting_plan_visits` row.
+     */
+    public static function canEditVisit( int $user_id, object $visit, bool $is_admin = false ): bool {
         if ( $is_admin ) return true;
         if ( $user_id <= 0 ) return false;
 
@@ -80,6 +94,27 @@ final class ScoutingVisitsAccess {
     }
 
     /**
+     * #5085 — does this user read every visit in the club, read-only, through
+     * `scouting_visits_all`? Seeded for the read-only observer only, so a
+     * scout keeps seeing their own visits and nothing more.
+     */
+    public static function readsEveryVisit( int $user_id ): bool {
+        if ( $user_id <= 0 || ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+        return MatrixGate::can( $user_id, self::ALL_ENTITY, MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
+    }
+
+    /**
+     * #5085 — may this user read the scout's notes on this visit and the
+     * observations at it? Whoever may change the visit; not a reader who
+     * reaches it only through `scouting_visits_all`.
+     *
+     * @param object $visit a `tt_scouting_plan_visits` row.
+     */
+    public static function seesNotes( int $user_id, object $visit, bool $is_admin = false ): bool {
+        return self::canEditVisit( $user_id, $visit, $is_admin ) || ! self::readsEveryVisit( $user_id );
+    }
+
+    /**
      * The scout a listing must be narrowed to, or null when the caller may
      * see every scout's visits. A caller-supplied `scout_user_id` is
      * overruled by the returned id, never the other way round.
@@ -87,6 +122,7 @@ final class ScoutingVisitsAccess {
     public static function forcedScoutFilter( int $user_id, bool $is_admin = false ): ?int {
         if ( $is_admin ) return null;
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return null;
+        if ( self::readsEveryVisit( $user_id ) ) return null;
 
         return $user_id;
     }
