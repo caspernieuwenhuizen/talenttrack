@@ -8,6 +8,7 @@ use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Teams\Services\TeamStaffPrompt;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 final class ReviewStep implements WizardStepInterface {
 
@@ -17,9 +18,14 @@ final class ReviewStep implements WizardStepInterface {
     public function render( array $state ): void {
         echo '<p>' . esc_html__( 'Check the team details before creating it.', 'talenttrack' ) . '</p>';
         // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
-        echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Team name', 'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['name'] ?? '' ) ) . '</td></tr>';
-        echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Age group', 'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['age_group'] ?? '—' ) ) . '</td></tr>';
+        // #4910 — on the stack-table primitive, a table from 480px.
+        $row = static function ( string $label, string $value ): void {
+            echo '<tr' . StackTable::attrs( 'row' ) . '><th scope="row" class="tt-wizard-review-label"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $label ) . '</th>'
+                . '<td' . StackTable::attrs( 'cell' ) . '>' . esc_html( $value ) . '</td></tr>';
+        };
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+        $row( __( 'Team name', 'talenttrack' ), (string) ( $state['name'] ?? '' ) );
+        $row( __( 'Age group', 'talenttrack' ), (string) ( $state['age_group'] ?? '—' ) );
         foreach ( StaffStep::SLOTS as $key => $label ) {
             $uid = (int) ( $state[ 'staff_' . $key ] ?? 0 );
             $name = '—';
@@ -27,11 +33,11 @@ final class ReviewStep implements WizardStepInterface {
                 $u = get_userdata( $uid );
                 if ( $u ) $name = (string) $u->display_name;
             }
-            echo '<tr><th scope="row" style="width:35%;">' . esc_html__( $label, 'talenttrack' ) . '</th><td>' . esc_html( $name ) . '</td></tr>';
+            $row( __( $label, 'talenttrack' ), $name ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- the slot labels are translated where StaffStep::SLOTS is declared
         }
         $spond_group_id = (string) ( $state['spond_group_id'] ?? '' );
         if ( $spond_group_id !== '' ) {
-            echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Spond group', 'talenttrack' ) . '</th><td>' . esc_html( $spond_group_id ) . '</td></tr>';
+            $row( __( 'Spond group', 'talenttrack' ), $spond_group_id );
         }
         echo '</tbody></table></div>';
     }

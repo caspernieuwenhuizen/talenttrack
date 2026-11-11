@@ -9,6 +9,7 @@ use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Shared\Wizards\ConditionalStepInterface;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * AttendanceStep (#0072) — captures attendance for the activity if it
@@ -386,10 +387,19 @@ final class AttendanceStep implements WizardStepInterface, ConditionalStepInterf
             } );
         })();
         </script>
+        <?php
+        // #4910 — on the stack-table primitive: a table from 768px, one card
+        // per player below it, each status a line with its radio. Up to 767
+        // the grid scrolled inside its wrap, so it is cards there.
+        $c_player = __( 'Player', 'talenttrack' );
+        $statuses = [];
+        foreach ( $names_raw as $n ) $statuses[ $n ] = \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $n ) );
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- StackTable escapes its attributes
+        ?>
         <div class="tt-table-wrap">
-            <table class="tt-table" style="width:100%;">
-                <thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><?php foreach ( $names_raw as $n ) : ?><th style="text-align:center;"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $n ) ) ); ?></th><?php endforeach; ?></tr></thead>
-                <tbody>
+            <table class="tt-table tt-wizard-attendance <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); ?>>
+                <thead<?php echo StackTable::attrs( 'rowgroup' ); ?>><tr<?php echo StackTable::attrs( 'row' ); ?>><th<?php echo StackTable::attrs( 'columnheader' ); ?>><?php echo esc_html( $c_player ); ?></th><?php foreach ( $statuses as $label ) : ?><th class="tt-wizard-attendance__status"<?php echo StackTable::attrs( 'columnheader' ); ?>><?php echo esc_html( $label ); ?></th><?php endforeach; ?></tr></thead>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); ?>>
                     <?php foreach ( $players as $pl ) :
                         $pid_int = (int) $pl->id;
                         $row_default = (string) (
@@ -398,10 +408,10 @@ final class AttendanceStep implements WizardStepInterface, ConditionalStepInterf
                             ?? 'present'
                         );
                         ?>
-                        <tr>
-                            <td><?php echo esc_html( trim( (string) $pl->first_name . ' ' . (string) $pl->last_name ) ); ?></td>
-                            <?php foreach ( $names_raw as $n ) : ?>
-                                <td style="text-align:center;">
+                        <tr<?php echo StackTable::attrs( 'row' ); ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $c_player ); ?>><?php echo esc_html( trim( (string) $pl->first_name . ' ' . (string) $pl->last_name ) ); ?></td>
+                            <?php foreach ( $statuses as $n => $label ) : ?>
+                                <td class="tt-wizard-attendance__status"<?php echo StackTable::attrs( 'cell', $label ); ?>>
                                     <input type="radio" name="attendance[<?php echo (int) $pl->id; ?>]" value="<?php echo esc_attr( $n ); ?>" <?php checked( strtolower( $row_default ), strtolower( $n ) ); ?> />
                                 </td>
                             <?php endforeach; ?>
@@ -410,6 +420,7 @@ final class AttendanceStep implements WizardStepInterface, ConditionalStepInterf
                 </tbody>
             </table>
         </div>
+        <?php // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         <?php
     }
 

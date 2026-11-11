@@ -7,6 +7,7 @@ use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 1 — first / last / DOB / current_club.
@@ -94,26 +95,37 @@ final class IdentityStep implements WizardStepInterface {
                 ?>
             </summary>
             <div class="tt-table-wrap" style="padding:0 12px 12px;">
-                <table class="tt-table">
-                    <thead>
-                        <tr>
-                            <th scope="col"><?php esc_html_e( 'First name', 'talenttrack' ); ?></th>
-                            <th scope="col"><?php esc_html_e( 'Last name',  'talenttrack' ); ?></th>
-                            <th scope="col"><?php esc_html_e( 'Club',       'talenttrack' ); ?></th>
-                            <th scope="col"><?php esc_html_e( 'Status',     'talenttrack' ); ?></th>
+                <?php
+                // #4910 — on the stack-table primitive: a table from 480px,
+                // one card per prospect below it.
+                $cols = [
+                    'first'  => __( 'First name', 'talenttrack' ),
+                    'last'   => __( 'Last name', 'talenttrack' ),
+                    'club'   => __( 'Club', 'talenttrack' ),
+                    'status' => __( 'Status', 'talenttrack' ),
+                ];
+                // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- StackTable escapes its attributes
+                ?>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); ?>>
+                    <thead<?php echo StackTable::attrs( 'rowgroup' ); ?>>
+                        <tr<?php echo StackTable::attrs( 'row' ); ?>>
+                            <?php foreach ( $cols as $col ) : ?>
+                                <th scope="col"<?php echo StackTable::attrs( 'columnheader' ); ?>><?php echo esc_html( $col ); ?></th>
+                            <?php endforeach; ?>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody<?php echo StackTable::attrs( 'rowgroup' ); ?>>
                     <?php foreach ( $rows as $r ) : ?>
-                        <tr>
-                            <td><?php echo esc_html( (string) ( $r->first_name   ?? '' ) ); ?></td>
-                            <td><?php echo esc_html( (string) ( $r->last_name    ?? '' ) ); ?></td>
-                            <td><?php echo esc_html( (string) ( $r->current_club ?? '' ) ); ?></td>
-                            <td><?php echo esc_html( self::statusLabel( $r ) ); ?></td>
+                        <tr<?php echo StackTable::attrs( 'row' ); ?>>
+                            <td<?php echo StackTable::attrs( 'cell', $cols['first'] ); ?>><?php echo esc_html( (string) ( $r->first_name   ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $cols['last'] ); ?>><?php echo esc_html( (string) ( $r->last_name    ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $cols['club'] ); ?>><?php echo esc_html( (string) ( $r->current_club ?? '' ) ); ?></td>
+                            <td<?php echo StackTable::attrs( 'cell', $cols['status'] ); ?>><?php echo esc_html( self::statusLabel( $r ) ); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+                <?php // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </div>
         </details>
         <?php
