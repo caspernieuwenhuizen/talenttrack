@@ -191,7 +191,7 @@ Use cases:
 | **Tournament records** — each player's own tournament history | Plan a tournament or share out minutes |
 | **The exercise library** — the drills coaches build trainings from | Change the library or plan training |
 | **The academy's reference data** — seasons, methodology, football actions, evaluation categories and weights, the rating scale, holidays, the help pages | Change any of it |
-| **Prospects** — the onboarding board, the prospects list and each prospect's page: names, current club, stage, dates and consent outcomes, without the family contact, the scouting notes or who was asked for consent and what was said | Record, edit, move, invite or decide on a prospect; open a scouting visit |
+| **Prospects** — the onboarding board, the prospects list and each prospect's page: names, current club, birth year, stage, dates and consent outcomes, without the family contact, the scouting notes, who discovered the child, or who was asked for consent and what was said | Record, edit, move, invite or decide on a prospect; open a scouting visit |
 
 The rule behind the list: an observer reads everything that is not sensitive, and a sensitive field on a record it reads is masked, shown as "Hidden" on screen and left out of the API answer.
 

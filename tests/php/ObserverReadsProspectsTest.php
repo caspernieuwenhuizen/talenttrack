@@ -88,6 +88,7 @@ final class ObserverReadsProspectsTest extends WP_UnitTestCase {
             'discovered_by_user_id' => $this->scout,
             'age_group_lookup_id'   => $age_group,
             'current_club'          => 'VV Noord',
+            'date_of_birth'         => '2014-05-06',
             'scouting_notes'        => self::NOTES,
             'parent_name'           => 'M. Obsprosx',
             'parent_email'          => 'parent@example.test',
@@ -126,6 +127,56 @@ final class ObserverReadsProspectsTest extends WP_UnitTestCase {
         foreach ( [ 'parent_name', 'parent_email', 'parent_phone', 'scouting_notes' ] as $field ) {
             $this->assertArrayNotHasKey( $field, $prospect, "{$field} is masked" );
         }
+    }
+
+    public function test_the_observer_receives_only_the_allowed_keys(): void {
+        $allowed = array_merge( \TT\Modules\Prospects\Domain\ProspectRecord::READER_KEYS, [ 'birth_year' ] );
+        $prospect = $this->prospectAs( $this->observer );
+
+        $this->assertSame( [], array_values( array_diff( array_keys( $prospect ), $allowed ) ), 'no key outside the allowed list' );
+        $this->assertArrayNotHasKey( 'date_of_birth', $prospect );
+        $this->assertArrayNotHasKey( 'discovered_by_user_id', $prospect );
+        $this->assertSame( '2014', (string) ( $prospect['birth_year'] ?? '' ), 'the birth year, as the page shows' );
+    }
+
+    public function test_who_found_the_child_stays_with_the_funnel(): void {
+        wp_set_current_user( $this->observer );
+        $rows = (array) ( $this->data( $this->dispatch( 'GET', '/talenttrack/v1/prospects' ) )['rows'] ?? [] );
+        $mine = array_values( array_filter( $rows, fn( $r ): bool => (int) ( (array) $r )['id'] === $this->prospect ) );
+        $this->assertCount( 1, $mine );
+        $this->assertArrayNotHasKey( 'discovered_by', (array) $mine[0] );
+
+        // Filtering by scout answers nothing for the observer: the filter is ignored.
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/prospects' );
+        $request->set_param( 'filter', [ 'discovered_by_user_id' => $this->hod ] );
+        $filtered = (array) ( $this->data( rest_do_request( $request ) )['rows'] ?? [] );
+        $this->assertContains( $this->prospect, array_map( static fn( $r ): int => (int) ( (array) $r )['id'], $filtered ) );
+
+        wp_set_current_user( $this->scout );
+        $this->flush();
+        $rows = (array) ( $this->data( $this->dispatch( 'GET', '/talenttrack/v1/prospects' ) )['rows'] ?? [] );
+        $mine = array_values( array_filter( $rows, fn( $r ): bool => (int) ( (array) $r )['id'] === $this->prospect ) );
+        $this->assertNotSame( '', (string) ( ( (array) $mine[0] )['discovered_by'] ?? '' ), 'the scout reads who found the child' );
+        $this->assertSame( (string) $this->scout, (string) ( $this->prospectAs( $this->scout )['discovered_by_user_id'] ?? '' ) );
+    }
+
+    public function test_the_overview_leaves_out_discovered_by_for_the_observer(): void {
+        foreach ( [ 'observer' => [ $this->observer, false ], 'scout' => [ $this->scout, true ] ] as $who => [ $user, $shown ] ) {
+            wp_set_current_user( $user );
+            $this->flush();
+            ob_start();
+            \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user );
+            $html = (string) ob_get_clean();
+            $this->assertSame( $shown, str_contains( $html, 'Discovered by' ), "{$who}: the column and filter" );
+        }
+    }
+
+    public function test_works_the_funnel_needs_a_prospect_read(): void {
+        $nobody = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        $this->assertFalse( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $nobody ) );
+        $this->assertFalse( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $this->observer ) );
+        $this->assertTrue( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $this->scout ) );
+        $this->assertTrue( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $this->coach ) );
     }
 
     public function test_the_scout_the_head_of_development_and_the_age_group_coach_see_everything(): void {

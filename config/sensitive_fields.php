@@ -117,18 +117,23 @@ return [
     // A guardian is a person record too: their e-mail and phone are the
     // family's contact, whichever list the person appears on.
     // #4694 — a prospect is a child the academy has not taken on: the family
-    // contact and what the scout wrote stay with the people who work the
-    // funnel. The id is the prospect's.
+    // contact, the date of birth, what the scout wrote and who found the
+    // child stay with the people who work the funnel. The id is the
+    // prospect's.
     'prospects' => [
         'routes' => [
+            '/talenttrack/v1/prospects'             => [ 'rows' => 'data.rows.*' ],
             '/talenttrack/v1/prospects/(?P<id>\d+)' => [ 'rows' => 'data.prospect' ],
         ],
         'id_key' => 'id',
         'fields' => [
-            'parent_name'    => 'prospect_staff',
-            'parent_email'   => 'prospect_staff',
-            'parent_phone'   => 'prospect_staff',
-            'scouting_notes' => 'prospect_staff',
+            'parent_name'           => 'prospect_staff',
+            'parent_email'          => 'prospect_staff',
+            'parent_phone'          => 'prospect_staff',
+            'scouting_notes'        => 'prospect_staff',
+            'date_of_birth'         => 'prospect_staff',
+            'discovered_by_user_id' => 'prospect_staff',
+            'discovered_by'         => 'prospect_staff',
         ],
     ],
 

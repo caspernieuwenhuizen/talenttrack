@@ -48,6 +48,10 @@ final class DataBrowserSensitiveFieldsTest extends WP_UnitTestCase {
             'parent_email'   => 'tt_prospects',
             'parent_phone'   => 'tt_prospects',
             'scouting_notes' => 'tt_prospects',
+            'date_of_birth'  => 'tt_prospects',
+            'discovered_by_user_id' => 'tt_prospects',
+            // The scout's name, resolved from the row's discovered_by_user_id.
+            'discovered_by'  => 'tt_prospects',
         ],
         'prospect_consent_requests' => [
             'asked_of' => 'tt_prospect_consent_requests',

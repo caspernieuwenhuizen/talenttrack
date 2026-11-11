@@ -57,8 +57,10 @@ final class ProspectScope {
      */
     public static function worksTheFunnel( int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
-        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
-            || ! self::canSeeAll( $user_id );
+        $auth = \TT\Infrastructure\Security\AuthorizationService::class;
+        if ( $auth::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) return true;
+        // A scoped reader: reads prospects, and not academy-wide.
+        return $auth::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! self::canSeeAll( $user_id );
     }
 
     /**

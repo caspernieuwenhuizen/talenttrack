@@ -188,7 +188,7 @@ Gebruiksgevallen:
 | **Toernooihistorie** — de eigen toernooihistorie van elke speler | Een toernooi plannen of speeltijd verdelen |
 | **De oefenbibliotheek** — de oefeningen waarmee trainers een training opbouwen | De bibliotheek wijzigen of training plannen |
 | **De referentiegegevens van de academie** — seizoenen, methodiek, voetbalhandelingen, evaluatiecategorieën en hun gewichten, de beoordelingsschaal, vakanties, de helppagina's | Er iets aan wijzigen |
-| **Prospects** — het onboardingbord, de prospectlijst en de pagina van elke prospect: namen, huidige club, fase, datums en de uitkomsten van toestemmingsverzoeken, zonder de contactgegevens van het gezin, de scoutingnotities of wie om toestemming is gevraagd en wat er gezegd is | Een prospect vastleggen, bewerken, verplaatsen, uitnodigen of erover beslissen; een scoutingbezoek openen |
+| **Prospects** — het onboardingbord, de prospectlijst en de pagina van elke prospect: namen, huidige club, geboortejaar, fase, datums en de uitkomsten van toestemmingsverzoeken, zonder de contactgegevens van het gezin, de scoutingnotities, wie het kind ontdekt heeft, of wie om toestemming is gevraagd en wat er gezegd is | Een prospect vastleggen, bewerken, verplaatsen, uitnodigen of erover beslissen; een scoutingbezoek openen |
 
 De regel achter de lijst: een waarnemer leest alles wat niet gevoelig is, en een gevoelig veld op een record dat hij leest wordt afgeschermd: op het scherm staat "Verborgen" en in het API-antwoord ontbreekt het veld.
 

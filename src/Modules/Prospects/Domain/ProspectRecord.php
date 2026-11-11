@@ -34,6 +34,35 @@ final class ProspectRecord {
             && ProspectScope::canSee( $user_id, $prospect_id );
     }
 
+    /**
+     * #4694 — the keys a reader who does not work the funnel receives of a
+     * prospect row (`ProspectScope::worksTheFunnel()`), with `birth_year`
+     * in place of the date of birth. An allow-list, so a column added to
+     * `tt_prospects` later reaches this reader only once it is named here.
+     */
+    public const READER_KEYS = [
+        'id', 'first_name', 'last_name', 'current_club', 'age_group_lookup_id',
+        'preferred_position_lookup_id', 'discovered_at', 'consent_given_at',
+        'promoted_to_player_id', 'promoted_to_trial_case_id', 'created_at',
+        'archived_at', 'archive_reason',
+    ];
+
+    /**
+     * A prospect row as this reader receives it: whole for whoever works the
+     * funnel, the allow-listed keys and the birth year for anyone else. The
+     * registered fields are then masked by `RecordRedactor` as for any row.
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    public static function forReader( array $row, int $user_id ): array {
+        if ( ProspectScope::worksTheFunnel( $user_id ) ) return $row;
+
+        $out = array_intersect_key( $row, array_flip( self::READER_KEYS ) );
+        $out['birth_year'] = preg_match( '/^(\d{4})/', (string) ( $row['date_of_birth'] ?? '' ), $m ) ? $m[1] : '';
+        return $out;
+    }
+
     /** May this viewer log a consent request for this prospect? */
     public static function canLogConsent( int $user_id, int $prospect_id ): bool {
         return self::canOpen( $user_id, $prospect_id )
