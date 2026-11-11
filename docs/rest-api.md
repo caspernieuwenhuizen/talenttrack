@@ -1086,6 +1086,13 @@ which rule it used in `window.source` (`season` | `custom` | `all_time`), so
 on `tt_coach`, so the cap alone would hand a head coach every squad in the
 academy — the same leak #3152 closed on the sibling routes.
 
+**Per-player rows follow the player read.** `scorers`, `assists` and
+`appearances` list only the players the caller may view, by the check the
+player pages use (`AuthorizationService::canViewPlayers()`, asked once for
+every row in the payload). A coach of the team and the head of development get
+every row; a scout gets rows for the players linked to them. `record` and
+`form` are team totals and are the same for every caller who reads the team.
+
 **Composed, not recomputed.** Goals and assists come from
 `GoalContributionQuery`, appearances and minutes from `MinutesQuery`; only the
 record is new SQL. Goals here therefore reconcile exactly with the minutes

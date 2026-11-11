@@ -534,7 +534,8 @@ class TeamsRestController {
      *
      * Composition only: the shape comes straight from the domain query, so a
      * non-WordPress front end and the rendered statistics tab cannot disagree
-     * about a team's record (CLAUDE.md §4).
+     * about a team's record (CLAUDE.md §4). The per-player rows are cut to
+     * the players the caller may view; the record and form stay whole.
      *
      * `from` / `to` are optional and must both be `Y-m-d` when given. Half a
      * window, or a malformed one, is a 400 — quietly falling back to the
@@ -560,9 +561,10 @@ class TeamsRestController {
             $filters = [ 'from' => $from, 'to' => $to ];
         }
 
-        return RestResponse::success(
-            ( new \TT\Modules\Analytics\Reports\TeamMatchStatsQuery() )->forTeam( $id, $filters )
-        );
+        return RestResponse::success( \TT\Modules\Analytics\Reports\TeamMatchStatsQuery::forReader(
+            ( new \TT\Modules\Analytics\Reports\TeamMatchStatsQuery() )->forTeam( $id, $filters ),
+            get_current_user_id()
+        ) );
     }
 
     /**
