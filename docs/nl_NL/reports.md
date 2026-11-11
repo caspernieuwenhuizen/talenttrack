@@ -181,7 +181,7 @@ Daarop staan twee soorten tellingen:
   regel die zegt hoeveel het er waren.
 - **Elk minutencijfer** telt losse wedstrijden **en toernooidagen**, want een
   toernooidag levert minuten op zoals elke wedstrijd. Staan beide op één
-  pagina, dan zegt de minutenregel hoeveel toernooidagen hij meetelt: het
+  pagina, dan zegt de minutensectie hoeveel toernooidagen ze meetelt: het
   aantal gespeelde wedstrijden bij de minuten is dat van de balans plus die
   dagen.
 

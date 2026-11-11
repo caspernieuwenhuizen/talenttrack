@@ -353,24 +353,15 @@ final class TeamMonthlyReport {
                     : __( 'No attendance recorded.', 'talenttrack' );
 
             case TeamMonthlyReportBlock::MINUTES:
-                $line = sprintf(
+                // #4957 — the tournament days among these are named under the
+                // section, not here: this line is cut at 64 characters on paper.
+                return sprintf(
                     /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
                     __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),
                     (int) ( $d['matches_recorded'] ?? 0 ),
                     (int) ( $d['matches_played'] ?? 0 ),
                     (int) ( $d['target_pct'] ?? 50 )
                 );
-                // #4957 — the played count includes tournament days, which the
-                // match section leaves out of its record; say so.
-                $days = (int) ( $d['tournaments_played'] ?? 0 );
-                if ( $days > 0 ) {
-                    $line .= ' ' . sprintf(
-                        /* translators: %d: tournament days among the matches played */
-                        _n( 'Including %d tournament day.', 'Including %d tournament days.', $days, 'talenttrack' ),
-                        $days
-                    );
-                }
-                return $line;
 
             case TeamMonthlyReportBlock::MATCHES:
                 if ( $list( 'fixtures' ) === [] ) return __( 'No matches played this period.', 'talenttrack' );

@@ -12,7 +12,7 @@ and *Without a score* can drop by a match dated after today that was marked
 completed or scored, and *Without a score* no longer counts a match today that
 has not been played yet. The team monthly report's line "Minutes recorded for
 N of M matches played" now counts tournament days, as the minutes beside it
-always did, and adds "Including N tournament days." The monthly report's match
+always did, and a line under the section adds "Including N tournament days." The monthly report's match
 list shows played matches only. Minutes recorded on a match dated after today
 no longer count on any minutes report until that date. The REST answers of
 `GET /teams/{id}/stats`, `GET /reports/minutes-share` and

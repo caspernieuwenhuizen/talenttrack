@@ -8,6 +8,8 @@ use TT\Modules\Analytics\Reports\MinutesShareQuery;
 use TT\Modules\Analytics\Reports\TeamMatchStatsQuery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 
 /**
  * #4957 — every surface that says "played" counts the same matches.
@@ -86,11 +88,14 @@ final class PlayedMatchSurfacesTest extends WP_UnitTestCase {
         $this->assertCount( 2, $report['matches']['fixtures'] );
     }
 
-    public function test_the_minutes_line_names_the_tournament_days(): void {
+    public function test_the_minutes_section_names_the_tournament_days(): void {
         $report = ( new TeamMonthlyReport() )->forTeam( $this->team, $this->from, $this->to, [ 'minutes' ] );
         $line   = TeamMonthlyReport::sectionMeta( TeamMonthlyReportBlock::MINUTES, $report['data']['minutes'] );
         $this->assertStringContainsString( 'Minutes recorded for 2 of 3 matches played.', $line );
-        $this->assertStringContainsString( 'Including 1 tournament day.', $line );
+
+        $prep = TeamMonthlyReportDocument::prepare( $report, TeamMonthlyReportLayout::ONE_PAGER );
+        $html = TeamMonthlyReportDocument::html( $prep['report'], TeamMonthlyReportLayout::ONE_PAGER, 'Surfaces U15', [], $prep['fit']['groups'] );
+        $this->assertStringContainsString( 'Including 1 tournament day.', $html );
     }
 
     private function day( int $offset ): string {

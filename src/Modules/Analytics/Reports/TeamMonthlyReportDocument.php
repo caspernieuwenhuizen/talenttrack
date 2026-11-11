@@ -530,8 +530,8 @@ final class TeamMonthlyReportDocument {
                 ? self::attendanceSummary( $d )
                 : self::bars( 'attendance', $d, 'present_pct', null );
             case 'minutes':    return ( $d['level'] ?? '' ) === SectionLevel::SUMMARY
-                ? self::minutesSummary( $d )
-                : self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
+                ? self::minutesSummary( $d, self::minutesTournamentNote( $d ) )
+                : self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ), self::minutesTournamentNote( $d ) );
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
@@ -721,8 +721,11 @@ final class TeamMonthlyReportDocument {
         return $out;
     }
 
-    /** @param array<string,mixed> $d */
-    private static function bars( string $block, array $d, string $value_key, ?int $target ): string {
+    /**
+     * @param array<string,mixed> $d
+     * @param string $note a muted line under the bars, already escaped, or ''
+     */
+    private static function bars( string $block, array $d, string $value_key, ?int $target, string $note = '' ): string {
         $rows = is_array( $d['rows'] ?? null ) ? $d['rows'] : [];
         $out  = '<div class="sec">' . self::head( $block ) . '<table class="bars">';
         foreach ( $rows as $r ) {
@@ -750,7 +753,26 @@ final class TeamMonthlyReportDocument {
                 . '<td class="vl">' . esc_html( self::pct( $pct ) ) . '</td>'
                 . '</tr>';
         }
-        return $out . '</table></div>';
+        return $out . '</table>' . $note . '</div>';
+    }
+
+    /**
+     * #4957 — the minutes section counts tournament days among its played
+     * matches, which the match section leaves out of its record; say how
+     * many. Under the section rather than in its header line: the header is
+     * cut at 64 characters on paper, and the count would not survive it.
+     *
+     * @param array<string,mixed> $d
+     */
+    private static function minutesTournamentNote( array $d ): string {
+        $days = (int) ( $d['tournaments_played'] ?? 0 );
+        if ( $days <= 0 ) return '';
+
+        return '<div class="muted">' . esc_html( sprintf(
+            /* translators: %d: tournament days among the matches played */
+            _n( 'Including %d tournament day.', 'Including %d tournament days.', $days, 'talenttrack' ),
+            $days
+        ) ) . '</div>';
     }
 
     /**
@@ -801,8 +823,9 @@ final class TeamMonthlyReportDocument {
      * target, and who is under it.
      *
      * @param array<string,mixed> $d
+     * @param string $note a muted line under the figures, already escaped, or ''
      */
-    private static function minutesSummary( array $d ): string {
+    private static function minutesSummary( array $d, string $note = '' ): string {
         $under = is_array( $d['under'] ?? null ) ? $d['under'] : [];
         $cells = [
             self::statCell( esc_html( self::pct( $d['median_share_pct'] ?? null ) ), __( 'Median share', 'talenttrack' ), '', '' ),
@@ -815,7 +838,7 @@ final class TeamMonthlyReportDocument {
             ),
         ];
 
-        return '<div class="sec">' . self::head( 'minutes' ) . '<table class="tstat lsum"><tr>' . implode( '', $cells ) . '</tr></table></div>';
+        return '<div class="sec">' . self::head( 'minutes' ) . '<table class="tstat lsum"><tr>' . implode( '', $cells ) . '</tr></table>' . $note . '</div>';
     }
 
     /**

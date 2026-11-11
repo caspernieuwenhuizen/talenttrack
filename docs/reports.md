@@ -178,7 +178,7 @@ all count played matches by this rule. Two kinds of count sit on it:
   were.
 - **Every minutes figure** counts single matches **and tournament days**,
   because a tournament day carries minutes like any match. Where both sit on
-  one page, the minutes line says how many tournament days it includes: the
+  one page, the minutes section says how many tournament days it includes: the
   minutes' played count is the record's played count plus those days.
 
 **What this changed.** Some figures moved when the rule became one. The

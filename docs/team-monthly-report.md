@@ -285,7 +285,7 @@ move with it.
   the Minutes share report uses. "Minutes recorded for N of M played matches"
   counts the played matches the way every minutes report does: the matches
   the **Matches** section calls played, plus the tournament days played, which
-  the line names ("Including 2 tournament days."). **Data quality** counts the
+  a line under the section names ("Including 2 tournament days."). **Data quality** counts the
   matches without minutes the same way. The **Matches** section lists the
   played matches only; a match later in the month is not on it yet.
 - **Matches** — results and match statistics. See below.

@@ -1,4 +1,4 @@
-#: src/Modules/Analytics/Reports/TeamMonthlyReport.php:338
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:773
 #, php-format
 msgid "Including %d tournament day."
 msgid_plural "Including %d tournament days."

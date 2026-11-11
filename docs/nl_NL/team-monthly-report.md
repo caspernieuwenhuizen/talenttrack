@@ -302,7 +302,7 @@ mee.
   Minutenaandeel gebruikt. "Minuten vastgelegd voor N van de M gespeelde
   wedstrijden" telt de gespeelde wedstrijden zoals elk minutenrapport dat
   doet: de wedstrijden die de sectie **Wedstrijden** gespeeld noemt, plus de
-  gespeelde toernooidagen, die de regel noemt ("Inclusief 2 toernooidagen.").
+  gespeelde toernooidagen, die een regel onder de sectie noemt ("Inclusief 2 toernooidagen.").
   **Datakwaliteit** telt de wedstrijden zonder minuten op dezelfde manier. De
   sectie **Wedstrijden** toont alleen de gespeelde wedstrijden; een wedstrijd
   later in de maand staat er nog niet op.
