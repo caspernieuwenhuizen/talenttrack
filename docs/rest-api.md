@@ -694,7 +694,7 @@ The response is the groups still locked. Unlocking a group that is not locked an
 
 ### Archive state on `GET /activities` (#5101)
 
-`filter[archived]` is `active` (the default), `archived` or `all`; the legacy `include_archived=1` reads as `all`. **An activity in the recycle bin never appears in the list**, in any state and with or without `filter[played]`: the list runs the same clause as the rendered activities list (`ActivitiesRepository::listArchiveClause()`, over `ArchiveRepository::filterClause()`). `filter[archived]=trashed` is not a state of this list and reads as `active`; the recycle bin is its own screen. Before this, the list returned trashed activities whenever `filter[played]` was absent or `0` (under `active` and `archived` as well as `all`), and `filter[archived]=trashed` returned every activity, trashed or not.
+`filter[archived]` is `active` (the default), `archived` or `all`; the legacy `include_archived=1` reads as `all`. **An activity in the recycle bin never appears in the list**, in any state and with or without `filter[played]`: the list runs the same clause as the rendered activities list (`ActivitiesRepository::listArchiveClause()`, over `ArchiveRepository::filterClause()`). `filter[archived]=trashed` is not a state of this list and reads as `active`; the recycle bin is its own screen. An archived activity appears under `archived` and `all`, except with `filter[played]=1`, which counts live matches only (below). Before this, the list returned trashed activities whenever `filter[played]` was absent or `0` (under `active` and `archived` as well as `all`), and `filter[archived]=trashed` returned every activity, trashed or not.
 
 ### Played matches: `GET /activities` with `filter[played]=1` (#4507)
 

@@ -77,9 +77,11 @@ final class ActivitiesListTrashTest extends WP_UnitTestCase {
         $this->assertNotContains( $this->trashed, $ids, 'a trashed activity' );
         $this->assertNotContains( $this->archived_trashed, $ids, 'an archived activity in the recycle bin' );
 
-        // The recycle bin is not a state of the list: it reads as active.
+        // The recycle bin is not a state of the list: it reads as active. The
+        // played drill counts live matches only (`PlayedMatch`), so it never
+        // holds an archived one, whatever the archive state.
         $shows_live     = in_array( $state, [ '', 'active', 'all', 'trashed' ], true );
-        $shows_archived = in_array( $state, [ 'archived', 'all' ], true );
+        $shows_archived = in_array( $state, [ 'archived', 'all' ], true ) && $played !== '1';
         $this->assertSame( $shows_live, in_array( $this->live, $ids, true ), 'the live activity' );
         $this->assertSame( $shows_archived, in_array( $this->archived, $ids, true ), 'the archived activity' );
     }
