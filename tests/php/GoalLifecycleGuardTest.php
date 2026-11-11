@@ -12,8 +12,9 @@ use WP_UnitTestCase;
  *
  * This test fails on a new literal list of goal statuses in a PHP file that
  * deals with goals: two status literals (or `GoalStatus::` constants) side
- * by side, or the old `status NOT IN ( 'completed' …` shape. A list that is
- * not an open-goal rule is named below with its reason.
+ * by side, in either spelling (`in_progress` or `In Progress`), on one line
+ * or one per line; or the old `status NOT IN ( 'completed' …` shape. A list
+ * that is not an open-goal rule is named below with its reason.
  */
 final class GoalLifecycleGuardTest extends WP_UnitTestCase {
 
@@ -28,8 +29,12 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
     private const NOT_AN_OPEN_RULE = [
         // The export's single-status filter values, one status at a time.
         'src/Modules/Export/Exporters/GoalsCsvExporter.php' => [ "'pending', 'in_progress', 'completed', 'archived', 'all'" ],
-        // The seeded lookup vocabularies (plan states, approval decisions, tasks).
-        'src/Modules/Configuration/LookupCanonicalSeeds.php' => [ "'draft', 'planned', 'scheduled', 'in_progress', 'completed'", "'goal_approval_decision'", "'open', 'in_progress', 'completed', 'overdue', 'skipped', 'cancelled'" ],
+        // The seeded lookup vocabularies (goal statuses, plan states,
+        // approval decisions, tasks): the rows the lookup is created with.
+        'src/Modules/Configuration/LookupCanonicalSeeds.php' => [ "'goal_status'   =>", "'draft', 'planned', 'scheduled', 'in_progress', 'completed'", "'goal_approval_decision'", "'open', 'in_progress', 'completed', 'overdue', 'skipped', 'cancelled'" ],
+        'src/Core/Activator.php' => [ "[ 'Pending','In Progress','Completed','On Hold','Cancelled' ]" ],
+        // Demo data picking which lookup spelling exists to write.
+        'src/Modules/DemoData/Generators/GoalGenerator.php' => [ 'firstMatching(' ],
         // The open PDP files, not goals.
         'src/Modules/AdminCenterClient/PayloadBuilder.php' => [ 'tt_pdp_files' ],
     ];
@@ -57,8 +62,14 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
             . "\$open = ! in_array( \$g->status, [ GoalStatus::COMPLETED, GoalStatus::CANCELLED ], true );\n"
             . "\$sql .= \" AND ( status IS NULL OR status NOT IN ( 'completed' ) )\";\n"
             . "// a comment that names 'completed', 'cancelled' is not code\n"
-            . "\$fine = GoalLifecycle::openClause( 'g' );\n";
-        $this->assertSame( [ 2, 3, 4 ], self::statusLists( $planted, [] ) );
+            . "\$fine = GoalLifecycle::openClause( 'g' );\n"
+            . "\$sql = \"WHERE status IN ('In Progress', 'Pending')\";\n"
+            . "\$open = [\n"
+            . "    'on hold',\n"
+            . "    GoalStatus::IN_PROGRESS,\n"
+            . "];\n"
+            . "\$one = 'completed';\n";
+        $this->assertSame( [ 2, 3, 4, 7, 9 ], self::statusLists( $planted, [] ), 'one line, TitleCase, and one item per line (reported where it starts)' );
     }
 
     /**
@@ -69,20 +80,40 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
      * @return list<int>
      */
     private static function statusLists( string $code, array $allowed ): array {
-        $status = '(?:pending|pending_approval|in_progress|completed|cancelled|on_hold|approved)';
+        // Both spellings: the snake_case codes and the TitleCase lookup names.
+        $status = '(?:pending|pending[ _]approval|in[ _]progress|completed|cancelled|on[ _]hold|approved)';
         $item   = "(?:['\"]{$status}['\"]|GoalStatus::(?:PENDING|PENDING_APPROVAL|IN_PROGRESS|COMPLETED|CANCELLED|ON_HOLD))";
         $pair   = '/' . $item . '\s*,\s*' . $item . '/i';
+        // A list written one item per line: an item alone on its line, after
+        // another such line.
+        $alone  = '/^\s*' . $item . '\s*,?\s*$/i';
         $not_in = '/status\s+NOT\s+IN\s*\(\s*[\'"](?:completed|cancelled)[\'"]/i';
 
-        $out = [];
+        $out      = [];
+        $previous = null;
         foreach ( preg_split( '/\R/', $code ) ?: [] as $i => $line ) {
             $trim = ltrim( $line );
-            if ( $trim === '' || str_starts_with( $trim, '*' ) || str_starts_with( $trim, '//' ) || str_starts_with( $trim, '/*' ) || str_starts_with( $trim, '#' ) ) continue;
-            if ( preg_match( $pair, $line ) !== 1 && preg_match( $not_in, $line ) !== 1 ) continue;
+            if ( $trim === '' ) continue;
+            if ( str_starts_with( $trim, '*' ) || str_starts_with( $trim, '//' ) || str_starts_with( $trim, '/*' ) || str_starts_with( $trim, '#' ) ) {
+                $previous = null;
+                continue;
+            }
+            $is_alone    = preg_match( $alone, $line ) === 1;
+            $after_alone = $previous;
+            $previous    = $is_alone ? $i + 1 : null;
+
+            $hit = null;
+            if ( preg_match( $pair, $line ) === 1 || preg_match( $not_in, $line ) === 1 ) {
+                $hit = $i + 1;
+            } elseif ( $is_alone && $after_alone !== null ) {
+                // Report the list where it starts, once.
+                $hit = $after_alone;
+            }
+            if ( $hit === null || in_array( $hit, $out, true ) ) continue;
             foreach ( $allowed as $fragment ) {
                 if ( strpos( $line, $fragment ) !== false ) continue 2;
             }
-            $out[] = $i + 1;
+            $out[] = $hit;
         }
         return $out;
     }

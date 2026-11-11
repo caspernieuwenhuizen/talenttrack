@@ -142,7 +142,7 @@ The *Record verdict* button sits with the conversation list, below the cycle. It
 
 ## Carryover
 
-Setting a new season as current triggers a one-shot job: every open PDP file in the previous season's roster is replicated for the new season — fresh conversations, fresh `created_at`, but the player's open goals (the open goals, as on the Goals tab) carry forward.
+Setting a new season as current triggers a one-shot job: every open PDP file in the previous season's roster is replicated for the new season — fresh conversations, fresh `created_at`, but the player's open goals (status pending, waiting for approval, in progress, on hold or approved, in any spelling) carry forward. Completed, cancelled and rejected goals stay behind.
 
 Conversation prose does **not** carry over. Each season starts with a clean slate; the previous season's history stays where it is.
 

@@ -599,7 +599,9 @@ final class ExcelImporter {
                 'player_id'   => $player_id,
                 'title'       => (string) ( $r['title'] ?? '' ),
                 'description' => (string) ( $r['description'] ?? '' ),
-                'status'      => (string) ( $r['status'] ?? 'open' ),
+                // #5074 — an empty cell is a goal not started yet. `open` was
+                // never a goal status, so those goals counted as open nowhere.
+                'status'      => trim( (string) ( $r['status'] ?? '' ) ) !== '' ? (string) $r['status'] : \TT\Domain\Vocabularies\Lookups\GoalStatus::PENDING,
                 'created_at'  => ( $r['created_at'] ?? '' ) !== '' ? $this->formatDate( $r['created_at'] ) . ' 00:00:00' : current_time( 'mysql' ),
             ] );
             $id = (int) $wpdb->insert_id;
