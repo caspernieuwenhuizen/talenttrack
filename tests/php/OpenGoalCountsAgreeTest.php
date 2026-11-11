@@ -92,6 +92,25 @@ final class OpenGoalCountsAgreeTest extends WP_UnitTestCase {
         $this->assertSame( self::OPEN, $open, 'the PHP rule the PDP evidence uses' );
     }
 
+    /** A goal written with an empty status is stored as the default, so it stays open. */
+    public function test_post_goals_with_an_empty_status_stores_pending(): void {
+        global $wp_rest_server, $wpdb;
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+
+        $request = new \WP_REST_Request( 'POST', '/talenttrack/v1/goals' );
+        $request->set_body_params( [ 'player_id' => $this->player, 'title' => 'Ogc leeg', 'status' => '' ] );
+        $response = rest_do_request( $request );
+        $wp_rest_server = null;
+
+        $this->assertLessThan( 300, $response->get_status(), (string) wp_json_encode( $response->get_data() ) );
+        $stored = $wpdb->get_var( $wpdb->prepare(
+            "SELECT status FROM {$wpdb->prefix}tt_goals WHERE player_id = %d AND title = %s",
+            $this->player, 'Ogc leeg'
+        ) );
+        $this->assertSame( 'pending', $stored );
+    }
+
     public function test_open_and_not_open_split_every_goal(): void {
         $repo = new GoalsRepository();
         $this->assertSame( 9, $repo->countActiveForPlayer( $this->player ) + $repo->countClosedForPlayer( $this->player ), 'every goal is in exactly one of the two' );
