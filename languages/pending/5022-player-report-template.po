@@ -1,0 +1,19 @@
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "Player report for a scout"
+msgstr "Spelersrapport voor een scout"
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "Player report for the family"
+msgstr "Spelersrapport voor het gezin"
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report as a scout receives it: evaluation scores without the coach's notes, attendance, playing time and tests at the public level."
+msgstr "Het spelersrapport zoals een scout het ontvangt: evaluatiescores zonder de notities van de trainer, aanwezigheid, speeltijd en testen op het openbare niveau."
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report as the player and their parents receive it, through a snapshot you share: evaluation scores without the coach's notes, attendance, playing time, goals and tests."
+msgstr "Het spelersrapport zoals de speler en de ouders het ontvangen, via een momentopname die je deelt: evaluatiescores zonder de notities van de trainer, aanwezigheid, speeltijd, doelen en testen."
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report for the conversation with the player: status, talking points, evaluations, attendance, playing time, goals, the development plan and space for notes."
+msgstr "Het spelersrapport voor het gesprek met de speler: status, gespreksonderwerpen, evaluaties, aanwezigheid, speeltijd, doelen, het ontwikkelplan en ruimte voor notities."

@@ -103,11 +103,12 @@ final class PlayerReport {
 
     /**
      * One block, by its composer (#4590). The Studio's blocks call the same
-     * composers, so a figure reads the same in both.
+     * composers, so a figure reads the same in both; #5022 — a Studio section
+     * block composes through this one dispatch.
      *
      * @return array<string,mixed>
      */
-    private static function block( string $block, PlayerReportContext $ctx ): array {
+    public static function block( string $block, PlayerReportContext $ctx ): array {
         switch ( $block ) {
             case PlayerReportBlock::LETTERHEAD:     return LetterheadComposer::compose( $ctx );
             case PlayerReportBlock::MINUTES:        return MinutesComposer::compose( $ctx );

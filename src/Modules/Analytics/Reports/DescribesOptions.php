@@ -16,13 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * - `level` — the Summary / Details choice (`SectionLevel`);
  * - `switch` — on or off;
- * - `ids` — a list of record ids, offered from `fieldChoices()`.
+ * - `ids` — a list of record ids, offered from `fieldChoices()`;
+ * - `enum` — one of the values `fieldChoices()` offers (#5022).
  */
 interface DescribesOptions extends BlockOptionsInterface {
 
     public const KIND_LEVEL  = 'level';
     public const KIND_SWITCH = 'switch';
     public const KIND_IDS    = 'ids';
+    public const KIND_ENUM   = 'enum';
 
     /**
      * The fields, in the order a panel offers them, each with what it means
@@ -36,9 +38,10 @@ interface DescribesOptions extends BlockOptionsInterface {
     public static function fieldLabel( string $key ): string;
 
     /**
-     * The values an `ids` field offers: id => label. Empty for any other kind.
+     * The values an `ids` or `enum` field offers: value => label. Empty for
+     * any other kind.
      *
-     * @return array<int,string>
+     * @return array<int|string,string>
      */
     public static function fieldChoices( string $key ): array;
 }

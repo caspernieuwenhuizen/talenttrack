@@ -4,35 +4,43 @@ namespace TT\Modules\ReportStudio\Blocks;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Visibility\ReaderSet;
+use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
-use TT\Modules\Analytics\Reports\PlayerSectionRights;
-use TT\Modules\Analytics\Reports\PlayerReportComposers\EvidenceComposer;
+use TT\Modules\Analytics\Reports\PlayerReportBlockOptions;
 use TT\Modules\Analytics\Reports\PlayerReportComposers\PlayerReportContext;
-use TT\Modules\Analytics\Reports\PlayerReportComposers\TalkingPointsComposer;
 use TT\Modules\Analytics\Reports\PlayerReportLayout;
+use TT\Modules\Analytics\Reports\PlayerSectionRights;
 use TT\Modules\Export\Exporters\PlayerReportPdfDocument;
 use TT\Modules\ReportStudio\Domain\CutsForReader;
 use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
+use TT\Modules\ReportStudio\Domain\SectionOptions;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
 /**
  * One section of the player report as a Studio block (#4961): the section's
- * composer payload, composed through the player report's own composers over
- * one evidence packet per player, period and audience, and cut to the
- * audience by `PlayerReportAudience::apply()`, as the report cuts it.
+ * composer payload, composed through the player report's own dispatch
+ * (`PlayerReport::block()`) over one evidence packet per player, period and
+ * audience, and cut to the audience by `PlayerReportAudience::apply()`, as
+ * the report cuts it.
  *
  * Who may receive it is the report's allowlists (`audiencesFor()`), never a
- * list of its own: status, talking points, the development plan, the matches,
- * the journey, injuries, behaviour and potential are for staff only. The
- * packet gates each section for the reader as it does on the report: injuries
- * on the medical rung, the journey on the reader's visibility levels.
+ * list of its own: status, talking points, the development plan, the notes
+ * area, the matches, the journey, injuries, behaviour, potential and the
+ * staff notes are for staff only. The packet gates each section for the
+ * reader as it does on the report: injuries on the medical rung, the journey
+ * on the reader's visibility levels, the staff notes on the thread's rules.
  *
  * It prints with the player report's section renderer and is measured with
  * that report's heights. A section a family may receive is a
  * `PlayerFamilySectionBlock`, which names its section.
+ *
+ * #5022 — every section of the report is one, so the player report template
+ * is built from these blocks alone. The notes area (`player_notes`) prints
+ * as the report's ruled lines; what is said in the talk is a snapshot's note
+ * on that block, never a value in the definition.
  */
 class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader {
 
@@ -40,13 +48,32 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
     public const KEYS = [
         PlayerReportBlock::STATUS         => 'player_status',
         PlayerReportBlock::TALKING_POINTS => 'player_talking_points',
+        PlayerReportBlock::RATINGS        => 'player_ratings',
+        PlayerReportBlock::ATTENDANCE     => 'player_attendance',
+        PlayerReportBlock::MINUTES        => 'player_minutes',
+        PlayerReportBlock::GOALS          => 'player_goals',
         PlayerReportBlock::PDP            => 'player_pdp',
+        PlayerReportBlock::NOTES          => 'player_notes',
         PlayerReportBlock::MATCHES        => 'player_matches',
         PlayerReportBlock::TESTS          => 'player_tests',
         PlayerReportBlock::JOURNEY        => 'player_journey',
         PlayerReportBlock::INJURIES       => 'player_injuries',
         PlayerReportBlock::BEHAVIOUR      => 'player_behaviour',
         PlayerReportBlock::POTENTIAL      => 'player_potential',
+        PlayerReportBlock::THREAD_NOTES   => 'player_thread_notes',
+    ];
+
+    /**
+     * The payload keys of each section an external audience may receive, as
+     * its composer returns them. The report's own audience cut has already
+     * run, so these are every key the section still holds for that audience.
+     */
+    private const EXTERNAL_KEYS = [
+        PlayerReportBlock::RATINGS    => [ 'evaluation_count', 'latest', 'latest_date', 'average', 'series', 'categories', 'evaluations', 'has_subcategories', 'detail' ],
+        PlayerReportBlock::ATTENDANCE => [ 'activities', 'present', 'late', 'absent', 'excused', 'injured', 'attended', 'missed', 'rate' ],
+        PlayerReportBlock::MINUTES    => [ 'apps', 'minutes', 'matches', 'share' ],
+        PlayerReportBlock::GOALS      => [ 'items' ],
+        PlayerReportBlock::TESTS      => [ 'items' ],
     ];
 
     final public function __construct( protected readonly string $section ) {
@@ -60,6 +87,11 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
         return in_array( PlayerReportAudience::FAMILY, PlayerReportAudience::audiencesFor( $section ), true )
             ? new PlayerFamilySectionBlock( $section )
             : new self( $section );
+    }
+
+    /** The Studio key of a player report section, or null for the letterhead. */
+    public static function keyFor( string $section ): ?string {
+        return self::KEYS[ $section ] ?? null;
     }
 
     /** The player report section this block is. */
@@ -88,41 +120,40 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
     }
 
     public function options( ReportContext $context ): array {
-        return [];
+        return SectionOptions::of( PlayerReportBlockOptions::ownerOf( $this->section ) );
     }
 
     public function available( ReportContext $context ): bool {
         return $context->scope === ReportContext::SCOPE_PLAYER;
     }
 
-    /**
-     * A section an external audience may receive is a list of entries, already
-     * cut to that audience when it was composed.
-     */
     public function externalKeys(): array {
-        return count( $this->audiences() ) > 1 ? [ 'items' ] : [];
+        return count( $this->audiences() ) > 1 ? ( self::EXTERNAL_KEYS[ $this->section ] ?? [] ) : [];
     }
 
     public function render( ReportContext $context, array $options ): array {
-        $sections = SharedReads::remember( 'player_report_sections:' . $context->audience, $context, static function () use ( $context ): array {
-            $ctx = PlayerReportContext::make( $context->playerId, $context->from, $context->to, $context->userId, $context->audience );
-            if ( $ctx === null ) return [];
-            $out = [ PlayerReportBlock::TALKING_POINTS => TalkingPointsComposer::compose( $ctx ) ];
-            foreach ( EvidenceComposer::BLOCKS as $block ) $out[ $block ] = EvidenceComposer::compose( $block, $ctx );
-            return $out;
-        } );
-        if ( ! is_array( $sections[ $this->section ] ?? null ) ) return [];
-        $payload = [];
-        foreach ( $sections[ $this->section ] as $k => $v ) $payload[ (string) $k ] = $v;
+        $section = $this->section;
+        $payload = SharedReads::remember(
+            'player_report_section:' . $context->audience . ':' . $section . ':' . md5( (string) wp_json_encode( $options ) ),
+            $context,
+            static function () use ( $context, $section, $options ): array {
+                $ctx = $options === []
+                    ? self::sharedContext( $context )
+                    : PlayerReportContext::make( $context->playerId, $context->from, $context->to, $context->userId, $context->audience, [ $section => $options ] );
+                return $ctx !== null ? PlayerReport::block( $section, $ctx ) : [];
+            }
+        );
+        $keyed = [];
+        foreach ( $payload as $k => $v ) $keyed[ (string) $k ] = $v;
 
         $cut = PlayerReportAudience::apply( [
             'player_id' => $context->playerId,
             'from'      => $context->from,
             'to'        => $context->to,
-            'blocks'    => [ $this->section ],
-            'data'      => [ $this->section => $payload ],
+            'blocks'    => [ $section ],
+            'data'      => [ $section => $keyed ],
         ], $context->audience );
-        return $cut['data'][ $this->section ] ?? [];
+        return $cut['data'][ $section ] ?? [];
     }
 
     /** The frozen section as this reader may read it now (`PlayerSectionRights::cut()`). */
@@ -137,5 +168,17 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
 
     public function documentHeight( array $data ): float {
         return PlayerReportLayout::printedHeight( $this->section, $data );
+    }
+
+    /**
+     * One context, so one evidence packet, per player, period, audience and
+     * reader, for every section block of the report: held in the request's
+     * shared reads, and dropped with them.
+     */
+    private static function sharedContext( ReportContext $context ): ?PlayerReportContext {
+        $held = SharedReads::remember( 'player_report_context:' . $context->audience, $context, static fn(): array => [
+            'context' => PlayerReportContext::make( $context->playerId, $context->from, $context->to, $context->userId, $context->audience ),
+        ] );
+        return ( $held['context'] ?? null ) instanceof PlayerReportContext ? $held['context'] : null;
     }
 }

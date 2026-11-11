@@ -814,9 +814,20 @@ Elk ander onderdeel van de twee rapporten is ook een blok, onder de naam die het
 
 - Uit het maandrapport van het team, voor een team en alleen voor staf: **Datadekking**, **Status selectie**, **Evaluaties** (het hele onderdeel: de gemiddelden, wie er bewoog, de spreiding en, bij Details, het raster van spelers en categorieën), **Gesprek nodig**, **Wat veranderde**, **Testen**, **Per speler** en **Datakwaliteit**. Zonder het recht om de aanwezigheid van het team te lezen, vallen de aanwezigheidscijfers uit deze blokken weg, zoals ze ook uit het rapport wegvallen.
 - Testen en Evaluaties bieden de opties die het maandrapport biedt: Samenvatting of Details, de verandering sinds de vorige meting bij testen, welke testen of welke soorten evaluaties meetellen, en de subcategorieën bij evaluaties. Het canvas toont de testen en de soorten evaluaties als vinkjes; vink er geen aan om ze allemaal te tellen.
-- Uit het spelersrapport, voor een speler: **Status**, **Gespreksonderwerpen**, **Ontwikkelplan**, **Per wedstrijd**, **Testen**, **Traject**, **Blessures**, **Gedrag** en **Potentie**. Wie elk blok mag ontvangen, volgt de eigen regel van het spelersrapport: **Testen** mag naar een scout en naar het gezin, op het openbare niveau; elk ander blok is alleen voor staf en kan niet aan een rapport voor een scout of het gezin worden toegevoegd. Blessures zijn alleen zichtbaar voor een lezer met medische toegang, zoals in het spelersrapport.
+- Uit het spelersrapport, voor een speler, elk onderdeel: **Status**, **Gespreksonderwerpen**, **Evaluaties**, **Aanwezigheid**, **Speeltijd**, **Doelen**, **Ontwikkelplan**, **Notities**, **Per wedstrijd**, **Testen**, **Traject**, **Blessures**, **Gedrag**, **Potentie** en **Stafnotities**. Wie elk blok mag ontvangen, volgt de eigen regel van het spelersrapport: **Evaluaties** (alleen scores, nooit de geschreven notities van een trainer), **Aanwezigheid**, **Speeltijd** (het eigen aandeel van de speler, nooit het teamgemiddelde) en **Testen** (op het openbare niveau) mogen naar een scout en naar het gezin, en **Doelen** naar het gezin; elk ander blok is alleen voor staf en kan niet aan een rapport voor een scout of het gezin worden toegevoegd. Blessures zijn alleen zichtbaar voor een lezer met medische toegang, zoals in het spelersrapport. **Evaluaties** biedt de keuze van het spelersrapport tussen hoofdcategorieën of met subcategorieën.
+- **Notities** drukt de lijnen af die het spelersrapport openlaat voor het gesprek. Wat je daar schrijft, komt op een momentopname van het rapport, als notitie bij dat blok: het wordt nooit in het rapport zelf opgeslagen, dus publiceren of wijzigen van het rapport verandert het niet.
 
-De notitieonderdelen van beide rapporten zijn geen blokken: een notitie over een speler schrijf je op een momentopname.
+Het notitieonderdeel van het maandrapport van het team volgt met de sjabloon van het maandrapport.
+
+**Het spelersrapport als sjabloon**
+
+Het spelersrapport is ook een sjabloon, één keer voor elke lezer:
+
+- **Spelersrapport**: voor staf, met de onderdelen waarmee het spelersrapport opent: status, gespreksonderwerpen, evaluaties, aanwezigheid en speeltijd naast elkaar, doelen, het ontwikkelplan en de ruimte voor notities.
+- **Spelersrapport voor een scout**: evaluaties, aanwezigheid, speeltijd en testen, zoals een scout het spelersrapport ontvangt.
+- **Spelersrapport voor het gezin**: evaluaties, aanwezigheid, speeltijd, doelen en testen, zoals de speler en de ouders het ontvangen. Het gezin leest het alleen via een momentopname die je deelt.
+
+Elk blok in een sjabloon toont dezelfde cijfers als dat onderdeel van het spelersrapport voor dezelfde speler en periode, en wordt op dezelfde manier afgedrukt. Je krijgt alleen de sjablonen aangeboden die je mag starten: de versie voor een scout vraagt het recht om rapporten te publiceren. Een rapport dat je vanuit een sjabloon start, is je eigen rapport, en je kunt het wijzigen zoals elk ander rapport.
 
 ## Report Studio — een gedeeld rapport lezen
 

@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * subcategory level the report renders main categories, and the panel does
  * not offer the choice.
  */
-final class RatingsBlockOptions implements BlockOptionsInterface {
+final class RatingsBlockOptions implements DescribesOptions {
 
     public const DETAIL = 'detail';
 
@@ -62,8 +62,28 @@ final class RatingsBlockOptions implements BlockOptionsInterface {
     public static function unknownKeys( array $raw ): array {
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
-            static fn( string $key ): bool => ! array_key_exists( $key, self::DEFAULTS )
+            static fn( string $key ): bool => ! in_array( $key, array_column( self::fields(), 'key' ), true )
         ) );
+    }
+
+    /**
+     * #5022 — the options a panel offers, the ones `unknownKeys()` accepts.
+     *
+     * @return list<array{key:string, kind:string, default:mixed}>
+     */
+    public static function fields(): array {
+        return [
+            [ 'key' => self::DETAIL, 'kind' => self::KIND_ENUM, 'default' => self::DEFAULTS[ self::DETAIL ] ],
+        ];
+    }
+
+    public static function fieldLabel( string $key ): string {
+        return $key === self::DETAIL ? _x( 'Level of detail', 'report section option', 'talenttrack' ) : '';
+    }
+
+    /** @return array<int|string,string> */
+    public static function fieldChoices( string $key ): array {
+        return $key === self::DETAIL ? self::labels() : [];
     }
 
     /**
