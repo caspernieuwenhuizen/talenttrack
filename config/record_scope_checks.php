@@ -146,6 +146,9 @@ return [
         'TrialCaseAccessPolicy::canOpenCase',
         'MediaVisibilityService::can',
         'ScoutingVisitsAccess::canReadVisit',
+        // #5085 — changing a visit: the scout's own, or every visit for
+        // `tt_manage_prospects`. Reading every visit never reaches it.
+        'ScoutingVisitsAccess::canEditVisit',
         // A staff member's development record: their own, or every record for
         // a global grant. `canManageAll()` is that global grant itself, the
         // only answer for the routes that name a goal or certification by id.
