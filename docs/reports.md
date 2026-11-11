@@ -589,8 +589,9 @@ figure is never a silent guess:
  matches it says *"not enough matches yet"* instead of drawing a trend through
  one data point. See [Match analysis](match-analysis.md) for the per-player
  half of the same data.
-- **Season summary** per-team match counts ignore soft-archived activities on
- the join itself (not just in the count), removing a source of inflated joins.
+- **Season summary** per-team table: each team's *Matches* are the single
+ matches it played in the window, by the same rule as the *Matches played*
+ tile, so the column adds up to the tile.
 
 ### Trial funnel reconciliation
 

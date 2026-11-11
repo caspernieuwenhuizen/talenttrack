@@ -1663,32 +1663,35 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],
         ] );
 
+        // #4025 — `p.status = 'active'` on the JOIN: the Players column
+        // counted trialists, released and graduated players, so it disagreed
+        // with the training roster and with the team list's own squad size.
+        //
+        // #4957 — the Matches column counts the played fixtures of each team
+        // in the window, on the JOIN (`PlayedMatch`, the tile's set), so the
+        // column adds up to the "Matches played" tile above it. It counted
+        // `('match','tournament')`, which left out every `game` row and took
+        // in tournament days, cancelled matches and next week's.
+        //
+        // The explanation lives here rather than in the SQL: a comment with
+        // non-ASCII characters inside the query made `$wpdb` refuse it as
+        // invalid data, so the table always fell back to "no teams yet".
+        $played_fixtures = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::FIXTURES, 'a' );
         $by_team = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id, t.name,
                     COUNT( DISTINCT p.id ) AS player_count,
-                    COUNT( DISTINCT CASE WHEN a.activity_type_key IN ('match','tournament')
-                                          AND a.{$date_col} BETWEEN %s AND %s
-                                          AND a.archived_at IS NULL
-                                         THEN a.id END ) AS match_count
+                    COUNT( DISTINCT a.id ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
           LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id
                                               AND p.status = %s
                                               AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
-          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
+          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id
+                                                 AND a.{$date_col} BETWEEN %s AND %s
+                                                 AND {$played_fixtures}
               WHERE t.club_id = %d AND t.archived_at IS NULL
-                /* #2346 — `a.archived_at IS NULL` moved onto the JOIN so
-                   soft-archived activities never enter the join at all
-                   (they previously inflated the join even though the CASE
-                   filtered the count). The CASE keeps its own guard for
-                   defence in depth. Builds on v4.20.44 (#1222). Audit 7.
-                   #2345 — the CASE window now follows the selected range.
-                   #4025 — `p.status = 'active'` on the JOIN: the Players
-                   column counted trialists, released and graduated players,
-                   so it disagreed with the training roster and with the team
-                   list's own squad size. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
-            $from, $to, PlayerStatus::ACTIVE, $club_id
+            PlayerStatus::ACTIVE, $from, $to, $club_id
         ) );
         // #2344 — a silent `return` here left the page blank below the KPI
         // strip when no teams exist. Render an honest empty state instead.

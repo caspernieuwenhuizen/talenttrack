@@ -628,9 +628,9 @@ cijfer nooit een stille gok is:
  wedstrijden"* in plaats van een lijn door één punt. Zie
  [Wedstrijdanalyse](match-analysis.md) voor de spelerskant van dezelfde
  gegevens.
-- **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
- wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
- waardoor een bron van opgeblazen joins verdwijnt.
+- **Seizoensoverzicht**, de tabel per team: de *Wedstrijden* van elk team zijn
+ de losse wedstrijden die het in de periode speelde, volgens dezelfde regel als
+ de tegel *Gespeelde wedstrijden*, dus de kolom telt op tot de tegel.
 
 ### Aansluiting van de trial-trechter
 

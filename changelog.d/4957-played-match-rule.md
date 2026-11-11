@@ -19,7 +19,10 @@ dated after today that was completed or carries minutes no longer counts until
 its date, and a scored match today counts as played. The Season summary's match
 tile is now *Matches played*: single matches played in the window, where it
 counted every match not archived, cancelled and next week's included, and its
-list shows the same matches. The player's *My team* form line now shows the
+list shows the same matches. The per-team table below it shows its teams again
+(it read "no teams have been created yet" on every install, because the
+database refused its query), and its *Matches* column adds up to the tile. The
+player's *My team* form line now shows the
 Statistics tab's form, without tournament days or cancelled and binned
 matches. In the monthly
 report's PDF a section's header line now wraps instead of being cut, so the

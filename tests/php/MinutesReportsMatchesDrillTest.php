@@ -147,6 +147,12 @@ final class MinutesReportsMatchesDrillTest extends WP_UnitTestCase {
         ] );
         $this->assertSame( $fixtures, $rest, 'GET /activities with the same filters returns the same rows' );
         $this->assertSame( (int) $tile['value'], count( $rest ) );
+
+        // The per-team table renders its rows (it fell back to "no teams yet"
+        // whenever teams existed), and its Matches column adds up to the tile.
+        $this->assertStringNotContainsString( 'No teams have been created for this academy yet.', $html );
+        $this->assertGreaterThan( 0, preg_match_all( '#<td class="num" role="cell" data-label="Matches">(\d+)</td>#', $html, $cells ) );
+        $this->assertSame( (int) $tile['value'], array_sum( array_map( 'intval', $cells[1] ) ), 'the per-team column adds up to the tile' );
     }
 
     public function test_a_date_drill_lands_with_past_activities_expanded(): void {
