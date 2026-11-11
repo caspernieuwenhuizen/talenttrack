@@ -10,10 +10,11 @@ use TT\Modules\Alerts\Domain\Severity;
 /**
  * PastStillPlannedAlert (#2631, epic #2629) — the driver case.
  *
- * An activity whose date has passed but which is still outstanding on the
- * status axis the coach sets — neither completed nor cancelled. A
- * cancellation is excluded deliberately: it never happened and never will,
- * so there is nothing to chase. Nobody marked it either way, so as
+ * An activity whose date has passed but which is still outstanding: not
+ * completed on the status the coach sets, and not cancelled on either the
+ * status or the planner's plan state (`ActivityLifecycle::outstandingClause()`,
+ * #5116). A cancellation is excluded deliberately: it never happened and
+ * never will, so there is nothing to chase. Nobody marked it either way, so as
  * far as every report is concerned it never happened: attendance was never
  * recorded, minutes were never logged, and the attendance reports are
  * quietly wrong (the class of problem #2521 fixed on the reporting side —
