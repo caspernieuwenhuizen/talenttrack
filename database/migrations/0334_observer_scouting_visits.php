@@ -6,8 +6,8 @@
  * The seed carries `readonly_observer` read at global scope on
  * `scouting_visits_panel` (the tile) and `scouting_visits_all`, the right
  * to read every visit in the club (`ScoutingVisitsAccess::readsEveryVisit()`).
- * No other persona holds `scouting_visits_all`, so a scout keeps seeing their
- * own visits. The visit notes are masked for this seat
+ * No other persona holds `scouting_visits_all`, so every other persona reads
+ * the visits it read before. The visit notes are masked for this seat
  * (`scouting_visit_staff`), and every write stays where it was.
  *
  * The matrix reseed never runs on upgrade, so this adds the rows to existing

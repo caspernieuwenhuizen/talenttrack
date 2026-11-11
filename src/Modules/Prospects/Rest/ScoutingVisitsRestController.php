@@ -274,6 +274,9 @@ class ScoutingVisitsRestController {
             $out[] = self::serialize( $row, (int) ( $counts[ $id ] ?? 0 ) );
         }
 
+        // #5085 — the scout's notes follow `config/sensitive_fields.php`.
+        $out = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'scouting_visits', array_values( $out ), get_current_user_id() );
+
         return RestResponse::success( [ 'rows' => $out, 'total' => count( $out ) ] );
     }
 

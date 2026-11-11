@@ -1389,7 +1389,7 @@ return array_merge(
 
         // #5085 — every scouting visit in the club, read-only, with the
         // scout's notes masked (`scouting_visit_staff`). `scouting_visits_all`
-        // is the observer's alone: a scout keeps reading their own visits.
+        // is the observer's alone: every other persona reads what it read before.
         // Existing installs get both through migration 0334.
         'scouting_visits_panel'   => [ 'r', 'global', $mod_prospects ],
         'scouting_visits_all'     => [ 'r', 'global', $mod_prospects ],

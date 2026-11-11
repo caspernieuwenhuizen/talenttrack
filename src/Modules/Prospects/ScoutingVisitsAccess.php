@@ -95,8 +95,8 @@ final class ScoutingVisitsAccess {
 
     /**
      * #5085 — does this user read every visit in the club, read-only, through
-     * `scouting_visits_all`? Seeded for the read-only observer only, so a
-     * scout keeps seeing their own visits and nothing more.
+     * `scouting_visits_all`? Seeded for the read-only observer only, so every
+     * other persona reads the visits it read before.
      */
     public static function readsEveryVisit( int $user_id ): bool {
         if ( $user_id <= 0 || ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;

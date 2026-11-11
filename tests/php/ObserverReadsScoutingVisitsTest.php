@@ -115,13 +115,23 @@ final class ObserverReadsScoutingVisitsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-masked-value', $html );
     }
 
-    public function test_a_scout_sees_their_own_and_the_head_of_development_all_as_before(): void {
+    /**
+     * The scout persona holds `prospects: create_delete` (`tt_manage_prospects`)
+     * at global scope, which already reads every visit; nothing here changes
+     * that, and the notes stay readable for them.
+     */
+    public function test_scouts_and_the_head_of_development_read_as_before(): void {
+        $this->assertFalse( ScoutingVisitsAccess::readsEveryVisit( $this->scout ), 'not through the new right' );
+
         wp_set_current_user( $this->scout );
         $this->flush();
         $rows = (array) ( $this->data( $this->dispatch( 'GET', '/talenttrack/v1/scouting-visits' ) )['rows'] ?? [] );
-        $this->assertSame( [ $this->mine ], array_map( static fn( $r ): int => (int) ( (array) $r )['id'], $rows ) );
-        $this->assertSame( self::NOTES, (string) ( ( (array) $rows[0] )['notes'] ?? '' ), 'the scout reads their own notes' );
-        $this->assertSame( 403, $this->dispatch( 'GET', '/talenttrack/v1/scouting-visits/' . $this->theirs )->get_status() );
+        $ids  = array_map( static fn( $r ): int => (int) ( (array) $r )['id'], $rows );
+        sort( $ids );
+        $this->assertSame( [ $this->mine, $this->theirs ], $ids );
+        foreach ( $rows as $row ) {
+            $this->assertSame( self::NOTES, (string) ( ( (array) $row )['notes'] ?? '' ), 'the scout reads the notes' );
+        }
 
         wp_set_current_user( $this->hod );
         $this->flush();
