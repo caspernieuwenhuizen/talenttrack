@@ -92,13 +92,25 @@ final class PlayerReport {
             $data[ $block ] = self::block( $block, $ctx );
         }
 
-        return PlayerReportAudience::apply( [
+        $report = PlayerReportAudience::apply( [
             'player_id' => $player_id,
             'from'      => $from,
             'to'        => $to,
             'blocks'    => $selected,
             'data'      => $data,
         ], $audience ) + [ 'audience' => $audience ];
+
+        // The injuries section as composed for the reader is a read of them.
+        $injuries = $report['data'][ PlayerReportBlock::INJURIES ]['items'] ?? [];
+        if ( is_array( $injuries ) && $injuries !== [] ) {
+            \TT\Infrastructure\Journey\InjuryReads::record(
+                \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+                'player_report',
+                [ $player_id => count( $injuries ) ],
+                $readers->readers
+            );
+        }
+        return $report;
     }
 
     /**

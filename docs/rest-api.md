@@ -1126,6 +1126,23 @@ the assembly the PDP Evidence tab, the printed PDP file and the verdict screen
 read, so the report cannot disagree with them about the same player on the same
 day. `EvidencePacket::forPlayer()` needs no PDP file.
 
+**Injury reads are logged.** A report whose `injuries` section lists the
+player's injuries for the signed-in reader writes one `player.injuries_viewed`
+audit row for the player (`surface` `player_report`, `count`), as the
+injuries screens do: on the page, through this route and in the PDF. A report
+without that section (ratings only, say), a family or scout composition, a
+reader without the medical right, a composition for several readers and one
+with nobody signed in, as a scheduled send is, write none. Opening a snapshot
+whose injuries section still lists injuries for the reader
+(`GET /player-report-snapshots/{uuid}`, the snapshot page, the snapshot PDF)
+writes one with `surface` `player_report_snapshot` and the `snapshot` uuid.
+Taking or sharing a snapshot is a composition that is stored, not shown, and
+writes none; `POST /players/{id}/report-snapshots` writes the one row for the
+copy it answers with. The PDP evidence packet (`EvidencePacket::forFile()`,
+`forConversation()`) writes one with `surface` `pdp` for the signed-in reader.
+All of these go through `InjuryReads`, which writes at most one row per
+action, player and reader in a request.
+
 **Window.** `from` + `to` (`Y-m-d`, `from` on or before `to`) win. Without
 them, `period` resolves one (`last_week`, `last_month`, `this_month`,
 `this_season`). With neither, the window is **the season so far** — the current
@@ -1333,6 +1350,18 @@ vocabulary, in print order: `letterhead` (always included), `coverage`, `kpi`,
 `status`, `evaluations`, `attendance`, `minutes`, `matches`, `attention`,
 `changes`, `tests`, `roster`, `notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
 not asked for is absent from `data` **and is not queried**.
+
+**Sensitive reads are logged.** When `changes` lists entries for the signed-in
+reader, each player with an injury entry shown gets one `player.injuries_viewed`
+audit row, and each player with a medical or safeguarding entry shown one
+`player.sensitive_timeline_viewed` row, both with `surface`
+`team_monthly_report`, as the injuries screen and the journey timeline log
+theirs. A reader shown none writes none; a composition for several readers or
+for nobody signed in, as a scheduled send is, writes none. Opening a snapshot
+(the snapshot page or its PDF) whose `changes`, as the reader reads it, still
+lists injury entries writes one `player.injuries_viewed` row per player shown,
+with `surface` `team_monthly_snapshot` and the `snapshot` uuid. Taking the
+snapshot writes none: it is stored, not shown.
 
 **Attendance (#4949).** The `attendance` block and the `kpi` block's
 `attendance_pct` answer to the attendance read right

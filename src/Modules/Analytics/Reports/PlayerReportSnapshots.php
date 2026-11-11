@@ -109,7 +109,8 @@ final class PlayerReportSnapshots {
             if ( $blocks === [] ) $blocks = PlayerReportAudience::FAMILY_BLOCKS;
         }
 
-        $report = ( new PlayerReport() )->forPlayer(
+        // Stored, not shown: the read is recorded when the copy is opened.
+        $report = \TT\Infrastructure\Journey\InjuryReads::quietly( static fn() => ( new PlayerReport() )->forPlayer(
             $player_id,
             $window['from'],
             $window['to'],
@@ -117,7 +118,7 @@ final class PlayerReportSnapshots {
             $user_id,
             $audience === PlayerReportAudience::FAMILY ? PlayerReportAudience::FAMILY : null,
             $composition['options']
-        );
+        ) );
         if ( $report === null ) return '';
 
         // The stored composition names the dates it covered: a snapshot of
@@ -254,6 +255,7 @@ final class PlayerReportSnapshots {
             $notes  = self::notesForStaffReader( $notes, $report, $user_id, $player_id );
         }
 
+        self::recordInjuryRead( (string) ( $row->uuid ?? '' ), $player_id, $report, $user_id );
         return [
             'uuid'        => (string) ( $row->uuid ?? '' ),
             'player_id'   => $player_id,
@@ -385,5 +387,24 @@ final class PlayerReportSnapshots {
         if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) return false;
         return $rule['section'] === ''
             || \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, $rule['section'] );
+    }
+
+    /**
+     * Opening a snapshot whose injuries section, as this reader reads it,
+     * still lists injuries is a read of them (`InjuryReads`).
+     *
+     * @param array{data:array<string,array<string,mixed>>} $report
+     */
+    private static function recordInjuryRead( string $uuid, int $player_id, array $report, int $user_id ): void {
+        $items = $report['data'][ PlayerReportBlock::INJURIES ]['items'] ?? [];
+        if ( ! is_array( $items ) || $items === [] ) return;
+
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+            'player_report_snapshot',
+            [ $player_id => count( $items ) ],
+            [ $user_id ],
+            [ 'snapshot' => $uuid ]
+        );
     }
 }

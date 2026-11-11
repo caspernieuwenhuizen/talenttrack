@@ -564,4 +564,32 @@ final class TeamMonthlyReport {
         if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $d, $m ) ) return false;
         return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] );
     }
+
+    /**
+     * Opening a snapshot whose "what changed", as this reader reads it
+     * (`forReader()`), still lists injury entries is a read of them: one
+     * `player.injuries_viewed` row per player shown, as the live section logs
+     * its reads. Only for the signed-in reader.
+     *
+     * @param array{data: array<string, array<string, mixed>>} $report the frozen report after `forReader()`
+     */
+    public static function recordSnapshotInjuryReads( array $report, string $uuid, int $viewer_user_id ): void {
+        $events = $report['data'][ TeamMonthlyReportBlock::CHANGES ]['events'] ?? [];
+        if ( ! is_array( $events ) ) return;
+
+        $counts = [];
+        foreach ( $events as $e ) {
+            if ( ! is_array( $e ) || ! in_array( (string) ( $e['event_type'] ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) continue;
+            $pid = (int) ( $e['player_id'] ?? 0 );
+            if ( $pid > 0 ) $counts[ $pid ] = ( $counts[ $pid ] ?? 0 ) + 1;
+        }
+
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+            'team_monthly_snapshot',
+            $counts,
+            [ $viewer_user_id ],
+            [ 'snapshot' => $uuid ]
+        );
+    }
 }

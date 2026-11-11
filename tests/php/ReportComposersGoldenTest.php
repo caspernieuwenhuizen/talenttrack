@@ -61,9 +61,11 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
      * recorded once on 10 November 2026 at the commit that deleted them
      * (#4958), so the report as it read before its composers were split
      * out. Lowering a number is fine; raising one needs a reason in review.
+     * The player report's two above that are the audit row a composition
+     * showing injuries writes (#5057): the table check and the insert.
      */
     private const TEAM_QUERY_BASELINE   = 191;
-    private const PLAYER_QUERY_BASELINE = 76;
+    private const PLAYER_QUERY_BASELINE = 78;
 
     private int $admin = 0;
     private int $team  = 0;

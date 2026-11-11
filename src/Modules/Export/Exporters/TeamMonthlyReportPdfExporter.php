@@ -184,12 +184,14 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         $composition = \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::compositionOf( $row );
 
         // #4949 — the frozen payload as the requester may read it.
+        $frozen = \TT\Modules\Analytics\Reports\TeamMonthlyReport::forReader(
+            \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::reportOf( $row ),
+            (int) $row->team_id,
+            $request->requesterUserId
+        );
+        \TT\Modules\Analytics\Reports\TeamMonthlyReport::recordSnapshotInjuryReads( $frozen, $uuid, $request->requesterUserId );
         $payload = self::payload(
-            \TT\Modules\Analytics\Reports\TeamMonthlyReport::forReader(
-                \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::reportOf( $row ),
-                (int) $row->team_id,
-                $request->requesterUserId
-            ),
+            $frozen,
             (string) $composition['layout'],
             $team_name,
             \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::notesOf( $row )

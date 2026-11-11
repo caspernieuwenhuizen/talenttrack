@@ -352,7 +352,7 @@ final class PlayerEventsRepository {
 
         /** @var list<object> $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
+            "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary, e.visibility,
                     p.first_name, p.last_name
                FROM {$wpdb->prefix}tt_player_events e
                JOIN {$wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id

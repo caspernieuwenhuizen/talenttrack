@@ -71,7 +71,7 @@ final class EvidencePacket {
         $win_from = (string) ( $file->start_date ?? gmdate( 'Y-m-d', (int) strtotime( '-1 year' ) ) );
         $win_to   = (string) ( $file->end_date   ?? gmdate( 'Y-m-d' ) );
 
-        return self::build( $file, $win_from, $win_to, null );
+        return self::recordPdpRead( self::build( $file, $win_from, $win_to, null ) );
     }
 
     /**
@@ -102,7 +102,7 @@ final class EvidencePacket {
         $win_from = $since ?? $season_from;
         $win_to   = $season_to;
 
-        return self::build( $file, $win_from, $win_to, $conv );
+        return self::recordPdpRead( self::build( $file, $win_from, $win_to, $conv ) );
     }
 
     /**
@@ -579,6 +579,24 @@ final class EvidencePacket {
             ];
         }
         return $out;
+    }
+
+    /**
+     * The PDP packet is shown whole (the Evidence panel, the printed file),
+     * so a packet holding injuries is a read of them by the signed-in reader.
+     *
+     * @param array<string,mixed> $packet
+     * @return array<string,mixed>
+     */
+    private static function recordPdpRead( array $packet ): array {
+        $injuries = is_array( $packet['injuries'] ?? null ) ? $packet['injuries'] : [];
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+            'pdp',
+            [ (int) ( $packet['player_id'] ?? 0 ) => count( $injuries ) ],
+            [ get_current_user_id() ]
+        );
+        return $packet;
     }
 
     /**
