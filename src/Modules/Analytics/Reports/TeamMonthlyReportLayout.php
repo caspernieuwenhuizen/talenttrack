@@ -886,14 +886,19 @@ final class TeamMonthlyReportLayout {
             case 'attendance':
             case 'minutes':
                 if ( $layout === self::MATRIX ) return [];
+                // #4957 — the minutes section names the tournament days it
+                // counts in a line under it, on both levels.
+                $note = $block === 'minutes' && (int) ( $block_data['tournaments_played'] ?? 0 ) > 0
+                    ? [ [ self::MM['match_note'], 0.0 ] ]
+                    : [];
                 if ( ( $block_data['level'] ?? '' ) === SectionLevel::SUMMARY ) {
-                    return [ [ $base + self::MM['level_strip'], 0.0 ] ];
+                    return array_merge( [ [ $base + self::MM['level_strip'], 0.0 ] ], $note );
                 }
                 $rows = self::count( $block_data, 'rows' );
                 if ( in_array( self::ELIDE_RANKED, $degraded, true ) ) {
                     $rows = self::elidedRows( $rows );
                 }
-                return self::rowsAfter( $base, $rows, self::MM['bar_row'] );
+                return array_merge( self::rowsAfter( $base, $rows, self::MM['bar_row'] ), $note );
 
             case 'attention':
                 $list = self::listOf( $block_data, 'items' );

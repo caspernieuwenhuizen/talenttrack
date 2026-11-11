@@ -7,17 +7,21 @@ completed or carries minutes or a score. The match record (played, won, drawn,
 lost, goals, without a score) counts single matches; every minutes figure
 counts single matches and tournament days.
 
-Coaches will see some numbers change. On the team's Statistics tab, *Played*
-and *Without a score* can drop by a match dated after today that was marked
-completed or scored, and *Without a score* no longer counts a match today that
-has not been played yet. The team monthly report's line "Minutes recorded for
-N of M matches played" now counts tournament days, as the minutes beside it
-always did, and a line under the section adds "Including N tournament days."
-The monthly report's match list shows played matches only. Minutes recorded on
-a match dated after today no longer count on any minutes report until that
-date. The Season summary's match tile is now *Matches played*: single matches
-played in the window, where it counted every match not archived, cancelled and
-next week's included, and its list shows the same matches. In the monthly
+Coaches will see some numbers change, and only these. The match record's
+*Played*, results and goals do not move, on the Statistics tab or in the
+monthly report. *Without a score* no longer counts a match today that has not
+been played yet, and the tournaments-left-out line counts played tournament
+days only. The team monthly report's line "Minutes recorded for N of M matches
+played" now counts tournament days, as the minutes beside it always did, and a
+line under the section adds "Including N tournament days."; its match list no
+longer shows a match today not yet played. On every minutes report, a match
+dated after today that was completed or carries minutes no longer counts until
+its date, and a scored match today counts as played. The Season summary's match
+tile is now *Matches played*: single matches played in the window, where it
+counted every match not archived, cancelled and next week's included, and its
+list shows the same matches. The player's *My team* form line now shows the
+Statistics tab's form, without tournament days or cancelled and binned
+matches. In the monthly
 report's PDF a section's header line now wraps instead of being cut, so the
 Dutch minutes line prints in full. The REST answers of
 `GET /teams/{id}/stats`, `GET /reports/minutes-share` and

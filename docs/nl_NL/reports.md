@@ -186,12 +186,27 @@ Daarop staan twee soorten tellingen:
   dagen.
 
 **Wat hierdoor veranderde.** Sommige cijfers zijn verschoven nu de regel één
-is. *Gespeeld* en *Zonder uitslag* op het tabblad Statistieken kunnen één lager
-uitvallen door een wedstrijd na vandaag die op voltooid stond of een uitslag
-had. *Zonder uitslag* telt een wedstrijd van vandaag die nog niet gespeeld is
-niet meer mee. De minutenregel van het maandrapport telt nu toernooidagen mee,
-zoals de minuten ernaast altijd al deden, en zegt dat erbij. Minuten op een
-wedstrijd na vandaag tellen nergens meer mee tot die datum er is.
+is; deze en geen andere:
+
+- De balans op het tabblad Statistieken en in het maandrapport van het team:
+  *Gespeeld*, de uitslagen en de doelpunten blijven gelijk. *Zonder uitslag*
+  telt een wedstrijd van vandaag die nog niet gespeeld is niet meer mee, en de
+  regel over de toernooien die erbuiten blijven telt de gespeelde
+  toernooidagen, niet elk toernooi in de periode.
+- De wedstrijdlijst van het maandrapport toont een wedstrijd van vandaag die
+  nog niet gespeeld is niet meer. De minutenregel telt toernooidagen mee, zoals
+  de minuten ernaast altijd al deden, en zegt hoeveel; *wedstrijden zonder
+  minuten* in de sectie Datakwaliteit telt dezelfde wedstrijden.
+- Elk minutencijfer (de minutenrapporten, de Minutenverdeling, het
+  Minutenaandeel, de gespreksonderwerpen): een wedstrijd na vandaag die op
+  voltooid stond of al minuten had, telt pas mee als zijn datum er is, en een
+  wedstrijd van vandaag met een uitslag telt als gespeeld.
+- De tegel *Gespeelde wedstrijden* van het Seizoensoverzicht telt de
+  wedstrijden die in de periode gespeeld zijn, waar hij elke wedstrijd telde,
+  die van volgende week en afgelaste inbegrepen.
+- De vormlijn op *Mijn team* van de speler toont dezelfde uitslagen als de vorm
+  op het tabblad Statistieken: een toernooidag, of een wedstrijd die afgelast
+  is of in de prullenbak staat, staat er niet meer op.
 
 **Wedstrijdtypes gebruiken de namen van je academie.** Het type van elke
 wedstrijd (competitie, beker, oefenwedstrijd, of een type dat je academie zelf

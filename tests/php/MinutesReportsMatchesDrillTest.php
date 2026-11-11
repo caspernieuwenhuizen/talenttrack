@@ -112,6 +112,43 @@ final class MinutesReportsMatchesDrillTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '0 recorded, 3 without minutes', $html, 'the recorded part is the sub-line' );
     }
 
+    /**
+     * #4957 — the Season summary's "Matches played" counts the played
+     * fixtures (`PlayedMatch`, the fixtures set), and the list it opens and
+     * `GET /activities` with the same filters return exactly those rows. The
+     * window holds a tournament day, a completed fixture dated after today,
+     * a trashed fixture and a fixture today not yet kicked off: none counts.
+     */
+    public function test_the_season_summary_matches_tile_equals_its_drill(): void {
+        global $wpdb;
+        $this->activity( 'game', 7, 'completed' );                 // completed, dated after today
+        $trashed = $this->activity( 'game', -12, 'completed' );
+        $wpdb->update( "{$wpdb->prefix}tt_activities", [ 'trashed_at' => current_time( 'mysql' ) ], [ 'id' => $trashed ] );
+
+        $html = $this->renderReport( 'renderSeasonSummary' );
+        $tile = $this->playedTile( $html );
+        $this->assertSame( 'game', $tile['query']['activity_type_key'] ?? '' );
+        $this->assertSame( $this->from, $tile['query']['date_from'] ?? '' );
+        $this->assertSame( $this->to, $tile['query']['date_to'] ?? '' );
+
+        // The game and the legacy match played in the window; the tournament
+        // day is a minutes match, not a fixture.
+        $fixtures = array_slice( $this->played, 0, 2 );
+        sort( $fixtures );
+        $this->assertSame( (string) count( $fixtures ), $tile['value'], 'the tile counts the played fixtures' );
+
+        $listed = $this->listedIds( $tile['query'] );
+        sort( $listed );
+        $this->assertSame( $fixtures, $listed, 'the list shows exactly the counted matches' );
+
+        $rest = $this->restIds( [
+            'filter'   => [ 'played' => '1', 'activity_type_key' => 'game', 'date_from' => $this->from, 'date_to' => $this->to ],
+            'per_page' => 100,
+        ] );
+        $this->assertSame( $fixtures, $rest, 'GET /activities with the same filters returns the same rows' );
+        $this->assertSame( (int) $tile['value'], count( $rest ) );
+    }
+
     public function test_a_date_drill_lands_with_past_activities_expanded(): void {
         $html = $this->renderList( [ 'tt_view' => 'activities', 'team_id' => (string) $this->team, 'date_from' => $this->from, 'date_to' => $this->to ] );
         $this->assertStringNotContainsString( 'data-past-state="collapsed"', $html );

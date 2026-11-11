@@ -98,12 +98,47 @@ final class PlayedMatchSurfacesTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Including 1 tournament day.', $html );
     }
 
+    /**
+     * The player's "My team" form line (`recentResultsForTeam()`) is the
+     * Statistics tab's form: played fixtures only. A scored tournament day, a
+     * trashed scored fixture and a cancelled scored fixture are on neither.
+     */
+    public function test_the_my_team_form_is_the_statistics_tab_form(): void {
+        global $wpdb;
+        $won        = $this->match( -8, 'game', [ 'activity_status_key' => 'completed', 'home_score' => 2, 'away_score' => 0 ], 0 );
+        $tournament = $this->match( -6, 'tournament', [ 'activity_status_key' => 'completed', 'home_score' => 5, 'away_score' => 1 ], 0 );
+        $trashed    = $this->match( -4, 'game', [ 'activity_status_key' => 'completed', 'home_score' => 1, 'away_score' => 1 ], 0 );
+        $wpdb->update( "{$wpdb->prefix}tt_activities", [ 'trashed_at' => current_time( 'mysql' ) ], [ 'id' => $trashed ] );
+        $cancelled  = $this->match( -2, 'game', [ 'activity_status_key' => 'cancelled', 'home_score' => 0, 'away_score' => 3 ], 0 );
+        $plan_off   = $this->match( -1, 'game', [ 'plan_state' => 'cancelled', 'home_score' => 4, 'away_score' => 4 ], 0 );
+
+        $recent = array_map( static fn( $r ): int => (int) $r->id, ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->recentResultsForTeam( $this->team, 20 ) );
+        $form   = array_column( ( new TeamMatchStatsQuery() )->forTeam( $this->team, [ 'from' => $this->from, 'to' => $this->to, 'form_limit' => 20 ] )['form'], 'activity_id' );
+
+        $this->assertSame( $form, $recent, 'one form line, in the same order' );
+        $this->assertContains( $won, $recent );
+        foreach ( [ $tournament, $trashed, $cancelled, $plan_off ] as $id ) $this->assertNotContains( $id, $recent );
+    }
+
+    /**
+     * The page estimate counts the "Including N tournament days." line under
+     * the minutes section, on both levels.
+     */
+    public function test_the_page_estimate_counts_the_tournament_line(): void {
+        foreach ( [ 'details', 'summary' ] as $level ) {
+            $without = [ 'level' => $level, 'rows' => [ [ 'player_id' => 1, 'name' => 'A', 'share_pct' => 50.0 ] ], 'target_pct' => 50, 'matches_recorded' => 2, 'matches_played' => 3, 'tournaments_played' => 0 ];
+            $with    = [ 'tournaments_played' => 1 ] + $without;
+            $grown   = TeamMonthlyReportLayout::sectionHeight( 'minutes', $with ) - TeamMonthlyReportLayout::sectionHeight( 'minutes', $without );
+            $this->assertEqualsWithDelta( 4.2, $grown, 0.001, "{$level}: the line costs a note's height" );
+        }
+    }
+
     private function day( int $offset ): string {
         return gmdate( 'Y-m-d', (int) strtotime( $this->today . ' ' . ( $offset >= 0 ? '+' : '' ) . $offset . ' days' ) );
     }
 
     /** @param array<string,mixed> $columns */
-    private function match( int $offset, string $type, array $columns, int $minutes ): void {
+    private function match( int $offset, string $type, array $columns, int $minutes ): int {
         global $wpdb;
         $p    = $wpdb->prefix;
         $club = (int) CurrentClub::id();
@@ -121,5 +156,6 @@ final class PlayedMatchSurfacesTest extends WP_UnitTestCase {
                 'record_type' => 'actual', 'status' => 'present', 'minutes_played' => $minutes,
             ] );
         }
+        return $id;
     }
 }

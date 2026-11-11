@@ -181,13 +181,28 @@ all count played matches by this rule. Two kinds of count sit on it:
   one page, the minutes section says how many tournament days it includes: the
   minutes' played count is the record's played count plus those days.
 
-**What this changed.** Some figures moved when the rule became one. The
-Statistics tab's *Played* and *Without a score* can be lower by a match dated
-after today that was marked completed or scored. *Without a score* no longer
-counts a match today that has not been played yet. The team monthly report's
-minutes line now counts tournament days, as the minutes beside it always did,
-and says so. Minutes recorded on a match dated after today no longer count
-anywhere until that date.
+**What this changed.** Some figures moved when the rule became one; these and
+no others:
+
+- The match record on the Statistics tab and in the team monthly report:
+  *Played*, the results and the goals are unchanged. *Without a score* no
+  longer counts a match today that has not been played yet, and the line about
+  tournaments left out counts the tournament days played, not every tournament
+  in the period.
+- The team monthly report's match list no longer shows a match today that has
+  not been played yet. Its minutes line counts tournament days, as the minutes
+  beside it always did, and says how many; *matches without minutes* in the
+  data-quality section counts the same matches.
+- Every minutes figure (the minutes reports, the Minutes distribution, the
+  Minutes share, the talking points): a match dated after today that was
+  marked completed or carries minutes no longer counts until its date, and a
+  match today with a score counts as played.
+- The Season summary's *Matches played* tile counts the matches played in the
+  window, where it counted every match, next week's and cancelled ones
+  included.
+- The player's *My team* form line shows the same results as the Statistics
+  tab's form: a tournament day, or a match cancelled or in the recycle bin, is
+  no longer on it.
 
 **Match types use your academy's names.** The type of each match (league,
 cup, friendly, or any type your academy added) is shown with the name it has

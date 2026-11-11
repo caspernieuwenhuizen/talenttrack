@@ -1862,7 +1862,12 @@ final class ActivitiesRepository {
      * #1989 — recent finished MATCHES for a team with the result framed from
      * the team's perspective (player "My team" form line). Only matches with
      * both scores recorded; most recent first. Each row gains `team_score`,
-     * `opp_score` and `outcome` ('W' | 'D' | 'L'). Club- + demo-scoped.
+     * `opp_score` and `outcome` ('W' | 'D' | 'L').
+     *
+     * #4957 — the played fixtures (`PlayedMatch`, the fixtures set and its
+     * live clause), the matches the Statistics tab's form line reads: a
+     * tournament has no single result, and a trashed or cancelled match is
+     * not one played.
      *
      * @return array<int, object> rows with id, title, session_date, opponent,
      *                            team_score, opp_score, outcome
@@ -1872,27 +1877,20 @@ final class ActivitiesRepository {
         $limit = max( 1, min( 20, $limit ) );
 
         global $wpdb;
-        $p     = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
-        $match_like = ActivityTypeKey::MATCH_LIKE_SQL;
-        // A scored match is played once its date is today or earlier.
-        $played     = PlayedMatch::playedSql( 'a' );
+        $p      = $wpdb->prefix;
+        $played = PlayedMatch::playedInSetSql( PlayedMatch::FIXTURES, 'a' );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
-                AND a.club_id = %d
-                AND a.archived_at IS NULL
-                AND a.activity_type_key IN ({$match_like})
                 AND {$played}
                 AND a.home_score IS NOT NULL
                 AND a.away_score IS NOT NULL
-                {$scope}
            ORDER BY a.session_date DESC, a.id DESC
               LIMIT %d",
-            $team_id, CurrentClub::id(), $limit
+            $team_id, $limit
         ) );
         if ( ! is_array( $rows ) ) return [];
 
