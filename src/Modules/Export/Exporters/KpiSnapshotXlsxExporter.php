@@ -172,7 +172,7 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface, ScopeGatedExpo
             $club_id
         ) );
         $goals_completed = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE club_id = %d AND status = 'completed'",
+            "SELECT COUNT(*) FROM {$p}tt_goals WHERE club_id = %d AND " . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( '', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ),
             $club_id
         ) );
 

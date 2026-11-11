@@ -82,6 +82,18 @@ final class GoalLifecycle {
         return self::normalisedSql( $alias ) . ' = %s';
     }
 
+    /**
+     * #5099 — "This goal has this status" as literal SQL, for a status the
+     * code names (`GoalStatus::COMPLETED`) in a statement whose placeholders
+     * are already fixed. A normalised status is lower-case letters and
+     * spaces only; anything else matches nothing rather than reaching SQL.
+     */
+    public static function hasStatusClause( string $alias, string $status ): string {
+        $value = self::normalise( $status );
+        if ( preg_match( '/^[a-z ]+$/', $value ) !== 1 ) return '1=0';
+        return self::normalisedSql( $alias ) . " = '{$value}'";
+    }
+
     private static function column( string $alias ): string {
         $alias = (string) preg_replace( '/[^A-Za-z0-9_]/', '', $alias );
         return $alias !== '' ? "{$alias}.status" : 'status';

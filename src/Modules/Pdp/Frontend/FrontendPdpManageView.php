@@ -1960,7 +1960,8 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( ! in_array( $filter, [ 'active', 'all', 'completed' ], true ) ) $filter = 'active';
 
         $where_status = match ( $filter ) {
-            'completed' => "AND g.status = 'completed'",
+            // #5099 — completed in any stored spelling.
+            'completed' => 'AND ' . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( 'g', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ),
             'all'       => '',
             // #5074 — "active" is the one open-goal rule.
             default     => 'AND ' . \TT\Infrastructure\Query\GoalLifecycle::openClause( 'g' ),

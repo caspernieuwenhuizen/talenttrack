@@ -242,8 +242,9 @@ class AnalyticsModule implements ModuleInterface {
             ],
             measures: [
                 new Measure( 'count', __( 'Count', 'talenttrack' ), Measure::AGG_COUNT ),
-                new Measure( 'count_completed', __( 'Completed', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN f.status='completed' THEN 1 END" ),
-                new Measure( 'completion_rate', __( 'Completion rate', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.status='completed' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                // #5099 — completed in any stored spelling.
+                new Measure( 'count_completed', __( 'Completed', 'talenttrack' ), Measure::AGG_COUNT, 'CASE WHEN ' . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( 'f', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ) . ' THEN 1 END' ),
+                new Measure( 'completion_rate', __( 'Completion rate', 'talenttrack' ), Measure::AGG_AVG, 'CASE WHEN ' . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( 'f', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ) . ' THEN 100 ELSE 0 END', Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
             ],
             timeColumn:  new DateTimeColumn( 'f.created_at' ),
             entityScope: 'player',

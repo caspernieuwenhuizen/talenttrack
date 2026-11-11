@@ -56,6 +56,78 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
         $this->assertSame( [], $found, 'Decide "open goal" through GoalLifecycle::openClause() / notOpenClause() / isOpen() (GoalStatus::OPEN), not a list of your own.' );
     }
 
+    /**
+     * Statements on goals that are not about a goal's status: file => a
+     * fragment of the line.
+     *
+     * @var array<string, list<string>>
+     */
+    private const NOT_A_GOAL_STATUS = [
+        // Workflow tasks completed on time, not goals.
+        'src/Modules/Workflow/Forms/QuarterlyHoDReviewForm.php' => [ 'completed_at <= due_at' ],
+    ];
+
+    /**
+     * #5099 — one status, matched literally in SQL (`status = 'completed'`,
+     * or `status = %s` bound to a literal status), misses the other stored
+     * spelling. Match through `GoalLifecycle::statusClause()` /
+     * `hasStatusClause()`.
+     */
+    public function test_no_file_matches_one_goal_status_literally_in_sql(): void {
+        $root  = dirname( __DIR__, 2 );
+        $found = [];
+        $files = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root . '/src', \FilesystemIterator::SKIP_DOTS ) );
+        foreach ( $files as $file ) {
+            if ( ! $file instanceof \SplFileInfo || $file->getExtension() !== 'php' ) continue;
+            $path = str_replace( '\\', '/', substr( $file->getPathname(), strlen( $root ) + 1 ) );
+            if ( $path === self::OWNER ) continue;
+            $code = (string) file_get_contents( $file->getPathname() );
+            if ( preg_match( '/tt_goals/', $code ) !== 1 ) continue;
+            foreach ( self::singleStatusMatches( $code, self::NOT_A_GOAL_STATUS[ $path ] ?? [] ) as $line ) {
+                $found[] = $path . ':' . $line;
+            }
+        }
+        $this->assertSame( [], $found, 'Match one goal status through GoalLifecycle::statusClause() / hasStatusClause(), not status = \'...\'.' );
+    }
+
+    public function test_the_single_status_guard_finds_a_planted_match(): void {
+        $planted = "<?php\n"
+            . "\$sql = \"SELECT COUNT(*) FROM tt_goals WHERE status = 'completed'\";\n"
+            . "\$sql = \"CASE WHEN g.status='Cancelled' THEN 1 END\";\n"
+            . "return [ 'g.status = %s', [ 'completed' ] ];\n"
+            . "// status = 'completed' in a comment\n"
+            . "\$fine = GoalLifecycle::hasStatusClause( 'g', GoalStatus::COMPLETED );\n"
+            . "\$also_fine = 'p.status = %s';\n"
+            . "\$status = 'pending';\n"
+            . "\$sql = \"WHERE g.status IN ( 'Completed' )\";\n";
+        $this->assertSame( [ 2, 3, 4, 9 ], self::singleStatusMatches( $planted, [] ) );
+    }
+
+    /**
+     * @param list<string> $allowed
+     * @return list<int>
+     */
+    private static function singleStatusMatches( string $code, array $allowed ): array {
+        $status  = '(?:pending|pending[ _]approval|in[ _]progress|completed|cancelled|on[ _]hold|approved|rejected)';
+        // A column, not a PHP variable (`$status = 'pending'`).
+        $literal = '/(?<!\$)\bstatus\s*(?:=|!=|<>)\s*[\'"]' . $status . '[\'"]/i';
+        $bound   = '/(?<!\$)\bstatus\s*=\s*%s.*\[\s*[\'"]' . $status . '[\'"]\s*\]/i';
+        // A one-item list is the same comparison: `status IN ( 'completed' )`.
+        $one_in  = '/(?<!\$)\bstatus\s+(?:NOT\s+)?IN\s*\(\s*[\'"]' . $status . '[\'"]\s*\)/i';
+
+        $out = [];
+        foreach ( preg_split( '/\R/', $code ) ?: [] as $i => $line ) {
+            $trim = ltrim( $line );
+            if ( $trim === '' || str_starts_with( $trim, '*' ) || str_starts_with( $trim, '//' ) || str_starts_with( $trim, '/*' ) || str_starts_with( $trim, '#' ) ) continue;
+            if ( preg_match( $literal, $line ) !== 1 && preg_match( $bound, $line ) !== 1 && preg_match( $one_in, $line ) !== 1 ) continue;
+            foreach ( $allowed as $fragment ) {
+                if ( strpos( $line, $fragment ) !== false ) continue 2;
+            }
+            $out[] = $i + 1;
+        }
+        return $out;
+    }
+
     public function test_the_guard_finds_a_planted_list(): void {
         $planted = "<?php\n"
             . "\$sql = \"SELECT COUNT(*) FROM tt_goals WHERE status IN ('pending', 'in_progress')\";\n"

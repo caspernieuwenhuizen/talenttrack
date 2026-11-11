@@ -18,7 +18,8 @@ class GoalCompletionPct extends AbstractKpiDataSource {
      * statuses) currently in `completed` state. The denominator is
      * EVERY goal row for the club regardless of status (open / in
      * progress / blocked / completed / cancelled / archived); the
-     * numerator is goals where `status = 'completed'`. So a club
+     * numerator is the completed goals, in any spelling
+     * (`GoalLifecycle::statusClause()`, #5099). So a club
      * with 100 goals total of which 23 are completed reports 23 %.
      *
      * Scope is `club_id` only — already global for the HoD. There is
@@ -46,7 +47,7 @@ class GoalCompletionPct extends AbstractKpiDataSource {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
-                SUM(CASE WHEN g.status = 'completed' THEN 1 ELSE 0 END) AS done
+                SUM(CASE WHEN " . \TT\Infrastructure\Query\GoalLifecycle::hasStatusClause( 'g', \TT\Domain\Vocabularies\Lookups\GoalStatus::COMPLETED ) . " THEN 1 ELSE 0 END) AS done
               FROM {$table} g
               WHERE g.club_id = %d {$scope}",
             $club_id
