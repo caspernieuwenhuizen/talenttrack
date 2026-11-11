@@ -104,7 +104,12 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
         // #4795 — the journey opens to the observer academy-wide.
         $this->assertSame( 200, $this->status( "/talenttrack/v1/players/{$this->playerA}/timeline" ) );
 
-        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status', 'prospects' ] as $entity ) {
+        // #4694 — the observer reads the prospects, masked, so the player's
+        // discovery section (who logged them, where, when) opens too; the
+        // family contact and the scouting notes are not part of it.
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'prospects' ) );
+
+        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status' ] as $entity ) {
             $this->assertFalse(
                 AuthorizationService::canReadPlayerSection( $observer, $this->playerA, $entity ),
                 "the observer holds no {$entity} row; opening the record does not grant it"
