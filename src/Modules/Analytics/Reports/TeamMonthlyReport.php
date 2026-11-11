@@ -603,18 +603,42 @@ final class TeamMonthlyReport {
         $events = is_array( $changes['events'] ?? null ) ? $changes['events'] : [];
         if ( $events === [] ) return [];
 
-        $injuries = [];
+        // The payload carries no visibility: the injury entries are read from
+        // it, the sensitive ones from the reader's own read of the entries.
+        $entries = [];
         foreach ( $events as $e ) {
-            if ( ! is_array( $e ) || ! in_array( (string) ( $e['event_type'] ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) continue;
-            $pid = (int) ( $e['player_id'] ?? 0 );
-            if ( $pid > 0 ) $injuries[ $pid ] = ( $injuries[ $pid ] ?? 0 ) + 1;
+            if ( is_array( $e ) ) $entries[] = [ 'player_id' => (int) ( $e['player_id'] ?? 0 ), 'event_type' => (string) ( $e['event_type'] ?? '' ), 'visibility' => '' ];
         }
-        $out = [];
-        if ( $injuries !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ] = $injuries;
+        $out = self::readsFromEntries( $entries );
 
         if ( $team_id <= 0 || ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return $out;
         $sensitive = TeamSectionRights::sensitiveChanges( $changes, $reader, $team_id, $from, $to );
         if ( $sensitive !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ] = $sensitive;
+        return $out;
+    }
+
+    /**
+     * #5126 — the "what changed" read rule itself, over entries whose type
+     * and visibility are known: an injury entry is a `player.injuries_viewed`
+     * read, a medical or safeguarding entry a
+     * `player.sensitive_timeline_viewed` read, per player. The on-screen
+     * section (`ChangesComposer`) and `sensitiveReadsOf()` both count by it.
+     *
+     * @param list<array{player_id:int, event_type:string, visibility:string}> $entries
+     * @return array<string, array<int,int>> action => player id => entries
+     */
+    public static function readsFromEntries( array $entries ): array {
+        $out = [];
+        foreach ( $entries as $e ) {
+            $pid = $e['player_id'];
+            if ( $pid <= 0 ) continue;
+            if ( in_array( $e['event_type'], [ 'injury_started', 'injury_ended' ], true ) ) {
+                $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $pid ] = ( $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $pid ] ?? 0 ) + 1;
+            }
+            if ( in_array( $e['visibility'], [ 'medical', 'safeguarding' ], true ) ) {
+                $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $pid ] = ( $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $pid ] ?? 0 ) + 1;
+            }
+        }
         return $out;
     }
 }

@@ -62,20 +62,19 @@ final class ChangesComposer {
     private static function recordReads( TeamReportContext $ctx, array $events ): void {
         if ( $events === [] ) return;
 
-        $injuries  = [];
-        $sensitive = [];
+        // #5126 — the one "what changed" read rule, with the visibility the
+        // entries carry here.
+        $entries = [];
         foreach ( $events as $e ) {
-            $pid = (int) ( $e->player_id ?? 0 );
-            if ( $pid <= 0 ) continue;
-            if ( in_array( (string) ( $e->event_type ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) {
-                $injuries[ $pid ] = ( $injuries[ $pid ] ?? 0 ) + 1;
-            }
-            if ( in_array( (string) ( $e->visibility ?? '' ), [ 'medical', 'safeguarding' ], true ) ) {
-                $sensitive[ $pid ] = ( $sensitive[ $pid ] ?? 0 ) + 1;
-            }
+            $entries[] = [
+                'player_id'  => (int) ( $e->player_id ?? 0 ),
+                'event_type' => (string) ( $e->event_type ?? '' ),
+                'visibility' => (string) ( $e->visibility ?? '' ),
+            ];
         }
+        $reads = TeamMonthlyReport::readsFromEntries( $entries );
 
-        InjuryReads::record( InjuryReads::INJURIES, 'team_monthly_report', $injuries, $ctx->readers );
-        InjuryReads::record( InjuryReads::SENSITIVE, 'team_monthly_report', $sensitive, $ctx->readers );
+        InjuryReads::record( InjuryReads::INJURIES, 'team_monthly_report', $reads[ InjuryReads::INJURIES ] ?? [], $ctx->readers );
+        InjuryReads::record( InjuryReads::SENSITIVE, 'team_monthly_report', $reads[ InjuryReads::SENSITIVE ] ?? [], $ctx->readers );
     }
 }
