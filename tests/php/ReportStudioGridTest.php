@@ -118,11 +118,11 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid' ] );
 
         $refused = [
-            'overlap'        => [ $this->at( 'b1', 0, 0, 6, 2 ), $this->at( 'b2', 4, 1, 4, 2 ) ],
-            'past column 12' => [ $this->at( 'b1', 8, 0, 6, 2 ) ],
-            'left of 0'      => [ $this->at( 'b1', -1, 0, 4, 2 ) ],
-            'too tall'       => [ $this->at( 'b1', 0, 0, 4, ReportGrid::MAX_HEIGHT + 1 ) ],
-            'below the grid' => [ $this->at( 'b1', 0, ReportGrid::ROWS - 1, 4, 2 ) ],
+            'overlap'        => [ $this->placed( 'b1', 0, 0, 6, 2 ), $this->placed( 'b2', 4, 1, 4, 2 ) ],
+            'past column 12' => [ $this->placed( 'b1', 8, 0, 6, 2 ) ],
+            'left of 0'      => [ $this->placed( 'b1', -1, 0, 4, 2 ) ],
+            'too tall'       => [ $this->placed( 'b1', 0, 0, 4, ReportGrid::MAX_HEIGHT + 1 ) ],
+            'below the grid' => [ $this->placed( 'b1', 0, ReportGrid::ROWS - 1, 4, 2 ) ],
             'half a column'  => [ [ 'id' => 'b1', 'key' => 'heading', 'grid' => [ 'x' => 0.5, 'y' => 0, 'w' => 4, 'h' => 2 ] ] ],
             'no width'       => [ [ 'id' => 'b1', 'key' => 'heading', 'grid' => [ 'x' => 0, 'y' => 0, 'w' => 0, 'h' => 2 ] ] ],
             'an extra key'   => [ [ 'id' => 'b1', 'key' => 'heading', 'grid' => [ 'x' => 0, 'y' => 0, 'w' => 4, 'h' => 2, 'z' => 1 ] ] ],
@@ -135,20 +135,20 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         $this->assertSame( [], $this->draftBlocks( $id ), 'nothing refused was saved' );
 
         // Touching edges is not an overlap.
-        $ok = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ $this->at( 'b1', 0, 0, 6, 2 ), $this->at( 'b2', 6, 0, 6, 2 ), $this->at( 'b3', 0, 2, 12, 1 ) ] ] ] );
+        $ok = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ $this->placed( 'b1', 0, 0, 6, 2 ), $this->placed( 'b2', 6, 0, 6, 2 ), $this->placed( 'b3', 0, 2, 12, 1 ) ] ] ] );
         $this->assertSame( 200, $ok->get_status(), (string) wp_json_encode( $ok->get_data() ) );
         $this->assertSame( [ 'x' => 6, 'y' => 0, 'w' => 6, 'h' => 2 ], $this->draftBlocks( $id )[1]['grid'] );
     }
 
     public function test_a_grid_block_sent_without_a_place_gets_the_first_free_one(): void {
         $id = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid' ] );
-        $this->patch( $id, [ $this->at( 'b1', 0, 0, 6, 2 ), [ 'id' => 'b2', 'key' => 'heading' ] ] );
+        $this->patch( $id, [ $this->placed( 'b1', 0, 0, 6, 2 ), [ 'id' => 'b2', 'key' => 'heading' ] ] );
         $this->assertSame( [ 'x' => 6, 'y' => 0, 'w' => ReportGrid::DEFAULT_WIDTH, 'h' => ReportGrid::DEFAULT_HEIGHT ], $this->draftBlocks( $id )[1]['grid'] );
     }
 
     public function test_a_rows_report_refuses_a_place_in_a_grid(): void {
         $id  = $this->create( [ 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'rows' ] );
-        $res = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ $this->at( 'b1', 0, 0, 6, 2 ) ] ] ] );
+        $res = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ $this->placed( 'b1', 0, 0, 6, 2 ) ] ] ] );
         $this->assertSame( 400, $res->get_status() );
         $this->assertSame( 'invalid_field', $this->code( $res ) );
         $this->patch( $id, [ [ 'id' => 'b1', 'key' => 'heading' ] ] );
@@ -157,7 +157,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     public function test_a_dashboard_holds_at_most_twelve_blocks(): void {
         $id     = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid', 'period_mode' => 'on_open' ] );
         $blocks = [];
-        for ( $i = 0; $i < 13; $i++ ) $blocks[] = $this->at( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2 );
+        for ( $i = 0; $i < 13; $i++ ) $blocks[] = $this->placed( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2 );
         $res = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => $blocks ] ] );
         $this->assertSame( 400, $res->get_status() );
         $this->patch( $id, array_slice( $blocks, 0, 12 ) );
@@ -184,7 +184,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
 
     public function test_a_grid_is_never_printed_or_frozen(): void {
         $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'on_open', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
-        $this->patch( $id, [ $this->at( 'b1', 6, 0, 6, 2, 'test_team_echo' ), $this->at( 'b2', 0, 0, 6, 2, 'test_team_echo' ) ] );
+        $this->patch( $id, [ $this->placed( 'b1', 6, 0, 6, 2, 'test_team_echo' ), $this->placed( 'b2', 0, 0, 6, 2, 'test_team_echo' ) ] );
         $this->publish( $id, [ 'head_coach' ] );
 
         $doc = $this->send( 'GET', "reports/{$id}/document", [], $this->period() + [ 'team_id' => $this->team_a ] );
@@ -280,7 +280,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
 
     public function test_each_reader_of_a_studio_home_reads_their_own_team(): void {
         $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
-        $this->patch( $id, [ $this->at( 'b1', 0, 0, 6, 2, 'test_team_echo' ) ] );
+        $this->patch( $id, [ $this->placed( 'b1', 0, 0, 6, 2, 'test_team_echo' ) ] );
         $this->publish( $id, [ 'head_coach' ] );
         $this->assertIsArray( StudioHome::set( 'head_coach', $id ) );
         $report = ( new ReportsRepository() )->find( $id );
@@ -344,7 +344,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
             'playing_time', 'match_results', 'team_statistics', 'goals_assists', 'open_goals', 'pdp_conversations' ];
         $id     = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
         $blocks = [];
-        foreach ( $keys as $i => $key ) $blocks[] = $this->at( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2, $key );
+        foreach ( $keys as $i => $key ) $blocks[] = $this->placed( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2, $key );
         $this->patch( $id, $blocks );
         $this->publish( $id, [ 'head_coach' ] );
         $report = ( new ReportsRepository() )->find( $id );
@@ -377,7 +377,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     // ---- helpers -----------------------------------------------------------------------
 
     /** @return array<string,mixed> */
-    private function at( string $id, int $x, int $y, int $w, int $h, string $key = 'heading' ): array {
+    private function placed( string $id, int $x, int $y, int $w, int $h, string $key = 'heading' ): array {
         return [ 'id' => $id, 'key' => $key, 'grid' => [ 'x' => $x, 'y' => $y, 'w' => $w, 'h' => $h ] ];
     }
 

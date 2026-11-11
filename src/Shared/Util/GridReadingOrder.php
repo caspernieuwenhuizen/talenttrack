@@ -20,7 +20,7 @@ final class GridReadingOrder {
      */
     public static function sort( array $items, callable $x, callable $y ): array {
         $keyed = [];
-        foreach ( array_values( $items ) as $i => $item ) {
+        foreach ( $items as $i => $item ) {
             $keyed[] = [ $y( $item ), $x( $item ), $i, $item ];
         }
         usort( $keyed, static function ( array $a, array $b ): int {
