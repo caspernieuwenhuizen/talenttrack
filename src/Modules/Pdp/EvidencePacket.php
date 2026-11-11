@@ -71,7 +71,7 @@ final class EvidencePacket {
         $win_from = (string) ( $file->start_date ?? gmdate( 'Y-m-d', (int) strtotime( '-1 year' ) ) );
         $win_to   = (string) ( $file->end_date   ?? gmdate( 'Y-m-d' ) );
 
-        return self::build( $file, $win_from, $win_to, null );
+        return self::recordPdpRead( self::build( $file, $win_from, $win_to, null ) );
     }
 
     /**
@@ -102,7 +102,7 @@ final class EvidencePacket {
         $win_from = $since ?? $season_from;
         $win_to   = $season_to;
 
-        return self::build( $file, $win_from, $win_to, $conv );
+        return self::recordPdpRead( self::build( $file, $win_from, $win_to, $conv ) );
     }
 
     /**
@@ -242,13 +242,6 @@ final class EvidencePacket {
         $injuries = $readers === null || PlayerSectionRights::seesInjuries( $readers )
             ? self::injuries( $player_id, $from, $to )
             : [];
-        // The PDP path is read by the signed-in reader.
-        self::recordInjuryRead(
-            $player_id,
-            $injuries,
-            $readers ?? ReaderSet::of( [ get_current_user_id() ] ),
-            $readers === null ? 'pdp' : 'player_report'
-        );
 
         $journey = $readers === null
             ? self::journey( $player_id, $club_id, $from, $to )
@@ -589,22 +582,21 @@ final class EvidencePacket {
     }
 
     /**
-     * A read of a player's injuries through the packet, logged as the
-     * injuries screens log theirs: one row per composition that includes
-     * them, for the signed-in reader it is composed for. A composition for
-     * several readers or for nobody signed in, as a scheduled send is, writes
-     * none here.
+     * The PDP packet is shown whole (the Evidence panel, the printed file),
+     * so a packet holding injuries is a read of them by the signed-in reader.
      *
-     * @param list<array<string,mixed>> $injuries
+     * @param array<string,mixed> $packet
+     * @return array<string,mixed>
      */
-    private static function recordInjuryRead( int $player_id, array $injuries, ReaderSet $readers, string $surface ): void {
-        $viewer = get_current_user_id();
-        if ( $injuries === [] || $viewer <= 0 || $readers->readers !== [ $viewer ] ) return;
-
-        ( new \TT\Infrastructure\Audit\AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
-            'surface' => $surface,
-            'count'   => count( $injuries ),
-        ] );
+    private static function recordPdpRead( array $packet ): array {
+        $injuries = is_array( $packet['injuries'] ?? null ) ? $packet['injuries'] : [];
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+            'pdp',
+            [ (int) ( $packet['player_id'] ?? 0 ) => count( $injuries ) ],
+            [ get_current_user_id() ]
+        );
+        return $packet;
     }
 
     /**

@@ -85,14 +85,15 @@ final class TeamMonthlyReportSnapshotPage {
         ] );
 
         $window = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
-        $report = ( new \TT\Modules\Analytics\Reports\TeamMonthlyReport() )->forTeam(
+        // Stored, not shown: the read is recorded when the snapshot is opened.
+        $report = \TT\Infrastructure\Journey\InjuryReads::quietly( static fn() => ( new \TT\Modules\Analytics\Reports\TeamMonthlyReport() )->forTeam(
             $team_id,
             $window['from'],
             $window['to'],
             $composition['blocks'],
             $user_id,
             $composition['options']
-        );
+        ) );
 
         $title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '';
         if ( $title === '' ) {

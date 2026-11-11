@@ -543,8 +543,6 @@ final class TeamMonthlyReport {
      * @param array{data: array<string, array<string, mixed>>} $report the frozen report after `forReader()`
      */
     public static function recordSnapshotInjuryReads( array $report, string $uuid, int $viewer_user_id ): void {
-        if ( $viewer_user_id <= 0 || get_current_user_id() !== $viewer_user_id ) return;
-
         $events = $report['data'][ TeamMonthlyReportBlock::CHANGES ]['events'] ?? [];
         if ( ! is_array( $events ) ) return;
 
@@ -555,9 +553,12 @@ final class TeamMonthlyReport {
             if ( $pid > 0 ) $counts[ $pid ] = ( $counts[ $pid ] ?? 0 ) + 1;
         }
 
-        $audit = new \TT\Infrastructure\Audit\AuditService();
-        foreach ( $counts as $pid => $count ) {
-            $audit->record( 'player.injuries_viewed', 'player', $pid, [ 'surface' => 'team_monthly_snapshot', 'snapshot' => $uuid, 'count' => $count ] );
-        }
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+            'team_monthly_snapshot',
+            $counts,
+            [ $viewer_user_id ],
+            [ 'snapshot' => $uuid ]
+        );
     }
 }

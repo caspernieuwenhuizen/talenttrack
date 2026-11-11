@@ -7,5 +7,8 @@ changed" section writes one such row per player whose injury entry it shows,
 and one `player.sensitive_timeline_viewed` row per player whose medical or
 safeguarding entry it shows. Opening a saved snapshot of either report that
 still lists injuries for the reader writes the same row, and so does the PDP
-evidence packet for the signed-in reader. A reader who is shown none writes
-none, and a scheduled send writes none. What each reader sees is unchanged.
+evidence packet for the signed-in reader. A report without the injuries
+section, a family or scout composition, taking or sharing a snapshot, a
+reader who is shown none and a scheduled send write none, and one request
+writes at most one row per player and reader. What each reader sees is
+unchanged.

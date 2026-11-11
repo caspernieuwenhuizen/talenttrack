@@ -5,6 +5,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Core\FeatureRegistry;
+use TT\Infrastructure\Journey\InjuryReads;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -12,6 +13,7 @@ use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage;
 use TT\Modules\Analytics\Reports\PlayerReport;
+use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshots;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamReportSnapshotRepository;
@@ -172,9 +174,55 @@ final class ReportInjuryReadAuditTest extends WP_UnitTestCase {
         $this->assertNotEmpty( $res->get_data()['data']['report']['data']['injuries']['items'] ?? [], 'Precondition: the snapshot lists the injury.' );
         $this->assertSame( $before + 1, $this->rowsFor( 'player_report_snapshot', $this->player ), 'the route reads the snapshot twice, one read' );
 
-        $pdf_uuid = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'injuries' ], $this->hod );
-        ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $pdf_uuid ] ) );
+        $this->flush();
+        ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $uuid ] ) );
         $this->assertSame( $before + 2, $this->rowsFor( 'player_report_snapshot', $this->player ), 'the PDF' );
+    }
+
+    public function test_taking_and_sharing_a_snapshot_write_no_row(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->rows( 'player.injuries_viewed', $this->player );
+
+        $this->assertNotSame( '', PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'injuries' ], $this->hod ) );
+        $this->flush();
+        $this->assertNotSame( '', PlayerReportSnapshots::share( $this->player, [ 'from' => self::FROM, 'to' => self::TO ], $this->hod ) );
+        $this->assertSame( $before, $this->rows( 'player.injuries_viewed', $this->player ), 'a copy that is stored, not shown' );
+    }
+
+    public function test_the_rest_snapshot_create_writes_one_row_for_the_copy_it_returns(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->rows( 'player.injuries_viewed', $this->player );
+
+        $req = new WP_REST_Request( 'POST', '/talenttrack/v1/players/' . $this->player . '/report-snapshots' );
+        $req->set_param( 'from', self::FROM );
+        $req->set_param( 'to', self::TO );
+        $req->set_param( 'blocks', 'injuries' );
+        $res = rest_get_server()->dispatch( $req );
+        $this->assertSame( 201, $res->get_status(), (string) wp_json_encode( $res->get_data() ) );
+
+        $this->assertSame( $before + 1, $this->rows( 'player.injuries_viewed', $this->player ), 'one request, one read' );
+        $this->assertSame( 1, $this->rowsFor( 'player_report_snapshot', $this->player ), 'the copy the route answers with' );
+    }
+
+    public function test_a_report_without_the_injuries_section_writes_no_row(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->rows( 'player.injuries_viewed', $this->player );
+
+        ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'ratings' ], $this->hod );
+        $this->flush();
+        ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'injuries', 'ratings' ], $this->hod, PlayerReportAudience::FAMILY );
+        $this->flush();
+        ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'injuries', 'ratings' ], $this->hod, PlayerReportAudience::SCOUT );
+        $this->assertSame( $before, $this->rows( 'player.injuries_viewed', $this->player ), 'ratings only, a family and a scout composition' );
+    }
+
+    public function test_a_team_composition_stored_not_shown_writes_no_row(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->rows( 'player.injuries_viewed', $this->player );
+
+        InjuryReads::quietly( fn() => ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'changes' ], $this->hod ) );
+        $this->assertSame( $before, $this->rows( 'player.injuries_viewed', $this->player ) );
+        $this->assertSame( 0, $this->rowsFor( 'team_monthly_report', $this->player ) );
     }
 
     public function test_a_player_snapshot_without_injury_items_writes_no_row(): void {
@@ -200,6 +248,7 @@ final class ReportInjuryReadAuditTest extends WP_UnitTestCase {
         ob_end_clean();
         $this->assertSame( $before + 1, $this->rowsFor( 'team_monthly_snapshot', $this->player ), 'the page' );
 
+        $this->flush();
         ( new TeamMonthlyReportPdfExporter() )->collect( new ExportRequest( 'team_monthly_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $uuid ] ) );
         $this->assertSame( $before + 2, $this->rowsFor( 'team_monthly_snapshot', $this->player ), 'the PDF' );
         $this->assertSame( $teammate, $this->rowsFor( 'team_monthly_snapshot', $this->teammate ), 'a player with no injury entry is not logged' );
@@ -265,6 +314,8 @@ final class ReportInjuryReadAuditTest extends WP_UnitTestCase {
         AuthorizationService::flushCache();
         FactScope::flush();
         SharedReads::flush();
+        // Each surface below stands for a request of its own.
+        InjuryReads::flush();
         wp_cache_flush();
     }
 

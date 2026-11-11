@@ -70,14 +70,15 @@ final class ReportSnapshots {
             return new StudioError( 'invalid_field', ReportGrid::notPrintedReason(), 400, [ 'field' => 'layout' ] );
         }
 
-        $read = ReportData::compose( $report, [
+        // Stored, not shown: the read is recorded when the copy is opened.
+        $read = \TT\Infrastructure\Journey\InjuryReads::quietly( static fn() => ReportData::compose( $report, [
             'source'    => 'published',
             'player_id' => $in['player_id'],
             'team_id'   => $in['team_id'],
             'from'      => $in['from'],
             'to'        => $in['to'],
             'audience'  => '',
-        ], $reader );
+        ], $reader ) );
         if ( $read instanceof StudioError ) return $read;
 
         $context = [];
