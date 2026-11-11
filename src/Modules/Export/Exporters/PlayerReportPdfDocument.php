@@ -87,6 +87,16 @@ final class PlayerReportPdfDocument {
      * and on screen.
      */
     public static function scopedCss(): string {
+        $css = self::css();
+        // Only `@page` may stand in the paper's sheet: it is left out here,
+        // as a screen has no page. Any other at-rule would be left out too,
+        // without a word, so it is refused instead.
+        preg_match_all( '/@([a-z-]+)/i', $css, $at );
+        $other = array_values( array_diff( array_map( 'strtolower', $at[1] ), [ 'page' ] ) );
+        if ( $other !== [] ) {
+            throw new \LogicException( 'PlayerReportPdfDocument::scopedCss() cannot scope @' . $other[0] . '; scope it by hand.' );
+        }
+
         return (string) preg_replace_callback(
             '/([^{}]+)\{([^{}]*)\}/',
             static function ( array $m ): string {
@@ -104,7 +114,7 @@ final class PlayerReportPdfDocument {
                 }
                 return $out === [] ? '' : implode( ',', $out ) . '{' . $m[2] . '}';
             },
-            self::css()
+            $css
         );
     }
 
