@@ -110,8 +110,13 @@ final class ReactivationDriftRepairTest extends WP_UnitTestCase {
     public function test_a_not_null_default_zero_account_column_is_repaired_under_strict_mode(): void {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_players';
-        if ( (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}` WHERE wp_user_id IS NULL" ) > 0 ) {
-            $this->markTestSkipped( 'needs a players table without unlinked rows to build the NOT NULL shape' );
+
+        // The suite's players without an account would block NOT NULL (and
+        // collide on `uniq_club_user` as 0), so they are parked under unique
+        // placeholder ids for the duration and put back afterwards.
+        $parked = array_map( 'intval', (array) $wpdb->get_col( "SELECT id FROM `{$table}` WHERE wp_user_id IS NULL" ) );
+        if ( $parked !== [] ) {
+            $wpdb->query( "UPDATE `{$table}` SET wp_user_id = 4000000000 + id WHERE wp_user_id IS NULL" );
         }
 
         $mode = (string) $wpdb->get_var( 'SELECT @@SESSION.sql_mode' );
@@ -128,6 +133,13 @@ final class ReactivationDriftRepairTest extends WP_UnitTestCase {
             $this->assertNull( $wpdb->get_var( $wpdb->prepare( "SELECT wp_user_id FROM `{$table}` WHERE id = %d", $first ) ) );
         } finally {
             $wpdb->query( $wpdb->prepare( 'SET SESSION sql_mode = %s', $mode ) );
+            $this->migration()->up();
+            if ( $parked !== [] ) {
+                $in = implode( ',', $parked );
+                $wpdb->query( "UPDATE `{$table}` SET wp_user_id = NULL WHERE id IN ({$in})" );
+                // The DDL above ended the test transaction; commit the restore.
+                $wpdb->query( 'COMMIT' );
+            }
         }
     }
 
