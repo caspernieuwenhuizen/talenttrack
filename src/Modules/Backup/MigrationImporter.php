@@ -364,13 +364,6 @@ class MigrationImporter {
     }
 
     /**
-     * Index existing target rows of a table by their stable key → id, scoped
-     * to the current club where the table carries a `club_id`.
-     *
-     * @param string[] $key_cols
-     * @return array<string,int>
-     */
-    /**
      * #5041 — does a row on this install other than `$except_id` hold this
      * uuid? Every club's rows count: the index is unique across the table.
      */
@@ -382,6 +375,13 @@ class MigrationImporter {
         return $id > 0;
     }
 
+    /**
+     * Index existing target rows of a table by their stable key → id, scoped
+     * to the current club where the table carries a `club_id`.
+     *
+     * @param string[] $key_cols
+     * @return array<string,int>
+     */
     private static function indexExistingByKey( string $physical, array $key_cols, int $club ): array {
         global $wpdb;
         $safe = array_values( array_filter( array_map(
