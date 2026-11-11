@@ -884,7 +884,7 @@ De keuze wordt per academie bewaard, en vraagt het recht om de dashboards van de
 
 ## Report Studio — een rapport volgens schema versturen
 
-Een gepubliceerd rapport kan als pdf per e-mail worden verstuurd, elke week, elke maand of aan het eind van het seizoen. Kies op het rapport in de Report Studio **Inplannen** en daarna **Schema toevoegen**.
+Een gepubliceerd rapport kan als pdf per e-mail worden verstuurd, elke week, elke maand of aan het eind van het seizoen. Kies op het rapport in de Report Studio **Inplannen** en daarna **Schema aanmaken**.
 
 - **Welke rapporten.** Een rapport, geen dashboard, in rijen, geschreven voor staf, over een onderwerp dat het bewaart: één vaste speler of één vast team, een groep spelers of de hele academie. Een rapport dat meegaat met wie het opent, of de lezer de speler of het team laat kiezen, kan niet volgens schema worden verstuurd, en de pagina zegt waarom. Publiceer het rapport eerst: een schema verstuurt altijd de gepubliceerde versie, dus een wijziging die je daarna in het concept maakt, staat pas in de pdf als je die publiceert.
 - **Wie het ontvangt.** Alleen accounts en rollen, nooit een los e-mailadres: wie geen account heeft, krijgt er eerst een. Je krijgt de stafrollen aangeboden en de mensen die het rapport mogen lezen. Een coach mag een rapport voor zichzelf inplannen; het naar iemand anders sturen vraagt het recht om rapporten te publiceren. De rollen van een speler en een ouder worden nooit aangeboden.

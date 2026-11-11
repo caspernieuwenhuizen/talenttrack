@@ -155,7 +155,7 @@ final class ReportScheduleScreen {
         echo '<fieldset class="tt-rsch-choices" data-tt-rsch-recipients>';
         echo '<legend>' . esc_html__( 'Who receives it', 'talenttrack' ) . '</legend>';
         if ( ! $publishes ) {
-            echo '<label class="tt-rsch-option" for="tt-rsch-me"><input type="checkbox" id="tt-rsch-me" name="recipients[]" value="' . esc_attr( $self_entry ) . '"' . checked( in_array( $self_entry, $chosen, true ), true, false ) . '> <span>' . esc_html__( 'Me', 'talenttrack' ) . '</span></label>';
+            echo '<label class="tt-rsch-option" for="tt-rsch-me"><input type="checkbox" id="tt-rsch-me" name="recipients[]" value="' . esc_attr( $self_entry ) . '"' . checked( in_array( $self_entry, $chosen, true ), true, false ) . '> <span>' . esc_html_x( 'Me', 'schedule recipient: the person scheduling', 'talenttrack' ) . '</span></label>';
             echo '<p class="tt-field-hint">' . esc_html__( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' ) . '</p>';
         } else {
             $roles = ReportSchedules::roleOptions();
