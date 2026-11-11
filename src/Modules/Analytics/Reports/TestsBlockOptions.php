@@ -135,8 +135,9 @@ final class TestsBlockOptions implements DescribesOptions {
         if ( $key !== 'definitions' ) return [];
         $out = [];
         foreach ( ( new \TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository() )->listActive() as $row ) {
-            $id = (int) ( $row->id ?? 0 );
-            if ( $id > 0 ) $out[ $id ] = (string) ( $row->name ?? '' );
+            $vars = get_object_vars( $row );
+            $id   = is_numeric( $vars['id'] ?? null ) ? (int) $vars['id'] : 0;
+            if ( $id > 0 ) $out[ $id ] = is_scalar( $vars['name'] ?? null ) ? (string) $vars['name'] : '';
         }
         return $out;
     }

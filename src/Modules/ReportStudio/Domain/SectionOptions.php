@@ -27,7 +27,7 @@ final class SectionOptions {
      * @return list<BlockOption>
      */
     public static function of( ?string $owner ): array {
-        if ( $owner === null || ! is_subclass_of( $owner, DescribesOptions::class ) ) return [];
+        if ( $owner === null || ! is_a( $owner, DescribesOptions::class, true ) ) return [];
 
         $out = [];
         foreach ( $owner::fields() as $field ) {

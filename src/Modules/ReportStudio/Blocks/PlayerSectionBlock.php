@@ -109,13 +109,15 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument {
             return $out;
         } );
         if ( ! is_array( $sections[ $this->section ] ?? null ) ) return [];
+        $payload = [];
+        foreach ( $sections[ $this->section ] as $k => $v ) $payload[ (string) $k ] = $v;
 
         $cut = PlayerReportAudience::apply( [
             'player_id' => $context->playerId,
             'from'      => $context->from,
             'to'        => $context->to,
             'blocks'    => [ $this->section ],
-            'data'      => [ $this->section => $sections[ $this->section ] ],
+            'data'      => [ $this->section => $payload ],
         ], $context->audience );
         return $cut['data'][ $this->section ] ?? [];
     }
