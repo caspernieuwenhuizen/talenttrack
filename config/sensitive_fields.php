@@ -162,9 +162,8 @@ return [
         ],
     ],
 
-    // #5085 — what the scout noted on a prospect at a visit, as the
-    // prospect's page lists it.
-    'scouting_visit_observations' => [
+    // #5085 — the same notes, on the visits a prospect's page lists.
+    'prospect_visits' => [
         'routes' => [
             '/talenttrack/v1/prospects/(?P<id>\d+)/visits' => [ 'rows' => 'data.visits.*' ],
         ],

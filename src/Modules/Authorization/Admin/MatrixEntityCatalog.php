@@ -92,6 +92,9 @@ final class MatrixEntityCatalog {
         // the thread composer rather than by a tile's `cap` string, so the
         // reverse index has nothing to walk; it is wired, not orphaned.
         'staff_only_notes',
+        // #5085 — reading every scouting visit. Asked inside
+        // `ScoutingVisitsAccess`, not by a tile's `cap`; wired, not orphaned.
+        'scouting_visits_all',
     ];
 
 
@@ -190,6 +193,8 @@ final class MatrixEntityCatalog {
             // #2007 — tile visibility only: who is OFFERED the scout's visit
             // planner. Reading the visits themselves is still `prospects`.
             'scouting_visits_panel'         => __( 'Scouting visits (tile)', 'talenttrack' ),
+            // #5085 — every visit in the club, read-only.
+            'scouting_visits_all'           => __( 'Scouting visits: read every visit', 'talenttrack' ),
             // Tile visibility only, like the row above: who is offered the
             // holidays manager and the methodology vocabulary editor.
             'holidays_panel'                => __( 'Holidays (tile)', 'talenttrack' ),

@@ -290,7 +290,12 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                     <?php if ( $notes !== '' ) : ?>
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                            <td><?php echo wp_kses_post( wpautop( $notes ) ); ?></td>
+                            <td><?php
+                                // #5085 — the scout's notes follow the visit's notes rule.
+                                echo \TT\Infrastructure\Security\RecordRedactor::isMasked( 'scouting_visits', 'notes', get_current_user_id(), (int) $visit->id )
+                                    ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                                    : wp_kses_post( wpautop( $notes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
+                            ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

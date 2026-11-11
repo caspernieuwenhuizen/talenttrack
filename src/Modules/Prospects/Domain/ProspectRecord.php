@@ -155,7 +155,9 @@ final class ProspectRecord {
             if ( $visit === null ) continue;
 
             $scout_id = (int) ( $visit->scout_user_id ?? 0 );
-            if ( ! $manages && $scout_id !== $user_id ) continue;
+            // #5085 — the visit routes' own rule, so the page and the routes
+            // agree; it adds reading every visit (`scouting_visits_all`).
+            if ( ! $manages && ! ScoutingVisitsAccess::canReadVisit( $user_id, $visit, $is_admin ) ) continue;
 
             $event = trim( (string) ( $row->event_description ?? '' ) );
             if ( $event === '' ) $event = trim( (string) ( $row->location ?? '' ) );

@@ -51,6 +51,8 @@ class SemanticRegistry {
         // asked for consent with what was said.
         'tt_prospects'                 => true,
         'tt_prospect_consent_requests' => true,
+        // #5085 — the scout's notes on a visit.
+        'tt_scouting_plan_visits'      => true,
     ];
 
     /**

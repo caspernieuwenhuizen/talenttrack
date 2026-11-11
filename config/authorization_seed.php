@@ -1296,10 +1296,8 @@ return array_merge(
     //     ratings on observations), `tournaments` (free-text squad,
     //     tournament and match notes), `media` (an open owner question),
     //     `measurements`, `measurement_sessions`, `measurement_definitions`;
-    //   - `scouting_visits_panel`, `scout_access`, `scout_my_players` and
-    //     `scout_history` (#4694): every scout's visits would need a read
-    //     right that does not also widen the scout, which is the owner's
-    //     question; the rest is access administration or is checked nowhere;
+    //   - `scout_access`, `scout_my_players` and `scout_history` (#4694):
+    //     access administration, a `self` list, or checked nowhere;
     //   - `player_behaviour_ratings`: free-text notes on a child's
     //     behaviour, with no masking registered;
     //   - `vct_library` and `vct_workload`: no surface opens on either
@@ -1388,6 +1386,13 @@ return array_merge(
         'trial_synthesis'         => [ 'r', 'global', $mod_trials ],
         'trial_decisions'         => [ 'r', 'global', $mod_trials ],
         'trial_letters_generated' => [ 'r', 'global', $mod_trials ],
+
+        // #5085 — every scouting visit in the club, read-only, with the
+        // scout's notes masked (`scouting_visit_staff`). `scouting_visits_all`
+        // is the observer's alone: a scout keeps reading their own visits.
+        // Existing installs get both through migration 0334.
+        'scouting_visits_panel'   => [ 'r', 'global', $mod_prospects ],
+        'scouting_visits_all'     => [ 'r', 'global', $mod_prospects ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────
