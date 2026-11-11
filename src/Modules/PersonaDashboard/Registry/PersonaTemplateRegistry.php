@@ -79,6 +79,19 @@ final class PersonaTemplateRegistry {
         return true;
     }
 
+    /**
+     * Is the persona dashboard switched on for this persona: its own
+     * `persona_dashboard.<persona>.enabled` when set, else the global
+     * `persona_dashboard.enabled` (on by default).
+     */
+    public static function landingEnabled( string $persona ): bool {
+        if ( $persona !== '' ) {
+            $own = QueryHelpers::get_config( 'persona_dashboard.' . $persona . '.enabled', '' );
+            if ( $own !== '' ) return $own !== '0';
+        }
+        return QueryHelpers::get_config( 'persona_dashboard.enabled', '1' ) !== '0';
+    }
+
     /** @return list<string> */
     public static function defaultPersonas(): array {
         return array_keys( self::$defaults );

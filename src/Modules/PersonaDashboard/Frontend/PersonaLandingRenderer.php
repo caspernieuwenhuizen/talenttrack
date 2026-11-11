@@ -37,18 +37,8 @@ final class PersonaLandingRenderer {
         // testing one persona at a time on a real install. The persona-
         // specific value (when present) wins over the global flag; absent
         // values fall through to the global default.
-        $global = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
-
-        $user_id = get_current_user_id();
-        $persona = PersonaResolver::landingPersona( $user_id );
-        if ( $persona !== null && $persona !== '' ) {
-            $key = 'persona_dashboard.' . $persona . '.enabled';
-            $per_persona = \TT\Infrastructure\Query\QueryHelpers::get_config( $key, '' );
-            if ( $per_persona !== '' ) {
-                return $per_persona !== '0';
-            }
-        }
-        return $global !== '0';
+        $persona = PersonaResolver::landingPersona( get_current_user_id() );
+        return PersonaTemplateRegistry::landingEnabled( (string) $persona );
     }
 
     public static function render( int $user_id, string $base_url ): void {

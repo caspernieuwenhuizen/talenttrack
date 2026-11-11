@@ -2133,13 +2133,23 @@ report. **Which dashboards** (`StudioHome::refusal()`, `400 invalid_field` on
 `report_id` unless said otherwise): a `kind: dashboard`, not archived (`404
 not_found` otherwise), published, published to that persona, and with a
 subject each reader resolves: `binding` `on_open` or `viewer`, or the academy
-scope, the rule a report published for a role already follows. Its
+scope, the rule a report published for a role already follows. Its period is
+**not** `on_open`, so the landing opens with figures rather than on a period
+picker (a dashboard's period is then `rolling`). Its
 **published version** holds at most 12 blocks: the cap is checked on the draft
 write, but a version restored through `POST /reports/{id}/draft` or published
 before the cap existed can hold more, and the landing reads the published
 version. A missing `report_id` is `400 missing_fields`; a dashboard the caller
 cannot open is `403 forbidden`. In `GET /studio-homes`, a home the caller
-cannot open carries its `report_id` and a `null` `report_name`.
+cannot open carries its `report_id` and a `null` `report_name`, and every row
+carries `landing_enabled`: false where the persona dashboard is switched off
+for that persona (`persona_dashboard.<persona>.enabled`, else
+`persona_dashboard.enabled`). A home is kept there but only shows once the
+dashboard is switched on, so it is not refused.
+
+**The subject on landing.** A reader with exactly one subject the dashboard
+can follow (one team for a team dashboard) opens on it with no picker
+(`StudioHome::landing()`); a reader with several gets the picker.
 
 **Storage.** One `tt_config` row per club, key
 `persona_dashboard.<persona>.studio_report`, holding the report id, next to

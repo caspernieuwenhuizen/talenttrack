@@ -742,6 +742,13 @@
 		var values = block.options || {};
 		if (!options.length) box.appendChild(el('p', 'tt-rs-hint', t.noOptions));
 		options.forEach(function (o) {
+			// A list of ids (type `ids`, or any option stored as a list) is a
+			// set of checkboxes, never a select: a select cannot show a list,
+			// and changing it would overwrite the list with one id.
+			if (o.type === 'ids' || Array.isArray(values[o.key])) {
+				box.appendChild(renderIds(block, o, values, options));
+				return;
+			}
 			var id = 'tt-rs-opt-' + block.id + '-' + o.key;
 			var field = el('div', 'tt-field');
 			var lab = el('label', 'tt-field-label', o.label);
@@ -797,6 +804,44 @@
 			box.appendChild(el('h4', 'tt-rs-settings-sub', t.source));
 			box.appendChild(el('p', 'tt-rs-hint', meta.source));
 		}
+	}
+
+	/** An option holding a list of ids, one checkbox per choice. */
+	function renderIds(block, o, values, options) {
+		var set = el('fieldset', 'tt-rs-radios');
+		set.appendChild(el('legend', null, o.label));
+		var stored = Array.isArray(values[o.key]) ? values[o.key] : (values[o.key] != null && values[o.key] !== '' ? [values[o.key]] : []);
+		var picked = stored.map(String);
+		var choices = (o.depends_on ? (o.choices || {})[values[o.depends_on]] : o.choices) || [];
+		var known = {};
+		var inputs = [];
+		function add(value, text) {
+			var lab = el('label', 'tt-rs-radio');
+			var input = el('input');
+			input.type = 'checkbox';
+			input.value = String(value);
+			input.checked = picked.indexOf(String(value)) !== -1;
+			input.dataset.raw = JSON.stringify(value);
+			input.id = 'tt-rs-opt-' + block.id + '-' + o.key + '-' + inputs.length;
+			input.addEventListener('change', function () {
+				var list = inputs.filter(function (i) { return i.checked; }).map(function (i) { return JSON.parse(i.dataset.raw); });
+				var resets = options.filter(function (x) { return x.depends_on === o.key; }).map(function (x) { return x.key; });
+				setOption(block.id, o.key, list.length ? list : '', resets);
+				// The panel is drawn again; the keyboard stays on this box.
+				var again = document.getElementById(input.id);
+				if (again) again.focus();
+			});
+			inputs.push(input);
+			lab.appendChild(input);
+			lab.appendChild(el('span', null, text));
+			set.appendChild(lab);
+		}
+		choices.forEach(function (c) { known[String(c.value)] = true; add(c.value, c.label); });
+		// A stored id the choices no longer offer still shows, so the list is
+		// never read as empty and unticking it is a choice the builder makes.
+		stored.forEach(function (v) { if (!known[String(v)]) add(v, String(v)); });
+		if (!inputs.length) set.appendChild(el('p', 'tt-rs-hint', t.none));
+		return set;
 	}
 
 	// ---- sheets ------------------------------------------------------------------
@@ -1066,6 +1111,7 @@
 				lab.appendChild(input);
 				lab.appendChild(el('span', null, h.label));
 				if (h.report_id && h.report_id !== cfg.id) lab.appendChild(el('span', 'tt-rs-reason', fmt(t.homeNow, h.report_name || t.block)));
+				if (h.landing_enabled === false) lab.appendChild(el('span', 'tt-rs-reason', t.homeOff));
 				roles.appendChild(lab);
 			});
 		})['catch'](function (err) { error.textContent = err.message; });

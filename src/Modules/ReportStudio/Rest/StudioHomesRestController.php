@@ -7,6 +7,7 @@ use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
+use TT\Modules\PersonaDashboard\Registry\PersonaTemplateRegistry;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\StudioError;
@@ -84,6 +85,9 @@ final class StudioHomesRestController extends BaseController {
             $row    = self::row( $persona, $report );
             // A dashboard the caller cannot open is named by its id only.
             if ( $report !== null && ! ReportAccess::canRead( $reader, $report ) ) $row['report_name'] = null;
+            // A home only shows where the persona dashboard is switched on.
+            // It is not refused: the admin may switch it on later.
+            $row['landing_enabled'] = PersonaTemplateRegistry::landingEnabled( $persona );
             $rows[] = $row;
         }
         return RestResponse::success( [ 'homes' => $rows ] );

@@ -71,6 +71,11 @@ final class StudioHome {
             $reason = ReportStartRules::reason( 'sharing', ReportStartRules::SHARING_ROLE, [ 'binding' => $report['binding'], 'scope' => $report['scope'] ], ReportReader::for( 0 ) );
             return self::invalid( $reason ?? __( 'A home page is chosen when opened or follows the viewer, so each reader sees their own subject.', 'talenttrack' ) );
         }
+        // The landing opens with figures, never on a period picker: a home
+        // has a period of its own (a dashboard's is rolling, never fixed).
+        if ( $report['period_mode'] === ReportStartRules::PERIOD_ON_OPEN ) {
+            return self::invalid( __( 'A home dashboard needs a set period, so it opens with figures: choose a rolling period when you start it.', 'talenttrack' ) );
+        }
         if ( $report['published_version_id'] === null ) {
             return self::invalid( __( 'Publish the dashboard before it becomes a home page.', 'talenttrack' ) );
         }
@@ -87,6 +92,27 @@ final class StudioHome {
             return self::invalid( sprintf( __( 'A dashboard holds at most %d blocks.', 'talenttrack' ), ReportDefinition::MAX_DASHBOARD_BLOCKS ) );
         }
         return null;
+    }
+
+    /**
+     * What the landing hands the viewer for this reader: the subjects to
+     * switch between, and the subject to open on. A reader with exactly one
+     * team (or player) opens on it with no picker, so the home opens with
+     * figures; with several the picker stays.
+     *
+     * @param Report $report
+     * @return array{subjects: array{teams: list<array{id:int, name:string}>, players: list<array{id:int, name:string, team_id:int}>}, subject: array{team_id?:int, player_id?:int}}
+     */
+    public static function landing( ReportReader $reader, array $report ): array {
+        $subjects = ReportViewerSubjects::for( $reader, $report );
+        $none     = [ 'teams' => [], 'players' => [] ];
+        if ( $report['scope'] === ReportContext::SCOPE_TEAM && count( $subjects['teams'] ) === 1 ) {
+            return [ 'subjects' => $none, 'subject' => [ 'team_id' => $subjects['teams'][0]['id'] ] ];
+        }
+        if ( $report['scope'] === ReportContext::SCOPE_PLAYER && count( $subjects['players'] ) === 1 ) {
+            return [ 'subjects' => $none, 'subject' => [ 'player_id' => $subjects['players'][0]['id'] ] ];
+        }
+        return [ 'subjects' => $subjects, 'subject' => [] ];
     }
 
     /** Why this persona cannot have a Studio home at all, or null when it can. */

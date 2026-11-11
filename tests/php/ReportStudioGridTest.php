@@ -6,6 +6,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Core\FeatureRegistry;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -68,6 +69,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         $this->markFixtureFloor();
         $keys = [];
         foreach ( ReportAccess::PUBLISHABLE_PERSONAS as $persona ) $keys[] = StudioHome::configKey( $persona );
+        $keys[] = 'persona_dashboard.head_coach.enabled';
         $this->markConfigKeys( ...$keys );
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
@@ -184,7 +186,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     }
 
     public function test_a_grid_is_never_printed_or_frozen(): void {
-        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'on_open', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'on_open', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $this->patch( $id, [ $this->placed( 'b1', 6, 0, 6, 2, 'test_team_echo' ), $this->placed( 'b2', 0, 0, 6, 2, 'test_team_echo' ) ] );
         $this->publish( $id, [ 'head_coach' ] );
 
@@ -234,11 +236,13 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     // ---- a persona's home ----------------------------------------------------------
 
     public function test_a_studio_home_is_only_for_a_persona_a_report_is_published_to(): void {
-        $dashboard = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $dashboard = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $report    = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
-        $unpublished = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $unpublished = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
+        $on_open   = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
         $this->publish( $dashboard, [ 'head_coach' ] );
         $this->publish( $report, [ 'head_coach' ] );
+        $this->publish( $on_open, [ 'head_coach' ] );
 
         // A dashboard about one fixed team is kept for its owner (a fixed
         // subject is never published to a role); the admin owns this one, so
@@ -256,6 +260,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
             'a report'              => [ 'head_coach', $report ],
             'not published'         => [ 'head_coach', $unpublished ],
             'not published to them' => [ 'assistant_coach', $dashboard ],
+            'a period chosen on open' => [ 'head_coach', $on_open ],
         ];
         foreach ( $refused as $why => [ $persona, $id ] ) {
             $res = $this->send( 'PUT', "studio-homes/{$persona}", [ 'report_id' => $id ] );
@@ -266,8 +271,18 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
 
         $ok = $this->send( 'PUT', 'studio-homes/head_coach', [ 'report_id' => $dashboard ] );
         $this->assertSame( 200, $ok->get_status(), (string) wp_json_encode( $ok->get_data() ) );
-        $homes = array_column( $this->send( 'GET', 'studio-homes' )->get_data()['data']['homes'], 'report_id', 'persona' );
+        $listed = $this->send( 'GET', 'studio-homes' )->get_data()['data']['homes'];
+        $homes  = array_column( $listed, 'report_id', 'persona' );
         $this->assertSame( $dashboard, $homes['head_coach'] );
+        $this->assertTrue( array_column( $listed, 'landing_enabled', 'persona' )['head_coach'] );
+
+        // A home is kept while the role's dashboard is off, and the list says so.
+        QueryHelpers::set_config( 'persona_dashboard.head_coach.enabled', '0' );
+        $off = array_column( $this->send( 'GET', 'studio-homes' )->get_data()['data']['homes'], null, 'persona' );
+        $this->assertFalse( $off['head_coach']['landing_enabled'] );
+        $this->assertSame( $dashboard, $off['head_coach']['report_id'], 'the home is not refused' );
+        $this->assertTrue( $off['assistant_coach']['landing_enabled'] );
+        QueryHelpers::delete_config( 'persona_dashboard.head_coach.enabled' );
         $this->assertNull( $homes['assistant_coach'] );
         $this->assertArrayNotHasKey( 'parent', $homes, 'a family never gets a Studio home' );
 
@@ -280,7 +295,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     }
 
     public function test_a_dashboard_published_over_the_block_cap_is_never_a_home(): void {
-        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $this->patch( $id, [ $this->placed( 'b1', 0, 0, 6, 2 ) ] );
         $this->publish( $id, [ 'head_coach' ] );
         $this->assertIsArray( StudioHome::set( 'head_coach', $id ), 'precondition: the twelve-block dashboard is a home' );
@@ -303,8 +318,30 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         $this->assertSame( 'report_id', $this->field( $res ) );
     }
 
+    public function test_a_home_opens_on_a_readers_only_team_and_keeps_the_picker_for_several(): void {
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
+        $this->publish( $id, [ 'head_coach' ] );
+        $report = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+
+        $one = StudioHome::landing( ReportReader::for( $this->coach_a ), $report );
+        $this->assertSame( [ 'team_id' => $this->team_a ], $one['subject'], 'one team: the home opens on it' );
+        $this->assertSame( [], $one['subjects']['teams'], 'no picker for one team' );
+
+        $both = $this->coachOf( $this->team_a, $this->team_b );
+        $this->flush();
+        $several = StudioHome::landing( ReportReader::for( $both ), $report );
+        $this->assertSame( [], $several['subject'] );
+        $this->assertEqualsCanonicalizing( [ $this->team_a, $this->team_b ], array_column( $several['subjects']['teams'], 'id' ), 'several teams: the picker stays' );
+
+        // A rolling period and one team: the home reads with figures, no 422.
+        wp_set_current_user( $this->coach_a );
+        $doc = $this->send( 'GET', "reports/{$id}/document", [], [ 'team_id' => $this->team_a, 'source' => 'published' ] );
+        $this->assertSame( 200, $doc->get_status(), (string) wp_json_encode( $doc->get_data() ) );
+    }
+
     public function test_each_reader_of_a_studio_home_reads_their_own_team(): void {
-        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $this->patch( $id, [ $this->placed( 'b1', 0, 0, 6, 2, 'test_team_echo' ) ] );
         $this->publish( $id, [ 'head_coach' ] );
         $this->assertIsArray( StudioHome::set( 'head_coach', $id ) );
@@ -316,14 +353,14 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
             $this->flush();
             $this->assertSame( $id, StudioHomeView::resolve( $coach, 'head_coach' )['id'] ?? null, 'the landing hosts the Studio home' );
 
-            $read = ReportData::compose( $report, [ 'source' => '', 'player_id' => null, 'team_id' => null, 'from' => '2020-03-01', 'to' => '2020-03-31' ], ReportReader::for( $coach ) );
+            $read = ReportData::compose( $report, [ 'source' => '', 'player_id' => null, 'team_id' => null, 'from' => '', 'to' => '' ], ReportReader::for( $coach ) );
             $this->assertIsArray( $read );
             $this->assertSame( $team, $read['context']['team_id'] );
             $this->assertSame( $team, $read['blocks'][0]['data']['team_id'], 'the block reads the reader\'s own team' );
 
             // Asking for the other team still reads their own.
             $other = $team === $this->team_a ? $this->team_b : $this->team_a;
-            $asked = ReportData::compose( $report, [ 'source' => '', 'player_id' => null, 'team_id' => $other, 'from' => '2020-03-01', 'to' => '2020-03-31' ], ReportReader::for( $coach ) );
+            $asked = ReportData::compose( $report, [ 'source' => '', 'player_id' => null, 'team_id' => $other, 'from' => '', 'to' => '' ], ReportReader::for( $coach ) );
             $this->assertIsArray( $asked );
             $this->assertSame( $team, $asked['context']['team_id'] );
         }
@@ -333,7 +370,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     }
 
     public function test_the_home_choice_is_one_clubs_tt_config_row(): void {
-        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $id = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $this->publish( $id, [ 'head_coach' ] );
         $this->assertIsArray( StudioHome::set( 'head_coach', $id ) );
 
@@ -367,7 +404,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
     public function test_a_twelve_block_dashboard_reads_in_statements_that_do_not_grow_with_the_squad(): void {
         $keys = [ 'letterhead', 'key_figures', 'attendance_per_week', 'attendance_per_player', 'attendance_flags', 'minutes_share',
             'playing_time', 'match_results', 'team_statistics', 'goals_assists', 'open_goals', 'pdp_conversations' ];
-        $id     = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
+        $id     = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'rolling', 'period_value' => 'last_month' ] );
         $blocks = [];
         foreach ( $keys as $i => $key ) $blocks[] = $this->placed( 'b' . ( $i + 1 ), ( $i % 3 ) * 4, intdiv( $i, 3 ) * 2, 4, 2, $key );
         $this->patch( $id, $blocks );
@@ -378,7 +415,7 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         $count = function ( int $coach ) use ( $report ): int {
             global $wpdb;
             wp_set_current_user( $coach );
-            $in = [ 'source' => '', 'player_id' => null, 'team_id' => null, 'from' => '2020-03-01', 'to' => '2020-03-31' ];
+            $in = [ 'source' => '', 'player_id' => null, 'team_id' => null, 'from' => '', 'to' => '' ];
             // Once to warm what a request reads once whatever it does, then measured.
             ReportData::compose( $report, $in, ReportReader::for( $coach ) );
             $this->flush();
@@ -469,8 +506,8 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    /** The head coach of one team. */
-    private function coachOf( int $team ): int {
+    /** The head coach of these teams. */
+    private function coachOf( int ...$teams ): int {
         global $wpdb;
         $user = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $wpdb->insert( "{$wpdb->prefix}tt_people", [
@@ -478,12 +515,14 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
             'role_type' => 'head_coach', 'wp_user_id' => $user, 'status' => 'active',
         ] );
         $person = (int) $wpdb->insert_id;
-        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
-            'team_id' => $team, 'person_id' => $person, 'role_in_team' => 'head_coach', 'is_head_coach' => 1,
-        ] );
-        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
-            'club_id' => CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
-        ] );
+        foreach ( $teams as $team ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+                'team_id' => $team, 'person_id' => $person, 'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+            ] );
+            $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+                'club_id' => CurrentClub::id(), 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team,
+            ] );
+        }
         return $user;
     }
 

@@ -7,7 +7,6 @@ use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportReader;
-use TT\Modules\ReportStudio\Domain\ReportViewerSubjects;
 use TT\Modules\ReportStudio\Domain\StudioHome;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
@@ -48,8 +47,8 @@ final class StudioHomeView {
      * @param Report $report
      */
     public static function render( array $report, int $user_id ): void {
-        $subjects = ReportViewerSubjects::for( ReportReader::for( $user_id ), $report );
-        self::enqueue( $report, $subjects );
+        $landing = StudioHome::landing( ReportReader::for( $user_id ), $report );
+        self::enqueue( $report, $landing['subjects'], $landing['subject'] );
 
         $name = $report['name'] !== '' ? $report['name'] : __( 'Untitled report', 'talenttrack' );
         echo '<section class="tt-rv tt-rv--home" data-tt-rv aria-labelledby="tt-rv-home-title">';
@@ -66,8 +65,9 @@ final class StudioHomeView {
     /**
      * @param Report $report
      * @param array{teams: list<array{id:int, name:string}>, players: list<array{id:int, name:string, team_id:int}>} $subjects
+     * @param array{team_id?:int, player_id?:int} $subject the subject to open on, when there is only one
      */
-    private static function enqueue( array $report, array $subjects ): void {
+    private static function enqueue( array $report, array $subjects, array $subject ): void {
         wp_enqueue_style( 'tt-report-studio', TT_PLUGIN_URL . 'assets/css/frontend-report-studio.css', [], TT_VERSION );
         StudioDocumentView::enqueue();
         wp_enqueue_script( 'tt-report-viewer', TT_PLUGIN_URL . 'assets/js/frontend-report-viewer.js', [], TT_VERSION, true );
@@ -84,6 +84,7 @@ final class StudioHomeView {
             // Read here, so the landing sends one request: the document.
             'report'   => [ 'scope' => $report['scope'], 'period_mode' => $report['period_mode'], 'layout' => $report['layout'] ],
             'subjects' => $subjects,
+            'subject'  => (object) $subject,
             'pdf'      => '',
             'i18n'     => [
                 'loadError' => __( 'The report could not be loaded. Reload the page to try again.', 'talenttrack' ),

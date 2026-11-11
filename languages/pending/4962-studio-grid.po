@@ -143,3 +143,11 @@ msgstr "Nu: %s"
 #: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
 msgid "The home pages are saved."
 msgstr "De startpagina's zijn opgeslagen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This role's dashboard is switched off, so the home page shows only once it is switched on."
+msgstr "Het dashboard van deze rol staat uit, dus de startpagina verschijnt pas als het aan wordt gezet."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A home dashboard needs a set period, so it opens with figures: choose a rolling period when you start it."
+msgstr "Een startdashboard heeft een vaste periode nodig, zodat het met cijfers opent: kies bij het beginnen een meeschuivende periode."

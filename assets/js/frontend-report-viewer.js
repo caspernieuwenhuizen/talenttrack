@@ -23,7 +23,8 @@
 	if (!cfg || !root) return;
 
 	var t = cfg.i18n || {};
-	var state = { report: null, subject: {}, period: '', seq: 0 };
+	// A home hands over the one subject a reader with one team opens on (#4962).
+	var state = { report: null, subject: cfg.subject && typeof cfg.subject === 'object' ? cfg.subject : {}, period: '', seq: 0 };
 
 	function $(sel) { return root.querySelector(sel); }
 	function el(tag, cls, text) {

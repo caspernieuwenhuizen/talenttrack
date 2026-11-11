@@ -156,9 +156,9 @@ const CANVAS_CONFIG = 'window.TT_Autosave = { user: "1", i18n: {} }; window.TTRe
 	columns: {}, i18n: I18N,
 } ) + ';';
 
-async function mountCanvas( page ) {
+async function mountCanvas( page, opts = {} ) {
 	const server = {
-		blocks: [
+		blocks: opts.blocks || [
 			{ id: 'b1', key: 'heading', options: {}, width: 'full', grid: { x: 0, y: 0, w: 4, h: 2 } },
 			{ id: 'b2', key: 'heading', options: {}, width: 'full', grid: { x: 6, y: 0, w: 6, h: 2 } },
 		],
@@ -208,7 +208,7 @@ async function mountCanvas( page ) {
 			} );
 		}
 		if ( p === 'report-blocks' ) {
-			return json( { blocks: [ { key: 'heading', label: 'Heading', options: [], source: 'You', family: 'A family may see it.' } ], unavailable: [] } );
+			return json( { blocks: [ { key: 'heading', label: 'Heading', options: opts.options || [], source: 'You', family: 'A family may see it.' } ], unavailable: [] } );
 		}
 		if ( p === 'reports/start-options' ) return json( { options: { audience: [ { value: 'internal', label: 'Staff', ok: true, reason: null } ] } } );
 		if ( p.indexOf( 'report-blocks/' ) === 0 ) return json( { options: {}, data: { heading: 'Preview' } } );
@@ -276,6 +276,33 @@ test.describe( 'Report Studio grid: the canvas', () => {
 		// On the desktop the canvas lays the blocks out as stored.
 		const [ one, two ] = await Promise.all( [ card( page, 'b1' ).boundingBox(), card( page, 'b2' ).boundingBox() ] );
 		expect( one && two && two.x >= one.x + one.width - 1 ).toBeTruthy();
+	} );
+
+	test( 'a stored list of ids shows ticked and edits as a list, never as one id', async ( { page } ) => {
+		await page.setViewportSize( { width: 1280, height: 900 } );
+		const server = await mountCanvas( page, {
+			options: [ { key: 'types', type: 'ids', label: 'Types', choices: [ { value: 3, label: 'Training' }, { value: 5, label: 'Match' }, { value: 8, label: 'Test' } ] } ],
+			blocks: [
+				{ id: 'b1', key: 'heading', options: { types: [ 3, 8 ] }, width: 'full', grid: { x: 0, y: 0, w: 4, h: 2 } },
+				{ id: 'b2', key: 'heading', options: {}, width: 'full', grid: { x: 6, y: 0, w: 6, h: 2 } },
+			],
+		} );
+
+		await card( page, 'b1' ).focus();
+		await page.keyboard.press( 'Enter' );
+		const settings = page.locator( '[data-tt-rs-settings-body]' );
+		await expect( settings.getByRole( 'checkbox', { name: 'Training' } ) ).toBeChecked();
+		await expect( settings.getByRole( 'checkbox', { name: 'Match' } ) ).not.toBeChecked();
+		await expect( settings.getByRole( 'checkbox', { name: 'Test' } ) ).toBeChecked();
+
+		// By keyboard: tick Match, and the list keeps the others.
+		await settings.getByRole( 'checkbox', { name: 'Match' } ).focus();
+		await page.keyboard.press( 'Space' );
+		await expect.poll( () => server.blocks[ 0 ].options.types, { timeout: 10000 } ).toEqual( [ 3, 5, 8 ] );
+		await expect( settings.getByRole( 'checkbox', { name: 'Match' } ) ).toBeFocused();
+
+		await settings.getByRole( 'checkbox', { name: 'Training' } ).uncheck();
+		await expect.poll( () => server.blocks[ 0 ].options.types, { timeout: 10000 } ).toEqual( [ 5, 8 ] );
 	} );
 
 	test( 'at 360px the canvas stacks in reading order with no sideways scroll, on 48px targets', async ( { browser } ) => {

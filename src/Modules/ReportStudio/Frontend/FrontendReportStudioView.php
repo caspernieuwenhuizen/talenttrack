@@ -501,6 +501,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
             /* translators: %s: name of the dashboard that is the role's home page now */
             'homeNow'     => __( 'Now: %s', 'talenttrack' ),
             'homeSaved'   => __( 'The home pages are saved.', 'talenttrack' ),
+            'homeOff'     => __( 'This role\'s dashboard is switched off, so the home page shows only once it is switched on.', 'talenttrack' ),
         ];
     }
 
