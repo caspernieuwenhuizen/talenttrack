@@ -101,7 +101,7 @@ final class PdpConversationSignedSend {
         return $out;
     }
 
-    private static function loadConversation( int $conversation_id ): ?object {
+    private static function loadConversation( int $conversation_id ): ?\stdClass {
         if ( $conversation_id <= 0 ) return null;
         global $wpdb;
         $p   = $wpdb->prefix;
@@ -114,6 +114,6 @@ final class PdpConversationSignedSend {
               LIMIT 1",
             $conversation_id, CurrentClub::id()
         ) );
-        return $row ?: null;
+        return $row instanceof \stdClass ? $row : null;
     }
 }
