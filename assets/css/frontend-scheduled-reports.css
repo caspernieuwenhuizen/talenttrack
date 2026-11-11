@@ -104,6 +104,17 @@
 }
 .tt-dashboard .tt-sched-table th { white-space: nowrap; }
 .tt-dashboard .tt-sched-table td { vertical-align: middle; }
+/* #4912 — on a phone the table is one card per schedule (the stack-table
+   primitive, a table again from 768px). The actions are one value block:
+   it takes the rest of the line, and when the buttons do not fit beside the
+   label the block moves under it, so they stay side by side, ending on the
+   right like every other value in the card. */
+.tt-dashboard .tt-sched-table > tbody > tr > td.tt-sched-actions-cell { flex-wrap: wrap; }
+.tt-dashboard .tt-sched-table > tbody > tr > td.tt-sched-actions-cell > .tt-stack-table__value { flex: 1 1 auto; }
+.tt-dashboard .tt-sched-actions-cell .tt-sched-actions { justify-content: flex-end; }
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sched-actions-cell .tt-sched-actions { justify-content: flex-start; }
+}
 
 /* Status chip — green = active, gold = paused, neutral fallback. */
 .tt-dashboard .tt-sched-chip {
@@ -160,6 +171,10 @@
 .tt-dashboard .tt-sched-action:focus-visible {
     outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: 1px;
+}
+/* #4912 — under a finger the row actions meet the 48px floor. */
+@media (pointer: coarse) {
+    .tt-dashboard .tt-sched-action { min-height: var(--tt-tap-min, 48px); }
 }
 .tt-dashboard .tt-sched-action--danger { color: var(--tt-danger, #d8453b); }
 .tt-dashboard .tt-sched-action--danger:hover,
