@@ -874,6 +874,7 @@ class PlayersRestController {
             return RestResponse::error( 'unknown_section', __( 'Unknown report section.', 'talenttrack' ), 400, [ 'section' => $section ] );
         }
         // `body` is required: leaving it out changes nothing; an empty one removes the note.
+        // Not `checkBody()`: it treats '' as missing, and '' here is the way to remove a note.
         if ( ! $r->has_param( 'body' ) || ! is_string( $r->get_param( 'body' ) ) ) {
             return RestResponse::error(
                 'missing_fields',

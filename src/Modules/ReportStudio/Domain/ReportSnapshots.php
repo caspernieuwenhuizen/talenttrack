@@ -219,6 +219,7 @@ final class ReportSnapshots {
 
         $team_id = (int) ( $row->team_id ?? 0 );
         if ( ! self::readsAsStaff( $user_id ) || ! TeamReportAccess::canRead( $user_id, $team_id ) ) return null;
+        $document = self::forReader( StudioSnapshot::documentOf( $row ), $user_id );
 
         return [
             'uuid'       => (string) ( $row->uuid ?? '' ),
@@ -231,8 +232,8 @@ final class ReportSnapshots {
             'audience'   => PlayerReportAudience::INTERNAL,
             'created_by' => (int) ( $row->created_by ?? 0 ),
             'created_at' => (string) ( $row->created_at ?? '' ),
-            'document'   => self::forReader( StudioSnapshot::documentOf( $row ), $user_id ),
-            'notes'      => TeamReportSnapshotRepository::notesOf( $row ),
+            'document'   => $document,
+            'notes'      => self::notesFor( TeamReportSnapshotRepository::notesOf( $row ), $document, $user_id ),
             'can_note'   => self::canNoteLoaded( $loaded, $user_id ),
         ];
     }
@@ -272,6 +273,34 @@ final class ReportSnapshots {
         }
         $document['blocks'] = $keep;
         return $document;
+    }
+
+    /**
+     * The block notes of a frozen copy that reach this reader: a note on a
+     * block the reader's copy still holds and, on a player section block, by
+     * the section's own rule (`PlayerSectionRights::keepsNote()`), so a note
+     * on the injuries section reaches only a reader of the injuries.
+     *
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes keyed by block id
+     * @param Document                                                         $document the copy as this reader reads it (`forReader()`)
+     * @return array<string,array{body:string, author:int, updated_at:string}>
+     */
+    public static function notesFor( array $notes, array $document, int $user_id ): array {
+        $sections  = array_flip( \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS );
+        $player_id = is_numeric( $document['context']['player_id'] ?? null ) ? (int) $document['context']['player_id'] : 0;
+        $readers   = \TT\Infrastructure\Visibility\ReaderSet::of( [ $user_id ] );
+
+        $keys = [];
+        foreach ( $document['blocks'] as $block ) $keys[ (string) ( $block['id'] ?? '' ) ] = (string) ( $block['key'] ?? '' );
+
+        $out = [];
+        foreach ( $notes as $id => $note ) {
+            if ( ! isset( $keys[ $id ] ) ) continue;
+            $section = $sections[ $keys[ $id ] ] ?? null;
+            if ( $section !== null && ! \TT\Modules\Analytics\Reports\PlayerSectionRights::keepsNote( (string) $section, $readers, $player_id ) ) continue;
+            $out[ $id ] = $note;
+        }
+        return $out;
     }
 
     /**

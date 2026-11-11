@@ -13,10 +13,12 @@ use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportAccess;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshots;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Export\Domain\ExportRequest;
+use TT\Modules\Export\ExportException;
 use TT\Modules\Export\Exporters\PlayerReportPdfExporter;
 use TT\Modules\ReportStudio\Blocks\PlayerSectionBlock;
 use TT\Modules\ReportStudio\Domain\SharedReads;
@@ -86,29 +88,115 @@ final class PlayerReportSnapshotSectionsTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    public function test_each_reader_reads_the_snapshot_as_the_live_report(): void {
+    /**
+     * For a copy saved for staff and a copy shared with the family, opened by
+     * each reader: block for block, what the live report gives that reader.
+     * A copy shared with the family holds what the family was sent, so a
+     * reader who reads as staff is compared with the live report composed for
+     * the family; any other reader with the live report for their own audience.
+     */
+    public function test_each_reader_reads_each_copy_as_the_live_report(): void {
+        $copies = [
+            PlayerReportAudience::INTERNAL => $this->snapshot(),
+            PlayerReportAudience::FAMILY   => $this->shared(),
+        ];
+
+        foreach ( $copies as $copy => $uuid ) {
+            foreach ( [ 'head of development' => $this->hod, 'assistant coach' => $this->assistant, 'scout' => $this->scout, 'observer' => $this->observer ] as $who => $reader ) {
+                $this->flush();
+                $read     = PlayerReportSnapshots::read( $uuid, $reader );
+                $reads_as = PlayerReportAudience::forReader( $reader );
+                $opens    = PlayerReportAccess::canRead( $reader, $this->player )
+                    && ( $copy !== PlayerReportAudience::INTERNAL || $reads_as === PlayerReportAudience::INTERNAL );
+                if ( ! $opens ) {
+                    $this->assertNull( $read, "{$who}, {$copy} copy: a copy for staff opens only for a reader who reads as staff" );
+                    continue;
+                }
+                $this->assertIsArray( $read, "{$who}, {$copy} copy" );
+
+                $as     = $copy === PlayerReportAudience::FAMILY && $reads_as === PlayerReportAudience::INTERNAL ? PlayerReportAudience::FAMILY : null;
+                $blocks = $read['composition']['blocks'];
+                $this->flush();
+                $live = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, $blocks, $reader, $as );
+                $this->assertIsArray( $live, "{$who}, {$copy} copy" );
+
+                $this->assertSame( $live['blocks'], $read['report']['blocks'], "{$who}, {$copy} copy: the same sections" );
+                foreach ( $live['blocks'] as $block ) {
+                    if ( $block === PlayerReportBlock::LETTERHEAD ) continue;
+                    $this->assertSame(
+                        $this->json( $live['data'][ $block ] ?? null ),
+                        $this->json( $read['report']['data'][ $block ] ?? null ),
+                        "{$block} for the {$who}, {$copy} copy: the snapshot reads as the live report"
+                    );
+                }
+            }
+        }
+    }
+
+    public function test_a_linked_scout_reads_a_family_copy_as_the_live_scout_report(): void {
+        $uuid = $this->shared();
+        $this->flush();
+        $this->assertSame( PlayerReportAudience::SCOUT, PlayerReportAudience::forReader( $this->scout ), 'Precondition: the scout reads as a scout.' );
+
+        $read = PlayerReportSnapshots::read( $uuid, $this->scout );
+        $this->assertIsArray( $read );
+        $this->assertSame(
+            PlayerReportAudience::blocksFor( PlayerReportAudience::SCOUT, $read['composition']['blocks'] ),
+            $read['report']['blocks'],
+            'the scout block set, as the live scout report has it'
+        );
+        foreach ( $read['report']['blocks'] as $block ) {
+            $this->assertContains( $block, PlayerReportAudience::SCOUT_BLOCKS );
+        }
+    }
+
+    public function test_an_injuries_note_reaches_only_a_reader_of_the_injuries(): void {
         $uuid = $this->snapshot();
+        $this->assertTrue( PlayerReportSnapshots::note( $uuid, PlayerReportBlock::INJURIES, self::NOTE, $this->hod ) );
+        $this->assertTrue( PlayerReportSnapshots::note( $uuid, PlayerReportBlock::TESTS, 'Sprint is up.', $this->hod ) );
 
-        foreach ( [ 'head of development' => $this->hod, 'assistant coach' => $this->assistant, 'scout' => $this->scout, 'observer' => $this->observer ] as $who => $reader ) {
+        foreach ( [ 'head of development' => [ $this->hod, true ], 'assistant coach' => [ $this->assistant, false ], 'observer' => [ $this->observer, false ] ] as $who => [ $reader, $sees ] ) {
             $this->flush();
-            $read  = PlayerReportSnapshots::read( $uuid, $reader );
-            $opens = PlayerReportAccess::canRead( $reader, $this->player ) && PlayerReportAudience::forReader( $reader ) === PlayerReportAudience::INTERNAL;
-            if ( ! $opens ) {
-                $this->assertNull( $read, "{$who}: a copy for staff opens only for a reader who reads as staff" );
-                continue;
-            }
+            $this->assertSame( $sees, ReaderSet::of( [ $reader ] )->seesMedical(), "Precondition: the {$who} and the medical rung." );
+            $read = PlayerReportSnapshots::read( $uuid, $reader );
             $this->assertIsArray( $read, $who );
+            $this->assertSame( $sees, isset( $read['notes'][ PlayerReportBlock::INJURIES ] ), "{$who}: the injuries note" );
+            $this->assertArrayHasKey( PlayerReportBlock::TESTS, $read['notes'], "{$who}: a note on an open section stays" );
 
+            wp_set_current_user( $reader );
+            $pdf = ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $reader, null, [ 'snapshot' => $uuid ] ) );
+            $this->assertSame( $sees, str_contains( (string) ( $pdf['html'] ?? '' ), self::NOTE ), "{$who}: the injuries note in the PDF" );
+        }
+    }
+
+    public function test_the_parent_of_another_child_and_the_coach_of_another_team_are_refused(): void {
+        global $wpdb;
+        $staff  = $this->snapshot();
+        $family = $this->shared();
+
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $this->club, 'name' => 'Other U17' ] );
+        $other_team = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [ 'club_id' => $this->club, 'team_id' => $other_team, 'first_name' => 'Other', 'last_name' => 'Child', 'status' => 'active' ] );
+        $other_child = (int) $wpdb->insert_id;
+
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_parents", [ 'club_id' => $this->club, 'player_id' => $other_child, 'parent_user_id' => $parent ] );
+        $coach = $this->assistantOf( $other_team );
+
+        foreach ( [ 'parent of another child' => $parent, 'coach of another team' => $coach ] as $who => $reader ) {
             $this->flush();
-            $live = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, $this->sections(), $reader );
-            $this->assertIsArray( $live, $who );
-            foreach ( $this->sections() as $section ) {
-                $this->assertSame(
-                    $this->json( $live['data'][ $section ] ?? null ),
-                    $this->json( $read['report']['data'][ $section ] ?? null ),
-                    "{$section} for the {$who}: the snapshot reads as the live report"
-                );
+            wp_set_current_user( $reader );
+            foreach ( [ 'staff' => $staff, 'family' => $family ] as $copy => $uuid ) {
+                $this->assertNull( PlayerReportSnapshots::read( $uuid, $reader ), "{$who}, {$copy} copy" );
+                $this->assertSame( 403, rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/player-report-snapshots/' . $uuid ) )->get_status(), "{$who}, {$copy} copy: REST" );
+                try {
+                    ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $reader, null, [ 'snapshot' => $uuid ] ) );
+                    $this->fail( "{$who}, {$copy} copy: the PDF must be refused" );
+                } catch ( ExportException $e ) {
+                    $this->assertSame( 'forbidden', $e->errorKey );
+                }
             }
+            $this->assertSame( 403, rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/report-snapshots' ) )->get_status(), "{$who}: the list" );
         }
     }
 
@@ -208,6 +296,15 @@ final class PlayerReportSnapshotSectionsTest extends WP_UnitTestCase {
         global $wpdb;
         $stored = (string) $wpdb->get_var( $wpdb->prepare( "SELECT data_json FROM {$wpdb->prefix}tt_player_report_snapshots WHERE uuid = %s", $uuid ) );
         $this->assertStringContainsString( self::INJURY, $stored, 'Precondition: the taker froze the injury.' );
+        return $uuid;
+    }
+
+    /** A copy shared with the family by the head of development, over the same window. */
+    private function shared(): string {
+        $this->flush();
+        wp_set_current_user( $this->hod );
+        $uuid = PlayerReportSnapshots::share( $this->player, [ 'from' => self::FROM, 'to' => self::TO ], $this->hod );
+        $this->assertNotSame( '', $uuid, 'Precondition: a copy shared with the family.' );
         return $uuid;
     }
 

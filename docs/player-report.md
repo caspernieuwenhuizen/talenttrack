@@ -222,7 +222,12 @@ they were, but a section the reader may not see is left out or shortened, as
 it would be on the live report: injuries only for staff with the medical
 right, journey entries at the levels the reader holds, and so on. The snapshot
 page and its PDF show the same thing. A scout neither sees nor opens a snapshot saved for
-staff.
+staff, and reads a copy shared with the family as their own scout version.
+
+A note follows its section: a note on the injuries section reaches only staff
+with the medical right, a note on the staff notes only those who read the
+player's private notes, and a note on the development plan only those who may
+open the plan.
 
 Saving a snapshot, sharing the report with the family and writing a note are
 for staff who may generate this player's reports, not only read them. A seat

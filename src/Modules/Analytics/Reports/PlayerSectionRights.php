@@ -92,6 +92,25 @@ final class PlayerSectionRights {
     }
 
     /**
+     * Does a snapshot note on this section reach these readers? A note is
+     * about what its section holds, so on the injuries, staff notes and
+     * development plan sections it reaches only a reader who holds that
+     * section's right, the one whose absence empties the section in `cut()`.
+     * Any other section's note follows the section itself.
+     */
+    public static function keepsNote( string $section, ReaderSet $readers, int $player_id ): bool {
+        switch ( $section ) {
+            case PlayerReportBlock::INJURIES:
+                return self::seesInjuries( $readers );
+            case PlayerReportBlock::THREAD_NOTES:
+                return self::readsThread( $readers, $player_id ) && self::seesPrivateNotes( $readers, $player_id );
+            case PlayerReportBlock::PDP:
+                return self::seesPdpFile( $readers, $player_id );
+        }
+        return true;
+    }
+
+    /**
      * Do these readers hold every level a talking point can be drawn from:
      * the medical rung, every journey level and every measurement level?
      */

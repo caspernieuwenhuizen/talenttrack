@@ -1276,7 +1276,13 @@ caller may not read are the same `403`, so a uuid cannot be probed.
   reader whose `PlayerReportAudience::forReader()` is `internal` (a scout is
   `403`). The snapshot page and the PDF read the same payload. The list,
   `GET /players/{id}/report-snapshots`, leaves staff snapshots out for such a
-  reader too, as the snapshot list under the report does.
+  reader too, as the snapshot list under the report does. The report ends in
+  the reader's own audience (`PlayerReportAudience::apply()`), as the live
+  report does, so a scout reads a family copy as the scout version. `notes`
+  holds only the notes on sections the reader's copy holds, and a note on the
+  `injuries`, `thread_notes` or `pdp` section only for a reader of that section
+  (`PlayerSectionRights::keepsNote()`); Report Studio copies follow the same
+  rule per block (`ReportSnapshots::notesFor()`).
 - `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`,
   required: leaving it out is `400 missing_fields` and changes nothing; an
   empty body removes the note. A section that is not a block is `400 unknown_section`.
