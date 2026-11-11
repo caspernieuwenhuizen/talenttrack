@@ -106,24 +106,36 @@ final class DutchMsgidPrintsTest extends WP_UnitTestCase {
         $this->assertCount( 28, $fragment, 'one entry per converted msgid' );
 
         foreach ( $fragment as $entry ) {
-            $before = array_diff( array_keys( $catalogue, $entry['msgstr'], true ), [ $entry['msgid'] ] );
-            $this->assertNotEmpty( $before, "an old msgid printed this Dutch: {$entry['msgstr']}" );
+            $this->assertNotEmpty( $this->oldMsgids( $entry, $catalogue ), "an old msgid printed this Dutch: {$entry['msgstr']}" );
             $this->assertNotSame( $entry['msgstr'], $entry['msgid'], 'the new msgid is English' );
         }
+    }
+
+    /**
+     * The old Dutch msgids a converted entry replaced: the other catalogue
+     * entries that print its Dutch. A Dutch msgid is the Dutch itself, or an
+     * earlier wording of it; an English msgid that also translates to it is
+     * not one.
+     *
+     * @param array{msgctxt:string, msgid:string, msgstr:string} $entry
+     * @param array<string, string> $catalogue
+     * @return list<string>
+     */
+    private function oldMsgids( array $entry, array $catalogue ): array {
+        $old = [];
+        foreach ( array_keys( $catalogue, $entry['msgstr'], true ) as $msgid ) {
+            $msgid = (string) $msgid;
+            similar_text( $msgid, $entry['msgstr'], $percent );
+            if ( $msgid !== $entry['msgid'] && $percent >= 90 ) $old[] = $msgid;
+        }
+        return $old;
     }
 
     public function test_no_converted_file_still_uses_an_old_dutch_msgid(): void {
         $catalogue = $this->catalogue();
         $old       = [];
         foreach ( $this->fragment() as $entry ) {
-            // The old msgid: the catalogue entry that prints this Dutch.
-            foreach ( array_keys( $catalogue, $entry['msgstr'], true ) as $msgid ) {
-                $msgid = (string) $msgid;
-                // A Dutch msgid is the Dutch itself, or an earlier wording of
-                // it; an English msgid that also translates to it is not one.
-                similar_text( $msgid, $entry['msgstr'], $percent );
-                if ( $msgid !== $entry['msgid'] && $percent >= 90 ) $old[] = $msgid;
-            }
+            $old = array_merge( $old, $this->oldMsgids( $entry, $catalogue ) );
         }
         $this->assertNotEmpty( $old );
 
