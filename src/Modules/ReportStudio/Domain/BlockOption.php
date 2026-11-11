@@ -19,6 +19,7 @@ final class BlockOption {
     public const TYPE_MEASURE   = 'measure';
     public const TYPE_BREAKDOWN = 'breakdown';
     public const TYPE_TEXT      = 'text';
+    public const TYPE_IDS       = 'ids';
 
     /**
      * @param array<string,string>|array<string,array<string,string>> $choices
@@ -96,6 +97,25 @@ final class BlockOption {
                 $text = sanitize_textarea_field( $raw );
                 if ( $this->max !== null && mb_strlen( $text ) > $this->max ) return [ false, null ];
                 return $text === '' && $this->required ? [ false, null ] : [ true, $text ];
+            case self::TYPE_IDS:
+                // #4961 — record ids, as a list, a comma-separated string or
+                // one id. An id that is no longer offered is kept: the
+                // section's own option class reads it as its default, so a
+                // stored report still opens after a test is archived.
+                $items = is_array( $raw ) ? $raw : ( is_scalar( $raw ) ? explode( ',', (string) $raw ) : null );
+                if ( $items === null ) return [ false, null ];
+                $ids = [];
+                foreach ( $items as $item ) {
+                    $item = is_string( $item ) ? trim( $item ) : $item;
+                    if ( $item === '' ) continue;
+                    if ( ! is_int( $item ) && ! ( is_string( $item ) && preg_match( '/^\d+$/', $item ) === 1 ) ) return [ false, null ];
+                    $id = (int) $item;
+                    if ( $id <= 0 ) return [ false, null ];
+                    $ids[ $id ] = $id;
+                }
+                if ( $this->max !== null && count( $ids ) > $this->max ) return [ false, null ];
+                if ( $ids === [] ) return $this->required ? [ false, null ] : [ true, $this->default ];
+                return [ true, array_values( $ids ) ];
             default:
                 if ( ! is_string( $raw ) ) return [ false, null ];
                 $set = $this->choices;

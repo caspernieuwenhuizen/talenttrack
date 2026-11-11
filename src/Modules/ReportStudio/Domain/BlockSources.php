@@ -4,6 +4,8 @@ namespace TT\Modules\ReportStudio\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
+use TT\Modules\ReportStudio\Blocks\MonthlySectionBlock;
+use TT\Modules\ReportStudio\Blocks\PlayerSectionBlock;
 
 /**
  * BlockSources (#4571) — what a block reads and who it is for, in the plain
@@ -13,6 +15,14 @@ final class BlockSources {
 
     /** Where the block's figures come from. */
     public static function source( ReportBlock $block ): string {
+        if ( $block instanceof MonthlySectionBlock ) {
+            /* translators: %s: the name of a section of the team monthly report */
+            return sprintf( __( 'The team monthly report\'s "%s" section, composed and printed as that report composes and prints it.', 'talenttrack' ), $block->label() );
+        }
+        if ( $block instanceof PlayerSectionBlock ) {
+            /* translators: %s: the name of a section of the player report */
+            return sprintf( __( 'The player report\'s "%s" section, composed and printed as that report composes and prints it.', 'talenttrack' ), $block->label() );
+        }
         switch ( $block->key() ) {
             case 'letterhead':
                 return __( 'The team or the player, the period and the club colours, the same heading as the team monthly report and the player report.', 'talenttrack' );

@@ -1506,8 +1506,11 @@ for. The payload carries capabilities and keys, never role names.
       "reason": "This block does not fit what the report is about." } ] }
 ```
 
-Option types are `enum`, `bool`, `int`, `measure`, `breakdown` and `text`
-(#4572: plain text, tags stripped, at most `max` characters). A
+Option types are `enum`, `bool`, `int`, `measure`, `breakdown`, `text`
+(#4572: plain text, tags stripped, at most `max` characters) and `ids`
+(#4961: record ids, sent as a list, a comma-separated string or one id; at
+most `max` of them; `choices` lists the ids on offer, and an id that is no
+longer on offer is kept and read as the section's default). A
 `depends_on` option's `choices` are grouped by the value of the option it
 names. `source` and `family` say, in plain words, where a block's figures
 come from and whether a family may see it. `unavailable` lists every other
@@ -1678,6 +1681,33 @@ The blocks:
 - `own_question` (every scope): one declared measure of one analytics fact,
   optionally broken down by one declared dimension. Only facts the caller may
   read, and that carry the dimension the subject needs, are offered.
+- **The other report sections** (#4961). Each is one section of the team
+  monthly report or the player report, and its `data` is exactly that
+  section's payload in the report for the same subject, period, reader and
+  options (`TeamMonthlyReport::forTeam()`, `PlayerReport::forPlayer()`):
+  - `monthly_coverage`, `monthly_status`, `monthly_evaluations` (the whole
+    section: averages, movers, spread and, under Details, the grid),
+    `monthly_attention`, `monthly_changes`, `monthly_tests`, `monthly_roster`
+    and `monthly_quality` (team, staff only). The attendance right cuts them
+    as it cuts the report (`attendance_pct` and `missed` leave the attention
+    and roster rows). `monthly_tests` takes `level`, `change` and
+    `definitions` (`ids`); `monthly_evaluations` takes `level`, `types`
+    (`ids`) and `sub`. Both are generated from the section's option class
+    (`TestsBlockOptions`, `EvaluationsBlockOptions`), which accepts no other
+    key.
+  - `player_status`, `player_talking_points`, `player_pdp`,
+    `player_matches`, `player_tests`, `player_journey`, `player_injuries`,
+    `player_behaviour` and `player_potential` (player). The audiences are
+    `PlayerReportAudience`'s allowlists: `player_tests` reaches a scout and a
+    family (tests at the public level, as `{ items }`); every other one is
+    staff only, so a draft holding one on a scout or family report is
+    `400 invalid_field`. Injuries are in the payload only for a reader on the
+    medical rung, as on the report.
+
+  These blocks print with the report's own section renderer
+  (`TeamMonthlyReportDocument::sectionHtml()`,
+  `PlayerReportPdfDocument::sectionHtml()`) and are measured in `page_fit`
+  with that report's heights.
 
 **Each block answers to the read of the route that owns its figure**, on top
 of the report's own subject check (the reports read):

@@ -204,6 +204,17 @@ final class PlayerReportLayout {
     }
 
     /**
+     * #4961 — one section's printed height in mm, from its composer payload:
+     * the height a Report Studio block that is this section is estimated
+     * with, so the Studio's page meter and this report's agree about it.
+     *
+     * @param array<string,mixed> $data the section's composer payload
+     */
+    public static function printedHeight( string $block, array $data ): float {
+        return self::blockHeight( $block, $data );
+    }
+
+    /**
      * Apply the rungs `fit()` chose, so what prints is what was measured.
      * A shortened list carries `shortened` — how many entries it left out —
      * so the printed copy can say so rather than look complete.

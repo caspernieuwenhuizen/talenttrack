@@ -96,6 +96,21 @@ final class PlayerReportAudience {
     }
 
     /**
+     * #4961 — the audiences that may ever receive one section, from the two
+     * allowlists above: staff always, a scout and a family where their list
+     * holds it. The Report Studio's section blocks read this, so a block and
+     * the report cannot disagree about who receives it.
+     *
+     * @return list<string>
+     */
+    public static function audiencesFor( string $block ): array {
+        $out = [ self::INTERNAL ];
+        if ( in_array( $block, self::SCOUT_BLOCKS, true ) )  $out[] = self::SCOUT;
+        if ( in_array( $block, self::FAMILY_BLOCKS, true ) ) $out[] = self::FAMILY;
+        return $out;
+    }
+
+    /**
      * The line under the report, on screen and on paper. A staff report says
      * it stays with staff; one shared with the family says who it is for.
      */

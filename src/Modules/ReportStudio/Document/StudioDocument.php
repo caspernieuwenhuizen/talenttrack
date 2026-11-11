@@ -7,6 +7,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\ReportBrandColour;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\Export\Exporters\PlayerReportPdfDocument;
 use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
 use TT\Modules\ReportStudio\Blocks\PageBreakBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
@@ -99,7 +100,8 @@ final class StudioDocument {
         $css = '@page{margin:12mm}'
             . 'body{font-family:"DejaVu Sans",Verdana,sans-serif;font-size:9pt;color:#0e1a14;margin:0}'
             . self::rules()
-            . TeamMonthlyReportDocument::scopedCss( TeamMonthlyReportLayout::PACK );
+            . TeamMonthlyReportDocument::scopedCss( TeamMonthlyReportLayout::PACK )
+            . PlayerReportPdfDocument::scopedCss();
 
         return '<!doctype html><html><head><meta charset="UTF-8"><title>' . esc_html( $title ) . '</title>'
             . '<style>' . $css . '</style></head><body>' /* tt-inline-ok */
@@ -113,7 +115,9 @@ final class StudioDocument {
      * same markup. One PHP source of the sizes feeds paper and screen.
      */
     public static function screenCss(): string {
-        return '@media (min-width: 768px){' . self::rules() . '}';
+        // #4961 — a player report section prints with that report's rules,
+        // scoped to its wrapper.
+        return '@media (min-width: 768px){' . self::rules() . PlayerReportPdfDocument::scopedCss() . '}';
     }
 
     /**

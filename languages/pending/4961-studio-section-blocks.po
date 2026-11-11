@@ -1,0 +1,17 @@
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php
+#: src/Modules/Analytics/Reports/EvaluationsBlockOptions.php
+msgctxt "report section option"
+msgid "Level of detail"
+msgstr "Detailniveau"
+
+#. translators: %s: the name of a section of the team monthly report
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+#, php-format
+msgid "The team monthly report's \"%s\" section, composed and printed as that report composes and prints it."
+msgstr "Het onderdeel \"%s\" van het maandrapport van het team, samengesteld en afgedrukt zoals dat rapport het samenstelt en afdrukt."
+
+#. translators: %s: the name of a section of the player report
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+#, php-format
+msgid "The player report's \"%s\" section, composed and printed as that report composes and prints it."
+msgstr "Het onderdeel \"%s\" van het spelersrapport, samengesteld en afgedrukt zoals dat rapport het samenstelt en afdrukt."
