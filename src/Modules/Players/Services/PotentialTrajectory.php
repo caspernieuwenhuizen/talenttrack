@@ -202,12 +202,13 @@ class PotentialTrajectory {
      * `potential_judgement` rule of the sensitive-field registry, asked once
      * per reader and player. Every source that hands out a band asks this.
      *
-     * The rule masks a reader of a known shape, so a read with no reader at
-     * all (a scheduled job, the command line, a report's recipient whose
-     * rights cannot be checked) reads the band as it did before.
+     * A reader of 0 is a reader whose rights cannot be checked, such as a
+     * scheduled report's recipient without an account here, and counts as
+     * one with no rights: the band is hidden from them, as the evaluation
+     * notes are. Every view and REST route passes the signed-in user.
      */
     public static function bandHiddenFrom( int $reader_id, int $player_id ): bool {
-        if ( $reader_id <= 0 ) return false;
+        if ( $reader_id <= 0 ) return true;
         // A row that names no player: masked exactly for the shape the rule
         // masks, whoever the player turns out to be.
         if ( $player_id <= 0 ) return \TT\Modules\Players\PotentialAccess::readsWithoutJudgement( $reader_id );

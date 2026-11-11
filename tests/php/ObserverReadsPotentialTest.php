@@ -4,6 +4,8 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_UnitTestCase;
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\PlayerStatus\StatusVerdict;
+use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RecordRedactor;
 use TT\Infrastructure\Security\RolesService;
@@ -156,6 +158,9 @@ final class ObserverReadsPotentialTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'weight', $observer['inputs']['potential'] );
         $this->assertNull( $observer['score'], 'the composite would give the band back' );
         $this->assertNotContains( 'potential', $observer['missing_inputs'], 'a hidden band is not a missing one' );
+        foreach ( $observer['reasons'] as $reason ) {
+            $this->assertDoesNotMatchRegularExpression( '/Composite \d/', (string) $reason, 'no reason carries the composite' );
+        }
 
         $hod = $this->data( $this->get( $this->hod, '/talenttrack/v1/players/' . $this->player . '/status' ) );
         $this->assertEqualsWithDelta( 80.0, (float) $hod['inputs']['potential']['value'], 0.01, 'the head of development reads the input' );
@@ -168,6 +173,73 @@ final class ObserverReadsPotentialTest extends WP_UnitTestCase {
         $coach = $this->data( $this->get( $this->coach, '/talenttrack/v1/teams/' . $this->team . '/player-statuses' ) );
         $rows  = array_values( array_filter( $coach['rows'], fn( $r ) => (int) $r['player_id'] === $this->player ) );
         $this->assertArrayHasKey( 'value', $rows[0]['inputs']['potential'], 'the head coach reads the input' );
+    }
+
+    /**
+     * A threshold reason names the composite, which gives the band back by
+     * the same arithmetic as the score: it keeps the threshold and loses the
+     * number, in the object and in its array form alike (one rule).
+     */
+    public function test_a_threshold_reason_keeps_the_threshold_and_loses_the_composite(): void {
+        foreach ( [ [ StatusVerdict::COLOR_AMBER, 'amber', '60' ], [ StatusVerdict::COLOR_RED, 'red', '40' ] ] as [ $color, $word, $threshold ] ) {
+            $reason  = sprintf( 'Composite %s below %s threshold %s.', '35.5', $word, $threshold );
+            $verdict = new StatusVerdict(
+                $color,
+                35.5,
+                [
+                    'ratings'   => [ 'value' => 5.0, 'weight' => 40, 'score' => 30.0 ],
+                    'potential' => [ 'value' => 60.0, 'weight' => 15, 'score' => 60.0 ],
+                ],
+                [ 'No evaluations in the last 90 days.', $reason ],
+                '2026-09-30 00:00:00',
+                'shipped'
+            );
+
+            $masked = $verdict->withoutPotential();
+            $this->assertNull( $masked->score );
+            $this->assertSame( [ 'weight' => 15 ], $masked->inputs['potential'] );
+            $this->assertSame(
+                [ 'No evaluations in the last 90 days.', sprintf( 'Composite below the %s threshold (%s).', $word, $threshold ) ],
+                $masked->reasons,
+                "the {$word} reason keeps its threshold"
+            );
+            $this->assertSame( $reason, $verdict->reasons[1], 'the computed verdict is left as it was' );
+
+            $this->assertSame(
+                $masked->toArray(),
+                StatusVerdict::payloadWithoutPotential( $verdict->toArray() ),
+                'the array form follows the same rule'
+            );
+            $this->assertSame( $masked->toArray(), \TT\Modules\Analytics\Reports\PlayerSectionRights::statusWithoutPotential( $verdict->toArray() ) );
+        }
+    }
+
+    /**
+     * A scheduled report goes out as one PDF; a recipient whose rights
+     * cannot be checked (0) counts as one with none, so the band is hidden
+     * from every recipient, as the evaluation notes are.
+     */
+    public function test_a_report_with_an_unverifiable_recipient_hides_the_band(): void {
+        $this->assertTrue( PotentialTrajectory::bandHiddenFrom( 0, $this->player ) );
+        $this->assertFalse( PotentialAccess::seesJudgement( 0, $this->player ) );
+
+        $packet = EvidencePacket::forReaders( $this->player, '2026-09-01', '2026-09-30', ReaderSet::of( [ $this->hod, 0 ] ) );
+        $this->assertIsArray( $packet );
+        $item = $packet['potential'][0];
+        $this->assertIsArray( $item );
+        $this->assertTrue( $item['band_hidden'] ?? false );
+        $this->assertArrayNotHasKey( 'potential_band', $item );
+        $this->assertArrayNotHasKey( 'value', $packet['status']['inputs']['potential'] );
+        $this->assertArrayNotHasKey( 'score', $packet['status']['inputs']['potential'] );
+        $this->assertNull( $packet['status']['score'] );
+
+        $pdf = $this->callPrivate( \TT\Modules\Export\Exporters\PlayerReportPdfDocument::class, 'potential', [ [ 'items' => [ $item ] ] ] );
+        $this->assertStringContainsString( 'Hidden', $pdf );
+        $this->assertStringNotContainsString( self::LABEL, $pdf );
+
+        $alone = EvidencePacket::forReaders( $this->player, '2026-09-01', '2026-09-30', ReaderSet::of( [ $this->hod ] ) );
+        $this->assertIsArray( $alone );
+        $this->assertArrayHasKey( 'value', $alone['status']['inputs']['potential'], 'the head of development alone reads it' );
     }
 
     public function test_the_squad_overview_shows_no_band_and_filters_none_back(): void {

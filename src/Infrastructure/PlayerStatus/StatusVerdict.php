@@ -184,24 +184,125 @@ final class StatusVerdict {
     }
 
     /**
-     * The verdict without the band: the potential input keeps its weight and
-     * leaves out its value and score, which encode the band. A potential that
-     * was never set is still named in `missing_inputs`, so a reader can tell
-     * the two apart. When the band counted towards the composite, the
-     * composite `score` is null too, because the composite and the other
-     * inputs' scores would give the band back by arithmetic. The colour, the
-     * reasons, the coverage and the missing inputs stay.
+     * The verdict without the band, by the rule {@see self::maskedParts()}
+     * states once for the object and for its array form.
      */
     public function withoutPotential(): self {
         if ( ! isset( $this->inputs['potential'] ) ) return $this;
 
-        $copy      = clone $this;
-        $potential = $this->inputs['potential'];
-        $copy->inputs['potential'] = [ 'weight' => (int) $potential['weight'] ];
-        if ( ( $potential['score'] ?? null ) !== null && (int) $potential['weight'] > 0 ) {
-            $copy->score = null;
-        }
+        $parts = self::maskedParts( $this->inputs['potential'], $this->reasons );
+        $copy  = clone $this;
+        $copy->inputs['potential'] = $parts['potential'];
+        $copy->reasons             = $parts['reasons'];
+        if ( $parts['hide_score'] ) $copy->score = null;
         return $copy;
+    }
+
+    /**
+     * {@see self::withoutPotential()} on a verdict payload (`toArray()`), as a
+     * report section or a snapshot holds it. The same rule, not a copy of it.
+     *
+     * @param array<string,mixed> $status
+     * @return array<string,mixed>
+     */
+    public static function payloadWithoutPotential( array $status ): array {
+        $inputs    = is_array( $status['inputs'] ?? null ) ? $status['inputs'] : [];
+        $potential = is_array( $inputs['potential'] ?? null ) ? $inputs['potential'] : null;
+        if ( $potential === null ) return $status;
+
+        $reasons = [];
+        foreach ( is_array( $status['reasons'] ?? null ) ? $status['reasons'] : [] as $reason ) {
+            if ( is_string( $reason ) ) $reasons[] = $reason;
+        }
+
+        $parts               = self::maskedParts( $potential, $reasons );
+        $inputs['potential'] = $parts['potential'];
+        $status['inputs']    = $inputs;
+        $status['reasons']   = $parts['reasons'];
+        if ( $parts['hide_score'] ) $status['score'] = null;
+        return $status;
+    }
+
+    /**
+     * #4694 — the rule. The potential input keeps its weight and leaves out
+     * its value and score, which encode the band. A potential that was never
+     * set is still named in `missing_inputs`, so a reader can tell the two
+     * apart. When the band counted towards the composite, the composite goes
+     * as well, because with the other inputs' scores it gives the band back
+     * by arithmetic: the `score` is null, and a reason that names the
+     * composite against a threshold keeps the threshold and loses the
+     * number. The colour, the other reasons, the coverage and the missing
+     * inputs stay.
+     *
+     * @param array<string,mixed> $potential the potential input
+     * @param list<string>        $reasons
+     * @return array{potential: array{weight:int}, hide_score: bool, reasons: list<string>}
+     */
+    private static function maskedParts( array $potential, array $reasons ): array {
+        $weight     = (int) ( $potential['weight'] ?? 0 );
+        $hide_score = ( $potential['score'] ?? null ) !== null && $weight > 0;
+
+        return [
+            'potential'  => [ 'weight' => $weight ],
+            'hide_score' => $hide_score,
+            'reasons'    => $hide_score
+                ? array_values( array_map( static fn( string $r ): string => self::reasonWithoutComposite( $r ), $reasons ) )
+                : $reasons,
+        ];
+    }
+
+    /**
+     * A threshold reason the calculator wrote ("Composite 55 below amber
+     * threshold 60."), without the composite, or the reason as it came. Read
+     * against the translated format and the English one, so a reason stored
+     * in another language is still found.
+     */
+    private static function reasonWithoutComposite( string $reason ): string {
+        $formats = [
+            [
+                'Composite %s below red threshold %s.',
+                /* translators: %s: the red threshold, e.g. 40 */
+                __( 'Composite below the red threshold (%s).', 'talenttrack' ),
+            ],
+            [
+                'Composite %s below amber threshold %s.',
+                /* translators: %s: the amber threshold, e.g. 60 */
+                __( 'Composite below the amber threshold (%s).', 'talenttrack' ),
+            ],
+        ];
+        foreach ( $formats as [ $msgid, $masked ] ) {
+            // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText — the calculator's own msgids, read back.
+            foreach ( array_unique( [ __( $msgid, 'talenttrack' ), $msgid ] ) as $format ) {
+                $threshold = self::argumentIn( $format, $reason, 2 );
+                if ( $threshold !== null ) return sprintf( $masked, $threshold );
+            }
+        }
+        return $reason;
+    }
+
+    /**
+     * The `$position`-th argument (1-based) a `%s` / `%1$s` format put into
+     * `$text`, or null when the text was not made from the format.
+     */
+    private static function argumentIn( string $format, string $text, int $position ): ?string {
+        $parts = preg_split( '/(%(?:\d+\$)?s)/', $format, -1, PREG_SPLIT_DELIM_CAPTURE );
+        if ( ! is_array( $parts ) ) return null;
+
+        $pattern = '';
+        $order   = [];
+        $next    = 1;
+        foreach ( $parts as $part ) {
+            if ( preg_match( '/^%(?:(\d+)\$)?s$/', $part, $m ) === 1 ) {
+                $order[]  = ( $m[1] ?? '' ) !== '' ? (int) $m[1] : $next++;
+                $pattern .= '(.+?)';
+            } else {
+                $pattern .= preg_quote( $part, '/' );
+            }
+        }
+        if ( preg_match( '/^' . $pattern . '$/u', $text, $found ) !== 1 ) return null;
+
+        $index = array_search( $position, $order, true );
+        return $index === false ? null : (string) ( $found[ $index + 1 ] ?? '' );
     }
 
     /** @return array<string,mixed> */

@@ -50,9 +50,15 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
         ] );
     }
 
-    /** @return list<array<string,mixed>> */
+    /**
+     * Read as an administrator: #4694 hides the band from a reader whose
+     * rights cannot be checked, and these tests are about the bands.
+     *
+     * @return list<array<string,mixed>>
+     */
     private function series(): array {
-        return ( new PotentialTrajectory() )->forPlayer( $this->player_id );
+        $admin = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        return ( new PotentialTrajectory() )->forPlayer( $this->player_id, $admin );
     }
 
     public function test_a_player_with_no_potential_has_no_trajectory(): void {

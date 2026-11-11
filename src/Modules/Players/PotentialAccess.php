@@ -36,7 +36,9 @@ use TT\Modules\Authorization\MatrixGate;
  *
  * Every other reader reads what they read before: a head coach, a head of
  * development, an administrator, a scout and a family reader never hold the
- * read-only academy-wide shape, so the rule leaves them alone.
+ * read-only academy-wide shape, so the rule leaves them alone. A reader of 0,
+ * whose rights cannot be checked (a scheduled report's unverifiable
+ * recipient), counts as one with none: the band is hidden from them.
  */
 final class PotentialAccess {
 
@@ -52,6 +54,8 @@ final class PotentialAccess {
      *                            pass); asked here when null.
      */
     public static function seesJudgement( int $user_id, int $player_id, ?bool $is_staff = null ): bool {
+        // A reader whose rights cannot be checked counts as one with none.
+        if ( $user_id <= 0 ) return false;
         if ( ! self::readsWithoutJudgement( $user_id ) ) return true;
         if ( $player_id <= 0 ) return false;
 

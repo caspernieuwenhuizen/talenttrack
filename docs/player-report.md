@@ -238,7 +238,9 @@ audit log.
 
 The read-only observer reads the Potential section with the dates and without
 the band: **Hidden** stands where the band would be, on screen and in the PDF,
-and the Status section shows the colour without the score.
+and the Status section shows the colour without the score. A schedule with a
+recipient whose rights cannot be checked prints the potential the same way,
+as **Hidden**, as it does the evaluation notes.
 
 ## Sharing the report with the player and their parents
 

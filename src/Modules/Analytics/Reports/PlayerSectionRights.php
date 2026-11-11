@@ -182,17 +182,7 @@ final class PlayerSectionRights {
      * @return array<string,mixed>
      */
     public static function statusWithoutPotential( array $status ): array {
-        $inputs    = is_array( $status['inputs'] ?? null ) ? $status['inputs'] : [];
-        $potential = is_array( $inputs['potential'] ?? null ) ? $inputs['potential'] : null;
-        if ( $potential === null ) return $status;
-
-        $weight              = (int) ( $potential['weight'] ?? 0 );
-        $inputs['potential'] = [ 'weight' => $weight ];
-        $status['inputs']    = $inputs;
-        if ( ( $potential['score'] ?? null ) !== null && $weight > 0 ) {
-            $status['score'] = null;
-        }
-        return $status;
+        return \TT\Infrastructure\PlayerStatus\StatusVerdict::payloadWithoutPotential( $status );
     }
 
     public static function seesEvaluationNotes( ReaderSet $readers, int $player_id ): bool {

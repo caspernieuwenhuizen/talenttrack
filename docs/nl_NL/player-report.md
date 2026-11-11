@@ -253,7 +253,10 @@ geschreven notitie wordt vastgelegd in het auditlogboek.
 
 De alleen-lezen-waarnemer leest het onderdeel Potentie met de datums en
 zonder de band: op het scherm en in de pdf staat **Verborgen** op de plek van
-de band, en het onderdeel Status toont de kleur zonder de score.
+de band, en het onderdeel Status toont de kleur zonder de score. Een planning
+met een ontvanger van wie de rechten niet te controleren zijn, drukt het
+potentieel net zo af, als **Verborgen**, zoals de geschreven toelichting bij
+evaluaties.
 
 ## Het rapport delen met de speler en de ouders
 
