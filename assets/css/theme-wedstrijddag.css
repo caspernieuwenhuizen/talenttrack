@@ -20,6 +20,9 @@
  * theme's deep colour (on light surfaces) or toward white (on dark ones)
  * until it clears; the colour itself stays for fills.
  *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
  * The fonts are bundled under `assets/fonts/barlow-condensed/` and `assets/fonts/montserrat/` (OFL), so they load only while this
  * theme is active and the page makes no request to a font host.
  */
@@ -126,7 +129,14 @@
     --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
     --tt-font-body:    "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-    /* ---- Theme-local ----------------------------------------------- */
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #5e792a;
+    --tt-secondary-on-primary: #e0e26b;
+    --tt-secondary-on-chrome:  #d6d83a;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
     --tt-theme-chrome:          #0e3a1f;
     --tt-theme-chrome-2:        #214a31;
     --tt-theme-chrome-active:   #355a43;
@@ -134,153 +144,4 @@
     --tt-theme-chrome-ink-soft: #becac3;
     --tt-theme-chrome-line:     #30563e;
     --tt-theme-marker:          #d6d83a;
-    --tt-theme-accent-text:     #5e792a;
-    --tt-theme-accent-on-primary: #e0e26b;
-    --tt-theme-accent-on-chrome:  #d6d83a;
-}
-
-/* ---- Chrome: the header -------------------------------------------- */
-/* The deep colour, closed by the shipped 3px rule in the secondary: the
-   design's header underline. */
-.tt-dashboard.tt-theme-wedstrijddag .tt-dash-header {
-    background: var(--tt-theme-chrome);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag .tt-dash-help:hover,
-.tt-dashboard.tt-theme-wedstrijddag .tt-dash-help:focus-visible {
-    color: var(--tt-theme-accent-on-chrome);
-}
-
-/* ---- Chrome: the rail ---------------------------------------------- */
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav {
-    background: var(--tt-theme-chrome);
-    border-inline-end-color: var(--tt-theme-chrome-line);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link {
-    color: var(--tt-theme-chrome-ink);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__icon {
-    color: var(--tt-theme-chrome-ink-soft);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link:hover {
-    background: var(--tt-theme-chrome-2);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link:active {
-    background: var(--tt-theme-chrome-active);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link.is-active {
-    background: var(--tt-theme-chrome-active);
-    color: var(--tt-theme-chrome-ink);
-    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
-    color: var(--tt-theme-marker);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__link:focus-visible {
-    outline: 2px solid var(--tt-theme-marker);
-    outline-offset: 2px;
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__group-wrap {
-    border-top-color: var(--tt-theme-chrome-line);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__group {
-    color: var(--tt-theme-chrome-ink-soft);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__group:hover,
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__group:focus-visible {
-    background: var(--tt-theme-chrome-2);
-    color: var(--tt-theme-chrome-ink);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__group:focus-visible {
-    outline: 2px solid var(--tt-theme-marker);
-    outline-offset: -2px;
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__brand {
-    border-bottom-color: var(--tt-theme-chrome-line);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__user {
-    border-top-color: var(--tt-theme-chrome-line);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__mark {
-    background: var(--tt-theme-marker);
-    color: var(--tt-theme-chrome);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__avatar {
-    background: var(--tt-theme-chrome-active);
-    color: var(--tt-theme-chrome-ink);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__academy,
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__username {
-    color: var(--tt-theme-chrome-ink);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__role {
-    color: var(--tt-theme-chrome-ink-soft);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse {
-    color: var(--tt-theme-chrome-ink-soft);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse:hover,
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse:focus-visible {
-    color: var(--tt-theme-chrome-ink);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse:focus-visible {
-    outline: 2px solid var(--tt-theme-marker);
-    outline-offset: 2px;
-}
-
-@media (min-width: 1024px) {
-    .tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse {
-        border-color: var(--tt-theme-chrome-line);
-        background: var(--tt-theme-chrome-2);
-        color: var(--tt-theme-chrome-ink-soft);
-    }
-
-    .tt-dashboard.tt-theme-wedstrijddag.tt-shell-app .tt-shell-nav__collapse:hover {
-        color: var(--tt-theme-chrome-ink);
-    }
-}
-
-/* ---- The accent as text -------------------------------------------- */
-/* These surfaces print --tt-secondary as text. The accent is for fills
-   and markers, so as text it takes the variant that clears 4.5:1 on the
-   surface underneath. */
-.tt-dashboard.tt-theme-wedstrijddag .tt-404-emblem,
-.tt-dashboard.tt-theme-wedstrijddag .tt-viewchip__star,
-.tt-dashboard.tt-theme-wedstrijddag .tt-podium-team-header h2 a:hover,
-.tt-dashboard.tt-theme-wedstrijddag .tt-podium-team-header h2 a:focus-visible,
-.tt-dashboard.tt-theme-wedstrijddag .tt-pop-pct {
-    color: var(--tt-theme-accent-text);
-}
-
-.tt-dashboard.tt-theme-wedstrijddag .tt-ov-ovr-label,
-.tt-dashboard.tt-theme-wedstrijddag .tt-devhome-today__cta,
-.tt-dashboard.tt-theme-wedstrijddag .tt-mt-mate__initials {
-    color: var(--tt-theme-accent-on-primary);
-}
-
-/* ---- Display type -------------------------------------------------- */
-.tt-dashboard.tt-theme-wedstrijddag .tt-spine__name,
-.tt-dashboard.tt-theme-wedstrijddag .tt-player-hero__name,
-.tt-dashboard.tt-theme-wedstrijddag .tt-fview-title {
-    font-family: var(--tt-font-display);
 }

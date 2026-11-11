@@ -242,7 +242,22 @@ final class ThemePreference {
      * @return list<string>
      */
     public static function sharedSheetThemes(): array {
-        return [ self::CLUBROOD, self::ORANJE, self::TACTIEKBORD, self::BORDEAUX, self::POLDER ];
+        return [
+            self::CLUBROOD,
+            self::ORANJE,
+            self::TACTIEKBORD,
+            self::BORDEAUX,
+            self::POLDER,
+            self::GEEL_ZWART,
+            self::GROEN_WIT,
+            self::PAARS_WIT,
+            self::WAPENSCHILD,
+            self::STREEPSHIRT,
+            self::WEDSTRIJDDAG,
+            self::MIDDERNACHT,
+            self::NEON,
+            self::STADIONLICHT,
+        ];
     }
 
     public static function usesSharedSheet( string $theme ): bool {
