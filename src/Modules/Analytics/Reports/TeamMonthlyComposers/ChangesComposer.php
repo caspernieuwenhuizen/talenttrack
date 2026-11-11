@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports\TeamMonthlyComposers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
@@ -37,6 +38,8 @@ final class ChangesComposer {
             ];
         }
 
+        self::recordReads( $ctx, $events );
+
         $out = [ 'events' => $items ];
         // #4991 — how many are injured is injury information: counted only
         // when every reader may read the squad's injury records, and left
@@ -45,5 +48,41 @@ final class ChangesComposer {
             $out['open_injuries'] = count( ( new InjuryRepository() )->listForTeams( [ $ctx->team_id ], [ 'status' => 'open' ] ) );
         }
         return $out;
+    }
+
+    /**
+     * The section's reads of sensitive entries, logged as the injuries screen
+     * and the journey timeline log theirs, per player shown: an injury entry
+     * as `player.injuries_viewed`, a medical or safeguarding entry as
+     * `player.sensitive_timeline_viewed`. Only for the signed-in reader the
+     * report is composed for; a copy for several readers or for nobody
+     * signed in, as a scheduled send is, writes none here.
+     *
+     * @param list<object> $events
+     */
+    private static function recordReads( TeamReportContext $ctx, array $events ): void {
+        $viewer = get_current_user_id();
+        if ( $events === [] || $viewer <= 0 || $ctx->readers !== [ $viewer ] ) return;
+
+        $injuries  = [];
+        $sensitive = [];
+        foreach ( $events as $e ) {
+            $pid = (int) ( $e->player_id ?? 0 );
+            if ( $pid <= 0 ) continue;
+            if ( in_array( (string) ( $e->event_type ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) {
+                $injuries[ $pid ] = ( $injuries[ $pid ] ?? 0 ) + 1;
+            }
+            if ( in_array( (string) ( $e->visibility ?? '' ), [ 'medical', 'safeguarding' ], true ) ) {
+                $sensitive[ $pid ] = ( $sensitive[ $pid ] ?? 0 ) + 1;
+            }
+        }
+
+        $audit = new AuditService();
+        foreach ( $injuries as $pid => $count ) {
+            $audit->record( 'player.injuries_viewed', 'player', $pid, [ 'surface' => 'team_monthly_report', 'count' => $count ] );
+        }
+        foreach ( $sensitive as $pid => $count ) {
+            $audit->record( 'player.sensitive_timeline_viewed', 'player', $pid, [ 'surface' => 'team_monthly_report', 'sensitive_count' => $count ] );
+        }
     }
 }

@@ -242,6 +242,7 @@ final class EvidencePacket {
         $injuries = $readers === null || PlayerSectionRights::seesInjuries( $readers )
             ? self::injuries( $player_id, $from, $to )
             : [];
+        if ( $readers !== null ) self::recordInjuryRead( $player_id, $injuries, $readers );
 
         $journey = $readers === null
             ? self::journey( $player_id, $club_id, $from, $to )
@@ -579,6 +580,24 @@ final class EvidencePacket {
             ];
         }
         return $out;
+    }
+
+    /**
+     * The player report's read of a player's injuries, logged as the injuries
+     * screens log theirs: one row per composition that includes them, for the
+     * signed-in reader it is composed for. A composition for several readers
+     * or for nobody signed in, as a scheduled send is, writes none here.
+     *
+     * @param list<array<string,mixed>> $injuries
+     */
+    private static function recordInjuryRead( int $player_id, array $injuries, ReaderSet $readers ): void {
+        $viewer = get_current_user_id();
+        if ( $injuries === [] || $viewer <= 0 || $readers->readers !== [ $viewer ] ) return;
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+            'surface' => 'player_report',
+            'count'   => count( $injuries ),
+        ] );
     }
 
     /**
