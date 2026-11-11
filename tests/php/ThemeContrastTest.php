@@ -250,6 +250,56 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         return (string) $hex;
     }
 
+    /**
+     * Component sheets that alias a theme token on `.tt-root` only, so the
+     * alias keeps the default design's value under every theme. Each is a
+     * known gap, not a decision: fixing one is moving its selector to
+     * `.tt-root, .tt-dashboard` and deleting it from this list.
+     */
+    private const ROOT_ONLY_ALIASES = [ 'frontend-measurement-levels.css', 'persona-dashboard.css' ];
+
+    /**
+     * #5130 — a custom property resolves its `var()` where it is declared,
+     * and a theme sets its tokens on `.tt-dashboard`. A component sheet that
+     * defines an alias of a token any theme sets declares it on
+     * `.tt-dashboard` too, or the alias ignores the theme.
+     */
+    public function test_component_aliases_of_theme_tokens_follow_the_theme(): void {
+        $themed = [];
+        foreach ( ThemePreference::themes() as $theme ) {
+            if ( $theme === ThemePreference::DEFAULT_THEME ) continue;
+            if ( preg_match_all( '/(--tt-[a-z0-9-]+)\s*:/', $this->css( 'theme-' . $theme . '.css' ), $m ) ) {
+                foreach ( $m[1] as $name ) $themed[ $name ] = true;
+            }
+        }
+        $this->assertNotEmpty( $themed );
+
+        $offenders = [];
+        $files     = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/assets/css' ) );
+        foreach ( $files as $file ) {
+            $path = str_replace( '\\', '/', (string) $file );
+            if ( substr( $path, -4 ) !== '.css' ) continue;
+            $name = basename( $path );
+            if ( $name === 'tokens.css' || strpos( $name, 'theme-' ) === 0 ) continue;
+            $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
+            if ( ! preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) continue;
+            foreach ( $rules as $rule ) {
+                $selectors = array_map( 'trim', explode( ',', $rule[1] ) );
+                if ( ! in_array( '.tt-root', $selectors, true ) || in_array( '.tt-dashboard', $selectors, true ) ) continue;
+                if ( ! preg_match_all( '/--[a-z0-9-]+\s*:\s*var\(\s*(--tt-[a-z0-9-]+)/', $rule[2], $reads ) ) continue;
+                foreach ( $reads[1] as $token ) {
+                    if ( isset( $themed[ $token ] ) ) {
+                        $offenders[ $name ] = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->assertSame( [], array_values( array_diff( array_keys( $offenders ), self::ROOT_ONLY_ALIASES ) ), 'declare these aliases on `.tt-root, .tt-dashboard`' );
+        $this->assertSame( [], array_values( array_diff( self::ROOT_ONLY_ALIASES, array_keys( $offenders ) ) ), 'fixed: delete it from ROOT_ONLY_ALIASES' );
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {
