@@ -54,6 +54,7 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        unset( $_SERVER['HTTP_SEC_PURPOSE'] );
         PresentationSurfaces::useFile( null );
         FrontendBreadcrumbs::reset();
         SupportGrants::forget();
@@ -409,9 +410,26 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
             }
 
             if ( $view !== '' ) {
+                if ( \TT\Shared\MobileSurfaceRegistry::isNative( $view ) ) {
+                    wp_enqueue_style( 'tt-mobile-patterns', TT_PLUGIN_URL . 'assets/css/mobile-patterns.css', [ 'tt-public' ], TT_VERSION );
+                    wp_enqueue_script( 'tt-mobile-helpers', TT_PLUGIN_URL . 'assets/js/mobile-helpers.js', [], TT_VERSION, true );
+                }
                 \TT\Shared\Frontend\FrontendDesktopPreferredBanner::render( $view );
             }
             \TT\Shared\Frontend\FrontendInstallBanner::render();
+
+            \TT\Infrastructure\Usage\UsageTracker::record(
+                $user_id,
+                'frontend_view',
+                $view !== '' ? $view : 'dashboard'
+            );
+            $opened_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+            if ( $opened_id > 0
+                 && ( ! isset( $_GET['action'] ) || sanitize_key( (string) $_GET['action'] ) !== 'edit' )
+                 && ! \TT\Infrastructure\Usage\UsageTracker::isSpeculativeRequest()
+            ) {
+                ( new \TT\Infrastructure\Search\RecentItems() )->recordView( $user_id, $view, $opened_id );
+            }
 
             if ( $view === '' ) {
                 if ( class_exists( '\\TT\\Modules\\PersonaDashboard\\Frontend\\PersonaLandingRenderer' )
@@ -471,9 +489,13 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
         wp_set_current_user( $user_id );
         $_GET = $get;
 
-        // One warm-up render first, so the usage and recent-items writes a
-        // render makes are in place before either side is captured.
+        // One warm-up render first, so anything a first render sets up for
+        // the request is in place before either side is captured. Then the
+        // compared renders are marked speculative, which turns the usage and
+        // recent-items writes off on both sides, so neither sees state the
+        // other wrote.
         DashboardShortcode::render();
+        $_SERVER['HTTP_SEC_PURPOSE'] = 'prefetch';
 
         // The same queued message, same id, in front of each side, so the
         // dismiss link is byte for byte the same.
@@ -497,10 +519,33 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
         PresentationSurfaces::flush();
         $after = DashboardShortcode::render();
 
+        unset( $_SERVER['HTTP_SEC_PURPOSE'] );
+
         $this->assertFalse( PresentationSurfaces::isPresenting() );
-        $this->assertSame( $before, $after, 'an unclaimed slug renders exactly as before: ' . wp_json_encode( $get ) );
+        $this->assertSame(
+            $before,
+            $after,
+            'an unclaimed slug renders exactly as before: ' . wp_json_encode( $get ) . "\n" . $this->firstDifference( $before, $after )
+        );
 
         return $after;
+    }
+
+    /** Where two renders part, with some context either side, for the failure message. */
+    private function firstDifference( string $a, string $b ): string {
+        $len = min( strlen( $a ), strlen( $b ) );
+        $at  = 0;
+        while ( $at < $len && $a[ $at ] === $b[ $at ] ) $at++;
+        if ( $at === $len && strlen( $a ) === strlen( $b ) ) return '';
+        $from = max( 0, $at - 300 );
+        return sprintf(
+            "first difference at byte %d of %d / %d\n--- before ---\n%s\n--- after ---\n%s",
+            $at,
+            strlen( $a ),
+            strlen( $b ),
+            substr( $a, $from, 700 ),
+            substr( $b, $from, 700 )
+        );
     }
 
     public function test_unclaimed_slugs_render_byte_for_byte_as_before(): void {
