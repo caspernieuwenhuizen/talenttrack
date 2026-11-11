@@ -837,6 +837,41 @@ final class TeamMonthlyReportLayout {
      * @return list<array{0:float,1:float}>
      */
     private static function pieces( string $block, array $block_data, string $layout, array $degraded ): array {
+        $pieces = self::bodyPieces( $block, $block_data, $layout, $degraded );
+        if ( $pieces !== [] ) $pieces[0][0] += self::headerWrapMm( $block, $block_data, $layout );
+        return $pieces;
+    }
+
+    /**
+     * #4957 — the section header's meta line prints whole and wraps, so a
+     * long one makes the header band taller than its 6.5 mm. A line of 7.5 pt
+     * at 1.25 is about 3.4 mm, so two lines still fit the band and a third
+     * grows it; the characters per line are the meta cell's width beside the
+     * widest title at about 1.45 mm a character, rounded down so a close call
+     * estimates a line too many.
+     *
+     * @param array<string,mixed> $block_data
+     */
+    private static function headerWrapMm( string $block, array $block_data, string $layout ): float {
+        if ( ! in_array( $block, TeamMonthlyReportBlock::HEADED, true ) ) return 0.0;
+        $per   = $layout === self::MATRIX ? self::HEADER_META_CHARS_WIDE : self::HEADER_META_CHARS;
+        $lines = self::lines( mb_strlen( TeamMonthlyReport::sectionMeta( $block, $block_data ) ), $per );
+        return max( 0.0, $lines * self::HEADER_META_LINE_MM - self::HEADER_BAND_MM );
+    }
+
+    private const HEADER_META_CHARS      = 76;
+    private const HEADER_META_CHARS_WIDE = 140;
+    private const HEADER_META_LINE_MM    = 3.4;
+    private const HEADER_BAND_MM         = 6.5;
+
+    /**
+     * A section's pieces without its header's wrapped lines.
+     *
+     * @param array<string,mixed> $block_data
+     * @param list<string>        $degraded
+     * @return list<array{0:float,1:float}>
+     */
+    private static function bodyPieces( string $block, array $block_data, string $layout, array $degraded ): array {
         $base = self::MM['section_base'];
         switch ( $block ) {
             case 'letterhead': return [ [ self::MM['letterhead'], 0.0 ] ];
@@ -851,14 +886,19 @@ final class TeamMonthlyReportLayout {
             case 'attendance':
             case 'minutes':
                 if ( $layout === self::MATRIX ) return [];
+                // #4957 — the minutes section names the tournament days it
+                // counts in a line under it, on both levels.
+                $note = $block === 'minutes' && (int) ( $block_data['tournaments_played'] ?? 0 ) > 0
+                    ? [ [ self::MM['match_note'], 0.0 ] ]
+                    : [];
                 if ( ( $block_data['level'] ?? '' ) === SectionLevel::SUMMARY ) {
-                    return [ [ $base + self::MM['level_strip'], 0.0 ] ];
+                    return array_merge( [ [ $base + self::MM['level_strip'], 0.0 ] ], $note );
                 }
                 $rows = self::count( $block_data, 'rows' );
                 if ( in_array( self::ELIDE_RANKED, $degraded, true ) ) {
                     $rows = self::elidedRows( $rows );
                 }
-                return self::rowsAfter( $base, $rows, self::MM['bar_row'] );
+                return array_merge( self::rowsAfter( $base, $rows, self::MM['bar_row'] ), $note );
 
             case 'attention':
                 $list = self::listOf( $block_data, 'items' );

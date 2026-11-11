@@ -1,0 +1,6 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:773
+#, php-format
+msgid "Including %d tournament day."
+msgid_plural "Including %d tournament days."
+msgstr[0] "Inclusief %d toernooidag."
+msgstr[1] "Inclusief %d toernooidagen."

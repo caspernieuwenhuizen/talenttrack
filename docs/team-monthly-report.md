@@ -283,9 +283,11 @@ move with it.
   counts toward the median, because they are the player this table is meant
   to flag. Its target line is the academy's minutes-share target, the same one
   the Minutes share report uses. "Minutes recorded for N of M played matches"
-  counts the matches the **Matches** section calls played: up to today, with
-  tournament days left out. **Data quality** counts the matches without minutes
-  the same way.
+  counts the played matches the way every minutes report does: the matches
+  the **Matches** section calls played, plus the tournament days played, which
+  a line under the section names ("Including 2 tournament days."). **Data quality** counts the
+  matches without minutes the same way. The **Matches** section lists the
+  played matches only; a match later in the month is not on it yet.
 - **Matches** — results and match statistics. See below.
 - **Needs a conversation** — the players the status model flags, most urgent
   first, with what the data says about them. This is the meeting's agenda.

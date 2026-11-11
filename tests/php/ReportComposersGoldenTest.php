@@ -63,9 +63,13 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
      * out. Lowering a number is fine; raising one needs a reason in review.
      * The player report's two above that are the audit row a composition
      * showing injuries writes (#5057): the table check and the insert.
+     *
+     * Six more with #4957: every minutes read now carries the demo scope
+     * (`PlayedMatch::liveSql()`), and the demo scope reads the demo-only
+     * toggle from `tt_config` once per call, uncached.
      */
     private const TEAM_QUERY_BASELINE   = 191;
-    private const PLAYER_QUERY_BASELINE = 78;
+    private const PLAYER_QUERY_BASELINE = 84;
 
     private int $admin = 0;
     private int $team  = 0;
@@ -304,9 +308,9 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
     }
 
     /**
-     * The tab counts fixtures whose date has passed. A fixture next week is
-     * not a match missing its result, so it stays out of the record and the
-     * form, while the monthly report's read still returns it.
+     * The tab counts played fixtures (#4957). A fixture next week is not a
+     * match missing its result, so it stays out of the record and the form,
+     * while the shared read still lists it, as not played.
      */
     public function test_the_tab_leaves_out_fixtures_still_to_come(): void {
         $next_week = gmdate( 'Y-m-d', time() + 7 * DAY_IN_SECONDS );
@@ -318,8 +322,9 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
         $record =( new TeamMatchStatsQuery() )->forTeam( $this->team, $filters )['record'];
         $this->assertSame( 1, $record['without_a_score'], 'Only the 2020 match without a score; next week is not missing one.' );
 
-        $all    = array_column( TeamMatchRecord::fixtures( $this->team, $filters['from'], $filters['to'] ), 'activity_id' );
-        $played = array_column( TeamMatchRecord::fixtures( $this->team, $filters['from'], $filters['to'], true ), 'activity_id' );
+        $fixtures = TeamMatchRecord::fixtures( $this->team, $filters['from'], $filters['to'] );
+        $all      = array_column( $fixtures, 'activity_id' );
+        $played   = array_column( TeamMatchRecord::played( $fixtures ), 'activity_id' );
         $this->assertContains( $future, $all );
         $this->assertNotContains( $future, $played );
         $this->assertCount( count( $all ) - 1, $played );

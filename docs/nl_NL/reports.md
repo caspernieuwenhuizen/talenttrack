@@ -152,17 +152,61 @@ alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
 is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
 herleid uit de geplande opstelling.
 
-**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra één
-van drie dingen waar is: de activiteit staat op **voltooid**, de **datum is
-voorbij**, of er zijn al **minuten vastgelegd**. Een wedstrijd die vanavond
+**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee als hij
+op **vandaag of eerder** staat en één van vier dingen waar is: de activiteit
+staat op **voltooid**, de **datum is voorbij**, er zijn al **minuten
+vastgelegd**, of er staat een **uitslag** bij. Een wedstrijd die vanavond
 begint staat dus niet in de tabel per wedstrijd en niet in de KPI's ernaast —
-hij is niet gespeeld tot je hem voltooit, de minuten vastlegt, of de dag om is
-— terwijl een wedstrijd die je vanochtend speelde en langs de lijn voltooide
-meteen meetelt.
+hij is niet gespeeld tot je hem voltooit, de minuten of de uitslag vastlegt, of
+de dag om is — terwijl een wedstrijd die je vanochtend speelde en langs de lijn
+voltooide meteen meetelt.
 
 De datum telt op zichzelf mee omdat een activiteit voltooien een aparte,
 bewuste handeling is: een wedstrijd van vorig seizoen staat op *gepland* als
 niemand op de knop heeft gedrukt, en is toch gespeeld.
+
+**Een wedstrijd na vandaag is nooit gespeeld**, wat er ook bij staat. Een
+wedstrijd van volgende week die op voltooid staat, of al minuten of een uitslag
+heeft, is een fout in de gegevens, en telt pas mee als zijn datum er is. Pas de
+datum of de status van de activiteit aan als de wedstrijd echt gespeeld is.
+
+**Eén regel op elke plek.** De minutenrapporten, het Minutenaandeel, het
+maandrapport van het team, het tabblad Statistieken van het team en de blokken
+in de Report Studio tellen gespeelde wedstrijden allemaal volgens deze regel.
+Daarop staan twee soorten tellingen:
+
+- **De balans** (gespeeld, gewonnen, gelijk, verloren, doelpunten, zonder
+  uitslag) telt alleen losse wedstrijden. Een toernooi is een dag met meerdere
+  wedstrijden, dus één uitslag zegt er niets over; het blijft erbuiten, met een
+  regel die zegt hoeveel het er waren.
+- **Elk minutencijfer** telt losse wedstrijden **en toernooidagen**, want een
+  toernooidag levert minuten op zoals elke wedstrijd. Staan beide op één
+  pagina, dan zegt de minutensectie hoeveel toernooidagen ze meetelt: het
+  aantal gespeelde wedstrijden bij de minuten is dat van de balans plus die
+  dagen.
+
+**Wat hierdoor veranderde.** Sommige cijfers zijn verschoven nu de regel één
+is; deze en geen andere:
+
+- De balans op het tabblad Statistieken en in het maandrapport van het team:
+  *Gespeeld*, de uitslagen en de doelpunten blijven gelijk. *Zonder uitslag*
+  telt een wedstrijd van vandaag die nog niet gespeeld is niet meer mee, en de
+  regel over de toernooien die erbuiten blijven telt de gespeelde
+  toernooidagen, niet elk toernooi in de periode.
+- De wedstrijdlijst van het maandrapport toont een wedstrijd van vandaag die
+  nog niet gespeeld is niet meer. De minutenregel telt toernooidagen mee, zoals
+  de minuten ernaast altijd al deden, en zegt hoeveel; *wedstrijden zonder
+  minuten* in de sectie Datakwaliteit telt dezelfde wedstrijden.
+- Elk minutencijfer (de minutenrapporten, de Minutenverdeling, het
+  Minutenaandeel, de gespreksonderwerpen): een wedstrijd na vandaag die op
+  voltooid stond of al minuten had, telt pas mee als zijn datum er is, en een
+  wedstrijd van vandaag met een uitslag telt als gespeeld.
+- De tegel *Gespeelde wedstrijden* van het Seizoensoverzicht telt de
+  wedstrijden die in de periode gespeeld zijn, waar hij elke wedstrijd telde,
+  die van volgende week en afgelaste inbegrepen.
+- De vormlijn op *Mijn team* van de speler toont dezelfde uitslagen als de vorm
+  op het tabblad Statistieken: een toernooidag, of een wedstrijd die afgelast
+  is of in de prullenbak staat, staat er niet meer op.
 
 **Wedstrijdtypes gebruiken de namen van je academie.** Het type van elke
 wedstrijd (competitie, beker, oefenwedstrijd, of een type dat je academie zelf
@@ -279,9 +323,9 @@ maakt duidelijk dat het om een hiaat in de vastlegging gaat en niet om een leeg
 seizoen.
 
 **Een wedstrijd die vanavond begint is nog niet gespeeld.** Hij telt voor geen
-van beide getallen mee tot je hem voltooit, de minuten vastlegt, of de dag om
-is — anders waarschuwt het rapport dat de wedstrijd van vanavond minuten mist.
-Eén van de drie is genoeg, en juist daardoor telt een wedstrijd die je
+van beide getallen mee tot je hem voltooit, de minuten of de uitslag vastlegt,
+of de dag om is — anders waarschuwt het rapport dat de wedstrijd van vanavond
+minuten mist. Eén daarvan is genoeg, en juist daardoor telt een wedstrijd die je
 vanochtend speelde nog dezelfde dag mee, en blijft een seizoen aan wedstrijden
 waar niemand ooit op *Voltooien* heeft gedrukt gewoon in de noemer staan.
 
@@ -584,9 +628,9 @@ cijfer nooit een stille gok is:
  wedstrijden"* in plaats van een lijn door één punt. Zie
  [Wedstrijdanalyse](match-analysis.md) voor de spelerskant van dezelfde
  gegevens.
-- **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
- wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
- waardoor een bron van opgeblazen joins verdwijnt.
+- **Seizoensoverzicht**, de tabel per team: de *Wedstrijden* van elk team zijn
+ de losse wedstrijden die het in de periode speelde, volgens dezelfde regel als
+ de tegel *Gespeelde wedstrijden*, dus de kolom telt op tot de tegel.
 
 ### Aansluiting van de trial-trechter
 
@@ -638,8 +682,10 @@ nooit geschat), dus een wedstrijd zonder geregistreerde minuten telt 0.
 aansluit op het cijfer: de tegel *Spelers* van Team · Minutenverdeling opent de
 teamselectie en de tegel *Wedstrijden* de activiteitenlijst gefilterd op de
 wedstrijden van dat team; de tegels *Actieve spelers / Actieve teams /
-Wedstrijden* van het Seizoensoverzicht openen hun lijsten, de tegel *Wedstrijden*
-over het venster van het rapport; de tegel *Prospects
+Gespeelde wedstrijden* van het Seizoensoverzicht openen hun lijsten, de tegel
+*Gespeelde wedstrijden* over het venster van het rapport: de losse wedstrijden
+die erin gespeeld zijn, volgens dezelfde regel als elke andere telling van
+gespeelde wedstrijden, en de lijst die hij opent toont precies die; de tegel *Prospects
 vastgelegd* van de Trial-trechter opent de prospectslijst. Elke drill draagt een
 **← Terug naar …**-hint en is verborgen wanneer de gebruiker de capability van
 de bestemming mist (§7 verbergen-niet-plagen).
@@ -804,10 +850,10 @@ Voor een team volgen de gemiddelden het maandrapport van het team: wie de rappor
 Voor een speler vragen de doelenblokken het recht om de doelen van die speler te lezen, zoals zijn tabblad Doelen. Voor een team volgen de openstaande doelen de selectielijst van het maandrapport van het team: wie de rapporten van het team mag lezen, ziet ze.
 **Wedstrijden**
 
-- **Uitslagen**: elke wedstrijd van het team in de periode tot en met vandaag met de datum, thuis of uit, de tegenstander en de uitslag, zoals het wedstrijdonderdeel van het maandrapport van het team ze toont, met de balans eronder. Toernooien blijven erbuiten, en het blok zegt hoeveel. Een wedstrijd zonder uitslag zegt dat, in plaats van 0–0 te tonen. Alleen voor staf.
+- **Uitslagen**: elke gespeelde wedstrijd van het team in de periode met de datum, thuis of uit, de tegenstander en de uitslag, zoals het wedstrijdonderdeel van het maandrapport van het team ze toont, met de balans eronder. Toernooien blijven erbuiten, en het blok zegt hoeveel. Een wedstrijd zonder uitslag zegt dat, in plaats van 0–0 te tonen. Alleen voor staf.
 - **Teamstatistieken**: de balans van het team over de periode, zoals het tabblad Statistieken van het team die toont: gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen, doelsaldo, keren de nul gehouden, en de gespeelde wedstrijden zonder uitslag. Het vraagt het recht om het team te lezen, zoals het tabblad Statistieken. Alleen voor staf.
 
-**Gespeeld** is overal hetzelfde getal: van de wedstrijden tot en met vandaag, die welke afgerond zijn, in het verleden liggen of vastgelegde minuten hebben. Het maandrapport, het tabblad Statistieken en beide blokken lezen dezelfde wedstrijden en tellen ze op dezelfde manier. Een wedstrijd die nog moet komen staat in geen van alle, en telt dus ook niet mee bij "zonder uitslag".
+**Gespeeld** is overal hetzelfde getal: wedstrijden op vandaag of eerder die afgerond zijn, in het verleden liggen, vastgelegde minuten hebben of een uitslag hebben. Het maandrapport, het tabblad Statistieken en beide blokken lezen dezelfde wedstrijden en tellen ze op dezelfde manier. Een wedstrijd die nog moet komen staat in geen van alle, en telt dus ook niet mee bij "zonder uitslag".
 
 **Je eigen vraag**
 

@@ -19,7 +19,9 @@ final class MinutesComposer {
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $level  = LevelBlockOptions::level( $ctx->optionsFor( TeamMonthlyReportBlock::MINUTES ) );
-        // #4998 — over the match section's fixtures, by its played rule.
+        // #4957 — the played minutes-bearing matches, as every minutes report
+        // counts them: the match section's played fixtures plus the
+        // tournament days, which the section names.
         $counts = $ctx->matchMinutesCounts();
         $source = $ctx->minutesIn( $ctx->from, $ctx->to );
 
@@ -48,13 +50,14 @@ final class MinutesComposer {
         }
 
         return [
-            'level'            => $level,
-            'matches_recorded' => $counts['recorded'],
-            'matches_played'   => $counts['played'],
-            'target_pct'       => $target,
-            'median_share_pct' => MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $source ) ),
-            'under'            => $under,
-            'rows'             => $rows,
+            'level'              => $level,
+            'matches_recorded'   => $counts['recorded'],
+            'matches_played'     => $counts['played'],
+            'tournaments_played' => $counts['tournaments'],
+            'target_pct'         => $target,
+            'median_share_pct'   => MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $source ) ),
+            'under'              => $under,
+            'rows'               => $rows,
         ];
     }
 }

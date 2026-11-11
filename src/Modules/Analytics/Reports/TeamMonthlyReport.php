@@ -353,6 +353,8 @@ final class TeamMonthlyReport {
                     : __( 'No attendance recorded.', 'talenttrack' );
 
             case TeamMonthlyReportBlock::MINUTES:
+                // #4957 — the tournament days among these are named under the
+                // section (`TeamMonthlyReportDocument`), not on this line.
                 return sprintf(
                     /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
                     __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),

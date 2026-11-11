@@ -3,10 +3,8 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
-use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
@@ -31,8 +29,9 @@ use TT\Modules\MatchPrep\Services\MatchLengthResolver;
  * quietly shrank to match each player's availability would hide exactly
  * the case the report exists to surface.
  *
- * "Played" is {@see MinutesQuery::playedMatchSql()}, shared with the two
- * minutes reports so the three cannot disagree. Match length comes from
+ * "Played" is `PlayedMatch` over its minutes-bearing set (tournament days
+ * included), shared with the two minutes reports so the three cannot
+ * disagree. Match length comes from
  * {@see MatchLengthResolver::resolvePlayedLength()}, the chain the minutes
  * report and the minutes audit read too (#4077): the prep row's own half
  * length → the activity's match length → the age-group map → the
@@ -90,12 +89,11 @@ final class MinutesShareQuery {
     public function availableForTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
 
         if ( $team_id <= 0 ) return [ 'minutes' => 0, 'matches' => 0, 'played' => 0 ];
 
         $date_col     = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql   = MinutesQuery::playedMatchSql( 'a' );
+        $played_sql   = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $recorded_sql = MinutesQuery::recordedMinutesSql( 'a' );
 
         // The prep row's half length is the per-match override
@@ -103,22 +101,16 @@ final class MinutesShareQuery {
         // saves a lookup per match on a full season. #4993 — whether the
         // match has minutes recorded is asked in the same query, by the
         // predicate `outsideWindowForTeam()` counts with.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id,
                     COALESCE( mp.half_length_minutes, 0 ) AS half_length_minutes,
                     CASE WHEN {$recorded_sql} THEN 1 ELSE 0 END AS has_minutes
                FROM {$p}tt_activities a
                LEFT JOIN {$p}tt_match_prep mp ON mp.activity_id = a.id
-              WHERE a.club_id = %d
-                AND a.team_id = %d
-                AND {$is_match_sql}
+              WHERE a.team_id = %d
                 AND a.{$date_col} BETWEEN %s AND %s
-                AND {$played_sql}
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
-            $club_id, $team_id, $from, $to
+                AND {$played_sql}",
+            $team_id, $from, $to
         ) );
         $rows   = is_array( $rows ) ? $rows : [];
         $played = count( $rows );
@@ -175,16 +167,14 @@ final class MinutesShareQuery {
     public function outsideWindowForTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
         $empty   = [ 'matches' => 0, 'played' => 0, 'earliest' => '', 'latest' => '' ];
 
         if ( $team_id <= 0 ) return $empty;
 
         $date_col     = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql   = MinutesQuery::playedMatchSql( 'a' );
+        $played_sql   = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $recorded_sql = MinutesQuery::recordedMinutesSql( 'a' );
 
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS played,
                     COALESCE( SUM( r.has_minutes ), 0 ) AS matches,
@@ -193,16 +183,11 @@ final class MinutesShareQuery {
                FROM ( SELECT a.{$date_col} AS match_date,
                              CASE WHEN {$recorded_sql} THEN 1 ELSE 0 END AS has_minutes
                         FROM {$p}tt_activities a
-                       WHERE a.club_id = %d
-                         AND a.team_id = %d
-                         AND {$is_match_sql}
+                       WHERE a.team_id = %d
                          AND a.{$date_col} IS NOT NULL
                          AND a.{$date_col} NOT BETWEEN %s AND %s
-                         AND {$played_sql}
-                         AND a.archived_at IS NULL
-                         AND a.trashed_at IS NULL
-                         AND " . ActivityLifecycle::notCancelledClause( 'a' ) . " ) r",
-            $club_id, $team_id, $from, $to
+                         AND {$played_sql} ) r",
+            $team_id, $from, $to
         ) );
         if ( ! is_object( $row ) ) return $empty;
 
@@ -238,7 +223,6 @@ final class MinutesShareQuery {
     public function forTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
         $target  = self::targetPct();
 
         $empty = [
@@ -255,7 +239,7 @@ final class MinutesShareQuery {
         $outside   = $this->outsideWindowForTeam( $team_id, $from, $to );
 
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql = MinutesQuery::playedMatchSql( 'a' );
+        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
 
         // Same squad definition as Team · Minutes distribution: attendance on
         // the team's played matches, archived players excluded (#2339,
@@ -264,24 +248,18 @@ final class MinutesShareQuery {
         // (`MinutesQuery::squadTotals()`): one figure per (player, match) by
         // the #4526 rule, and the #4053 plan fallback on an old tournament
         // fixture, which a SQL aggregate here never asked for.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-                    AND a.club_id = %d
                     AND a.team_id = %d
-                    AND a.archived_at IS NULL
-                    AND a.trashed_at IS NULL
-                    AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                     AND {$played_sql}
                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
               WHERE att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id",
-            $club_id, $team_id, $from, $to
+            $team_id, $from, $to
         ) );
         $rows = array_slice( MinutesQuery::squadTotals( is_array( $pairs ) ? $pairs : [] ), 0, 200 );
 

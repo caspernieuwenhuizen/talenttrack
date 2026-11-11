@@ -318,9 +318,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     /**
      * #4507 — the activities list of the matches a minutes report counts as
      * played: the report's team and exact window, every match type, played
-     * by `MinutesQuery::playedMatchSql()` (`played=1`), past expanded. No cap
-     * at today: the played rule already decides which dates count, and a
-     * cap would drop a match completed with a later date.
+     * by `PlayedMatch` (`played=1`), past expanded. No cap at today in the
+     * URL: the played rule already decides which dates count.
      */
     private static function playedMatchesUrl( int $team_id, string $from, string $to ): string {
         return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
@@ -717,25 +716,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // em-dash for minutes and counted toward "Matches in roster". The
         // predicate is MinutesQuery's, shared with the team report so the two
         // cannot disagree about what "played" means.
-        $played_sql = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
+        $played_sql = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::MINUTES_BEARING, 'a' );
         // #4526 — the query names the matches; the minutes on each are the
         // shared read's (newest recorded figure, `minutes_override` first),
         // not a SUM of `minutes_played` that doubled a duplicate row and
         // ignored a coach's override.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
-                    AND a.archived_at IS NULL
-                    AND a.trashed_at IS NULL
-                    AND a.plan_state <> 'cancelled'
-                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
                     AND {$played_sql}
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
@@ -1628,7 +1621,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // now bounded by the selected window. #4185 — counts the same rows
         // its drill lists: the canonical `game` key plus the legacy `match`.
         // It read `('match','tournament')`, which left out every `game` row.
-        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN (%s,%s) AND {$date_col} BETWEEN %s AND %s", $club_id, ActivityTypeKey::GAME, ActivityTypeKey::LEGACY_GAME, $from, $to ) );
+        // #4957 — the played fixtures, by the one rule (`PlayedMatch`): live
+        // (not trashed, not cancelled), dated today or earlier, and played.
+        // The drill below lists the same rows (`played=1`).
+        $played_fixtures = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::FIXTURES, 'a' );
+        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities a WHERE a.{$date_col} BETWEEN %s AND %s AND {$played_fixtures}", $from, $to ) );
         $evals_win     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date BETWEEN %s AND %s", $club_id, $from, $to ) );
         $prospects_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
         $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decision_made_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
@@ -1653,45 +1650,48 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // lists; the windowed activity/eval counts open their lists.
         $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $from, 'date_to' => $to ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $from, 'date_to' => $to, 'played' => 1 ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         self::renderKpiStrip( [
             // #4039 — `slug`, not `cap`: the gate has to be the one the
             // dispatcher applies on arrival, and for `teams` that is not the
             // capability.
             [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'slug' => 'players' ],
             [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'slug' => 'teams' ],
-            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
+            [ 'num' => (string) $matches_win,   'label' => __( 'Matches played', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
             [ 'num' => (string) $evals_win,     'label' => __( 'Evaluations', 'talenttrack' ) ],
             [ 'num' => (string) $prospects_win, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],
         ] );
 
+        // #4025 — `p.status = 'active'` on the JOIN: the Players column
+        // counted trialists, released and graduated players, so it disagreed
+        // with the training roster and with the team list's own squad size.
+        //
+        // #4957 — the Matches column counts the played fixtures of each team
+        // in the window, on the JOIN (`PlayedMatch`, the tile's set), so the
+        // column adds up to the "Matches played" tile above it. It counted
+        // `('match','tournament')`, which left out every `game` row and took
+        // in tournament days, cancelled matches and next week's.
+        //
+        // The explanation lives here rather than in the SQL: a comment with
+        // non-ASCII characters inside the query made `$wpdb` refuse it as
+        // invalid data, so the table always fell back to "no teams yet".
+        $played_fixtures = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::FIXTURES, 'a' );
         $by_team = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id, t.name,
                     COUNT( DISTINCT p.id ) AS player_count,
-                    COUNT( DISTINCT CASE WHEN a.activity_type_key IN ('match','tournament')
-                                          AND a.{$date_col} BETWEEN %s AND %s
-                                          AND a.archived_at IS NULL
-                                         THEN a.id END ) AS match_count
+                    COUNT( DISTINCT a.id ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
           LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id
                                               AND p.status = %s
                                               AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
-          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
+          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id
+                                                 AND a.{$date_col} BETWEEN %s AND %s
+                                                 AND {$played_fixtures}
               WHERE t.club_id = %d AND t.archived_at IS NULL
-                /* #2346 — `a.archived_at IS NULL` moved onto the JOIN so
-                   soft-archived activities never enter the join at all
-                   (they previously inflated the join even though the CASE
-                   filtered the count). The CASE keeps its own guard for
-                   defence in depth. Builds on v4.20.44 (#1222). Audit 7.
-                   #2345 — the CASE window now follows the selected range.
-                   #4025 — `p.status = 'active'` on the JOIN: the Players
-                   column counted trialists, released and graduated players,
-                   so it disagreed with the training roster and with the team
-                   list's own squad size. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
-            $from, $to, PlayerStatus::ACTIVE, $club_id
+            PlayerStatus::ACTIVE, $from, $to, $club_id
         ) );
         // #2344 — a silent `return` here left the page blank below the KPI
         // strip when no teams exist. Render an honest empty state instead.

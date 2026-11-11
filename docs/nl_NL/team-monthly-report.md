@@ -300,9 +300,12 @@ mee.
   hoort deze tabel zichtbaar te maken. De doellijn is het doel voor
   minutenaandeel van de academie, hetzelfde doel dat het rapport
   Minutenaandeel gebruikt. "Minuten vastgelegd voor N van de M gespeelde
-  wedstrijden" telt de wedstrijden die de sectie **Wedstrijden** gespeeld
-  noemt: tot en met vandaag, zonder toernooidagen. **Datakwaliteit** telt de
-  wedstrijden zonder minuten op dezelfde manier.
+  wedstrijden" telt de gespeelde wedstrijden zoals elk minutenrapport dat
+  doet: de wedstrijden die de sectie **Wedstrijden** gespeeld noemt, plus de
+  gespeelde toernooidagen, die een regel onder de sectie noemt ("Inclusief 2 toernooidagen.").
+  **Datakwaliteit** telt de wedstrijden zonder minuten op dezelfde manier. De
+  sectie **Wedstrijden** toont alleen de gespeelde wedstrijden; een wedstrijd
+  later in de maand staat er nog niet op.
 - **Wedstrijden** — uitslagen en wedstrijdstatistieken. Zie hieronder.
 - **Gesprek nodig** — de spelers die het statusmodel signaleert, dringendste
   eerst, met wat de gegevens over ze zeggen. Dit is de agenda van het overleg.

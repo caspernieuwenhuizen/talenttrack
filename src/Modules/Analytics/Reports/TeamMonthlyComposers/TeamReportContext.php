@@ -11,6 +11,7 @@ use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Infrastructure\Visibility\RecordVisibility;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
@@ -100,8 +101,10 @@ final class TeamReportContext {
     /** @var list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>|null */
     private ?array $fixtures = null;
 
-    /** @var array{recorded:int, played:int}|null */
+    /** @var array{recorded:int, played:int, tournaments:int}|null */
     private ?array $match_minutes_counts = null;
+
+    private ?int $played_tournaments = null;
 
     /**
      * @param array<string,array<string,mixed>> $options per-block option bags,
@@ -399,43 +402,59 @@ final class TeamReportContext {
     }
 
     /**
-     * The window's fixtures up to today, tournaments excluded
-     * ({@see TeamMatchRecord}). The match section and the data-quality
-     * section read the same list, and the statistics tab reads the same
-     * filter, so the two records count the same fixtures (#4572).
+     * Every live fixture in the window, tournaments excluded, each with
+     * `played` ({@see TeamMatchRecord}). The record is counted over them, as
+     * the statistics tab counts it (#4572, #4957).
      *
      * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
      */
     public function fixtures(): array {
         if ( $this->fixtures === null ) {
-            $this->fixtures = TeamMatchRecord::fixtures( $this->team_id, $this->from, $this->to, true );
+            $this->fixtures = TeamMatchRecord::fixtures( $this->team_id, $this->from, $this->to );
         }
         return $this->fixtures;
     }
 
     /**
-     * #4998 — the played matches of {@see fixtures()}, the ones
-     * `TeamMatchRecord::tally()` counts as played, and how many of them carry
-     * recorded minutes (`MinutesQuery::recordedMatchIds()`). The minutes and
-     * data-quality sections read these, so "minutes recorded for N of M
-     * played matches" counts the same matches the match section and the
-     * statistics tab call played.
+     * #4957 — the played fixtures of {@see fixtures()}: the matches the match
+     * section lists and the data-quality section checks. A fixture still to
+     * come is not a match missing its opponent or its result.
      *
-     * @return array{recorded:int, played:int}
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
+     */
+    public function playedFixtures(): array {
+        return TeamMatchRecord::played( $this->fixtures() );
+    }
+
+    /**
+     * #4957 — the minutes-bearing matches played in the window (fixtures and
+     * tournament days, `PlayedMatch`), how many of them carry recorded
+     * minutes, and how many of the played ones were tournament days. The
+     * same counts `MinutesQuery::matchCountsForTeam()` gives every minutes
+     * report, so "minutes recorded for N of M played matches" says the same
+     * thing here as there. `played` is the match section's played count plus
+     * `tournaments`.
+     *
+     * @return array{recorded:int, played:int, tournaments:int}
      */
     public function matchMinutesCounts(): array {
         if ( $this->match_minutes_counts === null ) {
-            $played = [];
-            foreach ( $this->fixtures() as $f ) {
-                if ( TeamMatchRecord::isPlayed( $f ) ) $played[ (int) $f['activity_id'] ] = true;
-            }
-            $with = array_flip( ( new MinutesQuery() )->recordedMatchIds( $this->team_id, $this->from, $this->to ) );
+            $counts = ( new MinutesQuery() )->matchCountsForTeam( $this->team_id, $this->from, $this->to );
             $this->match_minutes_counts = [
-                'recorded' => count( array_intersect_key( $played, $with ) ),
-                'played'   => count( $played ),
+                'recorded'    => $counts['recorded'],
+                'played'      => $counts['played'],
+                'tournaments' => $this->playedTournaments(),
             ];
         }
         return $this->match_minutes_counts;
+    }
+
+    /**
+     * #4957 — the tournament days played in the window: what the match
+     * section leaves out of its record and the minutes section includes.
+     */
+    public function playedTournaments(): int {
+        return $this->played_tournaments ??= ( new ActivitiesRepository() )->tournamentCountInWindow( $this->team_id, $this->from, $this->to );
     }
 
     private static function isDate( string $d ): bool {
