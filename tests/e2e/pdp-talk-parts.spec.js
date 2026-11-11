@@ -70,7 +70,24 @@ async function checkStuckStack( page ) {
 	} );
 	// The budget (#5080): the stuck chrome stays within 45% of 360x640.
 	expect( sizes.total, 'the stuck chrome stays within 288px: ' + JSON.stringify( sizes ) ).toBeLessThanOrEqual( 288 );
-	return sizes;
+
+	// The same at Dutch length. CI runs in English, which hid a title that
+	// wraps; put the Dutch words in and measure again.
+	const dutch = await page.evaluate( () => {
+		const head  = document.querySelector( '.tt-pdp-coachform .tt-pdp-part__head' );
+		const title = head ? head.querySelector( '.tt-pdp-part__title > span:last-child' ) : null;
+		const state = head ? head.querySelector( '[data-tt-save-state]' ) : null;
+		if ( title ) title.textContent = 'Gespreksformulier · Veldspeler voor de selectie van dit seizoen';
+		if ( state ) state.textContent = 'Alle wijzigingen opgeslagen';
+		return new Promise( ( resolve ) => requestAnimationFrame( () => resolve( {
+			part2: head ? Math.round( head.getBoundingClientRect().height ) : 0,
+			titleLines: title ? Math.round( title.getBoundingClientRect().height / parseFloat( getComputedStyle( title ).lineHeight || '20' ) ) : 0,
+		} ) ) );
+	} );
+	const dutchTotal = sizes.shell + sizes.spine + dutch.part2;
+	console.log( 'stuck chrome at Dutch length: ' + JSON.stringify( { ...dutch, total: dutchTotal } ) );
+	expect( dutchTotal, 'at Dutch length too: ' + JSON.stringify( dutch ) ).toBeLessThanOrEqual( 288 );
+	return { ...sizes, dutchPart2: dutch.part2, dutchTotal };
 }
 
 /**
