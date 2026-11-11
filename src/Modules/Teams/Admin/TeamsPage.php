@@ -47,8 +47,8 @@ class TeamsPage {
         global $wpdb; $p = $wpdb->prefix;
 
         // v2.17.0: archive view filter + bulk actions.
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 't' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, 't' );
 
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
         // #3158 — same narrowing `GET /teams` already applies

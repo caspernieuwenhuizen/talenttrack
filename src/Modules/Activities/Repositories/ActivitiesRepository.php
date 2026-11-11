@@ -804,7 +804,7 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $view_clause = ArchiveRepository::filterClause( ArchiveRepository::sanitizeView( $view ), 'a' );
+        $view_clause = ArchiveRepository::listViewClause( $view, 'a' );
         $scope       = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         $limit       = max( 1, min( 200, $limit ) );
 
@@ -2140,12 +2140,11 @@ final class ActivitiesRepository {
      * and `GET /activities`: `active` (the default), `archived` or `all`,
      * through `ArchiveRepository::filterClause()`, so an activity in the
      * recycle bin appears in neither, whatever the state. The recycle bin is
-     * not a state of these lists; asking for it reads as `active`.
+     * not a state of these lists; asking for it reads as `active`. #5118 —
+     * the rule every list shares: `ArchiveRepository::listViewClause()`.
      */
     public static function listArchiveClause( string $view, string $alias ): string {
-        $view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $view );
-        if ( $view === 'trashed' ) $view = 'active';
-        return \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, $alias );
+        return \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, $alias );
     }
 
     /**

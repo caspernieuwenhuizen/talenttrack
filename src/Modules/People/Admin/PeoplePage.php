@@ -141,8 +141,8 @@ class PeoplePage {
         // yet support the archive filter; we fetch via direct SQL for the
         // archive/all views and fall back to the repo for active. A full
         // PeopleRepository refactor is deferred to a future sprint.
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pe' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, 'pe' );
 
         if ( $view === 'active' ) {
             $filters = [

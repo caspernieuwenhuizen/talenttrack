@@ -76,8 +76,8 @@ class EvaluationsPage {
         global $wpdb; $p = $wpdb->prefix;
 
         // v2.17.0: archive view filter + bulk actions.
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'e' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, 'e' );
 
         // #0063 — rich selection criteria pattern (mirrors People page).
         $f_search    = isset( $_GET['s'] )         ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) )         : '';

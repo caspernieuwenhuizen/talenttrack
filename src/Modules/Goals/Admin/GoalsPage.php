@@ -49,8 +49,8 @@ class GoalsPage {
         global $wpdb; $p = $wpdb->prefix;
 
         // v2.17.0: archive view filter + bulk actions.
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'g' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, 'g' );
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
         // #3158 — same narrowing `GET /goals` already applies

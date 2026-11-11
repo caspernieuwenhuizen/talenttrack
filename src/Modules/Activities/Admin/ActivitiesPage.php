@@ -77,7 +77,7 @@ class ActivitiesPage {
         }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
 
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
         $type_filter = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : '';
 
         // #1320 — list query lives in the repository; unknown type

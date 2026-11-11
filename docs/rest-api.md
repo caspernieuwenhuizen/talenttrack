@@ -379,7 +379,18 @@ List endpoints follow the Sprint 2 contract used by `FrontendListTable`:
 
 **Archive state is always `filter[archived]`** (#2625). Values: `active`
 (the default when the param is absent), `archived`, and — where the endpoint
-already supported them — `all` / `trashed`. Holidays, tournaments, exercises
+already supported them — `all` / `trashed`.
+
+**Lists never show items in the recycle bin** (#5118). On the ordinary list
+routes `GET /activities` (#5103), `GET /goals`, `GET /evaluations` and
+`GET /holidays`, `filter[archived]` is `active`, `archived` or `all`, and every
+state leaves out items in the recycle bin. `trashed` is not a state of these
+lists and reads as `active`; the recycle bin is its own screen, behind
+`tt_manage_recycle_bin`. One rule, `ArchiveRepository::listViewClause()`.
+Before this, `filter[archived]=trashed` on goals, evaluations and holidays
+returned the binned rows.
+
+Holidays, tournaments, exercises
 and training plans used to spell this `filter[status]`; that key is accepted
 as a **deprecated alias for one release** on those four endpoints only, and
 `filter[archived]` wins when both are present.
@@ -711,7 +722,7 @@ The response is the groups still locked. Unlocking a group that is not locked an
 
 ### Archive state on `GET /activities` (#5101)
 
-`filter[archived]` is `active` (the default), `archived` or `all`; the legacy `include_archived=1` reads as `all`. **An activity in the recycle bin never appears in the list**, in any state and with or without `filter[played]`: the list runs the same clause as the rendered activities list (`ActivitiesRepository::listArchiveClause()`, over `ArchiveRepository::filterClause()`). `filter[archived]=trashed` is not a state of this list and reads as `active`; the recycle bin is its own screen. An archived activity appears under `archived` and `all`, except with `filter[played]=1`, which counts live matches only (below). Before this, the list returned trashed activities whenever `filter[played]` was absent or `0` (under `active` and `archived` as well as `all`), and `filter[archived]=trashed` returned every activity, trashed or not.
+`filter[archived]` is `active` (the default), `archived` or `all`; the legacy `include_archived=1` reads as `all`. **An activity in the recycle bin never appears in the list**, in any state and with or without `filter[played]`: the list runs the same clause as the rendered activities list (`ActivitiesRepository::listArchiveClause()`, over `ArchiveRepository::listViewClause()`). `filter[archived]=trashed` is not a state of this list and reads as `active`; the recycle bin is its own screen. An archived activity appears under `archived` and `all`, except with `filter[played]=1`, which counts live matches only (below). Before this, the list returned trashed activities whenever `filter[played]` was absent or `0` (under `active` and `archived` as well as `all`), and `filter[archived]=trashed` returned every activity, trashed or not.
 
 ### Played matches: `GET /activities` with `filter[played]=1` (#4507)
 
