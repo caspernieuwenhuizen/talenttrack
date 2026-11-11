@@ -215,19 +215,23 @@ final class ReportStudioSnapshotAccessTest extends WP_UnitTestCase {
     }
 
     public function test_a_recipient_without_the_right_to_take_it_is_refused(): void {
-        $id = $this->published( $this->playerChoices( 'internal' ) + [ 'sharing' => 'role' ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Shared' ] ] ], [ 'team_manager' ] );
+        // A report published for a role is about a subject chosen when opened.
+        $choices = [ 'kind' => 'report', 'scope' => 'player', 'audience' => 'internal', 'binding' => 'on_open', 'sharing' => 'role', 'period_mode' => 'fixed', 'period_value' => self::PERIOD ];
+        $id      = $this->published( $choices, [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Shared' ] ] ], [ 'team_manager' ] );
+        $subject = [ 'player_id' => $this->child ];
 
         wp_set_current_user( $this->manager );
-        $this->assertSame( 200, $this->send( 'GET', "reports/{$id}/data" )->get_status(), 'precondition: the team manager reads the report' );
-        $document = $this->send( 'GET', "reports/{$id}/document" );
+        $data = $this->send( 'GET', "reports/{$id}/data", $subject );
+        $this->assertSame( 200, $data->get_status(), 'precondition: the team manager reads the report: ' . wp_json_encode( $data->get_data() ) );
+        $document = $this->send( 'GET', "reports/{$id}/document", $subject );
         $this->assertFalse( $document->get_data()['data']['context']['can_snapshot'], 'the control is not offered' );
 
-        $res = $this->send( 'POST', "reports/{$id}/snapshots" );
-        $this->assertSame( 403, $res->get_status() );
+        $res = $this->send( 'POST', "reports/{$id}/snapshots", $subject );
+        $this->assertSame( 403, $res->get_status(), (string) wp_json_encode( $res->get_data() ) );
         $this->assertSame( 'forbidden_player', $this->code( $res ) );
 
         wp_set_current_user( $this->hod );
-        $this->assertTrue( $this->send( 'GET', "reports/{$id}/document" )->get_data()['data']['context']['can_snapshot'], 'the builder is offered it' );
+        $this->assertTrue( $this->send( 'GET', "reports/{$id}/document", $subject )->get_data()['data']['context']['can_snapshot'], 'the builder is offered it' );
     }
 
     public function test_a_team_note_needs_the_right_to_take_the_snapshot_and_is_audited(): void {

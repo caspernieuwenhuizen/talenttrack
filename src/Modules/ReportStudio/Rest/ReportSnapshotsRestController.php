@@ -181,8 +181,8 @@ final class ReportSnapshotsRestController extends BaseController {
         $bad = self::checkBody( $r, [ 'body' => [] ] );
         if ( $bad ) return $bad;
         $body = $r->get_json_params();
-        if ( ! is_array( $body ) || ! array_key_exists( 'body', $body ) ) $body = $r->get_body_params();
-        if ( ! is_array( $body ) || ! array_key_exists( 'body', $body ) || ! is_string( $body['body'] ) ) {
+        if ( ! array_key_exists( 'body', $body ) ) $body = $r->get_body_params();
+        if ( ! array_key_exists( 'body', $body ) || ! is_string( $body['body'] ) ) {
             return RestResponse::error(
                 'missing_fields',
                 /* translators: %s: comma-separated field names */

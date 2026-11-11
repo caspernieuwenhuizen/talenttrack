@@ -375,7 +375,8 @@ final class ReportStudioEngineTest extends WP_UnitTestCase {
 
             $refused = BlockEngine::preview( 'own_question', $context + [ 'audience' => $audience ], [ 'fact' => 'journey_events', 'measure' => 'count', 'breakdown' => 'event_type' ], $this->hod );
             $this->assertInstanceOf( StudioError::class, $refused, "{$audience} reached journey events" );
-            $this->assertSame( 'fact', $refused->details['field'] ?? null );
+            // #5021 — your own question is not offered to a family at all.
+            $this->assertSame( $audience === PlayerReportAudience::FAMILY ? 'context' : 'fact', $refused->details['field'] ?? null );
         }
     }
 

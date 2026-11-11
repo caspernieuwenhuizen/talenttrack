@@ -155,7 +155,8 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
 
     public function test_a_players_goals_and_assists_equal_their_goal_contributions(): void {
         $theirs = ( new GoalContributionQuery() )->forPlayer( $this->pa2, [ 'from' => self::FROM, 'to' => self::TO ] );
-        foreach ( [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ] as $audience ) {
+        // #5021 — not a family block; staff and the scout read the same figure.
+        foreach ( [ PlayerReportAudience::INTERNAL, PlayerReportAudience::SCOUT ] as $audience ) {
             $block = $this->preview( 'goals_assists', $this->player( $this->pa2, $audience ) );
             $this->assertSame( [ [ 'goals' => $theirs['goals'], 'assists' => $theirs['assists'], 'contributions' => $theirs['contributions'] ] ], $block['data']['rows'], $audience );
         }
