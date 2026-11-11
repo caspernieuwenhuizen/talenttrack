@@ -37,8 +37,11 @@ if ( $tt_e2e_exists > 0 ) {
 }
 
 $tt_e2e_ok = $wpdb->insert( $tt_e2e_table, [
+	// No uuid, as a team made in the product gets none: the migration
+	// round-trip spec re-imports every team into this same site, and the
+	// importer copies a uuid as it is, so a second team carrying one would
+	// hit the unique index and roll that import back.
 	'club_id' => 1,
-	'uuid'    => wp_generate_uuid4(),
 	'name'    => $tt_e2e_name,
 ] );
 if ( $tt_e2e_ok === false ) {
