@@ -15,9 +15,11 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 final class PlayerFileCounts {
 
     /**
+     * @param int|null $user_id The reader the counts are for; the current user when null.
      * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int, measurements:int, media:int, tournaments:int}
      */
-    public static function for( int $player_id ): array {
+    public static function for( int $player_id, ?int $user_id = null ): array {
+        $user_id = $user_id ?? get_current_user_id();
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -71,11 +73,21 @@ final class PlayerFileCounts {
         $notes_table = $p . 'tt_thread_messages';
         $notes = 0;
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $notes_table ) ) === $notes_table ) {
-            $notes = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$notes_table}
-                  WHERE thread_type = 'player' AND thread_id = %d AND deleted_at IS NULL",
-                $player_id
-            ) );
+            // #5059 — a staff-only note counts only for a reader who may see
+            // it, the rule the thread itself applies when it lists them.
+            if ( \TT\Modules\Threads\Domain\ThreadAccess::canSeePrivate( 'player', $player_id, $user_id ) ) {
+                $notes = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$notes_table}
+                      WHERE thread_type = 'player' AND thread_id = %d AND deleted_at IS NULL",
+                    $player_id
+                ) );
+            } else {
+                $notes = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$notes_table}
+                      WHERE thread_type = 'player' AND thread_id = %d AND deleted_at IS NULL AND visibility = %s",
+                    $player_id, \TT\Modules\Threads\Domain\ThreadVisibility::PUBLIC_LEVEL
+                ) );
+            }
         }
 
         // #4166 — measurements badge. The same "tracked tests" number the

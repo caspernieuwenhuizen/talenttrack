@@ -6,6 +6,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Players\PlayerVisibility;
+use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
@@ -116,6 +117,16 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
         $html = (string) ob_get_clean();
         $this->assertNotSame( '', $html, 'the thread renders for a linked player' );
         $this->assertStringNotContainsString( self::STAFF_ONLY_BODY, $html );
+    }
+
+    public function test_the_notes_badge_counts_a_staff_only_note_only_for_who_may_see_it(): void {
+        $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+
+        $this->assertSame( 1, PlayerFileCounts::for( $this->linked, $this->scout )['notes'], 'the scout counts the public note only' );
+        $this->assertSame( 2, PlayerFileCounts::for( $this->linked, $hod )['notes'], 'the head of development counts both' );
+
+        wp_set_current_user( $this->scout );
+        $this->assertSame( 1, PlayerFileCounts::for( $this->linked )['notes'], 'the current user is the default reader' );
     }
 
     public function test_the_head_of_development_keeps_every_note(): void {
