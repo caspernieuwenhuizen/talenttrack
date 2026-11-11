@@ -56,7 +56,7 @@ final class MigrationImportEvalLinksTest extends WP_UnitTestCase {
 
         $result = MigrationImporter::commit( $this->export(), [ 'entities' => MigrationImporter::importableGroupKeys() ] );
         $this->assertTrue( $result['ok'], 'the same-install import succeeds: ' . wp_json_encode( $result ) );
-        $this->assertContains( 'An evaluation from a PDP conversation was imported without its link to the conversation.', $result['warnings'] );
+        $this->assertContains( '1 evaluation from a PDP conversation was imported without its link to the conversation.', $result['warnings'] );
 
         $player = (int) $wpdb->get_var( $wpdb->prepare( "SELECT player_id FROM {$this->p}tt_evaluations WHERE id = %d", $eval_id ) );
         $copies = $wpdb->get_results( $wpdb->prepare(

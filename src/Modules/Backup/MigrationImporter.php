@@ -85,8 +85,10 @@ class MigrationImporter {
      * Records with a stable key (players/teams/people) that already exist on
      * the target are either updated or inserted-as-new per the operator's
      * choice (default insert). `club_id` is rewritten to the current club;
-     * `wp_user_id` is mapped per `user_map` (unmatched → unlinked). FKs into
-     * the config group resolve by stable key to existing target rows.
+     * every account link is mapped per `user_map` (unmatched → unlinked).
+     * FKs into the config group resolve by stable key to existing target
+     * rows. Every other link column is handled as MigrationLinkMap says
+     * (#5053), with one counted warning per kind of link left empty.
      *
      * Safety: a dry run performs NO writes at all — it counts what would
      * happen using synthetic ids, so it is safe regardless of storage
@@ -137,6 +139,36 @@ class MigrationImporter {
             $stable_by_table[ $spec['table'] ] = [ 'entity' => $ent, 'columns' => $spec['columns'] ];
         }
 
+        // #5053 — every link that is not a reference between imported tables.
+        $same_install = self::fromThisInstall( $snapshot );
+        $accounts     = MigrationLinkMap::accountLinks();
+        $media        = MigrationLinkMap::mediaLinks();
+        $bound        = MigrationLinkMap::installBound();
+        $unarchived   = MigrationLinkMap::unarchivedLinks();
+        $group_label  = [];
+        foreach ( $groups as $g ) {
+            foreach ( $g['tables'] as $t ) $group_label[ (string) $t ] = (string) $g['label'];
+        }
+        $users_here = [];
+        $user_here  = static function ( int $id ) use ( &$users_here ): bool {
+            if ( ! isset( $users_here[ $id ] ) ) $users_here[ $id ] = get_userdata( $id ) !== false;
+            return $users_here[ $id ];
+        };
+        // Counted per message, so a warning says how many links it covers.
+        // A row's notes count once the row is written, not when it is skipped.
+        $cleared     = [];   // key => [ 'n' => int, 'say' => callable(int):string ]
+        $row_pending = [];
+        $count       = static function ( string $key, callable $say ) use ( &$row_pending ): void {
+            $row_pending[] = [ $key, $say ];
+        };
+        $flush = static function () use ( &$row_pending, &$cleared ): void {
+            foreach ( $row_pending as [ $key, $say ] ) {
+                if ( ! isset( $cleared[ $key ] ) ) $cleared[ $key ] = [ 'n' => 0, 'say' => $say ];
+                $cleared[ $key ]['n']++;
+            }
+            $row_pending = [];
+        };
+
         $warnings  = [];
         $id_map    = [];   // table => [ old_id => new_id ]
         $counts    = [];
@@ -177,6 +209,9 @@ class MigrationImporter {
                 $strategy = $sk && ( $conflict[ $sk['entity'] ] ?? 'insert' ) === 'update' ? 'update' : 'insert';
 
                 $existing = $sk ? self::indexExistingByKey( $physical, $sk['columns'], $club ) : [];
+                $nullable = self::nullableColumns( $physical );
+                $empty    = static fn ( string $col ) => isset( $nullable[ $col ] ) ? null : 0;
+                $label    = $group_label[ $tbl ] ?? $tbl;
 
                 $ins = 0; $upd = 0; $skip = 0;
                 $id_map[ $tbl ] = $id_map[ $tbl ] ?? [];
@@ -190,9 +225,61 @@ class MigrationImporter {
                     if ( isset( $has_col['club_id'] ) ) {
                         $data['club_id'] = $club;
                     }
-                    if ( isset( $has_col['wp_user_id'] ) ) {
-                        $old_uid = (int) ( $row['wp_user_id'] ?? 0 );
-                        $data['wp_user_id'] = ( $old_uid > 0 && ( $user_map[ $old_uid ] ?? 0 ) > 0 ) ? $user_map[ $old_uid ] : null;
+                    // Columns emptied for want of a match. An update leaves
+                    // them out, so the matched row keeps its own.
+                    $dropped     = [];
+                    $row_pending = [];
+
+                    // #5053 — accounts, through the user map. On the install
+                    // that made the archive an unmapped account still holds,
+                    // except the record's own: that stays with the original.
+                    foreach ( $accounts[ $tbl ] ?? [] as $col ) {
+                        if ( ! isset( $has_col[ $col ] ) ) continue;
+                        $old_uid = (int) ( $row[ $col ] ?? 0 );
+                        if ( $old_uid <= 0 ) { $data[ $col ] = $empty( $col ); continue; }
+                        if ( array_key_exists( $old_uid, $user_map ) ) {
+                            $new_uid = $user_map[ $old_uid ];
+                        } elseif ( $same_install && $col !== MigrationLinkMap::IDENTITY_ACCOUNT && $user_here( $old_uid ) ) {
+                            $new_uid = $old_uid;
+                        } else {
+                            $new_uid = 0;
+                        }
+                        if ( $new_uid > 0 ) {
+                            $data[ $col ] = $new_uid;
+                            continue;
+                        }
+                        $data[ $col ] = $empty( $col );
+                        $dropped[]    = $col;
+                        $count( 'account|' . $label, static fn ( int $n ): string => sprintf(
+                            /* translators: 1: number of links, 2: name of a data set, such as Players */
+                            _n( '%1$d link to an account in %2$s was left empty: the account was not found on this install.', '%1$d links to accounts in %2$s were left empty: the accounts were not found on this install.', $n, 'talenttrack' ),
+                            $n,
+                            $label
+                        ) );
+                    }
+
+                    // #5053 — files stay on the install that holds them.
+                    if ( isset( $media[ $tbl ] ) && ! $same_install ) {
+                        $had = false;
+                        foreach ( $media[ $tbl ]['columns'] as $col ) {
+                            if ( ! isset( $has_col[ $col ] ) || empty( $row[ $col ] ) ) continue;
+                            $had          = true;
+                            $data[ $col ] = $empty( $col );
+                            $dropped[]    = $col;
+                        }
+                        if ( $had ) $count( 'media|' . $tbl, $media[ $tbl ]['warning'] );
+                    }
+
+                    // #5053 — integration settings are never carried over.
+                    if ( isset( $bound[ $tbl ] ) ) {
+                        $had = false;
+                        foreach ( $bound[ $tbl ]['columns'] as $col ) {
+                            if ( ! isset( $has_col[ $col ] ) ) continue;
+                            if ( ! empty( $row[ $col ] ) ) $had = true;
+                            $data[ $col ] = $empty( $col );
+                            $dropped[]    = $col;
+                        }
+                        if ( $had ) $count( 'bound|' . $tbl, $bound[ $tbl ]['warning'] );
                     }
 
                     // Rewrite foreign keys via the accumulated id maps.
@@ -218,21 +305,32 @@ class MigrationImporter {
                             } elseif ( empty( $ref['optional'] ) ) {
                                 // Missing record parent → would orphan the row; skip it.
                                 $orphaned = true;
+                            } else {
+                                // An optional link (#5051) the import cannot
+                                // satisfy is left NULL; the row is whole without it.
+                                $dropped[] = $col;
+                                $count( 'optional|' . $label, static fn ( int $n ): string => sprintf(
+                                    /* translators: 1: number of links, 2: name of a data set, such as Players */
+                                    _n( '%1$d link in %2$s was left empty: the record it points at is not part of this import.', '%1$d links in %2$s were left empty: the records they point at are not part of this import.', $n, 'talenttrack' ),
+                                    $n,
+                                    $label
+                                ) );
                             }
-                            // An optional link (#5051) the archive cannot
-                            // satisfy is left NULL; the row is whole without it.
                         }
                     }
                     if ( $orphaned ) { $skip++; continue; }
 
                     // #5051 — links to tables a migration archive never
                     // carries. Copied as they are, they would point at
-                    // whatever row has that id on this install.
-                    foreach ( self::unarchivedLinks()[ $tbl ] ?? [] as $col => $warning ) {
+                    // whatever row has that id on another install.
+                    foreach ( $unarchived[ $tbl ] ?? [] as $col => $link ) {
                         if ( ! isset( $has_col[ $col ] ) || empty( $row[ $col ] ) ) continue;
+                        if ( $same_install && $link['same_install'] ) continue;
                         $data[ $col ] = null;
-                        $warnings[]   = $warning;
+                        $dropped[]    = $col;
+                        $count( 'unarchived|' . $tbl . '.' . $col, $link['warning'] );
                     }
+                    $flush();
 
                     // Stable-key conflict handling.
                     if ( $sk ) {
@@ -243,6 +341,7 @@ class MigrationImporter {
                             // is this install's identity for the record; the
                             // archive's may be empty, or another row's here.
                             unset( $data['uuid'] );
+                            foreach ( $dropped as $col ) unset( $data[ $col ] );
                             if ( ! $dry_run ) {
                                 $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
                                 if ( $ok === false ) { $failed = true; break 2; }
@@ -285,6 +384,10 @@ class MigrationImporter {
             throw $e;
         }
 
+        foreach ( $cleared as $c ) {
+            $warnings[] = (string) ( $c['say'] )( (int) $c['n'] );
+        }
+
         if ( $failed ) {
             if ( ! $dry_run ) Transaction::rollback();
             return [
@@ -319,6 +422,8 @@ class MigrationImporter {
     public static function userReferences( array $snapshot ): array {
         $tables = is_array( $snapshot['tables'] ?? null ) ? $snapshot['tables'] : [];
         $seen   = [];
+        // The record's own accounts first: their rows carry a name or an
+        // email to recognise them by.
         foreach ( self::importableGroupKeys() as $group ) {
             foreach ( ( MigrationExporter::entityGroups()[ $group ]['tables'] ?? [] ) as $t ) {
                 $rows = is_array( $tables[ $t ]['rows'] ?? null ) ? $tables[ $t ]['rows'] : [];
@@ -337,6 +442,28 @@ class MigrationImporter {
                         if ( $u ) $suggested = (int) $u->ID;
                     }
                     $seen[ $uid ] = [ 'source_id' => $uid, 'hint' => $hint, 'suggested_user_id' => $suggested ];
+                }
+            }
+        }
+        // #5053 — then every other account an imported row links to: a
+        // coach, an author, the parent's account. Back on the install that
+        // made the archive each is suggested as itself.
+        $same     = self::fromThisInstall( $snapshot );
+        $accounts = MigrationLinkMap::accountLinks();
+        foreach ( self::importableGroupKeys() as $group ) {
+            foreach ( ( MigrationExporter::entityGroups()[ $group ]['tables'] ?? [] ) as $t ) {
+                $rows = is_array( $tables[ $t ]['rows'] ?? null ) ? $tables[ $t ]['rows'] : [];
+                foreach ( $accounts[ $t ] ?? [] as $col ) {
+                    if ( $col === MigrationLinkMap::IDENTITY_ACCOUNT ) continue;
+                    foreach ( $rows as $row ) {
+                        $uid = is_array( $row ) ? (int) ( $row[ $col ] ?? 0 ) : 0;
+                        if ( $uid <= 0 || isset( $seen[ $uid ] ) ) continue;
+                        $seen[ $uid ] = [
+                            'source_id'         => $uid,
+                            'hint'              => '',
+                            'suggested_user_id' => ( $same && get_userdata( $uid ) !== false ) ? $uid : 0,
+                        ];
+                    }
                 }
             }
         }
@@ -374,24 +501,30 @@ class MigrationImporter {
     }
 
     /**
-     * #5051 — link columns that point at tables no migration archive
-     * carries, per table, each with the warning an import gives for every
-     * row that loses its link.
+     * #5053 — did this install make the archive? Account, file and
+     * install-local links hold only there. An archive without the key (made
+     * before it existed) counts as made elsewhere.
      *
-     * A PDP form sign-off links its evaluation to the conversation. PDP is
-     * never migrated, so the imported copy has no conversation behind it on
-     * this install: it comes in as an ordinary evaluation, editable like any
-     * other, because the signed form that made the original read-only is not
-     * here.
-     *
-     * @return array<string, array<string,string>> table => [ column => warning ]
+     * @param array<string,mixed> $snapshot
      */
-    private static function unarchivedLinks(): array {
-        return [
-            'tt_evaluations' => [
-                'pdp_conversation_id' => __( 'An evaluation from a PDP conversation was imported without its link to the conversation.', 'talenttrack' ),
-            ],
-        ];
+    public static function fromThisInstall( array $snapshot ): bool {
+        $key = (string) ( $snapshot['install'] ?? '' );
+        return $key !== '' && hash_equals( MigrationExporter::installKey(), $key );
+    }
+
+    /**
+     * The columns of a table that take NULL, so a cleared link is written as
+     * NULL where it can be and 0 where the column refuses NULL.
+     *
+     * @return array<string,true>
+     */
+    private static function nullableColumns( string $physical ): array {
+        global $wpdb;
+        $cols = $wpdb->get_col( $wpdb->prepare(
+            "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND IS_NULLABLE = 'YES'",
+            $physical
+        ) );
+        return array_fill_keys( array_map( 'strval', (array) $cols ), true );
     }
 
     /**

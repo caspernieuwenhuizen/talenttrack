@@ -1,0 +1,3 @@
+# An import from another install maps or clears every link (#5053)
+
+A data-migration import now handles every link on an imported record. A link to an account goes through the user mapping, and that step now lists every account the records point at: a parent, the coach of an evaluation or activity, the author of a goal. A link to a record outside the import is left empty, and so are player photos (the archive carries no files), a team's Spond connection, and links to tournaments, training cycles, methodologies, principles, football actions and functional roles. The import says how many rows each kind of link affected. Imported back into the install that made it, the links that still hold are kept.

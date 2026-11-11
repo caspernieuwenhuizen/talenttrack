@@ -131,8 +131,20 @@ class MigrationExporter {
         // invalidate it.
         $snapshot['kind']     = self::KIND;
         $snapshot['entities'] = array_values( array_unique( $valid ) );
+        $snapshot['install']  = self::installKey();
 
         return BackupSerializer::toGzippedJson( $snapshot );
+    }
+
+    /**
+     * #5053 — an opaque key for this install, so an import can tell an
+     * archive coming back from one made elsewhere: account, file and other
+     * install-local links hold only on the install that made them. Derived
+     * from the install's own salt, so it says nothing about the install.
+     */
+    public static function installKey(): string {
+        global $wpdb;
+        return hash_hmac( 'sha256', 'talenttrack-migration-install|' . $wpdb->prefix, wp_salt( 'auth' ) );
     }
 
     /**
