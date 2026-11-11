@@ -32,6 +32,20 @@ final class ReportSubjectAccess {
      * they can see, or the refusal.
      */
     public static function check( ReportContext $context ): ReportContext|StudioError {
+        // #4963 — inside a `ScopeMemo` window (one schedule's readers, every
+        // block) the answer for a reader and a subject is worked out once.
+        // Only the decision is kept, never the context, which carries the
+        // period and the audience too.
+        $key     = 'studio_subject|' . $context->userId . '|' . $context->scope . '|' . $context->playerId . '|' . $context->teamId . '|' . implode( ',', $context->playerIds );
+        $decided = \TT\Infrastructure\Security\ScopeMemo::remember( $key, static function () use ( $context ): array {
+            $answer = self::decide( $context );
+            return $answer instanceof StudioError ? [ 'refused' => $answer->code ] : [ 'ids' => $answer->playerIds ];
+        } );
+        if ( isset( $decided['refused'] ) ) return self::forbidden( (string) $decided['refused'] );
+        return $decided['ids'] === $context->playerIds ? $context : $context->withPlayerIds( $decided['ids'] );
+    }
+
+    private static function decide( ReportContext $context ): ReportContext|StudioError {
         $uid = $context->userId;
         if ( $uid <= 0 ) return self::forbidden( 'forbidden_scope' );
 

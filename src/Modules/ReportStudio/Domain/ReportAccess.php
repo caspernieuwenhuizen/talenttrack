@@ -242,6 +242,51 @@ final class ReportAccess {
     }
 
     /**
+     * #4963 — may this user receive the report by a scheduled mail: they may
+     * open it (`canRead()`), or they read the Studio and may read what it is
+     * about (`canReadSubject()`), the recipient rule without the persona. A
+     * report about one fixed team is published to no role, so without the
+     * second half only its builders could receive it, never the team's own
+     * staff. The second half reaches no further than a publication could:
+     * `readsStudio()` is held by the publishable personas only, and sending
+     * to anyone but yourself needs `tt_publish_reports`. Every block of the
+     * PDF is still cut to every reader (`BlockEngine::forReaders()`).
+     *
+     * @param Report            $report
+     * @param list<string>|null $persona_keys the report's, when the caller has read them once for a set
+     */
+    public static function canReceive( ReportReader $reader, array $report, ?array $persona_keys = null ): bool {
+        if ( $reader->userId <= 0 ) return false;
+        if ( self::canEdit( $reader, $report ) ) return true;
+        if ( $report['published_version_id'] !== null && $report['archived_at'] === null
+            && self::readsAs( $reader, $report, $persona_keys ?? ( new ReportsRepository() )->personaKeys( $report['id'] ) ) ) {
+            return true;
+        }
+        return $reader->readsStudio() && self::canReadSubject( $reader, $report );
+    }
+
+    /**
+     * `canReceive()` for a set of accounts, with every source the rule rests
+     * on read once for the set (`readersAmong()`'s pattern): the ones who may
+     * receive the report, in the order given.
+     *
+     * @param list<int> $user_ids
+     * @param Report    $report
+     * @return list<int>
+     */
+    public static function receiversAmong( array $user_ids, array $report ): array {
+        return \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $user_ids, $report ): array {
+            \TT\Infrastructure\Security\AuthorizationService::primeUsers( $user_ids );
+            $keys = ( new ReportsRepository() )->personaKeys( $report['id'] );
+            $out  = [];
+            foreach ( array_values( array_unique( array_map( 'intval', $user_ids ) ) ) as $id ) {
+                if ( $id > 0 && self::canReceive( ReportReader::for( $id ), $report, $keys ) ) $out[] = $id;
+            }
+            return $out;
+        } );
+    }
+
+    /**
      * What the caller may do, for the payload. Capabilities, never roles.
      *
      * @param Report $report

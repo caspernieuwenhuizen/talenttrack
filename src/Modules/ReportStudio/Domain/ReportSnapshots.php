@@ -257,19 +257,13 @@ final class ReportSnapshots {
 
             $renderer = BlockRegistry::find( (string) ( $block['key'] ?? '' ) );
             if ( $renderer === null ) continue;
-            if ( BlockEngine::gate( $renderer, $document['context'], $user_id ) instanceof StudioError ) continue;
 
             $data = [];
             foreach ( is_array( $block['data'] ?? null ) ? $block['data'] : [] as $k => $v ) $data[ (string) $k ] = $v;
-            // #4961 — a block whose records are gated inside the payload is
-            // cut by the rights its composer asks, so each reader sees only
-            // the records they may read now.
-            if ( $renderer instanceof CutsForReader ) {
-                $cut = $renderer->forReader( $data, $user_id, $document['context'] );
-                if ( $cut === null ) continue;
-                $data = $cut;
-            }
-            $block['data'] = BlockEngine::masked( BlockEngine::visibleRows( $data, $user_id ), $user_id );
+            // #4963 — the one per-reader cut, which a schedule makes too.
+            $cut = BlockEngine::cutForReader( $renderer, $data, $document['context'], $user_id );
+            if ( $cut === null ) continue;
+            $block['data'] = $cut;
             $keep[]        = $block;
         }
         $document['blocks'] = $keep;

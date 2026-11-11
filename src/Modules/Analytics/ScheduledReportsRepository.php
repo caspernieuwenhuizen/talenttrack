@@ -47,6 +47,58 @@ final class ScheduledReportsRepository {
     public const REPORT_PLAYER = 'player_report';
 
     /**
+     * #4963 — a published Report Studio report, its composition
+     * `{ report_id, period }`: the report is read at send time, never copied.
+     */
+    public const REPORT_STUDIO = 'studio';
+
+    /** #4963 — the fields a partial update may change. */
+    public const UPDATABLE = [ 'name', 'frequency', 'recipients', 'composition', 'status' ];
+
+    /**
+     * #4963 — a schedule's fields, changed in place: only the ones given,
+     * every other field left as it is. A new frequency moves the next run.
+     *
+     * @param array<string,mixed> $fields a subset of `UPDATABLE`
+     */
+    public function update( int $id, array $fields ): bool {
+        global $wpdb;
+        $row = [];
+        foreach ( $fields as $key => $value ) {
+            switch ( $key ) {
+                case 'name':        $row['name'] = (string) $value; break;
+                case 'frequency':
+                    $row['frequency']   = (string) $value;
+                    $row['next_run_at'] = self::computeNextRun( (string) $value, current_time( 'mysql', true ) );
+                    break;
+                case 'recipients':  $row['recipients'] = (string) wp_json_encode( array_values( array_map( 'strval', (array) $value ) ) ); break;
+                case 'composition': $row['composition_json'] = (string) wp_json_encode( (array) $value ); break;
+                case 'status':      $row['status'] = (string) $value; break;
+            }
+        }
+        if ( $row === [] ) return true;
+        $row['updated_at'] = current_time( 'mysql', true );
+        $ok = $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        return $ok !== false;
+    }
+
+    /**
+     * #4963 — the Studio schedules of one report, archived ones left out.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function forStudioReport( int $report_id ): array {
+        $out = [];
+        foreach ( $this->listForCurrentClub() as $schedule ) {
+            if ( $schedule['report_key'] !== self::REPORT_STUDIO ) continue;
+            $composition = is_array( $schedule['composition'] ) ? $schedule['composition'] : [];
+            if ( (int) ( $composition['report_id'] ?? 0 ) !== $report_id ) continue;
+            $out[] = $schedule;
+        }
+        return $out;
+    }
+
+    /**
      * Operator-editable label for a stored frequency value. Resolves
      * through `tt_translations` via `LookupTranslator::byTypeAndName(
      * 'scheduled_report_frequency', $value)`; pre-migration installs

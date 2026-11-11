@@ -83,6 +83,9 @@ class ReportStudioModule implements ModuleInterface {
         PlayerReportTemplate::register();
         TeamMonthlyReportTemplate::register();
         ReportTemplatesRestController::init();
+        // #4963 — schedules of a published report.
+        \TT\Modules\ReportStudio\Rest\ReportSchedulesRestController::init();
+        \TT\Modules\ReportStudio\Frontend\ReportScheduleScreen::init();
 
         // #4570 — the start wizard. Registered on `init` so the registry is
         // populated before a request resolves `?tt_view=wizard&slug=new-report`.

@@ -1,0 +1,169 @@
+/*
+ * frontend-report-schedules.css (#4963) — a Report Studio report's schedules
+ * and the form that adds or changes one (?tt_view=report-studio&id=N&
+ * schedules=1 | schedule=new | schedule=S).
+ *
+ * Mobile-first (CLAUDE.md §2): the base is ~360px, every row and control a
+ * 48px target under a finger with 8px between rows, nothing on hover.
+ * Scoped under .tt-dashboard; tokens from tokens.css.
+ */
+
+.tt-dashboard .tt-rsch {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+    max-width: 48rem;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rsch-intro,
+.tt-dashboard .tt-rsch-empty,
+.tt-dashboard .tt-rsch-fixed {
+    margin: 0;
+    color: var(--tt-muted, #5b6660);
+}
+
+.tt-dashboard .tt-rsch-form {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rsch-choices {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+    padding: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-rsch-choices legend {
+    font-weight: 600;
+    padding: 0 var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-rsch-sub {
+    margin: 0;
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rsch-option {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rsch-option:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rsch-option:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rsch-option input {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+}
+
+.tt-dashboard .tt-rsch-people {
+    min-height: 9rem;
+}
+
+@media (pointer: coarse) {
+    .tt-dashboard select.tt-input[id^="tt-rsch-"] {
+        min-height: var(--tt-tap-min, 48px);
+    }
+}
+
+.tt-dashboard .tt-rsch-preview {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-rsch-preview[aria-busy="true"] {
+    opacity: 0.7;
+}
+
+.tt-dashboard .tt-rsch-preview-title,
+.tt-dashboard .tt-rsch-preview-sub {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-rsch-receivers {
+    margin: 0;
+}
+
+.tt-dashboard .tt-rsch-blocks,
+.tt-dashboard .tt-rsch-left {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-rsch-left-why {
+    color: var(--tt-muted, #5b6660);
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-rsch-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-rsch-link {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-height: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: inherit;
+    text-decoration: none;
+    box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rsch-link:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rsch-link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rsch-name {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-rsch-meta,
+.tt-dashboard .tt-rsch-error {
+    font-size: 0.875rem;
+    color: var(--tt-muted, #5b6660);
+}
+
+.tt-dashboard .tt-rsch-error {
+    color: var(--tt-danger, #b42318);
+}

@@ -2347,6 +2347,96 @@ its reports, and erasing a player removes the reports about them, with
 everything that hangs off them. A player's subject-access export carries the
 reports about them and every draft of them (`studio_reports.json`).
 
+## Report Studio schedules (#4963, epic #4564)
+
+A published Studio report sent by email as a PDF. A Studio schedule is a row
+in `tt_scheduled_reports` with `report_key = studio` and `composition =
+{ report_id, period }`; it runs through the existing scheduled-reports runner,
+like the team monthly report. Every route needs `tt_build_reports` with the
+`report_studio` feature switched on (`403` otherwise), and the `report_studio`
+and `scheduled_reports` plan features (`402 license_required`). Then the
+record checks (`ReportSchedules`): the caller may change the report
+(`ReportAccess::canEdit()`), and for one schedule they are its owner or hold
+`tt_publish_reports`. Only Studio schedules are served here.
+
+| Route | What |
+| --- | --- |
+| `GET /reports/{id}/schedules` | The report's schedules the caller may manage: `{ rows, schedulable, refusal }`, `refusal` the reason when the report cannot be scheduled. |
+| `POST /reports/{id}/schedules` | Body `name`, `recipients`, `frequency`, `period`. `201` with the schedule and its `preview`. |
+| `GET /reports/{id}/schedules/preview` | Query `recipients[]`, `period`. What those recipients would get, before saving: `{ blocks: [ { id, label } ], left_out: [ { id, label, reason } ], receivers, left_out_recipients, message }`. |
+| `GET /scheduled-reports/{id}` | One Studio schedule with its `preview` as resolved now. |
+| `PATCH /scheduled-reports/{id}` | Any of `name`, `recipients`, `frequency`, `period`, `status` (`active`, `paused`). An omitted field keeps its value. Recorded in the audit log (`scheduled_report.updated`) with `before` and `after`. It takes effect from the next run. |
+| `DELETE /scheduled-reports/{id}` | Archive it: it never runs again, and it answers `404` from then on. |
+
+A schedule answers `{ id, uuid, report_id, name, frequency, period,
+recipients, format: "pdf", status, last_error, last_run_at, next_run_at,
+owner_id }`.
+
+**Which reports** (`ReportSchedules::refusal()`, `400 not_schedulable` with
+`details.field = "report_id"`): a `kind: report`, laid out in `rows`, for the
+`internal` audience, not following the viewer, with a fixed player or team (a
+`binding` other than `fixed` is refused for those), not archived, and
+published. A group and the academy keep their own subject.
+
+**Recipients.** A list of entries, each an account in this club as
+`user:<id>` or a role key of a role whose members read reports
+(`tt_view_reports`; a player's and a parent's roles do not). A recipient other
+than the caller's own account needs `tt_publish_reports`, otherwise `403
+forbidden` with `details.field = "recipients"`; this is asked before the
+entries are checked, so the answer does not tell a real account id from a
+made-up one. A bare email address, an unknown role or an account outside the
+club is `400 invalid_field` with `details.field = "recipients"`; at most 25
+entries. A report kept for its owner (`sharing: me`) goes to its owner alone:
+any other recipient is `400 invalid_field` with `details.reason =
+"kept_for_owner"`.
+
+**Plan.** Both plan features are asked by the domain service
+(`ReportSchedules`), so the schedule form's save is refused the same way
+(`402 license_required`) as the REST routes.
+
+**Who may receive it** (`ReportAccess::canReceive()`): an account that may
+open the report (it builds it, or it is published to a persona the account
+holds), or that holds `report_studio` read and may read the report's subject.
+A named account (`user:<id>`) that has left the club or has no address is
+skipped as `account_unreachable`: it receives nothing and does not narrow the
+PDF for the others.
+
+**Period.** A report with a fixed or rolling period sends that period, and
+`period` is stored empty. For a report whose period is chosen when opened,
+`period` is `last_week`, `last_month` (default), `this_month` or
+`this_season`; anything else is `400 invalid_field`.
+
+**What is sent.** The report's published version at send time, never a
+draft. It is composed once for the owner and every recipient together
+(`ReportData::composeForReaders()`, each block through
+`BlockEngine::forReaders()`): a block one of them may not read is left out
+for all, a group holds the players every one of them may see, a field or a
+row about a player one of them may not see is left out, and a block whose
+figures depend on the reader (`ComposesPerReader`) is left out when they
+differ. A recipient whose rights cannot be checked (a role with no one in
+it, an account outside the club) counts as having none. A recipient who
+may not receive it at all gets nothing and narrows nothing. A run composes for
+at most 40 readers, and one run sends at most 20 Studio schedules. The readers
+are resolved and the document composed inside one `ScopeMemo` window, with the
+readers' scopes read once for the set (`AuthorizationService::primeUsers()`)
+and the subject check asked once per reader, not once per block. When no block
+is one every recipient may read, nothing is mailed and `last_error` says why.
+
+**Injury reads.** The composition is quiet (`InjuryReads::quietly()`): a
+preview and `GET /scheduled-reports/{id}` record no read. After a send, a PDF
+that shows a player's injuries or sensitive journey entries records one
+`player.injuries_viewed` / `player.sensitive_timeline_viewed` row per
+recipient, written as that recipient, with `surface: "scheduled_report"` and
+the `schedule_id`. Each block that can carry such entries says which
+(`CarriesSensitiveReads`): a player report's injuries and journey sections,
+and a team report's "what changed", per player in it.
+
+**When it pauses.** The report gone, archived, unpublished or no longer
+schedulable, its fixed player or team gone, its owner no longer allowed to
+change it, or a schedule to others whose owner no longer holds
+`tt_publish_reports`: the schedule is paused, the reason kept in
+`last_error`, and the owner is told once (`scheduled_report_paused`).
+
 ## Report Studio homes (#4962, epic #4564)
 
 A published Studio dashboard as a persona's home: the first screen everyone

@@ -548,6 +548,15 @@ class FrontendScheduledReportsView extends FrontendViewBase {
                 $player !== null ? QueryHelpers::player_display_name( $player ) : '—'
             );
         }
+        // #4963 — a Report Studio report, by its name.
+        if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_STUDIO ) {
+            $report = \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::reportOf( $schedule );
+            return sprintf(
+                /* translators: %s: report name */
+                __( 'Report Studio · %s', 'talenttrack' ),
+                $report !== null && $report['name'] !== '' ? $report['name'] : '—'
+            );
+        }
         $kpi = KpiRegistry::find( (string) ( $schedule['kpi_key'] ?? '' ) );
         return $kpi ? $kpi->label : (string) ( $schedule['kpi_key'] ?? '' );
     }

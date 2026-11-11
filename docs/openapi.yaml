@@ -566,6 +566,47 @@ paths:
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: 'OK — count, personas' }, '400': { description: bad_filter }, '402': { description: license_required }, '403': { description: forbidden } }
 
+  /reports/{id}/schedules:
+    get:
+      tags: [report-studio]
+      summary: The report's schedules the caller may manage (#4963)
+      description: 'Cap required: `tt_build_reports`, and the caller may change the report. Answers rows, schedulable and refusal (the reason the report cannot be scheduled).'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: 'OK — rows, schedulable, refusal' }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found } }
+    post:
+      tags: [report-studio]
+      summary: Send the published report on a schedule (#4963)
+      description: 'Cap required: `tt_build_reports`, and the caller may change the report. Body — name, recipients (accounts as user:<id> and staff role keys only, at most 25; anyone but the caller needs tt_publish_reports), frequency (weekly_monday, monthly_first, season_end), period (last_week, last_month, this_month, this_season; only for a report whose period is chosen when opened).'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '201': { description: Created — the schedule with its preview }, '400': { description: 'not_schedulable (a dashboard, a grid, a family or scout audience, a subject that follows the viewer or is chosen when opened, an unpublished or archived report), invalid_field (recipients, frequency, period, name), unknown_field' }, '402': { description: license_required }, '403': { description: 'forbidden — the caller may not change the report, or sends to others without tt_publish_reports' }, '404': { description: not_found } }
+
+  /reports/{id}/schedules/preview:
+    get:
+      tags: [report-studio]
+      summary: What these recipients would get, before saving (#4963)
+      description: 'Cap required: `tt_build_reports`, and the caller may change the report. Query — recipients[], period. Answers blocks, left_out (with the reason), receivers, left_out_recipients and message.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '400': { description: 'not_schedulable, invalid_field' }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found } }
+
+  /scheduled-reports/{id}:
+    get:
+      tags: [report-studio]
+      summary: One Report Studio schedule, with what its recipients get now (#4963)
+      description: 'Cap required: `tt_build_reports`; the caller is the owner or holds tt_publish_reports, and may change the report. Only Studio schedules.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found — no such Studio schedule, or archived } }
+    patch:
+      tags: [report-studio]
+      summary: Change a schedule in place; an omitted field keeps its value (#4963)
+      description: 'Body — any of name, recipients, frequency, period, status (active, paused). Audited with before and after. Takes effect from the next run.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field' }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found } }
+    delete:
+      tags: [report-studio]
+      summary: Archive the schedule; it never runs again (#4963)
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: forbidden }, '404': { description: not_found } }
+
   /reports/subject-options:
     get:
       tags: [report-studio]

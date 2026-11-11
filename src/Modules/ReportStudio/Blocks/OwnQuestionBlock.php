@@ -12,6 +12,7 @@ use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 use TT\Modules\ReportStudio\Domain\BlockOption;
 use TT\Modules\ReportStudio\Domain\ChecksFactKeys;
+use TT\Modules\ReportStudio\Domain\ComposesPerReader;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportSubjectAccess;
@@ -25,7 +26,7 @@ use TT\Modules\ReportStudio\Domain\SubjectFilters;
  * its row scope and its row cap. Nobody composes an aggregation: the fact,
  * the measure and the breakdown are each picked from what the fact declares.
  */
-final class OwnQuestionBlock implements ReportBlock, ChecksFactKeys {
+final class OwnQuestionBlock implements ReportBlock, ChecksFactKeys, ComposesPerReader {
 
     /**
      * The player-report section each fact belongs to. An external audience

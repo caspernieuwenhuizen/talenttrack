@@ -99,6 +99,104 @@ final class BlockEngine {
     }
 
     /**
+     * #4963 — one block, composed once for several readers: what every one of
+     * them may read, and nothing one of them may not. The rule a scheduled
+     * PDF follows, one copy for everyone it goes to (#5014's, for every
+     * block).
+     *
+     * The block is composed as the first reader, the schedule's owner. Then,
+     * for each other reader, it must pass the checks it answers live
+     * (`gate()`: fit, capability, subject, data) and is cut to what they may
+     * read (`cutForReader()`), so a field one reader may not see is masked for
+     * everyone, and a row about a player one reader may not see is left out.
+     * A block that fails for one reader is left out for all. A reader of 0 —
+     * whose rights cannot be checked — has none, so only a block that needs
+     * no right at all survives them.
+     *
+     * A block whose figures depend on the reader's own scope
+     * (`ComposesPerReader`) is composed for each reader and kept only when
+     * every payload is the same.
+     *
+     * A refusal for the first reader is returned as `preview()` gives it; a
+     * block left out because of another reader is `403 not_for_every_reader`
+     * or `differs_per_reader`, with the reason a schedule preview shows.
+     *
+     * @param array<string,mixed> $context_in
+     * @param array<string,mixed> $options_in
+     * @return array<string,mixed>|StudioError
+     */
+    public static function forReaders( string $key, array $context_in, array $options_in, \TT\Infrastructure\Visibility\ReaderSet $readers ): array|StudioError {
+        $first = $readers->first();
+        $read  = self::preview( $key, $context_in, $options_in, $first );
+        if ( $read instanceof StudioError ) return $read;
+
+        $block = BlockRegistry::find( $key );
+        if ( $block === null ) return new StudioError( 'not_found', __( 'There is no block with that key.', 'talenttrack' ), 404 );
+
+        $context = is_array( $read['context'] ?? null ) ? $read['context'] : $context_in;
+        $data    = self::keyed( $read['data'] ?? [] );
+        foreach ( $readers->readers as $reader ) {
+            if ( $reader === $first ) continue;
+            $cut = self::cutForReader( $block, $data, $context, $reader );
+            if ( $cut === null ) {
+                return new StudioError( 'not_for_every_reader', __( 'Not every recipient may read this block.', 'talenttrack' ), 403, [ 'block' => $key ] );
+            }
+            $data = $cut;
+        }
+
+        if ( $block instanceof ComposesPerReader ) {
+            $own = self::keyed( $read['data'] ?? [] );
+            foreach ( $readers->readers as $reader ) {
+                if ( $reader === $first ) continue;
+                $theirs = self::preview( $key, $context_in, $options_in, $reader );
+                if ( $theirs instanceof StudioError || self::keyed( $theirs['data'] ?? [] ) != $own ) {
+                    return new StudioError( 'differs_per_reader', __( 'Its figures differ between recipients, so it is left out.', 'talenttrack' ), 403, [ 'block' => $key ] );
+                }
+            }
+        }
+
+        $read['data'] = $data;
+        return $read;
+    }
+
+    /**
+     * #4963 — a payload composed for one reader, as another reader may read
+     * it about the same subject: the checks the block answers live
+     * (`gate()`), the records its composer gates inside the payload
+     * (`CutsForReader`), the rows about players they may not see, and the
+     * fields they may not see. Null when they may not read the block at all.
+     *
+     * The one cut a frozen copy (`ReportSnapshots::forReader()`) and a copy
+     * for several readers (`forReaders()`) both make, so a snapshot and a
+     * schedule never disagree about what a reader may read.
+     *
+     * @param array<string,mixed> $data
+     * @param array<string,mixed> $context the document's context: scope, player_id, team_id, player_ids, from, to, audience
+     * @return array<string,mixed>|null
+     */
+    public static function cutForReader( ReportBlock $block, array $data, array $context, int $reader ): ?array {
+        if ( self::gate( $block, $context, $reader ) instanceof StudioError ) return null;
+        // #4961 — a block whose records are gated inside the payload is cut
+        // by the rights its composer asks.
+        if ( $block instanceof CutsForReader ) {
+            $cut = $block->forReader( $data, $reader, $context );
+            if ( $cut === null ) return null;
+            $data = $cut;
+        }
+        return self::masked( self::visibleRows( $data, $reader ), $reader );
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<string,mixed>
+     */
+    private static function keyed( mixed $value ): array {
+        $out = [];
+        foreach ( is_array( $value ) ? $value : [] as $k => $v ) $out[ (string) $k ] = $v;
+        return $out;
+    }
+
+    /**
      * #5021 — a payload's rows about players this reader may not see, left
      * out. A frozen copy carries the rows its taker could see; a reader with a
      * narrower scope reads only their own players' rows. A row names its

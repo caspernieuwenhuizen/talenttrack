@@ -80,6 +80,11 @@ final class FrontendReportStudioView extends FrontendViewBase {
         $draft      = ( new ReportsRepository() )->draft( $id, $user_id );
         $draft_name = $draft !== null ? $draft['name'] : $report['name'];
         $name       = $draft_name !== '' ? $draft_name : __( 'Untitled report', 'talenttrack' );
+        // #4963 — the report's schedules and their form, under the report.
+        if ( ReportScheduleScreen::asked() ) {
+            ReportScheduleScreen::render( $report, $name );
+            return;
+        }
         FrontendBreadcrumbs::fromDashboard( $name, [ self::reportsCrumb(), self::studioCrumb() ] );
         self::enqueue( $id, $report );
         self::renderCanvas( $draft_name, ReportNaming::changed( $report, $draft_name ), $report );
@@ -163,7 +168,7 @@ final class FrontendReportStudioView extends FrontendViewBase {
     }
 
     /**
-     * @param array{kind:string, layout:string} $report
+     * @param array{id:int, kind:string, layout:string} $report
      */
     private static function renderCanvas( string $name, bool $name_changed, array $report ): void {
         // #4962 — a grid is for the screen: it has no A4 view and no PDF.
@@ -179,7 +184,12 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<div class="tt-rs-actions">';
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-rs-open-library" data-tt-rs-open-library>' . esc_html__( 'Add block', 'talenttrack' ) . '</button>';
         echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rs-open-versions>' . esc_html__( 'Versions', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="tt-btn tt-btn-secondary" disabled aria-describedby="tt-rs-later">' . esc_html__( 'Share and schedule', 'talenttrack' ) . '</button>';
+        // #4963 — a report in rows can be sent on a schedule, on a plan with
+        // scheduled reports.
+        if ( $printable && $report['kind'] === ReportStartRules::KIND_REPORT && \TT\Modules\ReportStudio\Domain\ReportSchedules::planAllows() ) {
+            $schedules = add_query_arg( [ 'tt_view' => self::SLUG, 'id' => $report['id'], 'schedules' => '1' ], RecordLink::dashboardUrl() ); /* tt-xview-ok: the report's own Studio view, which the caller already edits */
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( BackLink::appendTo( $schedules ) ) . '">' . esc_html_x( 'Schedule', 'report studio: send this report on a schedule', 'talenttrack' ) . '</a>';
+        }
         // #5021 — the draft on paper, for the subject, period and audience
         // the canvas reads; the script keeps the link on them.
         if ( $printable && ExportGate::mayExport( get_current_user_id() ) ) {
@@ -190,7 +200,6 @@ final class FrontendReportStudioView extends FrontendViewBase {
         }
         echo '<button type="button" class="tt-btn tt-btn-primary" data-tt-rs-open-publish>' . esc_html__( 'Publish', 'talenttrack' ) . '</button>';
         echo '</div>';
-        echo '<p class="tt-rs-hint" id="tt-rs-later">' . esc_html__( 'Sharing and scheduling come in a later release.', 'talenttrack' ) . '</p>';
         echo '</div>';
 
         echo '<div class="tt-rs-context">';
