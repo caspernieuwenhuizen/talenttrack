@@ -784,7 +784,12 @@ return array_merge(
         // surfaces (Configuration / Migrations / Application KPIs / Open
         // wp-admin). The grant was a v3.39.0 strawman holdover.
         'dev_ideas'                  => [ 'c',   'global', $mod_development ],
-        'thread_messages'            => [ 'r',   'global', $mod_threads ],
+        // #5059 — player scope, the line drawn for evaluations, media,
+        // goals and activities above. A global `thread_messages` read is
+        // what `ThreadAccess::hasGlobalAccess()` treats as administering
+        // conversations academy-wide, which reads staff-only notes; a scout
+        // holds no staff-only right. Migration 0328 narrows existing installs.
+        'thread_messages'            => [ 'r',   'player', $mod_threads ],
         'staff_development'          => [ 'rc',  'self',   $mod_staff_dev ],
         'staff_certifications'       => [ 'rc',  'self',   $mod_staff_dev ],
         'my_staff_pdp'               => [ 'rc',  'self',   $mod_staff_dev ],
@@ -818,6 +823,9 @@ return array_merge(
         'scouting_visits_panel'      => [ 'r',   'global', $mod_prospects ],
         // #0085 — scouts write notes about players they observe across
         // the academy (cross-team scouting workflow), so RC[global].
+        // #5059 — `PlayerThreadAdapter` also asks that the reader may view
+        // the player, so in practice a scout reaches the notes of the
+        // players they are linked to.
         'player_notes'               => [ 'rc',  'global', $mod_threads ],
     ] ),
 
