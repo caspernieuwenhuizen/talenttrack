@@ -161,7 +161,10 @@
      * and is declared here on `.tt-dashboard` for the reason the focus ring
      * is. `--tt-secondary-text-color` is the input Branding sets, as
      * `--tt-focus-color` is for the ring. */
-    --tt-secondary-text:       var(--tt-secondary-text-color, var(--tt-secondary));
+    /* The default's value is the shipped gold #e8b624 (1.9:1 as text on
+     * white) darkened until it clears 4.5:1, by the rule
+     * BrandStyles::accentTextColor() applies to a Branding secondary (#5105). */
+    --tt-secondary-text:       var(--tt-secondary-text-color, #84660e);
     --tt-secondary-on-primary: var(--tt-secondary);
     --tt-secondary-on-chrome:  var(--tt-secondary);
 }

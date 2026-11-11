@@ -297,7 +297,12 @@ underneath:
 | `--tt-secondary-on-primary` | the primary band | the overview rating label, the today card's call to action, a teammate's initials |
 | `--tt-secondary-on-chrome` | the header | the help icon on hover |
 
-Each follows `--tt-secondary` unless a theme sets it. They are declared on
+On the default design `--tt-secondary-text` is the shipped gold darkened to
+`#84660e`, which reads at 5.4:1 on white; the gold itself stays on every fill.
+A Branding secondary brings its own shade through `--tt-secondary-text-color`,
+derived by `BrandStyles::accentTextColor()`: the colour itself when it reads at
+4.5:1, otherwise the same hue darkened until it does. The other two follow
+`--tt-secondary` unless a theme sets them. All three are declared on
 `.tt-dashboard` as well as `.tt-root`, like `--tt-focus`, so they follow a
 theme's secondary. A theme that declares a secondary declares at least
 `--tt-secondary-text` itself.

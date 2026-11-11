@@ -311,7 +311,13 @@ naar het vlak eronder:
 | `--tt-secondary-on-primary` | de primaire band | het beoordelingslabel in het overzicht, de oproep op de kaart van vandaag, de initialen van een teamgenoot |
 | `--tt-secondary-on-chrome` | de kopbalk | het helppictogram bij hover |
 
-Elk volgt `--tt-secondary`, tenzij een thema het zet. Ze worden op
+In het standaardontwerp is `--tt-secondary-text` het meegeleverde goud,
+donkerder gemaakt tot `#84660e`, dat op wit 5,4:1 haalt; het goud zelf blijft
+op elk vlak. Een secundaire kleur uit Branding brengt een eigen tint mee via
+`--tt-secondary-text-color`, afgeleid door `BrandStyles::accentTextColor()`: de
+kleur zelf als die op 4,5:1 leest, anders dezelfde tint donkerder tot hij dat
+doet. De andere twee volgen `--tt-secondary`, tenzij een thema ze zet. Alle drie
+worden op
 `.tt-dashboard` en op `.tt-root` gedeclareerd, net als `--tt-focus`, zodat ze
 de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
 declareert, declareert ten minste `--tt-secondary-text` zelf.

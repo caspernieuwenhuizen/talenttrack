@@ -15,18 +15,16 @@ use WP_UnitTestCase;
  * `var()` and its fallback. A token-only theme is measured with the rules
  * of theme-shared.css, which it loads.
  *
- * Named exceptions, each an owner decision rather than an oversight:
- *   - `theme-leon-hutten` (Kristalblauw) keeps its look on live installs:
- *     its cyan as text and on the primary band, and its marker on the
- *     active row (2.98:1), are held as they are.
- *   - `default` prints the secondary as text at 1.9:1 until #5105 lands.
+ * The named exception is an owner decision rather than an oversight:
+ * `theme-leon-hutten` (Kristalblauw) keeps its look on live installs, so
+ * its cyan as text and on the primary band, and its marker on the active
+ * row (2.98:1), are held as they are.
  */
 final class ThemeContrastTest extends WP_UnitTestCase {
 
     /** @var array<string, list<string>> palette => roles it is excused from */
     private const EXCEPTIONS = [
         'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary', 'marker-on-active-row' ],
-        'default'           => [ 'secondary-text' ],
     ];
 
     private function root(): string {

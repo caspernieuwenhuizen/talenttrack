@@ -134,7 +134,15 @@ class BrandStyles {
                 $focus = self::focusColor( $value );
                 if ( $focus !== '' && ! $focus_own ) $decls[] = '--tt-focus-color:' . esc_attr( $focus );
             }
-            if ( $key === 'secondary_color' ) $decls[] = '--tt-secondary-rgb:' . esc_attr( self::hexToRgb( $value ) );
+            if ( $key === 'secondary_color' ) {
+                $decls[] = '--tt-secondary-rgb:' . esc_attr( self::hexToRgb( $value ) );
+                // #5105 — the secondary keeps every fill; where it is printed
+                // as text it takes a shade that reads on the page. Written as
+                // the input tokens.css reads into `--tt-secondary-text`, as
+                // `--tt-focus-color` is for the ring.
+                $accent_text = self::accentTextColor( $value );
+                if ( $accent_text !== '' ) $decls[] = '--tt-secondary-text-color:' . esc_attr( $accent_text );
+            }
         }
         if ( $focus_own ) $decls[] = '--tt-focus-color:' . esc_attr( $focus_set );
 
@@ -219,14 +227,40 @@ class BrandStyles {
     public static function focusColor( string $hex ): string {
         $rgb = self::parseHex( $hex );
         if ( $rgb === null ) return '';
-        $bg = self::FOCUS_BACKGROUND;
-        if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) return '';
+        if ( self::contrast( $rgb, self::FOCUS_BACKGROUND ) >= self::FOCUS_MIN_CONTRAST ) return '';
+        return self::darkenUntil( $rgb, self::FOCUS_MIN_CONTRAST );
+    }
 
+    /** WCAG 2.2 body-text contrast, for the accent printed as text (#5105). */
+    private const TEXT_MIN_CONTRAST = 4.5;
+
+    /**
+     * The text-safe shade of a Branding secondary (#5105): the colour itself
+     * when it reaches 4.5:1 against the page background, otherwise the same
+     * hue darkened until it does. '' for a value that is not a colour.
+     */
+    public static function accentTextColor( string $hex ): string {
+        $rgb = self::parseHex( $hex );
+        if ( $rgb === null ) return '';
+        if ( self::contrast( $rgb, self::FOCUS_BACKGROUND ) >= self::TEXT_MIN_CONTRAST ) {
+            return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
+        }
+        return self::darkenUntil( $rgb, self::TEXT_MIN_CONTRAST );
+    }
+
+    /**
+     * Lower the lightness in 2% steps until the colour reaches `$min`
+     * against the page background.
+     *
+     * @param array{0:int,1:int,2:int} $rgb
+     */
+    private static function darkenUntil( array $rgb, float $min ): string {
+        $bg = self::FOCUS_BACKGROUND;
         [ $h, $s, $l ] = self::rgbToHsl( $rgb );
         while ( $l > 0 ) {
             $l   = max( 0.0, $l - 0.02 );
             $rgb = self::hslToRgb( $h, $s, $l );
-            if ( self::contrast( $rgb, $bg ) >= self::FOCUS_MIN_CONTRAST ) break;
+            if ( self::contrast( $rgb, $bg ) >= $min ) break;
         }
         return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
     }
