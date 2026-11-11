@@ -153,7 +153,19 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
             'blocks'    => [ $section ],
             'data'      => [ $section => $keyed ],
         ], $context->audience );
-        return $cut['data'][ $section ] ?? [];
+        $shown = $cut['data'][ $section ] ?? [];
+
+        // The injuries block as composed for its reader is a read of them.
+        $items = $section === PlayerReportBlock::INJURIES && is_array( $shown['items'] ?? null ) ? $shown['items'] : [];
+        if ( $items !== [] ) {
+            \TT\Infrastructure\Journey\InjuryReads::record(
+                \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+                'report_studio',
+                [ $context->playerId => count( $items ) ],
+                [ $context->userId ]
+            );
+        }
+        return $shown;
     }
 
     /** The frozen section as this reader may read it now (`PlayerSectionRights::cut()`). */

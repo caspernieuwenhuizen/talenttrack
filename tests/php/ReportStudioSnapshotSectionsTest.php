@@ -167,7 +167,53 @@ final class ReportStudioSnapshotSectionsTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_the_live_injuries_block_logs_one_read_per_player_and_reader(): void {
+        $context = [ 'scope' => 'player', 'player_id' => $this->player, 'from' => self::FROM, 'to' => self::TO, 'audience' => 'internal' ];
+        $key     = PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ];
+
+        foreach ( [ [ $this->assistant, 0 ], [ $this->hod, 1 ] ] as [ $reader, $rows ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            $before = $this->injuryRows( 'report_studio' );
+            $shown  = BlockEngine::preview( $key, $context, [], $reader );
+            $this->assertIsArray( $shown );
+            $this->assertSame( $rows === 1, ( $shown['data']['items'] ?? [] ) !== [], 'Precondition: the block shows injuries to this reader or not.' );
+            $this->assertSame( $before + $rows, $this->injuryRows( 'report_studio' ), 'one row where the block shows injuries, none where it shows none' );
+
+            SharedReads::flush();
+            BlockEngine::preview( $key, $context, [], $reader );
+            $this->assertSame( $before + $rows, $this->injuryRows( 'report_studio' ), 'one read per player and reader in a request' );
+        }
+    }
+
+    public function test_opening_a_studio_snapshot_logs_the_injuries_it_still_shows(): void {
+        $uuid = $this->snapshot( $this->published() );
+
+        foreach ( [ [ $this->assistant, 0 ], [ $this->hod, 1 ] ] as [ $reader, $rows ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            $before = $this->injuryRows( 'player_report_snapshot' );
+            $this->assertSame( 200, $this->send( 'GET', "report-snapshots/{$uuid}" )->get_status() );
+            $this->assertSame( $before + $rows, $this->injuryRows( 'player_report_snapshot' ), 'after the reader\'s cut' );
+        }
+
+        $this->flush();
+        wp_set_current_user( $this->hod );
+        $before = $this->injuryRows( 'player_report_snapshot' );
+        \TT\Infrastructure\Journey\InjuryReads::quietly( fn() => ReportSnapshots::read( $uuid, $this->hod ) );
+        $this->assertSame( $before, $this->injuryRows( 'player_report_snapshot' ), 'nothing while quiet' );
+    }
+
     // ---- helpers ---------------------------------------------------------------------
+
+    private function injuryRows( string $surface ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $this->player,
+            '%"surface":"' . $wpdb->esc_like( $surface ) . '"%'
+        ) );
+    }
 
     /** A staff report on the player with every player section, published by the head of development. */
     private function published(): int {
@@ -227,6 +273,7 @@ final class ReportStudioSnapshotSectionsTest extends WP_UnitTestCase {
         AuthorizationService::flushCache();
         FactScope::flush();
         SharedReads::flush();
+        \TT\Infrastructure\Journey\InjuryReads::flush();
         wp_cache_flush();
     }
 

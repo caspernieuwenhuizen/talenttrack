@@ -571,7 +571,10 @@ final class TeamMonthlyReport {
      * `player.injuries_viewed` row per player shown, as the live section logs
      * its reads. Only for the signed-in reader.
      *
-     * @param array{data: array<string, array<string, mixed>>} $report the frozen report after `forReader()`
+     * And its medical and safeguarding entries, as
+     * `player.sensitive_timeline_viewed`.
+     *
+     * @param array{data: array<string, array<string, mixed>>, from?: string, to?: string, team_id?: int} $report the frozen report after `forReader()`
      */
     public static function recordSnapshotInjuryReads( array $report, string $uuid, int $viewer_user_id ): void {
         $events = $report['data'][ TeamMonthlyReportBlock::CHANGES ]['events'] ?? [];
@@ -588,6 +591,20 @@ final class TeamMonthlyReport {
             \TT\Infrastructure\Journey\InjuryReads::INJURIES,
             'team_monthly_snapshot',
             $counts,
+            [ $viewer_user_id ],
+            [ 'snapshot' => $uuid ]
+        );
+
+        // The medical and safeguarding entries among them, by the visibility
+        // the reader's cut read back.
+        $from    = (string) ( $report['from'] ?? '' );
+        $to      = (string) ( $report['to'] ?? '' );
+        $team_id = (int) ( $report['team_id'] ?? 0 );
+        if ( $events === [] || $team_id <= 0 || ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return;
+        \TT\Infrastructure\Journey\InjuryReads::record(
+            \TT\Infrastructure\Journey\InjuryReads::SENSITIVE,
+            'team_monthly_snapshot',
+            TeamSectionRights::sensitiveChanges( $report['data'][ TeamMonthlyReportBlock::CHANGES ], $viewer_user_id, $team_id, $from, $to ),
             [ $viewer_user_id ],
             [ 'snapshot' => $uuid ]
         );

@@ -69,6 +69,52 @@ class AuditService {
     }
 
     /**
+     * `record()` for many entities at once, one row each: one table check and
+     * one insert whatever the number of rows, for a read that shows a whole
+     * squad.
+     *
+     * @param array<int, array<string,mixed>> $payloads entity id => payload
+     */
+    public function recordMany( string $action, string $entity_type, array $payloads ): void {
+        if ( $payloads === [] ) return;
+        if ( $this->toggles && ! $this->toggles->isEnabled( 'audit_log' ) ) {
+            return;
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_audit_log';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return;
+        }
+
+        $club    = CurrentClub::id();
+        $user    = get_current_user_id();
+        $ip      = self::currentIp();
+        $now     = current_time( 'mysql' );
+        $action  = substr( $action, 0, 100 );
+        $entity  = substr( $entity_type, 0, 64 );
+        $rows    = [];
+        $values  = [];
+        foreach ( $payloads as $entity_id => $payload ) {
+            $rows[] = '(%d, %d, %s, %s, %d, %s, %s, %s)';
+            array_push( $values, $club, $user, $action, $entity, (int) $entity_id, $payload !== [] ? (string) wp_json_encode( $payload ) : '', $ip, $now );
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the placeholders are built above, one group per row.
+        $inserted = $wpdb->query( $wpdb->prepare(
+            "INSERT INTO {$table} (club_id, user_id, action, entity_type, entity_id, payload, ip_address, created_at) VALUES " . implode( ', ', $rows ),
+            ...$values
+        ) );
+
+        if ( $inserted === false && $this->logger ) {
+            $this->logger->warning( 'Audit log insert failed', [
+                'action'   => $action,
+                'db_error' => $wpdb->last_error,
+            ]);
+        }
+    }
+
+    /**
      * Retrieve recent audit entries, most recent first.
      *
      * Supports filters: action, entity_type, user_id, date_from

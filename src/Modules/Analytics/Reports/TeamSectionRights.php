@@ -33,12 +33,8 @@ final class TeamSectionRights {
         }
 
         if ( $section === TeamMonthlyReportBlock::CHANGES ) {
-            $levels  = $ctx->journeyVisibilities();
-            $visible = [];
-            $events  = $levels === [] ? [] : $ctx->readableEntries( ( new PlayerEventsRepository() )->forTeamBetween(
-                $team_id, $from, $to, TeamMonthlyReport::CHANGE_EVENT_TYPES, $levels
-            ) );
-            foreach ( $events as $e ) $visible[ self::eventKey( (int) ( $e->player_id ?? 0 ), (string) ( $e->event_type ?? '' ), substr( (string) ( $e->event_date ?? '' ), 0, 10 ), (string) ( $e->summary ?? '' ) ) ] = true;
+            $visible = self::readableChanges( $ctx );
+            self::$last_read[ $team_id . '|' . $from . '|' . $to . '|' . $reader ] = $visible;
 
             $data['events'] = array_values( array_filter(
                 is_array( $data['events'] ?? null ) ? $data['events'] : [],
@@ -47,6 +43,56 @@ final class TeamSectionRights {
             if ( ! $ctx->readsInjuries() ) unset( $data['open_injuries'] );
         }
         return $data;
+    }
+
+    /**
+     * Of the "what changed" entries as this reader reads them (after `cut()`),
+     * how many per player are medical or safeguarding entries. The frozen
+     * entries carry no visibility, so it comes from the entries `cut()` read
+     * back, without reading them again when `cut()` has just run.
+     *
+     * @param array<string,mixed> $data the section after `cut()`
+     * @return array<int,int> player id => sensitive entries shown
+     */
+    public static function sensitiveChanges( array $data, int $reader, int $team_id, string $from, string $to ): array {
+        $memo = $team_id . '|' . $from . '|' . $to . '|' . $reader;
+        $visible = self::$last_read[ $memo ] ?? self::readableChanges( new TeamReportContext( $team_id, $from, $to, $reader ) );
+        unset( self::$last_read[ $memo ] );
+        $counts  = [];
+        foreach ( is_array( $data['events'] ?? null ) ? $data['events'] : [] as $i ) {
+            if ( ! is_array( $i ) ) continue;
+            $key = self::eventKey( (int) ( $i['player_id'] ?? 0 ), (string) ( $i['event_type'] ?? '' ), (string) ( $i['date'] ?? '' ), (string) ( $i['summary'] ?? '' ) );
+            if ( ! in_array( $visible[ $key ] ?? '', [ 'medical', 'safeguarding' ], true ) ) continue;
+            $pid = (int) ( $i['player_id'] ?? 0 );
+            $counts[ $pid ] = ( $counts[ $pid ] ?? 0 ) + 1;
+        }
+        return $counts;
+    }
+
+    /**
+     * The read `cut()` made, left for the `sensitiveChanges()` call that
+     * follows it and taken by that call, so the entries are read once.
+     *
+     * @var array<string, array<string,string>>
+     */
+    private static array $last_read = [];
+
+    /**
+     * The team's journey entries in the window this reader may read, by
+     * entry key, with each entry's visibility.
+     *
+     * @return array<string,string>
+     */
+    private static function readableChanges( TeamReportContext $ctx ): array {
+        $levels = $ctx->journeyVisibilities();
+        $events = $levels === [] ? [] : $ctx->readableEntries( ( new PlayerEventsRepository() )->forTeamBetween(
+            $ctx->team_id, $ctx->from, $ctx->to, TeamMonthlyReport::CHANGE_EVENT_TYPES, $levels
+        ) );
+        $out = [];
+        foreach ( $events as $e ) {
+            $out[ self::eventKey( (int) ( $e->player_id ?? 0 ), (string) ( $e->event_type ?? '' ), substr( (string) ( $e->event_date ?? '' ), 0, 10 ), (string) ( $e->summary ?? '' ) ) ] = (string) ( $e->visibility ?? '' );
+        }
+        return $out;
     }
 
     /** An entry as "what changed" lists it: who, what, when and what it says. */

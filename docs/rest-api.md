@@ -1140,8 +1140,17 @@ Taking or sharing a snapshot is a composition that is stored, not shown, and
 writes none; `POST /players/{id}/report-snapshots` writes the one row for the
 copy it answers with. The PDP evidence packet (`EvidencePacket::forFile()`,
 `forConversation()`) writes one with `surface` `pdp` for the signed-in reader.
-All of these go through `InjuryReads`, which writes at most one row per
-action, player and reader in a request.
+The `journey` section works the same way for its medical and safeguarding
+entries: one `player.sensitive_timeline_viewed` row (`surface`
+`player_report`, or `player_report_snapshot` when a snapshot is opened and its
+cut still holds one), and none for a reader without those levels. The Report
+Studio's injuries block writes `player.injuries_viewed` with `surface`
+`report_studio` when it shows injuries, and opening a Studio player snapshot
+whose injuries block still lists some after the reader's cut writes one with
+`surface` `player_report_snapshot`. All of these go through `InjuryReads`,
+which writes at most one row per action, player and reader in a request,
+nothing inside `InjuryReads::quietly()`, and every row of one read in a single
+insert (`AuditService::recordMany()`).
 
 **Window.** `from` + `to` (`Y-m-d`, `from` on or before `to`) win. Without
 them, `period` resolves one (`last_week`, `last_month`, `this_month`,
@@ -1360,8 +1369,12 @@ theirs. A reader shown none writes none; a composition for several readers or
 for nobody signed in, as a scheduled send is, writes none. Opening a snapshot
 (the snapshot page or its PDF) whose `changes`, as the reader reads it, still
 lists injury entries writes one `player.injuries_viewed` row per player shown,
-with `surface` `team_monthly_snapshot` and the `snapshot` uuid. Taking the
-snapshot writes none: it is stored, not shown.
+and one `player.sensitive_timeline_viewed` row per player with a medical or
+safeguarding entry still shown, with `surface` `team_monthly_snapshot` and the
+`snapshot` uuid. The frozen entries carry no visibility; it comes from the
+entries the reader's cut reads back (`TeamSectionRights::sensitiveChanges()`).
+Taking the snapshot writes none: it is stored, not shown. However many players
+a section shows, its rows are written in one insert.
 
 **Attendance (#4949).** The `attendance` block and the `kpi` block's
 `attendance_pct` answer to the attendance read right
