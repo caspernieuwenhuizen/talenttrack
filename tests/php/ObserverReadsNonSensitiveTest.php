@@ -49,8 +49,6 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         'player_status'           => 'its masking (#4694)',
         'player_status_breakdown' => 'its masking (#4694)',
         'player_potential'        => 'its masking (#4694)',
-        'trial_cases'             => 'its masking (#4694)',
-        'trial_decisions'         => 'its masking (#4694)',
         'scout_history'           => 'nothing checks it (#4694)',
         'scouting_visits_panel'   => 'the owner\'s question on reading every visit (#4694)',
         'custom_field_values'     => 'its masking (#4716)',
@@ -193,12 +191,18 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
         }
         // #4795 — the journey and cohort rows, brought by migration 0312;
         // #4997 — the evaluations list, brought by migration 0321;
-        // #4694 — prospects and test trainings, brought by migration 0331.
-        $expected = array_merge( self::HELD_BEFORE, $this->granted(), [ 'player_timeline', 'cohort_transitions', 'evaluations_panel', 'prospects', 'test_trainings' ] );
+        // #4694 — prospects and test trainings, brought by migration 0331;
+        // the trials, brought by migration 0333.
+        $expected = array_merge(
+            self::HELD_BEFORE,
+            $this->granted(),
+            [ 'player_timeline', 'cohort_transitions', 'evaluations_panel', 'prospects', 'test_trainings' ],
+            [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_tracks', 'trial_letters_generated' ]
+        );
         sort( $seeded );
         sort( $expected );
 
-        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312, 0321, 0331) have drifted apart' );
+        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312, 0321, 0331, 0333) have drifted apart' );
         $this->assertSame( [], array_intersect( $this->granted(), self::CLOSED ) );
         $this->assertSame( [], array_intersect( $this->granted(), array_keys( self::WITH_THEIR_MASKING ) ) );
     }

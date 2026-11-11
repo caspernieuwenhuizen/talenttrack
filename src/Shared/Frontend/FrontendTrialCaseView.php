@@ -511,9 +511,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $staff      = $staff_repo->listForCase( (int) $case->id );
         $extensions = $ext_repo->listForCase( (int) $case->id );
 
+        // #4694 — the free text stays with the managers and the panel.
+        $sees_text = TrialCaseAccessPolicy::seesCaseText( $user_id, (int) $case->id );
+
         self::cardOpen( __( 'Summary', 'talenttrack' ) );
         if ( $case->notes ) {
-            echo '<p>' . esc_html( (string) $case->notes ) . '</p>';
+            echo '<p>' . ( $sees_text ? esc_html( (string) $case->notes ) : \TT\Shared\Frontend\Components\MaskedValue::html() ) . '</p>';
         } else {
             echo '<p class="tt-player-empty">' . esc_html__( 'No summary notes on this case yet.', 'talenttrack' ) . '</p>';
         }
@@ -575,7 +578,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         } else {
             $rows = [];
             foreach ( $extensions as $e ) {
-                $rows[] = [ (string) $e->extended_at, (string) $e->previous_end_date, (string) $e->new_end_date, (string) $e->justification ];
+                $rows[] = [ (string) $e->extended_at, (string) $e->previous_end_date, (string) $e->new_end_date, $sees_text ? (string) $e->justification : \TT\Shared\Frontend\Components\MaskedValue::label() ];
             }
             self::renderStackTable(
                 [ __( 'Extended at', 'talenttrack' ), __( 'Previous end', 'talenttrack' ), __( 'New end', 'talenttrack' ), __( 'Justification', 'talenttrack' ) ],
@@ -837,7 +840,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
         }
 
         // Aggregation for manager + assigned staff who can see released inputs.
-        $visible = $inputs_repo->listVisibleForUser( (int) $case->id, $user_id, $is_manager );
+        $visible   = $inputs_repo->listVisibleForUser( (int) $case->id, $user_id, $is_manager );
+        $sees_text = TrialCaseAccessPolicy::seesCaseText( $user_id, (int) $case->id );
         self::cardOpen( __( 'Submitted inputs', 'talenttrack' ) );
 
         if ( $is_manager ) {
@@ -889,7 +893,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
                     echo '<div class="tt-trial-input-rating">' . esc_html__( 'Overall', 'talenttrack' ) . ' <strong>' . esc_html( (string) $row->overall_rating ) . '</strong></div>';
                 }
                 if ( $row->free_text_notes ) {
-                    echo '<details><summary>' . esc_html__( 'Notes', 'talenttrack' ) . '</summary><p>' . esc_html( (string) $row->free_text_notes ) . '</p></details>';
+                    // #4694 — the rating shows; the text stays with the panel.
+                    echo $sees_text
+                        ? '<details><summary>' . esc_html__( 'Notes', 'talenttrack' ) . '</summary><p>' . esc_html( (string) $row->free_text_notes ) . '</p></details>'
+                        : '<p>' . esc_html__( 'Notes', 'talenttrack' ) . ': ' . \TT\Shared\Frontend\Components\MaskedValue::html() . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
                 }
                 echo '</article>';
             }

@@ -1287,7 +1287,7 @@ return array_merge(
     //     `report_publishing`;
     //   - granted with their masking, never before it: `attendance`
     //     (#4692, absence reasons), `player_status`, `player_status_breakdown`
-    //     (#4694, potential notes and band), `trial_*`,
+    //     (#4694, potential notes and band),
     //     `player_potential` (#4694), `custom_field_values` (#4716),
     //     `people_directory_panel` (#4715), `team_roster_panel`,
     //     `coach_player_list_panel`, `compare` (#4691, date of birth);
@@ -1372,6 +1372,21 @@ return array_merge(
         // through migration 0331.
         'prospects'               => [ 'r', 'global', $mod_prospects ],
         'test_trainings'          => [ 'r', 'global', $mod_prospects ],
+
+        // #4694 (b) — the trials, read-only. `trial_cases` read at global
+        // scope lists and opens every case (`TrialCaseAccessPolicy::
+        // readsEveryCase()`); the case notes, extension justifications and
+        // input notes are masked (`seesCaseText()`). The synthesis stays with
+        // the panel: `canViewSynthesis()` still asks for a seat, whatever the
+        // `trial_synthesis` row says. Decisions, letters and every write ask
+        // `tt_manage_trials`. Existing installs get these through migration
+        // 0333.
+        'trial_cases'             => [ 'r', 'global', $mod_trials ],
+        'trial_inputs'            => [ 'r', 'global', $mod_trials ],
+        'trial_synthesis'         => [ 'r', 'global', $mod_trials ],
+        'trial_decisions'         => [ 'r', 'global', $mod_trials ],
+        'trial_tracks'            => [ 'r', 'global', $mod_trials ],
+        'trial_letters_generated' => [ 'r', 'global', $mod_trials ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────
