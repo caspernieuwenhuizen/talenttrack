@@ -14,8 +14,9 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
 /**
  * Taking a snapshot, sharing one with the family and writing a note on one
  * make records, so they need `reports` create_delete, not only the read that
- * opens the report. The read-only observer and a linked scout read the report
- * and its snapshots, and are refused all three. Take and note are audited.
+ * opens the report. The read-only observer and a linked scout read the report,
+ * the observer its staff snapshots too, and both are refused all three. Take
+ * and note are audited.
  */
 final class PlayerReportSnapshotCreateGateTest extends WP_UnitTestCase {
 
@@ -66,7 +67,10 @@ final class PlayerReportSnapshotCreateGateTest extends WP_UnitTestCase {
 
         $uuid = PlayerReportSnapshots::take( $this->player, [], $this->admin );
         $this->assertNotSame( '', $uuid, 'precondition: an admin takes one' );
-        $this->assertNotNull( PlayerReportSnapshots::read( $uuid, $reader ), "the {$seat} still reads a snapshot" );
+        // A copy for staff opens for a reader who reads as staff: the observer
+        // does, a scout does not.
+        $opens = $seat === 'observer';
+        $this->assertSame( $opens, PlayerReportSnapshots::read( $uuid, $reader ) !== null, "the {$seat} and a copy for staff" );
 
         $this->assertSame( '', PlayerReportSnapshots::take( $this->player, [], $reader ) );
         $this->assertSame( '', PlayerReportSnapshots::share( $this->player, [], $reader ) );
@@ -77,7 +81,7 @@ final class PlayerReportSnapshotCreateGateTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/players/' . $this->player . '/report-snapshots' ) );
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/players/' . $this->player . '/report-snapshots', [ 'audience' => 'family' ] ) );
         $this->assertSame( 403, $this->dispatch( 'PUT', '/talenttrack/v1/player-report-snapshots/' . $uuid . '/notes/status', [ 'body' => 'x' ] ) );
-        $this->assertSame( 200, $this->dispatch( 'GET', '/talenttrack/v1/player-report-snapshots/' . $uuid ) );
+        $this->assertSame( $opens ? 200 : 403, $this->dispatch( 'GET', '/talenttrack/v1/player-report-snapshots/' . $uuid ) );
 
         $html = $this->renderTakeAndList();
         $this->assertStringNotContainsString( 'tt-mr-snapshots__take', $html );
