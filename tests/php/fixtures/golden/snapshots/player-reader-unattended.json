@@ -37,7 +37,7 @@
         },
         "status": {
             "color": "green",
-            "score": 80,
+            "score": null,
             "inputs": {
                 "ratings": {
                     "value": null,
@@ -55,9 +55,7 @@
                     "score": null
                 },
                 "potential": {
-                    "value": 80,
-                    "weight": 15,
-                    "score": 80
+                    "weight": 15
                 }
             },
             "reasons": [
@@ -326,9 +324,8 @@
                     "player_id": "{player:1}",
                     "set_at": "2020-03-15 10:00:00",
                     "set_by": "{user:1}",
-                    "potential_band": "ahead",
-                    "notes": "Reads the game early.",
-                    "created_at": "{now}"
+                    "created_at": "{now}",
+                    "band_hidden": true
                 }
             ]
         },

@@ -248,10 +248,16 @@ final class EvidencePacket {
             ? self::journey( $player_id, $club_id, $from, $to )
             : self::visibleJourney( $player_id, $club_id, $from, $to, $readers );
 
+        // #4694 — the player report's path: the potential band, in its own
+        // group and inside the status verdict, follows the sensitive-field
+        // registry for every reader. The PDP path (null) reads as before.
+        $sees_potential = $readers === null || PlayerSectionRights::seesPotential( $readers, $player_id );
+        $potential      = self::potential( $player_id, $from, $to );
+
         return [
-            'status'          => $verdict->toArray(),
+            'status'          => ( $sees_potential ? $verdict : $verdict->withoutPotential() )->toArray(),
             'behaviour'       => self::behaviour( $player_id, $from, $to ),
-            'potential'       => self::potential( $player_id, $from, $to ),
+            'potential'       => $sees_potential ? $potential : PlayerSectionRights::withoutPotentialBand( $potential ),
             'evaluations'     => self::evaluationsFor( self::evaluations( $player_id, $club_id, $from, $to ), $player_id, $readers ),
             'attendance'      => self::attendance( $player_id, $club_id, $from, $to ),
             'minutes'         => self::minutes( $player_id, $from, $to ),

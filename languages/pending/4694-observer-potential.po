@@ -1,0 +1,11 @@
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php
+#. translators: %s: the red threshold, e.g. 40
+#, php-format
+msgid "Composite below the red threshold (%s)."
+msgstr "Samengestelde score onder de rode drempel (%s)."
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php
+#. translators: %s: the amber threshold, e.g. 60
+#, php-format
+msgid "Composite below the amber threshold (%s)."
+msgstr "Samengestelde score onder de oranje drempel (%s)."

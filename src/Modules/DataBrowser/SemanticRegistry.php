@@ -53,6 +53,8 @@ class SemanticRegistry {
         'tt_prospect_consent_requests' => true,
         // #5085 — the scout's notes on a visit.
         'tt_scouting_plan_visits'      => true,
+        // #4694 — the potential band and the notes behind it.
+        'tt_player_potential'          => true,
     ];
 
     /**

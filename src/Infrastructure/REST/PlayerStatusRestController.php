@@ -125,6 +125,9 @@ final class PlayerStatusRestController {
      *
      * Returns the series and the current band together so a consumer does
      * not have to call `GET /status` as well to render a headline.
+     *
+     * #4694 — the series comes as the caller may read it: a reader the band
+     * is hidden from gets each entry's dates and author with `band_hidden`.
      */
     public static function potentialHistory( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
@@ -132,7 +135,7 @@ final class PlayerStatusRestController {
             return RestResponse::error( 'bad_input', __( 'A player is required.', 'talenttrack' ), 400 );
         }
 
-        $entries = ( new PotentialTrajectory() )->forPlayer( $player_id );
+        $entries = ( new PotentialTrajectory() )->forPlayer( $player_id, get_current_user_id() );
         $current = $entries ? $entries[ count( $entries ) - 1 ] : null;
 
         return RestResponse::success( [
@@ -270,7 +273,8 @@ final class PlayerStatusRestController {
         if ( $player_id <= 0 ) {
             return RestResponse::error( 'bad_player_id', __( 'Player id is required.', 'talenttrack' ), 400 );
         }
-        $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id );
+        // #4694 — as this reader may read it: the potential band can be hidden.
+        $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id )->forReader( get_current_user_id(), $player_id );
         $payload = current_user_can( 'tt_view_player_status_breakdown' )
             ? $verdict->toArray()
             : [ 'color' => $verdict->color, 'label' => $verdict->softLabel(), 'as_of' => $verdict->as_of ];
@@ -291,10 +295,16 @@ final class PlayerStatusRestController {
         $calc       = new PlayerStatusCalculator();
         $can_detail = current_user_can( 'tt_view_player_status_breakdown' );
         $out        = [];
+        if ( $can_detail ) {
+            // #4694 — the potential band rule for the whole squad in one pass.
+            $team_by_player = [];
+            foreach ( (array) $players as $row ) $team_by_player[ (int) $row->id ] = $team_id;
+            \TT\Infrastructure\Security\RecordRedactor::prime( get_current_user_id(), $team_by_player );
+        }
         foreach ( (array) $players as $row ) {
             $verdict = $calc->calculate( (int) $row->id );
             $out[]   = $can_detail
-                ? array_merge( [ 'player_id' => (int) $row->id ], $verdict->toArray() )
+                ? array_merge( [ 'player_id' => (int) $row->id ], $verdict->forReader( get_current_user_id(), (int) $row->id )->toArray() )
                 : [ 'player_id' => (int) $row->id, 'color' => $verdict->color, 'label' => $verdict->softLabel() ];
         }
         return RestResponse::success( [ 'rows' => $out ] );

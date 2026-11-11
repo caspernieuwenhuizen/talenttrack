@@ -45,6 +45,11 @@
  *   'prospect_staff'   — on a prospect row: whoever may change prospects, and
  *                        whoever reads the prospect through their own squads'
  *                        age groups rather than academy-wide.
+ *   'potential_judgement' — `PotentialAccess::seesJudgement()`: hidden from a
+ *                        reader who reads potential academy-wide and changes
+ *                        it nowhere academy-wide, unless they are staff for
+ *                        the player, may set the player's potential, or work
+ *                        the prospect funnel and may view the player.
  *
  * The owner's list (2 November 2026) is wider than what is registered here:
  * the contact details and judgements on trials, prospects, scouting and
@@ -111,6 +116,31 @@ return [
             'notes'  => 'staff_or_family',
             // The coach's reason beside a match-prep availability status.
             'reason' => 'staff_or_family',
+        ],
+    ],
+
+    // #4694 — the academy's judgement of how far a child will go: the band,
+    // everything derived from it (its label, its rank, its movement) and the
+    // notes behind it. That a potential was set, when and by whom stays for
+    // every reader of it. The same keys are masked wherever a band travels:
+    // the trajectory, the squad overview and the player report's section.
+    'player_potential' => [
+        'routes' => [
+            '/talenttrack/v1/players/(?P<id>\d+)/potential' => [ 'rows' => 'data.entries.*' ],
+            '/talenttrack/v1/reports/potential-overview'    => [ 'rows' => 'data.rows.*' ],
+        ],
+        'id_key' => 'player_id',
+        'fields' => [
+            'band'                => 'potential_judgement',
+            'label'               => 'potential_judgement',
+            'potential_band'      => 'potential_judgement',
+            'band_label'          => 'potential_judgement',
+            'band_rank'           => 'potential_judgement',
+            'direction'           => 'potential_judgement',
+            'steps'               => 'potential_judgement',
+            'previous_band'       => 'potential_judgement',
+            'previous_band_label' => 'potential_judgement',
+            'notes'               => 'potential_judgement',
         ],
     ],
 

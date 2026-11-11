@@ -76,9 +76,16 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface, ScopeGatedExpo
                  || QueryHelpers::user_has_global_entity_read( $user_id, 'reports' ) );
     }
 
-    /** May this reader see each active player's potential band? */
+    /**
+     * May this reader see each active player's potential band?
+     *
+     * #4694 — a global read, and a reader the sensitive-field registry
+     * shows the band on every player: not the read-only observer, whose
+     * global read says only that a band was set.
+     */
     public static function mayReadPotential( int $user_id ): bool {
-        return QueryHelpers::user_has_global_entity_read( $user_id, 'player_potential' );
+        return QueryHelpers::user_has_global_entity_read( $user_id, 'player_potential' )
+            && \TT\Infrastructure\Security\RecordRedactor::readsEverywhere( 'player_potential', 'band', $user_id );
     }
 
     /**

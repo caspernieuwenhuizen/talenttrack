@@ -46,14 +46,22 @@ final class RecordRedactor {
      *  - `scouting_visit_staff`: on a scouting visit (the id is the
      *    visit's), whoever may change the visit; not a reader who reaches it
      *    only through `scouting_visits_all` (`ScoutingVisitsAccess::seesNotes()`).
+     *  - `potential_judgement`: the potential band, its movement and its notes
+     *    (`PotentialAccess::seesJudgement()`): masked for a reader who reads
+     *    potential academy-wide and changes it nowhere academy-wide, unless
+     *    they are staff for the player, may set the player's potential, or
+     *    work the prospect funnel and may view the player.
      */
-    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment', 'prospect_staff', 'scouting_visit_staff' ];
+    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment', 'prospect_staff', 'scouting_visit_staff', 'potential_judgement' ];
 
     /** The rules whose id is not a player's, so a list primes no player. */
     private const NON_PLAYER_RULES = [ 'prospect_staff', 'scouting_visit_staff' ];
 
     /** @var array<string, bool> "user|prospect" => may read that prospect's sensitive fields */
     private static array $prospect = [];
+
+    /** @var array<string, bool> "user|player" => may read that player's potential band */
+    private static array $potential = [];
 
     /** @var array<string, bool> "user|person" => may read that person's guardian contact */
     private static array $guardian = [];
@@ -138,6 +146,9 @@ final class RecordRedactor {
         }
         if ( $rule === 'scouting_visit_staff' ) {
             return AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' );
+        }
+        if ( $rule === 'potential_judgement' ) {
+            return ! \TT\Modules\Players\PotentialAccess::readsWithoutJudgement( $user_id );
         }
 
         // Academy-wide staff are staff for every child, so for every
@@ -338,6 +349,7 @@ final class RecordRedactor {
         self::$writer      = [];
         self::$writer_team = [];
         self::$prospect    = [];
+        self::$potential   = [];
     }
 
     // Internals
@@ -368,6 +380,18 @@ final class RecordRedactor {
                 );
             }
             return self::$prospect[ $key ];
+        }
+
+        if ( $rule === 'potential_judgement' ) {
+            $key = $user_id . '|' . $player_id;
+            if ( ! isset( self::$potential[ $key ] ) ) {
+                $access = \TT\Modules\Players\PotentialAccess::class;
+                // The staff half from the memo a list primed in one pass, so
+                // a squad costs no statement per player.
+                self::$potential[ $key ] = ! $access::readsWithoutJudgement( $user_id )
+                    || $access::seesJudgement( $user_id, $player_id, self::mayRead( 'staff_for_player', $user_id, $player_id ) );
+            }
+            return self::$potential[ $key ];
         }
 
         if ( $rule === 'guardian_contact' ) {

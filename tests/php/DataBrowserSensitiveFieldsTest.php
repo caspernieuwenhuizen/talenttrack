@@ -55,6 +55,20 @@ final class DataBrowserSensitiveFieldsTest extends WP_UnitTestCase {
             // Which visit found the child: `tt_prospects.scouting_visit_id`.
             'is_discovery'   => 'tt_prospects',
         ],
+        // #4694 — the band and the notes live in the potential history; the
+        // label, rank and movement are derived from the band there.
+        'player_potential' => [
+            'band'                => 'tt_player_potential',
+            'label'               => 'tt_player_potential',
+            'potential_band'      => 'tt_player_potential',
+            'band_label'          => 'tt_player_potential',
+            'band_rank'           => 'tt_player_potential',
+            'direction'           => 'tt_player_potential',
+            'steps'               => 'tt_player_potential',
+            'previous_band'       => 'tt_player_potential',
+            'previous_band_label' => 'tt_player_potential',
+            'notes'               => 'tt_player_potential',
+        ],
         'scouting_visits' => [
             'notes' => 'tt_scouting_plan_visits',
         ],

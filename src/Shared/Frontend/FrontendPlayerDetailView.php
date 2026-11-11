@@ -133,6 +133,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $latest_potential = ( new \TT\Modules\Players\Repositories\PlayerPotentialRepository() )
             ->latestFor( $player_id );
 
+        // #4694 — never handed to a reader the band is hidden from; a reader
+        // who may set it is never one, so this changes nobody's popover today.
+        if ( \TT\Modules\Players\Services\PotentialTrajectory::bandHiddenFrom( get_current_user_id(), $player_id ) ) {
+            $latest_potential = null;
+        }
+
         $current_band = $latest_potential ? (string) ( $latest_potential->potential_band ?? '' ) : '';
         $set_at       = $latest_potential ? (string) ( $latest_potential->set_at ?? '' ) : '';
         $set_by_id    = $latest_potential ? (int) ( $latest_potential->set_by ?? 0 ) : 0;
@@ -1893,7 +1899,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php if ( $potential['current'] !== null ) :
                             $current = $potential['current'];
                             ?>
-                            <p class="tt-bp-card__value"><?php echo esc_html( $current['label'] ); ?></p>
+                            <p class="tt-bp-card__value"><?php
+                                // #4694 — the band can be hidden from this reader.
+                                echo ! empty( $current['band_hidden'] )
+                                    ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                                    : esc_html( (string) ( $current['label'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
+                            ?></p>
                             <?php if ( $potential['days_since'] !== null ) : ?>
                                 <p class="tt-bp-card__meta<?php echo $potential['overdue'] ? ' tt-bp-card__meta--overdue' : ''; ?>">
                                     <?php
