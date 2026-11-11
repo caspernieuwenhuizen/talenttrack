@@ -101,7 +101,7 @@ The 10-row threshold is filterable via `tt_backup_bulk_safety_threshold`.
 
 To move data to a **different** TalentTrack install, use the **Data migration** section on the Backups page. Tick the data sets to include (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration) and click **Export for migration** to download a `.ttmig` archive — gzipped JSON, the same envelope as a backup, stamped `kind: migration`.
 
-Export is data-only: WordPress users and media are not included. Cross-install user links (`wp_user_id`) are resolved at import time, not carried in the file.
+Export is data-only: WordPress users and media are not included. Links to accounts are resolved at import time, not carried in the file.
 
 ### Leaving individual records behind
 
@@ -125,15 +125,23 @@ From the preview, **Configure import** lets you apply the archive to this instal
 
 1. **Choose data sets** — pick which record groups to import (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals). Lookups & configuration are **not** imported; they are used only to match references (see below).
 2. **Resolve matches** — for each record set where an incoming record matches an existing one on its stable key, choose **Insert as new** (default — keep both) or **Update the existing record**.
-3. **Link WordPress users** — records that referenced a user on the source install are listed with a suggested target user (matched by email); confirm, pick another, or leave unlinked.
+3. **Link WordPress users** — every account the imported records point at is listed: a player's or staff member's own account, a parent's account, the coach of an evaluation or activity, the author of a goal. Each comes with a suggested target user (matched by email, or the same account when the archive comes back to the install that made it); confirm, pick another, or leave unlinked.
 4. **Dry run** — produces a per-table count of what *would* be inserted / updated / skipped. **Nothing is written during the dry run.**
 5. **Confirm** — type the word shown (`IMPORT`, or `IMPORTEREN` on a Dutch install) and apply. The write runs inside a database transaction and rolls back completely if any row fails, so a partial import never lands.
 
 How references are handled:
 
 - **Source ids are never preserved.** Every imported row is inserted as new; the importer records an old→new id map per table and rewrites foreign keys (via the dependency map) to the new ids before each write — so an imported evaluation points at the imported player, not at whatever record happened to hold that id on the target.
-- **`club_id`** is rewritten to the current club; **`wp_user_id`** is set from your user mapping (unmapped → unlinked).
+- **`club_id`** is rewritten to the current club. **Every link to an account** is set from your user mapping; an account you leave unlinked is left empty.
 - **References into Lookups & configuration** (e.g. an evaluation's type, a rating's category) are matched by stable key to the equivalent entry already on this install. If the target has no matching entry, the row imports without that link and a warning is shown — set up the configuration first if you need those links.
+- **A link to a record that isn't part of the import** — a parent's staff record when Staff & roles isn't imported, the activity of a match evaluation, a guest player — is left empty. The row itself still imports.
+- **Player photos** stay behind: the archive carries no files. Upload them again on this install.
+- **Spond connections** on a team are never imported: the connection belongs to the install that set it up. Set it up again on the imported team.
+- **Links to data no migration archive carries** — a tournament, a training cycle, a goal's linked principle or football action, a team's methodology, a staff member's functional role, a PDP conversation — are left empty.
+
+Every link left empty comes with a warning saying how many rows it affected. When the archive comes back into the **same install that made it**, accounts, photos and links to data that is still here are kept, with two exceptions: a player's or staff member's own account stays with the original record, and a Spond connection and a PDP conversation are never copied. An archive counts as from the same install only when its content is unchanged since export. A copy of the site that keeps the same security keys and table prefix, such as a staging clone, counts as the same install.
+
+Spond connections are left out of the archive itself, so an export never contains a team's calendar address, account or credentials.
 
 Uploads are capped at 25 MB. Importing custom-field *values* is not yet covered (the records themselves import; their custom values do not).
 

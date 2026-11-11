@@ -52,6 +52,9 @@ class BackupDependencyMap {
         return [
             'tt_players' => [
                 [ 'column' => 'team_id', 'parent_table' => 'tt_teams', 'parent_column' => 'id' ],
+                // #5053 — the parent's person record. Optional: the player
+                // is whole without it.
+                [ 'column' => 'parent_person_id', 'parent_table' => 'tt_people', 'parent_column' => 'id', 'optional' => true ],
             ],
             'tt_evaluations' => [
                 [ 'column' => 'player_id',    'parent_table' => 'tt_players',  'parent_column' => 'id' ],
@@ -63,6 +66,9 @@ class BackupDependencyMap {
                 // does not pull the activity in. Restore order still puts
                 // activities first.
                 [ 'column' => 'activity_id',  'parent_table' => 'tt_activities', 'parent_column' => 'id', 'optional' => true ],
+                // #5053 — a single-category evaluation's category, resolved
+                // by its key like a rating's.
+                [ 'column' => 'category_id',  'parent_table' => 'tt_eval_categories', 'parent_column' => 'id', 'optional' => true ],
             ],
             'tt_eval_ratings' => [
                 [ 'column' => 'evaluation_id', 'parent_table' => 'tt_evaluations',     'parent_column' => 'id' ],
@@ -79,6 +85,8 @@ class BackupDependencyMap {
             'tt_attendance' => [
                 [ 'column' => 'activity_id', 'parent_table' => 'tt_activities', 'parent_column' => 'id' ],
                 [ 'column' => 'player_id',  'parent_table' => 'tt_players',  'parent_column' => 'id' ],
+                // #5053 — a guest from another team is a player too.
+                [ 'column' => 'guest_player_id', 'parent_table' => 'tt_players', 'parent_column' => 'id', 'optional' => true ],
             ],
             'tt_goals' => [
                 [ 'column' => 'player_id', 'parent_table' => 'tt_players', 'parent_column' => 'id' ],

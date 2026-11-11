@@ -45,6 +45,12 @@ class BackupSerializer {
      *                              backups are unchanged. Filtering runs in
      *                              PHP after the fetch; the checksum is then
      *                              computed over the filtered tables.
+     * @param array<string,string[]> $omit
+     *                              #5053 — optional per-table columns to
+     *                              leave out of the snapshot entirely: out
+     *                              of `columns` and out of every row, before
+     *                              the checksum. Empty (the default) keeps
+     *                              every column, so backups are unchanged.
      *
      * @return array{
      *   version:string,
@@ -55,7 +61,7 @@ class BackupSerializer {
      *   checksum:string
      * }
      */
-    public static function snapshot( array $table_names, string $preset, array $exclude = [] ): array {
+    public static function snapshot( array $table_names, string $preset, array $exclude = [], array $omit = [] ): array {
         global $wpdb;
 
         $tables = [];
@@ -99,6 +105,13 @@ class BackupSerializer {
                     $rows,
                     static fn ( array $row ): bool => ! isset( $drop[ (int) ( $row[ $col ] ?? 0 ) ] )
                 ) );
+            }
+
+            // #5053 — columns that must not leave the install.
+            if ( ! empty( $omit[ $bare ] ) ) {
+                $gone    = array_fill_keys( array_map( 'strval', (array) $omit[ $bare ] ), true );
+                $columns = array_values( array_filter( $columns, static fn ( string $c ): bool => ! isset( $gone[ $c ] ) ) );
+                $rows    = array_map( static fn ( array $row ): array => array_diff_key( $row, $gone ), $rows );
             }
 
             $tables[ $bare ] = [

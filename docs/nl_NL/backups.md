@@ -101,7 +101,7 @@ De drempel van 10 rijen is filterbaar via `tt_backup_bulk_safety_threshold`.
 
 Om gegevens naar een **andere** TalentTrack-installatie te verplaatsen, gebruik je het onderdeel **Datamigratie** op de Back-uppagina. Vink de gegevenssets aan die je meeneemt (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie) en klik op **Exporteren voor migratie** om een `.ttmig`-bestand te downloaden — gzip-JSON, dezelfde structuur als een back-up, met `kind: migration`.
 
-Export bevat alleen gegevens: WordPress-gebruikers en media worden niet meegenomen. Koppelingen tussen installaties (`wp_user_id`) worden bij het importeren bepaald, niet in het bestand opgeslagen.
+Export bevat alleen gegevens: WordPress-gebruikers en media worden niet meegenomen. Koppelingen met accounts worden bij het importeren bepaald, niet in het bestand opgeslagen.
 
 ### Afzonderlijke records achterlaten
 
@@ -125,15 +125,23 @@ Vanuit het voorbeeld kun je met **Import configureren** het archief op deze inst
 
 1. **Kies gegevenssets** — selecteer welke recordgroepen je importeert (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen). Keuzelijsten & configuratie worden **niet** geïmporteerd; ze worden alleen gebruikt om verwijzingen te matchen (zie hieronder).
 2. **Los matches op** — voor elke recordset waar een binnenkomend record overeenkomt met een bestaand record op de stabiele sleutel, kies je **Als nieuw toevoegen** (standaard — beide behouden) of **Het bestaande record bijwerken**.
-3. **Koppel WordPress-gebruikers** — records die naar een gebruiker op de broninstallatie verwezen, worden getoond met een voorgestelde doelgebruiker (gematcht op e‑mail); bevestig, kies een andere, of laat ongekoppeld.
+3. **Koppel WordPress-gebruikers** — elk account waarnaar de geïmporteerde records verwijzen, wordt getoond: het eigen account van een speler of staflid, het account van een ouder, de coach van een evaluatie of activiteit, de maker van een doel. Bij elk staat een voorgestelde doelgebruiker (gematcht op e‑mail, of hetzelfde account wanneer het archief terugkomt op de installatie die het maakte); bevestig, kies een andere, of laat ongekoppeld.
 4. **Proefrun** — geeft een telling per tabel van wat er *zou* worden toegevoegd / bijgewerkt / overgeslagen. **Tijdens de proefrun wordt niets weggeschreven.**
 5. **Bevestig** — typ het getoonde woord (`IMPORTEREN`, of `IMPORT` op een Engelstalige installatie) en pas toe. De schrijfactie draait in een databasetransactie en wordt volledig teruggedraaid als een rij faalt, zodat een gedeeltelijke import nooit blijft staan.
 
 Hoe verwijzingen worden behandeld:
 
 - **Bron-ids worden nooit behouden.** Elke geïmporteerde rij wordt als nieuw ingevoegd; de importer houdt een oud→nieuw id-overzicht per tabel bij en herschrijft verwijzingen (via de afhankelijkheidskaart) naar de nieuwe ids vóór elke schrijfactie — zo verwijst een geïmporteerde evaluatie naar de geïmporteerde speler.
-- **`club_id`** wordt herschreven naar de huidige club; **`wp_user_id`** wordt ingesteld vanuit je gebruikerskoppeling (niet gekoppeld → ongekoppeld).
+- **`club_id`** wordt herschreven naar de huidige club. **Elke koppeling met een account** wordt ingesteld vanuit je gebruikerskoppeling; een account dat je ongekoppeld laat, blijft leeg.
 - **Verwijzingen naar Keuzelijsten & configuratie** (bijv. het type van een evaluatie, de categorie van een beoordeling) worden op stabiele sleutel gematcht met het overeenkomstige item dat al op deze installatie bestaat. Heeft het doel geen match, dan wordt de rij zonder die koppeling geïmporteerd en verschijnt een waarschuwing — stel eerst de configuratie in als je die koppelingen nodig hebt.
+- **Een koppeling met een record dat niet in de import zit** — het stafrecord van een ouder als Staf & rollen niet wordt geïmporteerd, de activiteit van een wedstrijdevaluatie, een gastspeler — blijft leeg. De rij zelf wordt wel geïmporteerd.
+- **Spelersfoto's** blijven achter: het archief bevat geen bestanden. Upload ze opnieuw op deze installatie.
+- **Spond-koppelingen** van een team worden nooit geïmporteerd: de koppeling hoort bij de installatie die haar instelde. Stel haar opnieuw in op het geïmporteerde team.
+- **Koppelingen met gegevens die geen migratiearchief bevat** — een toernooi, een trainingscyclus, het gekoppelde principe of de voetbalhandeling van een doel, de methodologie van een team, de functionele rol van een staflid, een POP-gesprek — blijven leeg.
+
+Bij elke koppeling die leeg blijft, verschijnt een waarschuwing met het aantal rijen. Komt het archief terug op **dezelfde installatie die het maakte**, dan blijven accounts, foto's en koppelingen met gegevens die hier nog staan behouden, met twee uitzonderingen: het eigen account van een speler of staflid blijft bij het oorspronkelijke record, en een Spond-koppeling en een POP-gesprek worden nooit gekopieerd. Een archief geldt alleen als afkomstig van dezelfde installatie als de inhoud sinds de export niet is gewijzigd. Een kopie van de site met dezelfde beveiligingssleutels en hetzelfde tabelvoorvoegsel, zoals een stagingkloon, geldt als dezelfde installatie.
+
+Spond-koppelingen worden niet in het archief opgenomen, dus een export bevat nooit het agenda-adres, het account of de inloggegevens van een team.
 
 Uploads zijn begrensd op 25 MB. Het importeren van *waarden* van aangepaste velden wordt nog niet gedekt (de records zelf worden geïmporteerd, hun aangepaste waarden niet).
 
