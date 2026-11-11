@@ -71,6 +71,7 @@ Three rules, enforced by review + CI:
    - A migration that changes a column, default, key or table name on a table `schemaQueries()` creates changes that CREATE in the same PR. `ActivatorMatchesMigrationsTest` fails when they disagree.
    - An older migration that would break on the final shape gets a guard, not an edit: `0027` renames the evaluation result column only while it still has its old name, `0038` adds `club_id` only when it is missing, `0170` adds its key only when it is missing.
    - `tt_attendance` is the one table that is only created when it is missing. Migration `0020` indexes the activity column under the name it had before `0027` renamed it, so a fresh install needs the old shape. A change to attendance goes through a migration, never through that CREATE.
+   - Migration `0329` repairs an install where a re-activation had already put an old shape back: it drops `tt_attendance.session_id` and its `idx_session` next to `activity_id` and makes `player_id` nullable again, moves a result left in `tt_evaluations.match_result` into an empty `game_result` and drops `match_result`, and returns `tt_players.wp_user_id` to `DEFAULT NULL` with "no account" stored as NULL. Each step reads the live table first, so an install that never drifted is left as it is.
 
 ## What you never need to do
 
