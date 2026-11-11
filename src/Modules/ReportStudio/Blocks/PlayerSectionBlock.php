@@ -4,7 +4,6 @@ namespace TT\Modules\ReportStudio\Blocks;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Visibility\ReaderSet;
-use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerSectionRights;
@@ -126,68 +125,10 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
         return $cut['data'][ $this->section ] ?? [];
     }
 
-    /**
-     * The frozen section as this reader may read it now, by the rights the
-     * evidence packet asks when it composes the section live
-     * (`PlayerSectionRights`): injuries on the medical rung, staff notes on
-     * the thread and its private notes, the development plan on the file,
-     * evaluation notes on the sensitive-field registry, journey entries and
-     * tests on the reader's levels. Talking points drawn from injuries, the
-     * journey or the tests go with what they were drawn from.
-     */
-    public function forReader( array $data, int $reader, int $player_id ): array {
-        $readers = ReaderSet::of( [ $reader ] );
-        $items   = static fn( array $d ): array => is_array( $d['items'] ?? null ) ? array_values( $d['items'] ) : [];
-
-        switch ( $this->section ) {
-            case PlayerReportBlock::INJURIES:
-                return PlayerSectionRights::seesInjuries( $readers ) ? $data : [ 'items' => [] ] + $data;
-
-            case PlayerReportBlock::THREAD_NOTES:
-                if ( ! PlayerSectionRights::readsThread( $readers, $player_id ) ) return [ 'items' => [] ] + $data;
-                if ( PlayerSectionRights::seesPrivateNotes( $readers, $player_id ) ) return $data;
-                $data['items'] = array_values( array_filter(
-                    $items( $data ),
-                    static fn( $n ): bool => is_array( $n ) && ( $n['visibility'] ?? '' ) === PlayerSectionRights::publicNotes()
-                ) );
-                return $data;
-
-            case PlayerReportBlock::PDP:
-                return PlayerSectionRights::seesPdpFile( $readers, $player_id ) || empty( $data['available'] ) ? $data : PlayerSectionRights::PDP_NONE;
-
-            case PlayerReportBlock::RATINGS:
-                if ( PlayerSectionRights::seesEvaluationNotes( $readers, $player_id ) || ! is_array( $data['evaluations'] ?? null ) ) return $data;
-                $data['evaluations'] = PlayerSectionRights::withoutEvaluationNotes( array_values( array_filter( $data['evaluations'], 'is_array' ) ) );
-                return $data;
-
-            case PlayerReportBlock::JOURNEY:
-                $ids  = array_map( static fn( $e ): int => is_array( $e ) ? (int) ( $e['id'] ?? 0 ) : 0, $items( $data ) );
-                $seen = PlayerSectionRights::readableJourneyIds( $readers, $ids, $player_id );
-                $data['items'] = array_values( array_filter( $items( $data ), static fn( $e ): bool => is_array( $e ) && isset( $seen[ (int) ( $e['id'] ?? 0 ) ] ) ) );
-                return $data;
-
-            case PlayerReportBlock::TESTS:
-                $tests = PlayerSectionRights::readableTests( PlayerSectionRights::testLevels( $readers ) );
-                $data['items'] = array_values( array_filter( $items( $data ), static fn( $t ): bool => is_array( $t ) && isset( $tests[ (int) ( $t['definition_id'] ?? 0 ) ] ) ) );
-                return $data;
-
-            case PlayerReportBlock::TALKING_POINTS:
-                // A point carries no record id, so one drawn from a record a
-                // reader may not see goes unless they hold every level of it.
-                $medical = PlayerSectionRights::seesInjuries( $readers );
-                $all     = [ RecordVisibility::LEVEL_PUBLIC, RecordVisibility::LEVEL_COACHING_STAFF, RecordVisibility::LEVEL_MEDICAL, RecordVisibility::LEVEL_SAFEGUARDING ];
-                $journey = array_diff( $all, PlayerSectionRights::journeyLevels( $readers ) ) === [];
-                $tests   = array_diff( RecordVisibility::measurementLevels(), PlayerSectionRights::testLevels( $readers ) ) === [];
-                $data['items'] = array_values( array_filter( $items( $data ), static function ( $p ) use ( $medical, $journey, $tests ): bool {
-                    $key = is_array( $p ) ? (string) ( $p['key'] ?? '' ) : '';
-                    if ( $key === 'returned_from_injury' ) return $medical;
-                    if ( $key === 'transition' ) return $journey;
-                    if ( $key === 'tests_down' ) return $tests;
-                    return is_array( $p );
-                } ) );
-                return $data;
-        }
-        return $data;
+    /** The frozen section as this reader may read it now (`PlayerSectionRights::cut()`). */
+    public function forReader( array $data, int $reader, array $context ): ?array {
+        $player_id = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
+        return PlayerSectionRights::cut( $this->section, $data, ReaderSet::of( [ $reader ] ), $player_id );
     }
 
     public function document( array $data ): string {

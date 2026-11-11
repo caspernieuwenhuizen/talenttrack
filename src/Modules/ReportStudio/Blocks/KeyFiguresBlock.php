@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\ReportStudio\Domain\CutsForReader;
 use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
@@ -26,7 +27,7 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
  * #5021 — it is the monthly report's KPI section, so it prints with that
  * report's section renderer and is measured with its heights.
  */
-final class KeyFiguresBlock implements ReportBlock, RendersDocument {
+final class KeyFiguresBlock implements ReportBlock, RendersDocument, CutsForReader {
 
     public function key(): string {
         return 'key_figures';
@@ -89,6 +90,20 @@ final class KeyFiguresBlock implements ReportBlock, RendersDocument {
             'figures'  => $figures,
             'previous' => $report['previous'],
         ];
+    }
+
+    /**
+     * The frozen figures as this reader may read them now: the KPI section
+     * cut by the report's own rules, and the tiles it still holds.
+     */
+    public function forReader( array $data, int $reader, array $context ): ?array {
+        $cut = MonthlySectionBlock::cutFor( TeamMonthlyReportBlock::KPI, self::section( $data ), $reader, $context );
+        if ( $cut === null ) return null;
+        $data['figures'] = array_values( array_filter(
+            is_array( $data['figures'] ?? null ) ? $data['figures'] : [],
+            static fn( $f ): bool => is_array( $f ) && isset( $cut[ (string) ( $f['key'] ?? '' ) ] )
+        ) );
+        return $data;
     }
 
     public function document( array $data ): string {

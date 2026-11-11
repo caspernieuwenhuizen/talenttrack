@@ -13,10 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 interface CutsForReader {
 
     /**
-     * The frozen payload as this reader may read it about this player.
+     * The frozen payload as this reader may read it about the document's
+     * subject, or null when they may not read the block at all.
      *
      * @param array<string,mixed> $data
-     * @return array<string,mixed>
+     * @param array<string,mixed> $context the document's context: scope, player_id, team_id, from, to
+     * @return array<string,mixed>|null
      */
-    public function forReader( array $data, int $reader, int $player_id ): array;
+    public function forReader( array $data, int $reader, array $context ): ?array;
 }

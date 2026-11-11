@@ -9,6 +9,8 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlockOptions;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\Analytics\Reports\TeamSectionRights;
+use TT\Modules\ReportStudio\Domain\CutsForReader;
 use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
@@ -25,7 +27,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * Team scope only, and staff only: every one of these sections names
  * players, or judges them.
  */
-final class MonthlySectionBlock implements ReportBlock, RendersDocument {
+final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsForReader {
 
     /** The Studio key of each section this block covers. */
     public const KEYS = [
@@ -89,6 +91,26 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument {
             $report = ( new TeamMonthlyReport() )->forTeam( $context->teamId, $context->from, $context->to, [ $section ], $context->userId, [ $section => $options ] );
             return is_array( $report['data'][ $section ] ?? null ) ? $report['data'][ $section ] : [];
         } );
+    }
+
+    /** The frozen section as this reader may read it now (`TeamSectionRights::cut()`). */
+    public function forReader( array $data, int $reader, array $context ): ?array {
+        return self::cutFor( $this->section, $data, $reader, $context );
+    }
+
+    /**
+     * A monthly section cut for a reader, by the document's team and period.
+     *
+     * @param array<string,mixed> $data
+     * @param array<string,mixed> $context
+     * @return array<string,mixed>|null
+     */
+    public static function cutFor( string $section, array $data, int $reader, array $context ): ?array {
+        $team = is_numeric( $context['team_id'] ?? null ) ? (int) $context['team_id'] : 0;
+        $from = is_string( $context['from'] ?? null ) ? (string) $context['from'] : '';
+        $to   = is_string( $context['to'] ?? null ) ? (string) $context['to'] : '';
+        if ( $team <= 0 || $from === '' || $to === '' ) return null;
+        return TeamSectionRights::cut( $section, $data, $reader, $team, $from, $to );
     }
 
     public function document( array $data ): string {

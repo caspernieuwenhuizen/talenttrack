@@ -263,18 +263,15 @@ final class ReportSnapshots {
             // cut by the rights its composer asks, so each reader sees only
             // the records they may read now.
             if ( $renderer instanceof CutsForReader ) {
-                $data = $renderer->forReader( $data, $user_id, self::playerOf( $document['context'] ) );
+                $cut = $renderer->forReader( $data, $user_id, $document['context'] );
+                if ( $cut === null ) continue;
+                $data = $cut;
             }
             $block['data'] = BlockEngine::masked( BlockEngine::visibleRows( $data, $user_id ), $user_id );
             $keep[]        = $block;
         }
         $document['blocks'] = $keep;
         return $document;
-    }
-
-    /** @param array<string,mixed> $context */
-    private static function playerOf( array $context ): int {
-        return is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
     }
 
     /**

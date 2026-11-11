@@ -140,7 +140,7 @@ final class ReportStudioSnapshotSectionsTest extends WP_UnitTestCase {
                 $this->assertIsArray( $live, "{$key} for {$reader}" . ( $live instanceof StudioError ? ': ' . $live->message : '' ) );
                 $this->assertSame(
                     $this->json( $live['data'] ),
-                    $this->json( $block->forReader( $frozen['data'], $reader, $this->player ) ),
+                    $this->json( $block->forReader( $frozen['data'], $reader, $context ) ),
                     "{$section}: the frozen copy reads for this reader as the live block does"
                 );
             }

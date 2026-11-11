@@ -7,6 +7,7 @@ use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Security\RecordRedactor;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\ReaderSet;
+use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Pdp\PdpAccess;
 use TT\Modules\Threads\Domain\ThreadAccess;
@@ -30,6 +31,76 @@ final class PlayerSectionRights {
 
     /** The development plan section as a reader without the file reads it. */
     public const PDP_NONE = [ 'available' => false, 'file' => null, 'conversations' => [], 'verdict' => null, 'last_agreed_actions' => '' ];
+
+    /**
+     * Talking points whose sources no reader right narrows. A reader who
+     * does not hold every right the others are drawn from keeps only these.
+     */
+    public const OPEN_TALKING_POINTS = [ 'status', 'attendance', 'minutes', 'not_evaluated', 'goal_past_due', 'missing_inputs' ];
+
+    /**
+     * A section composed for one reader, cut to what these readers may read
+     * now: the same rights the packet composes it with.
+     *
+     * @param array<string,mixed> $data the section's composer payload
+     * @return array<string,mixed>
+     */
+    public static function cut( string $section, array $data, ReaderSet $readers, int $player_id ): array {
+        $items = static fn( array $d ): array => is_array( $d['items'] ?? null ) ? array_values( $d['items'] ) : [];
+
+        switch ( $section ) {
+            case PlayerReportBlock::INJURIES:
+                return self::seesInjuries( $readers ) ? $data : [ 'items' => [] ] + $data;
+
+            case PlayerReportBlock::THREAD_NOTES:
+                if ( ! self::readsThread( $readers, $player_id ) ) return [ 'items' => [] ] + $data;
+                if ( self::seesPrivateNotes( $readers, $player_id ) ) return $data;
+                $data['items'] = array_values( array_filter(
+                    $items( $data ),
+                    static fn( $n ): bool => is_array( $n ) && ( $n['visibility'] ?? '' ) === self::publicNotes()
+                ) );
+                return $data;
+
+            case PlayerReportBlock::PDP:
+                return self::seesPdpFile( $readers, $player_id ) || empty( $data['available'] ) ? $data : self::PDP_NONE;
+
+            case PlayerReportBlock::RATINGS:
+                if ( self::seesEvaluationNotes( $readers, $player_id ) || ! is_array( $data['evaluations'] ?? null ) ) return $data;
+                $data['evaluations'] = self::withoutEvaluationNotes( array_values( array_filter( $data['evaluations'], 'is_array' ) ) );
+                return $data;
+
+            case PlayerReportBlock::JOURNEY:
+                $ids  = array_map( static fn( $e ): int => is_array( $e ) ? (int) ( $e['id'] ?? 0 ) : 0, $items( $data ) );
+                $seen = self::readableJourneyIds( $readers, $ids, $player_id );
+                $data['items'] = array_values( array_filter( $items( $data ), static fn( $e ): bool => is_array( $e ) && isset( $seen[ (int) ( $e['id'] ?? 0 ) ] ) ) );
+                return $data;
+
+            case PlayerReportBlock::TESTS:
+                $tests = self::readableTests( self::testLevels( $readers ) );
+                $data['items'] = array_values( array_filter( $items( $data ), static fn( $t ): bool => is_array( $t ) && isset( $tests[ (int) ( $t['definition_id'] ?? 0 ) ] ) ) );
+                return $data;
+
+            case PlayerReportBlock::TALKING_POINTS:
+                if ( self::holdsEveryLevel( $readers ) ) return $data;
+                $data['items'] = array_values( array_filter(
+                    $items( $data ),
+                    static fn( $p ): bool => is_array( $p ) && in_array( (string) ( $p['key'] ?? '' ), self::OPEN_TALKING_POINTS, true )
+                ) );
+                return $data;
+        }
+        return $data;
+    }
+
+    /**
+     * Do these readers hold every level a talking point can be drawn from:
+     * the medical rung, every journey level and every measurement level?
+     */
+    private static function holdsEveryLevel( ReaderSet $readers ): bool {
+        $journey = [ RecordVisibility::LEVEL_PUBLIC, RecordVisibility::LEVEL_COACHING_STAFF, RecordVisibility::LEVEL_MEDICAL, RecordVisibility::LEVEL_SAFEGUARDING ];
+        return self::seesInjuries( $readers )
+            && array_diff( $journey, self::journeyLevels( $readers ) ) === []
+            && array_diff( RecordVisibility::measurementLevels(), self::testLevels( $readers ) ) === [];
+    }
 
     public static function seesInjuries( ReaderSet $readers ): bool {
         return $readers->seesMedical();
