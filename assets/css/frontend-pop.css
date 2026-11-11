@@ -1440,3 +1440,12 @@
     min-height: var(--tt-tap-min, 48px);
     touch-action: manipulation;
 }
+
+/* #4982 — Print on a signed conversation form: the PDF under a finger,
+   the print page under a mouse. One of the two shows. */
+.tt-pdp-printact { margin: 0.5rem 0 0; }
+.tt-pdp-printact__page { display: none; }
+@media (pointer: fine) {
+    .tt-pdp-printact__pdf { display: none; }
+    .tt-pdp-printact__page { display: inline-flex; }
+}
