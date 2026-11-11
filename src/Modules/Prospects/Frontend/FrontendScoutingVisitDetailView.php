@@ -87,18 +87,23 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $visit_id = (int) $visit->id;
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
-        // Editing and archiving a visit ask the same question as reading it
-        // (owner, or the head of development), and the refusal above has
-        // already answered it — one rule, one answer, asked once.
-        $edit_url = add_query_arg(
-            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => $visit_id ],
-            $base_url
-        );
-        $page_actions[] = [
-            'label' => __( 'Edit visit', 'talenttrack' ),
-            'href'  => BackLink::appendTo( $edit_url ),
-            'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
-        ];
+        // Reading a visit is a wider question than changing it: the
+        // read-only observer reads every visit through `scouting_visits_all`
+        // (#5085) and may change none. Edit and Archive are offered only to
+        // whoever ScoutingVisitsAccess::canEditVisit() lets change this one
+        // (the scout who owns it, or the head of development).
+        $can_edit = ScoutingVisitsAccess::canEditVisit( $user_id, $visit, $is_admin );
+        if ( $can_edit ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => $visit_id ],
+                $base_url
+            );
+            $page_actions[] = [
+                'label' => __( 'Edit visit', 'talenttrack' ),
+                'href'  => BackLink::appendTo( $edit_url ),
+                'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
+            ];
+        }
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
@@ -115,37 +120,40 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
         // #1764 — surface the existing archive (soft-delete) endpoint in
         // the UI. The DELETE /scouting-visits/{id} route already enforces
-        // its own capability + row-ownership check; this button is gated
-        // the same way the Edit action above is (owner or scope admin),
-        // and the JS layer fires the REST call with a nonce + confirm.
-        $page_actions[] = [
-            'label'      => __( 'Archive visit', 'talenttrack' ),
-            'variant'    => 'danger',
-            'data_attrs' => [ 'tt-archive-visit' => $visit_id ],
-        ];
+        // its own capability + row-ownership check; this button, and the
+        // script behind it, are gated on the same canEditVisit() answer as
+        // the Edit action above, and the JS layer fires the REST call with
+        // a nonce + confirm.
+        if ( $can_edit ) {
+            $page_actions[] = [
+                'label'      => __( 'Archive visit', 'talenttrack' ),
+                'variant'    => 'danger',
+                'data_attrs' => [ 'tt-archive-visit' => $visit_id ],
+            ];
 
-        wp_enqueue_script(
-            'tt-scouting-visit-archive',
-            TT_PLUGIN_URL . 'assets/js/components/scouting-visit-archive.js',
-            [],
-            TT_VERSION,
-            true
-        );
-        wp_localize_script( 'tt-scouting-visit-archive', 'TT_SCOUTING_VISIT_ARCHIVE', [
-            'rest_url'     => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' ) ),
-            'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
-            // Soft-delete redirects back to the list, which excludes
-            // archived rows; `tt_archived=1` triggers the success notice.
-            'redirect_url' => esc_url_raw( add_query_arg(
-                [ 'tt_view' => 'scouting-visits', 'tt_archived' => 1 ],
-                $base_url
-            ) ),
-            'i18n' => [
-                'confirm'       => __( 'Archive this scouting visit? It will be removed from the list.', 'talenttrack' ),
-                'error_generic' => __( 'Could not archive the visit. Please try again.', 'talenttrack' ),
-                'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
-            ],
-        ] );
+            wp_enqueue_script(
+                'tt-scouting-visit-archive',
+                TT_PLUGIN_URL . 'assets/js/components/scouting-visit-archive.js',
+                [],
+                TT_VERSION,
+                true
+            );
+            wp_localize_script( 'tt-scouting-visit-archive', 'TT_SCOUTING_VISIT_ARCHIVE', [
+                'rest_url'     => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' ) ),
+                'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
+                // Soft-delete redirects back to the list, which excludes
+                // archived rows; `tt_archived=1` triggers the success notice.
+                'redirect_url' => esc_url_raw( add_query_arg(
+                    [ 'tt_view' => 'scouting-visits', 'tt_archived' => 1 ],
+                    $base_url
+                ) ),
+                'i18n' => [
+                    'confirm'       => __( 'Archive this scouting visit? It will be removed from the list.', 'talenttrack' ),
+                    'error_generic' => __( 'Could not archive the visit. Please try again.', 'talenttrack' ),
+                    'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
+                ],
+            ] );
+        }
 
         // #3711 — linking an existing prospect is the write half of this
         // screen, so it is enqueued under the same capability the

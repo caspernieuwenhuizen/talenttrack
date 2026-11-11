@@ -116,6 +116,36 @@ final class ObserverReadsScoutingVisitsTest extends WP_UnitTestCase {
     }
 
     /**
+     * #5128 — the visit page offers Edit and Archive only to whoever may
+     * change the visit, and enqueues the archive script only for them. The
+     * observer reads the page and is offered neither.
+     */
+    public function test_the_visit_page_offers_edit_and_archive_only_to_who_may_change_it(): void {
+        $cases = [
+            'observer'                   => [ $this->observer, $this->theirs, false ],
+            'scout, own visit'           => [ $this->scout, $this->mine, true ],
+            'scout, another scout\'s'    => [ $this->scout, $this->theirs, true ],
+            'head of development'        => [ $this->hod, $this->theirs, true ],
+        ];
+        foreach ( $cases as $who => [ $user, $visit, $offered ] ) {
+            wp_dequeue_script( 'tt-scouting-visit-archive' );
+            wp_set_current_user( $user );
+            $this->flush();
+            $_GET['tt_view'] = 'scouting-visit';
+            $_GET['id']      = (string) $visit;
+            ob_start();
+            FrontendScoutingVisitDetailView::render( $user, false );
+            $html = (string) ob_get_clean();
+
+            $this->assertStringContainsString( 'Sportpark Noord', $html, "{$who}: the visit page renders" );
+            $this->assertSame( $offered, str_contains( $html, 'action=edit' ), "{$who}: the Edit visit action" );
+            $this->assertSame( $offered, str_contains( $html, 'data-tt-archive-visit=' ), "{$who}: the Archive visit action" );
+            $this->assertSame( $offered, wp_script_is( 'tt-scouting-visit-archive', 'enqueued' ), "{$who}: the archive script" );
+        }
+        wp_dequeue_script( 'tt-scouting-visit-archive' );
+    }
+
+    /**
      * The scout persona holds `prospects: create_delete` (`tt_manage_prospects`)
      * at global scope, which already reads every visit; nothing here changes
      * that, and the notes stay readable for them.
