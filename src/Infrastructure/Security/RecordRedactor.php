@@ -342,8 +342,7 @@ final class RecordRedactor {
             $key = $user_id . '|' . $player_id;
             if ( ! isset( self::$prospect[ $key ] ) ) {
                 $scope = \TT\Modules\Prospects\ProspectScope::class;
-                self::$prospect[ $key ] = AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
-                    || ( ! $scope::canSeeAll( $user_id ) && $scope::canSee( $user_id, $player_id ) );
+                self::$prospect[ $key ] = $scope::worksTheFunnel( $user_id ) && $scope::canSee( $user_id, $player_id );
             }
             return self::$prospect[ $key ];
         }

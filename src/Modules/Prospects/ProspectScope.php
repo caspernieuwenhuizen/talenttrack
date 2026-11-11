@@ -49,6 +49,19 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class ProspectScope {
 
     /**
+     * #4694 — does this user work the funnel: change prospects, or read them
+     * through their own squads' age groups rather than academy-wide? A seat
+     * that reads every prospect and changes none, the read-only observer,
+     * does not. The masking rule `prospect_staff` and the player profile's
+     * Discovery card both ask it.
+     */
+    public static function worksTheFunnel( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
+            || ! self::canSeeAll( $user_id );
+    }
+
+    /**
      * No narrowing at all — a global `prospects` read. Scout, Head of
      * Development and Academy Admin hold it; so do administrators through
      * the `tt_edit_settings` rung inside the helper.
