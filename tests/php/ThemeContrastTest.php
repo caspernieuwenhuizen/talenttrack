@@ -256,7 +256,7 @@ final class ThemeContrastTest extends WP_UnitTestCase {
      * known gap, not a decision: fixing one is moving its selector to
      * `.tt-root, .tt-dashboard` and deleting it from this list.
      */
-    private const ROOT_ONLY_ALIASES = [ 'frontend-measurement-levels.css', 'persona-dashboard.css' ];
+    private const ROOT_ONLY_ALIASES = [ 'persona-dashboard.css' ];
 
     /**
      * #5130 — a custom property resolves its `var()` where it is declared,
