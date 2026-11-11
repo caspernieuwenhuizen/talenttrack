@@ -215,13 +215,24 @@ class MigrationImporter {
                                     $tbl,
                                     $pt
                                 );
-                            } else {
+                            } elseif ( empty( $ref['optional'] ) ) {
                                 // Missing record parent → would orphan the row; skip it.
                                 $orphaned = true;
                             }
+                            // An optional link (#5051) the archive cannot
+                            // satisfy is left NULL; the row is whole without it.
                         }
                     }
                     if ( $orphaned ) { $skip++; continue; }
+
+                    // #5051 — links to tables a migration archive never
+                    // carries. Copied as they are, they would point at
+                    // whatever row has that id on this install.
+                    foreach ( self::unarchivedLinks()[ $tbl ] ?? [] as $col => $warning ) {
+                        if ( ! isset( $has_col[ $col ] ) || empty( $row[ $col ] ) ) continue;
+                        $data[ $col ] = null;
+                        $warnings[]   = $warning;
+                    }
 
                     // Stable-key conflict handling.
                     if ( $sk ) {
@@ -360,6 +371,27 @@ class MigrationImporter {
             if ( $tid > 0 ) $map[ (int) $row['id'] ] = $tid;
         }
         return $map;
+    }
+
+    /**
+     * #5051 — link columns that point at tables no migration archive
+     * carries, per table, each with the warning an import gives for every
+     * row that loses its link.
+     *
+     * A PDP form sign-off links its evaluation to the conversation. PDP is
+     * never migrated, so the imported copy has no conversation behind it on
+     * this install: it comes in as an ordinary evaluation, editable like any
+     * other, because the signed form that made the original read-only is not
+     * here.
+     *
+     * @return array<string, array<string,string>> table => [ column => warning ]
+     */
+    private static function unarchivedLinks(): array {
+        return [
+            'tt_evaluations' => [
+                'pdp_conversation_id' => __( 'An evaluation from a PDP conversation was imported without its link to the conversation.', 'talenttrack' ),
+            ],
+        ];
     }
 
     /**

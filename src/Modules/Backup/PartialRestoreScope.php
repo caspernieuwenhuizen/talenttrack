@@ -75,6 +75,7 @@ class PartialRestoreScope {
                     $row = $by_id[ $tbl ][ (int) $id ] ?? null;
                     if ( ! $row ) continue;
                     foreach ( $tbl_refs as $r ) {
+                        if ( ! empty( $r['optional'] ) ) continue; // a link the row is whole without (#5051)
                         $col           = (string) $r['column'];
                         $parent_tbl    = (string) $r['parent_table'];
                         if ( ! isset( $by_id[ $parent_tbl ] ) ) continue; // parent not in snapshot
