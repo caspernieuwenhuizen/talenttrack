@@ -22,7 +22,7 @@ class ProspectsLoggedThisMonth extends AbstractKpiDataSource {
         // tt_prospects (migration 0066) exists on every install; no table check.
         $cutoff = gmdate( 'Y-m-01 00:00:00' );
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s",
+            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s AND trashed_at IS NULL",
             $club_id, $cutoff
         ) );
         return KpiValue::of( (string) $count );

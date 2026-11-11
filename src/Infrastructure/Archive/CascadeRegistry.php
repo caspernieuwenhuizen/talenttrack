@@ -238,6 +238,24 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Prospect (#4840) — owns its observations at scouting visits (not
+        // the visits, which can list several prospects), the consent log and
+        // the workflow tasks raised for it. The prospect's notes are on its
+        // own row. `ProspectRetentionCron` purges through the same list.
+        'prospect' => [
+            'table'        => 'tt_prospects',
+            'ref_columns'  => [ 'prospect_id' ],
+            'cascade'      => [
+                [ 'tt_prospect_visit_observations', 'prospect_id' ],
+                [ 'tt_prospect_consent_requests', 'prospect_id' ],
+                [ 'tt_workflow_tasks', 'prospect_id' ],
+            ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
         // Scheduled report (#1808) — standalone recurring-export config;
         // nothing references it, so a permanent delete just removes the row.
         // (#1784 migration 0172 added archived_at/archived_by + backfilled

@@ -155,6 +155,19 @@ De pagina leest alleen. Twee knoppen schrijven, als je prospects mag bewerken:
 
 Wie de prospect op het bord mag zien, mag de pagina openen, ook een hoofdtrainer die prospects alleen leest. Voor een prospect buiten wat je mag zien, meldt de pagina dat de prospect niet is gevonden.
 
+## Een prospect verwijderen
+
+Een prospect kun je verwijderen als een gezin vraagt de gegevens van hun kind te wissen, of als de prospect per vergissing of dubbel is vastgelegd. **Verwijderen** staat op de pagina van de prospect en in het focuspaneel op het bord, voor wie prospects mag verwijderen (met de standaardrechten: scouts, het hoofd opleiding en de academiebeheerder). Er wordt eerst om bevestiging gevraagd.
+
+Verwijderen verplaatst de prospect naar de [prullenbak](recycle-bin.md), samen met de waarnemingen bij scoutingbezoeken, de toestemmingsverzoeken en de workflowtaken. Vanuit de prullenbak:
+
+- **Herstellen** zet de prospect terug waar hij stond. Een prospect die op het bord stond, komt terug op het bord; een die al gearchiveerd was, komt gearchiveerd terug.
+- **Nu verwijderen** wist de prospect definitief, met de waarnemingen, de toestemmingsverzoeken en de taken. De bevestiging toont hoeveel van elk er verdwijnen. Na de bewaartermijn van de prullenbak gebeurt dit vanzelf.
+
+Een scoutingbezoek zelf blijft staan: daarop kunnen meerdere prospects staan.
+
+Een prospect die speler is geworden of een stagedossier heeft, kun je hier niet verwijderen. Het record hoort nu bij de speler, dus verwijder het via de speler.
+
 ## Geen uitnodiging zonder toestemming
 
 *Uitnodigen voor testtraining* weigert te verzenden zolang er geen toestemming vastligt — óf een toestemmingsdatum op de prospect, óf een toestemmingsverzoek dat *akkoord* terugkwam.

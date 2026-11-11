@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
+use TT\Modules\Prospects\Domain\ProspectDeletion;
 use TT\Modules\Prospects\Domain\ProspectStages;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
@@ -166,6 +167,8 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $edit_url = $can_edit
             ? RecordLink::detailUrlForWithBack( 'prospect-edit', $focus_pid )
             : '';
+        // #4840 — delete moves the prospect to the recycle bin.
+        $can_delete = ProspectDeletion::canDeleteProspect( get_current_user_id(), $focus_pid );
 
         // #3710 — a prospect whose chain never produced the invite task had
         // no way forward at all: the panel showed "Edit contact" and
@@ -233,6 +236,14 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                             . esc_html__( 'Open record', 'talenttrack' ) . '</a>';
                     }, [ 'ctx' => [ 'prospect_id' => $focus_pid ] ] );
                     ?>
+                    <?php if ( $can_delete ) : ?>
+                        <button type="button" class="tt-btn tt-btn-danger"
+                            data-tt-archive-rest-path="<?php echo esc_attr( 'prospects/' . $focus_pid ); ?>"
+                            data-tt-archive-confirm-title="<?php esc_attr_e( 'Delete prospect', 'talenttrack' ); ?>"
+                            data-tt-archive-confirm="<?php esc_attr_e( 'Delete this prospect? They go to the recycle bin with their visit notes and consent requests, and can be restored from there.', 'talenttrack' ); ?>"
+                            data-tt-archive-confirm-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"
+                            data-tt-archive-redirect="<?php echo esc_url( $close_url ); ?>"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
+                    <?php endif; ?>
                 </p>
                 <?php if ( $can_propose ) : ?>
                     <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( BackLink::appendTo( ProspectStages::prospectFocusUrl( $focus_pid ) ) ); ?>">

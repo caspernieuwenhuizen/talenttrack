@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
+use TT\Modules\Prospects\Domain\ProspectDeletion;
 use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Domain\ProspectRecord;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
@@ -57,7 +58,7 @@ class FrontendProspectDetailView extends FrontendViewBase {
         if ( $name === '' ) $name = __( 'Prospect', 'talenttrack' );
 
         FrontendBreadcrumbs::fromDashboard( $name, $parent_crumb );
-        self::renderHeader( $name );
+        self::renderHeader( $name, self::pageActionsHtml( self::deleteAction( $user_id, $id ) ) );
 
         echo '<div class="tt-prospect-record">';
         self::renderIdentity( $prospect );
@@ -184,6 +185,28 @@ class FrontendProspectDetailView extends FrontendViewBase {
         }
         echo '</ul>';
         echo '</section>';
+    }
+
+    /**
+     * #4840 — "Delete" in the page actions, for a reader who may delete
+     * this prospect. It asks in the app modal, then `DELETE /prospects/{id}`
+     * moves the prospect to the recycle bin and the list opens.
+     *
+     * @return list<array<string,mixed>>
+     */
+    private static function deleteAction( int $user_id, int $id ): array {
+        if ( ! ProspectDeletion::canDeleteProspect( $user_id, $id ) ) return [];
+        return [ [
+            'label'      => __( 'Delete', 'talenttrack' ),
+            'variant'    => 'danger',
+            'data_attrs' => [
+                'tt-archive-rest-path'     => 'prospects/' . $id,
+                'tt-archive-confirm-title' => __( 'Delete prospect', 'talenttrack' ),
+                'tt-archive-confirm'       => __( 'Delete this prospect? They go to the recycle bin with their visit notes and consent requests, and can be restored from there.', 'talenttrack' ),
+                'tt-archive-confirm-label' => __( 'Delete', 'talenttrack' ),
+                'tt-archive-redirect'      => add_query_arg( [ 'tt_view' => 'prospects-overview' ], RecordLink::dashboardUrl() ),
+            ],
+        ] ];
     }
 
     private static function renderActions( int $user_id, int $id ): void {

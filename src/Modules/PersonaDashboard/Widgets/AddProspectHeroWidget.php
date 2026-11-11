@@ -124,7 +124,8 @@ class AddProspectHeroWidget extends AbstractWidget {
             "SELECT COUNT(*) FROM {$table}
               WHERE discovered_by_user_id = %d
                 AND club_id = %d
-                AND discovered_at >= %s",
+                AND discovered_at >= %s
+                AND trashed_at IS NULL",
             $user_id, $club_id, $month_start
         ) );
         $active = (int) $wpdb->get_var( $wpdb->prepare(

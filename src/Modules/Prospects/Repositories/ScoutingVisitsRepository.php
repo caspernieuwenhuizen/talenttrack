@@ -221,6 +221,7 @@ class ScoutingVisitsRepository {
          LEFT JOIN {$lookups} l ON l.id = p.preferred_position_lookup_id
              WHERE o.club_id = %d
                AND o.scouting_visit_id = %d
+               AND p.trashed_at IS NULL
              ORDER BY p.archived_at IS NULL DESC, p.discovered_at DESC, p.id DESC",
             CurrentClub::id(), $visit_id
         );

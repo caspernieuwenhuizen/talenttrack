@@ -152,6 +152,19 @@ The page only reads. Two buttons write, if you may edit prospects:
 
 Anyone who may see the prospect on the board may open the page, including a head coach who only reads prospects. For a prospect outside what you may see, the page says the prospect was not found.
 
+## Deleting a prospect
+
+A prospect can be deleted when a family asks for their child's details to be removed, or when the prospect was recorded by mistake or twice. **Delete** sits on the prospect's page and in the focus panel on the board, for anyone who may delete prospects (with the default access: scouts, the head of development and the academy admin). It asks first.
+
+Deleting moves the prospect to the [recycle bin](recycle-bin.md), together with their observations at scouting visits, their consent requests and their workflow tasks. From the bin:
+
+- **Restore** puts the prospect back where they were. A prospect who was on the board comes back on the board; one who was archived already comes back archived.
+- **Delete now** removes the prospect for good, with the observations, the consent requests and the tasks. The confirmation lists how many of each go. After the bin's retention period this happens on its own.
+
+A scouting visit itself stays: it can list several prospects.
+
+A prospect who has become a player or has a trial case cannot be deleted here. The record belongs to the player now, so delete it through the player.
+
 ## No invitation without consent
 
 *Invite to test training* refuses to submit unless there is consent on record — either a consent date on the prospect, or a consent request that came back *agreed*.

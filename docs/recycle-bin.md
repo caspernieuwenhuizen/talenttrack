@@ -28,9 +28,9 @@ obligations for minors' data.
 
 ## What can go in the bin
 
-Every entity that can be archived can also be trashed — 20 record types,
-from players and teams to evaluations, goals, trial cases, injuries,
-measurements, and scheduled reports. Lookup and configuration tables
+Every entity that can be archived can also be trashed, from players and
+teams to evaluations, goals, trial cases, prospects, injuries, measurements,
+and scheduled reports. Lookup and configuration tables
 (rating scales, age groups, vocabularies) are **not** binnable: they are
 shared settings, not player records, and there is nothing to recover.
 
@@ -154,6 +154,14 @@ These are minors' records, so the retention basis is explicit.
  Permanently deleting one still takes its conversations, verdicts, uploaded
  files and goal-evidence links with it. There is deliberately no delete
  button on a live PDP file: archive it first, as with everything else.
+- **Prospects are in the bin too.** A prospect is often a child whose details a
+ scout recorded before the family agreed. **Delete** on the prospect's page or
+ on the onboarding board moves them here in one step. Restoring puts the
+ prospect back where they were: on the board, or archived if they were archived
+ already. Permanently deleting one also removes their observations at scouting
+ visits, their consent requests and their workflow tasks; the prospect
+ retention purge removes the same. A prospect who has become a player is never
+ deleted this way, only through the player.
 - **Scope agreement with erasure.** Every player-PII entity that the bin can
  hold is registered in `PlayerDataMap`, the central manifest the
  subject-access and erasure tooling walks. So a concurrent erasure run and

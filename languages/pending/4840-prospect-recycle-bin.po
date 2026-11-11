@@ -1,0 +1,13 @@
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Delete prospect"
+msgstr "Prospect verwijderen"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Delete this prospect? They go to the recycle bin with their visit notes and consent requests, and can be restored from there."
+msgstr "Deze prospect verwijderen? De prospect gaat met de bezoeknotities en toestemmingsverzoeken naar de prullenbak en kan daar worden hersteld."
+
+#: src/Modules/Prospects/Domain/ProspectDeletion.php
+msgid "This prospect is already a player; delete them through the player."
+msgstr "Deze prospect is al speler; verwijder via de speler."
