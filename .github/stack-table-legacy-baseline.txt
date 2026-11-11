@@ -5,4 +5,3 @@
 # legacy table) and a count below it (lower the number here), so the
 # baseline stays exact and only falls. Regenerate the list the lint prints.
 assets/js/frontend-attendance-report.js 1
-src/Modules/Analytics/Frontend/TeamStatisticsTab.php 2

@@ -128,57 +128,35 @@
     margin: 0;
 }
 
-/* A leaderboard stays a table at every width. The legacy phone rule in
-   frontend-mobile.css turns every `.tt-table` into stacked cards below
-   480px, which put each name and its figure on separate lines, a card per
-   player. A name and two to four short numbers fit a 360px row, so the rows
-   keep their table layout. The `!important`s answer the legacy rule's own. */
-.tt-table.tt-ts-table { display: table; }
-.tt-table.tt-ts-table thead { display: table-header-group; }
-.tt-table.tt-ts-table tbody { display: table-row-group; }
-.tt-table.tt-ts-table tr {
-    display: table-row;
-    margin: 0;
+/* The leaderboards are on the stack-table primitive (StackTable::TO_768,
+   with cards): a card per player on a phone, the player's name heading the
+   card and one "label  figure" line per column; a table from 768px up.
+   The primitive owns the layout; this sheet owns the cells' look. */
+
+/* Phone: the card. The player heads it, a full tap target. */
+.tt-table.tt-ts-table.tt-stack-table > tbody > tr > th[role="rowheader"] {
+    display: flex;
+    align-items: center;
+    min-height: var(--tt-tap-min, 3rem);
     padding: 0;
     border: 0;
-    border-radius: 0;
+    background: none;
+    font-weight: 600;
+    text-align: left;
 }
-.tt-table.tt-ts-table td {
-    display: table-cell;
-    width: auto;
-    margin: 0;
-    font-size: inherit;
+.tt-table.tt-ts-table.tt-stack-table > tbody > tr > td {
+    padding: var(--tt-sp-1, 4px) 0;
+    border: 0;
+    background: none;
 }
-/* The header row stays visible, so the stacked layout's column label
-   would only repeat it inside every cell. */
-.tt-table.tt-ts-table[data-tt-labels] td[data-label]::before {
-    content: none;
-}
-
-/* The player is a row header (`<th scope="row">`), and public.css styles
-   `tbody td` only — so the name cell used to miss the padding, the border
-   and the stripe. Both cells get the same treatment here, which keeps the
-   stripe on the whole row and the name level with its number. The 48px
-   touch target lives on the cell rather than on the link, so the text
-   stays centred in a row of normal height. */
-.tt-table.tt-ts-table tbody th,
-.tt-table.tt-ts-table tbody td {
-    height: 48px;
-    box-sizing: border-box;
-    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px) !important;
-    border: 0 !important;
-    border-bottom: 1px solid var(--tt-table-border, var(--tt-line)) !important;
-    background: var(--tt-paper, #fff);
-    vertical-align: middle;
+.tt-table.tt-ts-table.tt-stack-table > tbody > tr > td::before {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft);
 }
 
-.tt-table.tt-ts-table tbody tr:nth-child(even) th,
-.tt-table.tt-ts-table tbody tr:nth-child(even) td {
-    background: var(--tt-table-row-alt-bg, var(--tt-paper, #fff));
-}
-
-/* Qualified so it outranks the dashboard's `.tt-dashboard .tt-table td`
-   left-align, which would otherwise pull the figures off their column. */
+/* Figures right, in their own column on the table and at the line's end
+   on a card. Qualified so it outranks the dashboard's
+   `.tt-dashboard .tt-table td` left-align and the primitive's own. */
 .tt-table.tt-ts-table .tt-ts-table__n {
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -207,9 +185,35 @@
     }
 }
 
-.tt-ts-table th[scope="row"] {
-    font-weight: 500;
-    text-align: left;
+/* From 768px: the table. The player is a row header (`<th scope="row">`),
+   and public.css styles `tbody td` only, so both cells get the same
+   padding, border and stripe here, which keeps the stripe on the whole row
+   and the name level with its number. The 48px touch target lives on the
+   cell rather than on the link, so the text stays centred in a row of
+   normal height. */
+@media (min-width: 768px) {
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr > th[role="rowheader"],
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr > td {
+        display: table-cell;
+        height: 48px;
+        min-height: 0;
+        box-sizing: border-box;
+        padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+        border: 0;
+        border-bottom: 1px solid var(--tt-table-border, var(--tt-line));
+        background: var(--tt-paper, #fff);
+        vertical-align: middle;
+    }
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr > th[role="rowheader"] {
+        font-weight: 500;
+    }
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr:nth-child(even) > th[role="rowheader"],
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr:nth-child(even) > td {
+        background: var(--tt-table-row-alt-bg, var(--tt-paper, #fff));
+    }
+    .tt-table.tt-ts-table.tt-stack-table > tbody > tr > td.tt-ts-table__n {
+        text-align: right;
+    }
 }
 
 /* ── The leaderboard pair ─────────────────────────────────────────── */

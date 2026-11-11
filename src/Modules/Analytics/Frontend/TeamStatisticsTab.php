@@ -10,6 +10,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FormChips;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * TeamStatisticsTab (#3522, epic #3519) — what a coach reads when they open
@@ -321,22 +322,25 @@ final class TeamStatisticsTab {
         if ( $rows === [] ) return;
 
         self::sectionOpen( $title );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-ts-table__n">' . esc_html( $column ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4912 — a card per player on a phone, a table from 768px up
+        // (owner decision): the stack-table primitive.
+        $th = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-ts-table__n"' . $th . '>' . esc_html( $column ) . '</th>';
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( $rows as $row ) {
             $n   = (string) (int) ( $row[ $key ] ?? 0 );
             $pid = (int) ( $row['player_id'] ?? 0 );
-            echo '<tr>';
-            echo '<th scope="row">' . self::playerLink( $row ) . '</th>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . self::playerLink( $row ) . '</th>';
             if ( $report !== '' && $pid > 0 && ! empty( $visible[ $pid ] ) ) {
                 $url = BackLink::appendTo( add_query_arg( 'player_id', $pid, $report ) );
-                echo '<td class="tt-ts-table__n"><a class="tt-ts-count" href="' . esc_url( $url ) . '">' . esc_html( $n ) . '</a></td>';
+                echo '<td class="tt-ts-table__n"' . StackTable::attrs( 'cell', $column ) . '><a class="tt-ts-count" href="' . esc_url( $url ) . '">' . esc_html( $n ) . '</a></td>';
             } else {
-                echo '<td class="tt-ts-table__n">' . esc_html( $n ) . '</td>';
+                echo '<td class="tt-ts-table__n"' . StackTable::attrs( 'cell', $column ) . '>' . esc_html( $n ) . '</td>';
             }
             echo '</tr>';
         }
@@ -356,20 +360,25 @@ final class TeamStatisticsTab {
 
         self::sectionOpen( __( 'Appearances and minutes', 'talenttrack' ) );
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-ts-table__n">' . esc_html_x( 'Apps', 'column: matches appeared in', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-ts-table__n">' . esc_html__( 'Starts', 'talenttrack' ) . '</th>';
-        echo '<th scope="col" class="tt-ts-table__n">' . esc_html__( 'Minutes', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4912 — as the leaderboards: cards on a phone, a table from 768px.
+        $c_apps    = _x( 'Apps', 'column: matches appeared in', 'talenttrack' );
+        $c_starts  = __( 'Starts', 'talenttrack' );
+        $c_minutes = __( 'Minutes', 'talenttrack' );
+        $th        = StackTable::attrs( 'columnheader' );
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<th scope="col"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        foreach ( [ $c_apps, $c_starts, $c_minutes ] as $header ) {
+            echo '<th scope="col" class="tt-ts-table__n"' . $th . '>' . esc_html( $header ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         foreach ( array_slice( $rows, 0, self::APPEARANCES_TOP_N ) as $row ) {
-            echo '<tr>';
-            echo '<th scope="row">' . self::playerLink( $row ) . '</th>';
-            echo '<td class="tt-ts-table__n">' . esc_html( (string) (int) ( $row['matches'] ?? 0 ) ) . '</td>';
-            echo '<td class="tt-ts-table__n">' . esc_html( (string) (int) ( $row['starts'] ?? 0 ) ) . '</td>';
-            echo '<td class="tt-ts-table__n">' . esc_html( (string) (int) ( $row['minutes'] ?? 0 ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . self::playerLink( $row ) . '</th>';
+            echo '<td class="tt-ts-table__n"' . StackTable::attrs( 'cell', $c_apps ) . '>' . esc_html( (string) (int) ( $row['matches'] ?? 0 ) ) . '</td>';
+            echo '<td class="tt-ts-table__n"' . StackTable::attrs( 'cell', $c_starts ) . '>' . esc_html( (string) (int) ( $row['starts'] ?? 0 ) ) . '</td>';
+            echo '<td class="tt-ts-table__n"' . StackTable::attrs( 'cell', $c_minutes ) . '>' . esc_html( (string) (int) ( $row['minutes'] ?? 0 ) ) . '</td>';
             echo '</tr>';
         }
 

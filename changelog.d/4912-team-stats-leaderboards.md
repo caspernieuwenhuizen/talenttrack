@@ -1,0 +1,3 @@
+# Team statistics: the leaderboards are cards on a phone and a table from tablet width (#4912)
+
+On a team's Statistics tab, the top scorers, top assists and appearances and minutes lists now show a card per player on a phone: the player's name heads the card, with one line per figure. From tablet width (768px) they are the same table as before, with the figures right-aligned. The lists use the shared stacked-table component, so a screen reader reads them as a table with headers at every width, and their phone layout matches the other migrated tables. A count that opens the matches behind it is still a full tap target.
