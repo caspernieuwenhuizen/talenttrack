@@ -144,7 +144,7 @@ final class ReportBlocksRestController extends BaseController {
             return $block->layoutReason();
         }
         if ( ! in_array( $context->scope, $block->scopes(), true ) ) {
-            return __( 'This block does not fit what the report is about.', 'talenttrack' );
+            return BlockRegistry::scopeReason( $context->scope );
         }
         if ( ! in_array( $context->audience, $block->audiences(), true ) ) {
             return __( 'This block is for staff only.', 'talenttrack' );

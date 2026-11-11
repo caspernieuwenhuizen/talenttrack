@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
@@ -61,6 +62,23 @@ final class ReportSubjectOptions {
             foreach ( $players as $pid => $name ) {
                 if ( $reader->readsPlayer( $pid ) ) $out[ $team_id ][ $pid ] = $name !== '' ? $name : '#' . $pid;
             }
+        }
+        return $out;
+    }
+
+    /**
+     * #4964 — the positions a group can be narrowed to: the academy's
+     * position codes, in their configured order, upper-cased as a group
+     * matches them, each with its name in the viewer's language.
+     *
+     * @return array<string,string> code => label
+     */
+    public static function positions(): array {
+        $out = [];
+        foreach ( QueryHelpers::get_lookup_names( 'position' ) as $name ) {
+            $code = strtoupper( trim( (string) $name ) );
+            if ( $code === '' || isset( $out[ $code ] ) ) continue;
+            $out[ $code ] = LabelTranslator::positionLabel( (string) $name );
         }
         return $out;
     }

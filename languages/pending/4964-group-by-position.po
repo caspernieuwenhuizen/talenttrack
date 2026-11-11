@@ -1,0 +1,34 @@
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Choose one of the academy's positions for the group."
+msgstr "Kies een van de posities van de academie voor de groep."
+
+#: src/Modules/ReportStudio/Domain/BlockRegistry.php
+msgid "This block does not work for a group of players."
+msgstr "Dit blok werkt niet voor een groep spelers."
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+#, php-format
+msgctxt "report group by position"
+msgid "%1$s in %2$s"
+msgstr "%1$s in %2$s"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "All my teams"
+msgstr "Al mijn teams"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Every team you build reports for. The teams ticked below are then not needed."
+msgstr "Elk team waarvoor je rapporten bouwt. De teams hieronder hoef je dan niet aan te vinken."
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Only one position (optional)"
+msgstr "Alleen één positie (optioneel)"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Every position"
+msgstr "Alle posities"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "A player counts by their first position, so each player is in one position group."
+msgstr "Een speler telt mee met zijn eerste positie, dus elke speler zit in één positiegroep."

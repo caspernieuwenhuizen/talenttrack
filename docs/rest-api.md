@@ -1835,6 +1835,11 @@ A draft is also refused with `400 invalid_field` (`details.block` the index)
 when a block does not fit the report's scope or audience, for example the key
 figures on a player report or a staff-only block on a family report. Before
 #4572 such a block was stored and then left out when the report was read.
+On a group report, a block that does not declare the `group` scope gets the
+same `400 invalid_field` (#4964). Its message is "This block does not work
+for a group of players.", the reason `GET /report-blocks?scope=group` gives
+for that block under `unavailable`. The details also carry
+`reason: "block_scope"` and `key`, the block's key.
 
 Shared reads are memoised per request by subject and period, so several
 blocks on one subject read it once.
@@ -1956,6 +1961,10 @@ The body is the seven starting choices: `kind` (`report`), `scope`,
 `role`, `schedule`, `family`); defaults in brackets where there is one. Plus
 `name` and the subject: `player_id`, `team_id`, or for a group a `cohort` of
 `team_ids` with an optional `age_group` and `position`, never player ids.
+`position` is one of the academy's position codes (the `position` lookup, in
+any case, stored upper-cased); a group holds the players whose **primary**
+position is that code, compared as a whole code (#4964). A code the academy
+does not have is refused with `400 invalid_field`, `details.field` `cohort`.
 
 `ReportStartRules` decides them in order — `kind`, `scope`, `audience`,
 `binding`, `period_mode`, `layout`, `sharing` — each against the ones

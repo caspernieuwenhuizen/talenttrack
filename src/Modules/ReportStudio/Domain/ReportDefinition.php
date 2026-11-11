@@ -93,6 +93,12 @@ final class ReportDefinition {
             if ( $layout !== null && $registry instanceof LayoutBound && ! in_array( $layout, $registry->layouts(), true ) ) {
                 return new StudioError( 'invalid_field', $registry->layoutReason(), 400, [ 'field' => 'definition', 'block' => $i ] );
             }
+            // #4964 — a block that doesn't work for a group keeps the code a
+            // refused block always had, says why in the library's words, and
+            // names itself in the details (additive to v1).
+            if ( $scope === ReportContext::SCOPE_GROUP && ! in_array( $scope, $registry->scopes(), true ) ) {
+                return new StudioError( 'invalid_field', BlockRegistry::scopeReason( $scope ), 400, [ 'field' => 'definition', 'block' => $i, 'reason' => 'block_scope', 'key' => $key ] );
+            }
             if ( ( $scope !== null && ! in_array( $scope, $registry->scopes(), true ) )
                 || ( $audience !== null && ! in_array( $audience, $registry->audiences(), true ) ) ) {
                 return new StudioError( 'invalid_field', __( 'This block cannot be used for this subject or audience.', 'talenttrack' ), 400, [ 'field' => 'definition', 'block' => $i ] );

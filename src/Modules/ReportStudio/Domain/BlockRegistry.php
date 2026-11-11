@@ -47,6 +47,16 @@ final class BlockRegistry {
             && in_array( $context->audience, $block->audiences(), true );
     }
 
+    /**
+     * #4964 — why a block cannot be used for a report about this subject,
+     * in the words the library and the refusal both use.
+     */
+    public static function scopeReason( string $scope ): string {
+        return $scope === ReportContext::SCOPE_GROUP
+            ? __( 'This block does not work for a group of players.', 'talenttrack' )
+            : __( 'This block does not fit what the report is about.', 'talenttrack' );
+    }
+
     /** For tests that register their own blocks. */
     public static function clear(): void {
         self::$blocks = [];
