@@ -121,6 +121,9 @@
 
         var slot = document.createElement('div');
         slot.className = 'tt-spine-aside-slot';
+        // Hidden until the aside moves in, so a load at 480px or wider never
+        // leaves an empty slot showing.
+        slot.hidden = true;
         spine.parentNode.insertBefore(slot, spine.nextSibling);
 
         var wide = window.matchMedia('(min-width: 480px)');
