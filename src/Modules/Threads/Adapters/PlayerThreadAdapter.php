@@ -29,7 +29,8 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  * pages make. A scout's academy-wide notes grant therefore reaches the
  * players the scout is linked to.
  *
- * Post = `tt_edit_player_notes`. Same scope semantics.
+ * Post = `tt_edit_player_notes` with the same scope semantics, and the
+ * writer must be able to view the player, as for reading.
  */
 final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread {
 
@@ -179,6 +180,9 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // player / parent personas, so this cap check alone denies
         // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
+
+        // Writing a note on a player follows the same rule as reading it.
+        if ( ! AuthorizationService::canViewPlayer( $user_id, $thread_id ) ) return false;
 
         if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );

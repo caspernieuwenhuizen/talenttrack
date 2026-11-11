@@ -823,8 +823,9 @@ return array_merge(
         'scouting_visits_panel'      => [ 'r',   'global', $mod_prospects ],
         // #0085 — scouts write notes about players they observe across
         // the academy (cross-team scouting workflow), so RC[global].
-        // #5059 — `PlayerThreadAdapter` also asks that the reader may view
-        // the player, so a scout reaches the notes of the players
+        // #5059 — `PlayerThreadAdapter` also asks that the reader, and the
+        // writer, may view the player, so a scout reads and writes the notes
+        // of the players
         // `AuthorizationService::canViewPlayer()` allows them: their linked
         // players, and any role-scope assignment an operator gives them.
         'player_notes'               => [ 'rc',  'global', $mod_threads ],

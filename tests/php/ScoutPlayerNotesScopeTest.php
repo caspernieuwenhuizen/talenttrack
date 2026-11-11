@@ -167,6 +167,37 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_a_scout_writes_notes_only_on_players_they_can_see(): void {
+        $adapter = new PlayerThreadAdapter();
+        $this->assertTrue( $adapter->canPost( $this->scout, $this->linked ) );
+        $this->assertFalse( $adapter->canPost( $this->scout, $this->unlinked ) );
+
+        wp_set_current_user( $this->scout );
+        $this->assertSame( 201, $this->post( '/talenttrack/v1/threads/player/' . $this->linked . '/messages', [ 'body' => 'Seen on Saturday.' ] )->get_status() );
+        $this->assertSame( 403, $this->post( '/talenttrack/v1/threads/player/' . $this->unlinked . '/messages', [ 'body' => 'Seen on Saturday.' ] )->get_status() );
+    }
+
+    public function test_coaches_and_the_head_of_development_write_as_before(): void {
+        $coach   = $this->coachOnTeam();
+        $hod     = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        $adapter = new PlayerThreadAdapter();
+
+        $this->assertTrue( $adapter->canPost( $coach, $this->linked ), 'a coach on their own team' );
+        $this->assertTrue( $adapter->canPost( $coach, $this->unlinked ) );
+        $this->assertTrue( $adapter->canPost( $hod, $this->linked ), 'the head of development anywhere' );
+        $this->assertTrue( $adapter->canPost( $hod, $this->unlinked ) );
+    }
+
+    public function test_a_missing_player_and_an_unseen_one_answer_alike(): void {
+        wp_set_current_user( $this->scout );
+        $missing = $this->post( '/talenttrack/v1/threads/player/987654321/messages', [] );
+        $unseen  = $this->post( '/talenttrack/v1/threads/player/' . $this->unlinked . '/messages', [] );
+
+        $this->assertSame( $missing->get_status(), $unseen->get_status(), 'same status' );
+        $this->assertSame( $this->errorCode( $missing ), $this->errorCode( $unseen ), 'same error code' );
+        $this->assertNotSame( 201, $unseen->get_status() );
+    }
+
     public function test_the_head_of_development_keeps_every_note(): void {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         $adapter = new PlayerThreadAdapter();
@@ -317,6 +348,18 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
         ] );
         $this->assertGreaterThan( 0, $id );
         return (int) $id;
+    }
+
+    /** @param array<string,mixed> $params */
+    private function post( string $route, array $params ): WP_REST_Response {
+        $request = new WP_REST_Request( 'POST', $route );
+        foreach ( $params as $k => $v ) $request->set_param( $k, $v );
+        return rest_get_server()->dispatch( $request );
+    }
+
+    private function errorCode( WP_REST_Response $response ): string {
+        $data = (array) $response->get_data();
+        return (string) ( $data['code'] ?? ( $data['errors'][0]['code'] ?? '' ) );
     }
 
     private function dispatch( string $method, string $route ): WP_REST_Response {
