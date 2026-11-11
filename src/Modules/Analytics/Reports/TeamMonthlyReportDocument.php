@@ -613,6 +613,22 @@ final class TeamMonthlyReportDocument {
 
     /** @param array<string,mixed> $c */
     private static function coverage( array $c ): string {
+        $state = (string) ( $c['state'] ?? 'empty' );
+
+        // #5115 — the whole banner, wrapped inside the page: it was one line
+        // cut at 150 characters and clipped at the right margin, which lost
+        // the end of a Dutch line naming the activities.
+        return '<table class="cov"><tr><td class="cov-' . esc_attr( $state ) . '">' . esc_html( self::coverageText( $c ) ) . '</td></tr></table>';
+    }
+
+    /**
+     * The coverage banner's sentence, as the PDF prints it. Public so the
+     * page estimate (`TeamMonthlyReportLayout`) counts the lines this exact
+     * text wraps to.
+     *
+     * @param array<string,mixed> $c the coverage block's data
+     */
+    public static function coverageText( array $c ): string {
         $state        = (string) ( $c['state'] ?? 'empty' );
         $completed    = (int) ( $c['completed'] ?? 0 );
         $with         = (int) ( $c['with_register'] ?? 0 );
@@ -654,7 +670,7 @@ final class TeamMonthlyReportDocument {
                 : __( 'Nothing in this window has taken place yet.', 'talenttrack' );
         }
 
-        return '<table class="cov"><tr><td class="cov-' . esc_attr( $state ) . '">' . esc_html( self::cut( implode( ' ', $parts ), 150 ) ) . '</td></tr></table>';
+        return implode( ' ', $parts );
     }
 
     /**
@@ -2246,7 +2262,7 @@ final class TeamMonthlyReportDocument {
             . '.lh-team{margin:0;padding:0;font-size:16pt;font-weight:bold}'
             . '.lh-meta{text-align:right}'
             . '.lh-period{font-size:10pt;font-weight:bold}'
-            . '.cov{margin-bottom:4mm}.cov td{height:7mm;padding:0 2mm;font-size:7.5pt;vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            . '.cov{margin-bottom:4mm}.cov td{height:7mm;padding:0 2mm;font-size:7.5pt;line-height:1.25;vertical-align:middle;white-space:normal;overflow-wrap:anywhere;word-wrap:break-word}'
             . '.cov .cov-complete{background:#e3f1e8;border-left:3px solid #1f7a4a}'
             . '.cov .cov-partial{background:#fdf1d8;border-left:3px solid #c88a12}'
             . '.cov .cov-empty{background:#e6eef7;border-left:3px solid #2a6db0}'

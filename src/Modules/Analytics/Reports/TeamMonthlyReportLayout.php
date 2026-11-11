@@ -168,7 +168,23 @@ final class TeamMonthlyReportLayout {
         'attention_wide'    => 190,
         'quality'           => 110,
         'quality_wide'      => 155,
+        // #5115 — the coverage banner, 7.5pt at full width less its padding.
+        'coverage'          => 110,
+        'coverage_wide'     => 155,
     ];
+
+    /**
+     * #5115 — the coverage banner prints whole and wraps. Its band is 7 mm,
+     * which holds two lines of 7.5pt at 1.25; every line past that costs a
+     * wrapped line.
+     *
+     * @param array<string,mixed> $block_data
+     */
+    private static function coverageWrapMm( array $block_data, string $layout ): float {
+        $cpl   = self::CHARS_PER_LINE[ $layout === self::MATRIX ? 'coverage_wide' : 'coverage' ];
+        $lines = self::lines( mb_strlen( TeamMonthlyReportDocument::coverageText( $block_data ) ), $cpl );
+        return max( 0, $lines - 2 ) * self::WRAP_LINE_SMALL_MM;
+    }
 
     /**
      * Characters per line of the matrix footer's "what changed" strip, by how
@@ -875,7 +891,7 @@ final class TeamMonthlyReportLayout {
         $base = self::MM['section_base'];
         switch ( $block ) {
             case 'letterhead': return [ [ self::MM['letterhead'], 0.0 ] ];
-            case 'coverage':   return [ [ self::MM['coverage'], 0.0 ] ];
+            case 'coverage':   return [ [ self::MM['coverage'] + self::coverageWrapMm( $block_data, $layout ), 0.0 ] ];
             case 'kpi':        return [ [ self::MM[ $layout === self::MATRIX ? 'kpi_wide' : 'kpi' ], 0.0 ] ];
             case 'status':     return [ [ self::MM['status'], 0.0 ] ];
             case 'notes':      return $layout === self::MATRIX ? [] : [ [ self::MM['notes'], 0.0 ] ];

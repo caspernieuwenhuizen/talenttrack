@@ -747,6 +747,60 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         return $report;
     }
 
+    /**
+     * #5115 — the coverage banner at the top prints whole and wraps inside
+     * the page. It was one line cut at 150 characters and clipped at the
+     * right margin; a Dutch banner naming its activities lost its end. The
+     * page estimate counts the lines it wraps to, checked against DomPDF.
+     */
+    public function test_a_long_coverage_banner_prints_whole_and_wraps(): void {
+        $titles = [
+            'Training zonder presentielijst', 'Oefenwedstrijd tegen Blauw Geel', 'Keeperstraining dinsdagavond',
+            'Techniektraining woensdagmiddag', 'Wedstrijd tegen Kampong JO14-2', 'Conditietraining op het hoofdveld',
+            'Positiespel in kleine partijen', 'Afwerktraining met de spitsen',
+        ];
+        $report = $this->report( 18 );
+        $report['data']['coverage']['missing']      = array_map( static fn( string $t, int $i ): array => [ 'title' => $t, 'date' => sprintf( '2026-08-%02d', 2 + $i ) ], $titles, array_keys( $titles ) );
+        $report['data']['coverage']['never_closed'] = [ [ 'title' => 'Nooit afgesloten training na de wedstrijd', 'date' => '2026-08-28' ] ];
+
+        $text = TeamMonthlyReportDocument::coverageText( $report['data']['coverage'] );
+        $this->assertGreaterThan( 300, mb_strlen( $text ), 'precondition: a banner of three lines and more' );
+
+        // The estimate grows by a wrapped 7.5pt line (4.2 mm) for every line
+        // past the two the 7 mm band holds, at 110 characters a line, and by
+        // nothing for a banner of one or two lines.
+        $one_line = [ 'state' => 'complete', 'completed' => 3, 'with_register' => 3, 'missing' => [], 'never_closed' => [] ];
+        $base     = TeamMonthlyReportLayout::sectionHeight( 'coverage', $one_line );
+        $lines    = (int) ceil( mb_strlen( $text ) / 110 );
+        $this->assertGreaterThanOrEqual( 3, $lines );
+        $this->assertEqualsWithDelta( ( $lines - 2 ) * 4.2, TeamMonthlyReportLayout::sectionHeight( 'coverage', $report['data']['coverage'] ) - $base, 0.001, 'the long banner costs its wrapped lines' );
+
+        $two_lines = $report['data']['coverage'];
+        $two_lines['missing'] = array_slice( $two_lines['missing'], 0, 2 );
+        $two_lines['never_closed'] = [];
+        $two_len = mb_strlen( TeamMonthlyReportDocument::coverageText( $two_lines ) );
+        $this->assertGreaterThan( 110, $two_len, 'precondition: a banner of two lines' );
+        $this->assertLessThanOrEqual( 220, $two_len );
+        $this->assertEqualsWithDelta( 0.0, TeamMonthlyReportLayout::sectionHeight( 'coverage', $two_lines ) - $base, 0.001, 'two lines fit the band' );
+
+        foreach ( [ 'A', 'B' ] as $layout ) {
+            $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
+            $this->assertStringContainsString( esc_html( $text ), $payload['html'], "{$layout}: the whole banner, no cut" );
+            $this->assertStringContainsString( 'Nooit afgesloten training na de wedstrijd', $payload['html'] );
+            $this->assertStringContainsString( '.cov td{height:7mm;padding:0 2mm;font-size:7.5pt;line-height:1.25;vertical-align:middle;white-space:normal;overflow-wrap:anywhere', $payload['html'], "{$layout}: and it wraps" );
+
+            if ( ! class_exists( \Dompdf\Dompdf::class ) ) continue;
+            $options = new \Dompdf\Options();
+            $options->set( 'defaultFont', 'DejaVu Sans' );
+            $options->set( 'isHtml5ParserEnabled', true );
+            $dompdf = new \Dompdf\Dompdf( $options );
+            $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+            $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+            $dompdf->render();
+            $this->assertSame( TeamMonthlyReportLayout::fit( $report, $layout )['pages'], $dompdf->getCanvas()->get_page_count(), "{$layout}: the panel and the paper agree" );
+        }
+    }
+
     /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */
     public function test_written_text_prints_whole(): void {
         $report = $this->withLongText( $this->only( $this->report( 20 ), [ 'attention', 'changes', 'quality' ] ) );
