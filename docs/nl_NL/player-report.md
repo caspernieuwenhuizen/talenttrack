@@ -235,7 +235,7 @@ Een momentopname toont elke lezer wat die vandaag mag lezen. De cijfers blijven
 zoals ze waren, maar een sectie die de lezer niet mag zien valt weg of wordt
 korter, net als op het live rapport: blessures alleen voor stafleden met het
 medische recht, trajectmomenten op de niveaus die de lezer heeft, enzovoort. De
-pagina van de momentopname en de PDF tonen hetzelfde. Een scout opent geen
+pagina van de momentopname en de PDF tonen hetzelfde. Een scout ziet en opent geen
 momentopname die voor de staf is opgeslagen.
 
 Een momentopname opslaan, het rapport met het gezin delen en een notitie

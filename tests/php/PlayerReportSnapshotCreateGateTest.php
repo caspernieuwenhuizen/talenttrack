@@ -86,7 +86,11 @@ final class PlayerReportSnapshotCreateGateTest extends WP_UnitTestCase {
         $html = $this->renderTakeAndList();
         $this->assertStringNotContainsString( 'tt-mr-snapshots__take', $html );
         $this->assertStringNotContainsString( 'tt-pr-share', $html );
-        $this->assertStringContainsString( 'tt-mr-snapshots__list', $html, 'the earlier snapshots stay listed' );
+        if ( $opens ) {
+            $this->assertStringContainsString( 'tt-mr-snapshots__list', $html, 'the earlier snapshots stay listed' );
+        } else {
+            $this->assertStringNotContainsString( 'tt-mr-snapshots__list', $html, 'a copy for staff is not listed for a reader it does not open for' );
+        }
     }
 
     public function test_a_generating_seat_takes_and_notes_and_both_are_audited(): void {

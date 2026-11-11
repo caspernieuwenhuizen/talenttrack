@@ -782,8 +782,9 @@ class PlayersRestController {
         if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $uid, $player_id ) ) {
             $rows = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::sharedWithFamily( $player_id, $uid );
         } else {
-            $rows = ( new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository() )->listForPlayer(
+            $rows = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::listForStaffReader(
                 $player_id,
+                $uid,
                 20,
                 in_array( $audience, [ 'internal', 'family' ], true ) ? $audience : ''
             );

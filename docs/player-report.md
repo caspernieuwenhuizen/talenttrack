@@ -221,7 +221,7 @@ A snapshot shows each reader what they may read today. Its numbers stay as
 they were, but a section the reader may not see is left out or shortened, as
 it would be on the live report: injuries only for staff with the medical
 right, journey entries at the levels the reader holds, and so on. The snapshot
-page and its PDF show the same thing. A scout opens no snapshot saved for
+page and its PDF show the same thing. A scout neither sees nor opens a snapshot saved for
 staff.
 
 Saving a snapshot, sharing the report with the family and writing a note are

@@ -146,6 +146,36 @@ final class PlayerReportSnapshotSectionsTest extends WP_UnitTestCase {
         $this->assertSame( 403, rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/player-report-snapshots/' . $uuid ) )->get_status() );
     }
 
+    public function test_the_snapshot_list_leaves_out_copies_for_staff_for_a_scout(): void {
+        $staff  = $this->snapshot();
+        $family = PlayerReportSnapshots::share( $this->player, [ 'from' => self::FROM, 'to' => self::TO ], $this->hod );
+        $this->assertNotSame( '', $family, 'Precondition: a copy shared with the family.' );
+        $this->flush();
+        $this->assertTrue( PlayerReportAccess::canRead( $this->scout, $this->player ), 'Precondition: the linked scout reads the player\'s reports.' );
+
+        foreach ( [ 'head of development' => [ $this->hod, true ], 'observer' => [ $this->observer, true ], 'scout' => [ $this->scout, false ] ] as $who => [ $reader, $staff_listed ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            if ( ! PlayerReportAccess::canRead( $reader, $this->player ) ) continue;
+            $staff_listed = $staff_listed && PlayerReportAudience::forReader( $reader ) === PlayerReportAudience::INTERNAL;
+
+            $uuids = array_column( PlayerReportSnapshots::listForStaffReader( $this->player, $reader ), 'uuid' );
+            $this->assertSame( $staff_listed, in_array( $staff, $uuids, true ), "{$who}: the copy for staff in the list" );
+            $this->assertContains( $family, $uuids, "{$who}: the family copy stays listed" );
+
+            $res  = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/report-snapshots' ) );
+            $this->assertSame( 200, $res->get_status(), $who );
+            $rest = array_column( (array) ( $res->get_data()['data']['snapshots'] ?? [] ), 'uuid' );
+            $this->assertSame( $staff_listed, in_array( $staff, $rest, true ), "{$who}: REST lists the copy for staff" );
+
+            ob_start();
+            \TT\Modules\Analytics\Frontend\PlayerReportSnapshotPage::renderTakeAndList( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'period' => '' ], 'A', [ 'status' ] );
+            $html = (string) ob_get_clean();
+            $this->assertSame( $staff_listed, str_contains( $html, $staff ), "{$who}: the page lists the copy for staff" );
+            $this->assertStringContainsString( $family, $html, "{$who}: the page lists the family copy" );
+        }
+    }
+
     public function test_a_note_put_without_a_body_changes_nothing(): void {
         $uuid = $this->snapshot();
         wp_set_current_user( $this->hod );

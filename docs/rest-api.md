@@ -1274,7 +1274,9 @@ caller may not read are the same `403`, so a uuid cannot be probed.
   is cut to what that reader may read now (`PlayerSectionRights::cut()`), so
   it matches the live report for them; a staff snapshot opens only for a
   reader whose `PlayerReportAudience::forReader()` is `internal` (a scout is
-  `403`). The snapshot page and the PDF read the same payload.
+  `403`). The snapshot page and the PDF read the same payload. The list,
+  `GET /players/{id}/report-snapshots`, leaves staff snapshots out for such a
+  reader too, as the snapshot list under the report does.
 - `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`,
   required: leaving it out is `400 missing_fields` and changes nothing; an
   empty body removes the note. A section that is not a block is `400 unknown_section`.

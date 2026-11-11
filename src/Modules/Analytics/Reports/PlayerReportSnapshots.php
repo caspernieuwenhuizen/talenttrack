@@ -265,6 +265,21 @@ final class PlayerReportSnapshots {
     }
 
     /**
+     * The player's snapshots a staff reader is listed, newest first: a copy
+     * for staff only for a reader who reads as staff, the rule `readRow()`
+     * opens it by, so no row leads into a refusal.
+     *
+     * @return list<array{id:int, uuid:string, player_id:int, title:string,
+     *     period_from:string, period_to:string, created_by:int,
+     *     created_at:string, updated_at:string, audience:string, report_id:int}>
+     */
+    public static function listForStaffReader( int $player_id, int $user_id, int $limit = 20, string $audience = '' ): array {
+        $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, $limit, $audience );
+        if ( PlayerReportAudience::forReader( $user_id ) === PlayerReportAudience::INTERNAL ) return $rows;
+        return array_values( array_filter( $rows, static fn( array $row ): bool => $row['audience'] !== PlayerReportAudience::INTERNAL ) );
+    }
+
+    /**
      * The reports shared with this player's family, newest first, for a reader
      * who may see them: the family itself, or staff who may read the player's
      * report. Empty for anyone else.

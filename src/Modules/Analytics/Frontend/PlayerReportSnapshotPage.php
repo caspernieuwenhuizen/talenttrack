@@ -329,7 +329,7 @@ final class PlayerReportSnapshotPage {
             self::renderShare( $player_id, $window, $layout, $blocks, $options );
         }
 
-        $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, 10 );
+        $rows = PlayerReportSnapshots::listForStaffReader( $player_id, $user_id, 10 );
         if ( $rows !== [] ) {
             echo '<ul class="tt-mr-snapshots__list">';
             foreach ( $rows as $row ) {
