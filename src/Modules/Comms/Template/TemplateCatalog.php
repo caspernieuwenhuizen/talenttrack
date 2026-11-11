@@ -17,6 +17,7 @@ use TT\Modules\Comms\Templates\MethodologyDeliveredTemplate;
 use TT\Modules\Comms\Templates\NotificationTemplate;
 use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
 use TT\Modules\Comms\Templates\ParentMeetingInviteTemplate;
+use TT\Modules\Comms\Templates\PdpConversationSignedTemplate;
 use TT\Modules\Comms\Templates\PdpReadyTemplate;
 use TT\Modules\Comms\Templates\SafeguardingBroadcastTemplate;
 use TT\Modules\Comms\Templates\ScheduleChangeFromSpondTemplate;
@@ -64,7 +65,7 @@ final class TemplateCatalog {
             new SelectionLetterTemplate(),
             new PdpReadyTemplate(),
             // #4981 — a PDP form conversation signed off.
-            new \TT\Modules\Comms\Templates\PdpConversationSignedTemplate(),
+            new PdpConversationSignedTemplate(),
             new ParentMeetingInviteTemplate(),
             new TrialPlayerWelcomeTemplate(),
             new GuestPlayerInviteTemplate(),

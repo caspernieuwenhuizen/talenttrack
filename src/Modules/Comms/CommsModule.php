@@ -18,6 +18,7 @@ use TT\Modules\Comms\Queue\DeferredSendSweep;
 use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
 use TT\Modules\Comms\Send\MethodologyDeliveredSend;
+use TT\Modules\Comms\Send\PdpConversationSignedSend;
 use TT\Modules\Comms\Send\PdpReadySend;
 use TT\Modules\Comms\Send\TeamScheduleChangeSend;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
@@ -169,7 +170,7 @@ class CommsModule implements ModuleInterface {
 
         // #4981 — a conversation on a PDP form signed off: the player and
         // the family read it and confirm. See `PdpConversationSignedSend`.
-        \TT\Modules\Comms\Send\PdpConversationSignedSend::init();
+        PdpConversationSignedSend::init();
 
         // #3220 — use case 10. Methodology had no publish event at all, so
         // one was built: `tt_training_plan_published` is edge-triggered in
