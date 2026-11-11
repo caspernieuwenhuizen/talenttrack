@@ -182,6 +182,23 @@ class GoalsRestController {
     }
 
     /**
+     * #5112 — the goal-approval rule (`GoalAccess::mayChangeStatus()`) for a
+     * status write: null when it may go ahead, the `403 forbidden_approval`
+     * refusal otherwise. Asked after `goalRefusal()`, so only a caller who
+     * may change this goal learns that it waits for approval.
+     */
+    private static function approvalRefusal( int $goal_id, string $to ): ?\WP_REST_Response {
+        $goal = \TT\Infrastructure\Goals\GoalAccess::playerAndStatusOf( $goal_id );
+        if ( $goal === null ) return null;
+        if ( \TT\Infrastructure\Goals\GoalAccess::mayChangeStatus( get_current_user_id(), $goal['player_id'], $goal['status'], $to ) ) return null;
+        return RestResponse::error(
+            'forbidden_approval',
+            __( 'Only the player\'s head coach can approve or reject this goal.', 'talenttrack' ),
+            403
+        );
+    }
+
+    /**
      * The per-record half of every `goals/{id}` route. The route's
      * capability says "may change goals"; this asks whether the caller may
      * change this player's goals. A refusal is answered exactly as a missing
@@ -902,6 +919,13 @@ class GoalsRestController {
         $refusal = self::goalRefusal( $goal_id );
         if ( $refusal !== null ) return $refusal;
 
+        // #5112 — a status in the body follows the approval rule, as on
+        // PATCH /goals/{id}/status.
+        if ( isset( $r['status'] ) ) {
+            $refused_approval = self::approvalRefusal( $goal_id, sanitize_text_field( (string) $r['status'] ) );
+            if ( $refused_approval !== null ) return $refused_approval;
+        }
+
         $data = [];
         foreach ( [ 'title', 'description', 'status', 'priority' ] as $k ) {
             if ( isset( $r[ $k ] ) ) {
@@ -1035,21 +1059,9 @@ class GoalsRestController {
         // #0077 M10 — when a goal is leaving pending_approval, the
         // approver must be the player's head coach (or admin). Matches
         // the PDP signoff pattern (head_coach is the trusted reviewer).
-        $existing = $wpdb->get_row( $wpdb->prepare(
-            "SELECT player_id, status FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
-            $goal_id, CurrentClub::id()
-        ) );
-        if ( $existing && (string) $existing->status === GoalStatus::PENDING_APPROVAL
-             && $status !== GoalStatus::PENDING_APPROVAL
-             && ! current_user_can( 'manage_options' )
-             && ! \TT\Infrastructure\Security\AuthorizationService::isHeadCoachOfPlayer( get_current_user_id(), (int) $existing->player_id )
-        ) {
-            return RestResponse::error(
-                'forbidden_approval',
-                __( 'Only the player\'s head coach can approve or reject this goal.', 'talenttrack' ),
-                403
-            );
-        }
+        // #5112 — one rule on every route that writes a status.
+        $refused_approval = self::approvalRefusal( $goal_id, $status );
+        if ( $refused_approval !== null ) return $refused_approval;
 
         $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', [ 'status' => $status ], [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
