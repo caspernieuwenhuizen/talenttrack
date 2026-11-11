@@ -237,8 +237,8 @@
     white-space: nowrap;
 }
 
-.tt-po-move--up    { color: var(--tt-success); }
-.tt-po-move--down  { color: var(--tt-danger); }
+.tt-po-move--up    { color: var(--tt-success-text, var(--tt-success)); }
+.tt-po-move--down  { color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-po-move--same,
 .tt-po-move--first,
 .tt-po-move--none  { color: var(--tt-muted); }

@@ -107,12 +107,12 @@
 .tt-dashboard .tt-trial-chip--status-extended {
     background: var(--tt-info-subtle);
     border-color: var(--tt-info-subtle);
-    color: var(--tt-info);
+    color: var(--tt-info-text, var(--tt-info));
 }
 .tt-dashboard .tt-trial-chip--status-decided {
     background: var(--tt-success-subtle);
     border-color: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 .tt-dashboard .tt-trial-chip--status-archived {
     background: var(--tt-bg-soft);
@@ -121,7 +121,7 @@
 .tt-dashboard .tt-trial-chip--decision {
     background: var(--tt-warning-subtle);
     border-color: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 .tt-dashboard .tt-trial-chip__count {
     background: var(--tt-bg-soft);

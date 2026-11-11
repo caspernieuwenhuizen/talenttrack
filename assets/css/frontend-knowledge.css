@@ -235,7 +235,7 @@
 }
 
 .tt-knowledge-lesson-row--done .tt-knowledge-lesson-row__state {
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 
 .tt-knowledge-lesson-row__title a {
@@ -347,7 +347,7 @@
 }
 
 .tt-knowledge-lesson__save-state--failed {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 /* ── the review queue (#2648) ───────────────────────────────────────── */

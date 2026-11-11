@@ -235,7 +235,7 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--tt-info, #2d6fb3);
+    color: var(--tt-info-text, var(--tt-info, #2d6fb3));
 }
 
 .tt-lesson-callout__body > * + * {
@@ -375,7 +375,7 @@
 
 .tt-lesson-check__option[data-tt-state="answer"] .tt-lesson-check__key::after {
     content: " ✓";
-    color: var(--tt-success, #2f7d4f);
+    color: var(--tt-success-text, var(--tt-success, #2f7d4f));
 }
 
 .tt-lesson-check__option[data-tt-state="chosen-wrong"] {
@@ -385,7 +385,7 @@
 
 .tt-lesson-check__option[data-tt-state="chosen-wrong"] .tt-lesson-check__key::after {
     content: " ✗";
-    color: var(--tt-danger, #b3261e);
+    color: var(--tt-danger-text, var(--tt-danger, #b3261e));
 }
 
 /* Answered: the pointer affordance goes, the text stays legible. */
@@ -404,11 +404,11 @@
 }
 
 .tt-lesson-check[data-tt-result="correct"] .tt-lesson-check__verdict {
-    color: var(--tt-success, #2f7d4f);
+    color: var(--tt-success-text, var(--tt-success, #2f7d4f));
 }
 
 .tt-lesson-check[data-tt-result="wrong"] .tt-lesson-check__verdict {
-    color: var(--tt-danger, #b3261e);
+    color: var(--tt-danger-text, var(--tt-danger, #b3261e));
 }
 
 .tt-lesson-check__why {
@@ -832,9 +832,9 @@
 /* The verdict carries in the colour as well as the words: a coach
    scanning a course for what still needs doing should not have to read
    every status line to find the one asking for work. */
-[data-tt-submission-state="approved"]          .tt-lesson-assignment__status { color: var(--tt-success, #2f7d4f); }
+[data-tt-submission-state="approved"]          .tt-lesson-assignment__status { color: var(--tt-success-text, var(--tt-success, #2f7d4f)); }
 [data-tt-submission-state="changes_requested"] .tt-lesson-assignment__status { color: #8a5a12; }
-[data-tt-submission-state="rejected"]          .tt-lesson-assignment__status { color: var(--tt-danger, #b3261e); }
+[data-tt-submission-state="rejected"]          .tt-lesson-assignment__status { color: var(--tt-danger-text, var(--tt-danger, #b3261e)); }
 [data-tt-submission-state="pending"]           .tt-lesson-assignment__status { color: var(--tt-muted, #6a6d66); }
 
 .tt-lesson-assignment__feedback {

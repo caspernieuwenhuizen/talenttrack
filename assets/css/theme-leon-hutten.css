@@ -139,9 +139,13 @@
     /* Status — re-tuned by the handoff so they read as part of a cool
        palette rather than as four borrowed warm colours. */
     --tt-success:        #14884a;
+    --tt-success-text:   #117640;
     --tt-warning:        #c77a0a;
+    --tt-warning-text:   #965c08;
     --tt-danger:         #c0342b;
+    --tt-danger-text:   #c0342b;
     --tt-info:           #0284c0;
+    --tt-info-text:   #026fa2;
     --tt-success-subtle: #dcf1e4;
     --tt-warning-subtle: #fdf0d9;
     --tt-danger-subtle:  #fce4e2;

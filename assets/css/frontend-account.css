@@ -85,17 +85,17 @@
 
 .tt-account-status--ok {
     background: var(--tt-success-subtle, #e6f4ea);
-    color: var(--tt-success, #2e7d4f);
+    color: var(--tt-success-text, var(--tt-success, #2e7d4f));
 }
 
 .tt-account-status--near {
     background: var(--tt-warning-subtle, #fdf3e3);
-    color: var(--tt-warning, #a86322);
+    color: var(--tt-warning-text, var(--tt-warning, #a86322));
 }
 
 .tt-account-status--over {
     background: var(--tt-danger-subtle, #fdecea);
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
 }
 
 /* ── Feature matrix ────────────────────────────────────────────────── */
@@ -126,7 +126,7 @@
 }
 
 .tt-account-mark--yes {
-    color: var(--tt-success, #2e7d4f);
+    color: var(--tt-success-text, var(--tt-success, #2e7d4f));
     font-weight: 700;
 }
 
@@ -157,7 +157,7 @@
 
 .tt-account-danger > summary {
     cursor: pointer;
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
     font-weight: 600;
     padding: var(--tt-sp-3, 0.75rem) 0;
     min-height: 48px;

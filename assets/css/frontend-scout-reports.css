@@ -65,17 +65,17 @@
     white-space: nowrap;
 }
 .tt-dashboard .tt-sr-chip--green {
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
     border-color: var(--tt-success, #2f9e5e);
     background: var(--tt-success-subtle, #dff5e1);
 }
 .tt-dashboard .tt-sr-chip--gold {
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
     border-color: var(--tt-warning, #e8902b);
     background: var(--tt-warning-subtle, #fdf3d8);
 }
 .tt-dashboard .tt-sr-chip--red {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     border-color: var(--tt-danger, #d8453b);
     background: var(--tt-danger-subtle, #fde2e2);
 }

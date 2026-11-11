@@ -182,7 +182,7 @@
 }
 
 .tt-mv-form-msg--error {
-    color: var(--tt-danger, #b3261e);
+    color: var(--tt-danger-text, var(--tt-danger, #b3261e));
 }
 
 .tt-mv-form-actions {

@@ -128,7 +128,7 @@
 }
 
 .tt-cb-link {
-    color: var(--tt-info);
+    color: var(--tt-info-text, var(--tt-info));
     text-decoration: none;
 }
 
@@ -173,8 +173,8 @@
     font-weight: 700;
 }
 
-.tt-cb-trend--up   { color: var(--tt-success); }
-.tt-cb-trend--down { color: var(--tt-danger); }
+.tt-cb-trend--up   { color: var(--tt-success-text, var(--tt-success)); }
+.tt-cb-trend--down { color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-cb-trend--flat { color: var(--tt-muted); }
 
 .tt-cb-sr {
@@ -190,7 +190,7 @@
 }
 
 .tt-cb-att.is-low {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     font-weight: 600;
 }
 
@@ -218,25 +218,25 @@
 
 .tt-cb-verdict--promote {
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     border-color: var(--tt-success);
 }
 
 .tt-cb-verdict--retain {
     background: var(--tt-info-subtle);
-    color: var(--tt-info);
+    color: var(--tt-info-text, var(--tt-info));
     border-color: var(--tt-info);
 }
 
 .tt-cb-verdict--release {
     background: var(--tt-danger-subtle);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     border-color: var(--tt-danger);
 }
 
 .tt-cb-verdict--transfer {
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
     border-color: var(--tt-warning);
 }
 

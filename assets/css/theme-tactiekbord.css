@@ -83,6 +83,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-success:        #12875a;
+    --tt-success-text:   #10754e;
     --tt-success-subtle: #dcf3e8;
 
     /* ---- Record links ---------------------------------------------- */

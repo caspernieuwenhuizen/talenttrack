@@ -73,12 +73,12 @@
 }
 
 .tt-dashboard .tt-setup__step-item.is-done {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-setup__step-item.is-done .tt-setup__step-num {
     border-color: var(--tt-success);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 /* ---- Form fields ---------------------------------------------------- */
@@ -195,11 +195,11 @@
 }
 
 .tt-dashboard .tt-setup__form-msg.tt-success {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-setup__form-msg.tt-error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 /* ---- Messaging step (#3140, step from #3113) ------------------------ */
@@ -216,7 +216,7 @@
     padding: 0.1rem 0.45rem;
     border-radius: var(--tt-radius);
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     font-size: 0.75rem;
     font-weight: 600;
     vertical-align: middle;

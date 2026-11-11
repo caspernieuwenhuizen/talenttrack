@@ -189,7 +189,7 @@
 }
 
 .tt-media-queue__item.is-done .tt-media-queue__state {
-	color: var(--tt-success, #2f9e5e);
+	color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 
 .tt-media-queue__item.is-failed {
@@ -198,7 +198,7 @@
 }
 
 .tt-media-queue__item.is-failed .tt-media-queue__state {
-	color: var(--tt-danger, #c0392b);
+	color: var(--tt-danger-text, var(--tt-danger, #c0392b));
 }
 
 .tt-media-queue__item.is-cancelled {
@@ -442,7 +442,7 @@
 .tt-media-tile__delete:hover,
 .tt-media-tile__delete:focus-visible {
 	border-color: var(--tt-danger, #c0392b);
-	color: var(--tt-danger, #c0392b);
+	color: var(--tt-danger-text, var(--tt-danger, #c0392b));
 }
 
 /* ── Lightbox ─────────────────────────────────────────────────────── */
@@ -590,7 +590,7 @@
 
 .tt-tagfield__remove:hover,
 .tt-tagfield__remove:focus-visible {
-	color: var(--tt-danger, #a4262c);
+	color: var(--tt-danger-text, var(--tt-danger, #a4262c));
 }
 
 .tt-tagfield__entry {

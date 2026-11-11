@@ -348,7 +348,7 @@
     font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
     text-decoration: none;
     background: var(--tt-success-subtle, #dff5e1);
     border: 1px solid #cfe6d3;

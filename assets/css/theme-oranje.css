@@ -91,6 +91,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-warning:        #b86e00;
+    --tt-warning-text:   #995c00;
     --tt-warning-subtle: #fff0dc;
 
     /* ---- Record links ---------------------------------------------- */

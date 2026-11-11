@@ -217,7 +217,7 @@
     color: var(--tt-muted, #6a6d66);
 }
 
-.tt-dashboard .tt-psc-cadence--overdue { color: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-psc-cadence--overdue { color: var(--tt-warning-text, var(--tt-warning, #e8902b)); }
 .tt-dashboard .tt-psc-cadence--never   { font-style: italic; }
 
 .tt-dashboard .tt-psc-bands {

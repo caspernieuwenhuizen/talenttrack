@@ -1340,9 +1340,9 @@ body.tt-bp-chem-hidden .tt-chem-link {
     font-weight: 600;
 }
 .tt-status-badge--draft  { background: var(--tt-line-soft, #eef0ec); color: var(--tt-ink-soft, #6a6d66); }
-.tt-status-badge--shared { background: var(--tt-info-subtle, #e6f0fa); color: var(--tt-info, #2d6fb3); }
-.tt-status-badge--locked { background: var(--tt-warning-subtle, #fdf3d8); color: var(--tt-warning, #e8902b); }
-.tt-bp-flavour-pill--squad    { background: var(--tt-success-subtle, #dff5e1); color: var(--tt-success, #2f9e5e); }
+.tt-status-badge--shared { background: var(--tt-info-subtle, #e6f0fa); color: var(--tt-info-text, var(--tt-info, #2d6fb3)); }
+.tt-status-badge--locked { background: var(--tt-warning-subtle, #fdf3d8); color: var(--tt-warning-text, var(--tt-warning, #e8902b)); }
+.tt-bp-flavour-pill--squad    { background: var(--tt-success-subtle, #dff5e1); color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
 .tt-bp-flavour-pill--matchday { background: var(--tt-line-soft, #eef0ec); color: var(--tt-ink-soft, #6a6d66); }
 
 /* ---- Tab nav ------------------------------------------------------ */

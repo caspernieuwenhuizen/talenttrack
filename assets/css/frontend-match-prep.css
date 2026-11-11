@@ -205,7 +205,7 @@
     font-variant-numeric: tabular-nums;
     width: 2.5rem;
 }
-.tt-mp-roster tbody td.tt-mp-on { background: #eaf3ec; color: var(--tt-mp-success); font-weight: 600; }
+.tt-mp-roster tbody td.tt-mp-on { background: #eaf3ec; color: var(--tt-success-text, var(--tt-mp-success)); font-weight: 600; }
 .tt-mp-roster tbody td.tt-mp-off { color: var(--tt-mp-line); }
 .tt-mp-roster tfoot { border-top: 2px solid var(--tt-mp-line); }
 .tt-mp-roster tfoot td {
@@ -742,7 +742,7 @@
 }
 .tt-mp-dps tbody td.tt-mp-col-cam:hover,
 .tt-mp-dps tbody td.tt-mp-col-cam:focus-visible { color: var(--tt-mp-ink-soft); }
-.tt-mp-dps tbody td.tt-mp-col-cam.tt-mp-on { color: var(--tt-mp-success); }
+.tt-mp-dps tbody td.tt-mp-col-cam.tt-mp-on { color: var(--tt-success-text, var(--tt-mp-success)); }
 
 /* Role / set-piece list */
 .tt-mp-sp-list {
@@ -898,7 +898,7 @@
     padding: 0.5rem 0.625rem;
     font: inherit;
     font-size: 0.75rem;
-    color: var(--tt-mp-danger);
+    color: var(--tt-danger-text, var(--tt-mp-danger));
     cursor: pointer;
     border-radius: 4px;
     touch-action: manipulation;
@@ -1235,13 +1235,13 @@
        Force the bright colours back AND ask the browser to print them
        even when "Background graphics" is off. */
     .tt-mp-dps tbody td.tt-mp-col-spec.tt-mp-on {
-        color: var(--tt-mp-danger) !important;
+        color: var(--tt-danger-text, var(--tt-mp-danger)) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         color-adjust: exact;
     }
     .tt-mp-dps tbody td.tt-mp-col-cam.tt-mp-on {
-        color: var(--tt-mp-success) !important;
+        color: var(--tt-success-text, var(--tt-mp-success)) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         color-adjust: exact;

@@ -147,7 +147,7 @@
 }
 
 .tt-dashboard .tt-export-card__msg--error {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 /* Multi-format chip toggle (#864). One pill per format slug; the selected

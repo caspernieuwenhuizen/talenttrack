@@ -322,6 +322,20 @@ worden op
 de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
 declareert, declareert ten minste `--tt-secondary-text` zelf.
 
+### Statuskleuren als tekst
+
+De vier statuskleuren (`--tt-success`, `--tt-warning`, `--tt-danger`,
+`--tt-info`) zijn ook vlakkleuren. Elke `color:`-regel die er een toont, leest
+in plaats daarvan de `-text`-variant, bijvoorbeeld
+`color: var(--tt-danger-text, var(--tt-danger, #b32d2e))`; vlakken, randen en
+badges houden de statuskleur zelf. Elke `-text` haalt 4,5:1 op papier, op de
+zachte achtergrond en op het eigen `-subtle`-vlak van die status. In het
+standaardontwerp is dat de statusinkt (`--tt-danger-ink` en de andere). Een
+thema dat een statuskleur zet, zet ook de `-text` ervan. Een statuskleur uit
+Branding voedt `--tt-<status>-text-color`, afgeleid door
+`BrandStyles::statusTextColor()`: de kleur zelf als die op 4,5:1 leest op de
+pagina en op het lichte vlak, anders dezelfde tint donkerder tot hij dat doet.
+
 `tests/php/ThemeContrastTest.php` controleert elk geregistreerd thema op de
 contrastgrenzen en lost elk token op zoals de browser dat doet: inkt, zachte
 inkt, gedempte tekst en links op papier en op de zachte achtergrond, wit op de

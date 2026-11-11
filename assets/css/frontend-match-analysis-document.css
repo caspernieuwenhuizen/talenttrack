@@ -164,9 +164,9 @@
     white-space: nowrap;
 }
 
-.tt-mad__tile[data-rating="went_well"]  .tt-mad__tile-rating { color: var(--tt-success); }
-.tt-mad__tile[data-rating="mixed"]      .tt-mad__tile-rating { color: var(--tt-info); }
-.tt-mad__tile[data-rating="needs_work"] .tt-mad__tile-rating { color: var(--tt-warning); }
+.tt-mad__tile[data-rating="went_well"]  .tt-mad__tile-rating { color: var(--tt-success-text, var(--tt-success)); }
+.tt-mad__tile[data-rating="mixed"]      .tt-mad__tile-rating { color: var(--tt-info-text, var(--tt-info)); }
+.tt-mad__tile[data-rating="needs_work"] .tt-mad__tile-rating { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-mad__tile[data-rating=""] .tt-mad__tile-rating { color: var(--tt-muted); font-weight: 400; }
 .tt-mad__tile[data-rating=""] .tt-mad__tile-name   { color: var(--tt-ink-soft); }
@@ -208,8 +208,8 @@
     font-weight: 700;
 }
 
-.tt-mad__point-mark[data-valence="plus"]  { color: var(--tt-success); }
-.tt-mad__point-mark[data-valence="minus"] { color: var(--tt-warning); }
+.tt-mad__point-mark[data-valence="plus"]  { color: var(--tt-success-text, var(--tt-success)); }
+.tt-mad__point-mark[data-valence="minus"] { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-mad__sr {
     position: absolute;
@@ -252,9 +252,9 @@
 
 .tt-mad__player-mark { font-size: var(--tt-fs-sm); font-weight: 700; }
 
-.tt-mad__player[data-marker="stood_out"]   .tt-mad__player-mark { color: var(--tt-success); }
-.tt-mad__player[data-marker="as_expected"] .tt-mad__player-mark { color: var(--tt-info); }
-.tt-mad__player[data-marker="below_par"]   .tt-mad__player-mark { color: var(--tt-warning); }
+.tt-mad__player[data-marker="stood_out"]   .tt-mad__player-mark { color: var(--tt-success-text, var(--tt-success)); }
+.tt-mad__player[data-marker="as_expected"] .tt-mad__player-mark { color: var(--tt-info-text, var(--tt-info)); }
+.tt-mad__player[data-marker="below_par"]   .tt-mad__player-mark { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-mad__player-min {
     margin-left: auto;

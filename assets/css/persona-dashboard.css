@@ -600,8 +600,8 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
 }
-.tt-pd-kpi-current.tt-pd-trend-up   { color: var(--tt-pd-success); }
-.tt-pd-kpi-current.tt-pd-trend-down { color: var(--tt-pd-danger); }
+.tt-pd-kpi-current.tt-pd-trend-up   { color: var(--tt-success-text, var(--tt-pd-success)); }
+.tt-pd-kpi-current.tt-pd-trend-down { color: var(--tt-danger-text, var(--tt-pd-danger)); }
 .tt-pd-kpi-delta { font-size: 0.8125rem; color: var(--tt-pd-text-muted); }
 .tt-pd-spark { display: block; color: var(--tt-pd-accent); }
 /* KPI clickable wrapper. The whole card becomes a tap target so the

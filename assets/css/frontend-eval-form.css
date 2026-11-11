@@ -315,7 +315,7 @@
     border-radius: var(--tt-radius);
 }
 .tt-dashboard .tt-evf-warning[hidden] { display: none; }
-.tt-dashboard .tt-evf-warning svg { flex: 0 0 auto; color: var(--tt-warning); margin-top: 0.125rem; }
+.tt-dashboard .tt-evf-warning svg { flex: 0 0 auto; color: var(--tt-warning-text, var(--tt-warning)); margin-top: 0.125rem; }
 .tt-dashboard .tt-evf .tt-evf-rating.is-low {
     border-color: var(--tt-warning);
     background: var(--tt-warning-subtle);

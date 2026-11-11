@@ -307,6 +307,20 @@ derived by `BrandStyles::accentTextColor()`: the colour itself when it reads at
 theme's secondary. A theme that declares a secondary declares at least
 `--tt-secondary-text` itself.
 
+### Status colours as text
+
+The four status colours (`--tt-success`, `--tt-warning`, `--tt-danger`,
+`--tt-info`) are fills too. Every `color:` rule that prints one reads its
+`-text` variant instead, for example
+`color: var(--tt-danger-text, var(--tt-danger, #b32d2e))`; fills, borders and
+badges keep the status colour itself. Each `-text` clears 4.5:1 on paper, the
+soft background and the status's own `-subtle` fill. On the default design it
+is the status ink (`--tt-danger-ink` and its siblings). A theme that sets a
+status colour sets its `-text` too. A Branding status colour feeds
+`--tt-<status>-text-color`, derived by `BrandStyles::statusTextColor()`: the
+colour itself when it reads at 4.5:1 on the page and on the subtle fill,
+otherwise the same hue darkened until it does.
+
 `tests/php/ThemeContrastTest.php` checks every registered theme against the
 contrast floors, resolving each token as the browser does: ink, soft ink,
 muted text and links on paper and the soft background, white on the primary

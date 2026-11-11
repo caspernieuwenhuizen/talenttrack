@@ -94,7 +94,7 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
     font-size: 16px;
     line-height: 1;
     cursor: pointer;

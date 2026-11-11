@@ -325,7 +325,7 @@
     color: var(--tt-muted, #5b6470);
 }
 .tt-methodology-media__remove {
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
 }
 
 /* Messaging step (#3113). The wizard is run on whatever device the

@@ -128,7 +128,7 @@
 
 .tt-rb-badge--urgent {
     background: var(--tt-danger-subtle);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 /* ---- actions ------------------------------------------------------- */
@@ -199,7 +199,7 @@
 }
 
 .tt-rb-preview--blocked .tt-rb-preview__heading {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 /* ---- from 480px: row becomes a single horizontal line -------------- */

@@ -87,7 +87,7 @@
 }
 .tt-dashboard .tt-explore-headline-flag {
     margin-top: var(--tt-sp-2);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     font-size: var(--tt-fs-sm);
     font-weight: 600;
 }

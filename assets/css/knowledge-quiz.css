@@ -196,7 +196,7 @@
     font-size: var(--tt-fs-sm, 0.85rem);
 }
 
-.tt-quiz__error { color: var(--tt-danger, #d8453b); }
+.tt-quiz__error { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
 
 /* ── the no-JavaScript result panel ─────────────────────────────────── */
 
@@ -250,8 +250,8 @@
 }
 
 .tt-quiz-result__mark { font-weight: 700; }
-.tt-quiz-result__item--correct .tt-quiz-result__mark { color: var(--tt-success, #2f9e5e); }
-.tt-quiz-result__item--wrong .tt-quiz-result__mark { color: var(--tt-danger, #d8453b); }
+.tt-quiz-result__item--correct .tt-quiz-result__mark { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
+.tt-quiz-result__item--wrong .tt-quiz-result__mark { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
 
 .tt-quiz-result__expected,
 .tt-quiz-result__why {

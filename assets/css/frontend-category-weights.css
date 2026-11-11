@@ -109,7 +109,7 @@
 
 .tt-cw-form.is-unbalanced .tt-cw-total__value,
 .tt-cw-form.is-unbalanced .tt-cw-total__hint {
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
 }
 
 .tt-cw-actions {

@@ -135,8 +135,8 @@
     font-size: 13px;
     color: var(--tt-ink-soft, #6a6d66);
 }
-.tt-team-customize__status.is-error { color: var(--tt-danger, #d8453b); }
-.tt-team-customize__status.is-success { color: var(--tt-success, #2f9e5e); }
+.tt-team-customize__status.is-error { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
+.tt-team-customize__status.is-success { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
 
 /* #4913 — the roster table's shirt-number column and the dash for a player
    without one, moved out of inline styles when the table went onto the

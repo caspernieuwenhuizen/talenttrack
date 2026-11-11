@@ -212,9 +212,9 @@
     background: var(--tt-mute-soft);
     color: var(--tt-ink-soft);
 }
-.tt-player-pill[data-status="active"]   { background: #e0efe5; color: var(--tt-success); }
+.tt-player-pill[data-status="active"]   { background: var(--tt-success-subtle, #e0efe5); color: var(--tt-success-text, var(--tt-success)); }
 .tt-player-pill[data-status="trial"]    { background: #fff3d9; color: var(--tt-gold); }
-.tt-player-pill[data-status="released"] { background: #ffe0e0; color: var(--tt-danger); }
+.tt-player-pill[data-status="released"] { background: var(--tt-danger-subtle, #ffe0e0); color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-player-pill[data-status="inactive"] { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
 .tt-player-pill--pos { background: var(--tt-accent-soft); color: var(--tt-accent); }
 
@@ -347,7 +347,7 @@
 }
 
 .tt-player-action--edit + .tt-player-action__more { margin-left: 0; }
-.tt-player-action--danger { color: var(--tt-danger); }
+.tt-player-action--danger { color: var(--tt-danger-text, var(--tt-danger)); }
 
 /* Shown and hidden by the <details> itself; no display toggle here. */
 .tt-player-action__menu {
@@ -506,8 +506,8 @@
     align-items: center;
     gap: 3px;
 }
-.tt-player-kpi__trend--up   { color: var(--tt-success); }
-.tt-player-kpi__trend--down { color: var(--tt-danger); }
+.tt-player-kpi__trend--up   { color: var(--tt-success-text, var(--tt-success)); }
+.tt-player-kpi__trend--down { color: var(--tt-danger-text, var(--tt-danger)); }
 
 /* Team page variant. It shows three tiles, so on a phone they never wrapped
  * the way the player page's four do, and a bare 1fr track has a min-content
@@ -1080,8 +1080,8 @@
     white-space: nowrap;
 }
 .tt-player-row__stat[data-stat="goals"] {
-    background: #e0efe5;
-    color: var(--tt-success);
+    background: var(--tt-success-subtle, #e0efe5);
+    color: var(--tt-success-text, var(--tt-success));
 }
 .tt-player-row__chev {
     color: var(--tt-line-soft);
@@ -1114,13 +1114,13 @@
     align-items: center;
 }
 .tt-player-row__pill[data-status="completed"],
-.tt-player-row__pill[data-status="present"]    { background: #e0efe5; color: var(--tt-success); }
+.tt-player-row__pill[data-status="present"]    { background: var(--tt-success-subtle, #e0efe5); color: var(--tt-success-text, var(--tt-success)); }
 .tt-player-row__pill[data-status="in_progress"]{ background: var(--tt-accent-soft); color: var(--tt-accent); }
 .tt-player-row__pill[data-status="planned"]    { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
 .tt-player-row__pill[data-status="cancelled"],
-.tt-player-row__pill[data-status="absent"]     { background: #ffe0e0; color: var(--tt-danger); }
+.tt-player-row__pill[data-status="absent"]     { background: var(--tt-danger-subtle, #ffe0e0); color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-player-row__pill[data-status="late"]       { background: #fff3d9; color: var(--tt-gold); }
-.tt-player-row__pill[data-priority="high"]     { background: #ffe0e0; color: var(--tt-danger); }
+.tt-player-row__pill[data-priority="high"]     { background: var(--tt-danger-subtle, #ffe0e0); color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-player-row__pill[data-priority="medium"]   { background: #fff3d9; color: var(--tt-gold); }
 .tt-player-row__pill[data-priority="low"]      { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
 

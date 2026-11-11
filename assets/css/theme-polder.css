@@ -83,6 +83,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-info:           #1f6fa8;
+    --tt-info-text:   #1f6fa8;
     --tt-info-subtle:    #e4f0f8;
 
     /* ---- Record links ---------------------------------------------- */

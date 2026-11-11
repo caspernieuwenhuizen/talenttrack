@@ -115,6 +115,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-success:        #186f36;
+    --tt-success-text:   #186f36;
     --tt-success-subtle: #dff1e4;
 
     /* ---- Record links ---------------------------------------------- */

@@ -309,19 +309,19 @@
 .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="went_well"],
 .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="stood_out"] {
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="mixed"],
 .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="as_expected"] {
     background: var(--tt-info-subtle);
-    color: var(--tt-info);
+    color: var(--tt-info-text, var(--tt-info));
 }
 
 .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="needs_work"],
 .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="below_par"] {
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 .tt-ma__rating-input:checked + .tt-ma__rating[data-rating=""],
@@ -384,9 +384,9 @@
     white-space: nowrap;
 }
 
-.tt-ma__rating-legend-item[data-rating="went_well"]  .tt-ma__glyph { color: var(--tt-success); }
-.tt-ma__rating-legend-item[data-rating="mixed"]      .tt-ma__glyph { color: var(--tt-info); }
-.tt-ma__rating-legend-item[data-rating="needs_work"] .tt-ma__glyph { color: var(--tt-warning); }
+.tt-ma__rating-legend-item[data-rating="went_well"]  .tt-ma__glyph { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__rating-legend-item[data-rating="mixed"]      .tt-ma__glyph { color: var(--tt-info-text, var(--tt-info)); }
+.tt-ma__rating-legend-item[data-rating="needs_work"] .tt-ma__glyph { color: var(--tt-warning-text, var(--tt-warning)); }
 
 @media (min-width: 600px) {
     .tt-ma__group-head {
@@ -471,13 +471,13 @@
 .tt-ma__valence-input:checked + .tt-ma__valence-opt[data-valence="plus"] {
     border-color: var(--tt-success);
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-ma__valence-input:checked + .tt-ma__valence-opt[data-valence="minus"] {
     border-color: var(--tt-warning);
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 .tt-ma__valence-input:focus-visible + .tt-ma__valence-opt {
@@ -536,8 +536,8 @@
     font-weight: 700;
 }
 
-.tt-ma__valence-legend-item[data-valence="plus"]  .tt-ma__valence-glyph { color: var(--tt-success); }
-.tt-ma__valence-legend-item[data-valence="minus"] .tt-ma__valence-glyph { color: var(--tt-warning); }
+.tt-ma__valence-legend-item[data-valence="plus"]  .tt-ma__valence-glyph { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__valence-legend-item[data-valence="minus"] .tt-ma__valence-glyph { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-ma__player-notes {
     display: flex;
@@ -550,8 +550,8 @@
     font-weight: 700;
 }
 
-.tt-ma__read-mark[data-valence="plus"]  { color: var(--tt-success); }
-.tt-ma__read-mark[data-valence="minus"] { color: var(--tt-warning); }
+.tt-ma__read-mark[data-valence="plus"]  { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__read-mark[data-valence="minus"] { color: var(--tt-warning-text, var(--tt-warning)); }
 
 /*
  * Visible to a screen reader, not on screen: the sign is a glyph, and "+"
@@ -645,9 +645,9 @@
     line-height: 1;
 }
 
-.tt-ma__glyph[data-marker="stood_out"]   { color: var(--tt-success); }
-.tt-ma__glyph[data-marker="as_expected"] { color: var(--tt-info); }
-.tt-ma__glyph[data-marker="below_par"]   { color: var(--tt-warning); }
+.tt-ma__glyph[data-marker="stood_out"]   { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__glyph[data-marker="as_expected"] { color: var(--tt-info-text, var(--tt-info)); }
+.tt-ma__glyph[data-marker="below_par"]   { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-ma__tally {
     display: grid;
@@ -699,9 +699,9 @@
     color: var(--tt-muted);
 }
 
-.tt-ma__tag-btn[data-marker="stood_out"]   .tt-ma__tag-mark { color: var(--tt-success); }
-.tt-ma__tag-btn[data-marker="as_expected"] .tt-ma__tag-mark { color: var(--tt-info); }
-.tt-ma__tag-btn[data-marker="below_par"]   .tt-ma__tag-mark { color: var(--tt-warning); }
+.tt-ma__tag-btn[data-marker="stood_out"]   .tt-ma__tag-mark { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__tag-btn[data-marker="as_expected"] .tt-ma__tag-mark { color: var(--tt-info-text, var(--tt-info)); }
+.tt-ma__tag-btn[data-marker="below_par"]   .tt-ma__tag-mark { color: var(--tt-warning-text, var(--tt-warning)); }
 
 /* The picker. Anchored under its button, full width of the cell so the
  * targets stay finger-sized at 360px. */
@@ -741,9 +741,9 @@
 .tt-dashboard .tt-ma__picker button:focus-visible { outline: 2px solid var(--tt-info); outline-offset: -2px; }
 .tt-dashboard .tt-ma__picker button:active { background: var(--tt-bg-soft); }
 
-.tt-ma__picker button[data-marker="stood_out"]   .tt-ma__glyph { color: var(--tt-success); }
-.tt-ma__picker button[data-marker="as_expected"] .tt-ma__glyph { color: var(--tt-info); }
-.tt-ma__picker button[data-marker="below_par"]   .tt-ma__glyph { color: var(--tt-warning); }
+.tt-ma__picker button[data-marker="stood_out"]   .tt-ma__glyph { color: var(--tt-success-text, var(--tt-success)); }
+.tt-ma__picker button[data-marker="as_expected"] .tt-ma__glyph { color: var(--tt-info-text, var(--tt-info)); }
+.tt-ma__picker button[data-marker="below_par"]   .tt-ma__glyph { color: var(--tt-warning-text, var(--tt-warning)); }
 
 .tt-dashboard .tt-ma__picker-clear {
     color: var(--tt-muted);
@@ -916,19 +916,19 @@
 .tt-ma__rating-pill[data-rating="went_well"],
 .tt-ma__marker-pill[data-marker="stood_out"] {
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-ma__rating-pill[data-rating="mixed"],
 .tt-ma__marker-pill[data-marker="as_expected"] {
     background: var(--tt-info-subtle);
-    color: var(--tt-info);
+    color: var(--tt-info-text, var(--tt-info));
 }
 
 .tt-ma__rating-pill[data-rating="needs_work"],
 .tt-ma__marker-pill[data-marker="below_par"] {
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 /* ---- Tablet and up ------------------------------------------ */

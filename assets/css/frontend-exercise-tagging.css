@@ -124,7 +124,7 @@
 }
 
 .tt-extag__tags--none {
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
     font-weight: 600;
 }
 

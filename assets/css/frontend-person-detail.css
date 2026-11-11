@@ -50,7 +50,7 @@
 .tt-dashboard .tt-pdv-chip--status[data-status="active"] {
     background: var(--tt-success-subtle, #dff5e1);
     border-color: var(--tt-success, #2f9e5e);
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 .tt-dashboard .tt-pdv-chip--status[data-status="archived"],
 .tt-dashboard .tt-pdv-chip--status[data-status="inactive"] {

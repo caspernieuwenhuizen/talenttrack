@@ -149,9 +149,9 @@
     font-size: var(--tt-fs-sm, 0.85rem);
 }
 .tt-dashboard .tt-wcfg-mono { font-family: monospace; font-size: var(--tt-fs-sm, 0.85rem); }
-.tt-dashboard .tt-wcfg-status--ok   { color: var(--tt-success, #2f9e5e); font-weight: 600; }
-.tt-dashboard .tt-wcfg-status--fail { color: var(--tt-danger, #d8453b);  font-weight: 600; }
-.tt-dashboard .tt-wcfg-error { color: var(--tt-danger, #d8453b); font-size: var(--tt-fs-sm, 0.85rem); }
+.tt-dashboard .tt-wcfg-status--ok   { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); font-weight: 600; }
+.tt-dashboard .tt-wcfg-status--fail { color: var(--tt-danger-text, var(--tt-danger, #d8453b));  font-weight: 600; }
+.tt-dashboard .tt-wcfg-error { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); font-size: var(--tt-fs-sm, 0.85rem); }
 .tt-dashboard .tt-wcfg-retry {
     min-height: 40px;
     padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);

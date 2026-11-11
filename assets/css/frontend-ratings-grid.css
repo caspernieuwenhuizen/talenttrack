@@ -254,7 +254,7 @@
    than as the muted "3 unsaved changes" hint it shares a slot with. */
 @media (min-width: 1024px) {
     .tt-dashboard .tt-rgrid:has(.tt-rgrid-input.is-invalid) .tt-rgrid-status {
-        color: var(--tt-danger, #d8453b);
+        color: var(--tt-danger-text, var(--tt-danger, #d8453b));
         font-weight: 600;
     }
 }

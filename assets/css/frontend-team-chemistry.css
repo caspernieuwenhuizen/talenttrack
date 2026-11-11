@@ -29,8 +29,8 @@
     --tt-tc-success:   var(--tt-success, #2f9e5e);
     --tt-tc-warn:      var(--tt-warning, #e8902b);
     --tt-tc-danger:    var(--tt-danger, #d8453b);
-    --tt-tc-strong:    #cfe7da;
-    --tt-tc-weak:      #fbe5e6;
+    --tt-tc-strong:    var(--tt-success-subtle, #cfe7da);
+    --tt-tc-weak:      var(--tt-danger-subtle, #fbe5e6);
 }
 
 /* ---------------------------------------------------------------------
@@ -331,8 +331,8 @@
     color: var(--tt-tc-muted);
     font-variant-numeric: tabular-nums;
 }
-.tt-tc-fit.is-strong { background: var(--tt-tc-strong); color: var(--tt-tc-success); }
-.tt-tc-fit.is-weak   { background: var(--tt-tc-weak);   color: var(--tt-tc-danger); }
+.tt-tc-fit.is-strong { background: var(--tt-tc-strong); color: var(--tt-success-text, var(--tt-tc-success)); }
+.tt-tc-fit.is-weak   { background: var(--tt-tc-weak);   color: var(--tt-danger-text, var(--tt-tc-danger)); }
 
 /* ---------------------------------------------------------------------
    Pitch card
@@ -526,7 +526,7 @@
 .tt-tc-pairing-x:hover,
 .tt-tc-pairing-x:focus-visible {
     background: rgba(214, 54, 56, 0.08);
-    color: var(--tt-tc-danger);
+    color: var(--tt-danger-text, var(--tt-tc-danger));
     outline: none;
 }
 .tt-tc-pairing-add {
