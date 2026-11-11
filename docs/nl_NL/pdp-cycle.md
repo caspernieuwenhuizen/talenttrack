@@ -223,6 +223,19 @@ Bij een academie met gespreksformulieren bereidt de speler het volgende gesprek 
 - **Zodra het gesprek begint**, op de geplande tijd of bij het ondertekenen, is de voorbereiding alleen-lezen: *Mijn POP* toont de samenvatting met een regel dat het gesprek is begonnen.
 - De trainer ziet dat de speler is begonnen, omdat de wisselknop voor het formulier verdwijnt bij de eerste opslag van de speler. Wat de speler schreef, blijft uit beeld tot "klaar".
 
+#### De trainer vult het formulier in
+
+Op het gespreksscherm staat bij een gesprek met een gespreksformulier het formulier op het tabblad **Gesprek**, onder de geplande datum en de notities.
+
+- **De voorbereiding van de speler staat naast jouw cijfers.** Zolang de speler die niet klaar meldt, staat bij elk item *Speler: nog niet klaar* en zie je geen van de antwoorden. Vanaf "klaar" zie je bij elk item het cijfer van de speler, lichtblauw op de keuze, en staat de grootste kwaliteit van de speler boven die van jou.
+- **Eén rij per item.** Je geeft je cijfer met de vijf genummerde keuzes; het cijfer van de speler staat op dezelfde rij. **Bespreken** staat bij elk item waar de twee cijfers verschillen, hoe weinig ook, en de kop van een onderdeel telt ze. **Aangepast** staat bij een item dat de speler wijzigde nadat de voorbereiding klaar was gemeld.
+- **De onderdelen zijn uitklapbaar**, één per categorie, daarna de grootste kwaliteit en de twee ontwikkelpunten. Elke categorie heeft een veld voor toelichting.
+- **De grootste kwaliteit:** wat de speler schreef, en wat jullie afspraken.
+- **Twee ontwikkelpunten (SMART).** Elk heeft wat de speler doet, hoe de trainer helpt, een deadline, en eventueel het item dat het ontwikkelt. Elk wordt bij het ondertekenen een doel van de speler.
+- **Alles slaat zichzelf op**, met de gewone opslagstatus, ongedaan maken en terugdraaien.
+- **Gesprek afronden en ondertekenen** is een eigen knop, met een bevestiging. Die blijft dicht tot het formulier compleet is, en de lijst erboven noemt wat nog ontbreekt: een cijfer op elk item, de afgesproken grootste kwaliteit, en van elk ontwikkelpunt de actie, de hulp en de deadline. De voorbereiding van de speler is niet nodig. Ondertekenen zet de cijfers vast en bewaart ze als evaluatie, die het radardiagram en de evaluatiegeschiedenis dan tonen; het maakt de twee doelen aan, gekoppeld aan het gesprek naast de doelen die je als besproken markeerde; en het vraagt de speler en de ouder om te bevestigen. Voor die tijd komt er niets in de evaluaties of de doelen.
+- Na het ondertekenen is het formulier alleen-lezen, en kun je de bevestiging van de speler en de ouder vastleggen zoals voorheen.
+
 ## Werkflow­herinneringen
 
 Er zijn drie taaktemplates geregistreerd:

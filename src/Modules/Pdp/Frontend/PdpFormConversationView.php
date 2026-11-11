@@ -64,7 +64,7 @@ final class PdpFormConversationView {
         echo '<ul class="tt-pdp-coachform__legend" aria-label="' . esc_attr__( 'How the scores are shown', 'talenttrack' ) . '">';
         echo '<li><span class="tt-pdp-coachform__swatch tt-pdp-coachform__swatch--player" aria-hidden="true"></span>' . esc_html__( 'Player', 'talenttrack' ) . '</li>';
         echo '<li><span class="tt-pdp-coachform__swatch tt-pdp-coachform__swatch--coach" aria-hidden="true"></span>' . esc_html__( 'Trainer (you)', 'talenttrack' ) . '</li>';
-        echo '<li><span class="tt-pdp-coachform__flag">' . esc_html__( 'Discuss', 'talenttrack' ) . '</span>' . esc_html__( 'the scores differ', 'talenttrack' ) . '</li>';
+        echo '<li><span class="tt-pdp-coachform__flag">' . esc_html_x( 'Discuss', 'PDP form: the player and trainer scores differ', 'talenttrack' ) . '</span>' . esc_html__( 'the scores differ', 'talenttrack' ) . '</li>';
         echo '</ul>';
 
         if ( $player === null ) {
@@ -107,8 +107,8 @@ final class PdpFormConversationView {
                 $their = $player !== null ? ( $player['scores'][ $key ] ?? null ) : null;
                 echo '<div class="tt-pdp-coachform__item" data-tt-item="' . esc_attr( $key ) . '">';
                 echo '<p class="tt-pdp-coachform__iname"><span>' . esc_html( (string) $item['label'] ) . '</span>';
-                if ( in_array( $key, $diffs, true ) ) echo '<span class="tt-pdp-coachform__flag">' . esc_html__( 'Discuss', 'talenttrack' ) . '</span>';
-                if ( in_array( $key, $changed, true ) ) echo '<span class="tt-pdp-coachform__changed">' . esc_html__( 'changed', 'talenttrack' ) . '</span>';
+                if ( in_array( $key, $diffs, true ) ) echo '<span class="tt-pdp-coachform__flag">' . esc_html_x( 'Discuss', 'PDP form: the player and trainer scores differ', 'talenttrack' ) . '</span>';
+                if ( in_array( $key, $changed, true ) ) echo '<span class="tt-pdp-coachform__changed">' . esc_html_x( 'changed', 'PDP form: the player changed this score after marking ready', 'talenttrack' ) . '</span>';
                 echo '</p>';
                 echo '<p class="tt-pdp-coachform__idef">' . esc_html( (string) $item['definition'] ) . '</p>';
                 echo RatingInputComponent::renderListRow( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes its own output.
@@ -171,7 +171,7 @@ final class PdpFormConversationView {
             echo '<div class="tt-pdp-coachform__theirs"><strong>' . esc_html__( 'The player wrote:', 'talenttrack' ) . '</strong> '
                 . ( $player === null
                     ? esc_html__( 'not ready yet', 'talenttrack' )
-                    : ( $wrote !== '' ? nl2br( esc_html( $wrote ) ) : '<em>' . esc_html__( 'nothing', 'talenttrack' ) . '</em>' ) )
+                    : ( $wrote !== '' ? nl2br( esc_html( $wrote ) ) : '<em>' . esc_html_x( 'nothing', 'PDP form: the player wrote nothing here', 'talenttrack' ) . '</em>' ) )
                 . '</div>';
             echo '<div class="tt-field">';
             echo '<label class="tt-field-label" for="' . esc_attr( $id ) . '">' . esc_html__( 'What you agreed', 'talenttrack' ) . '</label>';

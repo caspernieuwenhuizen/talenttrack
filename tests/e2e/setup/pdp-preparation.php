@@ -17,7 +17,9 @@
  *  - `e2e_pop_open` (password `password`): the talk is in 5 days, inside
  *    the 14-day window, nothing entered;
  *  - `e2e_pop_locked`: the talk was yesterday, so the player's part is
- *    locked, with one score and the strongest quality entered.
+ *    locked, with one score and the strongest quality entered;
+ *  - `e2e_pop_coach` (Mila Trainer4980): the talk is in 5 days, for the
+ *    trainer's side (#4980): the admin scores it and signs it off.
  *
  * Idempotent: a second run puts both back as described, so the spec starts
  * from the same state on every run.
@@ -72,7 +74,7 @@ QueryHelpers::set_config( PdpFormRegistry::CONFIG_KEY, (string) wp_json_encode( 
  *
  * @param array{scores?:array<string,int>, answers?:array<string,string>} $entries
  */
-$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries ) use ( $wpdb, $p, $club, $season ): void {
+$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries, string $last = 'E2E' ) use ( $wpdb, $p, $club, $season ): void {
 	$user = get_user_by( 'login', $login );
 	$uid  = $user ? (int) $user->ID : (int) wp_insert_user( [
 		'user_login' => $login,
@@ -88,7 +90,7 @@ $tt_e2e_player = static function ( string $login, string $first, int $scheduled,
 	$player = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$p}tt_players WHERE club_id = %d AND wp_user_id = %d", $club, $uid ) );
 	if ( $player <= 0 ) {
 		$wpdb->insert( "{$p}tt_players", [
-			'club_id' => $club, 'first_name' => $first, 'last_name' => 'E2E',
+			'club_id' => $club, 'first_name' => $first, 'last_name' => $last,
 			'status' => 'active', 'wp_user_id' => $uid, 'preferred_positions' => '["CB"]',
 		] );
 		$player = (int) $wpdb->insert_id;
@@ -111,7 +113,7 @@ $tt_e2e_player = static function ( string $login, string $first, int $scheduled,
 	}
 
 	// Back to the state the spec starts from.
-	foreach ( [ 'tt_pdp_form_scores', 'tt_pdp_form_answers' ] as $table ) {
+	foreach ( [ 'tt_pdp_form_scores', 'tt_pdp_form_answers', 'tt_pdp_form_goals' ] as $table ) {
 		$wpdb->delete( $p . $table, [ 'conversation_id' => $conv ] );
 	}
 	$wpdb->update( "{$p}tt_pdp_conversations", [
@@ -145,3 +147,5 @@ $tt_e2e_player( 'e2e_pop_locked', 'Noor', time() - DAY_IN_SECONDS, [
 	'scores'  => [ 'aannames' => 4 ],
 	'answers' => [ 'strongest_quality' => 'Mijn kopbal bij corners' ],
 ] );
+// #4980 — a talk the trainer fills in and signs off, found by its last name.
+$tt_e2e_player( 'e2e_pop_coach', 'Mila', time() + 5 * DAY_IN_SECONDS, [], 'Trainer4980' );
