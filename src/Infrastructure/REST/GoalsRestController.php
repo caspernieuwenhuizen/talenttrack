@@ -888,6 +888,14 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        // #5074 — a status sent empty is refused, as PATCH .../status
+        // refuses it: a goal with no status is not open, and an autosaved
+        // edit must not write back the empty statuses migration 0332 repairs.
+        // About the body alone, so it is answered before the record is read.
+        if ( isset( $r['status'] ) && trim( sanitize_text_field( (string) $r['status'] ) ) === '' ) {
+            return RestResponse::error( 'invalid_field', __( 'Status is required.', 'talenttrack' ), 400, [ 'field' => 'status' ] );
+        }
+
         $refusal = self::goalRefusal( $goal_id );
         if ( $refusal !== null ) return $refusal;
 

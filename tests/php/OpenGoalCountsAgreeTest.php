@@ -111,6 +111,27 @@ final class OpenGoalCountsAgreeTest extends WP_UnitTestCase {
         $this->assertSame( 'pending', $stored );
     }
 
+    /** PUT with an empty status is refused, as PATCH .../status is, and writes nothing. */
+    public function test_put_goal_with_an_empty_status_is_refused(): void {
+        global $wp_rest_server, $wpdb;
+        $id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_goals WHERE player_id = %d AND status = %s",
+            $this->player, 'in_progress'
+        ) );
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+
+        $request = new \WP_REST_Request( 'PUT', '/talenttrack/v1/goals/' . $id );
+        $request->set_body_params( [ 'status' => '' ] );
+        $response = rest_do_request( $request );
+        $wp_rest_server = null;
+
+        $this->assertSame( 400, $response->get_status(), (string) wp_json_encode( $response->get_data() ) );
+        $body = (array) $response->get_data();
+        $this->assertSame( 'invalid_field', (string) ( $body['errors'][0]['code'] ?? '' ) );
+        $this->assertSame( 'in_progress', $wpdb->get_var( $wpdb->prepare( "SELECT status FROM {$wpdb->prefix}tt_goals WHERE id = %d", $id ) ) );
+    }
+
     public function test_open_and_not_open_split_every_goal(): void {
         $repo = new GoalsRepository();
         $this->assertSame( 9, $repo->countActiveForPlayer( $this->player ) + $repo->countClosedForPlayer( $this->player ), 'every goal is in exactly one of the two' );

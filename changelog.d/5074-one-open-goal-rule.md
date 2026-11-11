@@ -10,6 +10,6 @@ Some numbers change:
 - **The KPI export's active goals:** it matched `pending` and `in_progress` exactly. It now also counts goals waiting for approval, on hold or approved, and statuses stored in their TitleCase form ("In Progress", "Pending"), as demo data and lookup-picked statuses are. On those installs the number goes up the most.
 - **The Admin Center's active-goals figure** follows the same rule.
 
-New goals no longer end up without a status: an Excel import with an empty status cell stores *pending* (it used to store `open`, which is no goal status), and `POST /goals` with an empty `status` stores the default instead of an empty string. Goals already stored as empty, NULL or `open` are repaired by a data migration in the same release.
+New goals no longer end up without a status: an Excel import with an empty status cell stores *pending* (it used to store `open`, which is no goal status), and `POST /goals` with an empty `status` stores the default instead of an empty string. `PUT /goals/{id}` with an empty `status` is refused (`400 invalid_field`), as `PATCH /goals/{id}/status` already refused it. Goals already stored as empty, NULL or `open` are repaired by migration 0332 (#5100), which ships in the same release.
 
 A guard test now fails on any new hand-written list of goal statuses.
