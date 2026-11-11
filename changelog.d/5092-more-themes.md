@@ -11,7 +11,9 @@ use a darker or lighter shade so they stay readable. Reports follow the
 theme's colour. Their fonts are bundled in the plugin (Oswald, Manrope,
 Outfit, Montserrat, Exo and Poppins, all OFL, Latin subset). The Leon Hutten
 theme is now called Kristalblauw and looks the same: the stored value is
-unchanged, so an academy that chose it keeps it with nothing to migrate. Its
-Open Sans is bundled too, so no theme makes a request to Google Fonts any
+unchanged, so an academy that chose it keeps it with nothing to migrate. One
+detail is adjusted: the cyan bar that marks the section you are on in the
+navigation is a shade lighter, so it stands out clearly against the blue of
+the selected row. Its Open Sans is bundled too, so no theme makes a request to Google Fonts any
 more. The theme hint under Configuration → Appearance no longer describes
 individual themes.

@@ -313,8 +313,10 @@ muted text and links on paper and the soft background, white on the primary
 and its hover, ink on the button hover, the three secondary-as-text tokens,
 the header's text, and the rail's text, soft text and brand mark at 4.5:1; the
 focus ring, the header icon, and the rail's marker and focus ring against the
-rail and the active row, at 3:1. Kristalblauw's cyan as text and its marker
-on the active row are named exceptions, held so that theme keeps its look.
+rail and the active row, at 3:1. Kristalblauw's cyan as text and on the
+primary band is a named exception, held so that theme keeps its look; its
+marker on the active row is one step lighter (`--tt-lh-cyan-marker`) and
+passes like every other theme's.
 `tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
 sheet, that `default` loads no sheet and stamps no class, and that bundled
 fonts load from the plugin with `swap`.

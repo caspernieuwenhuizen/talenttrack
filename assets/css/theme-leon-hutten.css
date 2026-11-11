@@ -194,6 +194,11 @@
        rail's focus ring, and the stripe. 6.8:1 on the black chrome. */
     --tt-lh-cyan:            #02a2da;
 
+    /* The marker on the active row, one step lighter than the cyan: on the
+       navy row fill the cyan measured 2.98:1, under the 3:1 a marker needs;
+       this clears 3.49:1 there and 7.54:1 on the black rail. */
+    --tt-lh-cyan-marker:     #0bb0e8;
+
     /*
      * The crest's diagonal stripes, as a repeating gradient. Decorative
      * only — never place text on it. Held as a variable so the two
@@ -298,7 +303,7 @@
 .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active {
     background: var(--tt-lh-chrome-active);
     color: #ffffff;
-    box-shadow: inset 3px 0 0 var(--tt-lh-cyan);
+    box-shadow: inset 3px 0 0 var(--tt-lh-cyan-marker);
 }
 
 .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {

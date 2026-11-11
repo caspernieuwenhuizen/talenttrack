@@ -329,9 +329,11 @@ primaire kleur en de hover daarvan, inkt op de knophover, de drie tokens voor
 de secundaire kleur als tekst, de tekst van de kopbalk, en de tekst, zachte
 tekst en het merkteken van de navigatiekolom op 4,5:1; de focusring, het
 pictogram in de kopbalk en de markering en focusring van de navigatiekolom,
-tegen de kolom en tegen de actieve regel, op 3:1. De cyaan als tekst en de
-markering op de actieve regel van Kristalblauw zijn benoemde uitzonderingen,
-behouden zodat dat thema er hetzelfde uit blijft zien.
+tegen de kolom en tegen de actieve regel, op 3:1. De cyaan van Kristalblauw
+als tekst en op de primaire band is een benoemde uitzondering, behouden zodat
+dat thema er hetzelfde uit blijft zien; de markering op de actieve regel is
+één stap lichter (`--tt-lh-cyan-marker`) en haalt de grens net als bij elk
+ander thema.
 
 `tests/php/ThemePreferenceTest.php` controleert dat elk
 thema zijn labels en stijlblad heeft, dat `default` geen stijlblad laadt en
