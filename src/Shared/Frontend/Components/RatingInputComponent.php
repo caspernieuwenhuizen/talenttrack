@@ -120,7 +120,7 @@ class RatingInputComponent {
         $labels       = isset( $args['labels'] ) ? array_map( 'strval', $args['labels'] ) : [];
         $empty_text   = (string) ( $args['empty_text'] ?? '' );
         $format       = (string) ( $args['readout_format'] ?? '' );
-        $marked       = isset( $args['marked'] ) && $args['marked'] !== null ? (string) $args['marked'] : '';
+        $marked       = isset( $args['marked'] ) ?(string) $args['marked'] : '';
         $marked_note  = (string) ( $args['marked_note'] ?? '' );
 
         [ $min, $max, $step ] = self::scale( $args );

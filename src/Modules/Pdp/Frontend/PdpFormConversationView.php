@@ -223,7 +223,11 @@ final class PdpFormConversationView {
             echo '<p class="tt-pdp-coachform__signed"><strong>' . esc_html__( 'Signed off', 'talenttrack' ) . '</strong> — '
                 . esc_html( TTDate::dateTimeFromGmt( (string) $state['coach_signoff_at'] ) ) . '</p>';
         } elseif ( $writable && $access->signsOff() ) {
-            self::renderSignoff( is_array( $state['missing'] ?? null ) ? $state['missing'] : [] );
+            $missing = [];
+            foreach ( (array) ( $state['missing'] ?? [] ) as $m ) {
+                if ( is_array( $m ) ) $missing[] = (string) ( $m['label'] ?? '' );
+            }
+            self::renderSignoff( $missing );
         }
 
         echo '</section>';
@@ -235,14 +239,14 @@ final class PdpFormConversationView {
      * naming what is missing. The player's preparation is never required
      * (decision 5). The script keeps the list current as the form saves.
      *
-     * @param list<array{field:string, label:string}> $missing
+     * @param list<string> $missing the labels of what is still needed
      */
     private static function renderSignoff( array $missing ): void {
         echo '<div class="tt-pdp-coachform__signoff" data-tt-coach-signoff-box>';
         echo '<div class="tt-pdp-coachform__missing" data-tt-coach-missing' . ( $missing === [] ? ' hidden' : '' ) . '>';
         echo '<p>' . esc_html__( 'Still needed before you can sign off:', 'talenttrack' ) . '</p>';
         echo '<ul>';
-        foreach ( $missing as $m ) echo '<li>' . esc_html( (string) $m['label'] ) . '</li>';
+        foreach ( $missing as $label ) echo '<li>' . esc_html( $label ) . '</li>';
         echo '</ul></div>';
         echo '<button type="button" class="tt-btn tt-btn-primary" data-tt-coach-signoff' . ( $missing !== [] ? ' disabled' : '' ) . '>'
             . esc_html__( 'Finish and sign the conversation', 'talenttrack' ) . '</button>';
