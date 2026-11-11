@@ -31,4 +31,4 @@ msgstr "Alle posities"
 
 #: src/Modules/ReportStudio/Wizard/SubjectStep.php
 msgid "A player counts by their first position, so each player is in one position group."
-msgstr "Een speler telt mee met zijn eerste positie, dus elke speler zit in één positiegroep."
+msgstr "Een speler telt mee met de eerste positie, dus elke speler zit in één positiegroep."
