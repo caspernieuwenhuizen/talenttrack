@@ -41,10 +41,11 @@ use TT\Modules\MatchPrep\Services\MatchLengthResolver;
  *
  * ## The squad
  *
- * Players with a canonical attendance row on the team's played matches in
- * the window — the same definition `Team · Minutes distribution` uses
- * since #2339, including the archived-player exclusion #2833 added. A
- * player appears with 0% if they were in the squad and never got on.
+ * `MinutesQuery::squadForTeam()` (#5019), the squad every minutes surface
+ * reads: players with a canonical attendance row on the team's played
+ * matches in the window, plus the current roster, archived players out. A
+ * player appears with 0% if they were in the squad and never got on. The
+ * median is `MinutesQuery::medianShare()`.
  */
 final class MinutesShareQuery {
 
@@ -221,9 +222,7 @@ final class MinutesShareQuery {
      * }
      */
     public function forTeam( int $team_id, string $from, string $to ): array {
-        global $wpdb;
-        $p       = $wpdb->prefix;
-        $target  = self::targetPct();
+        $target = self::targetPct();
 
         $empty = [
             'available_minutes' => 0,
@@ -238,42 +237,22 @@ final class MinutesShareQuery {
         $available = $this->availableForTeam( $team_id, $from, $to );
         $outside   = $this->outsideWindowForTeam( $team_id, $from, $to );
 
-        $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
-        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
-
-        // Same squad definition as Team · Minutes distribution: attendance on
-        // the team's played matches, archived players excluded (#2339,
-        // #2833). #4549 — the query names the squad and their matches; the
-        // minutes are the minutes reports' own read
-        // (`MinutesQuery::squadTotals()`): one figure per (player, match) by
-        // the #4526 rule, and the #4053 plan fallback on an old tournament
-        // fixture, which a SQL aggregate here never asked for.
-        $pairs = $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id
-               FROM {$p}tt_attendance att
-               JOIN {$p}tt_activities a ON a.id = att.activity_id
-                    AND a.team_id = %d
-                    AND {$played_sql}
-               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
-              WHERE att.record_type = 'actual'
-                AND att.is_guest = 0
-                AND a.{$date_col} BETWEEN %s AND %s
-              GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number, att.activity_id",
-            $team_id, $from, $to
-        ) );
-        $rows = array_slice( MinutesQuery::squadTotals( is_array( $pairs ) ? $pairs : [] ), 0, 200 );
+        // #5019 — the one minutes squad (`MinutesQuery::squadForTeam()`): the
+        // attendees of the team's played matches plus the current roster, the
+        // squad the monthly report and the Minutes distribution read too.
+        $rows = array_slice( ( new MinutesQuery() )->squadForTeam( $team_id, $from, $to ), 0, 200 );
 
         $players = [];
         foreach ( $rows as $r ) {
-            $minutes = (int) $r->total_minutes;
+            $minutes = $r['total_minutes'];
             $share   = $available['minutes'] > 0
                 ? ( $minutes / $available['minutes'] ) * 100
                 : null;
 
             $players[] = [
-                'player_id'     => (int) $r->player_id,
-                'name'          => (string) $r->name,
-                'jersey_number' => isset( $r->jersey_number ) ? (int) $r->jersey_number : null,
+                'player_id'     => $r['player_id'],
+                'name'          => trim( $r['first_name'] . ' ' . $r['last_name'] ),
+                'jersey_number' => $r['jersey_number'],
                 'minutes'       => $minutes,
                 'share_pct'     => $share,
                 'below_target'  => $share !== null && $share < $target,
@@ -330,37 +309,5 @@ final class MinutesShareQuery {
         }
 
         return null;
-    }
-
-    /**
-     * Median share across the squad, as a percentage to one decimal, or null
-     * on an empty squad. Median rather than mean: one player who played every
-     * minute of every match drags a mean above the line the rest of the squad
-     * is nowhere near.
-     *
-     * #4993 — the one median of a minutes share; the team monthly report
-     * reads it too (`TeamReportFigures::shareRows()`). The median is taken
-     * on the unrounded shares and rounded once. Rounding each share first,
-     * as the monthly report used to, moved an even squad's median by 0.1
-     * against this report's for the same squad and window.
-     *
-     * @param list<array{share_pct:?float}> $players shares as unrounded percentages
-     */
-    public static function medianShare( array $players ): ?float {
-        $shares = [];
-        foreach ( $players as $p ) {
-            if ( $p['share_pct'] !== null ) $shares[] = (float) $p['share_pct'];
-        }
-        if ( $shares === [] ) return null;
-
-        sort( $shares );
-        $n   = count( $shares );
-        $mid = intdiv( $n, 2 );
-
-        $median = $n % 2 === 1
-            ? $shares[ $mid ]
-            : ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2;
-
-        return round( $median, 1 );
     }
 }

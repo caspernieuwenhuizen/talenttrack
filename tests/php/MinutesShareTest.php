@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
 
 /**
@@ -210,8 +211,8 @@ final class MinutesShareTest extends WP_UnitTestCase {
             [ 'share_pct' => 20.0 ],
             [ 'share_pct' => 100.0 ],
         ];
-        $this->assertSame( 20.0, MinutesShareQuery::medianShare( $players ) );
-        $this->assertNull( MinutesShareQuery::medianShare( [] ) );
+        $this->assertSame( 20.0, MinutesQuery::medianShare( $players ) );
+        $this->assertNull( MinutesQuery::medianShare( [] ) );
     }
 
     /** One player's row is the same answer the squad view gives. */

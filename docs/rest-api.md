@@ -576,18 +576,31 @@ Both counts come from one query, whatever the team's history, using
 "has recorded minutes"; the in-window `matches` uses the same predicate.
 
 **The median.** A client that shows a squad median reads
-`MinutesShareQuery::medianShare()`'s rule: the median of the unrounded
+`MinutesQuery::medianShare()`'s rule: the median of the unrounded
 `share_pct` values, rounded once to one decimal. The team monthly report's
 `median_share_pct` is the same function's answer, so the two never differ by
 a rounding step (#4993).
+
+**The squad (#5019).** `players` is `MinutesQuery::squadForTeam()`, the one
+minutes squad the team monthly report, the Minutes distribution and the talking
+points read: every player with an actual, non-guest attendance row on one of
+the team's played matches in the window, whatever team they are on now, **plus
+the team's current roster**, archived and trashed players out. A value change,
+not a shape change, under the rule that a wrong answer is not a contract:
+before #5019 the list held the attendees only, so a roster player never put on
+a register was missing; now that player is in the list at `0` minutes and `0`
+share, and the list can be longer. Known limit: in a past window, the roster
+half can add a player who joined the team later, at `0`, until team membership
+over time is recorded. The 200-row cap stays.
 
 `GET /teams/{id}/minutes-share/{player_id}` returns one player's row out of the
 same answer (`minutes`, `share_pct`, `below_target`, plus the team's
 `available_minutes`, `matches`, `played_matches`, `target_pct` and `outside_window`), so a
 player-facing client
-need not fetch and filter the whole squad. A player with no recorded minutes on
-that team in the window is a 404 rather than a zero row — they were not in the
-squad, which is different from having played none of it.
+need not fetch and filter the whole squad. A player who is not in the squad
+(no attendance on the team's played matches in the window, and not on its
+current roster) is a 404 rather than a zero row — they were not in the squad,
+which is different from having played none of it.
 
 Both routes, and `GET /teams/{id}` beside them, gate on the caller's **team
 scope** and not on `tt_view_teams` alone (#3152). `tt_view_teams` is club-wide

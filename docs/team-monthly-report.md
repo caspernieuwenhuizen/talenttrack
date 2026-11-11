@@ -281,7 +281,11 @@ move with it.
   attendance and minutes reports. Minutes share lists the **whole squad**: a
   player who was available but never got on the pitch shows 0 minutes and
   counts toward the median, because they are the player this table is meant
-  to flag. Its target line is the academy's minutes-share target, the same one
+  to flag. It is the squad the Minutes share report uses: everyone on the
+  register of one of the team's played matches, even a player who has since
+  moved to another team, plus the current roster, so the median is the same
+  on both. In a month in the past, the roster half can add a player who
+  joined the team later, at 0 minutes. Its target line is the academy's minutes-share target, the same one
   the Minutes share report uses. "Minutes recorded for N of M played matches"
   counts the played matches the way every minutes report does: the matches
   the **Matches** section calls played, plus the tournament days played, which

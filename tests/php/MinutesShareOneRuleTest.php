@@ -51,12 +51,12 @@ final class MinutesShareOneRuleTest extends WP_UnitTestCase {
         $rounded_first = round( ( round( 10.06, 1 ) + round( 10.16, 1 ) ) / 2, 1 );
         $this->assertSame( 10.2, $rounded_first, 'precondition: rounding each share first gives 10.2' );
 
-        $this->assertSame( 10.1, MinutesShareQuery::medianShare( $players ), 'the minutes share' );
-        $this->assertSame( 10.1, MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $rows ) ), 'the monthly report' );
+        $this->assertSame( 10.1, MinutesQuery::medianShare( $players ), 'the minutes share' );
+        $this->assertSame( 10.1, MinutesQuery::medianShare( TeamReportFigures::shareRows( $rows ) ), 'the monthly report' );
     }
 
     public function test_a_squad_without_available_minutes_has_no_median(): void {
-        $this->assertNull( MinutesShareQuery::medianShare( TeamReportFigures::shareRows( [ $this->minutesRow( 0, 0 ) ] ) ) );
+        $this->assertNull( MinutesQuery::medianShare( TeamReportFigures::shareRows( [ $this->minutesRow( 0, 0 ) ] ) ) );
     }
 
     public function test_one_median_implementation_remains(): void {
@@ -69,7 +69,7 @@ final class MinutesShareOneRuleTest extends WP_UnitTestCase {
                 $found[] = str_replace( '\\', '/', substr( $file->getPathname(), strlen( $root ) + 1 ) );
             }
         }
-        $this->assertSame( [ 'src/Modules/Analytics/Reports/MinutesShareQuery.php' ], $found );
+        $this->assertSame( [ 'src/Modules/Analytics/Reports/MinutesQuery.php' ], $found );
     }
 
     /**

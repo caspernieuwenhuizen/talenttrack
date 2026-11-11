@@ -297,7 +297,12 @@ mee.
   volledige rapporten over aanwezigheid en minuten. Minutenaandeel toont de
   **hele selectie**: een speler die beschikbaar was maar niet in het veld kwam,
   staat erop met 0 minuten en telt mee in de mediaan, want juist die speler
-  hoort deze tabel zichtbaar te maken. De doellijn is het doel voor
+  hoort deze tabel zichtbaar te maken. Het is dezelfde selectie als in het
+  rapport Minutenaandeel: wie op de presentielijst van een gespeelde wedstrijd
+  van het team stond, ook als hij nu bij een ander team speelt, plus de
+  huidige selectie; de mediaan is daarom ook dezelfde. In een maand in het
+  verleden kan de huidige selectie een speler toevoegen die pas later bij het
+  team kwam, met 0 minuten. De doellijn is het doel voor
   minutenaandeel van de academie, hetzelfde doel dat het rapport
   Minutenaandeel gebruikt. "Minuten vastgelegd voor N van de M gespeelde
   wedstrijden" telt de gespeelde wedstrijden zoals elk minutenrapport dat

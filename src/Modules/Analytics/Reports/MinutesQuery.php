@@ -3,7 +3,9 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\PlayedMatch;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchExecution\Domain\MatchStints;
@@ -547,6 +549,138 @@ final class MinutesQuery {
             return $by_last !== 0 ? $by_last : strcasecmp( $a->first_name, $b->first_name );
         } );
         return $out;
+    }
+
+    /**
+     * #5019 — the minutes squad of a team over a window, read once for every
+     * minutes surface: the Minutes share, the monthly report's minutes
+     * section, the Minutes distribution and the talking points.
+     *
+     * A player is in the squad when either holds:
+     *
+     *  - they have a live attendance row (actual, not a guest) on one of the
+     *    team's played minutes-bearing matches in the window (`PlayedMatch`),
+     *    whatever team they are on now: the #2339 squad, so a past season
+     *    whose players have moved on still has one;
+     *  - they are on the team's current roster (`TeamRoster`), so a player
+     *    never put on a register shows at 0 (#3589).
+     *
+     * Archived and trashed players are in neither half. The known limit: in
+     * a past window the roster half can add a player who joined later, at 0,
+     * until team membership over time is recorded.
+     *
+     * One row per squad player, zeros included, in `forTeam()`'s shape and
+     * with its figures, so every surface reads the same minutes, starts and
+     * available minutes. Ordered by minutes, highest first, then last and
+     * first name. Two reads beside `forTeam()`'s, whatever the squad size.
+     *
+     * @return list<array{
+     *     player_id:int, first_name:string, last_name:string, jersey_number:?int,
+     *     total_minutes:int, matches:int, starts:int, subs_in:int, subs_off:int,
+     *     by_type:array<string,int>,
+     *     available_minutes:int
+     * }>
+     */
+    public function squadForTeam( int $team_id, string $from, string $to ): array {
+        if ( $team_id <= 0 ) return [];
+
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        $played   = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
+        $live     = ArchiveRepository::filterClause( 'active', 'pl' );
+        $roster   = TeamRoster::memberOfClause( 'pl', '%d' );
+
+        $attendees = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT pl.id, pl.first_name, pl.last_name, pl.jersey_number
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+                    AND a.team_id = %d
+                    AND {$played}
+               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = a.club_id AND {$live}
+              WHERE att.record_type = 'actual'
+                AND att.is_guest = 0
+                AND a.{$date_col} BETWEEN %s AND %s",
+            $team_id, $from, $to
+        ) );
+        $members = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id, pl.first_name, pl.last_name, pl.jersey_number
+               FROM {$p}tt_players pl
+              WHERE {$roster}
+                AND pl.club_id = %d",
+            $team_id, (int) CurrentClub::id()
+        ) );
+
+        $squad = [];
+        foreach ( array_merge( is_array( $attendees ) ? $attendees : [], is_array( $members ) ? $members : [] ) as $pl ) {
+            $pl  = (array) $pl;
+            $pid = (int) ( $pl['id'] ?? 0 );
+            if ( $pid > 0 ) $squad[ $pid ] = $pl;
+        }
+        if ( $squad === [] ) return [];
+
+        // The minutes, starts and available minutes are forTeam()'s, so every
+        // surface reads the same figures; its available minutes are the same
+        // for every player, and 0 when no played match has minutes recorded.
+        $played_rows = [];
+        $available   = 0;
+        foreach ( $this->forTeam( $team_id, $from, $to ) as $row ) {
+            $played_rows[ $row['player_id'] ] = $row;
+            $available = $row['available_minutes'];
+        }
+
+        $out = [];
+        foreach ( $squad as $pid => $pl ) {
+            $out[] = $played_rows[ $pid ] ?? [
+                'player_id'         => $pid,
+                'first_name'        => (string) ( $pl['first_name'] ?? '' ),
+                'last_name'         => (string) ( $pl['last_name'] ?? '' ),
+                'jersey_number'     => isset( $pl['jersey_number'] ) ? (int) $pl['jersey_number'] : null,
+                'total_minutes'     => 0,
+                'matches'           => 0,
+                'starts'            => 0,
+                'subs_in'           => 0,
+                'subs_off'          => 0,
+                'by_type'           => [],
+                'available_minutes' => $available,
+            ];
+        }
+
+        usort( $out, static function ( array $a, array $b ): int {
+            if ( $a['total_minutes'] !== $b['total_minutes'] ) return $b['total_minutes'] <=> $a['total_minutes'];
+            $by_last = strcasecmp( $a['last_name'], $b['last_name'] );
+            return $by_last !== 0 ? $by_last : strcasecmp( $a['first_name'], $b['first_name'] );
+        } );
+        return $out;
+    }
+
+    /**
+     * The median share of a squad, for every minutes surface. Taken on the
+     * unrounded shares and rounded once, to one decimal, for display:
+     * rounding each share first moved an even squad's median by 0.1 between
+     * two reports of the same squad (#4993). Null when no player has a share,
+     * as on an empty squad. Median rather than mean: one player who played
+     * every minute of every match drags a mean above the line the rest of the
+     * squad is nowhere near.
+     *
+     * @param list<array{share_pct:?float}> $players shares as unrounded percentages
+     */
+    public static function medianShare( array $players ): ?float {
+        $shares = [];
+        foreach ( $players as $p ) {
+            if ( $p['share_pct'] !== null ) $shares[] = (float) $p['share_pct'];
+        }
+        if ( $shares === [] ) return null;
+
+        sort( $shares );
+        $n   = count( $shares );
+        $mid = intdiv( $n, 2 );
+
+        $median = $n % 2 === 1
+            ? $shares[ $mid ]
+            : ( $shares[ $mid - 1 ] + $shares[ $mid ] ) / 2;
+
+        return round( $median, 1 );
     }
 
     /**

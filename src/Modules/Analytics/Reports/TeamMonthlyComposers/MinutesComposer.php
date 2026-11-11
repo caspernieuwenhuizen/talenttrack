@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Reports\TeamMonthlyComposers;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\LevelBlockOptions;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 
@@ -55,7 +56,7 @@ final class MinutesComposer {
             'matches_played'     => $counts['played'],
             'tournaments_played' => $counts['tournaments'],
             'target_pct'         => $target,
-            'median_share_pct'   => MinutesShareQuery::medianShare( TeamReportFigures::shareRows( $source ) ),
+            'median_share_pct'   => MinutesQuery::medianShare( TeamReportFigures::shareRows( $source ) ),
             'under'              => $under,
             'rows'               => $rows,
         ];

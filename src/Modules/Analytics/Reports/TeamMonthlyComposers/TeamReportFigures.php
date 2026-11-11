@@ -73,7 +73,7 @@ final class TeamReportFigures {
     }
 
     /**
-     * #4993 — the minutes rows as the shares `MinutesShareQuery::medianShare()`
+     * #4993 — the minutes rows as the shares `MinutesQuery::medianShare()`
      * takes the median of: unrounded, null where nothing was available. The
      * median is that one function's, so this report and the minutes-share
      * report cannot round it two ways.

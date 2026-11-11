@@ -238,7 +238,7 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
             $this->assertSame( $mine['total_minutes'], $p['minutes'], "player {$p['player_id']}: minutes" );
             $this->assertSame( $mine['share_pct'], round( (float) $p['share_pct'], 1 ), "player {$p['player_id']}: share" );
         }
-        $median = MinutesShareQuery::medianShare( $report['players'] );
+        $median = MinutesQuery::medianShare( $report['players'] );
         $this->assertNotNull( $median );
         $this->assertSame( $section['median_share_pct'], round( $median, 1 ), 'the median' );
 
