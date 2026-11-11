@@ -67,6 +67,73 @@ final class PlayerReportPdfDocument {
         return '<div class="tt-pr-doc"><style>' . self::css() . '</style>' . self::body( $report, [] ) . '</div>'; /* tt-inline-ok */
     }
 
+    /**
+     * #4961 — one section as this document prints it, from its composer
+     * payload, for a Report Studio block that is that section. The classes
+     * are prefixed (`tbl` → `tt-d-tbl`) so a theme's `.note` or `.sec` cannot
+     * reach in; `scopedCss()` styles them under the `tt-pr-doc` wrapper. No
+     * snapshot note: the Studio prints its own.
+     *
+     * @param array<string,mixed> $payload the section's composer payload
+     */
+    public static function sectionHtml( string $block, array $payload ): string {
+        return self::prefixClasses( self::section( $block, $payload ) );
+    }
+
+    /**
+     * `css()` scoped under the `tt-pr-doc` wrapper with its classes prefixed
+     * as `sectionHtml()` prefixes them, without the page rules: the rules a
+     * Report Studio document prints a player report section with, on paper
+     * and on screen.
+     */
+    public static function scopedCss(): string {
+        $css = self::css();
+        // Only `@page` may stand in the paper's sheet: it is left out here,
+        // as a screen has no page. Any other at-rule would be left out too,
+        // without a word, so it is refused instead.
+        preg_match_all( '/@([a-z-]+)/i', $css, $at );
+        $other = array_values( array_diff( array_map( 'strtolower', $at[1] ), [ 'page' ] ) );
+        if ( $other !== [] ) {
+            throw new \LogicException( 'PlayerReportPdfDocument::scopedCss() cannot scope @' . $other[0] . '; scope it by hand.' );
+        }
+
+        return (string) preg_replace_callback(
+            '/([^{}]+)\{([^{}]*)\}/',
+            static function ( array $m ): string {
+                $selectors = trim( $m[1] );
+                if ( strpos( $selectors, '@' ) === 0 ) return '';
+                $out = [];
+                foreach ( explode( ',', $selectors ) as $selector ) {
+                    $selector = trim( $selector );
+                    if ( $selector === '' || $selector === '.footer' ) continue;
+                    if ( $selector === 'body' ) {
+                        $out[] = '.tt-pr-doc';
+                        continue;
+                    }
+                    $out[] = '.tt-pr-doc ' . (string) preg_replace( '/\.(?!tt-)([a-z][a-z0-9_-]*)/', '.tt-d-$1', $selector );
+                }
+                return $out === [] ? '' : implode( ',', $out ) . '{' . $m[2] . '}';
+            },
+            $css
+        );
+    }
+
+    /** The document's own classes with the `tt-d-` prefix; `tt-` classes stay. */
+    private static function prefixClasses( string $html ): string {
+        return (string) preg_replace_callback(
+            '/class="([^"]*)"/',
+            static function ( array $m ): string {
+                $out = [];
+                foreach ( preg_split( '/\s+/', trim( $m[1] ) ) ?: [] as $token ) {
+                    if ( $token === '' ) continue;
+                    $out[] = strpos( $token, 'tt-' ) === 0 ? $token : 'tt-d-' . $token;
+                }
+                return 'class="' . implode( ' ', $out ) . '"';
+            },
+            $html
+        );
+    }
+
     private static function wrap( string $body, bool $family = false ): string {
         // DomPDF reads no enqueued stylesheet; the document carries its own.
         return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css() . '</style></head><body>' /* tt-inline-ok */

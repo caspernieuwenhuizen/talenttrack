@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * report, must still open a document. Only an unknown *key* is reported, and
  * only to callers that asked for strictness — see `BlockOptionsInterface`.
  */
-final class TestsBlockOptions implements BlockOptionsInterface {
+final class TestsBlockOptions implements DescribesOptions {
 
     public const SHOW_SUMMARY      = 'summary';
     public const SHOW_VALUES       = 'values';
@@ -95,12 +95,51 @@ final class TestsBlockOptions implements BlockOptionsInterface {
      */
     public static function unknownKeys( array $raw ): array {
         // `show` is the deprecated spelling (#4133), still accepted.
-        $known = [ 'definitions', self::LEVEL, self::CHANGE, 'show' ];
+        $known = array_merge( array_column( self::fields(), 'key' ), [ 'show' ] );
 
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
             static fn( string $key ): bool => ! in_array( $key, $known, true )
         ) );
+    }
+
+    /**
+     * #4961 — the options a panel offers, the ones `unknownKeys()` accepts
+     * apart from the deprecated `show`.
+     *
+     * @return list<array{key:string, kind:string, default:mixed}>
+     */
+    public static function fields(): array {
+        return [
+            [ 'key' => self::LEVEL, 'kind' => self::KIND_LEVEL, 'default' => self::DEFAULT_LEVEL ],
+            [ 'key' => self::CHANGE, 'kind' => self::KIND_SWITCH, 'default' => true ],
+            [ 'key' => 'definitions', 'kind' => self::KIND_IDS, 'default' => [] ],
+        ];
+    }
+
+    public static function fieldLabel( string $key ): string {
+        switch ( $key ) {
+            case self::LEVEL:   return _x( 'Level of detail', 'report section option', 'talenttrack' );
+            case self::CHANGE:  return self::changeLabel();
+            case 'definitions': return __( 'Which tests', 'talenttrack' );
+        }
+        return '';
+    }
+
+    /**
+     * The academy's active tests, for the `definitions` field.
+     *
+     * @return array<int,string>
+     */
+    public static function fieldChoices( string $key ): array {
+        if ( $key !== 'definitions' ) return [];
+        $out = [];
+        foreach ( ( new \TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository() )->listActive() as $row ) {
+            $vars = get_object_vars( $row );
+            $id   = is_numeric( $vars['id'] ?? null ) ? (int) $vars['id'] : 0;
+            if ( $id > 0 ) $out[ $id ] = is_scalar( $vars['name'] ?? null ) ? (string) $vars['name'] : '';
+        }
+        return $out;
     }
 
     /**

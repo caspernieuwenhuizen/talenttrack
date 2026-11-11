@@ -1,0 +1,5 @@
+# Report Studio: every other section of the monthly report and the player report as a block (#4961)
+
+Bump: minor
+
+The Report Studio now has a block for each remaining section of the team monthly report (data coverage, squad status, the full evaluations section, needs a conversation, what changed, tests, player by player, data quality) and of the player report (status, talking points, development plan, match by match, tests, journey, injuries, behaviour, potential). Each block calls the report's own composer, so it shows the same figures as the report for the same reader, prints with the report's own section renderer and takes the same room on the page. The tests and evaluations blocks offer the monthly report's options, generated from the section's option class. Who may receive a player section follows the player report's allowlists: only tests reach a scout or the family; injuries, behaviour, potential and the other staff sections are refused on a scout or family report. The note sections follow with the templates.

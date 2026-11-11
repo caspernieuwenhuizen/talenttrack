@@ -808,6 +808,16 @@ Voor een speler vragen de doelenblokken het recht om de doelen van die speler te
 
 - **Je eigen vraag**: kies de gegevens (aanwezigheid, evaluaties, doelen en meer), één maat daarvan, en eventueel waarnaar je wilt uitsplitsen, voor het onderwerp en de periode van het rapport. Het leest de cijfers die de dataverkenner leest, met dezelfde telregels als de rapporten: aanwezigheid telt alleen afgeronde, actieve activiteiten van het huidige team van de speler, zodat het percentage per speler het percentage is dat de aanwezigheidsrapporten tonen. Een uitsplitsing toont alleen wat de maat telt: een speler zonder getelde aanwezigheid, bijvoorbeeld iemand die niet in de selectie van het team staat, valt weg, en een speler uit de selectie die elke keer ontbrak, krijgt 0. De dataverkenner toont nog steeds elke rij. Je krijgt alleen gegevens aangeboden die je voor dit onderwerp mag lezen, een scout krijgt nooit een uitsplitsing per speler, en het blok wordt niet aangeboden voor een rapport voor het gezin.
 
+**De rest van het maandrapport van het team en het spelersrapport**
+
+Elk ander onderdeel van de twee rapporten is ook een blok, onder de naam die het rapport het geeft. Elk toont precies wat dat onderdeel in het rapport toont voor hetzelfde onderwerp, dezelfde periode en dezelfde lezer, en wordt precies zo afgedrukt als het rapport het afdrukt, met dezelfde ruimte op de pagina.
+
+- Uit het maandrapport van het team, voor een team en alleen voor staf: **Datadekking**, **Status selectie**, **Evaluaties** (het hele onderdeel: de gemiddelden, wie er bewoog, de spreiding en, bij Details, het raster van spelers en categorieën), **Gesprek nodig**, **Wat veranderde**, **Testen**, **Per speler** en **Datakwaliteit**. Zonder het recht om de aanwezigheid van het team te lezen, vallen de aanwezigheidscijfers uit deze blokken weg, zoals ze ook uit het rapport wegvallen.
+- Testen en Evaluaties bieden de opties die het maandrapport biedt: Samenvatting of Details, de verandering sinds de vorige meting bij testen, welke testen of welke soorten evaluaties meetellen, en de subcategorieën bij evaluaties. Het canvas toont de testen en de soorten evaluaties als vinkjes; vink er geen aan om ze allemaal te tellen.
+- Uit het spelersrapport, voor een speler: **Status**, **Gespreksonderwerpen**, **Ontwikkelplan**, **Per wedstrijd**, **Testen**, **Traject**, **Blessures**, **Gedrag** en **Potentie**. Wie elk blok mag ontvangen, volgt de eigen regel van het spelersrapport: **Testen** mag naar een scout en naar het gezin, op het openbare niveau; elk ander blok is alleen voor staf en kan niet aan een rapport voor een scout of het gezin worden toegevoegd. Blessures zijn alleen zichtbaar voor een lezer met medische toegang, zoals in het spelersrapport.
+
+De notitieonderdelen van beide rapporten zijn geen blokken: een notitie over een speler schrijf je op een momentopname.
+
 ## Report Studio — een gedeeld rapport lezen
 
 Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapportenoverzicht onder **Met mij gedeeld**. Het staat erin zolang je kunt lezen waar het over gaat: een trainer ziet de rapporten over de eigen teams en spelers. Open er een om het te lezen; er valt niets aan te wijzigen.

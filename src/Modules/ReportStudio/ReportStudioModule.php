@@ -17,11 +17,13 @@ use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
 use TT\Modules\ReportStudio\Blocks\MatchResultsBlock;
 use TT\Modules\ReportStudio\Blocks\TeamStatisticsBlock;
 use TT\Modules\ReportStudio\Blocks\MinutesPerMatchBlock;
+use TT\Modules\ReportStudio\Blocks\MonthlySectionBlock;
 use TT\Modules\ReportStudio\Blocks\MinutesShareBlock;
 use TT\Modules\ReportStudio\Blocks\OpenGoalsBlock;
 use TT\Modules\ReportStudio\Blocks\OwnQuestionBlock;
 use TT\Modules\ReportStudio\Blocks\PageBreakBlock;
 use TT\Modules\ReportStudio\Blocks\PdpConversationsBlock;
+use TT\Modules\ReportStudio\Blocks\PlayerSectionBlock;
 use TT\Modules\ReportStudio\Blocks\PlayingTimeBlock;
 use TT\Modules\ReportStudio\Blocks\ProgressRadarBlock;
 use TT\Modules\ReportStudio\Blocks\TextBlock;
@@ -67,6 +69,9 @@ class ReportStudioModule implements ModuleInterface {
         BlockRegistry::register( new MatchResultsBlock() );
         BlockRegistry::register( new TeamStatisticsBlock() );
         BlockRegistry::register( new OwnQuestionBlock() );
+        // #4961 — the other sections of the two reports, over their composers.
+        foreach ( array_keys( MonthlySectionBlock::KEYS ) as $section ) BlockRegistry::register( new MonthlySectionBlock( $section ) );
+        foreach ( array_keys( PlayerSectionBlock::KEYS ) as $section ) BlockRegistry::register( PlayerSectionBlock::for( $section ) );
         ReportBlocksRestController::init();
         ReportsRestController::init();
         ReportSnapshotsRestController::init();

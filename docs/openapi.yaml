@@ -383,7 +383,7 @@ paths:
     get:
       tags: [report-studio]
       summary: The Report Studio blocks the caller may place, with their option schemas
-      description: 'Cap required: `tt_view_reports`, the `report_studio` feature switched on, and the `report_studio` plan feature. `scope` and `audience` are taken plainly or as `filter[scope]` / `filter[audience]`.'
+      description: 'Cap required: `tt_view_reports`, the `report_studio` feature switched on, and the `report_studio` plan feature. `scope` and `audience` are taken plainly or as `filter[scope]` / `filter[audience]`. Option types are `enum`, `bool`, `int`, `measure`, `breakdown`, `text` and `ids` (a list of record ids).'
       parameters:
         - { in: query, name: scope, required: false, schema: { type: string, enum: [me, player, team, group, academy] } }
         - { in: query, name: audience, required: false, schema: { type: string, enum: [internal, scout, family] } }

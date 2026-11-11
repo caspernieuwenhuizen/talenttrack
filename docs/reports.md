@@ -765,6 +765,16 @@ For a player, the goals blocks need the right to read that player's goals, as th
 
 - **Your own question**: pick the data (attendance, evaluations, goals and more), one measure of it, and optionally what to break it down by, for the report's subject and period. It reads the figures the data explorer reads, with the same counting rules as the reports: attendance counts only completed, live activities of the player's current team, so the percentage per player is the one the attendance reports show. A breakdown lists only what the measure counts: a player with no counted attendance, such as one who is not on the team's roster, is left out, and a player on the roster who missed every session shows 0. The data explorer still lists every row. You are only offered the data you may read for this subject, a scout is never offered a breakdown by player, and the block is not offered for a report for the family.
 
+**The rest of the team monthly report and the player report**
+
+Every other section of the two reports is a block too, under the name the report gives it. Each shows exactly what that section shows in the report for the same subject, period and reader, and prints exactly as the report prints it, taking the same room on the page.
+
+- From the team monthly report, for a team and for staff only: **Data coverage**, **Squad status**, **Evaluations** (the whole section: the averages, who moved, the spread and, under Details, the grid of players and categories), **Needs a conversation**, **What changed**, **Tests**, **Player by player** and **Data quality**. Without the right to read the team's attendance, the attendance figures are left out of these blocks as they are left out of the report.
+- Tests and Evaluations offer the options the monthly report offers: Summary or Details, the change since the previous reading for tests, which tests or which evaluation types count, and the subcategories for evaluations. The canvas lists the tests and the evaluation types as checkboxes; tick none to count them all.
+- From the player report, for a player: **Status**, **Talking points**, **Development plan**, **Match by match**, **Tests**, **Journey**, **Injuries**, **Behaviour** and **Potential**. Who may receive each is the player report's own rule: **Tests** may go to a scout and to the family, at the public level; every other one is for staff only, and cannot be added to a report for a scout or the family. Injuries show only for a reader with medical access, as on the player report.
+
+The notes sections of both reports are not blocks: a note about a player is written on a snapshot.
+
 ## Report Studio — reading a shared report
 
 A report someone published for your role appears on the Reports launcher under **Shared with me**. It is listed while you can read what it is about: a coach sees the reports about their own teams and players. Open one to read it; nothing on it can be changed.

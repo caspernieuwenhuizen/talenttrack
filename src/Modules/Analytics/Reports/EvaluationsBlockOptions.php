@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Defaults are recorded as absence (`BlockOptionsInterface`).
  */
-final class EvaluationsBlockOptions implements BlockOptionsInterface {
+final class EvaluationsBlockOptions implements DescribesOptions {
 
     public const LEVEL = SectionLevel::KEY;
     public const TYPES = 'types';
@@ -58,8 +58,39 @@ final class EvaluationsBlockOptions implements BlockOptionsInterface {
     public static function unknownKeys( array $raw ): array {
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
-            static fn( string $key ): bool => ! in_array( $key, [ self::LEVEL, self::TYPES, self::SUB ], true )
+            static fn( string $key ): bool => ! in_array( $key, array_column( self::fields(), 'key' ), true )
         ) );
+    }
+
+    /**
+     * #4961 — the options a panel offers, the ones `unknownKeys()` accepts.
+     *
+     * @return list<array{key:string, kind:string, default:mixed}>
+     */
+    public static function fields(): array {
+        return [
+            [ 'key' => self::LEVEL, 'kind' => self::KIND_LEVEL, 'default' => self::DEFAULT_LEVEL ],
+            [ 'key' => self::TYPES, 'kind' => self::KIND_IDS, 'default' => [] ],
+            [ 'key' => self::SUB, 'kind' => self::KIND_SWITCH, 'default' => false ],
+        ];
+    }
+
+    public static function fieldLabel( string $key ): string {
+        switch ( $key ) {
+            case self::LEVEL: return _x( 'Level of detail', 'report section option', 'talenttrack' );
+            case self::TYPES: return __( 'Which evaluations', 'talenttrack' );
+            case self::SUB:   return self::subLabel();
+        }
+        return '';
+    }
+
+    /**
+     * The academy's evaluation types, for the `types` field.
+     *
+     * @return array<int,string>
+     */
+    public static function fieldChoices( string $key ): array {
+        return $key === self::TYPES ? TeamMonthlyEvaluations::typeLabels() : [];
     }
 
     /** @param array<string,mixed> $options */

@@ -72,6 +72,31 @@ final class PlayerReportBlock {
         self::NOTES,
     ];
 
+    /**
+     * #4961 — a section's title, as the report's screen and paper print it.
+     */
+    public static function title( string $key ): string {
+        switch ( $key ) {
+            case self::LETTERHEAD:     return _x( 'Letterhead', 'player report section', 'talenttrack' );
+            case self::STATUS:         return _x( 'Status', 'player report section', 'talenttrack' );
+            case self::TALKING_POINTS: return _x( 'Talking points', 'player report section', 'talenttrack' );
+            case self::RATINGS:        return _x( 'Evaluations', 'player report section', 'talenttrack' );
+            case self::ATTENDANCE:     return _x( 'Attendance', 'player report section', 'talenttrack' );
+            case self::MINUTES:        return _x( 'Playing time', 'player report section', 'talenttrack' );
+            case self::GOALS:          return _x( 'Goals', 'player report section', 'talenttrack' );
+            case self::PDP:            return _x( 'Development plan', 'player report section', 'talenttrack' );
+            case self::NOTES:          return _x( 'Notes', 'player report section', 'talenttrack' );
+            case self::MATCHES:        return _x( 'Match by match', 'player report section', 'talenttrack' );
+            case self::TESTS:          return _x( 'Tests', 'player report section', 'talenttrack' );
+            case self::JOURNEY:        return _x( 'Journey', 'player report section', 'talenttrack' );
+            case self::INJURIES:       return _x( 'Injuries', 'player report section', 'talenttrack' );
+            case self::BEHAVIOUR:      return _x( 'Behaviour', 'player report section', 'talenttrack' );
+            case self::POTENTIAL:      return _x( 'Potential', 'player report section', 'talenttrack' );
+            case self::THREAD_NOTES:   return _x( 'Staff notes', 'player report section', 'talenttrack' );
+        }
+        return '';
+    }
+
     public static function isValid( string $key ): bool {
         return in_array( $key, self::ALL, true );
     }
