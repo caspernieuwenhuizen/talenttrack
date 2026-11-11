@@ -83,28 +83,46 @@ final class ThreadAccess {
      * right is unioned in rather than swapped for the old one: every
      * reader who sees a staff-only note today still sees it, and the
      * people the new right reaches can read back what they just wrote.
+     *
+     * #5059 — the legacy arm counts only on a team the reader coaches. With
+     * the matrix off, `tt_edit_evaluations` is a role capability the scout
+     * role holds too, and a scout is not staff on the thread's team.
      */
     public static function canSeePrivate( string $thread_type, int $thread_id, int $user_id ): bool {
         if ( self::hasGlobalAccess( $user_id, 'read' ) ) return true;
         if ( ! self::canRead( $thread_type, $thread_id, $user_id ) ) return false;
-        return self::holdsStaffOnlyRight( $thread_type, $thread_id, $user_id ) || user_can( $user_id, 'tt_edit_evaluations' );
+        if ( self::holdsStaffOnlyRight( $thread_type, $thread_id, $user_id ) ) return true;
+        return user_can( $user_id, 'tt_edit_evaluations' )
+            && self::coachesTeam( $user_id, self::teamFor( $thread_type, $thread_id ) );
+    }
+
+    /** Is this team one the user coaches? False for no team. */
+    private static function coachesTeam( int $user_id, int $team_id ): bool {
+        return $team_id > 0 && in_array( $team_id, self::coachedTeamIds( $user_id ), true );
+    }
+
+    /** @return list<int> the teams the user coaches */
+    private static function coachedTeamIds( int $user_id ): array {
+        $ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $ids[] = (int) ( $team->id ?? 0 );
+        }
+        return $ids;
     }
 
     /**
      * #4936 — {@see self::canSeePrivate()} for the threads of player-anchored
      * records whose read the caller has already established, by the team
-     * each thread belongs to. `all` holds for a global thread reader, a
-     * holder of the global staff-only right and a holder of
-     * `tt_edit_evaluations`; otherwise `teams` says, per team, whether the
-     * staff-only right is held there. Search narrows its note statement and
-     * confirms its hits with it, so both read one rule.
+     * each thread belongs to. `all` holds for a global thread reader and a
+     * holder of the global staff-only right; otherwise `teams` says, per
+     * team, whether the staff-only right is held there, or the reader holds
+     * `tt_edit_evaluations` and coaches that team. Search narrows its note
+     * statement and confirms its hits with it, so both read one rule.
      *
      * Only an answer paired with the thread read
      * (`PlayerThreadAdapter::canRead()` / `canReadMany()`): unlike
-     * `canSeePrivate()` it does not ask the read itself, so `all` is true
-     * for a `tt_edit_evaluations` holder who may not read the thread at all.
-     * Never use it alone. `StaffSearchTest` pins the pair to
-     * `canSeePrivate()`.
+     * `canSeePrivate()` it does not ask the read itself. Never use it alone.
+     * `StaffSearchTest` pins the pair to `canSeePrivate()`.
      *
      * @param list<int> $team_ids
      * @return array{all:bool, teams:array<int,bool>}
@@ -112,15 +130,17 @@ final class ThreadAccess {
     public static function canSeePrivateOnTeams( int $user_id, array $team_ids ): array {
         $teams = array_fill_keys( array_values( array_filter( array_map( 'intval', $team_ids ), static fn( int $t ): bool => $t > 0 ) ), false );
         if ( $user_id <= 0 ) return [ 'all' => false, 'teams' => $teams ];
-        if ( self::hasGlobalAccess( $user_id, 'read' ) || user_can( $user_id, 'tt_edit_evaluations' ) ) {
+        if ( self::hasGlobalAccess( $user_id, 'read' ) ) {
             return [ 'all' => true, 'teams' => array_fill_keys( array_keys( $teams ), true ) ];
         }
-        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [ 'all' => false, 'teams' => $teams ];
-        if ( MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
+        $matrix = class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' );
+        if ( $matrix && MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
             return [ 'all' => true, 'teams' => array_fill_keys( array_keys( $teams ), true ) ];
         }
+        $coached = user_can( $user_id, 'tt_edit_evaluations' ) ? array_flip( self::coachedTeamIds( $user_id ) ) : [];
         foreach ( array_keys( $teams ) as $team_id ) {
-            $teams[ $team_id ] = MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+            $teams[ $team_id ] = isset( $coached[ $team_id ] )
+                || ( $matrix && MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id ) );
         }
         return [ 'all' => false, 'teams' => $teams ];
     }

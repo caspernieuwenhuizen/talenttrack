@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Recipients\TeamStaffLookup;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Modules\Threads\Domain\PlayerAnchoredThread;
@@ -23,10 +24,13 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  *
  * Read = `tt_view_player_notes` capability (matrix-bridged) plus a
  * scope check the matrix gate handles automatically (team-scoped
- * coaches see notes on their team's players; HoD/Admin globally;
- * scouts globally for cross-team observation).
+ * coaches see notes on their team's players; HoD/Admin globally),
+ * and the reader must be able to view the player, the check the player
+ * pages make. A scout's academy-wide notes grant therefore reaches the
+ * players the scout is linked to.
  *
- * Post = `tt_edit_player_notes`. Same scope semantics.
+ * Post = `tt_edit_player_notes` with the same scope semantics, and the
+ * writer must be able to view the player, as for reading.
  */
 final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread {
 
@@ -123,6 +127,10 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // an academy child must keep their coach access).
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return false;
 
+        // The notes are part of the player's record: nobody reads them who
+        // may not open the record itself (#5059).
+        if ( ! AuthorizationService::canViewPlayer( $user_id, $thread_id ) ) return false;
+
         // Coach scope: must own the player's team. Matches the
         // `r[team]` grant on the seed. Asked of `$user_id` only: the
         // notification fan-out evaluates recipients inside the author's
@@ -150,14 +158,17 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         if ( $user_id <= 0 || $out === [] ) return $out;
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return $out;
 
+        $view = AuthorizationService::canViewPlayers( $user_id, array_keys( $out ) );
+
         if ( QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
-            return array_fill_keys( array_keys( $out ), true );
+            foreach ( array_keys( $out ) as $player_id ) $out[ $player_id ] = ! empty( $view[ $player_id ] );
+            return $out;
         }
 
         $coached = [];
         foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) $coached[ (int) ( $team->id ?? 0 ) ] = true;
         foreach ( $team_by_player as $player_id => $team_id ) {
-            $out[ (int) $player_id ] = (int) $team_id > 0 && isset( $coached[ (int) $team_id ] );
+            $out[ (int) $player_id ] = ! empty( $view[ (int) $player_id ] ) && (int) $team_id > 0 && isset( $coached[ (int) $team_id ] );
         }
         return $out;
     }
@@ -169,6 +180,9 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // player / parent personas, so this cap check alone denies
         // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
+
+        // Writing a note on a player follows the same rule as reading it.
+        if ( ! AuthorizationService::canViewPlayer( $user_id, $thread_id ) ) return false;
 
         if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' ) ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );
