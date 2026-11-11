@@ -4,6 +4,10 @@ namespace TT\Infrastructure\Search;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Search\Providers\ActivitySearchProvider;
+use TT\Infrastructure\Search\Providers\CourseSearchProvider;
+use TT\Infrastructure\Search\Providers\ExerciseSearchProvider;
+use TT\Infrastructure\Search\Providers\MethodologySearchProvider;
+use TT\Infrastructure\Search\Providers\TrainingPlanSearchProvider;
 use TT\Infrastructure\Search\Providers\EvaluationSearchProvider;
 use TT\Infrastructure\Search\Providers\GoalSearchProvider;
 use TT\Infrastructure\Search\Providers\MessageSearchProvider;

@@ -129,7 +129,7 @@ abstract class LibraryRecordSearchProvider implements SearchProvider {
         if ( $hits === [] || ! $this->serves( $user_id ) ) return [];
         $kept = $this->confirmHits( $user_id, $hits );
         foreach ( $kept as $i => $hit ) unset( $kept[ $i ]['tt_row'] );
-        return array_values( $kept );
+        return $kept;
     }
 
     public function hydrate( int $user_id, array $ids ): array {

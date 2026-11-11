@@ -70,9 +70,10 @@ final class MethodologySearchProvider extends MemorySearchProvider {
             ];
         }
 
-        $primer = ( new FrameworkPrimerRepository() )->activeForClub();
-        if ( $primer !== null ) {
-            foreach ( ( new LearningGoalsRepository() )->listForPrimer( (int) $primer->id ) as $goal ) {
+        $primer    = ( new FrameworkPrimerRepository() )->activeForClub();
+        $primer_id = $primer !== null ? (int) ( ( (array) $primer )['id'] ?? 0 ) : 0;
+        if ( $primer_id > 0 ) {
+            foreach ( ( new LearningGoalsRepository() )->listForPrimer( $primer_id ) as $goal ) {
                 $id    = (int) ( $goal->id ?? 0 );
                 $title = MultilingualField::string( $goal->title_json ?? null );
                 if ( $id <= 0 || $title === '' ) continue;
