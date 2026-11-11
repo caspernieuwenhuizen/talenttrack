@@ -1,0 +1,115 @@
+/*
+ * theme-tactiekbord.css — the `tactiekbord` theme (#5089): slate and chalk mint.
+ *
+ * Loaded ONLY when ThemePreference resolves to `tactiekbord`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/ibm-plex-sans/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-sans/ibm-plex-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-sans/ibm-plex-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-sans/ibm-plex-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/ibm-plex-sans/ibm-plex-sans-latin-700-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-tactiekbord {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #2f4858;
+    --tt-primary-rgb:   47, 72, 88;
+    --tt-secondary:     #3ddc97;
+    --tt-secondary-rgb: 61, 220, 151;
+    --tt-accent:        #2f4858;
+    --tt-primary-deep:  #1b252d;
+    --tt-primary-ink:   #3e6175;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #3ddc97;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #151d22;
+    --tt-ink-soft:   #435159;
+    --tt-muted:      #626f77;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f1f4f5;
+    --tt-line:       #dbe1e4;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-success:        #12875a;
+    --tt-success-subtle: #dcf3e8;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #2f4858;
+    --tt-link-hover: #3e6175;
+    --tt-link-wash:  rgba(47, 72, 88, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(27,37,45,0.20);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #2a775d;
+    --tt-secondary-on-primary: #3ddc97;
+    --tt-secondary-on-chrome:  #3ddc97;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #1b252d;
+    --tt-theme-chrome-2:        #2d363e;
+    --tt-theme-chrome-active:   #3f484f;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bbbec0;
+    --tt-theme-chrome-line:     #3b444a;
+    --tt-theme-marker:          #3ddc97;
+}

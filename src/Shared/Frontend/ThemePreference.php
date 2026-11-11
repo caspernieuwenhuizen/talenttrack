@@ -22,6 +22,9 @@ use TT\Infrastructure\Config\ConfigService;
  *   - `leon-hutten` — the club's own design system (#2939): black crest
  *     banner as chrome, a cyan-to-navy stripe motif, blue actions with
  *     a cyan accent, Open Sans throughout.
+ *   - `clubrood`, `oranje`, `tactiekbord`, `bordeaux`, `polder` — five
+ *     general-purpose palettes (#5089), each with its own bundled
+ *     webfont under `assets/fonts/`.
  *
  * A theme owns the complete visual design, brand colours included:
  * `BrandStyles` stops emitting `--tt-primary` / `--tt-secondary` while
@@ -53,6 +56,21 @@ final class ThemePreference {
     /** Leon Hutten — Talenten Academie, from the club's handoff (#2939). */
     public const LEON_HUTTEN = 'leon-hutten';
 
+    /** Heritage red, black and muted gold; Barlow Condensed display (#5089). */
+    public const CLUBROOD = 'clubrood';
+
+    /** Navy and Dutch orange; Archivo (#5089). */
+    public const ORANJE = 'oranje';
+
+    /** Slate and chalk mint; IBM Plex Sans (#5089). */
+    public const TACTIEKBORD = 'tactiekbord';
+
+    /** Wine and sand; Source Serif 4 display, Source Sans 3 body (#5089). */
+    public const BORDEAUX = 'bordeaux';
+
+    /** Deep teal and coral; DM Sans (#5089). */
+    public const POLDER = 'polder';
+
     /** Per-user value meaning "follow the club default". */
     public const INHERIT = 'inherit';
 
@@ -62,7 +80,16 @@ final class ThemePreference {
      * @return list<string>
      */
     public static function themes(): array {
-        return [ self::DEFAULT_THEME, self::FEDERATION, self::LEON_HUTTEN ];
+        return [
+            self::DEFAULT_THEME,
+            self::FEDERATION,
+            self::LEON_HUTTEN,
+            self::CLUBROOD,
+            self::ORANJE,
+            self::TACTIEKBORD,
+            self::BORDEAUX,
+            self::POLDER,
+        ];
     }
 
     /**
@@ -146,7 +173,10 @@ final class ThemePreference {
      */
     public static function rootClass( int $user_id = 0 ): string {
         $theme = self::resolve( $user_id );
-        return $theme === self::DEFAULT_THEME ? '' : 'tt-theme-' . $theme;
+        if ( $theme === self::DEFAULT_THEME ) {
+            return '';
+        }
+        return 'tt-theme-' . $theme . ( self::usesSharedSheet( $theme ) ? ' ' . self::SHARED_CLASS : '' );
     }
 
     /**
@@ -156,6 +186,34 @@ final class ThemePreference {
     public static function styleFile( int $user_id = 0 ): string {
         $theme = self::resolve( $user_id );
         return $theme === self::DEFAULT_THEME ? '' : 'theme-' . $theme . '.css';
+    }
+
+    /** The chrome and display rules the token-only themes share (#5089). */
+    public const SHARED_SHEET = 'theme-shared.css';
+
+    /** Root class those themes carry, which the shared sheet is scoped to. */
+    public const SHARED_CLASS = 'tt-theme-shared';
+
+    /**
+     * Themes whose sheet is a token layer only, with every rule in the
+     * shared sheet. Federation and Kristalblauw keep their own rules.
+     *
+     * @return list<string>
+     */
+    public static function sharedSheetThemes(): array {
+        return [ self::CLUBROOD, self::ORANJE, self::TACTIEKBORD, self::BORDEAUX, self::POLDER ];
+    }
+
+    public static function usesSharedSheet( string $theme ): bool {
+        return in_array( $theme, self::sharedSheetThemes(), true );
+    }
+
+    /**
+     * The shared sheet's filename when the resolved theme uses it, relative
+     * to `assets/css/`; '' otherwise.
+     */
+    public static function sharedStyleFile( int $user_id = 0 ): string {
+        return self::usesSharedSheet( self::resolve( $user_id ) ) ? self::SHARED_SHEET : '';
     }
 
     /**
@@ -169,6 +227,11 @@ final class ThemePreference {
             self::DEFAULT_THEME => __( 'Default — green and gold', 'talenttrack' ),
             self::FEDERATION    => __( 'Federation — navy and gold', 'talenttrack' ),
             self::LEON_HUTTEN   => __( 'Leon Hutten — black and cyan', 'talenttrack' ),
+            self::CLUBROOD      => __( 'Clubrood — red, black and gold', 'talenttrack' ),
+            self::ORANJE        => __( 'Oranje — navy and orange', 'talenttrack' ),
+            self::TACTIEKBORD   => __( 'Tactiekbord — slate and mint', 'talenttrack' ),
+            self::BORDEAUX      => __( 'Bordeaux — wine and sand', 'talenttrack' ),
+            self::POLDER        => __( 'Polder — teal and coral', 'talenttrack' ),
         ];
     }
 
@@ -183,6 +246,11 @@ final class ThemePreference {
             self::DEFAULT_THEME => _x( 'Default', 'visual theme', 'talenttrack' ),
             self::FEDERATION    => _x( 'Federation', 'visual theme', 'talenttrack' ),
             self::LEON_HUTTEN   => _x( 'Leon Hutten', 'visual theme', 'talenttrack' ),
+            self::CLUBROOD      => _x( 'Clubrood', 'visual theme', 'talenttrack' ),
+            self::ORANJE        => _x( 'Oranje', 'visual theme', 'talenttrack' ),
+            self::TACTIEKBORD   => _x( 'Tactiekbord', 'visual theme', 'talenttrack' ),
+            self::BORDEAUX      => _x( 'Bordeaux', 'visual theme', 'talenttrack' ),
+            self::POLDER        => _x( 'Polder', 'visual theme', 'talenttrack' ),
         ];
     }
 }

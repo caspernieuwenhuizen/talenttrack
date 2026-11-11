@@ -68,7 +68,7 @@
 }
 .tt-dashboard .tt-podium-team-header h2 a:hover,
 .tt-dashboard .tt-podium-team-header h2 a:focus-visible {
-    color: var(--tt-secondary);
+    color: var(--tt-secondary-text, var(--tt-secondary));
     text-decoration: underline;
 }
 

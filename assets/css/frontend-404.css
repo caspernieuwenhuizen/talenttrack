@@ -35,7 +35,7 @@
     line-height: 1;
     font-weight: 800;
     letter-spacing: 0.06em;
-    color: var(--tt-secondary, #e8b624);
+    color: var(--tt-secondary-text, var(--tt-secondary, #e8b624));
     margin-bottom: var(--tt-sp-3, 12px);
 }
 

@@ -207,6 +207,18 @@ class DashboardShortcode {
             if ( ShellPreference::isApp() ) {
                 $theme_deps[] = 'tt-frontend-app-shell';
             }
+            // #5089 — a token-only theme's rules live in one shared sheet,
+            // loaded before the theme's own tokens and fonts.
+            $shared_style = ThemePreference::sharedStyleFile();
+            if ( $shared_style !== '' ) {
+                wp_enqueue_style(
+                    'tt-theme-shared',
+                    TT_PLUGIN_URL . 'assets/css/' . $shared_style,
+                    $theme_deps,
+                    TT_VERSION
+                );
+                $theme_deps[] = 'tt-theme-shared';
+            }
             wp_enqueue_style(
                 'tt-theme',
                 TT_PLUGIN_URL . 'assets/css/' . $theme_style,

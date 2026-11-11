@@ -177,7 +177,7 @@
 }
 .tt-dashboard .tt-dash-help:hover,
 .tt-dashboard .tt-dash-help:focus-visible {
-    color: var(--tt-secondary);
+    color: var(--tt-secondary-on-chrome, var(--tt-secondary));
     background: rgba(255, 255, 255, 0.08);
 }
 /* On the dark band a primary ring would not show; white, as on .tt-dash-home. */

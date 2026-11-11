@@ -23,8 +23,37 @@ haze over it.
 the club's own crest. The crest's black banner becomes the header and the
 navigation rail; its diagonal cyan-to-navy stripe closes the header and the
 brand block. Buttons and links take the deep blue, cyan marks the section
-you are on, and the whole theme is set in Open Sans. Corners are the squarest
-of the three (3px).
+you are on, and the whole theme is set in Open Sans. Corners are nearly
+square (3px).
+
+**Clubrood** — heritage red, black and muted gold, with Barlow Condensed for
+the headings. Classic shirt colours; the condensed headings read like a
+matchday programme.
+
+**Oranje** — navy and Dutch orange, set in Archivo. National-team energy,
+with the highest-contrast accent of the set.
+
+**Tactiekbord** — slate and chalk mint, set in IBM Plex Sans. Cool and
+analytical; it suits academies that lead with data and methodology.
+
+**Bordeaux** — wine and sand, with Source Serif 4 for the headings and Source
+Sans 3 for the rest. Editorial and calm; the serif headings give reports a
+printed feel.
+
+**Polder** — deep teal and coral, set in DM Sans. Warm and approachable; a
+good fit for younger age groups and for what parents see.
+
+In these themes the header and the navigation rail take the theme's deepest
+colour, and the accent marks the section you are on. Where the accent is too
+light to read as text on white, words in that colour use a darker shade of it.
+
+### Fonts come with the plugin
+
+The fonts these themes use are part of the plugin. A page never asks Google
+Fonts or any other font service for them, and a font is only downloaded while
+its theme is on. Until it arrives the text shows in a similar system font, so
+nothing waits for it. Leon Hutten is the one exception: it still loads Open
+Sans from Google Fonts.
 
 ## A theme replaces your colour settings
 
@@ -149,7 +178,14 @@ they are written beats out-specifying a moving target.
 1. Add the value to `ThemePreference::themes()` and a label in `labels()`.
 2. Add `assets/css/theme-<value>.css`. `styleFile()` derives the filename, so
    nothing else needs editing to enqueue it.
-3. Add the config key to the allowlist in `ConfigRestController` only if you
+3. For a theme that is a palette only, add the value to
+   `ThemePreference::sharedSheetThemes()` and keep its sheet to its
+   `@font-face` rules and one token block. `assets/css/theme-shared.css` draws
+   the header, the rail and the display type from those tokens, once, for
+   every such theme; `DashboardShortcode` enqueues it before the theme sheet
+   and the root carries `tt-theme-shared`. Federation and Kristalblauw predate
+   it and keep their own rules.
+4. Add the config key to the allowlist in `ConfigRestController` only if you
    introduce a new key — `tt_frontend_theme` is already allowed.
 
 The enqueue in `DashboardShortcode` picks up the shell stylesheet as a
@@ -159,14 +195,80 @@ install never registers a handle it does not load.
 A theme that wants a webfont has to load it itself.
 `BrandStyles::enqueueFonts()` also returns early while a theme is active — the
 club's font picker does not apply, and skipping the request spares the page a
-third-party fetch whose result nothing would use. `leon-hutten` loads Open
-Sans with an `@import` at the top of its own sheet.
+third-party fetch whose result nothing would use.
 
-### Known gap
+### Bundled fonts
 
-Federation's intended letter is **Barlow Condensed** for display and **Barlow**
-for the rest. Neither ships with the plugin, so the theme falls back to the
-condensed faces already on the operating system (`Arial Narrow`, then
-`Segoe UI Condensed`) and finally to the body face. Bundling the webfonts is
-tracked separately — it carries a licensing and payload decision that the theme
-itself does not.
+Webfonts are bundled under `assets/fonts/<family>/`: SIL OFL families only,
+the Latin subset, only the weights a theme uses, each family's `OFL.txt` next
+to its files. `assets/fonts/README.md` lists the family, version, source,
+licence and payload. A theme declares its `@font-face` rules at the top of its
+own sheet with `font-display: swap`, pointing at `../fonts/…`, so the font
+loads only while that theme is active and the fallback stack holds the layout
+while it does.
+
+| Theme | Families |
+| --- | --- |
+| `federation` | Barlow Condensed (display) |
+| `clubrood` | Barlow Condensed (display) |
+| `oranje` | Archivo |
+| `tactiekbord` | IBM Plex Sans |
+| `bordeaux` | Source Serif 4 (display), Source Sans 3 (body) |
+| `polder` | DM Sans |
+
+`leon-hutten` still loads Open Sans with an `@import` from Google Fonts at the
+top of its own sheet; bundling it is a separate change.
+
+Federation's headings are set in the bundled Barlow Condensed. Its body text
+stays in the system face: Barlow regular is not bundled. The player card
+(`player-card.css`) loads its Oswald and Manrope from the same folder.
+
+### Mapping a design palette
+
+The five palettes come from a design that names its colours after the design
+system. Each sheet maps them the same way:
+
+| Design | Product |
+| --- | --- |
+| `--tt-green-deep` | the header and rail (`--tt-theme-chrome`), `--tt-primary-deep` |
+| `--tt-green` | `--tt-primary`, `--tt-primary-rgb`, `--tt-accent`, `--tt-link` |
+| `--tt-green-soft` | `--tt-primary-ink` (primary button hover), `--tt-link-hover` |
+| `--tt-gold` | `--tt-secondary`, `--tt-secondary-rgb`, `--tt-primary-hover`, the active marker |
+| ink, muted, line, paper, paper-soft, status | `--tt-ink`, `--tt-muted`, `--tt-line`, `--tt-paper`, `--tt-bg-soft`, the status tokens |
+
+The rail's hover, pressed, line and soft-ink steps are the chrome colour mixed
+toward white. A design colour that misses a contrast floor in a text or focus
+role keeps its value for fills, and that role takes the same hue stepped
+toward the theme's deep colour (on light surfaces) or toward white (on dark
+ones) until it clears. The focus ring follows `--tt-primary`; a theme does not
+set `--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` carries each theme's
+primary, so reports follow the theme too.
+
+### The secondary as text
+
+`--tt-secondary` is a fill colour. A component that prints it as words or
+numerals reads one of three tokens from `tokens.css` instead, by the surface
+underneath:
+
+| Token | Surface | Read by |
+| --- | --- | --- |
+| `--tt-secondary-text` | paper | the 404 emblem, the saved-view star, the podium team link on hover, the popularity percentage |
+| `--tt-secondary-on-primary` | the primary band | the overview rating label, the today card's call to action, a teammate's initials |
+| `--tt-secondary-on-chrome` | the header | the help icon on hover |
+
+Each follows `--tt-secondary` unless a theme sets it. They are declared on
+`.tt-dashboard` as well as `.tt-root`, like `--tt-focus`, so they follow a
+theme's secondary. A theme that declares a secondary declares at least
+`--tt-secondary-text` itself.
+
+`tests/php/ThemeContrastTest.php` checks every registered theme against the
+contrast floors, resolving each token as the browser does: ink, soft ink,
+muted text and links on paper and the soft background, white on the primary
+and its hover, ink on the button hover, the three secondary-as-text tokens,
+the header's text, and the rail's text, soft text and brand mark at 4.5:1; the
+focus ring, the header icon, and the rail's marker and focus ring against the
+rail and the active row, at 3:1. Kristalblauw's cyan as text and its marker
+on the active row are named exceptions, held so that theme keeps its look.
+`tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
+sheet, that `default` loads no sheet and stamps no class, and that bundled
+fonts load from the plugin with `swap`.

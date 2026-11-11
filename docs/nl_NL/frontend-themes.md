@@ -25,7 +25,38 @@ het clubembleem. De zwarte band uit het embleem wordt de kopbalk en de
 navigatiekolom; de diagonale streep van cyaan naar marineblauw sluit de
 kopbalk en het merkblok af. Knoppen en links krijgen het diepe blauw, cyaan
 markeert de sectie waar je bent, en het hele thema staat in Open Sans. De
-hoeken zijn het strakst van de drie (3px).
+hoeken zijn bijna haaks (3px).
+
+**Clubrood** — traditioneel clubrood, zwart en gedempt goud, met Barlow
+Condensed voor de koppen. Klassieke shirtkleuren; de smalle koppen lezen als
+een wedstrijdprogramma.
+
+**Oranje** — marineblauw en Hollands oranje, in Archivo. De energie van het
+nationale elftal, met het accent met het meeste contrast van de reeks.
+
+**Tactiekbord** — leisteengrijs en krijtmint, in IBM Plex Sans. Koel en
+analytisch; past bij academies die werken vanuit data en methodiek.
+
+**Bordeaux** — wijnrood en zand, met Source Serif 4 voor de koppen en Source
+Sans 3 voor de rest. Redactioneel en rustig; de schreefkoppen geven rapporten
+een gedrukt gevoel.
+
+**Polder** — diep petrol en koraal, in DM Sans. Warm en toegankelijk; past goed
+bij jongere leeftijdsgroepen en bij wat ouders zien.
+
+In deze thema's krijgen de kopbalk en de navigatiekolom de diepste kleur van
+het thema, en markeert het accent de sectie waar je bent. Waar het accent te
+licht is om als tekst op wit te lezen, staan woorden in die kleur in een
+donkerdere tint ervan.
+
+### De letters zitten in de plugin
+
+De letters die deze thema's gebruiken, zitten in de plugin zelf. Een pagina
+vraagt ze nooit op bij Google Fonts of een andere letterdienst, en een letter
+wordt alleen gedownload zolang zijn thema aanstaat. Tot hij binnen is, staat de
+tekst in een vergelijkbare systeemletter, zodat niets erop hoeft te wachten.
+Leon Hutten is de enige uitzondering: dat thema laadt Open Sans nog via Google
+Fonts.
 
 ## Een thema vervangt je kleurinstellingen
 
@@ -158,7 +189,14 @@ plek waar ze geschreven worden is beter dan een bewegend doel overtroeven.
 2. Voeg `assets/css/theme-<waarde>.css` toe. `styleFile()` leidt de
    bestandsnaam af, dus er hoeft niets anders aangepast te worden om het in te
    laden.
-3. Voeg alleen een configuratiesleutel toe aan de lijst in
+3. Voor een thema dat alleen een palet is: voeg de waarde toe aan
+   `ThemePreference::sharedSheetThemes()` en houd het stijlblad bij zijn
+   `@font-face`-regels en één tokenblok. `assets/css/theme-shared.css` tekent
+   de kopbalk, de navigatiekolom en de kopletter uit die tokens, één keer, voor
+   elk zo'n thema; `DashboardShortcode` laadt het vóór het themastijlblad en de
+   root krijgt `tt-theme-shared`. Federation en Kristalblauw zijn ouder en
+   houden hun eigen regels.
+4. Voeg alleen een configuratiesleutel toe aan de lijst in
    `ConfigRestController` als je een nieuwe sleutel introduceert —
    `tt_frontend_theme` staat er al in.
 
@@ -170,13 +208,85 @@ Een thema dat een webletter wil gebruiken, moet die zelf inladen.
 `BrandStyles::enqueueFonts()` stopt namelijk ook meteen zolang er een thema
 actief is — de letterkeuze van de club geldt dan niet, en het overslaan van dat
 verzoek scheelt de pagina een externe aanvraag waar niets mee gedaan wordt.
-`leon-hutten` laadt Open Sans met een `@import` bovenaan zijn eigen stijlblad.
 
-### Bekend gat
+### Meegeleverde letters
 
-De bedoelde letter voor Federation is **Barlow Condensed** voor koppen en
-**Barlow** voor de rest. Geen van beide wordt met de plugin meegeleverd, dus
-het thema valt terug op de smalle letters die al op het besturingssysteem
-staan (`Arial Narrow`, daarna `Segoe UI Condensed`) en uiteindelijk op de
-bodyletter. Het meeleveren van de webfonts wordt apart bijgehouden — daar
-hangt een licentie- en laadtijdafweging aan die het thema zelf niet heeft.
+Webletters worden meegeleverd onder `assets/fonts/<familie>/`: alleen families
+onder de SIL OFL, de Latijnse subset, alleen de gewichten die een thema
+gebruikt, met het `OFL.txt` van elke familie naast de bestanden.
+`assets/fonts/README.md` noemt per familie de versie, de bron, de licentie en
+de omvang. Een thema declareert zijn `@font-face`-regels bovenaan zijn eigen
+stijlblad met `font-display: swap` en verwijst naar `../fonts/…`, zodat de
+letter alleen laadt zolang dat thema actief is en de terugvalletters de opmaak
+vasthouden zolang hij laadt.
+
+| Thema | Families |
+| --- | --- |
+| `federation` | Barlow Condensed (koppen) |
+| `clubrood` | Barlow Condensed (koppen) |
+| `oranje` | Archivo |
+| `tactiekbord` | IBM Plex Sans |
+| `bordeaux` | Source Serif 4 (koppen), Source Sans 3 (tekst) |
+| `polder` | DM Sans |
+
+`leon-hutten` laadt Open Sans nog met een `@import` van Google Fonts bovenaan
+zijn eigen stijlblad; die letter meeleveren is een aparte wijziging.
+
+De koppen van Federation staan in de meegeleverde Barlow Condensed. De
+lopende tekst blijft in de systeemletter: Barlow regular wordt niet
+meegeleverd. De spelerskaart (`player-card.css`) laadt haar Oswald en Manrope
+uit dezelfde map.
+
+### Een ontwerppalet vertalen
+
+De vijf paletten komen uit een ontwerp dat zijn kleuren noemt naar het
+designsysteem. Elk stijlblad vertaalt ze op dezelfde manier:
+
+| Ontwerp | Product |
+| --- | --- |
+| `--tt-green-deep` | de kopbalk en navigatiekolom (`--tt-theme-chrome`), `--tt-primary-deep` |
+| `--tt-green` | `--tt-primary`, `--tt-primary-rgb`, `--tt-accent`, `--tt-link` |
+| `--tt-green-soft` | `--tt-primary-ink` (hover van de primaire knop), `--tt-link-hover` |
+| `--tt-gold` | `--tt-secondary`, `--tt-secondary-rgb`, `--tt-primary-hover`, de actieve markering |
+| inkt, muted, lijn, papier, paper-soft, status | `--tt-ink`, `--tt-muted`, `--tt-line`, `--tt-paper`, `--tt-bg-soft`, de statustokens |
+
+De hover-, ingedrukt-, lijn- en zachte inkttinten van de navigatiekolom zijn de
+chroomkleur gemengd richting wit. Een ontwerpkleur die in een tekst- of
+focusrol een contrastgrens mist, houdt haar waarde voor vlakken; die rol krijgt
+dezelfde tint, stapsgewijs richting de diepe kleur van het thema (op lichte
+vlakken) of richting wit (op donkere), tot hij de grens haalt. De focusring
+volgt `--tt-primary`; een thema zet geen `--tt-focus-ring`.
+`ReportBrandColour::THEME_PRIMARY` bevat de primaire kleur van elk thema,
+zodat rapporten het thema ook volgen.
+
+### De secundaire kleur als tekst
+
+`--tt-secondary` is een vlakkleur. Een component die haar als woorden of
+cijfers toont, leest in plaats daarvan een van drie tokens uit `tokens.css`,
+naar het vlak eronder:
+
+| Token | Vlak | Gelezen door |
+| --- | --- | --- |
+| `--tt-secondary-text` | papier | het 404-embleem, de ster van een opgeslagen weergave, de teamlink op het podium bij hover, het populariteitspercentage |
+| `--tt-secondary-on-primary` | de primaire band | het beoordelingslabel in het overzicht, de oproep op de kaart van vandaag, de initialen van een teamgenoot |
+| `--tt-secondary-on-chrome` | de kopbalk | het helppictogram bij hover |
+
+Elk volgt `--tt-secondary`, tenzij een thema het zet. Ze worden op
+`.tt-dashboard` en op `.tt-root` gedeclareerd, net als `--tt-focus`, zodat ze
+de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
+declareert, declareert ten minste `--tt-secondary-text` zelf.
+
+`tests/php/ThemeContrastTest.php` controleert elk geregistreerd thema op de
+contrastgrenzen en lost elk token op zoals de browser dat doet: inkt, zachte
+inkt, gedempte tekst en links op papier en op de zachte achtergrond, wit op de
+primaire kleur en de hover daarvan, inkt op de knophover, de drie tokens voor
+de secundaire kleur als tekst, de tekst van de kopbalk, en de tekst, zachte
+tekst en het merkteken van de navigatiekolom op 4,5:1; de focusring, het
+pictogram in de kopbalk en de markering en focusring van de navigatiekolom,
+tegen de kolom en tegen de actieve regel, op 3:1. De cyaan als tekst en de
+markering op de actieve regel van Kristalblauw zijn benoemde uitzonderingen,
+behouden zodat dat thema er hetzelfde uit blijft zien.
+
+`tests/php/ThemePreferenceTest.php` controleert dat elk
+thema zijn labels en stijlblad heeft, dat `default` geen stijlblad laadt en
+geen klasse zet, en dat meegeleverde letters uit de plugin laden met `swap`.

@@ -1,0 +1,115 @@
+/*
+ * theme-polder.css — the `polder` theme (#5089): deep teal and coral.
+ *
+ * Loaded ONLY when ThemePreference resolves to `polder`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/dm-sans/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-polder {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #0d5c63;
+    --tt-primary-rgb:   13, 92, 99;
+    --tt-secondary:     #ff8a65;
+    --tt-secondary-rgb: 255, 138, 101;
+    --tt-accent:        #0d5c63;
+    --tt-primary-deep:  #062a2e;
+    --tt-primary-ink:   #157a82;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #ff8a65;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0e1d1f;
+    --tt-ink-soft:   #435557;
+    --tt-muted:      #607275;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f2f7f6;
+    --tt-line:       #dce6e5;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-info:           #1f6fa8;
+    --tt-info-subtle:    #e4f0f8;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #0d5c63;
+    --tt-link-hover: #157a82;
+    --tt-link-wash:  rgba(13, 92, 99, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(13,92,99,0.18);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #8f5f4c;
+    --tt-secondary-on-primary: #ffb9a3;
+    --tt-secondary-on-chrome:  #ff8a65;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #062a2e;
+    --tt-theme-chrome-2:        #1a3b3f;
+    --tt-theme-chrome-active:   #2e4c4f;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b4bfc0;
+    --tt-theme-chrome-line:     #29484b;
+    --tt-theme-marker:          #ff8a65;
+}

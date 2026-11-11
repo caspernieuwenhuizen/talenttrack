@@ -1,0 +1,123 @@
+/*
+ * theme-oranje.css — the `oranje` theme (#5089): navy and Dutch orange.
+ *
+ * Loaded ONLY when ThemePreference resolves to `oranje`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/archivo/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-oranje {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #1d3a7a;
+    --tt-primary-rgb:   29, 58, 122;
+    --tt-secondary:     #ff7a00;
+    --tt-secondary-rgb: 255, 122, 0;
+    --tt-accent:        #1d3a7a;
+    --tt-primary-deep:  #0c1a3a;
+    --tt-primary-ink:   #2d55a8;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #ff7a00;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0f1629;
+    --tt-ink-soft:   #444c5e;
+    --tt-muted:      #666e80;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f4f6fa;
+    --tt-line:       #dfe3ec;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-warning:        #b86e00;
+    --tt-warning-subtle: #fff0dc;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #1d3a7a;
+    --tt-link-hover: #2d55a8;
+    --tt-link-wash:  rgba(29, 58, 122, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(29,58,122,0.20);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #aa5814;
+    --tt-secondary-on-primary: #ff871a;
+    --tt-secondary-on-chrome:  #ff7a00;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #0c1a3a;
+    --tt-theme-chrome-2:        #1f2c4a;
+    --tt-theme-chrome-active:   #333f5a;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b6bac4;
+    --tt-theme-chrome-line:     #2e3a56;
+    --tt-theme-marker:          #ff7a00;
+}

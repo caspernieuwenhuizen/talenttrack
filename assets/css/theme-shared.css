@@ -1,0 +1,162 @@
+/*
+ * theme-shared.css — the rules every token-only theme shares.
+ *
+ * A theme is a token layer, not a second set of surfaces. The themes that
+ * ThemePreference::sharedSheetThemes() lists carry only their @font-face
+ * rules and one token block in `theme-<value>.css`; everything they draw
+ * is written here, once, against those tokens. DashboardShortcode enqueues
+ * this sheet as a dependency of the theme sheet, and only for those themes,
+ * which stamp the `tt-theme-shared` class this sheet is scoped to.
+ *
+ * Not migrated, deliberately: `theme-federation.css` and
+ * `theme-leon-hutten.css` (Kristalblauw) keep their own rules, so their
+ * look on live installs does not change.
+ *
+ * The theme sheet supplies:
+ *
+ *   --tt-theme-chrome           header and rail background
+ *   --tt-theme-chrome-2         rail hover
+ *   --tt-theme-chrome-active    rail pressed and active row
+ *   --tt-theme-chrome-ink       rail text
+ *   --tt-theme-chrome-ink-soft  rail icons, group labels, role
+ *   --tt-theme-chrome-line      rail dividers
+ *   --tt-theme-marker           active marker, rail focus ring, brand mark
+ *
+ * The accent printed as text is not here: components read the product
+ * tokens --tt-secondary-text, --tt-secondary-on-primary and
+ * --tt-secondary-on-chrome from tokens.css, which a theme sets.
+ *
+ * Mobile-first per CLAUDE.md §2: nothing is viewport-conditional except
+ * the collapsed rail, which follows the shell's own breakpoint.
+ */
+
+/* ---- Chrome: the header -------------------------------------------- */
+/* The deep colour, closed by the shipped 3px rule in the secondary. */
+.tt-dashboard.tt-theme-shared .tt-dash-header {
+    background: var(--tt-theme-chrome);
+}
+
+/* ---- Chrome: the rail ---------------------------------------------- */
+/* Scoped to the app shell; under `classic` there is no rail to paint. */
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav {
+    background: var(--tt-theme-chrome);
+    border-inline-end-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+/* Hover only enhances (CLAUDE.md §2); the pressed and active states are
+   what a tap confirms against. */
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-theme-chrome-2);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-theme-chrome-active);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-theme-marker);
+}
+
+/* The primary ring would not show on the dark rail; the marker does. */
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+/* ---- Collapsible groups -------------------------------------------- */
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-theme-chrome-2);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: -2px;
+}
+
+/* ---- Brand + user blocks ------------------------------------------- */
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-theme-marker);
+    color: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+/* ---- Collapsed icon rail (>=1024px) -------------------------------- */
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-theme-chrome-line);
+        background: var(--tt-theme-chrome-2);
+        color: var(--tt-theme-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-shared.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-theme-chrome-ink);
+    }
+}
+
+/* ---- Display type -------------------------------------------------- */
+/* The theme's display face on the record name and the view headings;
+   body copy stays in the body face. */
+.tt-dashboard.tt-theme-shared .tt-spine__name,
+.tt-dashboard.tt-theme-shared .tt-player-hero__name,
+.tt-dashboard.tt-theme-shared .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

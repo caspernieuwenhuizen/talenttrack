@@ -83,7 +83,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--tt-secondary);
+    color: var(--tt-secondary-on-primary, var(--tt-secondary));
 }
 .tt-dashboard .tt-ov-ovr-val {
     font-size: 1.5rem;

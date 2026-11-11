@@ -54,7 +54,7 @@
     margin-top: 0.35rem;
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--tt-secondary, #e8b624);
+    color: var(--tt-secondary-on-primary, var(--tt-secondary, #e8b624));
 }
 
 /* ---- Section cards ------------------------------------------------- */

@@ -1,0 +1,106 @@
+/*
+ * theme-clubrood.css — the `clubrood` theme (#5089): heritage red, black and muted gold.
+ *
+ * Loaded ONLY when ThemePreference resolves to `clubrood`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/barlow-condensed/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-clubrood {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #a3121e;
+    --tt-primary-rgb:   163, 18, 30;
+    --tt-secondary:     #e9c46a;
+    --tt-secondary-rgb: 233, 196, 106;
+    --tt-accent:        #a3121e;
+    --tt-primary-deep:  #1a0e10;
+    --tt-primary-ink:   #c4222f;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #e9c46a;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #1a1214;
+    --tt-ink-soft:   #4d4446;
+    --tt-muted:      #6e6466;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f7f4f2;
+    --tt-line:       #e6dfdc;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-info:           #2a5d9f;
+    --tt-info-subtle:    #e5edf7;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #a3121e;
+    --tt-link-hover: #c4222f;
+    --tt-link-wash:  rgba(163, 18, 30, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(163,18,30,0.18);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #82693d;
+    --tt-secondary-on-primary: #e9c46a;
+    --tt-secondary-on-chrome:  #e9c46a;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #1a0e10;
+    --tt-theme-chrome-2:        #2c2123;
+    --tt-theme-chrome-active:   #3f3536;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bab7b7;
+    --tt-theme-chrome-line:     #3a3031;
+    --tt-theme-marker:          #e9c46a;
+}
