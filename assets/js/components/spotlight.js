@@ -276,12 +276,32 @@
 		var label = document.createElement('span');
 		label.className = 'tt-spotlight__label';
 		label.appendChild(highlighted(item.label, query));
+		// #4936 — a switched-off module's row says so.
+		if (item.disabled) {
+			var state = document.createElement('span');
+			state.className = 'tt-spotlight__state';
+			state.textContent = t('search_off', 'Off');
+			label.appendChild(document.createTextNode(' '));
+			label.appendChild(state);
+		}
 		text.appendChild(label);
-		if (item.sublabel) {
+		// #4936 — a player's shirt number and primary position, before the team.
+		var facts = [];
+		if (item.shirt_number) facts.push('#' + item.shirt_number);
+		if (item.position) facts.push(item.position);
+		var subText = [facts.join(' '), item.sublabel || ''].filter(Boolean).join(' · ');
+		if (subText) {
 			var sub = document.createElement('span');
 			sub.className = 'tt-spotlight__sub';
-			sub.textContent = item.sublabel;
+			sub.textContent = subText;
 			text.appendChild(sub);
+		}
+		// #4936 — an excerpt of free text, only ever text the viewer may read.
+		if (item.excerpt) {
+			var excerpt = document.createElement('span');
+			excerpt.className = 'tt-spotlight__excerpt';
+			excerpt.appendChild(highlighted(item.excerpt, query));
+			text.appendChild(excerpt);
 		}
 		main.appendChild(text);
 		wrap.appendChild(main);
@@ -344,12 +364,19 @@
 		sOpen(!none || !!emptyText || !!understood);
 	}
 
-	function byKind(items) {
-		var map = {};
-		(items || []).forEach(function (it) {
-			(map[it.type] = map[it.type] || []).push(it);
-		});
-		return map;
+	// #4936 — a group can hold more than one kind (Evaluations & goals):
+	// its rows in the ranked order the server sent, its count summed.
+	function kindsOf(g) {
+		return Array.isArray(g.kinds) && g.kinds.length ? g.kinds : [g.kind];
+	}
+
+	function inGroup(items, g) {
+		var kinds = kindsOf(g);
+		return (items || []).filter(function (it) { return kinds.indexOf(it.type) !== -1; });
+	}
+
+	function countOf(counts, g) {
+		return kindsOf(g).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
 	}
 
 	// The paged routes answer in the { success, data, errors } envelope.
@@ -363,14 +390,14 @@
 			.then(function (body) {
 				if (seq !== sSeq) return;
 				var data = payload(body);
-				var kinds = byKind(data && data.items);
+				var items = (data && data.items) || [];
 				var counts = (data && data.counts) || {};
 				var groups = GROUPS.map(function (g) {
 					return {
 						kind: g.kind,
 						title: g.label,
-						items: (kinds[g.kind] || []).slice(0, g.limit),
-						total: counts[g.kind] || 0,
+						items: inGroup(items, g).slice(0, g.limit),
+						total: countOf(counts, g),
 						query: q
 					};
 				});

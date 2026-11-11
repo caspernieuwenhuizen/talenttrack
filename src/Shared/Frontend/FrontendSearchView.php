@@ -35,25 +35,51 @@ class FrontendSearchView extends FrontendViewBase {
 
     /**
      * The groups, in the order the header box and this page show them,
-     * with how many rows the header box gives each.
+     * with the kinds each holds and how many rows the header box gives it.
+     * `kind` is the group's key, which the kind filter (`?type=`) takes;
+     * for a group of one kind it is that kind.
      *
-     * @return list<array{kind:string, label:string, limit:int}>
+     * #4936 — one Evaluations & goals group for everyone, the two kinds
+     * together: a family viewer finds their own children's there, staff the
+     * players they read. Staff also get Notes. The order is the owner's:
+     * Players, Teams, Activities, Evaluations & goals, Notes, then the
+     * family's Messages, People, Settings & modules, Sections, Help.
+     *
+     * @return list<array{kind:string, kinds:list<string>, label:string, limit:int}>
      */
     public static function groups(): array {
         $groups = [
-            [ 'kind' => 'player',     'label' => _x( 'Players', 'search group', 'talenttrack' ),     'limit' => 4 ],
-            [ 'kind' => 'team',       'label' => _x( 'Teams', 'search group', 'talenttrack' ),       'limit' => 3 ],
-            [ 'kind' => 'activity',   'label' => _x( 'Activities', 'search group', 'talenttrack' ),  'limit' => 3 ],
-            [ 'kind' => 'evaluation', 'label' => _x( 'Evaluations', 'search group', 'talenttrack' ), 'limit' => 3 ],
-            [ 'kind' => 'goal',       'label' => _x( 'Goals', 'search group', 'talenttrack' ),       'limit' => 3 ],
-            [ 'kind' => 'message',    'label' => _x( 'Messages', 'search group', 'talenttrack' ),    'limit' => 3 ],
-            [ 'kind' => 'person',     'label' => _x( 'People', 'search group', 'talenttrack' ),      'limit' => 3 ],
-            [ 'kind' => 'setting',    'label' => _x( 'Settings', 'search group', 'talenttrack' ),    'limit' => 3 ],
-            [ 'kind' => 'view',       'label' => _x( 'Sections', 'search group', 'talenttrack' ),    'limit' => 3 ],
-            [ 'kind' => 'help',       'label' => _x( 'Help', 'search group', 'talenttrack' ),        'limit' => 3 ],
+            [ 'kind' => 'player',            'kinds' => [ 'player' ],             'label' => _x( 'Players', 'search group', 'talenttrack' ),             'limit' => 4 ],
+            [ 'kind' => 'team',              'kinds' => [ 'team' ],               'label' => _x( 'Teams', 'search group', 'talenttrack' ),               'limit' => 3 ],
+            [ 'kind' => 'activity',          'kinds' => [ 'activity' ],           'label' => _x( 'Activities', 'search group', 'talenttrack' ),          'limit' => 3 ],
+            [ 'kind' => 'evaluations_goals', 'kinds' => [ 'evaluation', 'goal' ], 'label' => _x( 'Evaluations & goals', 'search group', 'talenttrack' ), 'limit' => 3 ],
+            [ 'kind' => 'player_note',       'kinds' => [ 'player_note' ],        'label' => _x( 'Notes', 'search group', 'talenttrack' ),               'limit' => 3 ],
+            [ 'kind' => 'message',           'kinds' => [ 'message' ],            'label' => _x( 'Messages', 'search group', 'talenttrack' ),            'limit' => 3 ],
+            [ 'kind' => 'person',            'kinds' => [ 'person' ],             'label' => _x( 'People', 'search group', 'talenttrack' ),              'limit' => 3 ],
+            [ 'kind' => 'setting',           'kinds' => [ 'setting' ],            'label' => _x( 'Settings & modules', 'search group', 'talenttrack' ),  'limit' => 3 ],
+            [ 'kind' => 'view',              'kinds' => [ 'view' ],               'label' => _x( 'Sections', 'search group', 'talenttrack' ),            'limit' => 3 ],
+            [ 'kind' => 'help',              'kinds' => [ 'help' ],               'label' => _x( 'Help', 'search group', 'talenttrack' ),                'limit' => 3 ],
         ];
         $known = SearchRegistry::kinds();
-        return array_values( array_filter( $groups, static fn( array $g ): bool => in_array( $g['kind'], $known, true ) ) );
+        $out   = [];
+        foreach ( $groups as $group ) {
+            $group['kinds'] = array_values( array_intersect( $group['kinds'], $known ) );
+            if ( $group['kinds'] !== [] ) $out[] = $group;
+        }
+        return $out;
+    }
+
+    /**
+     * The kinds a `?type=` value stands for: a group's kinds, or one kind.
+     * Empty when it is neither.
+     *
+     * @return list<string>
+     */
+    public static function kindsOf( string $type ): array {
+        foreach ( self::groups() as $group ) {
+            if ( $group['kind'] === $type ) return $group['kinds'];
+        }
+        return in_array( $type, SearchRegistry::kinds(), true ) ? [ $type ] : [];
     }
 
     /** One result's kind, as a row label. */
@@ -64,6 +90,7 @@ class FrontendSearchView extends FrontendViewBase {
             case 'activity':   return _x( 'Activity', 'search result kind', 'talenttrack' );
             case 'evaluation': return _x( 'Evaluation', 'search result kind', 'talenttrack' );
             case 'goal':       return _x( 'Goal', 'search result kind', 'talenttrack' );
+            case 'player_note': return _x( 'Note', 'search result kind', 'talenttrack' );
             case 'message':    return _x( 'Message', 'search result kind', 'talenttrack' );
             case 'person':     return _x( 'Person', 'search result kind', 'talenttrack' );
             case 'setting':    return _x( 'Setting', 'search result kind', 'talenttrack' );
@@ -96,7 +123,8 @@ class FrontendSearchView extends FrontendViewBase {
         $page = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
         // phpcs:enable
 
-        if ( ! in_array( $kind, SearchRegistry::kinds(), true ) ) $kind = '';
+        $item_kinds = self::kindsOf( $kind );
+        if ( $item_kinds === [] ) $kind = '';
         $page = max( 1, min( SearchRestController::MAX_PAGE, $page ) );
 
         $teams   = QueryHelpers::get_teams_in_scope( $user_id, current_user_can( 'tt_edit_settings' ) );
@@ -144,7 +172,7 @@ class FrontendSearchView extends FrontendViewBase {
 
         $service = new SearchService();
         // One pass: the items of the chosen kind (or all), the count of every kind.
-        $all     = $service->page( $query, [], $page, self::PER_PAGE, $user_id, $kind === '' ? null : [ $kind ] );
+        $all     = $service->page( $query, [], $page, self::PER_PAGE, $user_id, $kind === '' ? null : $item_kinds );
         $result  = $all;
 
         self::renderUnderstood( $all['understood'] );
@@ -160,7 +188,7 @@ class FrontendSearchView extends FrontendViewBase {
 
         self::renderResults( $result['items'] );
 
-        $total = $kind === '' ? (int) $all['total'] : (int) ( $all['counts'][ $kind ] ?? 0 );
+        $total = $kind === '' ? (int) $all['total'] : self::countOf( $all['counts'], $item_kinds );
         self::renderPager( $page, (int) min( SearchRestController::MAX_PAGE, max( 1, (int) ceil( $total / self::PER_PAGE ) ) ), $args );
     }
 
@@ -237,11 +265,21 @@ class FrontendSearchView extends FrontendViewBase {
         echo '<ul class="tt-search-page__kinds" aria-label="' . esc_attr__( 'Filter by kind', 'talenttrack' ) . '">';
         self::kindChip( __( 'All', 'talenttrack' ), $total, $active === '', self::url( $args ) );
         foreach ( self::groups() as $group ) {
-            $n = (int) ( $counts[ $group['kind'] ] ?? 0 );
+            $n = self::countOf( $counts, $group['kinds'] );
             if ( $n === 0 && $active !== $group['kind'] ) continue;
             self::kindChip( $group['label'], $n, $active === $group['kind'], self::url( $args + [ 'type' => $group['kind'] ] ) );
         }
         echo '</ul>';
+    }
+
+    /**
+     * @param array<string,int> $counts
+     * @param list<string>      $kinds
+     */
+    private static function countOf( array $counts, array $kinds ): int {
+        $n = 0;
+        foreach ( $kinds as $kind ) $n += (int) ( $counts[ $kind ] ?? 0 );
+        return $n;
     }
 
     private static function kindChip( string $label, int $count, bool $current, string $url ): void {
@@ -273,9 +311,15 @@ class FrontendSearchView extends FrontendViewBase {
                 }
             }
             echo '<span class="tt-search-page__text">';
-            echo '<span class="tt-search-page__label">' . esc_html( $label ) . '</span>';
-            $meta = array_filter( [ self::kindLabel( $type ), $sub ] );
+            echo '<span class="tt-search-page__label">' . esc_html( $label );
+            if ( ! empty( $item['disabled'] ) ) {
+                echo ' <span class="tt-search-page__state">' . esc_html_x( 'Off', 'search result of a switched-off module', 'talenttrack' ) . '</span>';
+            }
+            echo '</span>';
+            $meta = array_filter( [ self::kindLabel( $type ), self::playerFacts( $item ), $sub ] );
             echo '<span class="tt-search-page__meta">' . esc_html( implode( ' · ', $meta ) ) . '</span>';
+            $excerpt = (string) ( $item['excerpt'] ?? '' );
+            if ( $excerpt !== '' ) echo '<span class="tt-search-page__excerpt">' . esc_html( $excerpt ) . '</span>';
             echo '</span>';
             echo '</a>';
 
@@ -295,6 +339,16 @@ class FrontendSearchView extends FrontendViewBase {
             echo '</li>';
         }
         echo '</ul>';
+    }
+
+    /**
+     * A player row's shirt number and primary position, e.g. "#7 GK", or ''.
+     *
+     * @param array<string,mixed> $item
+     */
+    private static function playerFacts( array $item ): string {
+        $shirt = (int) ( $item['shirt_number'] ?? 0 );
+        return trim( ( $shirt > 0 ? '#' . $shirt : '' ) . ' ' . (string) ( $item['position'] ?? '' ) );
     }
 
     /** @param array<string,mixed> $args */

@@ -55,7 +55,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
     }
 
     protected function columns(): string {
-        return 'p.id, p.first_name, p.last_name, p.team_id, p.status, p.wp_user_id, p.photo_media_id, p.photo_url, t.name AS team_name';
+        return 'p.id, p.first_name, p.last_name, p.team_id, p.status, p.wp_user_id, p.photo_media_id, p.photo_url, p.jersey_number, p.preferred_positions, t.name AS team_name';
     }
 
     protected function scope( int $user_id ): ?array {
@@ -143,6 +143,12 @@ final class PlayerSearchProvider extends RecordSearchProvider {
             'actions'  => [],
         ];
         if ( $team_id > 0 ) $hit['team_id'] = $team_id;
+        // #4936 — the shirt number and the primary position, from the one
+        // reader of the stored positions.
+        $shirt = (int) ( $r['jersey_number'] ?? 0 );
+        if ( $shirt > 0 ) $hit['shirt_number'] = $shirt;
+        $position = \TT\Infrastructure\Players\PlayerPosition::primaryCodeOf( $row );
+        if ( $position !== '' ) $hit['position'] = $position;
         // Internal: read by confirm() for the photo and the section check,
         // never part of an item (SearchService::item() lists its keys).
         $hit['tt_row'] = [
@@ -199,7 +205,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
 
     /**
      * A teammate as a player sees one: the name and a link to the teammate
-     * card. No team, no photo, no actions.
+     * card. No team, no photo, no shirt number or position, no actions.
      *
      * @param array<string,mixed> $hit
      * @return array<string,mixed>
@@ -208,7 +214,7 @@ final class PlayerSearchProvider extends RecordSearchProvider {
         $hit['sublabel'] = '';
         $hit['url']      = (string) add_query_arg( [ 'tt_view' => 'teammate', 'player_id' => (int) $hit['id'] ], $this->dashboard() ); /* tt-xview-ok */
         $hit['actions']  = [];
-        unset( $hit['tt_row'], $hit['photo_url'], $hit['team_id'] );
+        unset( $hit['tt_row'], $hit['photo_url'], $hit['team_id'], $hit['shirt_number'], $hit['position'] );
         return $hit;
     }
 

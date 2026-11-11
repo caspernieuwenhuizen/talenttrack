@@ -124,7 +124,7 @@ final class SearchPageTest extends WP_UnitTestCase {
 
     public function test_the_groups_follow_the_owner_order(): void {
         $this->assertSame(
-            [ 'player', 'team', 'activity', 'evaluation', 'goal', 'message', 'person', 'setting', 'view', 'help' ],
+            [ 'player', 'team', 'activity', 'evaluations_goals', 'player_note', 'message', 'person', 'setting', 'view', 'help' ],
             array_column( FrontendSearchView::groups(), 'kind' )
         );
         $this->assertSame( 4, FrontendSearchView::groups()[0]['limit'] );

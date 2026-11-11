@@ -728,7 +728,7 @@ standard envelope:
       "actions": [ { "key": "new_evaluation", "label": "New evaluation", "url": "https://…" },
                    { "key": "goals", "label": "Goals", "url": "https://…" } ] }
   ],
-  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "setting": 0, "help": 0 },
+  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "evaluation": 0, "goal": 0, "message": 0, "player_note": 0, "setting": 0, "help": 0 },
   "understood": [ { "pattern": "shirt_number", "value": "7", "label": "Shirt number 7" } ],
   "total": 1 }, "errors": [] }
 ```
@@ -740,10 +740,11 @@ standard envelope:
 | `team` | `tt_view_teams`, then every team for global `team` read, otherwise the caller's teams (`GET /teams`'s narrowing) | The same rule |
 | `person` | The people read right (`tt_view_people` or `tt_edit_people`), as `GET /people` | The same rule |
 | `activity` | `ActivityAccess::readScope()`: global read, the teams a staff reader coaches, and for a player, a guardian or a linked scout the activities of those players | `ActivityAccess::readableIds()` |
-| `evaluation` | The caller's own record and their linked children's (`SearchViewer::playerIdsReading( …, 'evaluations' )`: development-record access, the guardian's matrix access and the child's own visibility switch). Staff are not served yet | The same list |
-| `goal` | As `evaluation`, for `goals` | The same list |
+| `evaluation` | Two scopes that never overlap, one kind (`CompositeSearchProvider`). **Family:** the caller's own record and their linked children's (`SearchViewer::playerIdsReading( …, 'evaluations' )`: development-record access, the guardian's matrix access and the child's own visibility switch). **Staff** (anyone who is not a family viewer): `PlayerVisibility::sqlClause()` on the evaluation's player and the `evaluations` read at global scope, on the teams it is held on (`MatrixGate::teamIdsFor()`) or on a scout's linked players, leaving out every player the caller is family of, their own record and every linked child whatever the link allows (`SearchViewer::notFamilySql()`). The staff notes are matched only on the players where `RecordRedactor` lets the caller read them (`readsEverywhere()` / `readsOnTeams()`) | Family: the same list. Staff: `AuthorizationService::canViewPlayers()` and `mayReadPlayerSections( …, 'evaluations' )`, the evaluation detail's pair. Each hit by the scope that found it |
+| `goal` | As `evaluation`, for `goals` | Family: the same list. Staff: `canViewPlayers()` and `mayReadPlayerSections( …, 'goals' )` (`GoalAccess::mayRead()`) |
 | `message` | A parent's own inbox (`recipient_user_id`) | The same rule |
-| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile). Nothing for a parent or a player | — |
+| `player_note` | The player notes thread's read (`tt_view_player_notes`; the global `player_notes` read, otherwise the teams the caller coaches) on top of `PlayerVisibility::sqlClause()`; a staff-only note only where `ThreadAccess::canSeePrivateOnTeams()` holds. Nothing for the read-only observer, a parent or a player | `canViewPlayers()`, `PlayerThreadAdapter::canReadMany()` and the same staff-only rule |
+| `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile); for a caller with `tt_manage_modules` also every switched-off module (`SettingsRegistry::offModulesFor()`). Nothing for a parent or a player | — |
 | `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
 
 - **Matching.** The text is folded (lower case, accents removed, so *jose*
@@ -765,8 +766,9 @@ standard envelope:
   the dates in SQL) and the words matched with the same fold and score. An
   evaluation is found by its type in the caller's language (`LookupTranslator`)
   or as stored, and by the opponent.
-- **Filters** (with `page`): `team_id` narrows players, teams, people and
-  activities; `from` / `to` (`Y-m-d`) narrow activities. An unknown `types`
+- **Filters** (with `page`): `team_id` narrows players, teams, people,
+  activities and the staff scope of evaluations, goals and player notes;
+  `from` / `to` (`Y-m-d`) narrow activities and those staff records. An unknown `types`
   entry, a `team_id` that is not a positive id, or a `page` / `per_page` out of
   range is `400 bad_filter`; an unreadable date is `400 bad_date`. Neither is
   silently dropped.
@@ -786,6 +788,30 @@ standard envelope:
 - **`photo_url`**: the player's photo through the private media store
   (`PlayerPhoto::url()`): a session-bound delivery URL, never an uploads path.
   Absent when the player has no photo.
+- **`shirt_number`** and **`position`** on a player: the shirt number and the
+  primary position code (`PlayerPosition::primaryCodeOf()`). Each absent when
+  the player has none, and both absent on a teammate.
+- **`excerpt`** on an `evaluation` or `goal` found in the staff scope, and on
+  a `player_note`: the first words of the staff notes, the goal's description
+  or the note's text. Only ever text the caller may read: absent on an
+  evaluation whose notes are masked for the caller (`RecordRedactor`,
+  `evaluation_notes`), and never on a family hit.
+- **One kind, several scopes.** `evaluation` and `goal` are each answered by
+  the family scope and the staff scope; the `type` never says which. Hits are
+  merged by score, the count is the sum of both (exact, because the staff
+  scope leaves out every player the caller is family of), and each hit is
+  confirmed by the scope that found it. Callers that got no `evaluation` or
+  `goal` before (staff) now get rows; nothing a family caller got changes.
+- **`path`** and **`disabled`** on a `setting`: the full Configuration path
+  (`"Configuration › Academy › Appearance"`, also the `sublabel`), and whether
+  it belongs to a switched-off module. A disabled item carries one action,
+  `turn_on`, whose `url` opens the Modules page at that module's switch.
+- **The staff scope of `evaluation` and `goal`, and `player_note`**, match
+  the player's name (folded), and on the record's own text: an evaluation's
+  type (in the caller's language or as stored), opponent and staff notes; a
+  goal's title and description; a note's text. They honour the date patterns and `from` / `to` (the
+  evaluation date, the goal's due date, the day a note was written) and
+  `team_id`.
 - **Search text.** Matching reads the folded columns `search_title` /
   `search_text` on each searched table, from the row's own columns only (names,
   title and location, team name and age group). No contact detail, note or
@@ -793,6 +819,14 @@ standard envelope:
   on the workflow heartbeat folds what a write missed, and after an upgrade folds
   the backlog in batches of 500 until it is done or the tick's few seconds are
   spent. A row not folded yet is matched on its raw columns.
+
+  The free-text records work differently. The staff scope
+  of `evaluation` and `goal`, and `player_note`, match the record's own text
+  column directly (`LOWER( … ) LIKE`): an evaluation's staff notes, a goal's
+  description, a note's body. Each such field is gated on its own rule before
+  it is matched (the staff notes by `RecordRedactor`, a staff-only note by
+  `ThreadAccess`), and none of it is ever folded into `search_text`, so a
+  stale or widened fold can never expose it.
 
 ### `GET /me/recent` and `POST /me/recent`
 

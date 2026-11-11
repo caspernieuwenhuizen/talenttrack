@@ -196,10 +196,18 @@ final class FamilySearchTest extends WP_UnitTestCase {
         $this->assertSame( $before, $this->droppedWarnings() );
     }
 
-    public function test_a_coach_without_a_child_gets_no_family_kinds(): void {
+    /**
+     * #4936 — a coach without a child finds the goals of their own team as
+     * staff (the staff scope of the same kind), never another team's, and
+     * no messages.
+     */
+    public function test_a_coach_without_a_child_gets_their_teams_goals_as_staff_and_no_messages(): void {
         $coach  = $this->personas['coach'];
         $before = $this->droppedWarnings();
-        $this->assertSame( [], $this->idsOf( $this->paged( $coach, 'sneller' ), 'goal' ) );
+        $this->assertEqualsCanonicalizing(
+            [ $this->goals['jose'], $this->goals['boot'], $this->goals['besten'] ],
+            $this->idsOf( $this->paged( $coach, 'sneller' ), 'goal' )
+        );
         $this->assertSame( [], $this->idsOf( $this->paged( $coach, 'verplaatst' ), 'message' ) );
         $this->assertSame( $before, $this->droppedWarnings() );
     }
@@ -223,10 +231,18 @@ final class FamilySearchTest extends WP_UnitTestCase {
         $this->resetSearchCaches();
         $before = $this->droppedWarnings();
 
-        $this->assertSame( [ $this->evaluations['jose'] ], $this->idsOf( $this->paged( $coach, 'match evaluation' ), 'evaluation' ) );
-        $this->assertSame( [ $this->goals['jose'] ], $this->idsOf( $this->paged( $coach, 'sneller' ), 'goal' ), 'not the goals of the team they coach' );
+        // #4936 — the child as family and the team they coach as staff, each
+        // once: the two scopes of the kind do not overlap. Nobody else's.
+        $this->assertEqualsCanonicalizing( [ $this->evaluations['jose'], $this->evaluations['far'] ], $this->idsOf( $this->paged( $coach, 'match evaluation' ), 'evaluation' ) );
+        $goals = $this->paged( $coach, 'sneller' );
+        $this->assertEqualsCanonicalizing( [ $this->goals['jose'], $this->goals['far'] ], $this->idsOf( $goals, 'goal' ) );
+        $this->assertSame( 2, $goals['counts']['goal'] ?? null, 'counted once each' );
         $this->assertSame( [], $this->idsOf( $this->paged( $coach, 'verplaatst' ), 'message' ), 'another parent\'s inbox' );
         $this->assertSame( $before, $this->droppedWarnings() );
+
+        // `GET /me/search` asks the family scope alone: their own child.
+        $me = ( new \TT\Infrastructure\Search\ParentSearchService() )->search( $coach, 'sneller' );
+        $this->assertSame( [ $this->goals['jose'] ], array_column( array_filter( $me['results'], static fn( array $r ): bool => $r['type'] === 'goal' ), 'id' ) );
 
         // `GET /me/search` stays about their own child: team A's activity,
         // not the team B activity they coach.

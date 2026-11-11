@@ -306,7 +306,7 @@ class FrontendModulesView extends FrontendViewBase {
                             $features  = $enabled ? FeatureRegistry::forModule( $class ) : [];
                             $f_count   = count( $features );
                             ?>
-                            <article class="tt-module-card<?php echo $enabled ? '' : ' is-off'; ?><?php echo $always_on ? ' is-core' : ''; ?>">
+                            <article id="<?php echo esc_attr( ModuleMetadata::anchor( $class ) ); ?>" class="tt-module-card<?php echo $enabled ? '' : ' is-off'; ?><?php echo $always_on ? ' is-core' : ''; ?>">
                                 <div class="tt-module-card-head">
                                     <span class="tt-module-icon" aria-hidden="true">
                                         <?php echo IconRenderer::render( (string) $meta['icon'], [ 'width' => 22, 'height' => 22 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from a trusted local file. ?>
