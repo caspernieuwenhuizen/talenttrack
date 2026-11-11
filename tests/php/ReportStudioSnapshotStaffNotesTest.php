@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Analytics\Domain\FactScope;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
+use TT\Modules\Analytics\Reports\PlayerSectionRights;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Pdp\EvidencePacket;
@@ -88,7 +89,7 @@ final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
         $this->assertContains( self::PRIVATE_NOTE, $bodies, 'Precondition: the taker froze the private note.' );
 
         foreach ( [ 'parent' => $this->parent, 'outsider' => $this->outsider, 'taker' => $this->hod ] as $who => $reader ) {
-            $cut  = $block->forReader( $frozen['data'], $reader, $this->player );
+            $cut  = (array) $block->forReader( $frozen['data'], $reader, [ 'player_id' => $this->player ] );
             $live = EvidencePacket::forReaders( $this->player, self::FROM, self::TO, ReaderSet::of( [ $reader ] ) );
             $this->assertIsArray( $live );
             $this->assertSame(
@@ -98,9 +99,10 @@ final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
             );
         }
 
-        $this->assertSame( [], $block->forReader( $frozen['data'], $this->parent, $this->player )['items'] );
-        $this->assertSame( [], $block->forReader( $frozen['data'], $this->outsider, $this->player )['items'] );
-        $this->assertContains( self::PRIVATE_NOTE, array_column( $block->forReader( $frozen['data'], $this->hod, $this->player )['items'], 'body' ), 'the taker keeps them' );
+        $cut = static fn( int $reader ): array => PlayerSectionRights::cut( PlayerReportBlock::THREAD_NOTES, $frozen['data'], ReaderSet::of( [ $reader ] ), $this->player )['items'];
+        $this->assertSame( [], $cut( $this->parent ) );
+        $this->assertSame( [], $cut( $this->outsider ) );
+        $this->assertContains( self::PRIVATE_NOTE, array_column( $cut( $this->hod ), 'body' ), 'the taker keeps them' );
     }
 
     private function flush(): void {
