@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -129,6 +130,37 @@ final class TeamMatchStatsQuery {
             'assists'     => $this->leaderboard( $contributions, 'assists', $names ),
             'appearances' => $this->appearances( $minutes, $names ),
         ];
+    }
+
+    /**
+     * {@see self::forTeam()}'s answer as `$user_id` may read it: the
+     * per-player rows (`scorers`, `assists`, `appearances`) keep only the
+     * players the reader may view, by the player pages' own check, asked once
+     * for every row. `record` and `form` are team totals and stay whole.
+     *
+     * @param array<string, mixed> $stats
+     * @return array<string, mixed>
+     */
+    public static function forReader( array $stats, int $user_id ): array {
+        $keys = [ 'scorers', 'assists', 'appearances' ];
+
+        $ids = [];
+        foreach ( $keys as $key ) {
+            foreach ( (array) ( $stats[ $key ] ?? [] ) as $row ) {
+                $pid = (int) ( $row['player_id'] ?? 0 );
+                if ( $pid > 0 ) $ids[ $pid ] = $pid;
+            }
+        }
+        $visible = $ids !== [] ? AuthorizationService::canViewPlayers( $user_id, array_values( $ids ) ) : [];
+
+        foreach ( $keys as $key ) {
+            if ( ! isset( $stats[ $key ] ) ) continue;
+            $stats[ $key ] = array_values( array_filter(
+                (array) $stats[ $key ],
+                static fn( $row ): bool => ! empty( $visible[ (int) ( $row['player_id'] ?? 0 ) ] )
+            ) );
+        }
+        return $stats;
     }
 
     // ──────────────────────────────────────────────────────────────
