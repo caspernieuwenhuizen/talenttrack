@@ -201,6 +201,55 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #5130 — status text on a component's own fixed fill, rather than on
+     * the status's `-subtle` token: the rule reads the status `-text` token,
+     * and that clears 4.5:1 on the fill in every palette. An `rgba()` fill
+     * is blended on the palette's paper.
+     */
+    public function test_status_text_on_fixed_component_fills_reads(): void {
+        $surfaces = [
+            [ 'frontend-player-detail.css', '.tt-player-pill[data-status="trial"]', 'warning' ],
+            [ 'frontend-player-detail.css', '.tt-player-row__pill[data-status="late"]', 'warning' ],
+            [ 'frontend-player-detail.css', '.tt-player-row__pill[data-priority="medium"]', 'warning' ],
+            [ 'frontend-match-prep.css', '.tt-mp-roster tbody td.tt-mp-on', 'success' ],
+            [ 'frontend-match-prep-2026.css', '.tt-match-prep .tt-mp-roster tbody td.tt-mp-on', 'success' ],
+        ];
+        foreach ( $surfaces as [ $file, $selector, $status ] ) {
+            $css = $this->css( $file );
+            $this->assertSame( 1, preg_match( '/(?:^|\})\s*' . preg_quote( $selector, '/' ) . '\s*\{([^}]*)\}/', $css, $rule ), "$file $selector" );
+            $this->assertMatchesRegularExpression( '/(?:^|[;\s])color:\s*var\(--tt-' . $status . '-text\b/', $rule[1], "$file $selector reads --tt-$status-text" );
+            $this->assertSame( 1, preg_match( '/background:\s*([^;]+);/', $rule[1], $bg ), "$file $selector has a fill" );
+
+            foreach ( $this->palettes() as $name => $p ) {
+                $d    = $p['decls'];
+                $fill = $this->fill( trim( $bg[1] ), $this->token( '--tt-paper', $d ), $d );
+                $this->assertRatio( 4.5, $this->token( '--tt-' . $status . '-text', $d ), $fill, "$name $selector" );
+            }
+        }
+    }
+
+    /**
+     * A fill as the browser paints it: a hex or `var()` resolved, an
+     * `rgba()` blended on the page behind it.
+     *
+     * @param array<string, string> $d
+     */
+    private function fill( string $value, string $paper, array $d ): string {
+        if ( preg_match( '/^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([0-9.]+)\s*\)$/', $value, $m ) ) {
+            $under = [ hexdec( substr( $paper, 1, 2 ) ), hexdec( substr( $paper, 3, 2 ) ), hexdec( substr( $paper, 5, 2 ) ) ];
+            $a     = (float) $m[4];
+            $mixed = [];
+            foreach ( [ 1, 2, 3 ] as $i ) {
+                $mixed[] = (int) round( (int) $m[ $i ] * $a + $under[ $i - 1 ] * ( 1 - $a ) );
+            }
+            return sprintf( '#%02x%02x%02x', $mixed[0], $mixed[1], $mixed[2] );
+        }
+        $hex = $this->resolve( $value, $d );
+        $this->assertNotNull( $hex, 'fill does not resolve: ' . $value );
+        return (string) $hex;
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {

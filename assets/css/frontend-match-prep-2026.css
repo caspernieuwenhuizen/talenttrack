@@ -33,7 +33,7 @@
     --tt-mp-line:      #e3e6e1;
     --tt-mp-line-soft: #eef0ec;
     --tt-mp-accent:    var(--tt-primary, #0b3d2e);
-    --tt-mp-success:   #2f9e5e;
+    --tt-mp-success:   var(--tt-success, #2f9e5e);
     --tt-mp-warn:      #c75c1f;
     --tt-mp-danger:    #d8453b;
     --tt-mp-mute:      #f4f6f3;
@@ -106,7 +106,7 @@
 /* On-pitch minute cells pick up the brand green tint. */
 .tt-match-prep .tt-mp-roster tbody td.tt-mp-on {
     background: rgba(47, 158, 94, 0.12);
-    color: var(--tt-mp-success);
+    color: var(--tt-success-text, var(--tt-mp-success));
 }
 
 /* Half pills — keep the half identity but round to the 2026 chip shape. */
