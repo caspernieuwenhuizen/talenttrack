@@ -109,11 +109,11 @@ The player can fill in their self-reflection any time before the coach signs off
 
 ### The conversation form saves itself
 
-There is no **Save conversation** button. The form saves as you write, and a status line where the button used to be says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full in [how saving works](save-model.md).
+There is no **Save conversation** button. The form saves as you write, and a status line in the header of each part says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full in [how saving works](save-model.md).
 
 The player's **self-reflection** works the same way, while its window is open. Outside the window the field is disabled, as before, and nothing saves.
 
-**Sign-off is now its own button, not a checkbox on the form.** It used to be a tick you saved along with everything else. On a form that saves itself that would be one accidental tap away from locking the conversation for everyone, permanently — so it is a separate **Sign off** button below the form, behind a confirm. Everything above it is already saved by the time you press it; signing off is what closes the conversation for editing.
+**Sign-off is now its own button, not a checkbox on the form.** It used to be a tick you saved along with everything else. On a form that saves itself that would be one accidental tap away from locking the conversation for everyone, permanently — so it is a separate **Sign off** button below the form, under the **Finish** heading, behind a confirm. Everything above it is already saved by the time you press it; signing off is what closes the conversation for editing.
 
 A **content-locked** conversation — a later talk in the cycle — still autosaves its planned date, which is the only field it lets you change. A **signed-off** conversation autosaves nothing, because there is nothing left to write.
 
@@ -237,7 +237,12 @@ At an academy with conversation forms, the player prepares the next talk on the 
 
 #### The trainer fills in the form
 
-On the conversation screen, a talk that uses a conversation form shows the form on the **Conversation** tab, under the planned date and the notes.
+On the conversation screen, a talk that uses a conversation form shows two parts on the **Conversation** tab, each a card with its own save state and undo in its header:
+
+- **1 Conversation details:** the planned and the conducted date, and the goals discussed. There are no *Notes (post-meeting)* or *Agreed actions* fields here, because the form asks for a note per section and the development points. On an older talk that already has text in them, it shows read only under the details, so nothing written is hidden.
+- **2 Conversation form · Outfield player** (or **Goalkeeper**): the form itself. Its header, with the save state, stays in view while you scroll through the sections.
+
+On a phone the save state sits under the part's title. The sign-off sits under its own heading, **Finish**, below both parts.
 
 - **The player's preparation is beside your scores.** Before the player marks it ready, every item says *Player: not ready yet* and none of their answers shows. From "ready" on, each item shows the player's score, in light blue on its choice, and their strongest quality shows above yours.
 - **One row per item.** You score it with the five numbered choices; the player's score is marked on the same row. **Discuss** marks every item where the two scores differ, by any amount, and a section's heading counts them. **Changed** marks an item the player changed after marking the preparation ready.

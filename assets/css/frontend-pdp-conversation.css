@@ -110,3 +110,111 @@
     margin-bottom: var(--tt-sp-3, 12px);
     border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
 }
+
+/*
+ * #5080 — the two parts of a talk: 1 the talk's details, 2 the form. Each is
+ * a card whose header carries the part's number, its title and, on the
+ * right, its own save state and undo. At 360px the save state wraps under
+ * the title. Part 2's header stays in view while the trainer scrolls the
+ * form; under the app shell it sits below the shell's sticky top bar.
+ *
+ * No `overflow` on the card: an overflow ancestor would stop the header
+ * sticking.
+ */
+.tt-pdp-part {
+    margin: var(--tt-sp-4, 16px) 0;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e1d8);
+    border-radius: var(--tt-radius-lg, 14px);
+    min-width: 0;
+}
+
+.tt-pdp-part__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #faf8f3);
+    border-bottom: 1px solid var(--tt-line, #e3e1d8);
+    border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
+}
+
+.tt-pdp-part__head--sticky {
+    position: sticky;
+    top: 0;
+    /* Above the record spine (10) when both are stuck. */
+    z-index: 11;
+}
+
+.tt-shell-app .tt-pdp-part__head--sticky {
+    top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px));
+}
+
+.tt-pdp-part__title {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: 1.05rem;
+    overflow-wrap: anywhere;
+}
+
+.tt-pdp-part__num {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--tt-primary, #0b3d2e);
+    color: var(--tt-paper, #fff);
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.tt-pdp-part__state {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+.tt-pdp-part__body {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+/* What an older form talk holds in the retired fields, read only. */
+.tt-pdp-part__earlier {
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #faf8f3);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-pdp-part__earlier .tt-help-text { margin: 0 0 var(--tt-sp-2, 8px); }
+
+.tt-pdp-part__earlier-h {
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-1, 4px);
+    font-size: 0.95rem;
+}
+
+.tt-pdp-part__earlier-text { overflow-wrap: anywhere; }
+.tt-pdp-part__earlier-text p { margin: 0 0 var(--tt-sp-2, 8px); }
+
+/* The irreversible steps, outside both parts. */
+.tt-pdp-finish-h {
+    margin: var(--tt-sp-5, 24px) 0 var(--tt-sp-3, 12px);
+    font-size: 1.05rem;
+}
+
+@media (min-width: 768px) {
+    .tt-pdp-part__head { padding-inline: var(--tt-sp-4, 16px); }
+    .tt-pdp-part__body { padding: var(--tt-sp-4, 16px); }
+    .tt-pdp-part__state {
+        flex: 0 1 auto;
+        margin-inline-start: auto;
+    }
+}

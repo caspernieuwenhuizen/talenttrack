@@ -109,11 +109,11 @@ De speler kan op elk moment vóór ondertekening zijn zelfreflectie invullen. Zo
 
 ### Het gespreksformulier slaat zichzelf op
 
-Er is geen knop **Gesprek opslaan** meer. Het formulier slaat op terwijl je schrijft, en op de plek van de knop staat een statusregel die vertelt hoe ver dat is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*. **Ongedaan maken** en **Wijzigingen terugdraaien** staan ernaast, net als op elk ander automatisch opslaand scherm; beide staan volledig beschreven in [hoe opslaan werkt](save-model.md).
+Er is geen knop **Gesprek opslaan** meer. Het formulier slaat op terwijl je schrijft, en in de kop van elk deel staat een statusregel die vertelt hoe ver dat is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*. **Ongedaan maken** en **Wijzigingen terugdraaien** staan ernaast, net als op elk ander automatisch opslaand scherm; beide staan volledig beschreven in [hoe opslaan werkt](save-model.md).
 
 De **zelfreflectie** van de speler werkt hetzelfde, zolang het venster open staat. Buiten het venster is het veld uitgeschakeld, zoals eerder, en wordt er niets opgeslagen.
 
-**Ondertekenen is nu een eigen knop, geen vinkje op het formulier.** Het was een vinkje dat je samen met de rest opsloeg. Op een formulier dat zichzelf opslaat zou dat één misklik verwijderd zijn van het gesprek permanent op slot zetten voor iedereen — daarom staat er nu een aparte knop **Ondertekenen** onder het formulier, achter een bevestiging. Alles daarboven is op dat moment al opgeslagen; ondertekenen is wat het gesprek voor bewerken sluit.
+**Ondertekenen is nu een eigen knop, geen vinkje op het formulier.** Het was een vinkje dat je samen met de rest opsloeg. Op een formulier dat zichzelf opslaat zou dat één misklik verwijderd zijn van het gesprek permanent op slot zetten voor iedereen — daarom staat er nu een aparte knop **Ondertekenen** onder het formulier, onder de kop **Afronden**, achter een bevestiging. Alles daarboven is op dat moment al opgeslagen; ondertekenen is wat het gesprek voor bewerken sluit.
 
 Een **inhoudelijk vergrendeld** gesprek — een later gesprek in de cyclus — slaat nog wel zijn geplande datum automatisch op, het enige veld dat het je laat wijzigen. Een **ondertekend** gesprek slaat niets op, want er valt niets meer te schrijven.
 
@@ -237,7 +237,12 @@ Bij een academie met gespreksformulieren bereidt de speler het volgende gesprek 
 
 #### De trainer vult het formulier in
 
-Op het gespreksscherm staat bij een gesprek met een gespreksformulier het formulier op het tabblad **Gesprek**, onder de geplande datum en de notities.
+Op het gespreksscherm staan bij een gesprek met een gespreksformulier twee delen op het tabblad **Gesprek**, elk een kaart met een eigen opslagstatus en ongedaan maken in de kop:
+
+- **1 Gespreksgegevens:** de geplande en de gehouden datum, en de besproken doelen. De velden *Notities (na het gesprek)* en *Afgesproken acties* staan hier niet, omdat het formulier om een notitie per sectie en om de ontwikkelpunten vraagt. Bij een ouder gesprek waar al tekst in staat, wordt die alleen-lezen onder de gegevens getoond, zodat niets wat geschreven is verdwijnt.
+- **2 Gespreksformulier · Veldspeler** (of **Keeper**): het formulier zelf. De kop, met de opslagstatus, blijft in beeld terwijl je door de secties scrolt.
+
+Op een telefoon staat de opslagstatus onder de titel van het deel. Het ondertekenen staat onder een eigen kop, **Afronden**, onder beide delen.
 
 - **De voorbereiding van de speler staat naast jouw cijfers.** Zolang de speler die niet klaar meldt, staat bij elk item *Speler: nog niet klaar* en zie je geen van de antwoorden. Vanaf "klaar" zie je bij elk item het cijfer van de speler, lichtblauw op de keuze, en staat de grootste kwaliteit van de speler boven die van jou.
 - **Eén rij per item.** Je geeft je cijfer met de vijf genummerde keuzes; het cijfer van de speler staat op dezelfde rij. **Bespreken** staat bij elk item waar de twee cijfers verschillen, hoe weinig ook, en de kop van een onderdeel telt ze. **Aangepast** staat bij een item dat de speler wijzigde nadat de voorbereiding klaar was gemeld.

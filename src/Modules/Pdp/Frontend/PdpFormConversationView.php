@@ -57,8 +57,31 @@ final class PdpFormConversationView {
         $off     = $writable ? '' : ' disabled';
         $path    = 'pdp-conversations/' . $conv_id;
 
-        echo '<section class="tt-pdp-coachform" aria-labelledby="tt-pdp-coachform-h">';
-        echo '<h2 class="tt-pdp-coachform__h" id="tt-pdp-coachform-h">' . esc_html__( 'Conversation form', 'talenttrack' ) . '</h2>';
+        // #5080 — part 2 of the page, a card whose header carries its own
+        // save state and undo, and stays in view while the trainer scrolls
+        // through the sections. The header is inside the form, so the save
+        // state belongs to this form's fields alone.
+        $is_keeper = (string) ( $definition['position_group'] ?? '' ) === PdpFormRegistry::GROUP_GOALKEEPER;
+        echo '<section class="tt-pdp-part tt-pdp-coachform" aria-labelledby="tt-pdp-coachform-h">';
+        echo '<form class="tt-pdp-coachform__form" data-tt-pdp-coachform'
+            . ' data-rest-path="' . esc_attr( $path . '/form/coach' ) . '" data-rest-method="PATCH"'
+            . ' data-autosave-key="' . esc_attr( 'pdp-coachform:' . $conv_id ) . '"'
+            . ' data-signoff-path="' . esc_attr( $path . '/signoff' ) . '">';
+        echo '<div class="tt-pdp-part__head tt-pdp-part__head--sticky">';
+        echo '<h2 class="tt-pdp-part__title tt-pdp-coachform__h" id="tt-pdp-coachform-h">'
+            . '<span class="tt-pdp-part__num" aria-hidden="true">2</span>'
+            . '<span>' . esc_html( sprintf(
+                /* translators: %s: the form in use, "Outfield player" or "Goalkeeper" */
+                __( 'Conversation form · %s', 'talenttrack' ),
+                $is_keeper ? __( 'Goalkeeper', 'talenttrack' ) : __( 'Outfield player', 'talenttrack' )
+            ) ) . '</span></h2>';
+        if ( $writable ) {
+            echo '<div class="tt-pdp-part__state">';
+            SaveState::render();
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '<div class="tt-pdp-part__body">';
 
         echo '<ul class="tt-pdp-coachform__legend" aria-label="' . esc_attr__( 'How the scores are shown', 'talenttrack' ) . '">';
         echo '<li><span class="tt-pdp-coachform__swatch tt-pdp-coachform__swatch--player" aria-hidden="true"></span>' . esc_html__( 'Player', 'talenttrack' ) . '</li>';
@@ -75,11 +98,6 @@ final class PdpFormConversationView {
                 TTDate::dateTimeFromGmt( (string) $state['player_prepared_at'] )
             ) ) . '</p>';
         }
-
-        echo '<form class="tt-pdp-coachform__form" data-tt-pdp-coachform'
-            . ' data-rest-path="' . esc_attr( $path . '/form/coach' ) . '" data-rest-method="PATCH"'
-            . ' data-autosave-key="' . esc_attr( 'pdp-coachform:' . $conv_id ) . '"'
-            . ' data-signoff-path="' . esc_attr( $path . '/signoff' ) . '">';
 
         $prompts = [];
         foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = $prompt;
@@ -211,13 +229,15 @@ final class PdpFormConversationView {
         }
         echo '</details>';
 
-        if ( $writable ) {
-            echo '<div class="tt-form-actions tt-pdp-coachform__save">';
-            SaveState::render();
-            echo '</div>';
-        }
+        echo '</div>'; // .tt-pdp-part__body
         echo '</form>';
+        echo '</section>';
 
+        // Sign-off is outside both parts, under its own heading (§6: an
+        // irreversible commit is never part of an autosaving form).
+        if ( $signed || $signs_off ) {
+            echo self::finishHeading(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+        }
         if ( $signed ) {
             echo '<p class="tt-pdp-coachform__signed"><strong>' . esc_html__( 'Signed off', 'talenttrack' ) . '</strong> — '
                 . esc_html( TTDate::dateTimeFromGmt( (string) $state['coach_signoff_at'] ) ) . '</p>';
@@ -231,8 +251,16 @@ final class PdpFormConversationView {
             self::renderSignoff( $missing );
         }
 
-        echo '</section>';
         return true;
+    }
+
+    /**
+     * #5080 — the "Finish" heading over the irreversible steps of a talk:
+     * sign-off, marking it not held, recording acknowledgements. Shared with
+     * `FrontendPdpManageView`, which draws it for a talk without a form.
+     */
+    public static function finishHeading(): string {
+        return '<h2 class="tt-pdp-finish-h">' . esc_html__( 'Finish', 'talenttrack' ) . '</h2>';
     }
 
     /**

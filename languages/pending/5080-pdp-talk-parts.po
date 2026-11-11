@@ -1,0 +1,17 @@
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Conversation details"
+msgstr "Gespreksgegevens"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Written before this talk used the conversation form. Read only."
+msgstr "Geschreven voordat dit gesprek het gespreksformulier gebruikte. Alleen-lezen."
+
+#. translators: %s: the form in use, "Outfield player" or "Goalkeeper"
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "Conversation form · %s"
+msgstr "Gespreksformulier · %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Outfield player"
+msgstr "Veldspeler"
