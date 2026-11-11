@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Analytics\Domain\UnknownFactKeyException;
 
@@ -29,22 +30,8 @@ final class BlockEngine {
             return new StudioError( 'not_found', __( 'There is no block with that key.', 'talenttrack' ), 404 );
         }
 
-        $context = ReportContext::fromInput( $context_in, $user_id );
+        $context = self::gate( $block, $context_in, $user_id );
         if ( $context instanceof StudioError ) return $context;
-
-        if ( ! BlockRegistry::fits( $block, $context ) ) {
-            return new StudioError( 'invalid_field', __( 'This block cannot be used for this subject or audience.', 'talenttrack' ), 400, [ 'field' => 'context' ] );
-        }
-        if ( ! user_can( $user_id, $block->capability() ) ) {
-            return new StudioError( 'forbidden', __( 'You do not have access to this block.', 'talenttrack' ), 403 );
-        }
-
-        $context = ReportSubjectAccess::check( $context );
-        if ( $context instanceof StudioError ) return $context;
-
-        if ( ! $block->available( $context ) ) {
-            return new StudioError( 'not_found', __( 'This block has no data for this subject.', 'talenttrack' ), 404 );
-        }
 
         if ( $block instanceof ChecksFactKeys ) {
             try {
@@ -80,6 +67,73 @@ final class BlockEngine {
             'options' => $options,
             'data'    => $data,
         ];
+    }
+
+    /**
+     * Whether this reader may read this block about this subject: the block
+     * fits the context, the reader holds its capability, the subject passes
+     * `ReportSubjectAccess`, and the block has data. The checks `preview()`
+     * asks before a block composes, and the ones a frozen copy answers to for
+     * each reader (#5021).
+     *
+     * @param array<string,mixed> $context_in
+     */
+    public static function gate( ReportBlock $block, array $context_in, int $user_id ): ReportContext|StudioError {
+        $context = ReportContext::fromInput( $context_in, $user_id );
+        if ( $context instanceof StudioError ) return $context;
+
+        if ( ! BlockRegistry::fits( $block, $context ) ) {
+            return new StudioError( 'invalid_field', __( 'This block cannot be used for this subject or audience.', 'talenttrack' ), 400, [ 'field' => 'context' ] );
+        }
+        if ( ! user_can( $user_id, $block->capability() ) ) {
+            return new StudioError( 'forbidden', __( 'You do not have access to this block.', 'talenttrack' ), 403 );
+        }
+
+        $context = ReportSubjectAccess::check( $context );
+        if ( $context instanceof StudioError ) return $context;
+
+        if ( ! $block->available( $context ) ) {
+            return new StudioError( 'not_found', __( 'This block has no data for this subject.', 'talenttrack' ), 404 );
+        }
+        return $context;
+    }
+
+    /**
+     * #5021 — a payload's rows about players this reader may not see, left
+     * out. A frozen copy carries the rows its taker could see; a reader with a
+     * narrower scope reads only their own players' rows. A row names its
+     * player as `masked()` reads it.
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
+    public static function visibleRows( array $data, int $user_id ): array {
+        if ( ! is_array( $data['rows'] ?? null ) ) return $data;
+        $by_key = ( $data['breakdown'] ?? null ) === 'player_id';
+
+        $ids = [];
+        foreach ( $data['rows'] as $row ) {
+            $pid = self::playerOf( $row, $by_key );
+            if ( $pid > 0 ) $ids[ $pid ] = $pid;
+        }
+        if ( $ids === [] ) return $data;
+        $allowed = AuthorizationService::canViewPlayers( $user_id, array_values( $ids ) );
+
+        $rows = [];
+        foreach ( $data['rows'] as $row ) {
+            $pid = self::playerOf( $row, $by_key );
+            if ( $pid > 0 && empty( $allowed[ $pid ] ) ) continue;
+            $rows[] = $row;
+        }
+        $data['rows'] = $rows;
+        return $data;
+    }
+
+    /** The player a row is about: `player_id`, or `key` on a breakdown by player; 0 for none. */
+    private static function playerOf( mixed $row, bool $by_key ): int {
+        if ( ! is_array( $row ) ) return 0;
+        if ( isset( $row['player_id'] ) && is_numeric( $row['player_id'] ) ) return (int) $row['player_id'];
+        return $by_key && isset( $row['key'] ) && is_numeric( $row['key'] ) ? (int) $row['key'] : 0;
     }
 
     /** The refusal for a block that names a field its fact no longer has. */
@@ -127,11 +181,7 @@ final class BlockEngine {
         if ( ! is_array( $data['rows'] ?? null ) || RecordRedactor::fields( 'players' ) === [] ) return $data;
 
         $by_key = ( $data['breakdown'] ?? null ) === 'player_id';
-        $player = static function ( mixed $row ) use ( $by_key ): int {
-            if ( ! is_array( $row ) ) return 0;
-            if ( isset( $row['player_id'] ) && is_numeric( $row['player_id'] ) ) return (int) $row['player_id'];
-            return $by_key && isset( $row['key'] ) && is_numeric( $row['key'] ) ? (int) $row['key'] : 0;
-        };
+        $player = static fn( mixed $row ): int => self::playerOf( $row, $by_key );
 
         $teams = [];
         foreach ( $data['rows'] as $row ) {

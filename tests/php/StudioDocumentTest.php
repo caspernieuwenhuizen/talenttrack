@@ -51,7 +51,7 @@ final class StudioDocumentTest extends WP_UnitTestCase {
         $this->assertSame( [ 'b1', 'b2', 'b3', 'b4' ], $this->blocksIn( $pages[0] ) );
         $this->assertSame( [ 'b6', 'b7' ], $this->blocksIn( $pages[1] ) );
         $this->assertStringStartsWith( ' tt-sd-break"', $pages[1], 'and the second page starts on new paper' );
-        $this->assertStringContainsString( '<table class="tt-sd-pair">', $pages[0], 'two half blocks sit side by side' );
+        $this->assertStringContainsString( '<table class="tt-sd-pair" role="presentation">', $pages[0], 'two half blocks sit side by side' );
     }
 
     public function test_the_document_uses_nothing_dompdf_cannot_print(): void {

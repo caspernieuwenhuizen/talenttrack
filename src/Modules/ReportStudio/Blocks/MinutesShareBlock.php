@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\MinutesComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
@@ -28,7 +29,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  *   position-group average (#3991): in a small group an average is another
  *   child's minutes.
  */
-final class MinutesShareBlock implements ReportBlock {
+final class MinutesShareBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'minutes_share';
@@ -44,6 +45,10 @@ final class MinutesShareBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::MINUTES;
     }
 
     public function capability(): string {

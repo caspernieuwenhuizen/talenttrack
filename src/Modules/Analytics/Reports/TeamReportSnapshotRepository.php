@@ -87,12 +87,20 @@ final class TeamReportSnapshotRepository {
         global $wpdb;
         if ( $uuid === '' ) return null;
 
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_team_report_snapshots
-              WHERE uuid = %s AND club_id = %d AND archived_at IS NULL AND report_id IS NULL
-              LIMIT 1",
-            $uuid, CurrentClub::id()
-        ) );
+        // Before 0327 there is no report_id, and no Studio row to leave out.
+        $row = StudioSnapshot::hasColumn( 'tt_team_report_snapshots' )
+            ? $wpdb->get_row( $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}tt_team_report_snapshots
+                  WHERE uuid = %s AND club_id = %d AND archived_at IS NULL AND report_id IS NULL
+                  LIMIT 1",
+                $uuid, CurrentClub::id()
+            ) )
+            : $wpdb->get_row( $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}tt_team_report_snapshots
+                  WHERE uuid = %s AND club_id = %d AND archived_at IS NULL
+                  LIMIT 1",
+                $uuid, CurrentClub::id()
+            ) );
 
         return $row ?: null;
     }
@@ -105,7 +113,7 @@ final class TeamReportSnapshotRepository {
      */
     public function findStudio( string $uuid ): ?object {
         global $wpdb;
-        if ( $uuid === '' ) return null;
+        if ( $uuid === '' || ! StudioSnapshot::hasColumn( 'tt_team_report_snapshots' ) ) return null;
 
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_team_report_snapshots
@@ -127,7 +135,7 @@ final class TeamReportSnapshotRepository {
      */
     public function listForReport( int $report_id, int $limit = 20 ): array {
         global $wpdb;
-        if ( $report_id <= 0 ) return [];
+        if ( $report_id <= 0 || ! StudioSnapshot::hasColumn( 'tt_team_report_snapshots' ) ) return [];
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT uuid, team_id, title, period_from, period_to, created_by, created_at
@@ -167,14 +175,23 @@ final class TeamReportSnapshotRepository {
         if ( $team_id <= 0 ) return [];
         $limit = max( 1, min( 100, $limit ) );
 
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, uuid, team_id, title, period_from, period_to, created_by, created_at, updated_at
-               FROM {$wpdb->prefix}tt_team_report_snapshots
-              WHERE team_id = %d AND club_id = %d AND archived_at IS NULL AND report_id IS NULL
-           ORDER BY created_at DESC, id DESC
-              LIMIT %d",
-            $team_id, CurrentClub::id(), $limit
-        ) );
+        $rows = StudioSnapshot::hasColumn( 'tt_team_report_snapshots' )
+            ? $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, uuid, team_id, title, period_from, period_to, created_by, created_at, updated_at
+                   FROM {$wpdb->prefix}tt_team_report_snapshots
+                  WHERE team_id = %d AND club_id = %d AND archived_at IS NULL AND report_id IS NULL
+               ORDER BY created_at DESC, id DESC
+                  LIMIT %d",
+                $team_id, CurrentClub::id(), $limit
+            ) )
+            : $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, uuid, team_id, title, period_from, period_to, created_by, created_at, updated_at
+                   FROM {$wpdb->prefix}tt_team_report_snapshots
+                  WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
+               ORDER BY created_at DESC, id DESC
+                  LIMIT %d",
+                $team_id, CurrentClub::id(), $limit
+            ) );
 
         if ( ! is_array( $rows ) ) return [];
 
@@ -190,11 +207,18 @@ final class TeamReportSnapshotRepository {
      * page and in the PDF.
      */
     public function putNote( string $uuid, string $section, string $body, int $user_id ): bool {
-        global $wpdb;
+        $row = $this->find( $uuid );
+        return $row !== null && $this->writeNote( $row, $section, $body, $user_id ) !== null;
+    }
 
-        $row = $this->find( $uuid ) ?? $this->findStudio( $uuid );
-        if ( $row === null || $user_id <= 0 ) return false;
-        if ( ! self::isSection( $row, $section ) ) return false;
+    /**
+     * `putNote()` on a row already loaded, a Report Studio snapshot's
+     * included (#5021). Returns the row with its new notes, or null when the
+     * section is not one the row could carry or the write failed.
+     */
+    public function writeNote( object $row, string $section, string $body, int $user_id ): ?object {
+        global $wpdb;
+        if ( $user_id <= 0 || ! self::isSection( $row, $section ) ) return null;
 
         $notes = self::notesOf( $row );
         $body  = trim( $body );
@@ -209,13 +233,17 @@ final class TeamReportSnapshotRepository {
             ];
         }
 
-        return false !== $wpdb->update(
+        $json = (string) wp_json_encode( $notes );
+        $ok   = false !== $wpdb->update(
             $this->table(),
-            [ 'notes_json' => (string) wp_json_encode( $notes ), 'updated_at' => gmdate( 'Y-m-d H:i:s' ) ],
-            [ 'uuid' => $uuid, 'club_id' => (int) CurrentClub::id() ],
+            [ 'notes_json' => $json, 'updated_at' => gmdate( 'Y-m-d H:i:s' ) ],
+            [ 'uuid' => (string) ( $row->uuid ?? '' ), 'club_id' => (int) CurrentClub::id() ],
             [ '%s', '%s' ],
             [ '%s', '%d' ]
         );
+        if ( ! $ok ) return null;
+
+        return (object) array_merge( get_object_vars( $row ), [ 'notes_json' => $json ] );
     }
 
     /**

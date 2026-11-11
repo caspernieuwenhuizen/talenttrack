@@ -33,6 +33,22 @@ final class TeamReportAccess {
     }
 
     /**
+     * #5021 — may this user make a record from this team's report: freeze a
+     * Report Studio snapshot of it, or write a note on one? Reading the report
+     * is required, and on top of it the matrix's `reports` create_delete at
+     * global scope or on the team, the rule `PlayerReportAccess::canCreate()`
+     * asks for a player.
+     */
+    public static function canCreate( int $user_id, int $team_id ): bool {
+        if ( ! self::canRead( $user_id, $team_id ) ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return user_can( $user_id, 'tt_generate_report' );
+        }
+        return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'create_delete', 'global' )
+            || \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'create_delete', 'team', $team_id );
+    }
+
+    /**
      * `canRead()` as a list, for a query: null for every team, otherwise the
      * teams on which the matrix grants `reports` read. An empty list means
      * none.

@@ -1988,8 +1988,10 @@ stays readable after the report changes or is archived.
   chosen when opened), `from` / `to` or `period`, `title` (optional; the report
   name and the period otherwise). The subject and the period follow the
   report's rules as on `/data`. A player report needs
-  `PlayerReportAccess::canCreate()`, a team report `TeamReportAccess::canRead()`
-  (`403 forbidden_player` / `forbidden_team`). A group or academy report has no
+  `PlayerReportAccess::canCreate()`, a team report `TeamReportAccess::canCreate()`
+  (`reports` create at team or global scope; `403 forbidden_player` /
+  `forbidden_team`). `GET /reports/{id}/document` says in
+  `context.can_snapshot` whether this would succeed for the subject read. A group or academy report has no
   snapshot: `400 invalid_field` on `scope`. A report never published is `404
   not_published`. A family report's snapshot is shared with the player and
   their parents: it is listed by `GET /players/{id}/report-snapshots` and on the
@@ -1999,15 +2001,26 @@ stays readable after the report changes or is archived.
   newest first, without payloads.
 - `GET /report-snapshots/{uuid}` — `uuid`, `report_id`, `scope`, `player_id`,
   `team_id`, `title`, `audience`, `created_by`, `created_at`, `context`,
-  `blocks`, `page_fit`, `notes` (by block id), `can_note` and `html`. A family
-  reader reads a family snapshot cut to the blocks their access to the child's
-  file allows, without notes; `GET /player-report-snapshots/{uuid}` answers the
-  same snapshot with its frozen blocks in `document`. An unknown uuid and one
-  the caller may not read are the same `403`.
-- `PUT /report-snapshots/{uuid}/notes/{block}` — body `body`; an empty one
-  removes the note. Kept in the snapshot's section notes under the block id,
-  never in a draft or a version. A block that is not on the snapshot is `400
-  unknown_section`; a family snapshot takes no notes (`403`).
+  `blocks`, `page_fit`, `notes` (by block id), `can_note` and `html`. A copy
+  for staff (internal or scout audience) opens only for a reader whose
+  `PlayerReportAudience::forReader()` is `internal`, and is shown under that
+  reader's rights (`ReportSnapshots::forReader()`): a block failing the checks
+  it answers live (fit, capability, subject, data) is left out, fields are
+  masked again (`RecordRedactor`) and rows about players the reader may not see
+  are left out. A family reader reads a family snapshot cut, block by block,
+  by the section of the child's file each block names (`FamilySection`),
+  without notes. `GET /player-report-snapshots/{uuid}` answers the same
+  snapshot with its frozen blocks in `document`, by the same rules, and `402`
+  without the `report_studio` plan. An unknown uuid and one the caller may not
+  read are the same `403`. A Studio snapshot prints only through
+  `exports/report_studio_pdf?snapshot=<uuid>`.
+- `PUT /report-snapshots/{uuid}/notes/{block}` — body `body`, required: a
+  request without it is `400 missing_fields` and changes nothing; an empty
+  string removes the note. Kept in the snapshot's section notes under the block
+  id, never in a draft or a version, and audit-logged. Only a reader who may
+  take that subject's snapshots writes one (`403` otherwise). A block that is
+  not on the snapshot is `400 unknown_section`; a family snapshot takes no
+  notes (`403`).
 
 ### Payload
 

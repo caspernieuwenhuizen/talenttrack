@@ -151,21 +151,27 @@
 			// The server escaped every value in it; it is the PDF's markup.
 			if (box) box.innerHTML = d.html || '';
 			renderPdf(true);
+			renderSnapshotControl(!!(d.context && d.context.can_snapshot));
 		})['catch'](function (err) {
 			if (seq !== state.seq) return;
 			if (box) box.textContent = '';
 			renderPdf(false);
+			renderSnapshotControl(false);
 			notice(err.message || t.loadError, true);
 		});
+	}
+
+	/** Take snapshot only where the server says it would succeed (#5021). */
+	function renderSnapshotControl(allowed) {
+		var open = $('[data-tt-rv-open-snapshot]');
+		var dialog = $('[data-tt-rv-snapshot]');
+		if (open) open.hidden = !allowed || !dialog || typeof dialog.showModal !== 'function';
 	}
 
 	function bindSnapshot() {
 		var open = $('[data-tt-rv-open-snapshot]');
 		var dialog = $('[data-tt-rv-snapshot]');
-		if (!open || !dialog || typeof dialog.showModal !== 'function') {
-			if (open) open.hidden = true;
-			return;
-		}
+		if (!open || !dialog || typeof dialog.showModal !== 'function') return;
 		var form = dialog.querySelector('form');
 		var name = dialog.querySelector('[data-tt-rv-snapshot-name]');
 		var error = dialog.querySelector('[data-tt-rv-snapshot-error]');

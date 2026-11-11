@@ -180,10 +180,12 @@ final class ReportStudioEngineTest extends WP_UnitTestCase {
     }
 
     public function test_an_external_audience_never_receives_a_player_breakdown(): void {
-        $context = [ 'scope' => 'player', 'player_id' => $this->pa1, 'from' => '2020-03-01', 'to' => '2020-03-31', 'audience' => PlayerReportAudience::FAMILY ];
+        // #5021 — your own question is not a family block; the scout is the
+        // external audience it is offered to.
+        $context = [ 'scope' => 'player', 'player_id' => $this->pa1, 'from' => '2020-03-01', 'to' => '2020-03-31', 'audience' => PlayerReportAudience::SCOUT ];
 
         $refused = BlockEngine::preview( 'own_question', $context, [ 'fact' => 'attendance', 'measure' => 'count_present', 'breakdown' => 'player_id' ], $this->hod );
-        $this->assertInstanceOf( StudioError::class, $refused, 'a breakdown by player is not offered to the family' );
+        $this->assertInstanceOf( StudioError::class, $refused, 'a breakdown by player is not offered to an external reader' );
         $this->assertSame( 'breakdown', $refused->details['field'] ?? null );
 
         $built = ReportContext::fromInput( $context, $this->hod );
@@ -201,7 +203,7 @@ final class ReportStudioEngineTest extends WP_UnitTestCase {
         $this->assertInstanceOf( StudioError::class, $team, 'an external audience reads about one player, never a squad' );
 
         $weeks = BlockEngine::preview( 'attendance_per_week', $context, [], $this->hod );
-        $this->assertIsArray( $weeks, 'the family still gets the player\'s own weeks' );
+        $this->assertIsArray( $weeks, 'an external reader still gets the player\'s own weeks' );
         $this->assertSame( [ 'breakdown', 'rows', 'truncated' ], array_keys( $weeks['data'] ) );
     }
 

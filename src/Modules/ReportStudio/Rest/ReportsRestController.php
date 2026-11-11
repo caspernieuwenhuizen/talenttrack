@@ -11,6 +11,7 @@ use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Document\StudioDocument;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportSnapshots;
 use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReach;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
@@ -609,13 +610,19 @@ final class ReportsRestController extends BaseController {
     public static function get_document( WP_REST_Request $r ): WP_REST_Response {
         $read = self::read( $r );
         if ( $read instanceof WP_REST_Response ) return $read;
-        [ $data, $reader ] = $read;
+        [ $data, $reader, $report ] = $read;
+
+        // #5021 — whether this reader may freeze it for this subject, so a
+        // page offers Take snapshot only where it would succeed.
+        $context = [];
+        foreach ( is_array( $data['context'] ?? null ) ? $data['context'] : [] as $k => $v ) $context[ (string) $k ] = $v;
+        $context['can_snapshot'] = ReportSnapshots::canTake( $report, $context, $reader->userId );
 
         return RestResponse::success( [
             'report_id'  => $data['report_id'],
             'source'     => $data['source'],
             'version_no' => $data['version_no'],
-            'context'    => $data['context'],
+            'context'    => $context,
             'page_fit'   => $data['page_fit'],
             'html'       => StudioDocument::body( $data, $reader->userId ),
         ] );
@@ -624,7 +631,7 @@ final class ReportsRestController extends BaseController {
     /**
      * Every block of a report read for the caller, by the data route's rules.
      *
-     * @return array{0:array<string,mixed>, 1:ReportReader}|WP_REST_Response
+     * @return array{0:array<string,mixed>, 1:ReportReader, 2:Report}|WP_REST_Response
      */
     private static function read( WP_REST_Request $r ): array|WP_REST_Response {
         $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
@@ -674,7 +681,7 @@ final class ReportsRestController extends BaseController {
         ], $reader );
         if ( $data instanceof StudioError ) return self::refuse( $data );
 
-        return [ $data, $reader ];
+        return [ $data, $reader, $report ];
     }
 
     /**

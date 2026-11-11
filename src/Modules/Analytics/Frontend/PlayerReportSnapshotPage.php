@@ -127,8 +127,13 @@ final class PlayerReportSnapshotPage {
         $family = $snapshot['audience'] === PlayerReportAudience::FAMILY;
         self::renderHeader( $snapshot );
 
-        // #5021 — a Report Studio report's snapshot prints its own document.
+        // #5021 — a Report Studio report's snapshot prints its own document,
+        // as part of the Studio's plan.
         if ( $snapshot['document'] !== null ) {
+            if ( ! \TT\Modules\License\LicenseGate::allows( 'report_studio' ) ) {
+                echo \TT\Modules\License\UpgradePanel::render( 'report_studio' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- UpgradePanel returns escaped HTML
+                return true;
+            }
             StudioDocumentView::render( $snapshot['document'], get_current_user_id(), $snapshot['notes'] );
             return true;
         }
@@ -159,6 +164,8 @@ final class PlayerReportSnapshotPage {
         if ( $snapshot === null
             || $snapshot['player_id'] !== $player_id
             || $snapshot['audience'] !== PlayerReportAudience::FAMILY
+            // #5021 — a Report Studio snapshot is part of the Studio's plan.
+            || ( $snapshot['document'] !== null && ! \TT\Modules\License\LicenseGate::allows( 'report_studio' ) )
         ) {
             return false;
         }

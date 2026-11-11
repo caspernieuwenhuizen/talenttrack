@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\LayoutBound;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
 
@@ -14,7 +15,7 @@ use TT\Modules\ReportStudio\Domain\ReportStartRules;
  * rows print, a grid is for screens. It reads no data and takes no height;
  * `ReportPageFit` moves the next block to a new page.
  */
-final class PageBreakBlock implements ReportBlock, LayoutBound {
+final class PageBreakBlock implements ReportBlock, LayoutBound, FamilySection {
 
     public const KEY = 'page_break';
 
@@ -32,6 +33,10 @@ final class PageBreakBlock implements ReportBlock, LayoutBound {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return FamilySection::DOCUMENT;
     }
 
     public function capability(): string {

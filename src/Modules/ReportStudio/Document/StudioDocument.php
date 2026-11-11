@@ -146,7 +146,7 @@ final class StudioDocument {
         $cells = '';
         foreach ( $row as $block ) $cells .= '<td class="tt-sd-half">' . self::block( $block, $words, $notes ) . '</td>';
         if ( count( $row ) === 1 ) $cells .= '<td class="tt-sd-half tt-sd-half--empty"></td>';
-        return '<table class="tt-sd-pair"><tr>' . $cells . '</tr></table>';
+        return '<table class="tt-sd-pair" role="presentation"><tr>' . $cells . '</tr></table>';
     }
 
     /**
@@ -260,7 +260,7 @@ final class StudioDocument {
             self::text( $data['head_coach'] ?? '' ),
         ], static fn( string $s ): bool => $s !== '' );
 
-        $out = '<table class="tt-sd-lh"><tr><td><h2 class="tt-sd-lh-title">' . esc_html( $title ) . '</h2>';
+        $out = '<table class="tt-sd-lh" role="presentation"><tr><td><h2 class="tt-sd-lh-title">' . esc_html( $title ) . '</h2>';
         if ( $meta !== [] ) $out .= '<p class="tt-sd-lh-meta">' . esc_html( implode( ' · ', $meta ) ) . '</p>';
         if ( is_string( $data['from'] ?? null ) && is_string( $data['to'] ?? null ) && $data['from'] !== '' && $data['to'] !== '' ) {
             /* translators: 1: first day, 2: last day of the period */

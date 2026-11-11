@@ -297,11 +297,15 @@ final class TeamMonthlyReportDocument {
      * payload, for a Report Studio block that is that section: the markup
      * the monthly report's page shows for it, with its classes prefixed as on
      * that page. Rendered on its own, it carries no section number, no
-     * snapshot note and no record links, as on paper.
+     * snapshot note and no record links, as on paper. The renderer's state is
+     * put back as it was, so a page that shows a monthly report as well is
+     * not changed by it.
      *
      * @param array<string,mixed> $payload the section's composer payload
      */
     public static function sectionHtml( string $block, array $payload ): string {
+        $saved = [ self::$notes, self::$layout, self::$numbers, self::$data, self::$primary, self::$screen, self::$after_section ];
+
         self::$notes         = [];
         self::$layout        = TeamMonthlyReportLayout::PACK;
         self::$numbers       = [];
@@ -310,9 +314,11 @@ final class TeamMonthlyReportDocument {
         self::$screen        = false;
         self::$after_section = null;
 
-        $html        = self::section( $block, $payload, false );
-        self::$data  = [];
-        return self::prefixClasses( $html );
+        try {
+            return self::prefixClasses( self::section( $block, $payload, false ) );
+        } finally {
+            [ self::$notes, self::$layout, self::$numbers, self::$data, self::$primary, self::$screen, self::$after_section ] = $saved;
+        }
     }
 
     /**

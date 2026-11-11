@@ -497,7 +497,7 @@ paths:
     post:
       tags: [report-studio]
       summary: Freeze the published version for a subject and period (#5021)
-      description: 'Body — player_id / team_id for a subject chosen when opened, from / to or period, title (optional). The subject and the period follow the report''s own rules, as on `/data`. Stored in the subject''s snapshot table with the report and version. A player report needs `PlayerReportAccess::canCreate`, a team report `TeamReportAccess::canRead`. A family report''s snapshot is shared with the player and their parents. Answers the snapshot as `GET /report-snapshots/{uuid}` does.'
+      description: 'Body — player_id / team_id for a subject chosen when opened, from / to or period, title (optional). The subject and the period follow the report''s own rules, as on `/data`. Stored in the subject''s snapshot table with the report and version. A player report needs `PlayerReportAccess::canCreate`, a team report `TeamReportAccess::canCreate`. `GET /reports/{id}/document` says in `context.can_snapshot` whether this would succeed. A family report''s snapshot is shared with the player and their parents. Answers the snapshot as `GET /report-snapshots/{uuid}` does.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '201': { description: Created }, '400': { description: 'invalid_field (a group or academy report has no snapshots), bad_filter, unknown_field' }, '402': { description: license_required }, '403': { description: 'forbidden, forbidden_player, forbidden_team, fixed_subject, fixed_period' }, '404': { description: 'not_found, not_published' }, '422': { description: no_period } }
 
@@ -505,7 +505,7 @@ paths:
     get:
       tags: [report-studio]
       summary: One Studio snapshot, with its document (#5021)
-      description: 'For whoever may read its player or team, by the rules of that subject''s snapshots; a family reader reads a family snapshot, cut to what their access to the player''s file allows, without notes. An unknown uuid is the same 403. Answers uuid, report_id, scope, player_id, team_id, title, audience, created_by, created_at, context, blocks, page_fit, notes (by block id), can_note and html.'
+      description: 'For whoever may read its player or team, by the rules of that subject''s snapshots; a copy for staff only for a reader whose own audience is internal, shown under that reader''s rights (blocks failing their live checks left out, fields masked, rows about players the reader may not see left out); a family reader reads a family snapshot, cut to what their access to the player''s file allows, without notes. An unknown uuid is the same 403. Answers uuid, report_id, scope, player_id, team_id, title, audience, created_by, created_at, context, blocks, page_fit, notes (by block id), can_note and html.'
       parameters: [{ in: path, name: uuid, required: true, schema: { type: string } }]
       responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: forbidden } }
 
@@ -513,11 +513,11 @@ paths:
     put:
       tags: [report-studio]
       summary: The note on one block of a staff snapshot (#5021)
-      description: 'Body — body (empty removes the note). Kept in the snapshot''s section notes, keyed by block id, never in a draft or a version. A family snapshot takes no notes (403).'
+      description: 'Body — body, required (400 missing_fields without it; an empty string removes the note). Only a reader who may take that subject''s snapshots; audit-logged. Kept in the snapshot''s section notes, keyed by block id, never in a draft or a version. A family snapshot takes no notes (403).'
       parameters:
         - { in: path, name: uuid, required: true, schema: { type: string } }
         - { in: path, name: block, required: true, schema: { type: string } }
-      responses: { '200': { description: 'OK — the snapshot' }, '400': { description: 'unknown_section (the block is not on the snapshot), unknown_field' }, '402': { description: license_required }, '403': { description: forbidden }, '500': { description: note_failed } }
+      responses: { '200': { description: 'OK — the snapshot' }, '400': { description: 'missing_fields (no body), unknown_section (the block is not on the snapshot), unknown_field' }, '402': { description: license_required }, '403': { description: forbidden }, '500': { description: note_failed } }
 
   /reports/{id}/subjects:
     get:

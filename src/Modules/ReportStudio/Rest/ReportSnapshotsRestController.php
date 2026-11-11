@@ -57,24 +57,23 @@ final class ReportSnapshotsRestController extends BaseController {
                 'args'                => self::createArgs(),
             ],
         ] );
+        // A uuid route answers to the snapshot's own subject, decided in the
+        // callback on the one read of the row: an unknown uuid and one the
+        // caller may not open are the same 403.
         register_rest_route( self::NS, '/report-snapshots/(?P<uuid>[0-9a-f-]{36})', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_snapshot' ],
-                'permission_callback' => static function ( WP_REST_Request $r ): bool {
-                    return ReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) !== null;
-                },
+                'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
             ],
         ] );
         register_rest_route( self::NS, '/report-snapshots/(?P<uuid>[0-9a-f-]{36})/notes/(?P<block>[a-z0-9_-]+)', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_note' ],
-                'permission_callback' => static function ( WP_REST_Request $r ): bool {
-                    return ReportSnapshots::canNote( (string) $r['uuid'], get_current_user_id() );
-                },
+                'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
                 'args'                => [
-                    'body' => [ 'type' => 'string', 'description' => 'The note. Empty removes it.' ],
+                    'body' => [ 'type' => 'string', 'required' => false, 'description' => 'The note. Required; an empty string removes it.' ],
                 ],
             ],
         ] );
@@ -152,43 +151,74 @@ final class ReportSnapshotsRestController extends BaseController {
     }
 
     public static function get_snapshot( WP_REST_Request $r ): WP_REST_Response {
+        $read = ReportSnapshots::read( (string) $r['uuid'], get_current_user_id() );
+        if ( $read === null ) return self::notShared();
+        // After the read, so a 402 does not say whether a uuid exists.
         $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
         if ( $blocked ) return $blocked;
 
-        return self::snapshot( (string) $r['uuid'], get_current_user_id() );
+        return self::payload( $read );
     }
 
     /**
-     * The note on one block of the copy. A block that is not on it is 400; a
-     * copy shared with the family takes no notes (403 from the permission).
+     * The note on one block of the copy. `body` is required: a request that
+     * leaves it out changes nothing (`400 missing_fields`), and an empty one
+     * removes the note. A block that is not on the copy is 400; a copy shared
+     * with the family, and a reader who may not make a record from its
+     * subject's report, are 403. The row is read once.
      */
     public static function put_note( WP_REST_Request $r ): WP_REST_Response {
+        $user_id = get_current_user_id();
+        $loaded  = ReportSnapshots::load( (string) $r['uuid'] );
+        $read    = $loaded !== null ? ReportSnapshots::readLoaded( $loaded, $user_id ) : null;
+        if ( $loaded === null || $read === null ) return self::notShared();
         $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
         if ( $blocked ) return $blocked;
+        if ( ! $read['can_note'] ) {
+            return RestResponse::error( 'forbidden', __( 'You may read this snapshot, not write on it.', 'talenttrack' ), 403 );
+        }
+
         $bad = self::checkBody( $r, [ 'body' => [] ] );
         if ( $bad ) return $bad;
+        $body = $r->get_json_params();
+        if ( ! is_array( $body ) || ! array_key_exists( 'body', $body ) ) $body = $r->get_body_params();
+        if ( ! is_array( $body ) || ! array_key_exists( 'body', $body ) || ! is_string( $body['body'] ) ) {
+            return RestResponse::error(
+                'missing_fields',
+                /* translators: %s: comma-separated field names */
+                sprintf( __( 'These fields are required: %s.', 'talenttrack' ), 'body' ),
+                400,
+                [ 'fields' => [ 'body' ] ]
+            );
+        }
 
-        $uuid    = (string) $r['uuid'];
-        $user_id = get_current_user_id();
-        $block   = sanitize_key( (string) $r['block'] );
-        $read    = ReportSnapshots::read( $uuid, $user_id );
-        if ( $read === null ) return self::notShared();
-
-        $ids = array_map( static fn( array $b ): string => sanitize_key( (string) ( $b['id'] ?? '' ) ), $read['document']['blocks'] );
+        $block = sanitize_key( (string) $r['block'] );
+        $ids   = array_map( static fn( array $b ): string => sanitize_key( (string) ( $b['id'] ?? '' ) ), $read['document']['blocks'] );
         if ( ! in_array( $block, $ids, true ) ) {
             return RestResponse::error( 'unknown_section', __( 'This block is not on the snapshot.', 'talenttrack' ), 400, [ 'block' => $block ] );
         }
-        if ( ! ReportSnapshots::note( $uuid, $block, sanitize_textarea_field( (string) ( $r['body'] ?? '' ) ), $user_id ) ) {
+
+        $after = ReportSnapshots::noteLoaded( $loaded, $block, sanitize_textarea_field( $body['body'] ), $user_id );
+        if ( $after === null ) {
             return RestResponse::error( 'note_failed', __( 'The note could not be saved.', 'talenttrack' ), 500 );
         }
-        return self::snapshot( $uuid, $user_id );
+        return self::payload( $after );
     }
 
     /** One copy as the reader may read it, with its document's HTML. */
     private static function snapshot( string $uuid, int $user_id, int $status = 200 ): WP_REST_Response {
         $read = ReportSnapshots::read( $uuid, $user_id );
         if ( $read === null ) return self::notShared();
+        return self::payload( $read, $status );
+    }
 
+    /**
+     * @param array{uuid:string, report_id:int, scope:string, player_id:int, team_id:int, title:string, audience:string,
+     *     created_by:int, created_at:string, document:array{context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>},
+     *     notes:array<string,array{body:string, author:int, updated_at:string}>, can_note:bool} $read
+     */
+    private static function payload( array $read, int $status = 200 ): WP_REST_Response {
+        $user_id = get_current_user_id();
         return RestResponse::success( [
             'uuid'       => $read['uuid'],
             'report_id'  => $read['report_id'],

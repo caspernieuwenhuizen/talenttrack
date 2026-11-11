@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportFigures;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
@@ -27,7 +28,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * family allowlist and off the scout's, so a player's count may reach the
  * family and never a scout.
  */
-final class OpenGoalsBlock implements ReportBlock {
+final class OpenGoalsBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'open_goals';
@@ -43,6 +44,10 @@ final class OpenGoalsBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::GOALS;
     }
 
     public function capability(): string {

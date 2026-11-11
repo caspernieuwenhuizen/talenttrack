@@ -110,9 +110,9 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             if ( $snapshot === null ) {
                 throw new ExportException( 'forbidden', __( 'You do not have access to this snapshot.', 'talenttrack' ) );
             }
-            // #5021 — a Report Studio report's snapshot prints as its own document.
+            // #5021 — a Report Studio snapshot has one exporter, the Studio's.
             if ( $snapshot['document'] !== null ) {
-                return ReportStudioPdfExporter::documentPayload( $snapshot['document'], $request->requesterUserId, $snapshot['title'], $snapshot['notes'] );
+                throw new ExportException( 'bad_filters', __( 'This snapshot prints from the Report Studio export.', 'talenttrack' ) );
             }
             return self::payload(
                 $snapshot['report'],

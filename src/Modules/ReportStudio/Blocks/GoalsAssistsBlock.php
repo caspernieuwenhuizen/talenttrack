@@ -19,7 +19,8 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  *   ranked on goals, then assists, then shirt order, with the shared rank.
  *   Staff only.
  * - For a player: their own goals and assists, the figure the player's
- *   goal-contributions route answers. On the family and the scout lists.
+ *   goal-contributions route answers. On the scout list. Not on the
+ *   family's (#5021): the player report gives a family no goals and assists.
  */
 final class GoalsAssistsBlock implements ReportBlock {
 
@@ -36,7 +37,7 @@ final class GoalsAssistsBlock implements ReportBlock {
     }
 
     public function audiences(): array {
-        return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+        return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::SCOUT ];
     }
 
     public function capability(): string {

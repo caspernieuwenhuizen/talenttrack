@@ -285,9 +285,11 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
 
         $listed = array_map( static fn( $b ): string => $b->key(), BlockRegistry::availableFor( ReportContext::forListing( 'player', PlayerReportAudience::FAMILY, $this->hod ) ) );
         $this->assertNotContains( 'playing_time', $listed );
-        foreach ( [ 'minutes_per_match', 'goals_assists', 'minutes_share' ] as $key ) {
+        foreach ( [ 'minutes_per_match', 'minutes_share' ] as $key ) {
             $this->assertContains( $key, $listed, "{$key} is the player's own" );
         }
+        // #5021 — the player report gives a family no goals and assists.
+        $this->assertNotContains( 'goals_assists', $listed );
 
         // A team, and so every other child's figure, is never a family subject.
         foreach ( [ 'playing_time', 'goals_assists', 'minutes_share' ] as $key ) {
@@ -299,6 +301,8 @@ final class ReportStudioPlayingTimeBlocksTest extends WP_UnitTestCase {
     public function test_an_external_payload_has_no_breakdown_by_player_and_no_average(): void {
         foreach ( [ 'minutes_per_match', 'goals_assists', 'minutes_share' ] as $key ) {
             foreach ( [ PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ] as $audience ) {
+                // #5021 — goals and assists reach a scout, never a family.
+                if ( $key === 'goals_assists' && $audience === PlayerReportAudience::FAMILY ) continue;
                 $out = $this->preview( $key, $this->player( $this->pa1, $audience ) );
                 $this->assertNotSame( 'player_id', $out['data']['breakdown'] ?? null, "{$key} for {$audience}" );
                 foreach ( (array) ( $out['data']['rows'] ?? [] ) as $row ) {

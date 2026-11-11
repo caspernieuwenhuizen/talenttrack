@@ -15,6 +15,7 @@ use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportSnapshots;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -93,7 +94,9 @@ final class FrontendReportView extends FrontendViewBase {
             echo '<a class="tt-btn tt-btn-secondary" data-tt-rv-pdf href="#" hidden>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
         }
         if ( in_array( $report['scope'], ReportSnapshots::SCOPES, true ) ) {
-            echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rv-open-snapshot>' . esc_html__( 'Take snapshot', 'talenttrack' ) . '</button>';
+            // Shown by the script when the document route says this reader
+            // may freeze the report for the subject on screen.
+            echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rv-open-snapshot hidden>' . esc_html__( 'Take snapshot', 'talenttrack' ) . '</button>';
         }
         echo '</div>';
         echo '<p class="tt-rs-notice" data-tt-rv-notice role="status" hidden></p>';
@@ -207,8 +210,12 @@ final class FrontendReportView extends FrontendViewBase {
      */
     private static function renderNoteForms( array $snapshot ): void {
         $blocks = is_array( $snapshot['document']['blocks'] ?? null ) ? $snapshot['document']['blocks'] : [];
-        // Cancel reopens the snapshot, so a half-written note is dropped.
-        $self   = add_query_arg( 'snapshot', $snapshot['uuid'], RecordLink::detailUrlForWithBack( self::SLUG, $snapshot['report_id'] ) ); /* tt-xview-ok: this view's own frozen copy */
+        // Cancel goes back where the reader came from, or reopens the
+        // snapshot, so a half-written note is dropped.
+        $back   = BackLink::resolve();
+        $self   = $back !== null
+            ? $back['url']
+            : add_query_arg( 'snapshot', $snapshot['uuid'], RecordLink::detailUrlForWithBack( self::SLUG, $snapshot['report_id'] ) ); /* tt-xview-ok: this view's own frozen copy */
 
         wp_enqueue_script( 'tt-report-snapshot', TT_PLUGIN_URL . 'assets/js/frontend-report-snapshot.js', [], TT_VERSION, true );
         wp_localize_script( 'tt-report-snapshot', 'TTReportSnapshot', [

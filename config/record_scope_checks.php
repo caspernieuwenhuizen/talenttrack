@@ -113,6 +113,8 @@ return [
         // Change authority on `spond_integration` for that exact team.
         'TeamSpondAccess::canManage',
         'TeamReportAccess::canRead',
+        // #5021 — calls canRead on the same team first, then asks the create right.
+        'TeamReportAccess::canCreate',
         // #4569 — a stored Studio report: edit asks the builder's own scope
         // over the report's subject, read asks that or a persona the report
         // is published to.
@@ -127,8 +129,9 @@ return [
         // player (PlayerReportAccess / the family rule) or team
         // (TeamReportAccess), never on the report.
         'ReportSnapshots::read',
+        'ReportSnapshots::readLoaded',
         'ReportSnapshots::canNote',
-        'ReportSnapshots::note',
+        'ReportSnapshots::noteLoaded',
 
         // Entities with an access rule of their own.
         'canViewTournament',

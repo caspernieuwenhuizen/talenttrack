@@ -6,12 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\BlockOption;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
 /**
  * Heading (#4572) — a section title between blocks. It reads no data.
  */
-final class HeadingBlock implements ReportBlock {
+final class HeadingBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'heading';
@@ -27,6 +28,10 @@ final class HeadingBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return FamilySection::DOCUMENT;
     }
 
     public function capability(): string {

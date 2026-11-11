@@ -14,6 +14,14 @@ msgstr "Je mag geen rapport over dit team vastzetten."
 msgid "This block is not on the snapshot."
 msgstr "Dit blok staat niet op de momentopname."
 
+#: src/Modules/ReportStudio/Rest/ReportSnapshotsRestController.php
+msgid "You may read this snapshot, not write on it."
+msgstr "Je mag deze momentopname lezen, maar er niet op schrijven."
+
+#: src/Modules/Export/Exporters/PlayerReportPdfExporter.php
+msgid "This snapshot prints from the Report Studio export."
+msgstr "Deze momentopname wordt afgedrukt via de export van de Report Studio."
+
 #: src/Modules/Export/Exporters/ReportStudioPdfExporter.php
 msgid "Report Studio report (PDF)"
 msgstr "Report Studio-rapport (PDF)"

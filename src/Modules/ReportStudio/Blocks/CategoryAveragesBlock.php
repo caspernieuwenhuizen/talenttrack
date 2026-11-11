@@ -10,6 +10,7 @@ use TT\Modules\Analytics\Reports\PlayerReportComposers\RatingsComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\EvaluationsComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
@@ -26,7 +27,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  *   period. Scores only, never the coach's written notes, so it is on the
  *   family and the scout lists as the player report's ratings are.
  */
-final class CategoryAveragesBlock implements ReportBlock {
+final class CategoryAveragesBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'category_averages';
@@ -42,6 +43,10 @@ final class CategoryAveragesBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::RATINGS;
     }
 
     public function capability(): string {

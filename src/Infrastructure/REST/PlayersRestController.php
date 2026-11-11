@@ -857,7 +857,13 @@ class PlayersRestController {
 
     /** #3890 — `GET /player-report-snapshots/{uuid}`. */
     public static function get_report_snapshot( \WP_REST_Request $r ): \WP_REST_Response {
-        return RestResponse::success( \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) );
+        $snapshot = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() );
+        // #5021 — a Report Studio snapshot is part of the Studio's plan.
+        if ( $snapshot !== null && $snapshot['document'] !== null ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'report_studio' );
+            if ( $blocked ) return $blocked;
+        }
+        return RestResponse::success( $snapshot );
     }
 
     /** #3890 — `PUT /player-report-snapshots/{uuid}/notes/{section}`. */

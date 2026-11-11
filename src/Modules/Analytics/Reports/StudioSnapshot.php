@@ -16,6 +16,35 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class StudioSnapshot {
 
+    /** @var array<string,bool> table name => has `report_id`, for this request */
+    private static array $columns = [];
+
+    /**
+     * Does this snapshot table have the `report_id` column yet? Until 0327
+     * has run, a lookup leaves its Studio clause out: no Studio row can exist
+     * without the column, so the answer is the same. Memoised per request,
+     * as `AlertDigestQuery` memoises its column.
+     */
+    public static function hasColumn( string $table ): bool {
+        if ( ! isset( self::$columns[ $table ] ) ) {
+            global $wpdb;
+            $found = $wpdb->get_results( "SHOW COLUMNS FROM {$wpdb->prefix}{$table} LIKE 'report_id'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- a fixed table name
+            self::$columns[ $table ] = is_array( $found ) && $found !== [];
+        }
+        return self::$columns[ $table ];
+    }
+
+    /**
+     * Drop the per-request column cache, or pin it: `false` acts as if 0327
+     * had not run. Tests use this.
+     */
+    public static function flushColumnCache( ?bool $pin = null ): void {
+        self::$columns = $pin === null ? [] : [
+            'tt_player_report_snapshots' => $pin,
+            'tt_team_report_snapshots'   => $pin,
+        ];
+    }
+
     /** Is this row a Studio report's snapshot? */
     public static function is( object $row ): bool {
         return (int) ( $row->report_id ?? 0 ) > 0;

@@ -45,9 +45,16 @@ final class ReportStudioPdfExporter implements ExporterInterface, ScopeGatedExpo
     /** Non-tabular exporter — opts out of the column picker. */
     public function availableColumns(): array { return []; }
 
-    /** Coarse gate: someone who reads the Studio at all. The report is checked in `collect()`. */
+    /**
+     * Coarse gate: any `reports` read at all, as the player report's PDF
+     * asks, so staff who open a Studio snapshot on a player's file can print
+     * it. The report, or the snapshot's subject, is checked in `collect()`.
+     */
     public function isAvailableFor( int $user_id ): bool {
-        return user_can( $user_id, 'tt_view_reports' ) && ReportReader::for( $user_id )->readsStudio();
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, 'reports', 'read' );
+        }
+        return user_can( $user_id, 'tt_view_reports' );
     }
 
     /**
@@ -107,7 +114,8 @@ final class ReportStudioPdfExporter implements ExporterInterface, ScopeGatedExpo
 
         $report = ( new ReportsRepository() )->find( (int) ( $request->filters['report_id'] ?? 0 ) );
         $reader = ReportReader::for( $user_id );
-        if ( $report === null || ! ReportAccess::canRead( $reader, $report ) ) {
+        // A live report is read in the Studio, which this reader must read.
+        if ( $report === null || ! $reader->readsStudio() || ! ReportAccess::canRead( $reader, $report ) ) {
             throw new ExportException( 'forbidden', __( 'This report is not shared with you.', 'talenttrack' ) );
         }
 
