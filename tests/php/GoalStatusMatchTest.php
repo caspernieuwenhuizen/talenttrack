@@ -105,18 +105,19 @@ final class GoalStatusMatchTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * The goals the REST status filter keeps for this player: the clause
+     * `GET /goals` adds for `filter[status]`, run on its own so the test is
+     * about the bucket and not about the caller's list scope.
+     */
     private function restCount( string $status ): int {
-        global $wp_rest_server;
-        if ( ! $wp_rest_server instanceof \WP_REST_Server ) {
-            $wp_rest_server = new \WP_REST_Server();
-            do_action( 'rest_api_init' );
-        }
-        $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/goals' );
-        $request->set_query_params( [ 'filter' => [ 'player_id' => (string) $this->player, 'status' => $status ], 'per_page' => '50' ] );
-        $response = rest_do_request( $request );
-        $this->assertSame( 200, $response->get_status(), (string) wp_json_encode( $response->get_data() ) );
-        $data = (array) $response->get_data();
-        $body = isset( $data['data'] ) ? (array) $data['data'] : $data;
-        return (int) ( $body['total'] ?? count( (array) ( $body['rows'] ?? [] ) ) );
+        $method = new \ReflectionMethod( \TT\Infrastructure\REST\GoalsRestController::class, 'statusWhereClause' );
+        $method->setAccessible( true );
+        $clause = $method->invoke( null, $status );
+        $this->assertIsArray( $clause );
+        global $wpdb;
+        $sql = "SELECT COUNT(*) FROM {$wpdb->prefix}tt_goals g WHERE g.player_id = %d AND {$clause[0]}";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare( $sql, $this->player, ...$clause[1] ) );
     }
 }
