@@ -41,7 +41,7 @@ final class MigrationLinkMap {
             'tt_people'      => [ 'wp_user_id', 'archived_by', 'trashed_by' ],
             'tt_evaluations' => [ 'coach_id', 'archived_by', 'trashed_by' ],
             'tt_activities'  => [ 'coach_id', 'planned_by', 'created_by', 'updated_by', 'archived_by', 'trashed_by' ],
-            'tt_attendance'  => [ 'recorded_by' ],
+            'tt_attendance'  => [ 'recorded_by' ], /* both-kinds-ok */
             'tt_goals'       => [ 'created_by', 'archived_by', 'trashed_by' ],
         ];
     }
