@@ -391,9 +391,8 @@ final class PlayerReportSnapshots {
 
     /**
      * Opening a snapshot is a read of what it still shows this reader after
-     * the cut (`InjuryReads`): the injuries listed, from a Report Studio
-     * copy's injuries block too, and a player report's journey medical and
-     * safeguarding entries.
+     * the cut (`InjuryReads`): the injuries listed and the journey's medical
+     * and safeguarding entries. A Report Studio copy holds them as blocks.
      *
      * @param array{data:array<string,array<string,mixed>>}   $report
      * @param array{blocks:list<array<string,mixed>>}|null     $document
@@ -420,8 +419,8 @@ final class PlayerReportSnapshots {
                 $extra
             );
         }
-        if ( isset( $report['data'][ PlayerReportBlock::JOURNEY ] ) ) {
-            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'player_report_snapshot', $player_id, $report['data'][ PlayerReportBlock::JOURNEY ], [ $user_id ], $extra );
+        if ( isset( $sections[ PlayerReportBlock::JOURNEY ] ) ) {
+            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'player_report_snapshot', $player_id, $sections[ PlayerReportBlock::JOURNEY ], [ $user_id ], $extra );
         }
     }
 }

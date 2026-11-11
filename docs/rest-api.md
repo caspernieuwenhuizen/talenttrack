@@ -1147,7 +1147,9 @@ cut still holds one), and none for a reader without those levels. The Report
 Studio's injuries block writes `player.injuries_viewed` with `surface`
 `report_studio` when it shows injuries, and opening a Studio player snapshot
 whose injuries block still lists some after the reader's cut writes one with
-`surface` `player_report_snapshot`. All of these go through `InjuryReads`,
+`surface` `player_report_snapshot`. Its journey block, live and in a Studio
+snapshot, writes `player.sensitive_timeline_viewed` for the medical and
+safeguarding entries it shows, with the same surfaces. All of these go through `InjuryReads`,
 which writes at most one row per action, player and reader in a request,
 nothing inside `InjuryReads::quietly()`, and every row of one read in a single
 insert (`AuditService::recordMany()`).

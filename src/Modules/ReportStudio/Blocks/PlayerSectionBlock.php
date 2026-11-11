@@ -165,6 +165,10 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
                 [ $context->userId ]
             );
         }
+        // And the journey block's medical and safeguarding entries.
+        if ( $section === PlayerReportBlock::JOURNEY ) {
+            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'report_studio', $context->playerId, $shown, [ $context->userId ] );
+        }
         return $shown;
     }
 

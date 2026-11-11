@@ -204,12 +204,52 @@ final class ReportStudioSnapshotSectionsTest extends WP_UnitTestCase {
         $this->assertSame( $before, $this->injuryRows( 'player_report_snapshot' ), 'nothing while quiet' );
     }
 
+    public function test_the_live_journey_block_logs_its_medical_entry_once_per_reader(): void {
+        $context = [ 'scope' => 'player', 'player_id' => $this->player, 'from' => self::FROM, 'to' => self::TO, 'audience' => 'internal' ];
+        $key     = PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::JOURNEY ];
+
+        foreach ( [ [ $this->assistant, 0 ], [ $this->hod, 1 ] ] as [ $reader, $rows ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            $before = $this->sensitiveRows( 'report_studio' );
+            $shown  = BlockEngine::preview( $key, $context, [], $reader );
+            $this->assertIsArray( $shown );
+            $this->assertSame( $rows === 1, str_contains( (string) wp_json_encode( $shown ), self::MEDICAL ), 'Precondition: the block shows the medical entry to this reader or not.' );
+            $this->assertSame( $before + $rows, $this->sensitiveRows( 'report_studio' ), 'one row where the block shows a medical entry, none where it shows none' );
+
+            SharedReads::flush();
+            BlockEngine::preview( $key, $context, [], $reader );
+            $this->assertSame( $before + $rows, $this->sensitiveRows( 'report_studio' ), 'one read per player and reader in a request' );
+        }
+    }
+
+    public function test_opening_a_studio_snapshot_logs_the_medical_journey_entry_it_still_shows(): void {
+        $uuid = $this->snapshot( $this->published() );
+
+        foreach ( [ [ $this->assistant, 0 ], [ $this->hod, 1 ] ] as [ $reader, $rows ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            $before = $this->sensitiveRows( 'player_report_snapshot' );
+            $this->assertSame( 200, $this->send( 'GET', "report-snapshots/{$uuid}" )->get_status() );
+            $this->assertSame( $before + $rows, $this->sensitiveRows( 'player_report_snapshot' ), 'after the reader\'s cut' );
+        }
+    }
+
     // ---- helpers ---------------------------------------------------------------------
 
     private function injuryRows( string $surface ): int {
+        return $this->auditRows( 'player.injuries_viewed', $surface );
+    }
+
+    private function sensitiveRows( string $surface ): int {
+        return $this->auditRows( 'player.sensitive_timeline_viewed', $surface );
+    }
+
+    private function auditRows( string $action, string $surface ): int {
         global $wpdb;
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $action,
             $this->player,
             '%"surface":"' . $wpdb->esc_like( $surface ) . '"%'
         ) );
