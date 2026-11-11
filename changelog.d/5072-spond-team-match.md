@@ -1,0 +1,3 @@
+# Spond sync updates the syncing team's own activity first (#5072)
+
+When two activities in one club shared a Spond event id, for example after importing an archive back into the same install or with two teams on one Spond group, the sync updated whichever one the database returned first. The other went stale. The sync now looks for the event on the team being synced first. Only when that team has no such activity does it fall back to the club, oldest first. So an activity a coach moved to another team in TalentTrack is still updated by the old team's feed, without being added a second time. The sync never changes an activity's team.
