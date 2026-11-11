@@ -108,6 +108,10 @@ use TT\Shared\Frontend\ShellPreference;
  * than to one tab, such as the form a PDP talk uses and its switch. It
  * renders wherever the tabs do, `classic` included, and wraps under the
  * tabs on a phone. A strip without an `aside` renders exactly as before.
+ *
+ * The aside holds a control for the open record, and never navigation:
+ * no links to other modules (that is the shell's, CLAUDE.md §5b) and no
+ * second tab strip (tabs come from this component's `tabs`, §5c).
  */
 final class RecordSpine {
 

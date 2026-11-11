@@ -64,7 +64,7 @@ Voor elk gesprek wordt automatisch een native agenda-item bijgehouden.
 
 Een gesprek opent op drie tabbladen — **Voorbereiding**, **Gesprek**, **Achtergrond** — en start op het tabblad dat je nodig hebt: Voorbereiding zolang het gesprek nog voor je ligt, Gesprek zodra het gevoerd is.
 
-De pagina opent op de speler: foto of initialen, naam, team, rugnummer en positie, en één regel voor het gesprek, zoals *Mid-seizoen · gesprek 2 van 3 · gepland 12 nov, 18:00*, of *gehouden* met de datum zodra het gevoerd is. Het kruimelpad eindigt bij de naam van de speler en dan het gesprek. Bij een gesprek met een gespreksformulier staat het formulier dat in gebruik is (**Formulier: Veldspeler** of **Formulier: Keeper**) rechts in de rij tabbladen, met de wisselknop zolang wisselen nog kan. Op een telefoon staat het onder de tabbladen.
+De pagina opent op de speler: foto of initialen, naam, team, rugnummer en positie, en één regel voor het gesprek, zoals *Mid-seizoen · gesprek 2 van 3 · gepland 12 nov, 18:00*, of *gehouden* met de datum zodra het gevoerd is. Met de app-indeling blijft een smalle strook met dezelfde naam bovenaan staan terwijl je scrolt. Het kruimelpad eindigt bij de naam van de speler en dan het gesprek. Bij een gesprek met een gespreksformulier staat het formulier dat in gebruik is (**Formulier: Veldspeler** of **Formulier: Keeper**) rechts in de rij tabbladen, met de wisselknop zolang wisselen nog kan. Op een telefoon staat het onder de tabbladen.
 
 - **Voorbereiding** — de eigen antwoorden van de trainer op de vragenset van dit gesprek. Alleen voor de trainer en het hoofd opleiding.
 - **Gesprek** — de zelfreflectie van de speler, en daarna de notities, afgesproken acties en ondertekening uit het gesprek zelf.

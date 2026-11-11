@@ -1,13 +1,16 @@
 // @ts-check
 /**
- * #5079 — the PDP talk names its player and the talk, the tab reads
- * "Background", and the form in use sits in the tab row: on a phone it
- * wraps under the tabs, with a 48px switch and no sideways scroll.
+ * #5079 — the PDP talk opens on a visible hero (photo or initials, name,
+ * team · shirt number · position, the talk line) in both shells, the tab
+ * reads "Background", and the form in use sits in the tab row: on a phone it
+ * wraps under the tabs, with a 48px switch and no sideways scroll. Under the
+ * app shell the stuck spine sits below the shell's header, never under it.
  *
  * The talk is `Mila Trainer4980`'s, from `tests/e2e/setup/pdp-preparation.php`.
  * This spec only reads it; `pdp-trainer-form.spec.js` fills it in later.
  */
 const { test, expect } = require( '@playwright/test' );
+const { openTalk, underAppShell, onTop } = require( './helpers/pdp-talk' );
 
 test.use( {
 	storageState: 'tests/e2e/.auth/admin.json',
@@ -16,51 +19,23 @@ test.use( {
 	isMobile: true,
 } );
 
-/**
- * A REST GET with the dashboard's nonce.
- *
- * @param {import('@playwright/test').Page} page
- * @param {string} path
- */
-function get( page, path ) {
-	return page.evaluate( async ( p ) => {
-		const res = await fetch( window.TT.rest_url + p, {
-			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': window.TT.rest_nonce },
-		} );
-		let json = null;
-		try { json = await res.json(); } catch ( _e ) { json = null; }
-		return { status: res.status, json };
-	}, path );
-}
+test.describe.configure( { mode: 'serial' } );
 
-/** The rows of a list answer, whichever envelope it uses. */
-function rowsOf( json ) {
-	const data = json && json.data !== undefined ? json.data : json;
-	if ( Array.isArray( data ) ) return data;
-	if ( data && Array.isArray( data.rows ) ) return data.rows;
-	if ( data && Array.isArray( data.items ) ) return data.items;
-	return [];
+/** @param {import('@playwright/test').Page} page */
+async function expectHero( page ) {
+	const hero = page.locator( '.tt-pdp-talk-hero' );
+	await expect( hero ).toBeVisible();
+	await expect( page.locator( 'h1' ), 'exactly one h1' ).toHaveCount( 1 );
+	await expect( hero.locator( 'h1.tt-player-hero__name' ) ).toHaveText( /Trainer4980/ );
+	await expect( hero.locator( '.tt-player-hero__avatar' ) ).toBeVisible();
+	await expect( hero.locator( '.tt-player-hero__sub' ).last() ).toContainText( 'conversation 1 of' );
 }
 
 test( 'the talk names the player, reads Background, and keeps the form in the tab row', async ( { page } ) => {
-	await page.goto( '/?tt_view=pdp' );
-	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	await openTalk( page );
 
-	const files = await get( page, 'pdp-files?search=Trainer4980' );
-	const file  = rowsOf( files.json ).find( ( r ) => r && r.id );
-	expect( file, 'the fixture file: run tests/e2e/setup/pdp-preparation.php first. ' + JSON.stringify( files.json ) ).toBeTruthy();
-	const detail = await get( page, 'pdp-files/' + file.id );
-	const convs  = ( detail.json && detail.json.data && detail.json.data.conversations ) || [];
-	const conv   = convs.find( ( c ) => Number( c.sequence ) === 1 ) || convs[ 0 ];
-	expect( conv && conv.id, 'the first talk' ).toBeTruthy();
-
-	await page.goto( `/?tt_view=pdp&id=${ file.id }&conv=${ conv.id }` );
-	await page.waitForLoadState( 'load', { timeout: 30000 } );
-
-	// The page is about Mila, and about this talk.
-	await expect( page.locator( 'h1.tt-pdp-conv-title' ) ).toHaveText( /Trainer4980/ );
-	await expect( page.locator( '.tt-pdp-conv-talkline' ) ).toContainText( 'conversation 1 of' );
+	// The page is about Mila, and about this talk: a visible hero.
+	await expectHero( page );
 	await expect( page.locator( 'nav.tt-breadcrumbs' ).first() ).toContainText( 'Trainer4980' );
 
 	// The tab is called Background, and says what it holds.
@@ -83,6 +58,8 @@ test( 'the talk names the player, reads Background, and keeps the form in the ta
 		const box = await switchButton.boundingBox();
 		expect( box && box.height >= 48, 'the switch is at least 48px tall' ).toBe( true );
 		await expect( switchButton ).toHaveAttribute( 'aria-describedby', /tt-pdp-form-switch-help-/ );
+		const framed = await aside.locator( 'form' ).evaluate( ( f ) => getComputedStyle( f ).borderTopWidth );
+		expect( framed, 'the switch is not framed as a card' ).toBe( '0px' );
 	}
 	await expect( page.locator( '.tt-pdp-form-switch' ), 'one form block, in the tab row only' ).toHaveCount( 1 );
 
@@ -91,4 +68,36 @@ test( 'the talk names the player, reads Background, and keeps the form in the ta
 
 	await background.tap();
 	await expect( page.locator( '.tt-pdp-background-lede' ) ).toHaveText( 'What is on record about the player this season, to support the talk.' );
+} );
+
+test( 'under the app shell: the hero, and a stuck spine the shell header does not cover', async ( { page } ) => {
+	await page.setViewportSize( { width: 360, height: 640 } );
+	await underAppShell( page, async () => {
+		await openTalk( page );
+		await expectHero( page );
+
+		const spine = page.locator( '.tt-spine' ).first();
+		const name  = spine.locator( '.tt-spine__name' );
+		await expect( name ).toHaveText( /Trainer4980/ );
+
+		// Scroll well past the hero, so the spine is stuck.
+		await page.evaluate( () => window.scrollTo( 0, document.scrollingElement.scrollHeight ) );
+		await page.waitForTimeout( 300 );
+		expect( await onTop( name, '.tt-spine' ), 'the stuck spine\'s name is not under the shell header' ).toBe( true );
+
+		// The stuck chrome at 360x640, for the PR: the shell header and the
+		// spine with its aside wrapped. The spine's own budget is 30vh.
+		const sizes = await page.evaluate( () => {
+			const header = document.querySelector( '.tt-dash-header' );
+			const sp     = document.querySelector( '.tt-spine' );
+			return {
+				header: header ? Math.round( header.getBoundingClientRect().height ) : 0,
+				spine:  sp ? Math.round( sp.getBoundingClientRect().height ) : 0,
+				top:    sp ? Math.round( sp.getBoundingClientRect().top ) : 0,
+			};
+		} );
+		console.log( 'stuck chrome at 360x640: ' + JSON.stringify( sizes ) );
+		test.info().annotations.push( { type: 'stuck-chrome-360x640', description: JSON.stringify( sizes ) } );
+		expect( sizes.top, 'the spine sticks at the header\'s bottom edge' ).toBeGreaterThanOrEqual( sizes.header - 1 );
+	} );
 } );

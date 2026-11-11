@@ -1296,16 +1296,12 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        // #5079 — the page names the player and the talk. The spine carries
-        // both under the app shell; its identity strip is aria-hidden there,
-        // so the heading stays for assistive tech, visually hidden. Under
-        // `classic` the spine draws no identity, and the heading is the only
-        // name on the page, so it shows. Exactly one of the two is seen.
-        $identity  = self::talkIdentity( $file, $conv, $convs_repo );
-        $is_app    = \TT\Shared\Frontend\ShellPreference::isApp();
-        $sr_suffix = $is_app ? ' tt-screen-reader-text' : '';
-        echo '<h1 class="tt-fview-title tt-pdp-conv-title' . esc_attr( $sr_suffix ) . '">' . esc_html( $identity['name'] ) . '</h1>';
-        echo '<p class="tt-pdp-conv-talkline' . esc_attr( $sr_suffix ) . '">' . esc_html( $identity['talk'] ) . '</p>';
+        // #5079 — the page opens on the player and the talk: a visible hero
+        // in both shells, whose name is the page's h1. Under the app shell
+        // the spine below carries the same identity as the strip that stays
+        // in view while scrolling (its copy is aria-hidden for that reason).
+        $identity = self::talkIdentity( $file, $conv, $convs_repo );
+        self::renderTalkHero( $identity );
 
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
 
@@ -2339,7 +2335,7 @@ class FrontendPdpManageView extends FrontendViewBase {
      * and one line for the talk ("Mid season · conversation 2 of 3 ·
      * planned …", or "held …" once conducted).
      *
-     * @return array{name:string, photo_url:string, meta:string, talk:string}
+     * @return array{name:string, photo_url:string, status:string, meta:string, talk:string}
      */
     private static function talkIdentity( object $file, object $conv, PdpConversationsRepository $convs_repo ): array {
         $f      = (array) $file;
@@ -2395,9 +2391,46 @@ class FrontendPdpManageView extends FrontendViewBase {
         return [
             'name'      => $name,
             'photo_url' => $player ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '',
+            'status'    => $player ? (string) ( ( (array) $player )['status'] ?? '' ) : '',
             'meta'      => implode( ' · ', $meta ),
             'talk'      => $talk,
         ];
+    }
+
+    /**
+     * #5079 — the talk page's hero: photo or initials, the player's name as
+     * the page's h1, team · shirt number · position, and the talk line.
+     *
+     * The markup and styling are the player profile's own hero
+     * (`tt-player-detail__hero`, `tt-player-hero__*`), reused the way team
+     * detail does, with no CSS of its own. A one-off copy until the shared
+     * hero component (#5107) exists.
+     *
+     * @param array{name:string, photo_url:string, status:string, meta:string, talk:string} $identity
+     */
+    private static function renderTalkHero( array $identity ): void {
+        wp_enqueue_style(
+            'tt-frontend-player-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        echo '<header class="tt-player-detail__hero tt-pdp-talk-hero" aria-label="' . esc_attr__( 'Player', 'talenttrack' ) . '">';
+        echo '<div class="tt-player-hero__row">';
+        echo '<div class="tt-player-hero__avatar" data-status="' . esc_attr( $identity['status'] ) . '" aria-hidden="true">';
+        if ( $identity['photo_url'] !== '' ) {
+            echo '<img class="tt-player-hero__photo" src="' . esc_url( $identity['photo_url'] ) . '" alt="" width="72" height="72" />';
+        } else {
+            echo esc_html( \TT\Shared\Frontend\Components\RecordSpine::initials( $identity['name'] ) );
+        }
+        echo '</div>';
+        echo '<div class="tt-player-hero__main">';
+        echo '<h1 class="tt-player-hero__name">' . esc_html( $identity['name'] ) . '</h1>';
+        if ( $identity['meta'] !== '' ) {
+            echo '<p class="tt-player-hero__sub">' . esc_html( $identity['meta'] ) . '</p>';
+        }
+        echo '<p class="tt-player-hero__sub"><strong>' . esc_html( $identity['talk'] ) . '</strong></p>';
+        echo '</div></div></header>';
     }
 
     private static function decisionLabel( string $decision ): string {

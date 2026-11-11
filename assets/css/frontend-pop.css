@@ -952,6 +952,13 @@
     color: var(--tt-ink, #0e1a14);
 }
 .tt-pdp-form-switch__current .tt-icon { flex: 0 0 auto; color: var(--tt-ink-soft, #6a6d66); }
+/* Unframed in the tab row: `.tt-ajax-form` draws a card by default. */
+.tt-dashboard .tt-pdp-form-switch__form.tt-ajax-form {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    max-width: none;
+}
 .tt-pdp-form-switch__form {
     display: flex;
     flex-wrap: wrap;

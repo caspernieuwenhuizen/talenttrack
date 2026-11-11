@@ -19,7 +19,8 @@
 
 .tt-shell-app .tt-spine {
     position: sticky;
-    top: 0;
+    /* Below the shell's own sticky header, not under it (#5079). */
+    top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px));
     z-index: 10;
     background: var(--tt-paper, #fff);
     border-radius: var(--tt-radius, 8px);

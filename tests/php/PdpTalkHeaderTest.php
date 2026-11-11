@@ -83,7 +83,25 @@ final class PdpTalkHeaderTest extends WP_UnitTestCase {
         $this->assertSame( 1, substr_count( $html, 'class="tt-spine__detail"' ) );
 
         $this->assertStringNotContainsString( 'Conversation 1 (Start of season)</h1>', $html, 'the old title is gone' );
-        $this->assertStringContainsString( 'tt-pdp-conv-title tt-screen-reader-text">Mila Kopregel</h1>', $html, 'the heading stays for assistive tech' );
+        $this->assertStringNotContainsString( 'tt-screen-reader-text">Mila Kopregel', $html, 'the heading is not hidden' );
+        $this->assertHero( $html );
+    }
+
+    public function test_under_both_shells_a_visible_hero_names_the_player_once(): void {
+        foreach ( [ ShellPreference::APP, ShellPreference::CLASSIC ] as $shell ) {
+            ShellPreference::setClubDefault( $shell );
+            $this->assertHero( $this->page() );
+        }
+    }
+
+    private function assertHero( string $html ): void {
+        $this->assertSame( 1, substr_count( $html, '<h1' ), 'exactly one h1' );
+        $this->assertStringContainsString( '<header class="tt-player-detail__hero tt-pdp-talk-hero"', $html );
+        $this->assertStringContainsString( '<h1 class="tt-player-hero__name">Mila Kopregel</h1>', $html );
+        $this->assertMatchesRegularExpression( '#<div class="tt-player-hero__avatar" data-status="active" aria-hidden="true">MK</div>#', $html, 'initials without a photo' );
+        $meta = 'Header O15-1 · #7 · ' . LabelTranslator::positionLabel( 'CM' );
+        $this->assertStringContainsString( '<p class="tt-player-hero__sub">' . esc_html( $meta ) . '</p>', $html, 'team, shirt number and position' );
+        $this->assertStringContainsString( '<p class="tt-player-hero__sub"><strong>Start of season · conversation 1 of 3 · planned', $html, 'the talk line' );
     }
 
     public function test_the_tab_reads_background(): void {
@@ -113,8 +131,7 @@ final class PdpTalkHeaderTest extends WP_UnitTestCase {
         $html = $this->page();
 
         $this->assertStringNotContainsString( 'tt-spine__id', $html, 'the identity strip is app-only' );
-        $this->assertStringContainsString( '<h1 class="tt-fview-title tt-pdp-conv-title">Mila Kopregel</h1>', $html );
-        $this->assertStringContainsString( '<p class="tt-pdp-conv-talkline">Start of season · conversation 1 of 3 · planned', $html );
+        $this->assertHero( $html );
         $this->assertStringContainsString( 'role="tablist"', $html, 'the tabs still render' );
     }
 
