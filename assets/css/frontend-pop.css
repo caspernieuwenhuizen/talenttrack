@@ -1397,6 +1397,18 @@
     cursor: pointer;
     touch-action: manipulation;
 }
+.tt-pdp-formread__title { margin: 0; font-size: 1rem; scroll-margin-top: 4.5rem; }
+.tt-pdp-formread__title:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 2px; }
+/* The notice that a signed form waits for "I have read it". */
+.tt-pdp-awaiting p { margin: 0 0 0.25rem; }
+.tt-pdp-awaiting ul { margin: 0; padding: 0; list-style: none; }
+.tt-pdp-awaiting a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tt-tap-min, 48px);
+    font-weight: 600;
+    touch-action: manipulation;
+}
 .tt-pdp-formread__sum:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 2px; }
 .tt-pdp-formread__savg { font-size: 0.8rem; font-weight: 600; color: var(--tt-muted, #5b6470); }
 .tt-pdp-formread__items { margin: 0; padding: 0; list-style: none; }

@@ -3,8 +3,8 @@ msgid "Says a development talk has been signed off and asks to read and confirm 
 msgstr "Meldt dat een ontwikkelgesprek is ondertekend en vraagt het te lezen en te bevestigen."
 
 #: src/Modules/Comms/Template/TemplateGuide.php
-msgid "The player, and the parents when the child shares the development plan with them."
-msgstr "De speler, en de ouders als het kind het ontwikkelplan met hen deelt."
+msgid "The player and the parents, by the child's age as for other messages about a player, and parents only when the child shares the development plan with them."
+msgstr "De speler en de ouders, naar de leeftijd van het kind zoals bij andere berichten over een speler, en ouders alleen als het kind het ontwikkelplan met hen deelt."
 
 #: src/Modules/Comms/Template/TemplateGuide.php
 msgid "When the trainer signs off a conversation form."
@@ -103,3 +103,22 @@ msgstr "Gelezen"
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
 msgid "You confirmed you read it on %s."
 msgstr "Je hebt op %s bevestigd dat je het hebt gelezen."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "You can confirm this conversation once you may read its form."
+msgstr "Je kunt dit gesprek bevestigen zodra je het formulier mag lezen."
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "The signed conversation form"
+msgstr "Het ondertekende gespreksformulier"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "A signed development talk is waiting for you to read and confirm it."
+msgid_plural "Signed development talks are waiting for you to read and confirm them."
+msgstr[0] "Er staat een ondertekend ontwikkelgesprek voor je klaar om te lezen en te bevestigen."
+msgstr[1] "Er staan ondertekende ontwikkelgesprekken voor je klaar om te lezen en te bevestigen."
+
+#. translators: %s: the talk's name, e.g. "Start-of-season talk"
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "Read %s"
+msgstr "%s lezen"

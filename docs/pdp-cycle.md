@@ -240,7 +240,8 @@ On the conversation screen, a talk that uses a conversation form shows the form 
 
 Once the trainer signs off, the player and the family are told and can read the whole talk in *My PDP*.
 
-- **One message on sign-off**, to the player and to each linked parent who may see the development plan. A parent does not get it while the player keeps their PDP from them, or while the academy has not opened development information to the family. The message links to *My PDP*. It is sent once; signing off cannot happen twice.
+- **One message on sign-off**, to the same people as other messages about the player, by age: up to ten the parents, at eleven the player and the parents, from twelve the player. Of the parents, only those who may see the development plan get it: not while the player keeps their PDP from them, or while the academy has not opened development information to the family. A parent who is not told still reads and confirms the talk in *My PDP*. The message opens *My PDP* at the talk, with the signed form in view. It is sent once; signing off cannot happen twice.
+- **While a signed form waits for your confirmation**, a notice at the top of *My PDP* says so and links to it. It goes once you have confirmed.
 - **The signed form, one fold per section.** The title of each fold shows the player's average and the trainer's. Inside, every item shows both scores with their labels, followed by the trainer's notes for that section. The first fold is open; the others open with a tap or with Enter.
 - **A player who did not prepare** reads "not filled in" in their own column. The trainer's scores are there all the same.
 - **Below the folds**: the agreed strongest quality with what the player wrote under it, and the two development points with the action, how the trainer helps, the deadline and a link to the goal.

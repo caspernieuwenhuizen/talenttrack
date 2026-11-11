@@ -57,9 +57,37 @@
 		} );
 	}
 
+	/*
+	 * #4981 — the signed-off message links to `…&conv=N#tt-pdp-read-N`. The
+	 * server draws that panel open; here the reader lands on the signed
+	 * form's heading, scrolled to and focused, so a screen reader starts
+	 * there too.
+	 */
+	function landOnReadView() {
+		var hash = window.location.hash || '';
+		if ( hash.indexOf( '#tt-pdp-read-' ) !== 0 ) {
+			return;
+		}
+		var heading = document.getElementById( hash.slice( 1 ) );
+		if ( ! heading ) {
+			return;
+		}
+		var panel = heading.closest( '.tt-pdp-panel' );
+		if ( panel && panel.hidden ) {
+			var marker = document.querySelector( '.tt-pdp-marker[aria-controls="' + panel.id + '"]' );
+			if ( marker ) {
+				marker.setAttribute( 'aria-expanded', 'true' );
+			}
+			panel.hidden = false;
+		}
+		heading.scrollIntoView( { block: 'start' } );
+		heading.focus( { preventScroll: true } );
+	}
+
 	function boot() {
 		var seasons = document.querySelectorAll( '.tt-pdp-season' );
 		Array.prototype.forEach.call( seasons, init );
+		landOnReadView();
 	}
 
 	if ( document.readyState === 'loading' ) {

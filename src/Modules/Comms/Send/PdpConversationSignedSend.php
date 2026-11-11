@@ -26,12 +26,11 @@ use TT\Shared\Frontend\Components\RecordLink;
  * retried sign-off does not fire it, so nothing is sent twice. It is sent
  * whether or not the player prepared.
  *
- * Recipients: the player, and every linked parent the child's `pdp` sharing
- * switch lets read the PDP, whatever the age tier (the conversation is about
- * the child, and both of them are asked to confirm it). Development content,
- * so a family whose development record is closed is not told
- * (`ParentChildResolver::isDevelopmentOpen()`). The dispatcher sends each in
- * their own language and respects quiet hours and opt-outs.
+ * Recipients follow the age tiers like every message about one player
+ * (`RecipientResolver::forPlayer()`, development content), and of the
+ * parents in the tier only those the child's `pdp` switch lets read the PDP.
+ * The dispatcher sends each in their own language and respects quiet hours
+ * and opt-outs.
  */
 final class PdpConversationSignedSend {
 
@@ -58,37 +57,61 @@ final class PdpConversationSignedSend {
         $recipients = self::recipients( $player_id );
         if ( $recipients === [] ) return [];
 
-        return CommsDispatcher::dispatchSync(
-            PdpConversationSignedTemplate::KEY,
-            [
-                'player_name'       => trim( (string) $conv->first_name . ' ' . (string) $conv->last_name ),
-                'conversation_name' => PdpConversationTemplate::label( (string) $conv->template_key ),
-                'deep_link'         => add_query_arg( [ 'tt_view' => 'my-pdp' ], RecordLink::dashboardUrl() ),
-            ],
-            $recipients,
-            [
-                'message_type'      => MessageType::PDP_READY,
-                'sender_user_id'    => 0,
-                'subject_player_id' => $player_id,
-                'subject_type'      => 'pdp_conversation',
-                'subject_id'        => $conversation_id,
-            ]
-        );
+        // Each reader lands on the talk, open, at its signed form. A parent's
+        // link carries the child, so a parent of two lands on the right one.
+        $groups = [ 'self' => [], 'parent' => [] ];
+        foreach ( $recipients as $r ) {
+            $groups[ $r->kind === Recipient::KIND_PARENT ? 'parent' : 'self' ][] = $r;
+        }
+
+        $results = [];
+        foreach ( $groups as $group => $members ) {
+            if ( $members === [] ) continue;
+            $results = array_merge( $results, CommsDispatcher::dispatchSync(
+                PdpConversationSignedTemplate::KEY,
+                [
+                    'player_name'       => trim( (string) $conv->first_name . ' ' . (string) $conv->last_name ),
+                    'conversation_name' => PdpConversationTemplate::label( (string) $conv->template_key ),
+                    'deep_link'         => self::link( $conversation_id, $group === 'parent' ? $player_id : null ),
+                ],
+                $members,
+                [
+                    'message_type'      => MessageType::PDP_READY,
+                    'sender_user_id'    => 0,
+                    'subject_player_id' => $player_id,
+                    'subject_type'      => 'pdp_conversation',
+                    'subject_id'        => $conversation_id,
+                ]
+            ) );
+        }
+        return $results;
     }
 
     /**
-     * The player, and every parent the child's `pdp` switch allows.
+     * My PDP with the talk open at its signed form (#4981, #5040 walk). The
+     * view opens the panel `conv` names; the fragment is the read view's
+     * heading, which the page's script focuses.
+     */
+    public static function link( int $conversation_id, ?int $child_id ): string {
+        $args = [ 'tt_view' => 'my-pdp', 'conv' => $conversation_id ];
+        if ( $child_id !== null && $child_id > 0 ) $args['player_id'] = $child_id;
+        return add_query_arg( $args, RecordLink::dashboardUrl() ) . '#tt-pdp-read-' . $conversation_id;
+    }
+
+    /**
+     * Who is told: the player's tiered audience (#0042), as for every other
+     * message about one player, and of its parents only those the child's
+     * `pdp` switch lets read the PDP. A parent outside the tier is not told,
+     * and still reads and confirms the talk in My PDP.
      *
      * @return list<Recipient>
      */
     public static function recipients( int $player_id ): array {
-        $development_open = ParentChildResolver::isDevelopmentOpen( $player_id );
-        $shared           = ( new PlayerParentVisibilityRepository() )->isVisible( $player_id, 'pdp' );
+        $shared = ( new PlayerParentVisibilityRepository() )->isVisible( $player_id, 'pdp' );
 
         $out = [];
-        foreach ( ( new RecipientResolver() )->forPlayerWithParents( $player_id ) as $r ) {
+        foreach ( ( new RecipientResolver() )->forPlayer( $player_id, true ) as $r ) {
             if ( $r->kind === Recipient::KIND_PARENT ) {
-                if ( ! $development_open ) continue;
                 // A parent with an account answers the same question as the
                 // PDP screen; a contact without one follows the switch.
                 $allowed = $r->userId > 0

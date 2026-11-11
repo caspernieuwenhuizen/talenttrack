@@ -263,7 +263,7 @@ final class TemplateGuide {
             'pdp_conversation_signed' => [
                 'family'    => self::FAMILY_MILESTONE,
                 'what'      => __( 'Says a development talk has been signed off and asks to read and confirm it.', 'talenttrack' ),
-                'who'       => __( 'The player, and the parents when the child shares the development plan with them.', 'talenttrack' ),
+                'who'       => __( 'The player and the parents, by the child\'s age as for other messages about a player, and parents only when the child shares the development plan with them.', 'talenttrack' ),
                 'when'      => __( 'When the trainer signs off a conversation form.', 'talenttrack' ),
                 'triggered' => true,
             ],

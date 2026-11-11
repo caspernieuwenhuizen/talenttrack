@@ -180,6 +180,31 @@ class PdpConversationsRestController {
             );
         }
 
+        // #4981 (#5040 review) — the player and a parent confirm what they
+        // read, at the moment they confirm it. The server stamps the time:
+        // a value from the browser is the page's render time, or any date a
+        // hand-made request chose. Staff recording an acknowledgement on the
+        // family's behalf keep the time they enter.
+        $is_staff = PdpAccess::canEditFile( get_current_user_id(), (int) $file->player_id );
+        if ( ! $is_staff ) {
+            foreach ( $acks as $field ) {
+                if ( $patch[ $field ] !== null ) $patch[ $field ] = current_time( 'mysql', true );
+            }
+        }
+        // On a form talk a parent confirms the signed form, so only a parent
+        // who may read it: the trainer's part follows the child's `pdp`
+        // switch (decision 7).
+        if ( $on_form && ! $is_staff && in_array( 'parent_ack_at', $acks, true ) ) {
+            $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( get_current_user_id(), $id );
+            if ( $access === null || ! $access->readsCoachPart() ) {
+                return RestResponse::error(
+                    'forbidden',
+                    __( 'You can confirm this conversation once you may read its form.', 'talenttrack' ),
+                    403
+                );
+            }
+        }
+
         // v3.110.197 (#809) — once ANY signature lands on the
         // conversation (coach_signoff_at / parent_ack_at / player_ack_at),
         // the row is read-only end-to-end. The second signatory can

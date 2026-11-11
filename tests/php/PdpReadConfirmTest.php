@@ -178,6 +178,84 @@ final class PdpReadConfirmTest extends WP_UnitTestCase {
         $this->assertSame( substr( $at, 0, 10 ), substr( $stored, 0, 10 ), 'with its date' );
     }
 
+    public function test_the_server_stamps_the_confirmation_time_whatever_the_browser_sends(): void {
+        global $wpdb;
+        $this->signOff();
+        wp_set_current_user( $this->account );
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'player_ack_at' => '2020-01-01 09:00:00' ], 'pdp-conversations/' . $this->conv )[1] );
+        $stored = (string) $wpdb->get_var( $wpdb->prepare( "SELECT player_ack_at FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) );
+        $this->assertLessThan( 120, abs( strtotime( $stored . ' UTC' ) - time() ), 'now, not the date the request carried: ' . $stored );
+    }
+
+    public function test_a_parent_who_may_not_read_the_form_is_offered_no_confirmation_and_refused_one(): void {
+        global $wpdb;
+        $this->signOff();
+        ( new PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'pdp', false );
+        $this->flush();
+
+        $html = $this->myPdp( $this->parent );
+        $this->assertStringNotContainsString( 'I have read it', $html, 'no confirm on a form the parent cannot read' );
+        $this->assertStringNotContainsString( 'Acknowledge as parent', $html, 'and no free-text acknowledgement in its place' );
+
+        wp_set_current_user( $this->parent );
+        $this->assertSame( 403, $this->send( 'PATCH', '', [ 'parent_ack_at' => 'now' ], 'pdp-conversations/' . $this->conv )[1] );
+        $this->assertNull( $wpdb->get_var( $wpdb->prepare( "SELECT parent_ack_at FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) ), 'nothing written' );
+    }
+
+    /**
+     * The message follows the age tiers (#0042) as every message about one
+     * player does: parents only up to ten, both at eleven, the player alone
+     * from twelve.
+     *
+     * @dataProvider tiers
+     * @param list<string> $told
+     */
+    public function test_the_message_follows_the_age_tier( int $age, array $told ): void {
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_players", [ 'date_of_birth' => gmdate( 'Y-m-d', strtotime( "-{$age} years -2 months" ) ) ], [ 'id' => $this->player ] );
+        $this->signOff();
+        sort( $this->sent );
+        $this->assertSame( $told, $this->sent );
+    }
+
+    /** @return array<string, array{0:int, 1:list<string>}> */
+    public static function tiers(): array {
+        return [
+            'youngest (9)' => [ 9, [ 'dad-4981@example.test' ] ],
+            'middle (11)'  => [ 11, [ 'dad-4981@example.test', 'sam-4981@example.test' ] ],
+            'oldest (14)'  => [ 14, [ 'sam-4981@example.test' ] ],
+        ];
+    }
+
+    public function test_the_goal_link_shows_only_where_the_goal_may_be_read(): void {
+        $this->signOff();
+        $this->assertStringContainsString( 'Open the goal', $this->readAs( $this->parent ), 'shared: the link' );
+
+        ( new PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'goals', false );
+        $this->flush();
+        $html = $this->readAs( $this->parent );
+        $this->assertStringContainsString( 'Elke training 20 passes links.', $html, 'the development point still reads' );
+        $this->assertStringNotContainsString( 'Open the goal', $html, 'without a link the goal page would refuse' );
+    }
+
+    public function test_the_message_link_opens_the_talk_and_a_notice_waits_until_confirmed(): void {
+        $this->signOff();
+        $link = \TT\Modules\Comms\Send\PdpConversationSignedSend::link( $this->conv, null );
+        $this->assertStringContainsString( 'conv=' . $this->conv, $link );
+        $this->assertStringEndsWith( '#tt-pdp-read-' . $this->conv, $link );
+
+        $_GET['conv'] = (string) $this->conv;
+        $html = $this->myPdp( $this->account );
+        unset( $_GET['conv'] );
+        $this->assertStringContainsString( 'id="tt-pdp-panel-' . $this->conv . '" class="tt-pdp-panel">', $html, 'the talk is open on arrival' );
+        $this->assertStringContainsString( 'id="tt-pdp-read-' . $this->conv . '" tabindex="-1"', $html, 'at the signed form\'s heading' );
+        $this->assertStringContainsString( 'tt-pdp-awaiting', $html, 'the notice says it waits' );
+
+        wp_set_current_user( $this->account );
+        $this->assertSame( 200, $this->send( 'PATCH', '', [ 'player_ack_at' => 'now' ], 'pdp-conversations/' . $this->conv )[1] );
+        $this->assertStringNotContainsString( 'tt-pdp-awaiting', $this->myPdp( $this->account ), 'gone once confirmed' );
+    }
+
     // ---- nobody else -----------------------------------------------------------
 
     public function test_an_unlinked_parent_and_the_observer_get_nothing(): void {
@@ -204,6 +282,14 @@ final class PdpReadConfirmTest extends WP_UnitTestCase {
         ob_start();
         PdpFormReadView::render( $this->conv, $user === $this->parent ? $this->player : null );
         return trim( (string) ob_get_clean() );
+    }
+
+    /** My PDP for the player, as this reader sees it. */
+    private function myPdp( int $user ): string {
+        wp_set_current_user( $user );
+        ob_start();
+        \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( (object) \TT\Infrastructure\Query\QueryHelpers::get_player( $this->player ) );
+        return (string) ob_get_clean();
     }
 
     private function playerPrepares(): void {

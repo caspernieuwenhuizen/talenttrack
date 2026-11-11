@@ -43,6 +43,29 @@ async function openTalk( page ) {
 	return form;
 }
 
+test( 'the signed-off message lands the player on the talk, at its signed form, with the confirm in reach', async ( { browser, baseURL } ) => {
+	const { context, page } = await signedIn( browser, baseURL, 'e2e_pop_read' );
+	try {
+		// The notice at the top carries the same link the message does.
+		const notice = page.locator( '.tt-pdp-awaiting' );
+		await expect( notice, 'the notice says a signed form waits' ).toBeVisible();
+		const href = String( await notice.locator( 'a' ).first().getAttribute( 'href' ) );
+		expect( href ).toMatch( /[?&]conv=\d+.*#tt-pdp-read-\d+$/ );
+
+		await page.goto( href );
+		await page.waitForLoadState( 'load', { timeout: 30000 } );
+		const id      = href.split( '#' )[ 1 ];
+		const heading = page.locator( '#' + id );
+		await expect( heading, 'the talk is open at its signed form' ).toBeVisible();
+		await expect( heading, 'and the heading has focus' ).toBeFocused();
+
+		const confirm = page.locator( '.tt-pdp-panel:not([hidden])' ).getByRole( 'button', { name: 'I have read it' } );
+		await expect( confirm ).toBeVisible();
+	} finally {
+		await context.close();
+	}
+} );
+
 for ( const who of [ 'e2e_pop_read', 'e2e_pop_read_parent' ] ) {
 	test( `${ who } reads every item with both scores, opens the folds by keyboard, and confirms`, async ( { browser, baseURL } ) => {
 		const { context, page } = await signedIn( browser, baseURL, who );
@@ -86,6 +109,7 @@ for ( const who of [ 'e2e_pop_read', 'e2e_pop_read_parent' ] ) {
 			await page.waitForLoadState( 'load', { timeout: 30000 } );
 			await openTalk( page );
 			await expect( page.locator( '.tt-pdp-panel:not([hidden])' ), 'the date it was confirmed' ).toContainText( 'You confirmed you read it on' );
+			await expect( page.locator( '.tt-pdp-awaiting' ), 'the notice is gone once confirmed' ).toHaveCount( 0 );
 		} finally {
 			await context.close();
 		}

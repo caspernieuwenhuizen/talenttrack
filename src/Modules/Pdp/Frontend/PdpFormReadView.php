@@ -48,6 +48,10 @@ final class PdpFormReadView {
         };
 
         echo '<div class="tt-pdp-formread">';
+        // Where the signed-off message's link lands: my-pdp.js focuses it.
+        echo '<h4 class="tt-pdp-formread__title" id="tt-pdp-read-' . (int) $conv_id . '" tabindex="-1">'
+            . esc_html__( 'The signed conversation form', 'talenttrack' ) . '</h4>';
+        $goals_ok = \TT\Infrastructure\Goals\GoalAccess::mayRead( get_current_user_id(), $access->playerId() );
         foreach ( (array) $definition['sections'] as $i => $section ) {
             $p_avg = $prepared ? $avg( $theirs['sections'][ $i ]['average'] ?? null ) : __( 'not filled in', 'talenttrack' );
             echo '<details class="tt-pdp-formread__section"' . ( $i === 0 ? ' open' : '' ) . '>';
@@ -120,7 +124,9 @@ final class PdpFormReadView {
                         TTDate::date( (string) $goal['due_date'] )
                     ) ) . '</p>';
                 }
-                $url = ! empty( $goal['goal_id'] ) ? RecordLink::meDetailUrl( 'my-goals', (int) $goal['goal_id'], $parent_view_player_id ) : '';
+                // Only a link the goal's own page will answer (#5040 review):
+                // a child can share the PDP and keep the goals.
+                $url = ( $goals_ok && ! empty( $goal['goal_id'] ) ) ? RecordLink::meDetailUrl( 'my-goals', (int) $goal['goal_id'], $parent_view_player_id ) : '';
                 if ( $url !== '' ) {
                     echo '<a class="tt-pdp-formread__goallink" href="' . esc_url( $url ) . '">' . esc_html__( 'Open the goal', 'talenttrack' ) . '</a>';
                 }
