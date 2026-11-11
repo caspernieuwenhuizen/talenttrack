@@ -158,6 +158,12 @@ final class PdpFormEntriesRepository {
         return $hit !== null;
     }
 
+    /**
+     * Store one score. #4980 — the change stamp moves only when the score
+     * does: an autosave sends the whole form, and a stamp that moved on every
+     * save would mark every item as changed. The stamp columns are assigned
+     * before `score`, so they compare against the stored value.
+     */
     public function saveScore( int $conversation_id, string $form_key, string $item_key, string $author, ?int $score, int $user_id ): bool {
         global $wpdb;
         $now  = current_time( 'mysql', true );
@@ -168,7 +174,10 @@ final class PdpFormEntriesRepository {
                 "INSERT INTO {$wpdb->prefix}tt_pdp_form_scores
                      (uuid, club_id, conversation_id, form_key, item_key, author, score, updated_by, created_at, updated_at)
                  VALUES (%s, %d, %d, %s, %s, %s, NULL, %d, %s, %s)
-                 ON DUPLICATE KEY UPDATE score = NULL, updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+                 ON DUPLICATE KEY UPDATE
+                     updated_by = IF(score IS NULL, updated_by, VALUES(updated_by)),
+                     updated_at = IF(score IS NULL, updated_at, VALUES(updated_at)),
+                     score = NULL",
                 $uuid, $club, $conversation_id, $form_key, $item_key, $author, $user_id, $now, $now
             ) ) !== false;
         }
@@ -176,11 +185,15 @@ final class PdpFormEntriesRepository {
             "INSERT INTO {$wpdb->prefix}tt_pdp_form_scores
                  (uuid, club_id, conversation_id, form_key, item_key, author, score, updated_by, created_at, updated_at)
              VALUES (%s, %d, %d, %s, %s, %s, %d, %d, %s, %s)
-             ON DUPLICATE KEY UPDATE score = VALUES(score), updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+             ON DUPLICATE KEY UPDATE
+                 updated_by = IF(score <=> VALUES(score), updated_by, VALUES(updated_by)),
+                 updated_at = IF(score <=> VALUES(score), updated_at, VALUES(updated_at)),
+                 score = VALUES(score)",
             $uuid, $club, $conversation_id, $form_key, $item_key, $author, $score, $user_id, $now, $now
         ) ) !== false;
     }
 
+    /** Store one answer; the change stamp moves only when the text does (#4980). */
     public function saveAnswer( int $conversation_id, string $form_key, string $field_key, string $author, string $body, int $user_id ): bool {
         global $wpdb;
         $now = current_time( 'mysql', true );
@@ -188,9 +201,29 @@ final class PdpFormEntriesRepository {
             "INSERT INTO {$wpdb->prefix}tt_pdp_form_answers
                  (uuid, club_id, conversation_id, form_key, field_key, author, body, updated_by, created_at, updated_at)
              VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %s)
-             ON DUPLICATE KEY UPDATE body = VALUES(body), updated_by = VALUES(updated_by), updated_at = VALUES(updated_at)",
+             ON DUPLICATE KEY UPDATE
+                 updated_by = IF(body <=> VALUES(body), updated_by, VALUES(updated_by)),
+                 updated_at = IF(body <=> VALUES(body), updated_at, VALUES(updated_at)),
+                 body = VALUES(body)",
             wp_generate_uuid4(), CurrentClub::id(), $conversation_id, $form_key, $field_key, $author, $body, $user_id, $now, $now
         ) ) !== false;
+    }
+
+    /**
+     * #4980 — the items whose score this author changed after a moment
+     * (UTC): the player's scores changed after "klaar".
+     *
+     * @return list<string> item keys
+     */
+    public function scoresChangedAfter( int $conversation_id, string $form_key, string $author, string $since ): array {
+        global $wpdb;
+        $rows = $wpdb->get_col( $wpdb->prepare(
+            "SELECT item_key FROM {$wpdb->prefix}tt_pdp_form_scores
+              WHERE conversation_id = %d AND form_key = %s AND author = %s AND club_id = %d AND updated_at > %s
+              ORDER BY id ASC",
+            $conversation_id, $form_key, $author, CurrentClub::id(), $since
+        ) );
+        return array_values( array_map( 'strval', (array) $rows ) );
     }
 
     /**

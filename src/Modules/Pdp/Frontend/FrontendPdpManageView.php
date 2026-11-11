@@ -1559,6 +1559,12 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+        // #4980 — a talk on a conversation form: the trainer's scores, the
+        // player's preparation beside them, the SMART points and the form's
+        // own sign-off. The legacy sign-off below is for talks without one;
+        // `PATCH` refuses `coach_signoff_at` on a form talk anyway.
+        $form_talk = PdpFormConversationView::render( $conv_id, $user_id );
+
         // #3008 — sign-off leaves the conversation form and becomes its own
         // confirmed action.
         //
@@ -1573,7 +1579,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // So it is a button, outside the autosaving form, behind the
         // confirm `public.js` already honours, landing back on the PDP file
         // the way Save used to.
-        if ( ! $is_signed && ! $is_locked && ! $content_locked ) :
+        if ( ! $form_talk && ! $is_signed && ! $is_locked && ! $content_locked ) :
             ?>
             <form class="tt-ajax-form tt-pdp-signoff"
                   data-rest-path="<?php echo esc_attr( $rest_path ); ?>"

@@ -154,6 +154,17 @@
     border-color: var(--tt-rating-accent);
     color: var(--tt-paper, #fff);
 }
+/* #4980 — a second, read-only value on the row (the player's score beside
+   the trainer's): light blue, outlined. The chosen value keeps its fill. */
+.tt-rating-stars--choices .tt-rating-choice.is-marked {
+    background: var(--tt-info-subtle, #e6f0fa);
+    border: 2px solid var(--tt-info, #2d6fb3);
+    color: var(--tt-info-ink, #1c5aa0);
+}
+.tt-rating-stars--choices .tt-rating-choice.is-marked[aria-checked="true"] {
+    background: var(--tt-rating-accent);
+    color: var(--tt-paper, #fff);
+}
 .tt-rating-row--choices .tt-rating-row__val {
     margin: 0;
     min-width: 0;
