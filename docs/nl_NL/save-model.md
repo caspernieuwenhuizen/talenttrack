@@ -272,6 +272,12 @@ Drie regels die gelden welk model je ook kiest:
   zet het formulier nooit stil om een eigen weigering, en geeft het antwoord
   van de server terug als `{ ok, status, code, message, details, data }`.
   Niet `send()`, die bij de opslagstroom hoort en ongedaan maken intrekt.
+- **Wie een scherm verlaat dat zichzelf opslaat, wacht op `saver.flush()`.**
+  Een link of knop die midden in een debounce wegnavigeert, raakt de laatste
+  wijziging kwijt. `flush()` is meteen klaar als er niets openstaat, nadat een
+  openstaande opslag is aangekomen, en nadat een opslag is mislukt (dan staat
+  `failed`, zodat de aanroeper dat kan melden). Hij wordt nooit afgewezen.
+  `commit()` slaat via `flush()` op. Schrijf geen eigen wachtlus.
 - **Zeg welk model het scherm gebruikt.** Een scherm dat zichzelf opslaat toont
   de statusregel; een scherm dat dat niet doet toont een opslaanknop. Zwijgen is
   precies de fout die deze regel wegneemt.

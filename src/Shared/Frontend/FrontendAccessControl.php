@@ -128,6 +128,13 @@ class FrontendAccessControl {
         if ( ! is_user_logged_in() ) {
             return $show;
         }
+        // #5088 — a room display shows no WordPress chrome. WordPress settles
+        // the bar before the shortcode runs, so this goes by the claim alone.
+        if ( ! is_admin() && isset( $_GET['tt_view'] )
+             && PresentationSurfaces::claims( sanitize_key( (string) wp_unslash( $_GET['tt_view'] ) ) )
+        ) {
+            return false;
+        }
         return current_user_can( 'administrator' ) ? $show : false;
     }
 

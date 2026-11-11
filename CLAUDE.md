@@ -353,8 +353,17 @@ intermediate crumb — that crumb IS the back-to-list affordance.
 
 The only exempt views are the dashboard root itself
 (`PersonaLandingRenderer`), pre-login flows (`AcceptanceView`,
-login form), and component renderers / sub-views composed into
-other views (`FrontendThreadView`, etc.).
+login form), component renderers / sub-views composed into
+other views (`FrontendThreadView`, etc.), and:
+
+> *Presentation surfaces* listed in `config/presentation_surfaces.php`: a room display of one record. It emits **one** affordance, a close control back to that record's page, instead of the chain and the pill. On every refused path it renders as a normal view, in the shell, with the chain.
+
+The view declares it on its success path with
+`\TT\Shared\Frontend\PresentationSurfaces::present( $close_url )`,
+which draws that close control and refuses (renders nothing, leaves the
+request a normal view) on an unlisted slug, a second call, a chain
+already drawn, or a close URL that is not a record page. Being on the
+list alone changes nothing.
 
 **Routability decides, not file naming.** If a class is reachable by
 its own `?tt_view=` slug it is a view, whatever it is composed into
@@ -388,8 +397,10 @@ Evaluations / Goals & PDP / Minutes — do not leave the view's subject,
 so they are not navigation away from it and do not count against 5a.
 
 They may only be rendered by the shared spine component
-(`\TT\Shared\Frontend\Components\RecordSpine`), which also hosts the
-5a breadcrumb chain and back-pill. **A view that hand-rolls a tab strip
+(`\TT\Shared\Frontend\Components\RecordSpine`). The spine renders the
+identity strip and the tab strip; the view renders the 5a chain through
+`FrontendBreadcrumbs::fromDashboard()`, which also renders the
+back-pill. **A view that hand-rolls a tab strip
 is a violation** — that is how tab styling, keyboard order and active
 state drift apart across surfaces.
 

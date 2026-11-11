@@ -78,9 +78,40 @@ Dit zijn de enige views die zonder broodkruimketen mogen:
   samengesteld, interne containers (`FrontendThreadView`,
   `FrontendMyProfileView`, `CoachDashboardView`,
   `PlayerDashboardView`).
+- *Presentatieoppervlakken* die in `config/presentation_surfaces.php`
+  staan: een weergave van één record op het scherm in de ruimte. Zo'n
+  oppervlak emitteert **één** affordance, een sluitknop terug naar de
+  pagina van dat record, in plaats van de keten en de pill. Bij elke
+  weigering rendert het als een gewone view, in de shell, met de keten.
 
 Voeg je een nieuwe view toe en is het er geen van deze, dan MOET
 hij de keten + pill emitteren.
+
+### Presentatieoppervlakken: hoe de uitzondering standhoudt
+
+Op de lijst staan betekent alleen dat een slug **mag** presenteren. De
+view verklaart het op zijn succespad, vóór alle andere uitvoer en
+zonder `fromDashboard()` aan te roepen:
+
+```php
+if ( ! $access->canRead() ) {
+    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );  // gewone view, in de shell
+    return;
+}
+PresentationSurfaces::present( $record_url );  // tekent de ene sluitknop
+```
+
+`present()` geeft `false` terug, tekent niets en laat het verzoek een
+gewone view als de slug niet op de lijst staat, als hij al eerder is
+aangeroepen, als er al een keten is getekend, of als de sluit-URL geen
+recordpagina op dezelfde site is (`?tt_view=<slug>&id=<n>` en verder
+geen queryparameter, waarbij de slug routeerbaar is en zelf geen
+presentatieoppervlak). Geeft hij `true`, dan laat de shell de kop, de
+shell-navigatie en de balk onderaan, de flashmeldingen, de overige
+banners en de help weg, en tekent `FrontendBreadcrumbs::render()`
+niets. Banners op `tt_dashboard_safety_banners` en de
+impersonatiebanner blijven staan. De WordPress-adminbalk gaat alleen
+op de lijst af, omdat WordPress die al vóór de view bepaalt.
 
 **Routeerbaarheid beslist.** Een klasse die via een eigen
 `?tt_view=`-slug bereikbaar is, is een view en emitteert de keten,
@@ -133,8 +164,10 @@ het onderwerp van de view niet. Ze zijn dus geen navigatie wég van de
 view en tellen niet mee voor het per-view-budget.
 
 Ze mogen uitsluitend worden gerenderd door de gedeelde
-spine-component (`\TT\Shared\Frontend\Components\RecordSpine`), die
-ook de broodkruimketen en de terug-pill huisvest. Een view die zijn
+spine-component (`\TT\Shared\Frontend\Components\RecordSpine`). De
+spine rendert de identiteitsstrook en de tabstrip; de view rendert de
+broodkruimketen via `FrontendBreadcrumbs::fromDashboard()`, die ook de
+terug-pill rendert. Een view die zijn
 eigen tabstrip schrijft **is** een overtreding — zo lopen
 tab-styling, toetsenbordvolgorde en actief-status uit de pas tussen
 oppervlakken.
