@@ -15,18 +15,16 @@ use WP_UnitTestCase;
  * `var()` and its fallback. A token-only theme is measured with the rules
  * of theme-shared.css, which it loads.
  *
- * Named exceptions, each an owner decision rather than an oversight:
- *   - `theme-leon-hutten` (Kristalblauw) keeps its look on live installs:
- *     its cyan as text and on the primary band, and its marker on the
- *     active row (2.98:1), are held as they are.
- *   - `default` prints the secondary as text at 1.9:1 until #5105 lands.
+ * The named exception is an owner decision rather than an oversight:
+ * `theme-leon-hutten` (Kristalblauw) keeps its look on live installs, so
+ * its cyan as text and on the primary band are held as they are. Its
+ * marker on the active row is measured like every other theme's.
  */
 final class ThemeContrastTest extends WP_UnitTestCase {
 
     /** @var array<string, list<string>> palette => roles it is excused from */
     private const EXCEPTIONS = [
-        'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary', 'marker-on-active-row' ],
-        'default'           => [ 'secondary-text' ],
+        'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary' ],
     ];
 
     private function root(): string {
@@ -224,9 +222,7 @@ final class ThemeContrastTest extends WP_UnitTestCase {
             $this->assertRatio( 4.5, $inkOn, $active, "$name rail ink on the active row" );
             $this->assertRatio( 3.0, $marker, $rail, "$name marker on the rail" );
             $this->assertRatio( 3.0, $ring, $rail, "$name rail focus ring on the rail" );
-            if ( ! $this->excused( $name, 'marker-on-active-row' ) ) {
-                $this->assertRatio( 3.0, $marker, $active, "$name marker on the active row" );
-            }
+            $this->assertRatio( 3.0, $marker, $active, "$name marker on the active row" );
             $this->assertRatio( 4.5, $markFg, $markBg, "$name brand mark text" );
         }
         $this->assertGreaterThan( 0, $checked, 'no themed rail was measured' );

@@ -7,7 +7,7 @@ use TT\Shared\Frontend\ThemePreference;
 use WP_UnitTestCase;
 
 /**
- * #5089 — the theme registry, the default rollback and the bundled fonts.
+ * #5089, #5092 — the theme registry, the default rollback and the bundled fonts.
  *
  * Every registered theme has a label, a short label and a sheet on disk.
  * `default` loads no sheet and stamps no class. A theme that loads a
@@ -21,6 +21,15 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         ThemePreference::TACTIEKBORD,
         ThemePreference::BORDEAUX,
         ThemePreference::POLDER,
+        ThemePreference::GEEL_ZWART,
+        ThemePreference::GROEN_WIT,
+        ThemePreference::PAARS_WIT,
+        ThemePreference::WAPENSCHILD,
+        ThemePreference::STREEPSHIRT,
+        ThemePreference::WEDSTRIJDDAG,
+        ThemePreference::MIDDERNACHT,
+        ThemePreference::NEON,
+        ThemePreference::STADIONLICHT,
     ];
 
     /** @var mixed */
@@ -130,8 +139,25 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #5092 — Leon Hutten is relabelled Kristalblauw. The stored value stays
+     * `leon-hutten`, so an install that chose it keeps the choice and the sheet.
+     */
+    public function test_a_stored_leon_hutten_resolves_to_kristalblauw(): void {
+        $user = self::factory()->user->create();
+        ( new ConfigService() )->set( ThemePreference::CONFIG_KEY, 'leon-hutten' );
+        update_user_meta( $user, ThemePreference::USER_META_KEY, 'leon-hutten' );
+
+        $this->assertSame( 'leon-hutten', ThemePreference::clubDefault() );
+        $this->assertSame( 'leon-hutten', ThemePreference::userOverride( $user ) );
+        $this->assertSame( 'theme-leon-hutten.css', ThemePreference::styleFile( $user ) );
+        $this->assertSame( 'tt-theme-leon-hutten', ThemePreference::rootClass( $user ) );
+        $this->assertStringStartsWith( 'Kristalblauw', ThemePreference::labels()['leon-hutten'] );
+        $this->assertSame( 'Kristalblauw', ThemePreference::shortLabels()['leon-hutten'] );
+    }
+
     public function test_bundled_fonts_load_from_the_plugin_with_swap(): void {
-        $sheets = array_merge( self::NEW_THEMES, [ ThemePreference::FEDERATION ] );
+        $sheets = array_merge( self::NEW_THEMES, [ ThemePreference::FEDERATION, ThemePreference::LEON_HUTTEN ] );
         $this->assertStringNotContainsString( 'fonts.googleapis.com', (string) file_get_contents( $this->root() . '/assets/css/player-card.css' ), 'player-card.css' );
 
         foreach ( $sheets as $theme ) {

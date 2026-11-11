@@ -1,0 +1,135 @@
+/*
+ * theme-neon.css — the `neon` theme (#5092): midnight navy and neon lime.
+ *
+ * Loaded ONLY when ThemePreference resolves to `neon`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/exo/` and `assets/fonts/poppins/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-800-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-700-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-neon {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #0f2160;
+    --tt-primary-rgb:   15, 33, 96;
+    --tt-secondary:     #c6f432;
+    --tt-secondary-rgb: 198, 244, 50;
+    --tt-accent:        #0f2160;
+    --tt-primary-deep:  #040828;
+    --tt-primary-ink:   #1b3489;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #c6f432;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0b0f22;
+    --tt-ink-soft:   #444a5e;
+    --tt-muted:      #656b7d;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f3f5f9;
+    --tt-line:       #dde1ea;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #0f2160;
+    --tt-link-hover: #1b3489;
+    --tt-link-wash:  rgba(15, 33, 96, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(4,8,40,0.24);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Exo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #5b722d;
+    --tt-secondary-on-primary: #c6f432;
+    --tt-secondary-on-chrome:  #c6f432;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #040828;
+    --tt-theme-chrome-2:        #181c39;
+    --tt-theme-chrome-active:   #2c304a;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b4b5bf;
+    --tt-theme-chrome-line:     #272b46;
+    --tt-theme-marker:          #c6f432;
+}

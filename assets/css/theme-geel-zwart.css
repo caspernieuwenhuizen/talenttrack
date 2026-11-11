@@ -1,0 +1,106 @@
+/*
+ * theme-geel-zwart.css — the `geel-zwart` theme (#5092): black and signal yellow.
+ *
+ * Loaded ONLY when ThemePreference resolves to `geel-zwart`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/oswald/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-700-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-geel-zwart {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #1f1f1f;
+    --tt-primary-rgb:   31, 31, 31;
+    --tt-secondary:     #ffd400;
+    --tt-secondary-rgb: 255, 212, 0;
+    --tt-accent:        #1f1f1f;
+    --tt-primary-deep:  #0d0d0d;
+    --tt-primary-ink:   #3a3a3a;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #ffd400;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #111111;
+    --tt-ink-soft:   #474747;
+    --tt-muted:      #6b6b6b;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f5f4f0;
+    --tt-line:       #e4e2da;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-warning:        #a87a00;
+    --tt-warning-subtle: #fff5cc;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #1f1f1f;
+    --tt-link-hover: #3a3a3a;
+    --tt-link-wash:  rgba(31, 31, 31, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(0,0,0,0.22);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Oswald", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #7a6707;
+    --tt-secondary-on-primary: #ffd400;
+    --tt-secondary-on-chrome:  #ffd400;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #0d0d0d;
+    --tt-theme-chrome-2:        #202020;
+    --tt-theme-chrome-active:   #343434;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b6b6b6;
+    --tt-theme-chrome-line:     #2f2f2f;
+    --tt-theme-marker:          #ffd400;
+}

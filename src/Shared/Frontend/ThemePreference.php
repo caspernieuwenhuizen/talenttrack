@@ -19,12 +19,12 @@ use TT\Infrastructure\Config\ConfigService;
  *     renders exactly as it did before this existed.
  *   - `federation` — navy chrome, gold active marker, condensed display
  *     type, tighter radii. Designed against the app shell (#2456).
- *   - `leon-hutten` — the club's own design system (#2939): black crest
- *     banner as chrome, a cyan-to-navy stripe motif, blue actions with
- *     a cyan accent, Open Sans throughout.
- *   - `clubrood`, `oranje`, `tactiekbord`, `bordeaux`, `polder` — five
- *     general-purpose palettes (#5089), each with its own bundled
- *     webfont under `assets/fonts/`.
+ *   - `leon-hutten` — labelled Kristalblauw (#5092): black chrome, a
+ *     cyan-to-navy stripe motif, blue actions with a cyan accent, Open
+ *     Sans throughout. The value is historical (see the constant).
+ *   - `clubrood`, `oranje`, `tactiekbord`, `bordeaux`, `polder` (#5089)
+ *     and nine more (#5092) — general-purpose palettes, each with its
+ *     own bundled webfont under `assets/fonts/`.
  *
  * A theme owns the complete visual design, brand colours included:
  * `BrandStyles` stops emitting `--tt-primary` / `--tt-secondary` while
@@ -53,7 +53,12 @@ final class ThemePreference {
     /** Navy institutional theme (#2512). */
     public const FEDERATION = 'federation';
 
-    /** Leon Hutten — Talenten Academie, from the club's handoff (#2939). */
+    /**
+     * Kristalblauw: deep blues and cyan, Open Sans. The value is historical:
+     * the theme was built as the Leon Hutten club design (#2939) and kept the
+     * stored value when it was relabelled (#5092), so installs that chose it
+     * keep their choice and its sheet with no migration.
+     */
     public const LEON_HUTTEN = 'leon-hutten';
 
     /** Heritage red, black and muted gold; Barlow Condensed display (#5089). */
@@ -70,6 +75,33 @@ final class ThemePreference {
 
     /** Deep teal and coral; DM Sans (#5089). */
     public const POLDER = 'polder';
+
+    /** Black and signal yellow; Oswald display (#5092). */
+    public const GEEL_ZWART = 'geel-zwart';
+
+    /** Tonal green and mint white; Manrope (#5092). */
+    public const GROEN_WIT = 'groen-wit';
+
+    /** Tonal violet and lilac; Outfit (#5092). */
+    public const PAARS_WIT = 'paars-wit';
+
+    /** Black header, green actions, yellow accent; Montserrat (#5092). */
+    public const WAPENSCHILD = 'wapenschild';
+
+    /** Black and bright green; Montserrat (#5092). */
+    public const STREEPSHIRT = 'streepshirt';
+
+    /** Deep green with yellow; Barlow Condensed display, Montserrat (#5092). */
+    public const WEDSTRIJDDAG = 'wedstrijddag';
+
+    /** Midnight navy and electric blue; Exo display, Poppins (#5092). */
+    public const MIDDERNACHT = 'middernacht';
+
+    /** Midnight navy and neon lime; Exo display, Poppins (#5092). */
+    public const NEON = 'neon';
+
+    /** Electric blue with cyan; Exo display, Poppins (#5092). */
+    public const STADIONLICHT = 'stadionlicht';
 
     /** Per-user value meaning "follow the club default". */
     public const INHERIT = 'inherit';
@@ -89,6 +121,15 @@ final class ThemePreference {
             self::TACTIEKBORD,
             self::BORDEAUX,
             self::POLDER,
+            self::GEEL_ZWART,
+            self::GROEN_WIT,
+            self::PAARS_WIT,
+            self::WAPENSCHILD,
+            self::STREEPSHIRT,
+            self::WEDSTRIJDDAG,
+            self::MIDDERNACHT,
+            self::NEON,
+            self::STADIONLICHT,
         ];
     }
 
@@ -201,7 +242,22 @@ final class ThemePreference {
      * @return list<string>
      */
     public static function sharedSheetThemes(): array {
-        return [ self::CLUBROOD, self::ORANJE, self::TACTIEKBORD, self::BORDEAUX, self::POLDER ];
+        return [
+            self::CLUBROOD,
+            self::ORANJE,
+            self::TACTIEKBORD,
+            self::BORDEAUX,
+            self::POLDER,
+            self::GEEL_ZWART,
+            self::GROEN_WIT,
+            self::PAARS_WIT,
+            self::WAPENSCHILD,
+            self::STREEPSHIRT,
+            self::WEDSTRIJDDAG,
+            self::MIDDERNACHT,
+            self::NEON,
+            self::STADIONLICHT,
+        ];
     }
 
     public static function usesSharedSheet( string $theme ): bool {
@@ -226,12 +282,21 @@ final class ThemePreference {
         return [
             self::DEFAULT_THEME => __( 'Default — green and gold', 'talenttrack' ),
             self::FEDERATION    => __( 'Federation — navy and gold', 'talenttrack' ),
-            self::LEON_HUTTEN   => __( 'Leon Hutten — black and cyan', 'talenttrack' ),
+            self::LEON_HUTTEN   => __( 'Kristalblauw — deep blues and cyan, Open Sans', 'talenttrack' ),
             self::CLUBROOD      => __( 'Clubrood — red, black and gold', 'talenttrack' ),
             self::ORANJE        => __( 'Oranje — navy and orange', 'talenttrack' ),
             self::TACTIEKBORD   => __( 'Tactiekbord — slate and mint', 'talenttrack' ),
             self::BORDEAUX      => __( 'Bordeaux — wine and sand', 'talenttrack' ),
             self::POLDER        => __( 'Polder — teal and coral', 'talenttrack' ),
+            self::GEEL_ZWART    => __( 'Geel-Zwart — black and signal yellow', 'talenttrack' ),
+            self::GROEN_WIT     => __( 'Groen-Wit — green and mint white', 'talenttrack' ),
+            self::PAARS_WIT     => __( 'Paars-Wit — violet and lilac', 'talenttrack' ),
+            self::WAPENSCHILD   => __( 'Wapenschild — black, green and yellow', 'talenttrack' ),
+            self::STREEPSHIRT   => __( 'Streepshirt — black and bright green', 'talenttrack' ),
+            self::WEDSTRIJDDAG  => __( 'Wedstrijddag — deep green and yellow', 'talenttrack' ),
+            self::MIDDERNACHT   => __( 'Middernacht — midnight navy and electric blue', 'talenttrack' ),
+            self::NEON          => __( 'Neon — midnight navy and neon lime', 'talenttrack' ),
+            self::STADIONLICHT  => __( 'Stadionlicht — electric blue and cyan', 'talenttrack' ),
         ];
     }
 
@@ -245,12 +310,21 @@ final class ThemePreference {
         return [
             self::DEFAULT_THEME => _x( 'Default', 'visual theme', 'talenttrack' ),
             self::FEDERATION    => _x( 'Federation', 'visual theme', 'talenttrack' ),
-            self::LEON_HUTTEN   => _x( 'Leon Hutten', 'visual theme', 'talenttrack' ),
+            self::LEON_HUTTEN   => _x( 'Kristalblauw', 'visual theme', 'talenttrack' ),
             self::CLUBROOD      => _x( 'Clubrood', 'visual theme', 'talenttrack' ),
             self::ORANJE        => _x( 'Oranje', 'visual theme', 'talenttrack' ),
             self::TACTIEKBORD   => _x( 'Tactiekbord', 'visual theme', 'talenttrack' ),
             self::BORDEAUX      => _x( 'Bordeaux', 'visual theme', 'talenttrack' ),
             self::POLDER        => _x( 'Polder', 'visual theme', 'talenttrack' ),
+            self::GEEL_ZWART    => _x( 'Geel-Zwart', 'visual theme', 'talenttrack' ),
+            self::GROEN_WIT     => _x( 'Groen-Wit', 'visual theme', 'talenttrack' ),
+            self::PAARS_WIT     => _x( 'Paars-Wit', 'visual theme', 'talenttrack' ),
+            self::WAPENSCHILD   => _x( 'Wapenschild', 'visual theme', 'talenttrack' ),
+            self::STREEPSHIRT   => _x( 'Streepshirt', 'visual theme', 'talenttrack' ),
+            self::WEDSTRIJDDAG  => _x( 'Wedstrijddag', 'visual theme', 'talenttrack' ),
+            self::MIDDERNACHT   => _x( 'Middernacht', 'visual theme', 'talenttrack' ),
+            self::NEON          => _x( 'Neon', 'visual theme', 'talenttrack' ),
+            self::STADIONLICHT  => _x( 'Stadionlicht', 'visual theme', 'talenttrack' ),
         ];
     }
 }

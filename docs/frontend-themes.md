@@ -19,12 +19,11 @@ Squarer corners (4px instead of 8px), a condensed heading face, and a
 navy-tinted depth so shadows read as part of the palette rather than as grey
 haze over it.
 
-**Leon Hutten** — the Leon Hutten Talenten Academie design system, built from
-the club's own crest. The crest's black banner becomes the header and the
-navigation rail; its diagonal cyan-to-navy stripe closes the header and the
-brand block. Buttons and links take the deep blue, cyan marks the section
-you are on, and the whole theme is set in Open Sans. Corners are nearly
-square (3px).
+**Kristalblauw** — deep blues and cyan, set in Open Sans. A black header and
+navigation rail, closed by a diagonal cyan-to-navy stripe. Buttons and links
+take the deep blue, cyan marks the section you are on. Corners are nearly
+square (3px). The theme was renamed without changing anything else, so an
+academy that had already chosen it keeps it, looking the same.
 
 **Clubrood** — heritage red, black and muted gold, with Barlow Condensed for
 the headings. Classic shirt colours; the condensed headings read like a
@@ -43,17 +42,49 @@ printed feel.
 **Polder** — deep teal and coral, set in DM Sans. Warm and approachable; a
 good fit for younger age groups and for what parents see.
 
-In these themes the header and the navigation rail take the theme's deepest
-colour, and the accent marks the section you are on. Where the accent is too
-light to read as text on white, words in that colour use a darker shade of it.
+**Geel-Zwart** — two-tone black and signal yellow, with Oswald for the
+headings. Pure two-tone and the loudest on screen; the yellow carries every
+highlight.
+
+**Groen-Wit** — two-tone tonal green and mint white, set in Manrope. One hue,
+light and dark; fresh and quiet for clubs in green and white.
+
+**Paars-Wit** — two-tone tonal violet and lilac, set in Outfit. One hue, light
+and dark; it stands apart from the usual football palettes.
+
+**Wapenschild** — a black header, green actions and a yellow accent, set in
+Montserrat. Bold and recognisable.
+
+**Streepshirt** — two-tone black and bright green, set in Montserrat. The
+striped-shirt two-tone: black carries the screens, green highlights.
+
+**Wedstrijddag** — deep green with yellow buttons, with Barlow Condensed for
+the headings and Montserrat for the rest. A matchday-programme feel.
+
+**Middernacht** — two-tone midnight navy and electric blue, with Exo for the
+headings and Poppins for the rest. Near-black navy with one bright blue; sleek
+and modern.
+
+**Neon** — midnight navy and neon lime, with Exo for the headings and Poppins
+for the rest. Training-bib lime on midnight navy; energetic, with very high
+contrast.
+
+**Stadionlicht** — electric blue with cyan, with Exo for the headings and
+Poppins for the rest. Blue leads and cyan accents; lighter and brighter than
+Middernacht.
+
+In all of these the header and the navigation rail take the theme's deepest
+colour, and the accent marks the section you are on. An accent is for marks
+and fills. Where it is too light to read as text, as with the yellow, lime and
+cyan of Geel-Zwart, Neon and Stadionlicht, words in that colour use a darker
+shade of it on white and a lighter one on the theme's colour.
 
 ### Fonts come with the plugin
 
-The fonts these themes use are part of the plugin. A page never asks Google
+The fonts the themes use are part of the plugin. A page never asks Google
 Fonts or any other font service for them, and a font is only downloaded while
 its theme is on. Until it arrives the text shows in a similar system font, so
-nothing waits for it. Leon Hutten is the one exception: it still loads Open
-Sans from Google Fonts.
+nothing waits for it.
 
 ## A theme replaces your colour settings
 
@@ -215,9 +246,19 @@ while it does.
 | `tactiekbord` | IBM Plex Sans |
 | `bordeaux` | Source Serif 4 (display), Source Sans 3 (body) |
 | `polder` | DM Sans |
+| `leon-hutten` (Kristalblauw) | Open Sans |
+| `geel-zwart` | Oswald (display) |
+| `groen-wit` | Manrope |
+| `paars-wit` | Outfit |
+| `wapenschild`, `streepshirt` | Montserrat |
+| `wedstrijddag` | Barlow Condensed (display), Montserrat (body) |
+| `middernacht`, `neon`, `stadionlicht` | Exo (display), Poppins (body) |
 
-`leon-hutten` still loads Open Sans with an `@import` from Google Fonts at the
-top of its own sheet; bundling it is a separate change.
+No theme sheet imports from Google Fonts.
+
+The value `leon-hutten` is historical: the theme is labelled Kristalblauw, and
+the stored value and the sheet name stayed so that installs which chose it
+keep their choice without a migration.
 
 Federation's headings are set in the bundled Barlow Condensed. Its body text
 stays in the system face: Barlow regular is not bundled. The player card
@@ -225,7 +266,7 @@ stays in the system face: Barlow regular is not bundled. The player card
 
 ### Mapping a design palette
 
-The five palettes come from a design that names its colours after the design
+The fourteen palettes come from a design that names its colours after the design
 system. Each sheet maps them the same way:
 
 | Design | Product |
@@ -256,7 +297,12 @@ underneath:
 | `--tt-secondary-on-primary` | the primary band | the overview rating label, the today card's call to action, a teammate's initials |
 | `--tt-secondary-on-chrome` | the header | the help icon on hover |
 
-Each follows `--tt-secondary` unless a theme sets it. They are declared on
+On the default design `--tt-secondary-text` is the shipped gold darkened to
+`#84660e`, which reads at 5.4:1 on white; the gold itself stays on every fill.
+A Branding secondary brings its own shade through `--tt-secondary-text-color`,
+derived by `BrandStyles::accentTextColor()`: the colour itself when it reads at
+4.5:1, otherwise the same hue darkened until it does. The other two follow
+`--tt-secondary` unless a theme sets them. All three are declared on
 `.tt-dashboard` as well as `.tt-root`, like `--tt-focus`, so they follow a
 theme's secondary. A theme that declares a secondary declares at least
 `--tt-secondary-text` itself.
@@ -267,8 +313,10 @@ muted text and links on paper and the soft background, white on the primary
 and its hover, ink on the button hover, the three secondary-as-text tokens,
 the header's text, and the rail's text, soft text and brand mark at 4.5:1; the
 focus ring, the header icon, and the rail's marker and focus ring against the
-rail and the active row, at 3:1. Kristalblauw's cyan as text and its marker
-on the active row are named exceptions, held so that theme keeps its look.
+rail and the active row, at 3:1. Kristalblauw's cyan as text and on the
+primary band is a named exception, held so that theme keeps its look; its
+marker on the active row is one step lighter (`--tt-lh-cyan-marker`) and
+passes like every other theme's.
 `tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
 sheet, that `default` loads no sheet and stamps no class, and that bundled
 fonts load from the plugin with `swap`.

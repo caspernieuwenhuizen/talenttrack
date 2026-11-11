@@ -12,14 +12,19 @@ Fonts builds; each family's `OFL.txt` is the licence from the
 
 | Family | Folder | Weights | Version | Source | Licence | Used by |
 | --- | --- | --- | --- | --- | --- | --- |
-| Barlow Condensed | `barlow-condensed/` | 600, 700, 800 | Google Fonts v13 (Fontsource 5.3.0) | https://github.com/jpt/barlow | SIL OFL 1.1 | `clubrood`, `federation` |
+| Barlow Condensed | `barlow-condensed/` | 600, 700, 800 | Google Fonts v13 (Fontsource 5.3.0) | https://github.com/jpt/barlow | SIL OFL 1.1 | `clubrood`, `federation`, `wedstrijddag` |
 | Archivo | `archivo/` | 400, 500, 600, 700, 800 | Google Fonts v25 (Fontsource 5.3.0) | https://github.com/Omnibus-Type/Archivo | SIL OFL 1.1 | `oranje` |
 | IBM Plex Sans | `ibm-plex-sans/` | 400, 500, 600, 700 | Google Fonts v23 (Fontsource 5.3.0) | https://github.com/IBM/plex | SIL OFL 1.1 | `tactiekbord` |
 | Source Serif 4 | `source-serif-4/` | 600, 700 | Google Fonts v15 (Fontsource 5.3.1) | https://github.com/adobe-fonts/source-serif | SIL OFL 1.1 | `bordeaux` |
 | Source Sans 3 | `source-sans-3/` | 400, 500, 600, 700 | Google Fonts v20 (Fontsource 5.3.1) | https://github.com/adobe-fonts/source-sans | SIL OFL 1.1 | `bordeaux` |
 | DM Sans | `dm-sans/` | 400, 500, 700, 800 | Google Fonts v17 (Fontsource 5.3.0) | https://github.com/googlefonts/dm-fonts | SIL OFL 1.1 | `polder` |
-| Oswald | `oswald/` | 500, 600, 700 | Google Fonts v57 (Fontsource 5.3.0) | https://github.com/googlefonts/OswaldFont | SIL OFL 1.1 | `player-card.css` |
-| Manrope | `manrope/` | 400, 500, 600, 700, 800 | Google Fonts v20 (Fontsource 5.3.0) | https://github.com/googlefonts/manrope | SIL OFL 1.1 | `player-card.css` (500-700) |
+| Open Sans | `open-sans/` | 400, 600, 700, 800 | Google Fonts v44 (Fontsource 5.3.0) | https://github.com/googlefonts/opensans | SIL OFL 1.1 | `leon-hutten` (Kristalblauw) |
+| Oswald | `oswald/` | 500, 600, 700 | Google Fonts v57 (Fontsource 5.3.0) | https://github.com/googlefonts/OswaldFont | SIL OFL 1.1 | `geel-zwart`, `player-card.css` |
+| Manrope | `manrope/` | 400, 500, 600, 700, 800 | Google Fonts v20 (Fontsource 5.3.0) | https://github.com/googlefonts/manrope | SIL OFL 1.1 | `groen-wit`, `player-card.css` (500-700) |
+| Outfit | `outfit/` | 400, 500, 600, 700, 800 | Google Fonts v15 (Fontsource 5.3.0) | https://github.com/Outfitio/Outfit-Fonts | SIL OFL 1.1 | `paars-wit` |
+| Montserrat | `montserrat/` | 400, 500, 600, 700, 800 | Google Fonts v31 (Fontsource 5.3.0) | https://github.com/JulietaUla/Montserrat | SIL OFL 1.1 | `wapenschild`, `streepshirt`, `wedstrijddag` |
+| Exo | `exo/` | 600, 700, 800 | Google Fonts v25 (Fontsource 5.3.0) | https://github.com/NDISCOVER/Exo-1.0 | SIL OFL 1.1 | `middernacht`, `neon`, `stadionlicht` |
+| Poppins | `poppins/` | 400, 500, 600, 700 | Google Fonts v24 (Fontsource 5.3.0) | https://github.com/itfoundry/Poppins | SIL OFL 1.1 | `middernacht`, `neon`, `stadionlicht` |
 
 ## Payload
 
@@ -31,9 +36,14 @@ Fonts builds; each family's `OFL.txt` is the licence from the
 | Source Serif 4 | 2 | 43,248 |
 | Source Sans 3 | 4 | 62,612 |
 | DM Sans | 4 | 57,256 |
+| Open Sans | 4 | 74,064 |
 | Oswald | 3 | 38,116 |
 | Manrope | 5 | 70,184 |
-| **Total** | **30** | **504,532** |
+| Outfit | 5 | 69,808 |
+| Montserrat | 5 | 94,052 |
+| Exo | 3 | 36,776 |
+| Poppins | 4 | 31,448 |
+| **Total** | **51** | **810,680** |
 
 A browser downloads only the faces the rendered page uses, so a page pays for
 the weights it draws, not for the whole family.

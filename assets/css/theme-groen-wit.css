@@ -1,0 +1,119 @@
+/*
+ * theme-groen-wit.css — the `groen-wit` theme (#5092): tonal green and mint white.
+ *
+ * Loaded ONLY when ThemePreference resolves to `groen-wit`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/manrope/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/manrope/manrope-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/manrope/manrope-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/manrope/manrope-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/manrope/manrope-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/manrope/manrope-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-groen-wit {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #12602f;
+    --tt-primary-rgb:   18, 96, 47;
+    --tt-secondary:     #a8e0b9;
+    --tt-secondary-rgb: 168, 224, 185;
+    --tt-accent:        #12602f;
+    --tt-primary-deep:  #0a3d1f;
+    --tt-primary-ink:   #1a7a3d;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #a8e0b9;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0f1f15;
+    --tt-ink-soft:   #45544a;
+    --tt-muted:      #66746b;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f2f7f3;
+    --tt-line:       #dce7df;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #12602f;
+    --tt-link-hover: #1a7a3d;
+    --tt-link-wash:  rgba(18, 96, 47, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(18,96,47,0.18);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #417655;
+    --tt-secondary-on-primary: #a8e0b9;
+    --tt-secondary-on-chrome:  #a8e0b9;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #0a3d1f;
+    --tt-theme-chrome-2:        #1e4d31;
+    --tt-theme-chrome-active:   #315c43;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bdcbc3;
+    --tt-theme-chrome-line:     #2c583e;
+    --tt-theme-marker:          #a8e0b9;
+}

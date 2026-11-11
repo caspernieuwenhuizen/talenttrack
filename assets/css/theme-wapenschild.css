@@ -1,0 +1,123 @@
+/*
+ * theme-wapenschild.css — the `wapenschild` theme (#5092): a black header, green actions and a yellow accent.
+ *
+ * Loaded ONLY when ThemePreference resolves to `wapenschild`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * This sheet is a token layer only. The header, rail and display-type
+ * rules it feeds live once in theme-shared.css, enqueued before it.
+ *
+ * The fonts are bundled under `assets/fonts/montserrat/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
+ */
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-wapenschild {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #186f36;
+    --tt-primary-rgb:   24, 111, 54;
+    --tt-secondary:     #d6d83a;
+    --tt-secondary-rgb: 214, 216, 58;
+    --tt-accent:        #186f36;
+    --tt-primary-deep:  #1e1a1e;
+    --tt-primary-ink:   #208742;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #d6d83a;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #141214;
+    --tt-ink-soft:   #484548;
+    --tt-muted:      #6a676a;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f4f6f3;
+    --tt-line:       #e0e3dd;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-success:        #186f36;
+    --tt-success-subtle: #dff1e4;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #186f36;
+    --tt-link-hover: #207c3e;
+    --tt-link-wash:  rgba(24, 111, 54, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(30,26,30,0.22);
+
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- The secondary as text ------------------------------------- */
+    /* The accent is for fills and the marker; printed as words it takes
+       the shade that reads on the surface underneath. */
+    --tt-secondary-text:       #71702b;
+    --tt-secondary-on-primary: #e0e26b;
+    --tt-secondary-on-chrome:  #d6d83a;
+
+    /* ---- Chrome (read by theme-shared.css) ------------------------- */
+    --tt-theme-chrome:          #1e1a1e;
+    --tt-theme-chrome-2:        #302c30;
+    --tt-theme-chrome-active:   #423f42;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bcbabc;
+    --tt-theme-chrome-line:     #3e3a3e;
+    --tt-theme-marker:          #d6d83a;
+}

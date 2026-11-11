@@ -44,6 +44,15 @@ final class ReportBrandColour {
         ThemePreference::TACTIEKBORD => '#2f4858',
         ThemePreference::BORDEAUX    => '#6d1a36',
         ThemePreference::POLDER      => '#0d5c63',
+        ThemePreference::GEEL_ZWART   => '#1f1f1f',
+        ThemePreference::GROEN_WIT    => '#12602f',
+        ThemePreference::PAARS_WIT    => '#4b1f7a',
+        ThemePreference::WAPENSCHILD  => '#186f36',
+        ThemePreference::STREEPSHIRT  => '#2a262a',
+        ThemePreference::WEDSTRIJDDAG => '#186f36',
+        ThemePreference::MIDDERNACHT  => '#0567b1',
+        ThemePreference::NEON         => '#0f2160',
+        ThemePreference::STADIONLICHT => '#0567b1',
     ];
 
     /** The club colour for whoever the report is rendered for. */

@@ -1,5 +1,10 @@
 /*
- * theme-leon-hutten.css — the `leon-hutten` theme (#2939).
+ * theme-leon-hutten.css — the `leon-hutten` theme, labelled Kristalblauw.
+ *
+ * The value and this filename are historical: the theme was built as the
+ * Leon Hutten club design (#2939) and relabelled Kristalblauw (#5092)
+ * without changing the stored value, so installs keep their choice and
+ * this sheet with no migration.
  *
  * Built from the club's design-system handoff. The palette is not a
  * recolour: every value was sampled from the club crest, which is a
@@ -36,12 +41,41 @@
  */
 
 /*
- * Open Sans. A theme owns its type as well as its colour, and
- * `BrandStyles::enqueueFonts()` returns early while a theme is active,
- * so the club's font picker never fires and nothing else would load
- * this. Same mechanism `player-card.css` already uses.
+ * Open Sans, bundled under `assets/fonts/open-sans/` (OFL, #5092). A theme
+ * owns its type as well as its colour, and `BrandStyles::enqueueFonts()`
+ * returns early while a theme is active, so nothing else would load it.
  */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap");
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-800-normal.woff2") format("woff2");
+}
 
 .tt-dashboard.tt-theme-leon-hutten {
     /* ---- Brand tokens ---------------------------------------------- */
@@ -160,6 +194,11 @@
        rail's focus ring, and the stripe. 6.8:1 on the black chrome. */
     --tt-lh-cyan:            #02a2da;
 
+    /* The marker on the active row, one step lighter than the cyan: on the
+       navy row fill the cyan measured 2.98:1, under the 3:1 a marker needs;
+       this clears 3.49:1 there and 7.54:1 on the black rail. */
+    --tt-lh-cyan-marker:     #0bb0e8;
+
     /*
      * The crest's diagonal stripes, as a repeating gradient. Decorative
      * only — never place text on it. Held as a variable so the two
@@ -264,7 +303,7 @@
 .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active {
     background: var(--tt-lh-chrome-active);
     color: #ffffff;
-    box-shadow: inset 3px 0 0 var(--tt-lh-cyan);
+    box-shadow: inset 3px 0 0 var(--tt-lh-cyan-marker);
 }
 
 .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
