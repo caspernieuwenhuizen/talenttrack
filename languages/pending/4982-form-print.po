@@ -1,0 +1,52 @@
+#. translators: %s: the player's name
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "Development talk — %s"
+msgstr "Ontwikkelgesprek — %s"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "This conversation has not been signed off yet. Its form prints once the trainer has signed it off."
+msgstr "Dit gesprek is nog niet ondertekend. Het formulier print zodra de trainer het heeft ondertekend."
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "not filled in"
+msgstr "niet ingevuld"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "S = the player's own score, T = the trainer's score."
+msgstr "S = het eigen cijfer van de speler, T = het cijfer van de trainer."
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: the player column"
+msgid "S"
+msgstr "S"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: the trainer column"
+msgid "T"
+msgstr "T"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "Trainer's notes:"
+msgstr "Toelichting van de trainer:"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "The player wrote"
+msgstr "De speler schreef"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: what the trainer and player agreed"
+msgid "Agreed"
+msgstr "Afgesproken"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "Development points"
+msgstr "Ontwikkelpunten"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "not yet confirmed"
+msgstr "nog niet bevestigd"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: heading over who confirmed the talk when"
+msgid "Confirmed"
+msgstr "Bevestigd"

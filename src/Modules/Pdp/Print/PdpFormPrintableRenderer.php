@@ -163,7 +163,7 @@ final class PdpFormPrintableRenderer {
         $stamp   = static function ( $at ) use ( $pending ): string {
             return empty( $at ) ? $pending : TTDate::dateTimeFromGmt( (string) $at );
         };
-        echo '<h2>' . esc_html__( 'Confirmed', 'talenttrack' ) . '</h2>';
+        echo '<h2>' . esc_html_x( 'Confirmed', 'PDP form print: heading over who confirmed the talk when', 'talenttrack' ) . '</h2>';
         echo '<table class="tt-pdpform-print__confirm"><tr>'
             . '<td><span>' . esc_html__( 'Player', 'talenttrack' ) . '</span>' . esc_html( $name ) . '<br />' . esc_html( $stamp( $conv['player_ack_at'] ?? null ) ) . '</td>'
             . '<td><span>' . esc_html__( 'Trainer', 'talenttrack' ) . '</span>' . esc_html( $trainer !== '' ? $trainer : '—' ) . '<br />' . esc_html( $stamp( $conv['coach_signoff_at'] ?? null ) ) . '</td>'
