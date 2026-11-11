@@ -1442,10 +1442,11 @@
 }
 
 /* #4982 — Print on a signed conversation form: the PDF under a finger,
-   the print page under a mouse. One of the two shows. */
+   the print page under a mouse. One of the two shows. Scoped under the
+   dashboard so it beats `.tt-dashboard .tt-btn { display: inline-flex }`. */
 .tt-pdp-printact { margin: 0.5rem 0 0; }
-.tt-pdp-printact__page { display: none; }
+.tt-dashboard .tt-pdp-printact .tt-pdp-printact__page { display: none; }
 @media (pointer: fine) {
-    .tt-pdp-printact__pdf { display: none; }
-    .tt-pdp-printact__page { display: inline-flex; }
+    .tt-dashboard .tt-pdp-printact .tt-pdp-printact__pdf { display: none; }
+    .tt-dashboard .tt-pdp-printact .tt-pdp-printact__page { display: inline-flex; }
 }
