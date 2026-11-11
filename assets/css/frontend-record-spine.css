@@ -240,6 +240,18 @@
     padding-block-start: 10px;
 }
 
+/* Below 480px the spine's script moves the aside here, into the page flow
+   just under the stuck spine, so it scrolls away instead of adding a row to
+   the stuck chrome (#5080). From 480px up it stays in the tab row. */
+.tt-spine-aside-slot[hidden] {
+    display: none;
+}
+
+.tt-spine-aside-slot > .tt-spine__aside {
+    margin-inline-start: 0;
+    padding: var(--tt-sp-2, 8px) 0;
+}
+
 /* Focus rings must not be clipped by the strip's horizontal overflow, and
    a tab reached by keyboard must scroll itself into view. */
 .tt-spine__tab:focus-visible {

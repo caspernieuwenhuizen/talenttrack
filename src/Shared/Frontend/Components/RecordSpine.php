@@ -112,6 +112,14 @@ use TT\Shared\Frontend\ShellPreference;
  * The aside holds a control for the open record, and never navigation:
  * no links to other modules (that is the shell's, CLAUDE.md §5b) and no
  * second tab strip (tabs come from this component's `tabs`, §5c).
+ *
+ * Below 480px the spine's script moves the aside out of the stuck strip
+ * into the page flow just under the spine, so it scrolls away with the
+ * hero; the same node moves, so the control exists once at every width.
+ * From 480px up it stays on the right of the tab row. That keeps to the
+ * budget every sticky element on a record page is held to: the stuck
+ * chrome (shell header, spine and any sticky header under it) stays within
+ * 45% of a 360x640 viewport.
  */
 final class RecordSpine {
 

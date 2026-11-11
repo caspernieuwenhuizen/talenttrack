@@ -377,6 +377,16 @@ which holds under both shells (the shell offsets are 0 under `classic`). A
 spine set to `position: static`, and the side layout, publish nothing. Below
 480px the spine leaves out its `detail` line, since the page's hero carries it.
 
+**The aside below 480px.** On a phone the spine's script moves the aside out of
+the stuck strip into the page flow just under the spine, so it scrolls away
+with the hero instead of adding a row to the stuck chrome. The node itself
+moves, so the control exists once at every width, and focus inside it is kept.
+From 480px up nothing changes: the aside stays on the right of the tab row.
+
+**The budget.** The stuck chrome on a record page (the shell header, the spine
+and any sticky header under it) stays within 45% of a 360x640 viewport, 288px.
+A new sticky element is held to the same line.
+
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four

@@ -58,7 +58,7 @@ async function checkStuckStack( page ) {
 	expect( below.inSpine, 'no piece of the spine pokes out under part 2\'s header' ).toBe( false );
 	expect( below.inForm, 'under the header is the form' ).toBe( true );
 
-	return page.evaluate( () => {
+	const sizes = await page.evaluate( () => {
 		const h = ( sel ) => {
 			const el = document.querySelector( sel );
 			return el ? Math.round( el.getBoundingClientRect().height ) : 0;
@@ -68,6 +68,28 @@ async function checkStuckStack( page ) {
 		const part2 = h( '.tt-pdp-coachform .tt-pdp-part__head' );
 		return { shell, spine, part2, total: shell + spine + part2, viewport: window.innerHeight };
 	} );
+	// The budget (#5080): the stuck chrome stays within 45% of 360x640.
+	expect( sizes.total, 'the stuck chrome stays within 288px: ' + JSON.stringify( sizes ) ).toBeLessThanOrEqual( 288 );
+	return sizes;
+}
+
+/**
+ * At the top of the talk on a phone, the form and its switch are on the
+ * page once, under the spine and not in it; focusable when there is a switch.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function checkAsideOutOfStrip( page ) {
+	await page.evaluate( () => window.scrollTo( 0, 0 ) );
+	await expect( page.locator( '.tt-spine__aside' ) ).toHaveCount( 1 );
+	await expect( page.locator( '.tt-spine .tt-spine__aside' ) ).toHaveCount( 0 );
+	const aside = page.locator( '.tt-spine-aside-slot > .tt-spine__aside' );
+	await expect( aside ).toBeVisible();
+	const button = aside.locator( 'button[type="submit"]' );
+	if ( await button.count() ) {
+		await button.focus();
+		await expect( button ).toBeFocused();
+	}
 }
 
 test( 'two parts, each with its own save state, and part 2\'s header stays in view', async ( { page } ) => {
@@ -88,6 +110,7 @@ test( 'two parts, each with its own save state, and part 2\'s header stays in vi
 	const state = await form.locator( '.tt-pdp-part__state' ).boundingBox();
 	expect( title && state && state.y >= title.y + title.height - 1, 'the save state sits under the title on a phone' ).toBe( true );
 
+	await checkAsideOutOfStrip( page );
 	const sizes = await checkStuckStack( page );
 	console.log( 'classic stuck chrome at 360x640: ' + JSON.stringify( sizes ) );
 	test.info().annotations.push( { type: 'stuck-chrome-classic-360x640', description: JSON.stringify( sizes ) } );
@@ -100,10 +123,20 @@ test( 'under the app shell, part 2\'s header sits below the stuck spine', async 
 	await page.setViewportSize( { width: 360, height: 640 } );
 	await underAppShell( page, async () => {
 		await openTalk( page );
+		await checkAsideOutOfStrip( page );
 		const sizes = await checkStuckStack( page );
 		console.log( 'app-shell stuck chrome at 360x640: ' + JSON.stringify( sizes ) );
 		test.info().annotations.push( { type: 'stuck-chrome-app-360x640', description: JSON.stringify( sizes ) } );
 		expect( await onTop( page.locator( '.tt-spine__name' ).first(), '.tt-spine' ), 'the spine\'s name is not under the shell header' ).toBe( true );
+
+		// From 480px up nothing changes: at 1280 the aside is back in the
+		// tab row, on the right, and the slot is empty.
+		await page.setViewportSize( { width: 1280, height: 800 } );
+		await expect( page.locator( '.tt-spine__row > .tt-spine__aside' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.tt-spine-aside-slot' ) ).toBeHidden();
+		const row   = await page.locator( '.tt-spine__row' ).boundingBox();
+		const aside = await page.locator( '.tt-spine__row > .tt-spine__aside' ).boundingBox();
+		expect( row && aside && aside.x + aside.width >= row.x + row.width - 20, 'on the right of the tab row' ).toBe( true );
 	} );
 } );
 

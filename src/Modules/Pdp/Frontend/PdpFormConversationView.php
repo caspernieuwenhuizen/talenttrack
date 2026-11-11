@@ -25,8 +25,7 @@ use TT\Shared\Frontend\Components\SaveState;
  * the player's part (null before "klaar"), the differences ("Bespreken"),
  * the items the player changed after "klaar" ("aangepast"), and what
  * sign-off still needs. Sections are folds, not a tab strip (§5c).
- */
-/**
+ *
  * @phpstan-type TalkForm array{
  *   conversation_id:int,
  *   form:array{key:string,version:int,definition:array<string,mixed>}|null,

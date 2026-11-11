@@ -104,9 +104,44 @@
         }
     }
 
+    /*
+     * #5080 — below 480px the spine's aside leaves the stuck strip and sits
+     * in the page flow just under the spine, so it scrolls away with the
+     * hero: the stuck chrome on a record page stays within 45% of a 360x640
+     * viewport. The node itself moves, so the control exists once at every
+     * width (no twin, no second form or nonce), focus inside it is kept,
+     * and from 480px up it is back on the right of the tab row. Without
+     * this script the aside simply stays in the strip.
+     */
+    function placeAside() {
+        var spine = document.querySelector('.tt-spine:not(.tt-spine--side)');
+        var aside = spine ? spine.querySelector('.tt-spine__aside') : null;
+        var row   = aside ? aside.parentElement : null;
+        if (!spine || !aside || !row || !window.matchMedia) return;
+
+        var slot = document.createElement('div');
+        slot.className = 'tt-spine-aside-slot';
+        spine.parentNode.insertBefore(slot, spine.nextSibling);
+
+        var wide = window.matchMedia('(min-width: 480px)');
+        var apply = function () {
+            var target = wide.matches ? row : slot;
+            if (aside.parentElement === target) return;
+            var active = document.activeElement;
+            var hadFocus = active && aside.contains(active);
+            target.appendChild(aside);
+            slot.hidden = wide.matches;
+            if (hadFocus && typeof active.focus === 'function') active.focus();
+        };
+        apply();
+        if (typeof wide.addEventListener === 'function') wide.addEventListener('change', apply);
+        else if (typeof wide.addListener === 'function') wide.addListener(apply);
+    }
+
     function init() {
         var strips = document.querySelectorAll('[data-tt-spine-tabs]');
         Array.prototype.forEach.call(strips, wire);
+        placeAside();
         measureSpine();
     }
 
