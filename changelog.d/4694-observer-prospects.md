@@ -1,0 +1,3 @@
+# The read-only observer reads the prospects, masked (#4694)
+
+The read-only observer opens the onboarding board, the prospects list and each prospect's page, read-only. Names, the current club, the stage, dates and consent outcomes are shown; the family contact, the scouting notes, and who was asked for consent with what was said read "Hidden" on screen and are left out of the API answer. The rule follows whoever may change prospects or reads them through their own age groups, so scouts, the head of development, the admin and head coaches see everything as before. Scouting visits stay closed to the observer. Migration 0331 adds the observer's read rows for prospects and test trainings on existing installs and leaves a cell an academy changed alone.

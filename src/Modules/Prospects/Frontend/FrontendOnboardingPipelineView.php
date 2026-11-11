@@ -4,6 +4,8 @@ namespace TT\Modules\Prospects\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
+use TT\Shared\Frontend\Components\MaskedValue;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
 use TT\Modules\Prospects\Domain\ProspectDeletion;
@@ -276,6 +278,8 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
 
         $entries = ( new ProspectConsentRequestsRepository() )->forProspect( $prospect_id );
         if ( $entries === [] ) return '';
+        // #4694 — who was asked and the notes follow the prospect rule.
+        $masked = RecordRedactor::isMasked( 'prospect_consent_requests', 'asked_of', get_current_user_id(), $prospect_id );
 
         ob_start(); ?>
         <div class="tt-pipeline-focus-consent">
@@ -291,10 +295,10 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                         <span class="tt-pipeline-focus-consent-when">
                             <?php echo esc_html( $asked_at !== '' ? TTDate::date( $asked_at ) : '' ); ?>
                         </span>
-                        <span class="tt-pipeline-focus-consent-who"><?php echo esc_html( $asked_of ); ?></span>
+                        <span class="tt-pipeline-focus-consent-who"><?php echo $masked ? MaskedValue::html() : esc_html( $asked_of ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — MaskedValue::html() is escaped. ?></span>
                         <span class="tt-chip"><?php echo esc_html( ConsentOutcome::label( $outcome ) ); ?></span>
                         <?php if ( $notes !== '' ) : ?>
-                            <span class="tt-pipeline-focus-consent-note"><?php echo esc_html( $notes ); ?></span>
+                            <span class="tt-pipeline-focus-consent-note"><?php echo $masked ? MaskedValue::html() : esc_html( $notes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — MaskedValue::html() is escaped. ?></span>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
@@ -340,7 +344,12 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             <?php if ( $notes !== '' ) : ?>
                 <div class="tt-pipeline-focus-notes">
                     <h2 class="tt-pipeline-focus-label"><?php esc_html_e( 'Scouting notes', 'talenttrack' ); ?></h2>
-                    <p class="tt-pipeline-focus-notes-body"><?php echo nl2br( esc_html( $notes ) ); ?></p>
+                    <p class="tt-pipeline-focus-notes-body"><?php
+                        // #4694 — the scouting notes follow the prospect rule.
+                        echo RecordRedactor::isMasked( 'prospects', 'scouting_notes', get_current_user_id(), $prospect_id )
+                            ? MaskedValue::html()
+                            : nl2br( esc_html( $notes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
+                    ?></p>
                 </div>
             <?php endif; ?>
             <?php echo $visit_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source. ?>

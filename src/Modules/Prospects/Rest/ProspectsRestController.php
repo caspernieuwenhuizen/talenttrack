@@ -545,6 +545,9 @@ class ProspectsRestController {
         if ( ! self::visibleTo( $id, get_current_user_id() ) ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
+        // #4694 — the family contact and the scouting notes follow the
+        // prospect rule in `config/sensitive_fields.php`.
+        $row = (object) \TT\Infrastructure\Security\RecordRedactor::redact( 'prospects', (array) $row, get_current_user_id(), $id );
         return RestResponse::success( [ 'prospect' => $row ] );
     }
 

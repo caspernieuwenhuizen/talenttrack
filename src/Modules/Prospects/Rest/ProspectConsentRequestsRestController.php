@@ -143,6 +143,8 @@ class ProspectConsentRequestsRestController {
         foreach ( $rows as $row ) {
             $out[] = self::serialize( $row );
         }
+        // #4694 — who was asked and the notes follow the prospect rule.
+        $out = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'prospect_consent_requests', $out, get_current_user_id() );
         return RestResponse::success( [ 'prospect_id' => $prospect_id, 'requests' => $out ] );
     }
 

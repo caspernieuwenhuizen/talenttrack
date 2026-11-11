@@ -1287,8 +1287,7 @@ return array_merge(
     //     `report_publishing`;
     //   - granted with their masking, never before it: `attendance`
     //     (#4692, absence reasons), `player_status`, `player_status_breakdown`
-    //     (#4694, potential notes and band), `trial_*`, `prospects`,
-    //     `test_trainings`, `scout_*`, `scouting_visits_panel`,
+    //     (#4694, potential notes and band), `trial_*`,
     //     `player_potential` (#4694), `custom_field_values` (#4716),
     //     `people_directory_panel` (#4715), `team_roster_panel`,
     //     `coach_player_list_panel`, `compare` (#4691, date of birth);
@@ -1297,6 +1296,10 @@ return array_merge(
     //     ratings on observations), `tournaments` (free-text squad,
     //     tournament and match notes), `media` (an open owner question),
     //     `measurements`, `measurement_sessions`, `measurement_definitions`;
+    //   - `scouting_visits_panel`, `scout_access`, `scout_my_players` and
+    //     `scout_history` (#4694): every scout's visits would need a read
+    //     right that does not also widen the scout, which is the owner's
+    //     question; the rest is access administration or is checked nowhere;
     //   - `player_behaviour_ratings`: free-text notes on a child's
     //     behaviour, with no masking registered;
     //   - `vct_library` and `vct_workload`: no surface opens on either
@@ -1361,6 +1364,14 @@ return array_merge(
         // observer sees the list. The notes stay masked for this seat.
         // Existing installs get it through migration 0321.
         'evaluations_panel'       => [ 'r', 'global', $mod_evals ],
+
+        // #4694 (a) — the prospects, with the family contact, the scouting
+        // notes and the consent trail masked (`prospect_staff` in
+        // `config/sensitive_fields.php`). `test_trainings` records the
+        // owner's decision; no route asks it yet. Existing installs get both
+        // through migration 0331.
+        'prospects'               => [ 'r', 'global', $mod_prospects ],
+        'test_trainings'          => [ 'r', 'global', $mod_prospects ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────
