@@ -221,7 +221,7 @@ Three things the tab says rather than leaving you to guess:
 - Matches played with no score typed in → counted separately and named, because a silent 0–0 would make the record wrong.
 - Goals recorded but not yet attributed to players → it says that, instead of an empty scorers table. An empty table reads as "nobody scored", which is almost never what it means.
 
-Tournaments are left out of the record, with a line saying how many there were: a tournament is several games and one scoreline cannot describe it. Goals scored at one still count towards the scorers. Goals and assists count on played matches, the same matches the minutes count: a goal logged on a match dated after today counts once that match is played, and one on a cancelled match does not count.
+Tournaments are left out of the record, with a line saying how many there were: a tournament is several games and one scoreline cannot describe it. Goals scored at one still count towards the scorers. Goals and assists count on played matches, the same matches the minutes count: a goal counts once its match is played, and a goal on a cancelled match does not count.
 
 Clean sheets are counted for the team, not credited to a goalkeeper — the plugin does not record who kept goal in a given match.
 
