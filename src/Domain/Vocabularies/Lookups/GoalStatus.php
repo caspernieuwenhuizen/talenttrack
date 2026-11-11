@@ -10,13 +10,16 @@
  * `LabelTranslator::goalStatus()` switch and the REST controller defaults
  * (`'pending'`, `'pending_approval'`) are the canonical reference.
  *
- * Use the constants in PHP comparisons:
+ * Use the constants in PHP comparisons of one status:
  *
  *     if ( $goal->status === GoalStatus::PENDING_APPROVAL ) { ... }
- *     in_array( $goal->status, [ GoalStatus::COMPLETED, GoalStatus::CANCELLED ], true );
  *
- * SQL string literals (`status = 'completed'` in KPI aggregations) stay as
- * literals — DB is the source of truth.
+ * In SQL, never compare the column literally (`status = 'completed'`): the
+ * column holds the snake_case code and the TitleCase lookup name, so a
+ * literal misses one of them. Ask `GoalLifecycle` (#5074, #5099):
+ * `openClause()` / `notOpenClause()` for open goals (`self::OPEN`),
+ * `statusClause()` / `hasStatusClause()` for one status, `isOpen()` in PHP.
+ * `GoalLifecycleGuardTest` fails on a literal comparison or status list.
  *
  * REST endpoints accept BOTH the literal AND the constant for one release
  * per #988's backward-compat allowlist; see docs/rest-api.md for the

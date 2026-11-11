@@ -98,8 +98,9 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
             . "// status = 'completed' in a comment\n"
             . "\$fine = GoalLifecycle::hasStatusClause( 'g', GoalStatus::COMPLETED );\n"
             . "\$also_fine = 'p.status = %s';\n"
-            . "\$status = 'pending';\n";
-        $this->assertSame( [ 2, 3, 4 ], self::singleStatusMatches( $planted, [] ) );
+            . "\$status = 'pending';\n"
+            . "\$sql = \"WHERE g.status IN ( 'Completed' )\";\n";
+        $this->assertSame( [ 2, 3, 4, 9 ], self::singleStatusMatches( $planted, [] ) );
     }
 
     /**
@@ -111,12 +112,14 @@ final class GoalLifecycleGuardTest extends WP_UnitTestCase {
         // A column, not a PHP variable (`$status = 'pending'`).
         $literal = '/(?<!\$)\bstatus\s*(?:=|!=|<>)\s*[\'"]' . $status . '[\'"]/i';
         $bound   = '/(?<!\$)\bstatus\s*=\s*%s.*\[\s*[\'"]' . $status . '[\'"]\s*\]/i';
+        // A one-item list is the same comparison: `status IN ( 'completed' )`.
+        $one_in  = '/(?<!\$)\bstatus\s+(?:NOT\s+)?IN\s*\(\s*[\'"]' . $status . '[\'"]\s*\)/i';
 
         $out = [];
         foreach ( preg_split( '/\R/', $code ) ?: [] as $i => $line ) {
             $trim = ltrim( $line );
             if ( $trim === '' || str_starts_with( $trim, '*' ) || str_starts_with( $trim, '//' ) || str_starts_with( $trim, '/*' ) || str_starts_with( $trim, '#' ) ) continue;
-            if ( preg_match( $literal, $line ) !== 1 && preg_match( $bound, $line ) !== 1 ) continue;
+            if ( preg_match( $literal, $line ) !== 1 && preg_match( $bound, $line ) !== 1 && preg_match( $one_in, $line ) !== 1 ) continue;
             foreach ( $allowed as $fragment ) {
                 if ( strpos( $line, $fragment ) !== false ) continue 2;
             }
