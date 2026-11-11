@@ -748,6 +748,43 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
     }
 
     /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */
+    /**
+     * #5115 — the coverage banner at the top prints whole and wraps inside
+     * the page. It was one line cut at 150 characters and clipped at the
+     * right margin; a Dutch banner naming its activities lost its end. The
+     * page estimate counts the lines it wraps to, checked against DomPDF.
+     */
+    public function test_a_long_coverage_banner_prints_whole_and_wraps(): void {
+        $titles = [
+            'Training zonder presentielijst', 'Oefenwedstrijd tegen Blauw Geel', 'Keeperstraining dinsdagavond',
+            'Techniektraining woensdagmiddag', 'Wedstrijd tegen Kampong JO14-2', 'Conditietraining op het hoofdveld',
+            'Positiespel in kleine partijen', 'Afwerktraining met de spitsen',
+        ];
+        $report = $this->report( 18 );
+        $report['data']['coverage']['missing']      = array_map( static fn( string $t, int $i ): array => [ 'title' => $t, 'date' => sprintf( '2026-08-%02d', 2 + $i ) ], $titles, array_keys( $titles ) );
+        $report['data']['coverage']['never_closed'] = [ [ 'title' => 'Nooit afgesloten training na de wedstrijd', 'date' => '2026-08-28' ] ];
+
+        $text = TeamMonthlyReportDocument::coverageText( $report['data']['coverage'] );
+        $this->assertGreaterThan( 300, mb_strlen( $text ), 'precondition: a banner of three lines and more' );
+
+        foreach ( [ 'A', 'B' ] as $layout ) {
+            $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
+            $this->assertStringContainsString( esc_html( $text ), $payload['html'], "{$layout}: the whole banner, no cut" );
+            $this->assertStringContainsString( 'Nooit afgesloten training na de wedstrijd', $payload['html'] );
+            $this->assertStringContainsString( '.cov td{height:7mm;padding:0 2mm;font-size:7.5pt;line-height:1.25;vertical-align:middle;white-space:normal;overflow-wrap:anywhere', $payload['html'], "{$layout}: and it wraps" );
+
+            if ( ! class_exists( \Dompdf\Dompdf::class ) ) continue;
+            $options = new \Dompdf\Options();
+            $options->set( 'defaultFont', 'DejaVu Sans' );
+            $options->set( 'isHtml5ParserEnabled', true );
+            $dompdf = new \Dompdf\Dompdf( $options );
+            $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+            $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+            $dompdf->render();
+            $this->assertSame( TeamMonthlyReportLayout::fit( $report, $layout )['pages'], $dompdf->getCanvas()->get_page_count(), "{$layout}: the panel and the paper agree" );
+        }
+    }
+
     public function test_written_text_prints_whole(): void {
         $report = $this->withLongText( $this->only( $this->report( 20 ), [ 'attention', 'changes', 'quality' ] ) );
         $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
