@@ -85,7 +85,7 @@ Een verticale tijdlijn van je mijlpalen, evaluaties, blessures, leeftijdsovergan
 ### Mijn POP
 Je persoonlijke ontwikkelingsplan — de lange versie van je actieve doelen, met meerdere gespreksrondes, afgesproken acties en het seizoensoordeel. Beschikbaar wanneer de POP-module aan staat.
 
-Als je trainer een gesprek op een gespreksformulier ondertekent, krijg je een bericht en staat het gesprek hier: één uitklapblok per onderdeel van het formulier met jouw gemiddelde en dat van je trainer, bij elk item beide cijfers, de toelichting van je trainer, de grootste kwaliteit die jullie afspraken, en je twee ontwikkelpunten met hun deadline. Heb je niet voorbereid, dan staat in jouw kolom "niet ingevuld". Tik op **Gelezen** als je het hebt gelezen; daarna staat bij het gesprek de datum waarop je het bevestigde.
+Als je trainer een gesprek op een gespreksformulier ondertekent, krijg je een bericht en staat het gesprek hier: één uitklapblok per onderdeel van het formulier met jouw gemiddelde en dat van je trainer, bij elk item beide cijfers, de toelichting van je trainer, de grootste kwaliteit die jullie afspraken, en je twee ontwikkelpunten met hun deadline. Heb je niet voorbereid, dan staat in jouw kolom "niet ingevuld". Tik op **Ik heb het gelezen** zodra je het hebt gelezen; daarna staat bij het gesprek de datum waarop je het bevestigde.
 
 ## Mijn instellingen (rechtsboven onder je naam)
 

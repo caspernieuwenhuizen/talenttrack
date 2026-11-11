@@ -245,7 +245,7 @@ Zodra de trainer ondertekent, krijgen de speler en het gezin bericht en kunnen z
 - **Het ondertekende formulier, één uitklapblok per onderdeel.** De titel van elk blok toont het gemiddelde van de speler en dat van de trainer. Daarin staan bij elk item beide cijfers met hun label, en daarna de toelichting van de trainer bij dat onderdeel. Het eerste blok staat open; de andere gaan open met een tik of met Enter.
 - **Een speler die niet heeft voorbereid**, leest "niet ingevuld" in de eigen kolom. De cijfers van de trainer staan er gewoon.
 - **Onder de blokken**: de afgesproken grootste kwaliteit met daaronder wat de speler schreef, en de twee ontwikkelpunten met de actie, hoe de trainer helpt, de deadline en een link naar het doel.
-- **Gelezen** bevestigt het gesprek. De speler bevestigt voor zichzelf en een ouder voor het eigen deel; daarna staat in het blok wanneer het is bevestigd. Voor het ondertekenen valt er niets te bevestigen, en wordt de bevestiging geweigerd.
+- **Ik heb het gelezen** bevestigt het gesprek. De speler bevestigt voor zichzelf en een ouder voor het eigen deel; daarna staat in het blok wanneer het is bevestigd. Voor het ondertekenen valt er niets te bevestigen, en wordt de bevestiging geweigerd.
 - Een ouder ziet niets van het formulier voor het ondertekenen, en een ouder die niet aan de speler is gekoppeld ziet helemaal niets.
 
 ## Werkflow­herinneringen

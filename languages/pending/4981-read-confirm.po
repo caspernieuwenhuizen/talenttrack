@@ -97,7 +97,7 @@ msgstr "Open het doel"
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
 msgctxt "PDP conversation form: confirm reading the signed talk"
 msgid "I have read it"
-msgstr "Gelezen"
+msgstr "Ik heb het gelezen"
 
 #. translators: %s: date and time the reader confirmed reading the signed talk
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
