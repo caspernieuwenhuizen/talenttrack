@@ -293,7 +293,7 @@ final class SpondSync {
      * Spond group, and inserting it again would show it twice. The update
      * never writes `team_id`, so the move stays as the coach set it.
      */
-    private static function existingFor( string $uid, int $team_id ): ?object {
+    private static function existingFor( string $uid, int $team_id ): ?\stdClass {
         global $wpdb;
         $p       = $wpdb->prefix;
         $columns = 'id, activity_type_key, opponent, home_away, archived_at, archived_by, sync_locked_fields';
@@ -308,7 +308,7 @@ final class SpondSync {
               LIMIT 1",
             $uid, 'spond', CurrentClub::id(), $team_id
         ) );
-        if ( $own ) return $own;
+        if ( $own instanceof \stdClass ) return $own;
 
         $any = $wpdb->get_row( $wpdb->prepare(
             "SELECT {$columns} FROM {$p}tt_activities
@@ -319,7 +319,7 @@ final class SpondSync {
               LIMIT 1",
             $uid, 'spond', CurrentClub::id()
         ) );
-        return $any ?: null;
+        return $any instanceof \stdClass ? $any : null;
     }
 
     /**
