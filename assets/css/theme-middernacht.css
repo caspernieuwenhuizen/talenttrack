@@ -1,14 +1,27 @@
 /*
- * theme-middernacht.css — the `middernacht` theme (#5092): midnight navy and electric blue, with
- * Exo for the headings and Poppins for the rest.
+ * theme-middernacht.css — the `middernacht` theme (#5092): midnight navy and electric blue.
  *
  * Loaded ONLY when ThemePreference resolves to `middernacht`. Under the
  * `default` theme this file is never enqueued and no theme class is
  * stamped, which is what keeps `default` a complete rollback.
  *
- * The fonts are bundled under `assets/fonts/exo/` and `assets/fonts/poppins/` (OFL), so they load only while
- * this theme is active and the page makes no request to a third-party
- * font host.
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * The fonts are bundled under `assets/fonts/exo/` and `assets/fonts/poppins/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
  */
 
 @font-face {
@@ -68,9 +81,193 @@
 }
 
 .tt-dashboard.tt-theme-middernacht {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #0567b1;
+    --tt-primary-rgb:   5, 103, 177;
+    --tt-secondary:     #0681dd;
+    --tt-secondary-rgb: 6, 129, 221;
+    --tt-accent:        #0567b1;
+    --tt-primary-deep:  #040828;
+    --tt-primary-ink:   #0675cb;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #0681dd;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0b0f22;
+    --tt-ink-soft:   #444a5e;
+    --tt-muted:      #656b7d;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f3f5f9;
+    --tt-line:       #dde1ea;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-info:           #0567b1;
+    --tt-info-subtle:    #e3f0fb;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #0567b1;
+    --tt-link-hover: #066fc2;
+    --tt-link-wash:  rgba(5, 103, 177, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(4,8,40,0.24);
+
     /* ---- Type ------------------------------------------------------ */
     --tt-font-display: "Exo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --tt-font-body:    "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- Theme-local ----------------------------------------------- */
+    --tt-theme-chrome:          #040828;
+    --tt-theme-chrome-2:        #181c39;
+    --tt-theme-chrome-active:   #2c304a;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b4b5bf;
+    --tt-theme-chrome-line:     #272b46;
+    --tt-theme-marker:          #0681dd;
+    --tt-theme-accent-text:     #066fc2;
+    --tt-theme-accent-on-primary: #cde6f8;
+    --tt-theme-accent-on-chrome:  #0681dd;
+}
+
+/* ---- Chrome: the header -------------------------------------------- */
+/* The deep colour, closed by the shipped 3px rule in the secondary: the
+   design's header underline. */
+.tt-dashboard.tt-theme-middernacht .tt-dash-header {
+    background: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-middernacht .tt-dash-help:hover,
+.tt-dashboard.tt-theme-middernacht .tt-dash-help:focus-visible {
+    color: var(--tt-theme-accent-on-chrome);
+}
+
+/* ---- Chrome: the rail ---------------------------------------------- */
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav {
+    background: var(--tt-theme-chrome);
+    border-inline-end-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-theme-chrome-2);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-theme-chrome-active);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-theme-chrome-2);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: -2px;
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-theme-marker);
+    color: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-theme-chrome-line);
+        background: var(--tt-theme-chrome-2);
+        color: var(--tt-theme-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-middernacht.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-theme-chrome-ink);
+    }
+}
+
+/* ---- The accent as text -------------------------------------------- */
+/* These surfaces print --tt-secondary as text. The accent is for fills
+   and markers, so as text it takes the variant that clears 4.5:1 on the
+   surface underneath. */
+.tt-dashboard.tt-theme-middernacht .tt-404-emblem,
+.tt-dashboard.tt-theme-middernacht .tt-viewchip__star,
+.tt-dashboard.tt-theme-middernacht .tt-podium-team-header h2 a:hover,
+.tt-dashboard.tt-theme-middernacht .tt-podium-team-header h2 a:focus-visible,
+.tt-dashboard.tt-theme-middernacht .tt-pop-pct {
+    color: var(--tt-theme-accent-text);
+}
+
+.tt-dashboard.tt-theme-middernacht .tt-ov-ovr-label,
+.tt-dashboard.tt-theme-middernacht .tt-devhome-today__cta,
+.tt-dashboard.tt-theme-middernacht .tt-mt-mate__initials {
+    color: var(--tt-theme-accent-on-primary);
 }
 
 /* ---- Display type -------------------------------------------------- */

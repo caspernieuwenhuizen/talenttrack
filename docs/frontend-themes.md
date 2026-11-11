@@ -42,36 +42,42 @@ printed feel.
 **Polder** — deep teal and coral, set in DM Sans. Warm and approachable; a
 good fit for younger age groups and for what parents see.
 
-In these themes the header and the navigation rail take the theme's deepest
-colour, and the accent marks the section you are on. Where the accent is too
-light to read as text on white, words in that colour use a darker shade of it.
-
 **Geel-Zwart** — two-tone black and signal yellow, with Oswald for the
-headings.
+headings. Pure two-tone and the loudest on screen; the yellow carries every
+highlight.
 
-**Groen-Wit** — two-tone tonal green and mint white, set in Manrope.
+**Groen-Wit** — two-tone tonal green and mint white, set in Manrope. One hue,
+light and dark; fresh and quiet for clubs in green and white.
 
-**Paars-Wit** — two-tone tonal violet and lilac, set in Outfit.
+**Paars-Wit** — two-tone tonal violet and lilac, set in Outfit. One hue, light
+and dark; it stands apart from the usual football palettes.
 
 **Wapenschild** — a black header, green actions and a yellow accent, set in
-Montserrat.
+Montserrat. Bold and recognisable.
 
-**Streepshirt** — two-tone black and bright green, set in Montserrat.
+**Streepshirt** — two-tone black and bright green, set in Montserrat. The
+striped-shirt two-tone: black carries the screens, green highlights.
 
-**Wedstrijddag** — deep green with yellow, with Barlow Condensed for the
-headings and Montserrat for the rest.
+**Wedstrijddag** — deep green with yellow buttons, with Barlow Condensed for
+the headings and Montserrat for the rest. A matchday-programme feel.
 
 **Middernacht** — two-tone midnight navy and electric blue, with Exo for the
-headings and Poppins for the rest.
+headings and Poppins for the rest. Near-black navy with one bright blue; sleek
+and modern.
 
 **Neon** — midnight navy and neon lime, with Exo for the headings and Poppins
-for the rest.
+for the rest. Training-bib lime on midnight navy; energetic, with very high
+contrast.
 
 **Stadionlicht** — electric blue with cyan, with Exo for the headings and
-Poppins for the rest.
+Poppins for the rest. Blue leads and cyan accents; lighter and brighter than
+Middernacht.
 
-In the themes with a very light accent (Geel-Zwart, Neon, Stadionlicht) the
-accent marks and fills; it is never used for text on white.
+In all of these the header and the navigation rail take the theme's deepest
+colour, and the accent marks the section you are on. An accent is for marks
+and fills. Where it is too light to read as text, as with the yellow, lime and
+cyan of Geel-Zwart, Neon and Stadionlicht, words in that colour use a darker
+shade of it on white and a lighter one on the theme's colour.
 
 ### Fonts come with the plugin
 
@@ -260,7 +266,7 @@ stays in the system face: Barlow regular is not bundled. The player card
 
 ### Mapping a design palette
 
-The five palettes come from a design that names its colours after the design
+The fourteen palettes come from a design that names its colours after the design
 system. Each sheet maps them the same way:
 
 | Design | Product |

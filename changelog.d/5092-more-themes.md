@@ -4,7 +4,11 @@ Bump: minor
 
 Nine more looks join the visual theme picker: Geel-Zwart, Groen-Wit,
 Paars-Wit, Wapenschild, Streepshirt, Wedstrijddag, Middernacht, Neon and
-Stadionlicht, each with its fonts bundled in the plugin (Oswald, Manrope,
+Stadionlicht. Each puts its deepest colour on the header and the navigation
+rail and marks the section you are on with its accent; the very light accents
+(yellow, lime, cyan) are used for marks and fills, and words in those colours
+use a darker or lighter shade so they stay readable. Reports follow the
+theme's colour. Their fonts are bundled in the plugin (Oswald, Manrope,
 Outfit, Montserrat, Exo and Poppins, all OFL, Latin subset). The Leon Hutten
 theme is now called Kristalblauw and looks the same: the stored value is
 unchanged, so an academy that chose it keeps it with nothing to migrate. Its

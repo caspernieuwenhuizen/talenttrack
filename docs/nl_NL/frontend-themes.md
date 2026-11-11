@@ -44,36 +44,42 @@ een gedrukt gevoel.
 **Polder** — diep petrol en koraal, in DM Sans. Warm en toegankelijk; past goed
 bij jongere leeftijdsgroepen en bij wat ouders zien.
 
-In deze thema's krijgen de kopbalk en de navigatiekolom de diepste kleur van
-het thema, en markeert het accent de sectie waar je bent. Waar het accent te
-licht is om als tekst op wit te lezen, staan woorden in die kleur in een
-donkerdere tint ervan.
-
 **Geel-Zwart** — tweekleurig zwart en signaalgeel, met Oswald voor de koppen.
+Puur tweekleurig en het luidst op het scherm; het geel draagt elk accent.
 
-**Groen-Wit** — tweekleurig groen in tinten en mintwit, in Manrope.
+**Groen-Wit** — tweekleurig groen in tinten en mintwit, in Manrope. Eén kleur,
+licht en donker; fris en rustig voor clubs in groen en wit.
 
-**Paars-Wit** — tweekleurig violet in tinten en lila, in Outfit.
+**Paars-Wit** — tweekleurig violet in tinten en lila, in Outfit. Eén kleur,
+licht en donker; het valt op tussen de gebruikelijke voetbalpaletten.
 
 **Wapenschild** — een zwarte kopbalk, groene knoppen en een geel accent, in
-Montserrat.
+Montserrat. Krachtig en herkenbaar.
 
-**Streepshirt** — tweekleurig zwart en felgroen, in Montserrat.
+**Streepshirt** — tweekleurig zwart en felgroen, in Montserrat. Het
+tweekleurige gestreepte shirt: zwart draagt de schermen, groen licht op.
 
-**Wedstrijddag** — diepgroen met geel, met Barlow Condensed voor de koppen en
-Montserrat voor de rest.
+**Wedstrijddag** — diepgroen met gele knoppen, met Barlow Condensed voor de
+koppen en Montserrat voor de rest. Het gevoel van een wedstrijdprogramma.
 
 **Middernacht** — tweekleurig middernachtblauw en elektrisch blauw, met Exo
-voor de koppen en Poppins voor de rest.
+voor de koppen en Poppins voor de rest. Bijna zwart marineblauw met één fel
+blauw; strak en modern.
 
 **Neon** — middernachtblauw en neonlimoen, met Exo voor de koppen en Poppins
-voor de rest.
+voor de rest. Hesjeslimoen op middernachtblauw; energiek, met heel veel
+contrast.
 
 **Stadionlicht** — elektrisch blauw met cyaan, met Exo voor de koppen en
-Poppins voor de rest.
+Poppins voor de rest. Blauw voorop met cyaan als accent; lichter en feller dan
+Middernacht.
 
-In de thema's met een heel licht accent (Geel-Zwart, Neon, Stadionlicht)
-markeert en vult het accent; het wordt nooit gebruikt voor tekst op wit.
+In al deze thema's krijgen de kopbalk en de navigatiekolom de diepste kleur
+van het thema, en markeert het accent de sectie waar je bent. Een accent is er
+voor markeringen en vlakken. Waar het te licht is om als tekst te lezen, zoals
+het geel, het limoen en het cyaan van Geel-Zwart, Neon en Stadionlicht, staan
+woorden in die kleur in een donkerdere tint ervan op wit en een lichtere op de
+themakleur.
 
 ### De letters zitten in de plugin
 
@@ -273,7 +279,7 @@ uit dezelfde map.
 
 ### Een ontwerppalet vertalen
 
-De vijf paletten komen uit een ontwerp dat zijn kleuren noemt naar het
+De veertien paletten komen uit een ontwerp dat zijn kleuren noemt naar het
 designsysteem. Elk stijlblad vertaalt ze op dezelfde manier:
 
 | Ontwerp | Product |

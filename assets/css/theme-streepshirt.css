@@ -1,14 +1,27 @@
 /*
- * theme-streepshirt.css — the `streepshirt` theme (#5092): black and bright green, with
- * set in Montserrat.
+ * theme-streepshirt.css — the `streepshirt` theme (#5092): black and bright green.
  *
  * Loaded ONLY when ThemePreference resolves to `streepshirt`. Under the
  * `default` theme this file is never enqueued and no theme class is
  * stamped, which is what keeps `default` a complete rollback.
  *
- * The fonts are bundled under `assets/fonts/montserrat/` (OFL), so they load only while
- * this theme is active and the page makes no request to a third-party
- * font host.
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * The fonts are bundled under `assets/fonts/montserrat/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
  */
 
 @font-face {
@@ -52,9 +65,193 @@
 }
 
 .tt-dashboard.tt-theme-streepshirt {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #2a262a;
+    --tt-primary-rgb:   42, 38, 42;
+    --tt-secondary:     #2fa557;
+    --tt-secondary-rgb: 47, 165, 87;
+    --tt-accent:        #2a262a;
+    --tt-primary-deep:  #1e1a1e;
+    --tt-primary-ink:   #3d383d;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #2fa557;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #141214;
+    --tt-ink-soft:   #484548;
+    --tt-muted:      #6a676a;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f4f6f3;
+    --tt-line:       #e0e3dd;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-success:        #186f36;
+    --tt-success-subtle: #dff1e4;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #2a262a;
+    --tt-link-hover: #3d383d;
+    --tt-link-wash:  rgba(42, 38, 42, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(30,26,30,0.22);
+
     /* ---- Type ------------------------------------------------------ */
     --tt-font-display: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --tt-font-body:    "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- Theme-local ----------------------------------------------- */
+    --tt-theme-chrome:          #1e1a1e;
+    --tt-theme-chrome-2:        #302c30;
+    --tt-theme-chrome-active:   #423f42;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bcbabc;
+    --tt-theme-chrome-line:     #3e3a3e;
+    --tt-theme-marker:          #2fa557;
+    --tt-theme-accent-text:     #2a7b46;
+    --tt-theme-accent-on-primary: #2fa557;
+    --tt-theme-accent-on-chrome:  #2fa557;
+}
+
+/* ---- Chrome: the header -------------------------------------------- */
+/* The deep colour, closed by the shipped 3px rule in the secondary: the
+   design's header underline. */
+.tt-dashboard.tt-theme-streepshirt .tt-dash-header {
+    background: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-streepshirt .tt-dash-help:hover,
+.tt-dashboard.tt-theme-streepshirt .tt-dash-help:focus-visible {
+    color: var(--tt-theme-accent-on-chrome);
+}
+
+/* ---- Chrome: the rail ---------------------------------------------- */
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav {
+    background: var(--tt-theme-chrome);
+    border-inline-end-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-theme-chrome-2);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-theme-chrome-active);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-theme-chrome-2);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: -2px;
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-theme-marker);
+    color: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-theme-chrome-line);
+        background: var(--tt-theme-chrome-2);
+        color: var(--tt-theme-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-streepshirt.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-theme-chrome-ink);
+    }
+}
+
+/* ---- The accent as text -------------------------------------------- */
+/* These surfaces print --tt-secondary as text. The accent is for fills
+   and markers, so as text it takes the variant that clears 4.5:1 on the
+   surface underneath. */
+.tt-dashboard.tt-theme-streepshirt .tt-404-emblem,
+.tt-dashboard.tt-theme-streepshirt .tt-viewchip__star,
+.tt-dashboard.tt-theme-streepshirt .tt-podium-team-header h2 a:hover,
+.tt-dashboard.tt-theme-streepshirt .tt-podium-team-header h2 a:focus-visible,
+.tt-dashboard.tt-theme-streepshirt .tt-pop-pct {
+    color: var(--tt-theme-accent-text);
+}
+
+.tt-dashboard.tt-theme-streepshirt .tt-ov-ovr-label,
+.tt-dashboard.tt-theme-streepshirt .tt-devhome-today__cta,
+.tt-dashboard.tt-theme-streepshirt .tt-mt-mate__initials {
+    color: var(--tt-theme-accent-on-primary);
 }
 
 /* ---- Display type -------------------------------------------------- */

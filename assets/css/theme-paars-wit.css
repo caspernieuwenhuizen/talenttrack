@@ -1,14 +1,27 @@
 /*
- * theme-paars-wit.css — the `paars-wit` theme (#5092): tonal violet and lilac, with
- * set in Outfit.
+ * theme-paars-wit.css — the `paars-wit` theme (#5092): tonal violet and lilac.
  *
  * Loaded ONLY when ThemePreference resolves to `paars-wit`. Under the
  * `default` theme this file is never enqueued and no theme class is
  * stamped, which is what keeps `default` a complete rollback.
  *
- * The fonts are bundled under `assets/fonts/outfit/` (OFL), so they load only while
- * this theme is active and the page makes no request to a third-party
- * font host.
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * The fonts are bundled under `assets/fonts/outfit/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
  */
 
 @font-face {
@@ -52,9 +65,189 @@
 }
 
 .tt-dashboard.tt-theme-paars-wit {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #4b1f7a;
+    --tt-primary-rgb:   75, 31, 122;
+    --tt-secondary:     #c9b2ea;
+    --tt-secondary-rgb: 201, 178, 234;
+    --tt-accent:        #4b1f7a;
+    --tt-primary-deep:  #24103d;
+    --tt-primary-ink:   #6a35a3;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #c9b2ea;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #1a1225;
+    --tt-ink-soft:   #4d4559;
+    --tt-muted:      #6e6679;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f6f3fa;
+    --tt-line:       #e4def0;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #4b1f7a;
+    --tt-link-hover: #6a35a3;
+    --tt-link-wash:  rgba(75, 31, 122, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(75,31,122,0.18);
+
     /* ---- Type ------------------------------------------------------ */
     --tt-font-display: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --tt-font-body:    "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- Theme-local ----------------------------------------------- */
+    --tt-theme-chrome:          #24103d;
+    --tt-theme-chrome-2:        #36234d;
+    --tt-theme-chrome-active:   #47365c;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #bdb7c5;
+    --tt-theme-chrome-line:     #433158;
+    --tt-theme-marker:          #c9b2ea;
+    --tt-theme-accent-text:     #776194;
+    --tt-theme-accent-on-primary: #c9b2ea;
+    --tt-theme-accent-on-chrome:  #c9b2ea;
+}
+
+/* ---- Chrome: the header -------------------------------------------- */
+/* The deep colour, closed by the shipped 3px rule in the secondary: the
+   design's header underline. */
+.tt-dashboard.tt-theme-paars-wit .tt-dash-header {
+    background: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-paars-wit .tt-dash-help:hover,
+.tt-dashboard.tt-theme-paars-wit .tt-dash-help:focus-visible {
+    color: var(--tt-theme-accent-on-chrome);
+}
+
+/* ---- Chrome: the rail ---------------------------------------------- */
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav {
+    background: var(--tt-theme-chrome);
+    border-inline-end-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-theme-chrome-2);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-theme-chrome-active);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-theme-chrome-2);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: -2px;
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-theme-marker);
+    color: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-theme-chrome-line);
+        background: var(--tt-theme-chrome-2);
+        color: var(--tt-theme-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-paars-wit.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-theme-chrome-ink);
+    }
+}
+
+/* ---- The accent as text -------------------------------------------- */
+/* These surfaces print --tt-secondary as text. The accent is for fills
+   and markers, so as text it takes the variant that clears 4.5:1 on the
+   surface underneath. */
+.tt-dashboard.tt-theme-paars-wit .tt-404-emblem,
+.tt-dashboard.tt-theme-paars-wit .tt-viewchip__star,
+.tt-dashboard.tt-theme-paars-wit .tt-podium-team-header h2 a:hover,
+.tt-dashboard.tt-theme-paars-wit .tt-podium-team-header h2 a:focus-visible,
+.tt-dashboard.tt-theme-paars-wit .tt-pop-pct {
+    color: var(--tt-theme-accent-text);
+}
+
+.tt-dashboard.tt-theme-paars-wit .tt-ov-ovr-label,
+.tt-dashboard.tt-theme-paars-wit .tt-devhome-today__cta,
+.tt-dashboard.tt-theme-paars-wit .tt-mt-mate__initials {
+    color: var(--tt-theme-accent-on-primary);
 }
 
 /* ---- Display type -------------------------------------------------- */
