@@ -158,14 +158,7 @@ final class SpondSync {
             if ( $uid === '' ) continue;
             $seen[] = $uid;
 
-            $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, activity_type_key, opponent, home_away, archived_at, archived_by, sync_locked_fields FROM {$p}tt_activities
-                  WHERE external_id = %s
-                    AND activity_source_key = %s
-                    AND club_id = %d
-                  LIMIT 1",
-                $uid, 'spond', CurrentClub::id()
-            ) );
+            $existing = self::existingFor( $uid, $team_id );
 
             $title    = (string) ( $event['summary'] ?? '' );
             $location = (string) ( $event['location'] ?? '' );
@@ -289,6 +282,45 @@ final class SpondSync {
 
     /** Activity types that carry kickoff + presence times. */
     private const MATCH_TYPES = [ 'game', 'match', 'friendly', 'tournament' ];
+
+    /**
+     * #5072 — the activity a Spond event updates: the syncing team's own
+     * row first, the scope `SpondRemovedEvents::plan()` uses, so a copy
+     * from a same-install import or a second team on the same Spond group
+     * each keeps its own row. Only when the team has none, the club-wide
+     * match, lowest id first, which finds an activity a coach moved to
+     * another team in TalentTrack: the event still lives in the old team's
+     * Spond group, and inserting it again would show it twice. The update
+     * never writes `team_id`, so the move stays as the coach set it.
+     */
+    private static function existingFor( string $uid, int $team_id ): ?\stdClass {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $columns = 'id, activity_type_key, opponent, home_away, archived_at, archived_by, sync_locked_fields';
+
+        $own = $wpdb->get_row( $wpdb->prepare(
+            "SELECT {$columns} FROM {$p}tt_activities
+              WHERE external_id = %s
+                AND activity_source_key = %s
+                AND club_id = %d
+                AND team_id = %d
+           ORDER BY id ASC
+              LIMIT 1",
+            $uid, 'spond', CurrentClub::id(), $team_id
+        ) );
+        if ( $own instanceof \stdClass ) return $own;
+
+        $any = $wpdb->get_row( $wpdb->prepare(
+            "SELECT {$columns} FROM {$p}tt_activities
+              WHERE external_id = %s
+                AND activity_source_key = %s
+                AND club_id = %d
+           ORDER BY id ASC
+              LIMIT 1",
+            $uid, 'spond', CurrentClub::id()
+        ) );
+        return $any instanceof \stdClass ? $any : null;
+    }
 
     /**
      * Split a UTC `Y-m-d H:i:s` into a local `[ date, time ]` pair using
