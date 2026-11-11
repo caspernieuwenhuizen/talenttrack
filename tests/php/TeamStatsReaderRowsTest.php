@@ -125,8 +125,10 @@ final class TeamStatsReaderRowsTest extends WP_UnitTestCase {
         $few  = $this->rows( 2 );
         $many = $this->rows( 12 );
 
-        $this->assertSame(
-            $this->statementsFor( $this->coach(), $few ),
+        // Ten more rows: a statement per row would add ten. One may differ
+        // with what the first reader's lookups left cached.
+        $this->assertLessThanOrEqual(
+            $this->statementsFor( $this->coach(), $few ) + 1,
             $this->statementsFor( $this->coach(), $many ),
             'no statement per row'
         );
