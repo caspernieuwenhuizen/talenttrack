@@ -255,18 +255,13 @@ final class ThemeContrastTest extends WP_UnitTestCase {
     }
 
     /**
-     * Component sheets that alias a theme token on `.tt-root` only, so the
-     * alias keeps the default design's value under every theme. Each is a
-     * known gap, not a decision: fixing one is moving its selector to
-     * `.tt-root, .tt-dashboard` and deleting it from this list.
-     */
-    private const ROOT_ONLY_ALIASES = [ 'persona-dashboard.css' ];
-
-    /**
-     * #5130 — a custom property resolves its `var()` where it is declared,
-     * and a theme sets its tokens on `.tt-dashboard`. A component sheet that
-     * defines an alias of a token any theme sets declares it on
-     * `.tt-dashboard` too, or the alias ignores the theme.
+     * #5130, #5136 — a custom property resolves its `var()` where it is
+     * declared, and a theme sets its tokens on `.tt-dashboard`. Every alias
+     * of a token any theme sets that a component sheet declares on
+     * `.tt-root` is re-declared, by name, in a rule of the same sheet whose
+     * selector starts with `.tt-dashboard` (`.tt-dashboard` itself, or
+     * `.tt-dashboard.tt-themed` where the default design must keep the
+     * `.tt-root` value), or the alias ignores the theme.
      */
     public function test_component_aliases_of_theme_tokens_follow_the_theme(): void {
         $themed = [];
@@ -287,21 +282,29 @@ final class ThemeContrastTest extends WP_UnitTestCase {
             if ( $name === 'tokens.css' || strpos( $name, 'theme-' ) === 0 ) continue;
             $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
             if ( ! preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) continue;
+
+            $rooted    = [];
+            $dashboard = [];
             foreach ( $rules as $rule ) {
                 $selectors = array_map( 'trim', explode( ',', $rule[1] ) );
-                if ( ! in_array( '.tt-root', $selectors, true ) || in_array( '.tt-dashboard', $selectors, true ) ) continue;
-                if ( ! preg_match_all( '/--[a-z0-9-]+\s*:\s*var\(\s*(--tt-[a-z0-9-]+)/', $rule[2], $reads ) ) continue;
-                foreach ( $reads[1] as $token ) {
-                    if ( isset( $themed[ $token ] ) ) {
-                        $offenders[ $name ] = true;
-                        break;
-                    }
+                $on_root   = in_array( '.tt-root', $selectors, true );
+                $on_dash   = false;
+                foreach ( $selectors as $selector ) {
+                    if ( preg_match( '/^\.tt-dashboard(?![a-z0-9_-])/', $selector ) ) $on_dash = true;
                 }
+                if ( ! preg_match_all( '/(--[a-z0-9-]+)\s*:\s*var\(\s*(--tt-[a-z0-9-]+)/', $rule[2], $decls, PREG_SET_ORDER ) ) continue;
+                foreach ( $decls as $decl ) {
+                    if ( $on_dash ) $dashboard[ $decl[1] ] = true;
+                    if ( $on_root && ! $on_dash && isset( $themed[ $decl[2] ] ) ) $rooted[ $decl[1] ] = true;
+                }
+            }
+            $missing = array_keys( array_diff_key( $rooted, $dashboard ) );
+            if ( $missing ) {
+                $offenders[] = $name . ': ' . implode( ', ', $missing );
             }
         }
 
-        $this->assertSame( [], array_values( array_diff( array_keys( $offenders ), self::ROOT_ONLY_ALIASES ) ), 'declare these aliases on `.tt-root, .tt-dashboard`' );
-        $this->assertSame( [], array_values( array_diff( self::ROOT_ONLY_ALIASES, array_keys( $offenders ) ) ), 'fixed: delete it from ROOT_ONLY_ALIASES' );
+        $this->assertSame( [], $offenders, 're-declare these aliases in a .tt-dashboard rule' );
     }
 
     /**

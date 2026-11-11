@@ -143,7 +143,7 @@ thema, volgens hetzelfde patroon als `ShellPreference`:
 | Academiestandaard | `tt_config`-sleutel `tt_frontend_theme` (club-gebonden) |
 | Persoonlijke voorkeur | gebruikersmeta `tt_frontend_theme`; `inherit` volgt de club |
 | Volgorde | voorkeur → academiestandaard → `default` |
-| Wortelklasse | `ThemePreference::rootClass()`, `''` bij het standaardthema |
+| Wortelklasse | `ThemePreference::rootClass()`: `tt-theme-<waarde>` en `tt-themed` bij elk thema, plus `tt-theme-shared` bij een thema dat alleen tokens is; `''` bij het standaardthema |
 | Stijlblad | `ThemePreference::styleFile()`, `''` bij het standaardthema |
 
 Lees altijd via de resolver, nooit rechtstreeks de configuratiesleutel — dat
@@ -298,6 +298,24 @@ vlakken) of richting wit (op donkere), tot hij de grens haalt. De focusring
 volgt `--tt-primary`; een thema zet geen `--tt-focus-ring`.
 `ReportBrandColour::THEME_PRIMARY` bevat de primaire kleur van elk thema,
 zodat rapporten het thema ook volgen.
+
+### Aliassen in componenten volgen het thema
+
+Een componentstijlblad dat een eigen alias van een token definieert, zoals
+`--tt-tc-bg: var(--tt-bg-soft)`, moet die op `.tt-dashboard` declareren en op
+`.tt-root`. Een custom property lost zijn `var()` op waar hij gedeclareerd
+wordt, en een thema zet zijn tokens op `.tt-dashboard`; een alias alleen op
+`.tt-root` houdt daardoor onder elk thema de waarde van het standaardontwerp.
+
+Waar het standaardontwerp een waarde op `.tt-root` moet houden, wordt de alias
+in plaats daarvan opnieuw gedeclareerd onder `.tt-dashboard.tt-themed`, wat
+alleen geldt zolang er een thema actief is. Het startdashboard doet dat: de
+visuele editor schrijft zijn `--tt-pd-*`-waarden op `.tt-root`, zodat ze in het
+standaardontwerp blijven gelden, en onder een thema levert het thema ze, net
+als bij elk ander token. `ThemeContrastTest` controleert dat per naam: elke
+alias van een token dat een thema zet en die een stijlblad op `.tt-root`
+declareert, wordt opnieuw gedeclareerd in een `.tt-dashboard`-regel van
+hetzelfde stijlblad.
 
 ### De secundaire kleur als tekst
 
