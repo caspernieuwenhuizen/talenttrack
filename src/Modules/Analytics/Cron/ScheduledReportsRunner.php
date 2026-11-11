@@ -51,6 +51,12 @@ final class ScheduledReportsRunner {
     /** The length of the schedule's `last_error` column. */
     private const NOTE_LIMIT = 255;
 
+    /**
+     * #4963 — the most Studio schedules one run sends. A schedule past it
+     * stays due and goes out on the next run.
+     */
+    public const STUDIO_PER_RUN = 20;
+
     public static function init(): void {
         add_action( self::HOOK, [ self::class, 'run' ] );
         // Schedule on plugin boot if missing.
@@ -68,9 +74,10 @@ final class ScheduledReportsRunner {
             return;
         }
 
-        $repo = new ScheduledReportsRepository();
-        $due  = $repo->dueForRun();
-        $now  = current_time( 'mysql', true );
+        $repo   = new ScheduledReportsRepository();
+        $due    = $repo->dueForRun();
+        $now    = current_time( 'mysql', true );
+        $studio = 0;
 
         foreach ( $due as $schedule ) {
             // #3462 — the team monthly report renders a PDF from the
@@ -83,6 +90,14 @@ final class ScheduledReportsRunner {
             // #3891 — the player report, one player or a squad's round.
             if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_PLAYER ) {
                 self::runPlayerReport( $repo, $schedule, $now );
+                continue;
+            }
+            // #4963 — a published Report Studio report, bounded per tick: a
+            // Studio run composes every block for every reader, so the rest
+            // wait for the next run rather than stretching this one.
+            if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_STUDIO ) {
+                if ( ++$studio > self::STUDIO_PER_RUN ) continue;
+                self::runStudio( $repo, $schedule, $now );
                 continue;
             }
 
@@ -531,8 +546,9 @@ final class ScheduledReportsRunner {
      * @param array<string,mixed> $schedule
      * @param callable(array<string,mixed>, string, array{recipients: list<Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>}): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>} $render
      * @param callable(int, array<string,mixed>): bool $may_receive
+     * @param bool $tell_owner_on_stop #4963 — a run that pauses the schedule tells its owner, once per breakage
      */
-    private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render, callable $may_receive ): void {
+    private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render, callable $may_receive, bool $tell_owner_on_stop = false ): void {
         $id         = (int) ( $schedule['id'] ?? 0 );
         $resolved   = self::resolveRecipients( (array) ( $schedule['recipients'] ?? [] ) );
         $recipients = $resolved['recipients'];
@@ -549,6 +565,7 @@ final class ScheduledReportsRunner {
         // shared PDF carries only what every recipient may read.
         $result = $render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ), $resolved );
         if ( ! $result['ok'] ) {
+            if ( $result['stop'] && $tell_owner_on_stop ) self::tellOwnerPaused( $schedule, mb_substr( $result['error'], 0, self::NOTE_LIMIT ) );
             $repo->recordError( $id, $result['error'] );
             self::auditLog( $schedule, count( $recipients ), false, $skipped );
             if ( $result['stop'] ) {
@@ -729,6 +746,23 @@ final class ScheduledReportsRunner {
             $entry = trim( (string) $entry );
             if ( $entry === '' ) continue;
 
+            // #4963 — an account by its id, as a Studio schedule names one,
+            // so a changed address does not lose the recipient. Only an
+            // account in this club with an address receives anything.
+            $account = self::accountIdOf( $entry );
+            if ( $account !== null ) {
+                if ( isset( $users[ $account ] ) || isset( $seen[ $account ] ) ) continue;
+                $email = $account > 0 && self::inClub( $account ) ? (string) ( ContactResolver::emailForUser( $account ) ?? '' ) : '';
+                if ( $email === '' || ! is_email( $email ) ) {
+                    $seen[ $account ] = true;
+                    $skipped[]        = [ 'email' => '', 'user_id' => 0, 'reason' => 'not_in_club', 'via' => '' ];
+                    continue;
+                }
+                $users[ $account ] = self::userRecipient( $account, $email );
+                $via[ $account ]   = '';
+                continue;
+            }
+
             if ( is_email( $entry ) ) {
                 $user_id = self::clubAccountFor( $entry );
                 if ( $user_id > 0 ) {
@@ -767,6 +801,58 @@ final class ScheduledReportsRunner {
             if ( ! $matched ) $unresolved[] = $entry;
         }
         return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => $skipped, 'unresolved' => $unresolved ];
+    }
+
+    /** #4963 — the prefix of a recipient entry that names an account by its id. */
+    public const ACCOUNT_PREFIX = 'user:';
+
+    /** The account id an entry such as `user:12` names; null for any other entry. */
+    public static function accountIdOf( string $entry ): ?int {
+        return preg_match( '/^' . preg_quote( self::ACCOUNT_PREFIX, '/' ) . '(\d+)$/', $entry, $m ) === 1 ? (int) $m[1] : null;
+    }
+
+    /**
+     * #4963 — one Studio schedule: the report's published version, composed
+     * for the owner and every recipient together
+     * (`ReportData::composeForReaders()`), rendered and sent like the monthly
+     * report. A run that pauses the schedule tells the owner once.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    public static function runStudio( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
+        $report = \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::reportOf( $schedule );
+        self::runPdf(
+            $repo, $schedule, $now_utc,
+            [ \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::class, 'render' ],
+            static fn( int $user_id, array $result ): bool => $report !== null && \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::mayReceive( $user_id, $report ),
+            true
+        );
+    }
+
+    /**
+     * #4874 / #4963 — tell the owner a schedule paused, and why, once per
+     * breakage: only when the reason is new on the schedule.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    private static function tellOwnerPaused( array $schedule, string $reason ): void {
+        if ( (string) ( $schedule['last_error'] ?? '' ) === $reason ) return;
+        $owner = (int) ( $schedule['created_by'] ?? 0 );
+        if ( $owner <= 0 || ! self::inClub( $owner ) ) return;
+
+        CommsDispatcher::dispatchSync(
+            \TT\Modules\Comms\Templates\ScheduledReportPausedTemplate::KEY,
+            [
+                'schedule_name' => (string) ( $schedule['name'] ?? '' ),
+                'reason'        => $reason,
+                'schedule_url'  => add_query_arg( [ 'tt_view' => 'scheduled-reports' ], RecordLink::dashboardUrl() ),
+            ],
+            [ self::userRecipient( $owner, (string) ( ContactResolver::emailForUser( $owner ) ?? '' ) ) ],
+            [
+                'message_type'   => MessageType::SCHEDULED_REPORT_NOT_SENT,
+                'sender_user_id' => 0,
+            ]
+        );
     }
 
     /**

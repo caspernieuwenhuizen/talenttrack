@@ -126,6 +126,88 @@ final class ReportData {
     }
 
     /**
+     * #4963 — a stored report composed once for several readers: a schedule's
+     * owner first, then everyone its PDF goes to. The published version only,
+     * never a draft. The subject is the report's own (a schedulable report
+     * stores it); a group is narrowed to the players every reader may see.
+     * Each block goes through `BlockEngine::forReaders()`, so it holds only
+     * what every reader may read. A block left out for that is named in
+     * `left_out`, with the reason, so a schedule can show it before Save.
+     *
+     * The period is the caller's: a schedule decides which window it sends.
+     *
+     * @param Report $report
+     * @param array{from:string, to:string} $period
+     * @return array<string,mixed>|StudioError the `compose()` answer plus `left_out`
+     */
+    public static function composeForReaders( array $report, array $period, \TT\Infrastructure\Visibility\ReaderSet $readers ): array|StudioError {
+        $owner   = $readers->first();
+        $version = $report['published_version_id'] !== null ? ( new ReportsRepository() )->versionById( $report['id'], $report['published_version_id'] ) : null;
+        if ( $version === null ) {
+            return new StudioError( 'not_published', __( 'This report has not been published yet.', 'talenttrack' ), 404 );
+        }
+
+        $player_ids = [];
+        if ( $report['scope'] === ReportContext::SCOPE_GROUP ) {
+            if ( $report['cohort'] === null ) return self::missing( 'cohort', __( 'This group has no teams.', 'talenttrack' ) );
+            $player_ids = ( new ReportsRepository() )->cohortPlayers( $report['cohort'] );
+            foreach ( $readers->readers as $reader ) {
+                $allowed    = AuthorizationService::canViewPlayers( $reader, $player_ids );
+                $player_ids = array_values( array_filter( $player_ids, static fn( int $pid ): bool => ! empty( $allowed[ $pid ] ) ) );
+            }
+            if ( $player_ids === [] ) {
+                return new StudioError( 'forbidden_player', __( 'No player in this group is one every recipient may see.', 'talenttrack' ), 403 );
+            }
+            $player_ids = array_slice( $player_ids, 0, ReportContext::MAX_GROUP );
+        }
+
+        $context = [
+            'scope'      => $report['scope'],
+            'player_id'  => $report['scope'] === ReportContext::SCOPE_PLAYER ? $report['player_id'] : null,
+            'team_id'    => $report['scope'] === ReportContext::SCOPE_TEAM ? $report['team_id'] : null,
+            'player_ids' => $player_ids,
+            'from'       => $period['from'],
+            'to'         => $period['to'],
+            'audience'   => $report['audience'],
+        ];
+        $checked = ReportContext::fromInput( $context, $owner );
+        if ( $checked instanceof StudioError ) return $checked;
+        $checked = ReportSubjectAccess::check( $checked );
+        if ( $checked instanceof StudioError ) return $checked;
+
+        $blocks   = [];
+        $layout   = [];
+        $left_out = [];
+        foreach ( ReportDefinition::blocks( $version['definition'], $report['layout'] ) as $block ) {
+            $read = BlockEngine::forReaders( $block['key'], $context, self::stringKeys( $block['options'] ), $readers );
+            if ( $read instanceof StudioError ) {
+                if ( in_array( $read->code, self::SUBJECT_CODES, true )
+                    || in_array( (string) ( $read->details['field'] ?? '' ), self::CONTEXT_FIELDS, true ) ) {
+                    return $read;
+                }
+                $found      = BlockRegistry::find( $block['key'] );
+                $left_out[] = [ 'id' => $block['id'], 'key' => $block['key'], 'label' => $found !== null ? $found->label() : $block['key'], 'code' => $read->code, 'reason' => $read->message ];
+                continue;
+            }
+            $out      = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
+            $blocks[] = $out;
+            $layout[] = ReportPageFit::entryOf( $out );
+        }
+
+        return [
+            'report_id'  => $report['id'],
+            'uuid'       => $report['uuid'],
+            'source'     => 'published',
+            'version_no' => $version['version_no'],
+            'layout'     => $report['layout'],
+            'context'    => $context,
+            'blocks'     => $blocks,
+            'page_fit'   => ReportPageFit::estimate( $layout ),
+            'left_out'   => $left_out,
+        ];
+    }
+
+    /**
      * The definition this reader reads: a builder's own draft by default, the
      * published version for everyone else.
      *

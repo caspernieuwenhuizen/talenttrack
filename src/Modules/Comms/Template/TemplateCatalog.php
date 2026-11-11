@@ -22,6 +22,7 @@ use TT\Modules\Comms\Templates\PdpReadyTemplate;
 use TT\Modules\Comms\Templates\SafeguardingBroadcastTemplate;
 use TT\Modules\Comms\Templates\ScheduleChangeFromSpondTemplate;
 use TT\Modules\Comms\Templates\ScheduledReportNotSentTemplate;
+use TT\Modules\Comms\Templates\ScheduledReportPausedTemplate;
 use TT\Modules\Comms\Templates\ScheduledReportTemplate;
 use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
 use TT\Modules\Comms\Templates\SelectionLetterTemplate;
@@ -91,6 +92,7 @@ final class TemplateCatalog {
             new TrialInputReminderTemplate(),
             new ScheduledReportTemplate(),
             new ScheduledReportNotSentTemplate(), // #4874 — to the owner, once per breakage
+            new ScheduledReportPausedTemplate(),  // #4963 — a Studio schedule paused, to the owner, once per breakage
             new DirectMessageTemplate(),
             new ScoutReportDeliveryTemplate(),
             new DesktopLinkTemplate(),

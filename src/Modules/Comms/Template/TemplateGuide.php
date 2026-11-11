@@ -236,6 +236,14 @@ final class TemplateGuide {
                 'when'      => __( 'The first time a scheduled run is skipped. It is sent again only if the schedule breaks again after a successful send, or after it has been paused and resumed.', 'talenttrack' ),
                 'triggered' => true,
             ],
+            // #4963 — the owner hears once when a Studio schedule pauses.
+            'scheduled_report_paused' => [
+                'family'    => self::FAMILY_TRANSACTIONAL,
+                'what'      => __( 'Tells the person who set up a scheduled Report Studio report that it was paused instead of sent, says why, and links to the schedule.', 'talenttrack' ),
+                'who'       => __( 'The person who set up the scheduled report.', 'talenttrack' ),
+                'when'      => __( 'The first time a run finds the report archived or unpublished, its subject gone, or its owner no longer allowed to change it. It is sent again only if the schedule breaks again after it has been resumed.', 'talenttrack' ),
+                'triggered' => true,
+            ],
             'desktop_link' => [
                 'family'    => self::FAMILY_TRANSACTIONAL,
                 'what'      => __( 'Emails somebody a link to a screen that needs a bigger display.', 'talenttrack' ),
