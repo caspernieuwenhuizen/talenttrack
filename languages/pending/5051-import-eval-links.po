@@ -1,0 +1,3 @@
+#: src/Modules/Backup/MigrationImporter.php
+msgid "An evaluation from a PDP conversation was imported without its link to the conversation."
+msgstr "Een evaluatie uit een POP-gesprek is geïmporteerd zonder de koppeling met het gesprek."
