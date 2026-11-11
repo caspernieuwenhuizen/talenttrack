@@ -720,6 +720,25 @@ Reading a published report needs one of the personas it was published to.
 `tt_view_reports` alone does not open it. The matrix entities and their scopes
 are described in the authorization matrix guide.
 
+**Receiving a scheduled Studio report.** A published report can also reach
+someone as a PDF on a schedule. A recipient receives it when they may open it
+(they build it, or it is published to a persona they hold), or when they read
+the Studio and may read what the report is about. That second way is the
+reading rule without the persona: a report about one fixed team is published
+to no role, and without it only its builders could receive it. It reaches no
+further than publishing could, because only the personas a report can be
+published to read the Studio. Three rules keep it narrow:
+
+- Sending a schedule to anyone but yourself needs `tt_publish_reports`, asked
+  again at every run: a schedule to others pauses when its owner loses it.
+- A report its builder kept for themselves goes to nobody else on a schedule.
+- Every recipient gets the same PDF, cut to what every one of them may read:
+  a block one of them may not read is left out for all of them.
+
+A send records one read of a player's injuries or sensitive journey entries
+per recipient, as opening the player's file would. Previewing what the
+recipients get records none.
+
 ## Strava connection — players connect their own
 
 Strava is personal activity data, so a **player** can connect their own Strava

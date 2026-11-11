@@ -760,6 +760,8 @@ What the scope means:
 
 **Reading a published report.** A user reads a published report when they hold one of the personas it was published to and can read what it is about, and each block still checks its subject against them. A coach who leaves the team stops seeing the report, in the list too. Read on `reports` alone is not enough: a scout holds it for every team and still cannot open a report that was not published to scouts.
 
+**Receiving a scheduled Studio report.** A published report can also go out as a PDF on a schedule. A recipient receives it when they may open it as above, or when they hold `report_studio` read and may read what the report is about: the reading rule without the persona. A report about one fixed team is published to no role, so without that second way only its builders could receive it. It reaches no further than a publication could, because only the publishable personas hold `report_studio` read. Sending to anyone but yourself needs `report_publishing`, asked again at every run (a schedule to others pauses when its owner loses it), and a report kept for its builder goes to nobody else. Each block of the one PDF is cut to what every recipient may read.
+
 **Every Studio read asks `report_studio` read too**, at any scope: the report list, one report, its data, the subjects a reader may switch to, the block names, the viewer and "Shared with me". `reports` read cannot tell a team manager from the read-only observer, which holds it club-wide.
 
 **Closed to the read-only observer.** The observer holds no `report_studio` and no `report_publishing` row, is answered `403` on every Studio route, and sees no Studio report under "Shared with me". A report cannot be published to the observer.

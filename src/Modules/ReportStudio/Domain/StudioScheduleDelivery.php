@@ -7,7 +7,6 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\Exporters\ReportStudioPdfExporter;
 use TT\Modules\Export\Format\Renderers\PdfRenderer;
@@ -57,21 +56,50 @@ final class StudioScheduleDelivery {
     }
 
     /**
-     * May this account receive the report (#4619, #4662): it may open it, as
-     * an editor or a recipient of the published version; or it reads the
-     * Studio and may read what the report is about, the recipient rule
-     * without the persona. A report about a fixed team is published to no
-     * role, so without the second half only its builders could receive it,
-     * never the team's own staff. What each block holds is still cut to
-     * every reader's rights (`ReportData::composeForReaders()`).
+     * The player-report sections whose entries a send is a read of: the
+     * injuries, and the journey's medical and safeguarding entries, keyed by
+     * the Studio block that carries them.
      *
-     * @param Report $report
+     * Reads of them in the sent PDF, per player: what `runPdf()` records once
+     * per recipient after the send, because the composition itself is quiet.
+     *
+     * @param array<string,mixed> $doc
+     * @return array<string, array<int,int>> action => player id => entries
      */
-    public static function mayReceive( int $user_id, array $report ): bool {
-        if ( $user_id <= 0 ) return false;
-        $reader = ReportReader::for( $user_id );
-        if ( ReportAccess::canRead( $reader, $report ) ) return true;
-        return $reader->readsStudio() && ReportAccess::canReadSubject( $reader, $report );
+    public static function sensitiveReads( array $doc ): array {
+        $context = is_array( $doc['context'] ?? null ) ? $doc['context'] : [];
+        $player  = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
+        if ( $player <= 0 ) return [];
+
+        $injuries_key = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ] ?? '';
+        $journey_key  = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::JOURNEY ] ?? '';
+        $out = [];
+        foreach ( is_array( $doc['blocks'] ?? null ) ? $doc['blocks'] : [] as $block ) {
+            if ( ! is_array( $block ) || ! is_array( $block['data'] ?? null ) ) continue;
+            $items = is_array( $block['data']['items'] ?? null ) ? $block['data']['items'] : [];
+            if ( $items === [] ) continue;
+            if ( ( $block['key'] ?? '' ) === $injuries_key ) {
+                $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $player ] = count( $items );
+            } elseif ( ( $block['key'] ?? '' ) === $journey_key ) {
+                $ids = [];
+                foreach ( $items as $item ) {
+                    if ( is_array( $item ) ) $ids[] = (int) ( $item['id'] ?? 0 );
+                }
+                $n = \TT\Infrastructure\Journey\InjuryReads::sensitiveCount( $player, $ids );
+                if ( $n > 0 ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $player ] = $n;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Does the schedule go to anyone but its owner?
+     *
+     * @param array<string,mixed> $schedule
+     */
+    public static function goesToOthers( array $schedule ): bool {
+        $own = \TT\Modules\Analytics\Cron\ScheduledReportsRunner::ACCOUNT_PREFIX . (int) ( $schedule['created_by'] ?? 0 );
+        return array_values( array_map( 'strval', (array) ( $schedule['recipients'] ?? [] ) ) ) !== [ $own ];
     }
 
     /**
@@ -98,7 +126,7 @@ final class StudioScheduleDelivery {
      * @param array<string,mixed> $schedule a hydrated `ScheduledReportsRepository` row
      * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $resolved
      *        `ScheduledReportsRunner::resolveRecipients()` for this run
-     * @return array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string}
+     * @return array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, reads?:array<string, array<int,int>>}
      */
     public static function render( array $schedule, string $today, array $resolved ): array {
         $out = [ 'ok' => false, 'stop' => true, 'error' => '', 'bytes' => '', 'filename' => '', 'label' => '' ];
@@ -122,8 +150,23 @@ final class StudioScheduleDelivery {
             $out['error'] = __( 'Stopped: the player or team this report is about no longer exists.', 'talenttrack' );
             return $out;
         }
-        if ( ! ReportSchedules::canSchedule( ReportReader::for( $owner ), $report ) ) {
+        $owner_reader = ReportReader::for( $owner );
+        if ( ! ReportSchedules::canSchedule( $owner_reader, $report ) ) {
             $out['error'] = __( 'Stopped: the person who set up this schedule may no longer change this report.', 'talenttrack' );
+            return $out;
+        }
+        // Who decides distribution is asked every run too: a schedule to
+        // others needs the right to publish reports (epic decision 2).
+        if ( self::goesToOthers( $schedule ) && ! $owner_reader->publishesReports() ) {
+            $out['error'] = __( 'Stopped: the person who set up this schedule may no longer send reports to others.', 'talenttrack' );
+            return $out;
+        }
+        if ( $report['sharing'] === ReportStartRules::SHARING_ME && self::goesToOthers( $schedule ) ) {
+            $out['error'] = sprintf(
+                /* translators: %s: why the report cannot be sent to others */
+                __( 'Stopped: %s', 'talenttrack' ),
+                ReportSchedules::keptForOwner()
+            );
             return $out;
         }
 
@@ -135,13 +178,18 @@ final class StudioScheduleDelivery {
             return $out;
         }
 
-        $readers = \TT\Modules\Analytics\Reports\ScheduledReportReaders::readers( $resolved, $owner, static fn( int $user_id ): bool => self::mayReceive( $user_id, $report ) );
-        if ( count( $readers ) > ReportSchedules::MAX_READERS ) {
+        // One window for the readers and the composition: every scope read
+        // once for the set, the subject check once per reader.
+        $composed = \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $resolved, $owner, $report, $window ): array {
+            $readers = ReportSchedules::resolve( $resolved, $owner, $report )['readers'];
+            if ( count( $readers ) > ReportSchedules::MAX_READERS ) return [ 'readers' => $readers, 'doc' => null ];
+            return [ 'readers' => $readers, 'doc' => ReportSchedules::compose( $report, $window, $readers ) ];
+        } );
+        $doc = $composed['doc'];
+        if ( $doc === null ) {
             $out['error'] = ReportSchedules::tooManyReaders();
             return $out;
         }
-
-        $doc = ReportData::composeForReaders( $report, $window, ReaderSet::of( $readers ) );
         if ( $doc instanceof StudioError ) {
             // A report that lost its subject or its publication stops; a
             // group nobody may see all of may change with the recipients.
@@ -151,6 +199,12 @@ final class StudioScheduleDelivery {
                 __( 'Not sent: %s', 'talenttrack' ),
                 $doc->message
             );
+            return $out;
+        }
+
+        // Nothing every recipient may read: say so, and mail nothing.
+        if ( ( is_array( $doc['blocks'] ?? null ) ? $doc['blocks'] : [] ) === [] ) {
+            $out['error'] = __( 'Not sent: no block of this report is one every recipient may read.', 'talenttrack' );
             return $out;
         }
 
@@ -185,6 +239,7 @@ final class StudioScheduleDelivery {
         $out['bytes']    = $bytes;
         $out['filename'] = $payload['filename'];
         $out['label']    = $label;
+        $out['reads']    = self::sensitiveReads( $doc );
         $left            = is_array( $doc['left_out'] ?? null ) ? $doc['left_out'] : [];
         if ( $left !== [] ) {
             $out['note'] = sprintf(

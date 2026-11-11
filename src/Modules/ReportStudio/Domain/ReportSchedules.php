@@ -59,8 +59,17 @@ final class ReportSchedules {
     /** The period a schedule takes when the report leaves it open. */
     public const DEFAULT_PERIOD = 'last_month';
 
-    /** A player's and a family's roles: they read only what is shared with them, never a scheduled mail. */
-    private const FAMILY_ROLES = [ 'tt_player', 'tt_parent' ];
+    /**
+     * Both plan features a Studio schedule needs: the Studio, and scheduled
+     * reports. Asked by every caller, the REST routes and the form alike.
+     */
+    public static function planAllows(): bool {
+        return \TT\Modules\License\LicenseGate::allows( 'report_studio' ) && \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' );
+    }
+
+    private static function planRefusal(): StudioError {
+        return new StudioError( 'license_required', __( 'Scheduled reports are not part of your plan.', 'talenttrack' ), 402 );
+    }
 
     /**
      * Why this report cannot be scheduled; null when it can.
@@ -135,6 +144,11 @@ final class ReportSchedules {
         if ( array_key_exists( 'recipients', $in ) || ! $update ) {
             $recipients = self::recipients( $in['recipients'] ?? null, $reader );
             if ( $recipients instanceof StudioError ) return $recipients;
+            // A report kept for its owner is theirs alone (`canEdit()`): it
+            // goes to nobody else on a schedule either.
+            if ( $report['sharing'] === ReportStartRules::SHARING_ME && $recipients !== [ ScheduledReportsRunner::ACCOUNT_PREFIX . $report['owner_user_id'] ] ) {
+                return new StudioError( 'invalid_field', self::keptForOwner(), 400, [ 'field' => 'recipients', 'reason' => 'kept_for_owner' ] );
+            }
             $out['recipients'] = $recipients;
         }
 
@@ -165,6 +179,17 @@ final class ReportSchedules {
         if ( ! is_array( $raw ) ) {
             return self::invalid( 'recipients', __( 'Choose who receives the report.', 'talenttrack' ) );
         }
+        // The publishing right first, so a caller who may only schedule for
+        // themselves learns nothing about which ids are accounts here.
+        $self = ScheduledReportsRunner::ACCOUNT_PREFIX . $reader->userId;
+        if ( ! $reader->publishesReports() ) {
+            foreach ( $raw as $value ) {
+                $entry = trim( is_scalar( $value ) ? (string) $value : '' );
+                if ( $entry !== '' && $entry !== $self ) {
+                    return new StudioError( 'forbidden', __( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' ), 403, [ 'field' => 'recipients' ] );
+                }
+            }
+        }
         $roles = self::roleOptions();
         $out   = [];
         foreach ( $raw as $value ) {
@@ -186,10 +211,6 @@ final class ReportSchedules {
         if ( count( $out ) > self::MAX_RECIPIENTS ) {
             /* translators: %d: the most recipients a schedule holds */
             return self::invalid( 'recipients', sprintf( __( 'A schedule goes to at most %d recipients. Choose a role instead of many people.', 'talenttrack' ), self::MAX_RECIPIENTS ) );
-        }
-        $self = ScheduledReportsRunner::ACCOUNT_PREFIX . $reader->userId;
-        if ( array_values( $out ) !== [ $self ] && ! $reader->publishesReports() ) {
-            return new StudioError( 'forbidden', __( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' ), 403, [ 'field' => 'recipients' ] );
         }
         return array_values( $out );
     }
@@ -240,8 +261,46 @@ final class ReportSchedules {
      * @return list<int>
      */
     public static function readers( array $entries, int $owner, array $report ): array {
-        $resolved = ScheduledReportsRunner::resolveRecipients( $entries );
-        return ScheduledReportReaders::readers( $resolved, $owner, static fn( int $user_id ): bool => StudioScheduleDelivery::mayReceive( $user_id, $report ) );
+        return self::resolve( ScheduledReportsRunner::resolveRecipients( $entries ), $owner, $report )['readers'];
+    }
+
+    /**
+     * The receivers and the readers of one resolved recipient list, with the
+     * receive rule asked once per account, every source it rests on read
+     * once for the set (`ReportAccess::receiversAmong()`). Call it inside a
+     * `ScopeMemo` window to keep those reads for the composition that follows.
+     *
+     * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $resolved
+     * @param Report $report
+     * @return array{receivers: list<int>, readers: list<int>}
+     */
+    public static function resolve( array $resolved, int $owner, array $report ): array {
+        $ids = [];
+        foreach ( $resolved['recipients'] as $recipient ) $ids[] = (int) $recipient->userId;
+        $allowed  = array_fill_keys( ReportAccess::receiversAmong( $ids, $report ), true );
+        $receives = static fn( int $user_id ): bool => isset( $allowed[ $user_id ] );
+        return [
+            'receivers' => ScheduledReportReaders::receivers( $resolved, $receives ),
+            'readers'   => ScheduledReportReaders::readers( $resolved, $owner, $receives ),
+        ];
+    }
+
+    /**
+     * #4963 — composed for these readers, inside one `ScopeMemo` window (the
+     * readers' scopes read once for the set, the subject check once per
+     * reader), and quietly: a preview is not a read of anyone's injuries,
+     * and a run records its reads per recipient after it sends.
+     *
+     * @param Report                        $report
+     * @param array{from:string, to:string} $window
+     * @param list<int>                     $readers
+     * @return array<string,mixed>|StudioError
+     */
+    public static function compose( array $report, array $window, array $readers ): array|StudioError {
+        return \TT\Infrastructure\Security\ScopeMemo::run( static function () use ( $report, $window, $readers ) {
+            \TT\Infrastructure\Security\AuthorizationService::primeUsers( $readers );
+            return \TT\Infrastructure\Journey\InjuryReads::quietly( static fn() => ReportData::composeForReaders( $report, $window, ReaderSet::of( $readers ) ) );
+        } );
     }
 
     /**
@@ -257,12 +316,13 @@ final class ReportSchedules {
     public static function preview( array $report, array $entries, int $owner, array $composition ): array {
         $out = [ 'blocks' => [], 'left_out' => [], 'receivers' => 0, 'left_out_recipients' => 0, 'message' => '' ];
 
-        $resolved  = ScheduledReportsRunner::resolveRecipients( $entries );
-        $receivers = ScheduledReportReaders::receivers( $resolved, static fn( int $user_id ): bool => StudioScheduleDelivery::mayReceive( $user_id, $report ) );
+        $resolved = ScheduledReportsRunner::resolveRecipients( $entries );
+        $set      = self::resolve( $resolved, $owner, $report );
+        $receivers = $set['receivers'];
         $out['receivers']           = count( $receivers );
         $out['left_out_recipients'] = max( 0, count( $resolved['recipients'] ) - count( $receivers ) ) + count( $resolved['skipped'] );
 
-        $readers = ScheduledReportReaders::readers( $resolved, $owner, static fn( int $user_id ): bool => StudioScheduleDelivery::mayReceive( $user_id, $report ) );
+        $readers = $set['readers'];
         if ( count( $readers ) > self::MAX_READERS ) {
             $out['message'] = self::tooManyReaders();
             return $out;
@@ -273,7 +333,7 @@ final class ReportSchedules {
             return $out;
         }
 
-        $doc = ReportData::composeForReaders( $report, $window, ReaderSet::of( $readers ) );
+        $doc = self::compose( $report, $window, $readers );
         if ( $doc instanceof StudioError ) {
             $out['message'] = $doc->message;
             return $out;
@@ -295,17 +355,25 @@ final class ReportSchedules {
         return sprintf( __( 'This schedule reaches more than %d people. Choose fewer recipients, or a smaller role.', 'talenttrack' ), self::MAX_READERS );
     }
 
+    public static function keptForOwner(): string {
+        return __( 'This report is kept for its owner alone, so only they can receive it on a schedule.', 'talenttrack' );
+    }
+
     /**
-     * The staff roles a schedule can go to, by key, with their names. A
-     * player's and a family's roles are never offered.
+     * The roles a schedule can go to, by key, with their names: the
+     * plugin's roles whose members read reports (`tt_view_reports`), decided
+     * by capability, never by role name. A player's and a family's roles do
+     * not hold it, so they are never offered; members of an offered role who
+     * may not receive the report are still left out at every run.
      *
      * @return array<string,string>
      */
     public static function roleOptions(): array {
         $out = [];
         foreach ( wp_roles()->roles as $key => $role ) {
-            $key = (string) $key;
-            if ( strpos( $key, 'tt_' ) !== 0 || in_array( $key, self::FAMILY_ROLES, true ) ) continue;
+            $key  = (string) $key;
+            $caps = is_array( $role['capabilities'] ?? null ) ? $role['capabilities'] : [];
+            if ( strpos( $key, 'tt_' ) !== 0 || empty( $caps['tt_view_reports'] ) ) continue;
             $out[ $key ] = translate_user_role( is_string( $role['name'] ?? null ) ? $role['name'] : $key );
         }
         asort( $out );
@@ -327,12 +395,17 @@ final class ReportSchedules {
               ORDER BY last_name ASC, first_name ASC LIMIT 300",
             CurrentClub::id()
         ), ARRAY_A );
-        $out = [];
+        $names = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             $uid = (int) ( $row['wp_user_id'] ?? 0 );
-            if ( $uid <= 0 || ! StudioScheduleDelivery::mayReceive( $uid, $report ) ) continue;
+            if ( $uid <= 0 || isset( $names[ $uid ] ) ) continue;
             $name = trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) );
-            $out[ ScheduledReportsRunner::ACCOUNT_PREFIX . $uid ] = $name !== '' ? $name : '#' . $uid;
+            $names[ $uid ] = $name !== '' ? $name : '#' . $uid;
+        }
+        // The receive rule for all of them at once.
+        $out = [];
+        foreach ( ReportAccess::receiversAmong( array_keys( $names ), $report ) as $uid ) {
+            $out[ ScheduledReportsRunner::ACCOUNT_PREFIX . $uid ] = $names[ $uid ];
         }
         return $out;
     }
@@ -378,6 +451,7 @@ final class ReportSchedules {
      * @param array<string,mixed> $in
      */
     public static function create( array $report, array $in, ReportReader $reader ): int|StudioError {
+        if ( ! self::planAllows() ) return self::planRefusal();
         if ( ! self::canSchedule( $reader, $report ) ) {
             return new StudioError( 'forbidden', __( 'You may not change this report.', 'talenttrack' ), 403 );
         }
@@ -408,6 +482,7 @@ final class ReportSchedules {
      * @param array<string,mixed> $in
      */
     public static function update( array $found, array $in, ReportReader $reader ): bool|StudioError {
+        if ( ! self::planAllows() ) return self::planRefusal();
         $fields = self::fields( $in, $found['report'], $reader, true );
         if ( $fields instanceof StudioError ) return $fields;
         if ( $fields === [] ) return true;

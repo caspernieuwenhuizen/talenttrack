@@ -629,6 +629,16 @@ final class ScheduledReportsRunner {
             );
 
             $sent = CommsOutcomeSummary::sentCount( $results ) > 0;
+            // #4963 — the PDF was composed quietly; what it showed of a
+            // player's injuries or sensitive journey entries is a read by
+            // each account it went to, recorded once per recipient.
+            if ( $sent && is_array( $result['reads'] ?? null ) && $result['reads'] !== [] ) {
+                $to = [];
+                foreach ( $recipients as $recipient ) $to[] = (int) $recipient->userId;
+                foreach ( $result['reads'] as $action => $counts ) {
+                    \TT\Infrastructure\Journey\InjuryReads::recordSent( (string) $action, 'scheduled_report', (array) $counts, $to, [ 'schedule_id' => $id ] );
+                }
+            }
             $note = trim( (string) ( $result['note'] ?? '' ) . ' ' . $skipped_note );
             if ( $sent && $note !== '' ) {
                 $repo->recordError( $id, mb_substr( $note, 0, self::NOTE_LIMIT ) );
@@ -754,8 +764,11 @@ final class ScheduledReportsRunner {
                 if ( isset( $users[ $account ] ) || isset( $seen[ $account ] ) ) continue;
                 $email = $account > 0 && self::inClub( $account ) ? (string) ( ContactResolver::emailForUser( $account ) ?? '' ) : '';
                 if ( $email === '' || ! is_email( $email ) ) {
+                    // A named account that gets no mail reads nothing, so
+                    // it does not narrow the PDF for the others: its own
+                    // reason, not one whose rights are unknown.
                     $seen[ $account ] = true;
-                    $skipped[]        = [ 'email' => '', 'user_id' => 0, 'reason' => 'not_in_club', 'via' => '' ];
+                    $skipped[]        = [ 'email' => '', 'user_id' => 0, 'reason' => self::ACCOUNT_UNREACHABLE, 'via' => '' ];
                     continue;
                 }
                 $users[ $account ] = self::userRecipient( $account, $email );
@@ -806,6 +819,12 @@ final class ScheduledReportsRunner {
     /** #4963 — the prefix of a recipient entry that names an account by its id. */
     public const ACCOUNT_PREFIX = 'user:';
 
+    /**
+     * #4963 — the skip reason for a named account (`user:<id>`) that left the
+     * club or has no address: it receives nothing and narrows nothing.
+     */
+    public const ACCOUNT_UNREACHABLE = 'account_unreachable';
+
     /** The account id an entry such as `user:12` names; null for any other entry. */
     public static function accountIdOf( string $entry ): ?int {
         return preg_match( '/^' . preg_quote( self::ACCOUNT_PREFIX, '/' ) . '(\d+)$/', $entry, $m ) === 1 ? (int) $m[1] : null;
@@ -824,7 +843,7 @@ final class ScheduledReportsRunner {
         self::runPdf(
             $repo, $schedule, $now_utc,
             [ \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::class, 'render' ],
-            static fn( int $user_id, array $result ): bool => $report !== null && \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::mayReceive( $user_id, $report ),
+            static fn( int $user_id, array $result ): bool => $report !== null && \TT\Modules\ReportStudio\Domain\ReportAccess::canReceive( \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id ), $report ),
             true
         );
     }

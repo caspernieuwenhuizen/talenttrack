@@ -74,8 +74,9 @@ class AuditService {
      * squad.
      *
      * @param array<int, array<string,mixed>> $payloads entity id => payload
+     * @param int $actor who the rows are for; 0 is the signed-in user
      */
-    public function recordMany( string $action, string $entity_type, array $payloads ): void {
+    public function recordMany( string $action, string $entity_type, array $payloads, int $actor = 0 ): void {
         if ( $payloads === [] ) return;
         if ( $this->toggles && ! $this->toggles->isEnabled( 'audit_log' ) ) {
             return;
@@ -88,7 +89,9 @@ class AuditService {
         }
 
         $club    = CurrentClub::id();
-        $user    = get_current_user_id();
+        // #4963 — an explicit actor for a read made without a signed-in
+        // user, such as a scheduled send's recipients.
+        $user    = $actor > 0 ? $actor : get_current_user_id();
         $ip      = self::currentIp();
         $now     = current_time( 'mysql' );
         $action  = substr( $action, 0, 100 );

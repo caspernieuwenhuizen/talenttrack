@@ -69,6 +69,30 @@ final class InjuryReads {
     }
 
     /**
+     * #4963 — a document that went to several people by a scheduled send,
+     * with nobody signed in: one read per recipient and player, each row
+     * written as that recipient. `record()` records nothing then, by design,
+     * and the composition is quiet, so this is the only row the send leaves.
+     *
+     * @param array<int,int> $counts     player id => entries in the document
+     * @param list<int>      $recipients the accounts it was sent to
+     * @param array<string,mixed> $extra
+     */
+    public static function recordSent( string $action, string $surface, array $counts, array $recipients, array $extra = [] ): void {
+        $audit = new AuditService();
+        foreach ( array_values( array_unique( array_filter( array_map( 'intval', $recipients ), static fn( int $id ): bool => $id > 0 ) ) ) as $recipient ) {
+            $payloads = [];
+            foreach ( $counts as $player_id => $count ) {
+                $player_id = (int) $player_id;
+                $count     = (int) $count;
+                if ( $player_id <= 0 || $count <= 0 ) continue;
+                $payloads[ $player_id ] = [ 'surface' => $surface, 'count' => $count ] + $extra;
+            }
+            $audit->recordMany( $action, 'player', $payloads, $recipient );
+        }
+    }
+
+    /**
      * How many of these journey entries of one player are medical or
      * safeguarding entries, in one statement. The report sections carry the
      * entries without their visibility, so it is read back by id.

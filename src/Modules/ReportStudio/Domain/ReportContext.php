@@ -107,9 +107,13 @@ final class ReportContext {
             }
         }
 
-        $window = ReportFilters::seasonDefaultWindow();
-        $from   = is_string( $in['from'] ?? null ) && $in['from'] !== '' ? (string) $in['from'] : ( $window['from'] ?? '' );
-        $to     = is_string( $in['to'] ?? null ) && $in['to'] !== '' ? (string) $in['to'] : ( $window['to'] ?? gmdate( 'Y-m-d' ) );
+        // The season is read only when a date is missing: a context with its
+        // period given, as every block of one report has, reads nothing.
+        $given_from = is_string( $in['from'] ?? null ) && $in['from'] !== '';
+        $given_to   = is_string( $in['to'] ?? null ) && $in['to'] !== '';
+        $window     = $given_from && $given_to ? null : ReportFilters::seasonDefaultWindow();
+        $from       = $given_from ? (string) $in['from'] : ( $window['from'] ?? '' );
+        $to         = $given_to ? (string) $in['to'] : ( $window['to'] ?? gmdate( 'Y-m-d' ) );
         if ( $from === '' || $to === '' ) {
             // #4637 — the season has not started and no window was given.
             return new StudioError( 'no_period', ReportFilters::noPeriodMessage(), 422, [ 'fields' => [ 'from', 'to' ] ] );

@@ -682,6 +682,28 @@ Een gepubliceerd rapport lezen vraagt een van de persona's waarvoor het is
 gepubliceerd. `tt_view_reports` alleen opent het niet. De matrix-entiteiten en
 hun scopes staan beschreven in de handleiding van de autorisatiematrix.
 
+**Een ingepland Studio-rapport ontvangen.** Een gepubliceerd rapport kan ook
+volgens schema als pdf bij iemand terechtkomen. Een ontvanger krijgt het als
+die het mag openen (die bouwt het, of het is gepubliceerd voor een persona die
+die heeft), of als die de Studio leest en mag lezen waar het rapport over
+gaat. Die tweede weg is de leesregel zonder de persona: een rapport over één
+vast team wordt voor geen enkele rol gepubliceerd, en zonder die weg zouden
+alleen de bouwers het kunnen ontvangen. Het reikt niet verder dan publiceren
+zou reiken, omdat alleen de persona's waarvoor een rapport gepubliceerd kan
+worden de Studio lezen. Drie regels houden het smal:
+
+- Een schema naar iemand anders dan jezelf vraagt `tt_publish_reports`, bij
+  elke verzending opnieuw: een schema naar anderen pauzeert als de eigenaar
+  dat recht verliest.
+- Een rapport dat de bouwer voor zichzelf hield, gaat volgens schema naar
+  niemand anders.
+- Elke ontvanger krijgt dezelfde pdf, beperkt tot wat elk van hen mag lezen:
+  een blok dat één van hen niet mag lezen, valt voor iedereen weg.
+
+Een verzending legt per ontvanger één keer vast dat die de blessures of
+gevoelige gebeurtenissen van een speler heeft gezien, zoals het openen van het
+spelersdossier dat doet. Bekijken wat de ontvangers krijgen, legt niets vast.
+
 ## Strava-koppeling — spelers koppelen hun eigen
 
 Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen

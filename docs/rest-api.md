@@ -2313,11 +2313,27 @@ owner_id }`.
 published. A group and the academy keep their own subject.
 
 **Recipients.** A list of entries, each an account in this club as
-`user:<id>` or a staff role key (`tt_*`, never `tt_player` or `tt_parent`).
-A bare email address, an unknown role or an account outside the club is `400
-invalid_field` with `details.field = "recipients"`; at most 25 entries. A
-recipient other than the caller's own account needs `tt_publish_reports`,
-otherwise `403 forbidden` with `details.field = "recipients"`.
+`user:<id>` or a role key of a role whose members read reports
+(`tt_view_reports`; a player's and a parent's roles do not). A recipient other
+than the caller's own account needs `tt_publish_reports`, otherwise `403
+forbidden` with `details.field = "recipients"`; this is asked before the
+entries are checked, so the answer does not tell a real account id from a
+made-up one. A bare email address, an unknown role or an account outside the
+club is `400 invalid_field` with `details.field = "recipients"`; at most 25
+entries. A report kept for its owner (`sharing: me`) goes to its owner alone:
+any other recipient is `400 invalid_field` with `details.reason =
+"kept_for_owner"`.
+
+**Plan.** Both plan features are asked by the domain service
+(`ReportSchedules`), so the schedule form's save is refused the same way
+(`402 license_required`) as the REST routes.
+
+**Who may receive it** (`ReportAccess::canReceive()`): an account that may
+open the report (it builds it, or it is published to a persona the account
+holds), or that holds `report_studio` read and may read the report's subject.
+A named account (`user:<id>`) that has left the club or has no address is
+skipped as `account_unreachable`: it receives nothing and does not narrow the
+PDF for the others.
 
 **Period.** A report with a fixed or rolling period sends that period, and
 `period` is stored empty. For a report whose period is chosen when opened,
@@ -2333,15 +2349,25 @@ row about a player one of them may not see is left out, and a block whose
 figures depend on the reader (`ComposesPerReader`) is left out when they
 differ. A recipient whose rights cannot be checked (a role with no one in
 it, an account outside the club) counts as having none. A recipient who
-may not receive it at all gets nothing and narrows nothing. They may receive
-it when they may open the report, or read the Studio and may read its
-subject. A run composes for at most 40 readers, and one run sends at most 20
-Studio schedules.
+may not receive it at all gets nothing and narrows nothing. A run composes for
+at most 40 readers, and one run sends at most 20 Studio schedules. The readers
+are resolved and the document composed inside one `ScopeMemo` window, with the
+readers' scopes read once for the set (`AuthorizationService::primeUsers()`)
+and the subject check asked once per reader, not once per block. When no block
+is one every recipient may read, nothing is mailed and `last_error` says why.
+
+**Injury reads.** The composition is quiet (`InjuryReads::quietly()`): a
+preview and `GET /scheduled-reports/{id}` record no read. After a send, a PDF
+that shows a player's injuries or sensitive journey entries records one
+`player.injuries_viewed` / `player.sensitive_timeline_viewed` row per
+recipient, written as that recipient, with `surface: "scheduled_report"` and
+the `schedule_id`.
 
 **When it pauses.** The report gone, archived, unpublished or no longer
-schedulable, its fixed player or team gone, or its owner no longer allowed to
-change it: the schedule is paused, the reason kept in `last_error`, and the
-owner is told once (`scheduled_report_paused`).
+schedulable, its fixed player or team gone, its owner no longer allowed to
+change it, or a schedule to others whose owner no longer holds
+`tt_publish_reports`: the schedule is paused, the reason kept in
+`last_error`, and the owner is told once (`scheduled_report_paused`).
 
 ## Report Studio homes (#4962, epic #4564)
 

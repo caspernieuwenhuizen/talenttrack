@@ -314,7 +314,7 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
     }
 
     public function test_a_report_that_cannot_be_scheduled_is_refused_with_the_reason(): void {
-        $grid = $this->published( [ 'kind' => 'report', 'scope' => 'team', 'binding' => 'fixed', 'team_id' => $this->team_a, 'layout' => 'grid', 'period_mode' => 'fixed', 'period_value' => self::PERIOD ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'G' ] ] ] );
+        $grid = $this->published( [ 'kind' => 'report', 'scope' => 'team', 'binding' => 'fixed', 'team_id' => $this->team_a, 'layout' => 'grid', 'sharing' => 'me', 'period_mode' => 'fixed', 'period_value' => self::PERIOD ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'G' ] ] ] );
         $open = $this->published( [ 'kind' => 'report', 'scope' => 'team', 'binding' => 'on_open', 'period_mode' => 'fixed', 'period_value' => self::PERIOD ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'O' ] ] ], [ 'head_coach' ] );
         wp_set_current_user( $this->hod );
 
@@ -408,7 +408,161 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'value="tt_coach"', $coach_html, 'and is offered no role' );
     }
 
+    // ---- the review of #5102 ------------------------------------------------------------
+
+    public function test_a_report_kept_for_its_owner_goes_to_nobody_else(): void {
+        $id = $this->published( $this->teamChoices() + [ 'sharing' => 'me' ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Mine' ] ] ] );
+        wp_set_current_user( $this->hod );
+
+        $others = $this->send( 'POST', "reports/{$id}/schedules", [ 'recipients' => [ 'user:' . $this->hod, 'tt_coach' ] ] );
+        $this->assertSame( 400, $others->get_status() );
+        $this->assertSame( 'kept_for_owner', (string) ( (array) ( $others->get_data()['errors'][0]['details'] ?? [] ) )['reason'] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/schedules", [ 'recipients' => [ 'user:' . $this->hod ] ] )->get_status(), 'its owner may' );
+
+        $html = $this->renderScreen( $this->hod, (array) ( new ReportsRepository() )->find( $id ), 'new' );
+        $this->assertStringNotContainsString( 'value="tt_coach"', $html, 'the form offers its owner only, even to a publisher' );
+    }
+
+    public function test_a_caller_who_may_only_schedule_for_themselves_learns_nothing_about_account_ids(): void {
+        $id = $this->publishAs( $this->coach_a, $this->teamChoices() + [ 'sharing' => 'me' ], [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Mine' ] ] ] );
+        $real = $this->send( 'POST', "reports/{$id}/schedules", [ 'recipients' => [ 'user:' . $this->hod ] ] );
+        $fake = $this->send( 'POST', "reports/{$id}/schedules", [ 'recipients' => [ 'user:999999' ] ] );
+        $this->assertSame( 403, $real->get_status() );
+        $this->assertSame( 403, $fake->get_status(), 'a real account and a made-up one answer alike' );
+    }
+
+    public function test_creating_a_schedule_needs_the_plan_on_every_path(): void {
+        $id     = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Plan' ] ] ] );
+        $report = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );
+        $this->assertFalse( ReportSchedules::planAllows() );
+        $refused = ReportSchedules::create( $report, [ 'recipients' => [ 'user:' . $this->hod ] ], \TT\Modules\ReportStudio\Domain\ReportReader::for( $this->hod ) );
+        $this->assertInstanceOf( StudioError::class, $refused, 'the domain refuses it, so the form save does too' );
+        $this->assertSame( 402, $refused->status );
+    }
+
+    public function test_a_departed_colleague_does_not_empty_the_pdf_for_the_others(): void {
+        $id     = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $report = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        $gone = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] ); // no person record here: not in the club
+
+        $readers = ReportSchedules::readers( [ 'user:' . $this->hod, 'user:' . $gone ], $this->hod, $report );
+        $this->assertSame( [ $this->hod ], $readers, 'no reader without rights is added for a named account that gets no mail' );
+
+        $resolved = ScheduledReportsRunner::resolveRecipients( [ 'user:' . $gone ] );
+        $this->assertSame( ScheduledReportsRunner::ACCOUNT_UNREACHABLE, $resolved['skipped'][0]['reason'] ?? '' );
+    }
+
+    public function test_losing_the_right_to_publish_pauses_a_schedule_to_others(): void {
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $this->coach_a ] ] );
+
+        $hod  = $this->hod;
+        $deny = static function ( array $allcaps, array $caps, array $args, $user ) use ( $hod ): array {
+            if ( $user instanceof \WP_User && (int) $user->ID === $hod ) unset( $allcaps['tt_publish_reports'] );
+            return $allcaps;
+        };
+        add_filter( 'user_has_cap', $deny, PHP_INT_MAX, 4 );
+        try {
+            $this->assertFalse( user_can( $this->hod, 'tt_publish_reports' ), 'Precondition: the owner no longer publishes.' );
+            $this->runOnce( $schedule );
+        } finally {
+            remove_filter( 'user_has_cap', $deny, PHP_INT_MAX );
+        }
+
+        $row = ( new ScheduledReportsRepository() )->findById( $schedule );
+        $this->assertNotNull( $row );
+        $this->assertSame( ScheduledReportsRepository::STATUS_PAUSED, $row['status'] );
+        $this->assertStringContainsString( 'send reports to others', (string) $row['last_error'] );
+        $this->assertSame( [], $this->sent );
+    }
+
+    public function test_a_preview_reads_no_injuries_and_a_send_records_one_read_per_recipient(): void {
+        $this->needsPdf();
+        global $wpdb;
+        FeatureRegistry::setEnabled( 'journey_medical_visibility', true );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
+            'club_id' => CurrentClub::id(), 'player_id' => $this->child, 'started_on' => '2026-08-04', 'actual_return' => '2026-08-11', 'notes' => 'Hamstring strain.',
+        ] );
+        $hod2 = $this->persona( 'tt_head_dev', 'head_of_development', 0, 'hod2-4963@example.test' );
+        $this->assertTrue( ReaderSet::of( [ $this->hod, $hod2 ] )->seesMedical(), 'Precondition: both read injuries.' );
+
+        $id       = $this->published( [ 'kind' => 'report', 'scope' => 'player', 'binding' => 'fixed', 'player_id' => $this->child, 'period_mode' => 'fixed', 'period_value' => self::PERIOD ], [ [ 'id' => 'b1', 'key' => 'player_injuries' ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $hod2 ] ] );
+        $before   = $this->injuryRows();
+
+        wp_set_current_user( $this->hod );
+        $this->assertSame( 200, $this->send( 'GET', "scheduled-reports/{$schedule}" )->get_status() );
+        $this->assertSame( 200, $this->send( 'GET', "reports/{$id}/schedules/preview", [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $hod2 ] ] )->get_status() );
+        $this->assertSame( $before, $this->injuryRows(), 'a preview shows block names, not injuries: no read' );
+
+        wp_set_current_user( 0 );
+        $this->runOnce( $schedule );
+        sort( $this->sent );
+        $this->assertSame( [ 'hod-4963@example.test', 'hod2-4963@example.test' ], $this->sent, 'Precondition: both received it.' );
+        $this->assertStringContainsString( 'Hamstring', $this->pdf_html[0] ?? '', 'Precondition: the PDF shows the injury.' );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT user_id, payload FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d ORDER BY id DESC LIMIT 2",
+            $this->child
+        ), ARRAY_A );
+        $this->assertSame( $before + 2, $this->injuryRows(), 'one read per recipient' );
+        $this->assertEqualsCanonicalizing( [ $this->hod, $hod2 ], array_map( 'intval', array_column( (array) $rows, 'user_id' ) ), 'each written as its recipient' );
+        foreach ( (array) $rows as $row ) {
+            $payload = json_decode( (string) $row['payload'], true );
+            $this->assertSame( 'scheduled_report', $payload['surface'] ?? '' );
+            $this->assertSame( $schedule, (int) ( $payload['schedule_id'] ?? 0 ) );
+        }
+    }
+
+    public function test_a_preview_for_40_readers_costs_a_bounded_number_of_statements(): void {
+        for ( $i = 0; $i < 38; $i++ ) $this->persona( 'tt_coach', 'head_coach', $this->team_a, "coach{$i}-4963@example.test" );
+        $three = $this->published( $this->teamChoices(), $this->headings( 3 ) );
+        $six   = $this->published( $this->teamChoices(), $this->headings( 6 ) );
+        $count = function ( int $report_id, array $recipients ): array {
+            $report = ( new ReportsRepository() )->find( $report_id );
+            $this->assertNotNull( $report );
+            $this->flush();
+            $n       = 0;
+            $counter = static function ( $sql ) use ( &$n ) { $n++; return $sql; };
+            add_filter( 'query', $counter );
+            $preview = ReportSchedules::preview( $report, $recipients, $this->hod, [ 'report_id' => $report_id, 'period' => '' ] );
+            remove_filter( 'query', $counter );
+            return [ $n, $preview ];
+        };
+
+        [ $q3, $p3 ] = $count( $three, [ 'tt_coach' ] );
+        [ $q6, $p6 ] = $count( $six, [ 'tt_coach' ] );
+        $this->assertSame( 39, $p6['receivers'], 'Precondition: 39 coaches of the team receive it; 40 readers with the owner.' );
+        $this->assertSame( '', $p6['message'], 'Precondition: within the reader cap.' );
+        $this->assertCount( 6, $p6['blocks'] );
+        $this->assertLessThanOrEqual( 6, $q6 - $q3, 'three more blocks for 40 readers add almost nothing: the subject check is asked once per reader' );
+
+        [ $q1 ] = $count( $six, [ 'user:' . $this->coach_a ] );
+        // Measured: 38 statements for one receiver, 234 for 39, so about 5
+        // per extra reader, all in resolving the recipients; blocks add none.
+        $per_reader = ( $q6 - $q1 ) / 38;
+        $this->assertLessThanOrEqual( 6, $per_reader, sprintf( 'each extra reader costs a bounded number of statements (%.1f), not one per block', $per_reader ) );
+    }
+
     // ---- helpers ------------------------------------------------------------------
+
+    /** @return list<array<string,mixed>> */
+    private function headings( int $n ): array {
+        $out = [];
+        for ( $i = 1; $i <= $n; $i++ ) $out[] = [ 'id' => 'b' . $i, 'key' => 'heading', 'options' => [ 'heading' => 'H' . $i ] ];
+        return $out;
+    }
+
+    private function injuryRows(): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d",
+            $this->child
+        ) );
+    }
 
     /** @param array<string,mixed> $report */
     private function renderScreen( int $user, array $report, string $schedule ): string {
@@ -441,7 +595,7 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
      * @param list<string>              $personas
      */
     private function published( array $choices, array $blocks, array $personas = [] ): int {
-        return $this->publishAs( $this->hod, $choices + [ 'sharing' => $personas === [] ? 'me' : 'role' ], $blocks, $personas );
+        return $this->publishAs( $this->hod, $choices + [ 'sharing' => $personas === [] ? 'schedule' : 'role' ], $blocks, $personas );
     }
 
     /**

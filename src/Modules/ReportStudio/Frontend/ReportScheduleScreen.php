@@ -59,6 +59,13 @@ final class ReportScheduleScreen {
 
         wp_enqueue_style( 'tt-report-schedules', TT_PLUGIN_URL . 'assets/css/frontend-report-schedules.css', [], TT_VERSION );
 
+        // The plan the REST routes and the save ask, asked here too.
+        if ( ! ReportSchedules::planAllows() ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Schedules', 'talenttrack' ), self::crumbs( $report, $report_name, false ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'scheduled_reports' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- UpgradePanel returns escaped HTML
+            return;
+        }
+
         if ( $asked === '' ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Schedules', 'talenttrack' ), self::crumbs( $report, $report_name, false ) );
             self::renderList( $report, $reader );
@@ -134,7 +141,8 @@ final class ReportScheduleScreen {
         $composition = $schedule !== null && is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [ 'report_id' => $report['id'], 'period' => ReportSchedules::DEFAULT_PERIOD ];
         $self_entry  = ScheduledReportsRunner::ACCOUNT_PREFIX . $reader->userId;
         $chosen      = $schedule !== null ? array_values( array_map( "strval", (array) $schedule["recipients"] ) ) : [ $self_entry ];
-        $publishes   = $reader->publishesReports();
+        // A report kept for its owner goes to its owner alone.
+        $publishes   = $reader->publishesReports() && $report['sharing'] !== ReportStartRules::SHARING_ME;
 
         echo '<p class="tt-rsch-intro">' . esc_html__( 'The schedule sends the report\'s published version as a PDF, laid out in rows. One copy goes to everyone, so it holds only what every recipient may read. Each recipient is checked again on every run.', 'talenttrack' ) . '</p>';
 
@@ -156,7 +164,9 @@ final class ReportScheduleScreen {
         echo '<legend>' . esc_html__( 'Who receives it', 'talenttrack' ) . '</legend>';
         if ( ! $publishes ) {
             echo '<label class="tt-rsch-option" for="tt-rsch-me"><input type="checkbox" id="tt-rsch-me" name="recipients[]" value="' . esc_attr( $self_entry ) . '"' . checked( in_array( $self_entry, $chosen, true ), true, false ) . '> <span>' . esc_html_x( 'Me', 'schedule recipient: the person scheduling', 'talenttrack' ) . '</span></label>';
-            echo '<p class="tt-field-hint">' . esc_html__( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-field-hint">' . esc_html( $report['sharing'] === ReportStartRules::SHARING_ME
+                ? ReportSchedules::keptForOwner()
+                : __( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' ) ) . '</p>';
         } else {
             $roles = ReportSchedules::roleOptions();
             if ( $roles !== [] ) {
@@ -294,7 +304,12 @@ final class ReportScheduleScreen {
         }
 
         if ( $result instanceof StudioError ) {
-            wp_safe_redirect( self::url( $report, $back + [ 'tt_rsch_error' => rawurlencode( $result->message ) ] ) );
+            // A code, never a sentence: the page looks the message up, so a
+            // crafted link cannot put words in an alert.
+            $field  = is_string( $result->details['field'] ?? null ) ? (string) $result->details['field'] : '';
+            $reason = is_string( $result->details['reason'] ?? null ) ? (string) $result->details['reason'] : '';
+            $code   = $result->code . ( $field !== '' ? '-' . $field : '' ) . ( $reason !== '' ? '-' . $reason : '' );
+            wp_safe_redirect( self::url( $report, $back + [ 'tt_rsch_error' => sanitize_key( $code ) ] ) );
             exit;
         }
         wp_safe_redirect( self::url( $report, [ 'schedules' => '1', 'tt_rsch_msg' => 'saved' ] ) );
@@ -307,8 +322,24 @@ final class ReportScheduleScreen {
             echo '<p class="tt-notice tt-notice-success" role="status">' . esc_html__( 'The schedule is saved. It sends from its next run.', 'talenttrack' ) . '</p>';
         }
         if ( isset( $_GET['tt_rsch_error'] ) ) {
-            echo '<p class="tt-notice tt-notice-error" role="alert">' . esc_html( sanitize_text_field( rawurldecode( wp_unslash( (string) $_GET['tt_rsch_error'] ) ) ) ) . '</p>';
+            echo '<p class="tt-notice tt-notice-error" role="alert">' . esc_html( self::errorMessage( sanitize_key( wp_unslash( (string) $_GET['tt_rsch_error'] ) ) ) ) . '</p>';
         }
+    }
+
+    /** The message for a refusal code the save passed back. */
+    private static function errorMessage( string $code ): string {
+        switch ( $code ) {
+            case 'invalid_field-recipients-kept_for_owner': return ReportSchedules::keptForOwner();
+            case 'invalid_field-recipients': return __( 'Recipients are accounts and staff roles only. Someone without an account needs one first.', 'talenttrack' );
+            case 'forbidden-recipients':     return __( 'You may schedule this report for yourself. Sending it to others needs the right to publish reports.', 'talenttrack' );
+            case 'invalid_field-frequency':  return __( 'Choose weekly, monthly or at the end of the season.', 'talenttrack' );
+            case 'invalid_field-period':     return __( 'Choose last week, last month, this month or this season.', 'talenttrack' );
+            case 'invalid_field-name':       return __( 'The name is too long.', 'talenttrack' );
+            case 'not_schedulable-report_id': return __( 'This report cannot be sent on a schedule.', 'talenttrack' );
+            case 'license_required':         return __( 'Scheduled reports are not part of your plan.', 'talenttrack' );
+            case 'not_found':                return __( 'There is no such schedule.', 'talenttrack' );
+        }
+        return __( 'The schedule could not be saved.', 'talenttrack' );
     }
 
     /**
