@@ -364,6 +364,16 @@ hetzelfde zeggen. Het aantal pagina's van een momentopname telt de notities
 mee, dus een lange notitie die een sectie naar een andere pagina duwt, wordt
 meegerekend.
 
+Notities schrijven is voor wie de momentopname van dit team mag maken. Wie het
+rapport alleen leest, ziet de notities maar krijgt de editor niet. Elke
+geschreven notitie wordt vastgelegd in het auditlogboek.
+
+Een momentopname toont elke lezer wat die vandaag mag lezen, sectie voor
+sectie, net als het live rapport: trajectmomenten op de niveaus die de lezer
+heeft, open blessures alleen voor wie de blessures van de selectie mag lezen,
+en aanwezigheid alleen voor wie de aanwezigheid van het team mag lezen. Op het
+scherm en in de PDF.
+
 ### Een momentopname is niet met een link te delen
 
 **Een momentopname is alleen te lezen door iemand die is ingelogd en de

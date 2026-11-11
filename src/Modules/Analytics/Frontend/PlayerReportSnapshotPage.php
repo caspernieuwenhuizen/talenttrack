@@ -85,7 +85,16 @@ final class PlayerReportSnapshotPage {
 
         $uuid    = isset( $_POST['snapshot'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['snapshot'] ) ) : '';
         $section = isset( $_POST['section'] ) ? sanitize_key( wp_unslash( (string) $_POST['section'] ) ) : '';
-        $body    = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['note'] ) ) : '';
+        // A post without the note changes nothing; an empty one removes it.
+        if ( ! isset( $_POST['note'] ) || ! is_string( $_POST['note'] ) ) {
+            wp_die(
+                /* translators: %s: comma-separated field names */
+                esc_html( sprintf( __( 'These fields are required: %s.', 'talenttrack' ), 'note' ) ),
+                '',
+                [ 'response' => 400 ]
+            );
+        }
+        $body    = sanitize_textarea_field( wp_unslash( $_POST['note'] ) );
 
         if ( ! PlayerReportSnapshots::note( $uuid, $section, $body, get_current_user_id() ) ) {
             wp_die( esc_html__( 'You do not have access to this snapshot.', 'talenttrack' ), '', [ 'response' => 403 ] );

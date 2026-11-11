@@ -186,8 +186,9 @@ final class PlayerReportSnapshots {
     /**
      * The snapshot as data, for a reader who may see it; null otherwise.
      *
-     * Staff who may read the player's report read any snapshot of that player
-     * as stored. A family reader reads only what was shared with the family,
+     * Staff who may read the player's report read a snapshot of that player
+     * with each section cut to what they may read now; a copy for staff opens
+     * only for a reader who reads as staff. A family reader reads only what was shared with the family,
      * without notes, and only the sections their own access to the child
      * reaches.
      *
@@ -241,6 +242,12 @@ final class PlayerReportSnapshots {
             if ( ! \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id )->readsStudio() ) return null;
             if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
             $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forReader( $document, $user_id );
+        } else {
+            // Frozen under the taker's rights, shown under the reader's: a
+            // copy for staff opens for a reader who reads as staff, and each
+            // section holds what the live report would show this reader.
+            if ( $audience === PlayerReportAudience::INTERNAL && PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
+            $report = self::forStaffReader( $report, $user_id, $player_id );
         }
 
         return [
@@ -307,6 +314,22 @@ final class PlayerReportSnapshots {
 
         $report['blocks'] = $keep;
         $report['data']   = array_intersect_key( $report['data'], array_flip( $keep ) );
+        return $report;
+    }
+
+    /**
+     * A frozen report with each section cut to what this staff reader may
+     * read now, by the rights the live sections are composed with
+     * (`PlayerSectionRights::cut()`).
+     *
+     * @param array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>} $report
+     * @return array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>}
+     */
+    private static function forStaffReader( array $report, int $user_id, int $player_id ): array {
+        $readers = \TT\Infrastructure\Visibility\ReaderSet::of( [ $user_id ] );
+        foreach ( $report['data'] as $section => $data ) {
+            $report['data'][ $section ] = PlayerSectionRights::cut( (string) $section, $data, $readers, $player_id );
+        }
         return $report;
     }
 

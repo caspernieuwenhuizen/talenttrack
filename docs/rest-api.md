@@ -1270,9 +1270,14 @@ caller may not read are the same `403`, so a uuid cannot be probed.
 - `GET /player-report-snapshots/{uuid}` — `uuid`, `player_id`, `title`,
   `audience`, `created_by`, `created_at`, `composition` (with the dates, never a
   moving period), `report` (the frozen payload) and `notes` keyed by section:
-  `{ body, author, updated_at }`.
-- `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`; an empty
-  body removes the note. A section that is not a block is `400 unknown_section`.
+  `{ body, author, updated_at }`. For a staff reader each section of `report`
+  is cut to what that reader may read now (`PlayerSectionRights::cut()`), so
+  it matches the live report for them; a staff snapshot opens only for a
+  reader whose `PlayerReportAudience::forReader()` is `internal` (a scout is
+  `403`). The snapshot page and the PDF read the same payload.
+- `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`,
+  required: leaving it out is `400 missing_fields` and changes nothing; an
+  empty body removes the note. A section that is not a block is `400 unknown_section`.
   A family snapshot takes no notes (`403`). Writing a note needs the same
   `canCreate()` as taking a snapshot, so a read-only seat is `403`; each write is
   audit-logged as `player_report.snapshot_noted`.

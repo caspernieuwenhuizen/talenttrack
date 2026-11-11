@@ -217,11 +217,18 @@ alone. **Download PDF** on a snapshot prints it with its notes.
 Only signed-in staff who can open this player's report can open a snapshot of
 it. A snapshot has no shareable link; give someone the PDF instead.
 
+A snapshot shows each reader what they may read today. Its numbers stay as
+they were, but a section the reader may not see is left out or shortened, as
+it would be on the live report: injuries only for staff with the medical
+right, journey entries at the levels the reader holds, and so on. The snapshot
+page and its PDF show the same thing. A scout opens no snapshot saved for
+staff.
+
 Saving a snapshot, sharing the report with the family and writing a note are
 for staff who may generate this player's reports, not only read them. A seat
-that reads reports only, such as the read-only observer or a scout, sees the
-earlier snapshots and their notes, but is not offered the save, the share or
-the note editor. Each snapshot saved and each note written is recorded in the
+that reads reports only, such as the read-only observer, sees the earlier
+snapshots and their notes, but is not offered the save, the share or the note
+editor. Each snapshot saved and each note written is recorded in the
 audit log.
 
 ## Sharing the report with the player and their parents
