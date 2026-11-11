@@ -3,6 +3,31 @@
 msgid "Report Studio · %s"
 msgstr "Report Studio · %s"
 
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Scheduled reports are not part of your plan."
+msgstr "Ingeplande rapporten horen niet bij je abonnement."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "This report is kept for its owner alone, so only they can receive it on a schedule."
+msgstr "Dit rapport is alleen voor de eigenaar bewaard, dus alleen de eigenaar kan het volgens schema ontvangen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Stopped: the person who set up this schedule may no longer send reports to others."
+msgstr "Gestopt: wie dit schema instelde, mag geen rapporten meer naar anderen sturen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Not sent: no block of this report is one every recipient may read."
+msgstr "Niet verstuurd: geen blok van dit rapport is er een dat elke ontvanger mag lezen."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "The name is too long."
+msgstr "De naam is te lang."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "This report cannot be sent on a schedule."
+msgstr "Dit rapport kan niet volgens schema worden verstuurd."
+
 #: src/Modules/Comms/Template/TemplateGuide.php
 msgid "Tells the person who set up a scheduled Report Studio report that it was paused instead of sent, says why, and links to the schedule."
 msgstr "Laat wie een Report Studio-rapport inplande weten dat het gepauzeerd is in plaats van verstuurd, zegt waarom en linkt naar het schema."
