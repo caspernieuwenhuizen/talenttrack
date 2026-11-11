@@ -79,7 +79,7 @@ final class SubjectStep implements WizardStepInterface, ConditionalStepInterface
                 return;
             case ReportContext::SCOPE_GROUP:
                 $chosen = array_values( array_map( 'intval', is_array( $state['cohort_team_ids'] ?? null ) ? $state['cohort_team_ids'] : [] ) );
-                $this->renderGroup( $teams, $chosen, (string) ( $state['cohort_age_group'] ?? '' ) );
+                $this->renderGroup( $teams, $chosen, (string) ( $state['cohort_age_group'] ?? '' ), ! empty( $state['cohort_all_teams'] ), (string) ( $state['cohort_position'] ?? '' ) );
                 return;
         }
     }
@@ -104,16 +104,32 @@ final class SubjectStep implements WizardStepInterface, ConditionalStepInterface
                 return [ 'team_id' => $tid ];
 
             case ReportContext::SCOPE_GROUP:
+                // #4964 — "All my teams" is every team the builder builds
+                // for, as they stand now; the ticked teams are then ignored.
+                $all    = ! empty( $post['cohort_all_teams'] );
                 $chosen = [];
-                foreach ( is_array( $post['cohort_team_ids'] ?? null ) ? $post['cohort_team_ids'] : [] as $raw ) {
-                    $tid = absint( $raw );
-                    if ( ! isset( $teams[ $tid ] ) ) return new \WP_Error( 'tt_rsw_group', __( 'Choose one of your teams.', 'talenttrack' ) );
-                    $chosen[ $tid ] = $tid;
+                if ( $all ) {
+                    foreach ( array_keys( $teams ) as $tid ) $chosen[ $tid ] = (int) $tid;
+                } else {
+                    foreach ( is_array( $post['cohort_team_ids'] ?? null ) ? $post['cohort_team_ids'] : [] as $raw ) {
+                        $tid = absint( $raw );
+                        if ( ! isset( $teams[ $tid ] ) ) return new \WP_Error( 'tt_rsw_group', __( 'Choose one of your teams.', 'talenttrack' ) );
+                        $chosen[ $tid ] = $tid;
+                    }
                 }
                 if ( $chosen === [] ) return new \WP_Error( 'tt_rsw_group', __( 'Choose at least one team for the group.', 'talenttrack' ) );
                 $age = isset( $post['cohort_age_group'] ) ? sanitize_text_field( (string) $post['cohort_age_group'] ) : '';
                 if ( $age !== '' && ! in_array( $age, array_column( $teams, 'age_group' ), true ) ) $age = '';
-                return [ 'cohort_team_ids' => array_values( $chosen ), 'cohort_age_group' => $age ];
+                $position = isset( $post['cohort_position'] ) ? strtoupper( trim( sanitize_text_field( (string) $post['cohort_position'] ) ) ) : '';
+                if ( $position !== '' && ! isset( ReportSubjectOptions::positions()[ $position ] ) ) {
+                    return new \WP_Error( 'tt_rsw_group', __( 'Choose one of the academy\'s positions for the group.', 'talenttrack' ) );
+                }
+                return [
+                    'cohort_team_ids'  => array_values( $chosen ),
+                    'cohort_all_teams' => $all,
+                    'cohort_age_group' => $age,
+                    'cohort_position'  => $position,
+                ];
         }
         return [];
     }
@@ -161,9 +177,15 @@ final class SubjectStep implements WizardStepInterface, ConditionalStepInterface
      * @param array<int, array{name:string, age_group:string}> $teams
      * @param list<int>                                         $chosen
      */
-    private function renderGroup( array $teams, array $chosen, string $age ): void {
+    private function renderGroup( array $teams, array $chosen, string $age, bool $all, string $position ): void {
         echo '<fieldset class="tt-rsw-choices">';
         echo '<legend>' . esc_html__( 'Which teams make up the group?', 'talenttrack' ) . '</legend>';
+        // #4964 — every team the builder builds for, in one tap.
+        echo '<label class="tt-rsw-option" for="tt-rsw-group-all">';
+        echo '<input type="checkbox" id="tt-rsw-group-all" name="cohort_all_teams" value="1"' . checked( $all, true, false ) . ' aria-describedby="tt-rsw-group-all-why" />';
+        echo '<span class="tt-rsw-option-text"><span class="tt-rsw-option-label">' . esc_html__( 'All my teams', 'talenttrack' ) . '</span>';
+        echo '<span class="tt-rsw-option-hint" id="tt-rsw-group-all-why">' . esc_html__( 'Every team you build reports for. The teams ticked below are then not needed.', 'talenttrack' ) . '</span></span>';
+        echo '</label>';
         foreach ( $teams as $tid => $team ) {
             $id = 'tt-rsw-group-' . $tid;
             echo '<label class="tt-rsw-option" for="' . esc_attr( $id ) . '">';
@@ -172,6 +194,21 @@ final class SubjectStep implements WizardStepInterface, ConditionalStepInterface
             echo '</label>';
         }
         echo '</fieldset>';
+
+        // #4964 — narrowed to the players whose primary position this is.
+        $positions = ReportSubjectOptions::positions();
+        if ( $positions !== [] ) {
+            echo '<div class="tt-field">';
+            echo '<label class="tt-field-label" for="tt-rsw-position">' . esc_html__( 'Only one position (optional)', 'talenttrack' ) . '</label>';
+            echo '<select id="tt-rsw-position" class="tt-input" name="cohort_position" aria-describedby="tt-rsw-position-hint">';
+            echo '<option value="">' . esc_html__( 'Every position', 'talenttrack' ) . '</option>';
+            foreach ( $positions as $code => $label ) {
+                echo '<option value="' . esc_attr( $code ) . '"' . selected( $position, $code, false ) . '>' . esc_html( $label ) . '</option>';
+            }
+            echo '</select>';
+            echo '<p class="tt-field-hint" id="tt-rsw-position-hint">' . esc_html__( 'A player counts by their first position, so each player is in one position group.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+        }
 
         $ages = array_values( array_unique( array_filter( array_column( $teams, 'age_group' ) ) ) );
         if ( $ages === [] ) return;

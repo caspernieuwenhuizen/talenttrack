@@ -71,6 +71,7 @@ final class StartChoices {
             $in['cohort'] = [
                 'team_ids'  => array_map( 'intval', is_array( $state['cohort_team_ids'] ?? null ) ? $state['cohort_team_ids'] : [] ),
                 'age_group' => (string) ( $state['cohort_age_group'] ?? '' ),
+                'position'  => (string) ( $state['cohort_position'] ?? '' ),
             ];
         }
         return $in;

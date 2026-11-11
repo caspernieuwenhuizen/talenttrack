@@ -18,6 +18,9 @@ use TT\Modules\License\LicenseMode;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
+use TT\Modules\ReportStudio\Wizard\ReviewStep;
+use TT\Modules\ReportStudio\Wizard\StartChoices;
+use TT\Modules\ReportStudio\Wizard\SubjectStep;
 
 /**
  * #4964 — a group subject by position.
@@ -146,6 +149,37 @@ final class ReportStudioGroupByPositionTest extends WP_UnitTestCase {
         $mine = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] );
         $this->assertSame( 200, $mine->get_status() );
         $this->assertEqualsCanonicalizing( [ $this->players['cb_first'], $this->players['legacy'] ], $mine->get_data()['data']['context']['player_ids'], 'the coach sees the centre-backs of their own team' );
+    }
+
+    public function test_the_wizard_offers_all_my_teams_and_a_position_for_a_group(): void {
+        wp_set_current_user( $this->coach );
+        $this->flush();
+        $step = new SubjectStep();
+
+        ob_start();
+        $step->render( [ 'scope' => 'group' ] );
+        $html = (string) ob_get_clean();
+        $this->assertStringContainsString( 'name="cohort_all_teams"', $html );
+        $this->assertStringContainsString( 'value="' . $this->team_a . '"', $html );
+        $this->assertStringNotContainsString( 'value="' . $this->team_b . '"', $html, 'a coach is offered their own teams only' );
+        $this->assertMatchesRegularExpression( '/<select id="tt-rsw-position"[^>]*name="cohort_position"/', $html );
+        $this->assertStringContainsString( '<option value="CB">', $html );
+
+        $merge = $step->validate( [ 'cohort_all_teams' => '1', 'cohort_team_ids' => [ (string) $this->team_b ], 'cohort_position' => 'cb' ], [ 'scope' => 'group' ] );
+        $this->assertIsArray( $merge, is_wp_error( $merge ) ? $merge->get_error_message() : '' );
+        $this->assertSame( [ $this->team_a ], $merge['cohort_team_ids'], 'all my teams is the coach\'s own team, whatever else was posted' );
+        $this->assertSame( 'CB', $merge['cohort_position'] );
+
+        $this->assertInstanceOf( \WP_Error::class, $step->validate( [ 'cohort_team_ids' => [ (string) $this->team_a ], 'cohort_position' => 'ZZ' ], [ 'scope' => 'group' ] ), 'a position the academy does not have' );
+        $this->assertInstanceOf( \WP_Error::class, $step->validate( [ 'cohort_team_ids' => [ (string) $this->team_b ] ], [ 'scope' => 'group' ] ), 'another team is still refused' );
+
+        $state = [ 'kind' => 'report', 'scope' => 'group', 'binding' => 'on_open', 'audience' => 'internal', 'sharing' => 'me', 'name' => 'Verdedigers' ] + $merge;
+        $this->assertSame( [ 'team_ids' => [ $this->team_a ], 'age_group' => '', 'position' => 'CB' ], StartChoices::toInput( $state )['cohort'] );
+
+        ob_start();
+        ( new ReviewStep() )->render( $state );
+        $review = (string) ob_get_clean();
+        $this->assertStringContainsString( 'Centre back in Posities O14', $review, 'the review names the group' );
     }
 
     public function test_a_block_without_group_support_is_switched_off_and_refused(): void {

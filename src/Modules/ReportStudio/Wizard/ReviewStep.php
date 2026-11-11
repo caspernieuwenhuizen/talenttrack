@@ -8,6 +8,7 @@ use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportCreation;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
+use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
 use TT\Modules\ReportStudio\Domain\StudioError;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -104,8 +105,20 @@ final class ReviewStep implements WizardStepInterface {
                 $team = QueryHelpers::get_team( (int) $tid );
                 if ( $team ) $names[] = (string) ( $team->name ?? '' );
             }
-            $age = (string) ( $in['cohort']['age_group'] ?? '' );
-            return implode( ', ', array_filter( $names ) ) . ( $age !== '' ? ' · ' . $age : '' );
+            $age   = (string) ( $in['cohort']['age_group'] ?? '' );
+            $teams = wp_sprintf( '%l', array_values( array_filter( $names ) ) ) . ( $age !== '' ? ' · ' . $age : '' );
+            // #4964 — a group by position names it: "Centre back in O14 and O15".
+            $code = (string) ( $in['cohort']['position'] ?? '' );
+            $positions = ReportSubjectOptions::positions();
+            if ( $code !== '' && isset( $positions[ strtoupper( $code ) ] ) ) {
+                return sprintf(
+                    /* translators: 1: a position, such as Centre back; 2: the teams of the group */
+                    _x( '%1$s in %2$s', 'report group by position', 'talenttrack' ),
+                    $positions[ strtoupper( $code ) ],
+                    $teams
+                );
+            }
+            return $teams;
         }
         return $label;
     }
