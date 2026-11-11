@@ -130,7 +130,10 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
             $theirs  = $report['data'][ $section ] ?? null;
             $this->assertIsArray( $theirs, $section );
             if ( $section === TeamMonthlyReportBlock::LETTERHEAD ) {
-                foreach ( $theirs as $k => $v ) $this->assertSame( $v, $block['data'][ $k ] ?? null, "letterhead.{$k}" );
+                foreach ( $theirs as $k => $v ) {
+                    // Read from the clock, so a second apart.
+                    if ( $k !== 'generated_at' ) $this->assertSame( $v, $block['data'][ $k ] ?? null, "letterhead.{$k}" );
+                }
                 continue;
             }
             if ( $section === TeamMonthlyReportBlock::KPI ) {
@@ -224,11 +227,17 @@ final class ReportStudioMonthlyTemplateTest extends WP_UnitTestCase {
         wp_set_current_user( $this->hod );
         $res = $this->send( 'POST', 'reports', $this->choices( [ 'template' => TeamMonthlyReportTemplate::KEY, 'team_id' => $this->team, 'layout' => 'grid' ] ) );
         $this->assertSame( 400, $res->get_status() );
-        $this->assertSame( 'layout', $res->get_data()['errors'][0]['details']['field'] ?? null );
+        $this->assertSame( 'layout', $this->field( $res ) );
 
         $res = $this->send( 'POST', 'reports', $this->choices( [ 'template' => 'no_such_template', 'team_id' => $this->team ] ) );
         $this->assertSame( 400, $res->get_status() );
-        $this->assertSame( 'template', $res->get_data()['errors'][0]['details']['field'] ?? null );
+        $this->assertSame( 'template', $this->field( $res ) );
+    }
+
+    /** The field a refusal names: `details` arrives as an object. */
+    private function field( WP_REST_Response $res ): ?string {
+        $details = (array) ( $res->get_data()['errors'][0]['details'] ?? [] );
+        return is_string( $details['field'] ?? null ) ? $details['field'] : null;
     }
 
     public function test_the_wizard_offers_the_templates_the_builder_may_start(): void {

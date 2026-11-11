@@ -97,7 +97,8 @@ final class StartChoices {
         $moved = is_array( $state['moved'] ?? null ) ? $state['moved'] : [];
 
         // #5023 — a choice the template fixes offers only the template's value.
-        $fixed   = self::template( $state )?->choices[ $field ] ?? null;
+        $template = self::template( $state );
+        $fixed    = $template !== null ? ( $template->choices[ $field ] ?? null ) : null;
         $options = $answer['options'][ $field ] ?? [];
         if ( $fixed !== null ) {
             $current = $fixed;
@@ -199,7 +200,8 @@ final class StartChoices {
         $templates = ReportTemplateRegistry::startableBy( get_current_user_id() );
         if ( $templates === [] ) return;
 
-        $current = self::template( $state )?->key ?? '';
+        $chosen  = self::template( $state );
+        $current = $chosen !== null ? $chosen->key : '';
         $options = [ [ 'value' => '', 'label' => __( 'An empty report', 'talenttrack' ), 'hint' => __( 'Choose every block yourself.', 'talenttrack' ) ] ];
         foreach ( $templates as $template ) {
             $options[] = [ 'value' => $template->key, 'label' => $template->label, 'hint' => $template->description ];
