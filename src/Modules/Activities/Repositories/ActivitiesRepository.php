@@ -874,8 +874,7 @@ final class ActivitiesRepository {
         // #2023 — through filterClause (alias 's') so every state also hides
         // trashed (recycle-bin) rows; the query joins tt_teams (also
         // archivable), so the alias keeps trashed_at unambiguous.
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $archived_view );
-        $where  = [ 's.club_id = %d', \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 's' ) ];
+        $where  = [ 's.club_id = %d', self::listArchiveClause( $archived_view, 's' ) ];
         $params = [ CurrentClub::id() ];
 
         // #1862 — cancelled activities are noise on the schedule, so hide
@@ -2139,6 +2138,19 @@ final class ActivitiesRepository {
     }
 
     /**
+     * The archive state clause both activity lists use, the rendered list
+     * and `GET /activities`: `active` (the default), `archived` or `all`,
+     * through `ArchiveRepository::filterClause()`, so an activity in the
+     * recycle bin appears in neither, whatever the state. The recycle bin is
+     * not a state of these lists; asking for it reads as `active`.
+     */
+    public static function listArchiveClause( string $view, string $alias ): string {
+        $view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $view );
+        if ( $view === 'trashed' ) $view = 'active';
+        return \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, $alias );
+    }
+
+    /**
      * #1712 — the REST activities list (GET /activities), with the
      * on-the-fly attendance-completeness computed columns + HAVING
      * filter the controller's `list_sessions` inlined before the sweep.
@@ -2182,18 +2194,12 @@ final class ActivitiesRepository {
         // #1555 — Active / Archived / All status filter, mirroring the
         // goals/players/teams archive lifecycle. Default (empty) resolves to
         // 'active'; the legacy include_archived=1 flag maps to 'all'.
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
-            $filter['archived'] ?? ''
+        // #5101 — the rendered list's own clause, so a trashed row never
+        // appears here either, in any state and with any filter.
+        $where[] = self::listArchiveClause(
+            ! empty( $args['include_archived'] ) ? 'all' : ( is_scalar( $filter['archived'] ?? null ) ? (string) $filter['archived'] : '' ),
+            's'
         );
-        if ( ! empty( $args['include_archived'] ) ) {
-            $archived_view = 'all';
-        }
-        if ( $archived_view === 'active' ) {
-            $where[] = 's.archived_at IS NULL';
-        } elseif ( $archived_view === 'archived' ) {
-            $where[] = 's.archived_at IS NOT NULL';
-        }
-        // 'all' → no archived clause.
 
         // Coach scope — the controller resolved the accessible team set;
         // null means unrestricted (global-read persona or player-scoped).

@@ -692,6 +692,10 @@ The lock is set in `ActivitiesRepository::update()`, the write behind `PUT /acti
 
 The response is the groups still locked. Unlocking a group that is not locked answers `200` with the list unchanged. An unknown group is `400 unknown_group`; an activity that is not this club's is `404 not_found`.
 
+### Archive state on `GET /activities` (#5101)
+
+`filter[archived]` is `active` (the default), `archived` or `all`; the legacy `include_archived=1` reads as `all`. **An activity in the recycle bin never appears in the list**, in any state and with or without `filter[played]`: the list runs the same clause as the rendered activities list (`ActivitiesRepository::listArchiveClause()`, over `ArchiveRepository::filterClause()`). `filter[archived]=trashed` is not a state of this list and reads as `active`; the recycle bin is its own screen. Before this, the list returned trashed activities whenever `filter[played]` was absent or `0` (under `active` and `archived` as well as `all`), and `filter[archived]=trashed` returned every activity, trashed or not.
+
 ### Played matches: `GET /activities` with `filter[played]=1` (#4507)
 
 `filter[played]=1`, or the plain `played=1` the rendered list sends, narrows the list to the matches the minutes reports count as **played**: every match-like type (`game`, the legacy `match`, `tournament`), not cancelled, dated today or earlier, and completed, dated before today, carrying recorded minutes or scored (`PlayedMatch`, #4957; before #4957 a match dated after today that was completed or carried minutes was listed too). With `filter[date_from]` / `filter[date_to]` it returns exactly the rows behind a minutes report's *Matches played* number. It always leaves out trashed and archived matches, whatever `filter[archived]` says, as the reports do; before #4957 it listed trashed matches, a wrong answer corrected under the rest-contract rule. `0` or absent does not narrow; any other value is refused with `400 bad_filter` (`details.parameter = played`). The other filters, the coach scope and the player / parent force-scope apply as usual, so it can only narrow what a caller sees.
