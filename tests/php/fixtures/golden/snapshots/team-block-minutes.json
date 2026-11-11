@@ -25,7 +25,8 @@
         "minutes": {
             "level": "details",
             "matches_recorded": 4,
-            "matches_played": 5,
+            "matches_played": 6,
+            "tournaments_played": 1,
             "target_pct": 50,
             "median_share_pct": 69.6,
             "under": [

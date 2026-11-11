@@ -110,20 +110,23 @@ final class MinutesOneReadSurfacesTest extends WP_UnitTestCase {
     }
 
     /**
-     * The "played" predicate reads the chosen row: a match still to come
-     * whose duplicate was corrected to 0 has no minutes, so it is not
-     * played yet; one with minutes on its chosen row is.
+     * The "played" predicate reads the chosen row: a match today, not
+     * completed, whose duplicate was corrected to 0 has no minutes, so it is
+     * not played yet; one with minutes on its chosen row is. Today, because
+     * a match dated after today is never played, whatever it carries (#4957).
      */
     public function test_played_reads_the_chosen_row(): void {
-        $window_from = '2099-05-01';
-        $window_to   = '2099-05-31';
+        global $wpdb;
+        $today       = (string) $wpdb->get_var( 'SELECT CURDATE()' );
+        $window_from = $today;
+        $window_to   = $today;
 
-        $corrected = $this->insertMatch( '2099-05-10', 'scheduled' );
+        $corrected = $this->insertMatch( $today, 'scheduled' );
         $this->actual( $corrected, $this->dup, 70 );
         $this->actual( $corrected, $this->dup, 0 );
         $this->assertSame( 0, ( new MinutesQuery() )->matchCountsForTeam( $this->team, $window_from, $window_to )['played'], 'a duplicate corrected to 0 does not make it played' );
 
-        $this->actual( $this->insertMatch( '2099-05-17', 'scheduled' ), $this->dup, 45 );
+        $this->actual( $this->insertMatch( $today, 'scheduled' ), $this->dup, 45 );
         $this->assertSame( 1, ( new MinutesQuery() )->matchCountsForTeam( $this->team, $window_from, $window_to )['played'], 'minutes on the chosen row do' );
     }
 
@@ -143,6 +146,9 @@ final class MinutesOneReadSurfacesTest extends WP_UnitTestCase {
             return $wpdb->num_queries - $before;
         };
 
+        // The first scoped read of a request reads the demo mode once
+        // (`PlayedMatch::liveSql()`'s demo scope, #4957); count after it.
+        $count();
         $one = $count();
         foreach ( [ '2026-09-19', '2026-09-26', '2026-09-27' ] as $date ) {
             $this->actual( $this->insertMatch( $date ), $this->dup, 45 );
