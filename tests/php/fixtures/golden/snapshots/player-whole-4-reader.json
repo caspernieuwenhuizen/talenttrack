@@ -1,0 +1,260 @@
+{
+    "player_id": "{player:4}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "status",
+        "talking_points",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "pdp",
+        "notes",
+        "matches",
+        "tests",
+        "journey",
+        "injuries",
+        "behaviour",
+        "potential",
+        "thread_notes"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:4}",
+            "name": "Daan Eik",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": null,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "status": {
+            "color": "red",
+            "score": 20,
+            "inputs": {
+                "ratings": {
+                    "value": null,
+                    "weight": 40,
+                    "score": null
+                },
+                "behaviour": {
+                    "value": null,
+                    "weight": 25,
+                    "score": null
+                },
+                "attendance": {
+                    "value": null,
+                    "weight": 20,
+                    "score": null
+                },
+                "potential": {
+                    "value": 20,
+                    "weight": 15,
+                    "score": 20
+                }
+            },
+            "reasons": [
+                "No evaluations in the last 90 days.",
+                "Sparse attendance data — confidence reduced.",
+                "Composite 20 below red threshold 40.",
+                "Computed without evaluations, behaviour, attendance."
+            ],
+            "as_of": "2020-04-01 00:00:00",
+            "methodology_version": "shipped",
+            "coverage": 0.15,
+            "missing_inputs": [
+                "ratings",
+                "behaviour",
+                "attendance"
+            ],
+            "coverage_note": "Computed without evaluations, behaviour, attendance."
+        },
+        "talking_points": {
+            "items": [
+                {
+                    "key": "status",
+                    "level": "red",
+                    "text": "The status model flags this player as needing action.",
+                    "evidence": "No evaluations in the last 90 days. Sparse attendance data — confidence reduced. Composite 20 below red threshold 40."
+                },
+                {
+                    "key": "minutes",
+                    "level": "amber",
+                    "text": "Played 0% of the available minutes, below the academy target of 50%.",
+                    "evidence": "0 of 280 minutes over 4 recorded matches."
+                },
+                {
+                    "key": "missing_inputs",
+                    "level": "info",
+                    "text": "The academy has no evaluations, behaviour, attendance on record for this player yet.",
+                    "evidence": "The status above was worked out without it."
+                }
+            ]
+        },
+        "ratings": {
+            "evaluation_count": 1,
+            "latest": 1,
+            "latest_date": "2020-03-20",
+            "average": 1,
+            "series": [
+                {
+                    "date": "2020-03-20",
+                    "value": 1
+                }
+            ],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "latest": 1,
+                    "average": 1,
+                    "count": 1,
+                    "subcategories": [
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "latest": 1.5,
+                            "average": 1.5,
+                            "count": 1
+                        }
+                    ]
+                }
+            ],
+            "evaluations": [
+                {
+                    "id": "{evaluation:5}",
+                    "eval_date": "2020-03-20",
+                    "rating": 1,
+                    "notes": "Golden evaluation.",
+                    "assessor_id": "{user:1}",
+                    "assessor_name": "Golden Admin",
+                    "eval_type_id": 0,
+                    "categories": [
+                        {
+                            "category_id": "{category:1}",
+                            "label": "Golden technical",
+                            "is_main": true,
+                            "parent_id": null,
+                            "rating": 1
+                        },
+                        {
+                            "category_id": "{category:2}",
+                            "label": "Golden passing",
+                            "is_main": false,
+                            "parent_id": "{category:1}",
+                            "rating": 1.5
+                        }
+                    ]
+                }
+            ],
+            "has_subcategories": true,
+            "detail": "sub"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 6,
+            "late": 1,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 0,
+            "minutes": 0,
+            "matches": 0,
+            "share": 0,
+            "comparison": {
+                "team": 54,
+                "position": null,
+                "player_positions": []
+            }
+        },
+        "goals": {
+            "items": []
+        },
+        "pdp": {
+            "available": true,
+            "file": null,
+            "conversations": [],
+            "verdict": null,
+            "last_agreed_actions": ""
+        },
+        "notes": {
+            "lines": 6
+        },
+        "matches": {
+            "items": []
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 13.333,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 14,
+                    "delta": -0.67,
+                    "trend": "up",
+                    "score": "warn",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        },
+        "journey": {
+            "items": []
+        },
+        "injuries": {
+            "items": []
+        },
+        "behaviour": {
+            "items": [
+                {
+                    "id": "{behaviour:3}",
+                    "club_id": "1",
+                    "player_id": "{player:4}",
+                    "rated_at": "2020-03-21 10:00:00",
+                    "rated_by": "{user:1}",
+                    "rating": "1.0",
+                    "context": "match",
+                    "notes": null,
+                    "related_activity_id": null,
+                    "created_at": "{now}"
+                }
+            ]
+        },
+        "potential": {
+            "items": [
+                {
+                    "id": "{potential:2}",
+                    "club_id": "1",
+                    "player_id": "{player:4}",
+                    "set_at": "2020-03-15 10:00:00",
+                    "set_by": "{user:1}",
+                    "potential_band": "below_level",
+                    "notes": null,
+                    "created_at": "{now}"
+                }
+            ]
+        },
+        "thread_notes": {
+            "items": []
+        }
+    },
+    "audience": "internal"
+}

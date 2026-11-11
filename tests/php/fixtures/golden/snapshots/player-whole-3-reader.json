@@ -1,0 +1,225 @@
+{
+    "player_id": "{player:3}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "status",
+        "talking_points",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "pdp",
+        "notes",
+        "matches",
+        "tests",
+        "journey",
+        "injuries",
+        "behaviour",
+        "potential",
+        "thread_notes"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:3}",
+            "name": "Cas Dijk",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": 10,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "status": {
+            "color": "unknown",
+            "score": null,
+            "inputs": {
+                "ratings": {
+                    "value": null,
+                    "weight": 40,
+                    "score": null
+                },
+                "behaviour": {
+                    "value": null,
+                    "weight": 25,
+                    "score": null
+                },
+                "attendance": {
+                    "value": null,
+                    "weight": 20,
+                    "score": null
+                },
+                "potential": {
+                    "value": null,
+                    "weight": 15,
+                    "score": null
+                }
+            },
+            "reasons": [
+                "No evaluations in the last 90 days.",
+                "Sparse attendance data — confidence reduced.",
+                "Insufficient signal — needs first evaluation and a few activities."
+            ],
+            "as_of": "2020-04-01 00:00:00",
+            "methodology_version": "shipped",
+            "coverage": 0,
+            "missing_inputs": [
+                "ratings",
+                "behaviour",
+                "attendance",
+                "potential"
+            ],
+            "coverage_note": "Computed without evaluations, behaviour, attendance, potential."
+        },
+        "talking_points": {
+            "items": [
+                {
+                    "key": "transition",
+                    "level": "info",
+                    "text": "Safeguarding: welfare check. (March 22, 2020).",
+                    "evidence": ""
+                },
+                {
+                    "key": "missing_inputs",
+                    "level": "info",
+                    "text": "The academy has no evaluations, behaviour, attendance, potential on record for this player yet.",
+                    "evidence": "The status above was worked out without it."
+                }
+            ]
+        },
+        "ratings": {
+            "evaluation_count": 0,
+            "latest": null,
+            "latest_date": null,
+            "average": null,
+            "series": [],
+            "categories": [],
+            "evaluations": [],
+            "has_subcategories": false,
+            "detail": "main"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 7,
+            "late": 0,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 4,
+            "minutes": 210,
+            "matches": 4,
+            "share": 75,
+            "comparison": {
+                "team": 54,
+                "position": null,
+                "player_positions": [
+                    "ST"
+                ]
+            }
+        },
+        "goals": {
+            "items": []
+        },
+        "pdp": {
+            "available": true,
+            "file": null,
+            "conversations": [],
+            "verdict": null,
+            "last_agreed_actions": ""
+        },
+        "notes": {
+            "lines": 6
+        },
+        "matches": {
+            "items": [
+                {
+                    "activity_id": "{activity:8}",
+                    "session_date": "2020-03-07",
+                    "title": "Thuis tegen Rood",
+                    "type_key": "unknown",
+                    "minutes": 40,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:9}",
+                    "session_date": "2020-03-14",
+                    "title": "Uit bij Blauw",
+                    "type_key": "unknown",
+                    "minutes": 60,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:10}",
+                    "session_date": "2020-03-21",
+                    "title": "Thuis tegen Groen",
+                    "type_key": "unknown",
+                    "minutes": 50,
+                    "record_type": "actual"
+                },
+                {
+                    "activity_id": "{activity:12}",
+                    "session_date": "2020-03-29",
+                    "title": "Oefenwedstrijd",
+                    "type_key": "unknown",
+                    "minutes": 60,
+                    "record_type": "actual"
+                }
+            ]
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 12.667,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 13,
+                    "delta": -0.33,
+                    "trend": "up",
+                    "score": "warn",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        },
+        "journey": {
+            "items": [
+                {
+                    "id": "{event:4}",
+                    "event_type": "team_changed",
+                    "date": "2020-03-22",
+                    "summary": "Safeguarding: welfare check.",
+                    "activity": null
+                }
+            ]
+        },
+        "injuries": {
+            "items": []
+        },
+        "behaviour": {
+            "items": []
+        },
+        "potential": {
+            "items": []
+        },
+        "thread_notes": {
+            "items": []
+        }
+    },
+    "audience": "internal"
+}

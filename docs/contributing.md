@@ -467,6 +467,21 @@ TT_TIMING wp_env_dir_size=…       # what was on disk before startup
 TT_TIMING wp_env_start_seconds=…  # the whole of wp-env's startup
 ```
 
+### Golden report snapshots (#4958)
+
+`tests/php/ReportComposersGoldenTest.php` holds the team monthly report, the player report and the team statistics to stored snapshots in `tests/php/fixtures/golden/snapshots/`: the payloads as pretty-printed JSON, and the rendered documents as `.html`, one tag per line. `tests/php/Support/GoldenSnapshot.php` replaces every id the fixture made with a token (`{player:2}`, `{activity:7}`), and a date near today with `{day:+7}` (with ` {time}` when it carries one), so a snapshot does not depend on the database it was recorded on. A datetime within one day of today, either side, reads `{now}`: it is the moment the fixture wrote a row, and a row stamped in site time just after midnight would otherwise read as tomorrow. A fixture that inserts a row registers its id with `GoldenSnapshot::id( 'kind', $id )`. An id field that still holds an unregistered id fails the test and names the path.
+
+**A deliberate change to a figure records the snapshots again, in the same PR.** The snapshot diff is then the change under review:
+
+```bash
+TT_GOLDEN_RECORD=1 vendor/bin/phpunit --filter ReportComposersGoldenTest
+git diff tests/php/fixtures/golden/snapshots/   # read it: only the figures you meant to change
+```
+
+Without `TT_GOLDEN_RECORD`, a missing snapshot fails and a changed figure fails with a line diff. `TT_GOLDEN_SHIFT=7` moves every id the fixture writes on by 7 before seeding, as a second fresh database would: run it after recording, and it must pass without recording again.
+
+The query-count tests in the same file hold each report to a fixed maximum (`TEAM_QUERY_BASELINE`, `PLAYER_QUERY_BASELINE`), recorded once from the frozen copies the snapshots replaced. Lowering a number is fine. Raising one needs a reason in review.
+
 ### Mandatory: a smoke test for every new REST endpoint
 
 When you add a `register_rest_route(...)`, add a smoke test for it in `tests/php/` in the same PR. The bar is low — assert the **status code** and the **envelope shape** for at least the **denial path** (an unauthorised caller gets the expected 401/403) and the happy path. This is the cheapest insurance against the authorization-coverage bug class; full-content assertions are not required. (Trivial copy-only changes to an existing endpoint don't.)

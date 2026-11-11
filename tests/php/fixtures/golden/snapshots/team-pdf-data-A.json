@@ -1,0 +1,663 @@
+{
+    "report": {
+        "team_id": "{team:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "previous": {
+            "from": "2020-02-01",
+            "to": "2020-02-29"
+        },
+        "blocks": [
+            "letterhead",
+            "coverage",
+            "kpi",
+            "status",
+            "evaluations",
+            "attendance",
+            "minutes",
+            "matches",
+            "attention",
+            "changes",
+            "tests",
+            "roster",
+            "notes",
+            "quality"
+        ],
+        "data": {
+            "letterhead": {
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "squad_size": 4,
+                "activity_count": 11,
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "coverage": {
+                "scheduled": 11,
+                "completed": 10,
+                "with_register": 8,
+                "missing": [
+                    {
+                        "activity_id": "{activity:13}",
+                        "title": "Toernooi",
+                        "date": "2020-03-15"
+                    },
+                    {
+                        "activity_id": "{activity:5}",
+                        "title": "Training zonder lijst",
+                        "date": "2020-03-24"
+                    }
+                ],
+                "never_closed": [
+                    {
+                        "activity_id": "{activity:6}",
+                        "title": "Nooit afgesloten",
+                        "date": "2020-03-26"
+                    }
+                ],
+                "state": "partial"
+            },
+            "kpi": {
+                "activities": {
+                    "value": 11,
+                    "previous": 1,
+                    "delta": 10
+                },
+                "attendance_pct": {
+                    "value": 87.5,
+                    "previous": 100,
+                    "delta": -12.5
+                },
+                "minutes_share_median_pct": {
+                    "value": 69.6,
+                    "previous": null,
+                    "delta": null
+                },
+                "evaluated": {
+                    "value": 3,
+                    "of": 4,
+                    "pct": 75,
+                    "delta": 50
+                },
+                "squad_rating": {
+                    "value": 5.4,
+                    "previous": 6.3,
+                    "delta": -0.9
+                },
+                "needs_attention": {
+                    "value": 1,
+                    "previous": 0,
+                    "delta": 1
+                }
+            },
+            "status": {
+                "counts": {
+                    "green": 3,
+                    "amber": 0,
+                    "red": 1,
+                    "unknown": 0
+                },
+                "previous": {
+                    "green": 4,
+                    "amber": 0,
+                    "red": 0,
+                    "unknown": 0
+                }
+            },
+            "evaluations": {
+                "level": "summary",
+                "scale": {
+                    "min": 5,
+                    "max": 9,
+                    "step": 1
+                },
+                "types": [],
+                "types_counted": [],
+                "squad_avg": 5.4,
+                "squad_avg_delta": -0.9,
+                "evaluated": 3,
+                "squad": 4,
+                "missing": [
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk"
+                    }
+                ],
+                "evaluations": 4,
+                "coaches": 1,
+                "by_type": [
+                    {
+                        "type_id": 0,
+                        "label": "Other",
+                        "count": 4
+                    }
+                ],
+                "rising_count": 1,
+                "falling_count": 0,
+                "rising": [
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "from": 6.3,
+                        "to": 8,
+                        "delta": 1.7
+                    }
+                ],
+                "falling": [],
+                "categories": [
+                    {
+                        "category_id": "{category:1}",
+                        "label": "Golden technical",
+                        "avg": 5.8,
+                        "delta": -0.7,
+                        "min": 1,
+                        "max": 8,
+                        "band_from_pct": 0,
+                        "band_to_pct": 75,
+                        "avg_pct": 18.8,
+                        "wide": false
+                    }
+                ],
+                "has_subcategories": true,
+                "sub": false
+            },
+            "attendance": {
+                "level": "details",
+                "team_avg_pct": 87.5,
+                "amber_below": 70,
+                "red_below": 60,
+                "below": [],
+                "absences": {
+                    "absent": 3,
+                    "excused": 1,
+                    "injured": 0,
+                    "suspended": 0
+                },
+                "rows": [
+                    {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "activities": 8,
+                        "present": 7,
+                        "late": 0,
+                        "absent": 0,
+                        "excused": 1,
+                        "injured": 0,
+                        "suspended": 0,
+                        "present_pct": 87.5,
+                        "band": "green",
+                        "flagged": false
+                    },
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "activities": 8,
+                        "present": 7,
+                        "late": 0,
+                        "absent": 1,
+                        "excused": 0,
+                        "injured": 0,
+                        "suspended": 0,
+                        "present_pct": 87.5,
+                        "band": "green",
+                        "flagged": false
+                    },
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk",
+                        "activities": 8,
+                        "present": 7,
+                        "late": 0,
+                        "absent": 1,
+                        "excused": 0,
+                        "injured": 0,
+                        "suspended": 0,
+                        "present_pct": 87.5,
+                        "band": "green",
+                        "flagged": false
+                    },
+                    {
+                        "player_id": "{player:4}",
+                        "name": "Daan Eik",
+                        "activities": 8,
+                        "present": 6,
+                        "late": 1,
+                        "absent": 1,
+                        "excused": 0,
+                        "injured": 0,
+                        "suspended": 0,
+                        "present_pct": 87.5,
+                        "band": "green",
+                        "flagged": false
+                    }
+                ]
+            },
+            "minutes": {
+                "level": "details",
+                "matches_recorded": 4,
+                "matches_played": 5,
+                "target_pct": 50,
+                "median_share_pct": 69.6,
+                "under": [
+                    {
+                        "player_id": "{player:4}",
+                        "name": "Daan Eik",
+                        "pct": 0
+                    }
+                ],
+                "rows": [
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk",
+                        "total_minutes": 210,
+                        "available_minutes": 280,
+                        "matches": 4,
+                        "starts": 0,
+                        "share_pct": 75
+                    },
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "total_minutes": 200,
+                        "available_minutes": 280,
+                        "matches": 4,
+                        "starts": 0,
+                        "share_pct": 71.4
+                    },
+                    {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "total_minutes": 190,
+                        "available_minutes": 280,
+                        "matches": 4,
+                        "starts": 0,
+                        "share_pct": 67.9
+                    },
+                    {
+                        "player_id": "{player:4}",
+                        "name": "Daan Eik",
+                        "total_minutes": 0,
+                        "available_minutes": 280,
+                        "matches": 0,
+                        "starts": 0,
+                        "share_pct": 0
+                    }
+                ]
+            },
+            "matches": {
+                "tournaments_excluded": 1,
+                "level": "details",
+                "shows": {
+                    "record": true,
+                    "scorers": true,
+                    "squads": false
+                },
+                "record": {
+                    "played": 5,
+                    "won": 2,
+                    "drawn": 1,
+                    "lost": 1,
+                    "goals_for": 6,
+                    "goals_against": 4,
+                    "goal_difference": 2,
+                    "without_score": 1
+                },
+                "fixtures": [
+                    {
+                        "activity_id": "{activity:8}",
+                        "date": "2020-03-07",
+                        "title": "Thuis tegen Rood",
+                        "opponent": "Rood",
+                        "home_away": "home",
+                        "team_score": 3,
+                        "opp_score": 0,
+                        "outcome": "W",
+                        "played": true,
+                        "squad": []
+                    },
+                    {
+                        "activity_id": "{activity:9}",
+                        "date": "2020-03-14",
+                        "title": "Uit bij Blauw",
+                        "opponent": "Blauw",
+                        "home_away": "away",
+                        "team_score": 0,
+                        "opp_score": 2,
+                        "outcome": "L",
+                        "played": true,
+                        "squad": []
+                    },
+                    {
+                        "activity_id": "{activity:10}",
+                        "date": "2020-03-21",
+                        "title": "Thuis tegen Groen",
+                        "opponent": "Groen",
+                        "home_away": "home",
+                        "team_score": 1,
+                        "opp_score": 1,
+                        "outcome": "D",
+                        "played": true,
+                        "squad": []
+                    },
+                    {
+                        "activity_id": "{activity:11}",
+                        "date": "2020-03-28",
+                        "title": "Uit bij Geel",
+                        "opponent": "Geel",
+                        "home_away": "away",
+                        "team_score": null,
+                        "opp_score": null,
+                        "outcome": "",
+                        "played": true,
+                        "squad": []
+                    },
+                    {
+                        "activity_id": "{activity:12}",
+                        "date": "2020-03-29",
+                        "title": "Oefenwedstrijd",
+                        "opponent": "",
+                        "home_away": "home",
+                        "team_score": 2,
+                        "opp_score": 1,
+                        "outcome": "W",
+                        "played": true,
+                        "squad": []
+                    }
+                ],
+                "scorers": [],
+                "scorer_totals": {
+                    "goals": 0,
+                    "assists": 0,
+                    "attributed_goals": 0,
+                    "goals_for": 6
+                }
+            },
+            "attention": {
+                "items": [
+                    {
+                        "player_id": "{player:4}",
+                        "name": "Daan Eik",
+                        "color": "red",
+                        "score": 29.1,
+                        "reasons": [
+                            "Composite 29.1 below red threshold 40."
+                        ],
+                        "missing_inputs": [],
+                        "attendance_pct": 87.5,
+                        "missed": 1
+                    }
+                ],
+                "omitted": 0
+            },
+            "changes": {
+                "events": [
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk",
+                        "event_type": "team_changed",
+                        "date": "2020-03-22",
+                        "summary": "Safeguarding: welfare check."
+                    },
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "event_type": "position_changed",
+                        "date": "2020-03-21",
+                        "summary": "Staff-only: moved to centre back."
+                    },
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "event_type": "position_changed",
+                        "date": "2020-03-20",
+                        "summary": "Moved to centre back."
+                    },
+                    {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "event_type": "injury_started",
+                        "date": "2020-03-18",
+                        "summary": "Medical: ankle scan."
+                    }
+                ],
+                "open_injuries": 1
+            },
+            "tests": {
+                "rounds": [
+                    {
+                        "definition_id": "{definition:1}",
+                        "name": "Golden laps",
+                        "unit": "min",
+                        "unit_label": "mm:ss",
+                        "is_duration": true,
+                        "direction": "lower",
+                        "date": "2020-03-11",
+                        "previous_date": "2020-02-12",
+                        "tested": 4,
+                        "squad": 4,
+                        "improved": [
+                            {
+                                "player_id": "{player:1}",
+                                "name": "Anna Akker",
+                                "delta": -0.3333333333333339
+                            },
+                            {
+                                "player_id": "{player:3}",
+                                "name": "Cas Dijk",
+                                "delta": -0.3333333333333339
+                            },
+                            {
+                                "player_id": "{player:4}",
+                                "name": "Daan Eik",
+                                "delta": -0.6666666666666661
+                            }
+                        ],
+                        "declined": [
+                            {
+                                "player_id": "{player:2}",
+                                "name": "Bram Bos",
+                                "delta": 0.6666666666666661
+                            }
+                        ],
+                        "average": {
+                            "value": 13.333333333333334,
+                            "display": "13:20",
+                            "previous": 13.5,
+                            "previous_display": "13:30",
+                            "delta_display": "−10 s",
+                            "trend": "flat"
+                        },
+                        "best": {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "value_display": "11:40"
+                        },
+                        "worst": {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "value_display": "15:40"
+                        },
+                        "moves": {
+                            "up": 3,
+                            "down": 1,
+                            "flat": 0,
+                            "first": 0
+                        },
+                        "bands": {
+                            "age_group": "U14",
+                            "ok": 1,
+                            "warn": 2,
+                            "bad": 1,
+                            "of": 4
+                        },
+                        "target": "≤ 12:30",
+                        "target_age_group": "U14",
+                        "target_absent": false,
+                        "history": [
+                            {
+                                "date": "2020-02-12",
+                                "value": 13.5,
+                                "display": "13:30",
+                                "pct": 100
+                            },
+                            {
+                                "date": "2020-03-11",
+                                "value": 13.333333333333334,
+                                "display": "13:20",
+                                "pct": 98.8
+                            }
+                        ],
+                        "readings": []
+                    }
+                ],
+                "show": "summary",
+                "level": "summary"
+            },
+            "roster": {
+                "rows": [
+                    {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "jersey_number": 3,
+                        "status": "green",
+                        "attendance_pct": 87.5,
+                        "minutes": 190,
+                        "share_pct": 67.9,
+                        "open_goals": 0,
+                        "injured": true,
+                        "suspended": 0
+                    },
+                    {
+                        "player_id": "{player:1}",
+                        "name": "Anna Akker",
+                        "jersey_number": 7,
+                        "status": "green",
+                        "attendance_pct": 87.5,
+                        "minutes": 200,
+                        "share_pct": 71.4,
+                        "open_goals": 1,
+                        "injured": false,
+                        "suspended": 0
+                    },
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk",
+                        "jersey_number": 10,
+                        "status": "green",
+                        "attendance_pct": 87.5,
+                        "minutes": 210,
+                        "share_pct": 75,
+                        "open_goals": 0,
+                        "injured": false,
+                        "suspended": 0
+                    },
+                    {
+                        "player_id": "{player:4}",
+                        "name": "Daan Eik",
+                        "jersey_number": null,
+                        "status": "red",
+                        "attendance_pct": 87.5,
+                        "minutes": 0,
+                        "share_pct": 0,
+                        "open_goals": 0,
+                        "injured": false,
+                        "suspended": 0
+                    }
+                ]
+            },
+            "notes": {
+                "lines": 6
+            },
+            "quality": {
+                "activities_without_register": [
+                    {
+                        "activity_id": "{activity:13}",
+                        "title": "Toernooi",
+                        "date": "2020-03-15"
+                    },
+                    {
+                        "activity_id": "{activity:5}",
+                        "title": "Training zonder lijst",
+                        "date": "2020-03-24"
+                    }
+                ],
+                "activities_never_closed": [
+                    {
+                        "activity_id": "{activity:6}",
+                        "title": "Nooit afgesloten",
+                        "date": "2020-03-26"
+                    }
+                ],
+                "matches_without_minutes": 1,
+                "matches_without_opponent": [
+                    {
+                        "activity_id": "{activity:12}",
+                        "date": "2020-03-29",
+                        "title": "Oefenwedstrijd"
+                    }
+                ],
+                "players_not_evaluated": [
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk"
+                    }
+                ],
+                "players_with_incomplete_status": [
+                    {
+                        "player_id": "{player:2}",
+                        "name": "Bram Bos",
+                        "missing_inputs": [
+                            "behaviour",
+                            "potential"
+                        ]
+                    },
+                    {
+                        "player_id": "{player:3}",
+                        "name": "Cas Dijk",
+                        "missing_inputs": [
+                            "ratings",
+                            "behaviour",
+                            "potential"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "fit": {
+        "pages": 2,
+        "max_pages": 1,
+        "fits": false,
+        "fill": [
+            175
+        ],
+        "degraded": [
+            "elide_ranked_lists",
+            "trim_attention"
+        ],
+        "groups": [
+            [
+                "letterhead",
+                "coverage",
+                "kpi",
+                "status",
+                "evaluations",
+                "attendance",
+                "minutes",
+                "matches",
+                "attention",
+                "changes",
+                "tests",
+                "roster",
+                "notes",
+                "quality"
+            ]
+        ],
+        "group_pages": [
+            2
+        ]
+    }
+}

@@ -278,7 +278,23 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( 'attendance', $out['data'] );
         $this->assertArrayNotHasKey( 'attendance_pct', $out['data']['kpi'] ?? [], 'no attendance tile' );
 
-        $this->assertSame( $report, $this->teamFor( [ 'owner-4991@example.test' ], '2026-03-01', '2026-03-31' ), 'unchanged when everyone reads it' );
+        $this->assertSame( self::levelClock( $report ), self::levelClock( $this->teamFor( [ 'owner-4991@example.test' ], '2026-03-01', '2026-03-31' ) ), 'unchanged when everyone reads it' );
+    }
+
+    /**
+     * A report with its clock fields (`generated_at`, the status block's
+     * `as_of`) set to one value: two compositions either side of a second
+     * would otherwise differ by them alone.
+     *
+     * @param mixed $payload
+     * @return mixed
+     */
+    private static function levelClock( $payload ) {
+        if ( ! is_array( $payload ) ) return $payload;
+        foreach ( $payload as $key => $value ) {
+            $payload[ $key ] = ( $key === 'generated_at' || $key === 'as_of' ) ? '{clock}' : self::levelClock( $value );
+        }
+        return $payload;
     }
 
     /**
@@ -389,7 +405,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
             $this->assertContains( $summary, $changes, 'every entry they all may read: ' . implode( ' / ', $changes ) );
         }
         $this->assertContains( 'attendance', $together['blocks'] );
-        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
+        $this->assertSame( self::levelClock( $alone ), self::levelClock( $together ), 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
     }
 
     /**
@@ -430,7 +446,7 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         foreach ( $this->fullEntries( [ $this->owner, $hod ] ) as $summary ) {
             $this->assertContains( $summary, $journey, 'every entry they all may read: ' . implode( ' / ', $journey ) );
         }
-        $this->assertSame( $alone, $together, 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
+        $this->assertSame( self::levelClock( $alone ), self::levelClock( $together ), 'the owner\'s own report, unchanged; differing sections: ' . implode( ', ', $this->differingSections( $alone, $together ) ) );
     }
 
     /** The runner hands the player report its recipients: one PDF, narrowed, to both. */

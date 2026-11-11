@@ -1,0 +1,78 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "roster"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "roster": {
+            "rows": [
+                {
+                    "player_id": "{player:2}",
+                    "name": "Bram Bos",
+                    "jersey_number": 3,
+                    "status": "green",
+                    "attendance_pct": 87.5,
+                    "minutes": 190,
+                    "share_pct": 67.9,
+                    "open_goals": 0,
+                    "injured": true,
+                    "suspended": 0
+                },
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "jersey_number": 7,
+                    "status": "green",
+                    "attendance_pct": 87.5,
+                    "minutes": 200,
+                    "share_pct": 71.4,
+                    "open_goals": 1,
+                    "injured": false,
+                    "suspended": 0
+                },
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk",
+                    "jersey_number": 10,
+                    "status": "green",
+                    "attendance_pct": 87.5,
+                    "minutes": 210,
+                    "share_pct": 75,
+                    "open_goals": 0,
+                    "injured": false,
+                    "suspended": 0
+                },
+                {
+                    "player_id": "{player:4}",
+                    "name": "Daan Eik",
+                    "jersey_number": null,
+                    "status": "red",
+                    "attendance_pct": 87.5,
+                    "minutes": 0,
+                    "share_pct": 0,
+                    "open_goals": 0,
+                    "injured": false,
+                    "suspended": 0
+                }
+            ]
+        }
+    }
+}

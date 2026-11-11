@@ -1,0 +1,118 @@
+{
+    "internal": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead",
+            "status"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            },
+            "status": {
+                "color": "green",
+                "score": 80,
+                "inputs": {
+                    "ratings": {
+                        "value": null,
+                        "weight": 40,
+                        "score": null
+                    },
+                    "behaviour": {
+                        "value": null,
+                        "weight": 25,
+                        "score": null
+                    },
+                    "attendance": {
+                        "value": null,
+                        "weight": 20,
+                        "score": null
+                    },
+                    "potential": {
+                        "value": 80,
+                        "weight": 15,
+                        "score": 80
+                    }
+                },
+                "reasons": [
+                    "No evaluations in the last 90 days.",
+                    "Sparse attendance data — confidence reduced.",
+                    "Computed without evaluations, behaviour, attendance."
+                ],
+                "as_of": "2020-04-01 00:00:00",
+                "methodology_version": "shipped",
+                "coverage": 0.15,
+                "missing_inputs": [
+                    "ratings",
+                    "behaviour",
+                    "attendance"
+                ],
+                "coverage_note": "Computed without evaluations, behaviour, attendance."
+            }
+        },
+        "audience": "internal"
+    },
+    "scout": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            }
+        },
+        "audience": "scout"
+    },
+    "family": {
+        "player_id": "{player:1}",
+        "from": "2020-03-01",
+        "to": "2020-03-31",
+        "blocks": [
+            "letterhead"
+        ],
+        "data": {
+            "letterhead": {
+                "player_id": "{player:1}",
+                "name": "Anna Akker",
+                "photo_url": "",
+                "team_id": "{team:1}",
+                "team_name": "Golden U14",
+                "age_group": "U14",
+                "head_coach": "",
+                "jersey_number": 7,
+                "birth_year": 2006,
+                "from": "2020-03-01",
+                "to": "2020-03-31",
+                "generated_at": "2020-04-01 00:00:00"
+            }
+        },
+        "audience": "family"
+    }
+}

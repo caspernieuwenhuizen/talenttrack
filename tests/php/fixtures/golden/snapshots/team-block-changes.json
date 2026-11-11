@@ -1,0 +1,59 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "changes"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "changes": {
+            "events": [
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk",
+                    "event_type": "team_changed",
+                    "date": "2020-03-22",
+                    "summary": "Safeguarding: welfare check."
+                },
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "event_type": "position_changed",
+                    "date": "2020-03-21",
+                    "summary": "Staff-only: moved to centre back."
+                },
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "event_type": "position_changed",
+                    "date": "2020-03-20",
+                    "summary": "Moved to centre back."
+                },
+                {
+                    "player_id": "{player:2}",
+                    "name": "Bram Bos",
+                    "event_type": "injury_started",
+                    "date": "2020-03-18",
+                    "summary": "Medical: ankle scan."
+                }
+            ],
+            "open_injuries": 1
+        }
+    }
+}

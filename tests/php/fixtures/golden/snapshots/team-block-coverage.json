@@ -1,0 +1,51 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "coverage"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "coverage": {
+            "scheduled": 11,
+            "completed": 10,
+            "with_register": 8,
+            "missing": [
+                {
+                    "activity_id": "{activity:13}",
+                    "title": "Toernooi",
+                    "date": "2020-03-15"
+                },
+                {
+                    "activity_id": "{activity:5}",
+                    "title": "Training zonder lijst",
+                    "date": "2020-03-24"
+                }
+            ],
+            "never_closed": [
+                {
+                    "activity_id": "{activity:6}",
+                    "title": "Nooit afgesloten",
+                    "date": "2020-03-26"
+                }
+            ],
+            "state": "partial"
+        }
+    }
+}

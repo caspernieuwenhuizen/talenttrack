@@ -1,0 +1,178 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "matches"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "matches": {
+            "tournaments_excluded": 1,
+            "level": "details",
+            "shows": {
+                "record": true,
+                "scorers": true,
+                "squads": true
+            },
+            "record": {
+                "played": 5,
+                "won": 2,
+                "drawn": 1,
+                "lost": 1,
+                "goals_for": 6,
+                "goals_against": 4,
+                "goal_difference": 2,
+                "without_score": 1
+            },
+            "fixtures": [
+                {
+                    "activity_id": "{activity:8}",
+                    "date": "2020-03-07",
+                    "title": "Thuis tegen Rood",
+                    "opponent": "Rood",
+                    "home_away": "home",
+                    "team_score": 3,
+                    "opp_score": 0,
+                    "outcome": "W",
+                    "played": true,
+                    "squad": [
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "minutes": 50
+                        },
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "minutes": 60
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "minutes": 40
+                        }
+                    ]
+                },
+                {
+                    "activity_id": "{activity:9}",
+                    "date": "2020-03-14",
+                    "title": "Uit bij Blauw",
+                    "opponent": "Blauw",
+                    "home_away": "away",
+                    "team_score": 0,
+                    "opp_score": 2,
+                    "outcome": "L",
+                    "played": true,
+                    "squad": [
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "minutes": 40
+                        },
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "minutes": 50
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "minutes": 60
+                        }
+                    ]
+                },
+                {
+                    "activity_id": "{activity:10}",
+                    "date": "2020-03-21",
+                    "title": "Thuis tegen Groen",
+                    "opponent": "Groen",
+                    "home_away": "home",
+                    "team_score": 1,
+                    "opp_score": 1,
+                    "outcome": "D",
+                    "played": true,
+                    "squad": [
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "minutes": 60
+                        },
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "minutes": 40
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "minutes": 50
+                        }
+                    ]
+                },
+                {
+                    "activity_id": "{activity:11}",
+                    "date": "2020-03-28",
+                    "title": "Uit bij Geel",
+                    "opponent": "Geel",
+                    "home_away": "away",
+                    "team_score": null,
+                    "opp_score": null,
+                    "outcome": "",
+                    "played": true,
+                    "squad": []
+                },
+                {
+                    "activity_id": "{activity:12}",
+                    "date": "2020-03-29",
+                    "title": "Oefenwedstrijd",
+                    "opponent": "",
+                    "home_away": "home",
+                    "team_score": 2,
+                    "opp_score": 1,
+                    "outcome": "W",
+                    "played": true,
+                    "squad": [
+                        {
+                            "player_id": "{player:2}",
+                            "name": "Bram Bos",
+                            "minutes": 40
+                        },
+                        {
+                            "player_id": "{player:1}",
+                            "name": "Anna Akker",
+                            "minutes": 50
+                        },
+                        {
+                            "player_id": "{player:3}",
+                            "name": "Cas Dijk",
+                            "minutes": 60
+                        }
+                    ]
+                }
+            ],
+            "scorers": [],
+            "scorer_totals": {
+                "goals": 0,
+                "assists": 0,
+                "attributed_goals": 0,
+                "goals_for": 6
+            }
+        }
+    }
+}

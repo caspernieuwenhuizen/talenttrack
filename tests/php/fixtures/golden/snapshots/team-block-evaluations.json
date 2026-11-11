@@ -1,0 +1,83 @@
+{
+    "team_id": "{team:1}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "previous": {
+        "from": "2020-02-01",
+        "to": "2020-02-29"
+    },
+    "blocks": [
+        "letterhead",
+        "evaluations"
+    ],
+    "data": {
+        "letterhead": {
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "squad_size": 4,
+            "activity_count": 11,
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "evaluations": {
+            "level": "summary",
+            "scale": {
+                "min": 5,
+                "max": 9,
+                "step": 1
+            },
+            "types": [],
+            "types_counted": [],
+            "squad_avg": 5.4,
+            "squad_avg_delta": -0.9,
+            "evaluated": 3,
+            "squad": 4,
+            "missing": [
+                {
+                    "player_id": "{player:3}",
+                    "name": "Cas Dijk"
+                }
+            ],
+            "evaluations": 4,
+            "coaches": 1,
+            "by_type": [
+                {
+                    "type_id": 0,
+                    "label": "Other",
+                    "count": 4
+                }
+            ],
+            "rising_count": 1,
+            "falling_count": 0,
+            "rising": [
+                {
+                    "player_id": "{player:1}",
+                    "name": "Anna Akker",
+                    "from": 6.3,
+                    "to": 8,
+                    "delta": 1.7
+                }
+            ],
+            "falling": [],
+            "categories": [
+                {
+                    "category_id": "{category:1}",
+                    "label": "Golden technical",
+                    "avg": 5.8,
+                    "delta": -0.7,
+                    "min": 1,
+                    "max": 8,
+                    "band_from_pct": 0,
+                    "band_to_pct": 75,
+                    "avg_pct": 18.8,
+                    "wide": false
+                }
+            ],
+            "has_subcategories": true,
+            "sub": false
+        }
+    }
+}

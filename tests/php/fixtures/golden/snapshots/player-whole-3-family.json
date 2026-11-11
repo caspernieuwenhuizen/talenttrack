@@ -1,0 +1,82 @@
+{
+    "player_id": "{player:3}",
+    "from": "2020-03-01",
+    "to": "2020-03-31",
+    "blocks": [
+        "letterhead",
+        "ratings",
+        "attendance",
+        "minutes",
+        "goals",
+        "tests"
+    ],
+    "data": {
+        "letterhead": {
+            "player_id": "{player:3}",
+            "name": "Cas Dijk",
+            "photo_url": "",
+            "team_id": "{team:1}",
+            "team_name": "Golden U14",
+            "age_group": "U14",
+            "head_coach": "",
+            "jersey_number": 10,
+            "birth_year": 2006,
+            "from": "2020-03-01",
+            "to": "2020-03-31",
+            "generated_at": "2020-04-01 00:00:00"
+        },
+        "ratings": {
+            "evaluation_count": 0,
+            "latest": null,
+            "latest_date": null,
+            "average": null,
+            "series": [],
+            "categories": [],
+            "evaluations": [],
+            "has_subcategories": false,
+            "detail": "main"
+        },
+        "attendance": {
+            "activities": 8,
+            "present": 7,
+            "late": 0,
+            "absent": 1,
+            "excused": 0,
+            "injured": 0,
+            "attended": 7,
+            "missed": 1,
+            "rate": 88
+        },
+        "minutes": {
+            "apps": 4,
+            "minutes": 210,
+            "matches": 4,
+            "share": 75
+        },
+        "goals": {
+            "items": []
+        },
+        "tests": {
+            "items": [
+                {
+                    "definition_id": "{definition:1}",
+                    "name": "Golden laps",
+                    "category": "",
+                    "unit": "min",
+                    "direction": "lower",
+                    "date": "2020-03-11",
+                    "value": 12.667,
+                    "text": null,
+                    "previous_date": "2020-02-12",
+                    "previous": 13,
+                    "delta": -0.33,
+                    "trend": "up",
+                    "score": "warn",
+                    "level_token": "",
+                    "readings": 1
+                }
+            ]
+        }
+    },
+    "audience": "family"
+}
