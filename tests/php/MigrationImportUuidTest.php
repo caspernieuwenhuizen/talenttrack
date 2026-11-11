@@ -73,6 +73,25 @@ final class MigrationImportUuidTest extends WP_UnitTestCase {
         $this->assertSame( $uuid, $rows[0]['uuid'], 'with the uuid it was archived with' );
     }
 
+    public function test_an_update_keeps_the_rows_own_uuid_when_another_row_holds_the_archived_one(): void {
+        global $wpdb;
+        [ $column, $value, $uuid ] = $this->seed( 'Uuid5041 C' )['tt_teams'];
+        $snapshot = $this->export();
+        // Here the team has since got another uuid, and the archived one
+        // now belongs to a different team.
+        $own = wp_generate_uuid4();
+        $wpdb->update( "{$this->p}tt_teams", [ 'uuid' => $own ], [ 'uuid' => $uuid ] );
+        $wpdb->insert( "{$this->p}tt_teams", [ 'club_id' => $this->club, 'uuid' => $uuid, 'name' => 'Uuid5041 other' ] );
+
+        $result = MigrationImporter::commit( $snapshot, [ 'entities' => [ 'teams' ], 'conflict' => [ 'teams' => 'update' ] ] );
+        $this->assertTrue( $result['ok'], wp_json_encode( $result ) );
+
+        $rows = $this->rows( 'tt_teams', $column, $value );
+        $this->assertCount( 1, $rows, 'matched and updated, not inserted' );
+        $this->assertSame( $own, $rows[0]['uuid'], 'the matched team keeps its own uuid' );
+        $this->assertCount( 1, $this->rows( 'tt_teams', 'uuid', $uuid ), 'the other team keeps the archived one' );
+    }
+
     /**
      * A team, a player on it, an evaluation and a goal, each with a uuid.
      *
