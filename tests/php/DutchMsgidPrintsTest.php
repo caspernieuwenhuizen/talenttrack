@@ -74,30 +74,40 @@ final class DutchMsgidPrintsTest extends WP_UnitTestCase {
         return $out;
     }
 
-    /** @return array<string, string> msgid => msgstr, no context */
+    /**
+     * Context-free entries, live and obsolete. Once no source file uses an
+     * old Dutch msgid, the i18n sync keeps it only as an obsolete `#~`
+     * entry, which still records what it printed. A live entry wins over an
+     * obsolete one with the same msgid.
+     *
+     * @return array<string, string> msgid => msgstr
+     */
     private function catalogue(): array {
         $parsed = tt_po_parse( (string) file_get_contents( $this->root() . '/languages/talenttrack-nl_NL.po' ) );
         $out    = [];
         foreach ( $parsed['entries'] as $entry ) {
-            if ( ! empty( $entry['obsolete'] ) || $entry['msgid'] === null || (string) $entry['msgctxt'] !== '' ) continue;
-            $out[ (string) $entry['msgid'] ] = (string) ( $entry['msgstr'][0] ?? '' );
+            if ( $entry['msgid'] === null || (string) $entry['msgctxt'] !== '' ) continue;
+            $msgid = (string) $entry['msgid'];
+            if ( ! empty( $entry['obsolete'] ) && isset( $out[ $msgid ] ) ) continue;
+            $out[ $msgid ] = (string) ( $entry['msgstr'][0] ?? '' );
         }
         return $out;
     }
 
     /**
-     * The Dutch printed today is the catalogue's msgstr for the old Dutch
-     * msgid. Usually that is the msgid itself; once (the eval-type
-     * categories notice) the catalogue had corrected it, and the corrected
-     * wording is what an install shows.
+     * The Dutch a converted string prints is the catalogue's msgstr for the
+     * old Dutch msgid it replaced. Usually that is the old msgid itself;
+     * once (the eval-type categories notice) the catalogue had corrected it,
+     * and the corrected wording is what an install showed.
      */
-    public function test_every_fragment_msgstr_is_the_dutch_printed_today(): void {
-        $printed  = array_flip( array_values( $this->catalogue() ) );
-        $fragment = $this->fragment();
+    public function test_every_fragment_msgstr_is_the_dutch_printed_before(): void {
+        $catalogue = $this->catalogue();
+        $fragment  = $this->fragment();
         $this->assertCount( 28, $fragment, 'one entry per converted msgid' );
 
         foreach ( $fragment as $entry ) {
-            $this->assertArrayHasKey( $entry['msgstr'], $printed, "a Dutch install prints this today: {$entry['msgstr']}" );
+            $before = array_diff( array_keys( $catalogue, $entry['msgstr'], true ), [ $entry['msgid'] ] );
+            $this->assertNotEmpty( $before, "an old msgid printed this Dutch: {$entry['msgstr']}" );
             $this->assertNotSame( $entry['msgstr'], $entry['msgid'], 'the new msgid is English' );
         }
     }
