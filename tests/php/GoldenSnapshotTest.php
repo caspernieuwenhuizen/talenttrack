@@ -59,6 +59,43 @@ final class GoldenSnapshotTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '"{day:+7}"', $json );
     }
 
+    /**
+     * `{now}` is a datetime within a day of today, either side: a row stamped
+     * in UTC or in site time just after midnight. A date with no time stays a
+     * day offset, even today, and a datetime two days off keeps its offset.
+     */
+    public function test_now_covers_a_datetime_within_a_day_and_nothing_else(): void {
+        $json = GoldenSnapshot::serialise( [
+            'stamped'   => gmdate( 'Y-m-d H:i:s' ),
+            'tomorrow'  => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+            'yesterday' => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ),
+            'later'     => gmdate( 'Y-m-d', time() + 2 * DAY_IN_SECONDS ) . ' 10:00:00',
+            'today'     => gmdate( 'Y-m-d' ),
+        ] );
+        $this->assertStringContainsString( '"stamped": "{now}"', $json );
+        $this->assertStringContainsString( '"tomorrow": "{now}"', $json );
+        $this->assertStringContainsString( '"yesterday": "{now}"', $json );
+        $this->assertStringContainsString( '"later": "{day:+2} {time}"', $json );
+        $this->assertStringContainsString( '"today": "{day:+0}"', $json );
+    }
+
+    public function test_an_id_two_kinds_share_fails_when_nothing_names_the_kind(): void {
+        GoldenSnapshot::id( 'goal', 8 );
+        GoldenSnapshot::id( 'injury', 8 );
+        try {
+            GoldenSnapshot::serialise( [ 'rows' => [ [ 'id' => 8 ] ] ] );
+        } catch ( AssertionFailedError $e ) {
+            $this->assertStringContainsString( 'Ambiguous id 8 at rows.0.id', $e->getMessage() );
+            $this->assertStringContainsString( 'goal and a injury', $e->getMessage() );
+
+            // Named by the collection above it, the same id is one kind.
+            $json = GoldenSnapshot::serialise( [ 'goals' => [ 'items' => [ [ 'id' => 8 ] ] ] ] );
+            $this->assertStringContainsString( '"id": "{goal:1}"', $json );
+            return;
+        }
+        $this->fail( 'An id two kinds share must fail when nothing names its kind.' );
+    }
+
     public function test_an_id_the_fixture_did_not_register_fails(): void {
         GoldenSnapshot::id( 'player', 3 );
         try {

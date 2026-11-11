@@ -12,7 +12,9 @@ use PHPUnit\Framework\Assert;
  * database. So before a payload is stored or compared, every id the fixture
  * registered (`id( 'player', $id )`) becomes `{player:1}`, `{player:2}`, …,
  * numbered in the order the fixture made them; a date within a year of today
- * becomes `{day:-30}`. Only registered ids are replaced, and only where an id
+ * becomes `{day:-30}` (`{day:+2} {time}` when it carries a time), and a
+ * datetime within one day of today, either side, becomes `{now}`: the moment
+ * the fixture wrote the row, in UTC or in site time. Only registered ids are replaced, and only where an id
  * sits: an `id` or `…_id` field, an id-keyed map, or an id in a URL
  * parameter. A jersey number that happens to equal a player id stays a
  * jersey number.
