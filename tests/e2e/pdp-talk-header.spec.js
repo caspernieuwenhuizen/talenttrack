@@ -27,7 +27,18 @@ async function expectHero( page ) {
 	await expect( hero ).toBeVisible();
 	await expect( page.locator( 'h1' ), 'exactly one h1' ).toHaveCount( 1 );
 	await expect( hero.locator( 'h1.tt-player-hero__name' ) ).toHaveText( /Trainer4980/ );
-	await expect( hero.locator( '.tt-player-hero__avatar' ) ).toBeVisible();
+	const avatar = hero.locator( '.tt-player-hero__avatar' );
+	await expect( avatar ).toBeVisible();
+	// Without a photo the initials must be readable: their colour differs
+	// from the avatar's background, and that background is not transparent.
+	if ( ! ( await avatar.locator( 'img' ).count() ) ) {
+		const paint = await avatar.evaluate( ( el ) => {
+			const cs = getComputedStyle( el );
+			return { color: cs.color, background: cs.backgroundColor };
+		} );
+		expect( paint.background, 'the avatar has a background: ' + JSON.stringify( paint ) ).not.toBe( 'rgba(0, 0, 0, 0)' );
+		expect( paint.color, 'the initials differ from it: ' + JSON.stringify( paint ) ).not.toBe( paint.background );
+	}
 	await expect( hero.locator( '.tt-player-hero__sub' ).last() ).toContainText( 'conversation 1 of' );
 }
 

@@ -14,7 +14,11 @@
 
 /* ---------- Frame + responsive grid ---------- */
 
-.tt-player-detail {
+/* The hero declares the same locals as the page, so it reads them in any
+   parent: the PDP talk renders it outside `.tt-player-detail` (#5079), and
+   without them the avatar's background resolved to transparent. */
+.tt-player-detail,
+.tt-player-detail__hero {
     /* Canonical neutrals (paper/bg-soft/line-soft/ink-soft/success/danger)
        inherit from tokens.css — no local override. Slate ink + WP-blue
        accent converge onto the green/gold canon. */
@@ -28,7 +32,9 @@
     --tt-gap-lg:      16px;
     --tt-radius:      10px;
     --tt-radius-lg:   16px;
+}
 
+.tt-player-detail {
     color: var(--tt-ink-strong);
 }
 
