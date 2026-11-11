@@ -425,6 +425,17 @@ Two things it deliberately does not do:
 If a match has no home-or-away recorded, the opponent is shown without it
 rather than guessing which way round the score goes.
 
+## In the Report Studio
+
+The monthly report is also a template in the Report Studio. **Add report**,
+then **Start from: Team monthly report**, starts a report with every section
+of this report, in this order, which prints exactly as this report prints them
+and takes the same room on the page. Choose the team and the period in the
+wizard; you can then move, remove or add blocks, and publish, schedule or share
+the report like any Studio report. Changing it never changes the template or
+this report. A coach starts it for their own teams. What the meeting decided
+goes on a snapshot, as a note on the **Decisions and actions** block.
+
 ## Who can see it
 
 Staff who can read reports for that team. The report names children and

@@ -684,6 +684,11 @@ The Report Studio is where you build a report or a dashboard of your own, from t
 
 If you go back and change an earlier answer, a later choice that no longer fits moves to the first option that does, and the wizard tells you which one moved and why.
 
+**Start from a template.** The first page also asks where to start: an empty report, or one of the templates you may start, each with a line saying what it holds. A template sets what the report is, who it is about, who it is written for and its layout; on the later pages only its own answer is offered for those, and you choose the rest (the subject, the period, sharing). The report opens on the template's blocks. It is your own report from then on: changing, publishing, scheduling or sharing it works as for any other report, and none of it changes the template. The templates:
+
+- **Team monthly report**: every section of the team monthly report, in its order. It is the same on screen and on paper as the monthly report, and takes the same room on the page. A coach starts it for their own teams.
+- **Player report**, **Player report for a scout** and **Player report for the family**: see the player report as a template, below.
+
 The rules between the choices:
 
 - A report for the family or a scout is about one player. A parent reads a family report only through a snapshot you share with them, never the live report.
@@ -769,12 +774,11 @@ For a player, the goals blocks need the right to read that player's goals, as th
 
 Every other section of the two reports is a block too, under the name the report gives it. Each shows exactly what that section shows in the report for the same subject, period and reader, and prints exactly as the report prints it, taking the same room on the page.
 
-- From the team monthly report, for a team and for staff only: **Data coverage**, **Squad status**, **Evaluations** (the whole section: the averages, who moved, the spread and, under Details, the grid of players and categories), **Needs a conversation**, **What changed**, **Tests**, **Player by player** and **Data quality**. Without the right to read the team's attendance, the attendance figures are left out of these blocks as they are left out of the report.
-- Tests and Evaluations offer the options the monthly report offers: Summary or Details, the change since the previous reading for tests, which tests or which evaluation types count, and the subcategories for evaluations. The canvas lists the tests and the evaluation types as checkboxes; tick none to count them all.
+- From the team monthly report, for a team and for staff only, every section: **Data coverage**, **Squad status**, **Evaluations** (the whole section: the averages, who moved, the spread and, under Details, the grid of players and categories), **Attendance**, **Minutes share**, **Matches**, **Needs a conversation**, **What changed**, **Tests**, **Player by player**, **Decisions and actions** and **Data quality**; the headline numbers are the **Key figures** block. Without the right to read the team's attendance, the attendance figures are left out of these blocks as they are left out of the report, and the **Attendance** block is not offered.
+- These blocks offer the options the monthly report offers: Summary or Details, the parts of the match section, the change since the previous reading for tests, which tests or which evaluation types count, and the subcategories for evaluations. The canvas lists the tests and the evaluation types as checkboxes; tick none to count them all.
+- **Decisions and actions** prints the ruled lines the monthly report leaves for the meeting. What you write there goes on a snapshot of the report, as a note on that block, never in the report itself.
 - From the player report, for a player, every section: **Status**, **Talking points**, **Evaluations**, **Attendance**, **Playing time**, **Goals**, **Development plan**, **Notes**, **Match by match**, **Tests**, **Journey**, **Injuries**, **Behaviour**, **Potential** and **Staff notes**. Who may receive each is the player report's own rule: **Evaluations** (scores only, never a coach's written notes), **Attendance**, **Playing time** (the player's own share, never the team's average) and **Tests** (at the public level) may go to a scout and to the family, and **Goals** to the family; every other one is for staff only, and cannot be added to a report for a scout or the family. Injuries show only for a reader with medical access, as on the player report. **Evaluations** offers the player report's choice of main categories or with subcategories.
 - **Notes** prints the ruled lines the player report leaves for the conversation. What you write there goes on a snapshot of the report, as a note on that block: it is never stored in the report itself, so publishing or changing the report does not change it.
-
-The team monthly report's notes section follows with the monthly report template.
 
 **The player report as a template**
 

@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * bag holding only defaults would make two compositions that render the same
  * report hash differently, and a saved view would stop reporting itself active.
  */
-final class MatchesBlockOptions implements BlockOptionsInterface {
+final class MatchesBlockOptions implements DescribesOptions {
 
     public const RECORD  = 'record';
     public const SCORERS = 'scorers';
@@ -94,8 +94,33 @@ final class MatchesBlockOptions implements BlockOptionsInterface {
     public static function unknownKeys( array $raw ): array {
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
-            static fn( string $key ): bool => ! array_key_exists( $key, self::DEFAULTS ) && $key !== self::LEVEL
+            static fn( string $key ): bool => ! in_array( $key, array_column( self::fields(), 'key' ), true )
         ) );
+    }
+
+    /**
+     * #5023 — the options a panel offers, the ones `unknownKeys()` accepts:
+     * the level, then each part's switch.
+     *
+     * @return list<array{key:string, kind:string, default:mixed}>
+     */
+    public static function fields(): array {
+        $out = [ [ 'key' => self::LEVEL, 'kind' => self::KIND_LEVEL, 'default' => self::DEFAULT_LEVEL ] ];
+        foreach ( self::DEFAULTS as $key => $default ) {
+            $out[] = [ 'key' => $key, 'kind' => self::KIND_SWITCH, 'default' => $default ];
+        }
+        return $out;
+    }
+
+    public static function fieldLabel( string $key ): string {
+        return $key === self::LEVEL
+            ? _x( 'Level of detail', 'report section option', 'talenttrack' )
+            : ( self::labels()[ $key ] ?? '' );
+    }
+
+    /** @return array<int|string,string> */
+    public static function fieldChoices( string $key ): array {
+        return [];
     }
 
     /**
