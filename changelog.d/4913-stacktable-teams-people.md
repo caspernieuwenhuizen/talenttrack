@@ -1,3 +1,0 @@
-# Team, people and staff-role tables on a phone read like every other table (#4913)
-
-The team page's roster, staff, trial roster and upcoming activities, the team edit form's roster and staff, a person's team assignments, the role types list, the team blueprints list and a shared blueprint's line-up now use the shared table layout. On a phone each row is a card with each value beside its column's label, as on the other screens that have moved; a column without a visible name shows its buttons on their own. The team page's rows still open the record when tapped. From 480px wide nothing changes. Screen readers read each table as a table with its column headers.

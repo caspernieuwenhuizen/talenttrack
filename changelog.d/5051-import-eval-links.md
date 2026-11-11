@@ -1,3 +1,0 @@
-# Imported evaluations keep the right match and lose a talk that did not come along (#5051)
-
-A migration import now links each match evaluation to the imported copy of its activity. If the activity isn't in the import, the evaluation comes in without a link. An evaluation saved from a signed PDP conversation now comes in as an ordinary evaluation, without its link to the talk, because a migration archive never carries the development plan. The import says so in a warning. Before this, importing a signed evaluation into the same install rolled the whole import back. On another install, it could link the evaluation to a different player's talk.

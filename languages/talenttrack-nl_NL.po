@@ -32088,7 +32088,7 @@ msgstr "%d'"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1816
 #: src/Modules/MatchExecution/Services/MatchEventFeedService.php:94
 msgid "Opponent goal"
-msgstr "Doelpunt tegenstander"
+msgstr "Doelpunt van de tegenstander"
 
 #. translators: %s: the assisting player's name
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:392
@@ -72237,6 +72237,1179 @@ msgstr "Laagste aandeel eerst. Het aandeel is van elke minuut van de wedstrijden
 #: src/Shared/Frontend/FrontendPlayerDetailView.php
 msgid "Activities are recorded at the team level. Assign this player to a team first; the team's completed activities will then show here."
 msgstr "Activiteiten worden per team vastgelegd. Koppel deze speler eerst aan een team; de afgeronde activiteiten van dat team verschijnen dan hier."
+
+#. translators: %s: the name of a colour setting, such as "Primary color".
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Reset %s to default"
+msgstr "%s terug naar standaard"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Evaluations & goals"
+msgstr "Evaluaties & doelen"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Notes"
+msgstr "Notities"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Settings & modules"
+msgstr "Instellingen & modules"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search result kind"
+msgid "Note"
+msgstr "Notitie"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+#: src/Shared/Frontend/DashboardShortcode.php
+msgctxt "search result of a switched-off module"
+msgid "Off"
+msgstr "Uit"
+
+#: src/Infrastructure/Search/Providers/SettingSearchProvider.php
+msgid "Turn on"
+msgstr "Aanzetten"
+
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php
+#: src/Modules/Analytics/Reports/EvaluationsBlockOptions.php
+msgctxt "report section option"
+msgid "Level of detail"
+msgstr "Detailniveau"
+
+#. translators: %s: the name of a section of the team monthly report
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+#, php-format
+msgid "The team monthly report's \"%s\" section, composed and printed as that report composes and prints it."
+msgstr "Het onderdeel \"%s\" van het maandrapport van het team, samengesteld en afgedrukt zoals dat rapport het samenstelt en afdrukt."
+
+#. translators: %s: the name of a section of the player report
+#: src/Modules/ReportStudio/Domain/BlockSources.php
+#, php-format
+msgid "The player report's \"%s\" section, composed and printed as that report composes and prints it."
+msgstr "Het onderdeel \"%s\" van het spelersrapport, samengesteld en afgedrukt zoals dat rapport het samenstelt en afdrukt."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A block's place in the grid is an object with x, y, w and h."
+msgstr "De plek van een blok in het raster is een object met x, y, w en h."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A place in the grid does not accept: %s."
+msgstr "Een plek in het raster accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A place in the grid is whole cells: x, y, w and h are whole numbers."
+msgstr "Een plek in het raster bestaat uit hele vakken: x, y, w en h zijn hele getallen."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block lies inside the grid's %d columns."
+msgstr "Een blok ligt binnen de %d kolommen van het raster."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block is one to %d rows tall."
+msgstr "Een blok is één tot %d rijen hoog."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block lies inside the grid's %d rows."
+msgstr "Een blok ligt binnen de %d rijen van het raster."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A grid is laid out for staff screens and is not printed. Build the report in rows to print it, mail it or freeze it."
+msgstr "Een raster is opgemaakt voor schermen van de staf en wordt niet afgedrukt. Bouw het rapport in rijen om het af te drukken, te mailen of vast te leggen."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "A dashboard holds at most %d blocks."
+msgstr "Een dashboard bevat hooguit %d blokken."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Only a report laid out as a grid places its blocks in a grid."
+msgstr "Alleen een rapport dat als raster is opgemaakt, plaatst zijn blokken in een raster."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Two blocks cannot share a place in the grid."
+msgstr "Twee blokken kunnen niet dezelfde plek in het raster hebben."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "The grid has no room left for this block."
+msgstr "Het raster heeft geen plek meer voor dit blok."
+
+#: src/Modules/ReportStudio/Document/StudioGrid.php
+msgid "This dashboard has no blocks yet."
+msgstr "Dit dashboard heeft nog geen blokken."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A Studio dashboard can be the home of a staff role a report is published to. The player's and the parent's home stay on the dashboard editor."
+msgstr "Een Studio-dashboard kan de startpagina zijn van een stafrol waarvoor een rapport wordt gepubliceerd. De startpagina van de speler en de ouder blijft in de dashboard-editor."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "This dashboard does not exist, or it was removed."
+msgstr "Dit dashboard bestaat niet, of het is verwijderd."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Only a dashboard can be a home page, not a report."
+msgstr "Alleen een dashboard kan een startpagina zijn, geen rapport."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A home page is chosen when opened or follows the viewer, so each reader sees their own subject."
+msgstr "Een startpagina wordt bij het openen gekozen of gaat mee met wie hem opent, zodat elke lezer het eigen onderwerp ziet."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Publish the dashboard before it becomes a home page."
+msgstr "Publiceer het dashboard voordat het een startpagina wordt."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "This dashboard is not published to that role."
+msgstr "Dit dashboard is niet voor die rol gepubliceerd."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Choose a dashboard."
+msgstr "Kies een dashboard."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Home page"
+msgstr "Startpagina"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Everyone in a role you tick sees this dashboard first after logging in, with their own figures. Untick a role to give it back its own dashboard."
+msgstr "Iedereen in een rol die je aanvinkt, ziet dit dashboard als eerste na het inloggen, met de eigen cijfers. Vink een rol uit om die het eigen dashboard terug te geven."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Home page for"
+msgstr "Startpagina voor"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Move left"
+msgstr "Naar links"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Move right"
+msgstr "Naar rechts"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make narrower"
+msgstr "Smaller maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make wider"
+msgstr "Breder maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make shorter"
+msgstr "Lager maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make taller"
+msgstr "Hoger maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s at column %2$s, row %3$s, %4$s columns wide and %5$s rows tall."
+msgstr "%1$s op kolom %2$s, rij %3$s, %4$s kolommen breed en %5$s rijen hoog."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "There is no room there: blocks cannot overlap or leave the grid."
+msgstr "Daar is geen plek: blokken kunnen niet overlappen of buiten het raster vallen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s, column %2$s, row %3$s. Arrow keys move it, Shift and an arrow key resize it."
+msgstr "%1$s, kolom %2$s, rij %3$s. De pijltoetsen verplaatsen het, Shift met een pijltoets verandert de grootte."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Publish the dashboard to a role first; it can be the home page of the roles it is published to."
+msgstr "Publiceer het dashboard eerst voor een rol; het kan de startpagina zijn van de rollen waarvoor het is gepubliceerd."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Now: %s"
+msgstr "Nu: %s"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "The home pages are saved."
+msgstr "De startpagina's zijn opgeslagen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "This role's dashboard is switched off, so the home page shows only once it is switched on."
+msgstr "Het dashboard van deze rol staat uit, dus de startpagina verschijnt pas als het aan wordt gezet."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A home dashboard needs a set period, so it opens with figures: choose a rolling period when you start it."
+msgstr "Een startdashboard heeft een vaste periode nodig, zodat het met cijfers opent: kies bij het beginnen een meeschuivende periode."
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Account"
+msgstr "Account"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Messages"
+msgstr "Meldingen"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Appearance"
+msgstr "Weergave"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings group"
+msgid "Privacy"
+msgstr "Privacy"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "two-factor on"
+msgstr "tweestapsverificatie aan"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "two-factor off"
+msgstr "tweestapsverificatie uit"
+
+#. translators: 1: message types switched on, 2: message types offered
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgctxt "my settings summary"
+msgid "%1$d of %2$d on"
+msgstr "%1$d van %2$d aan"
+
+#. translators: %s: the short name of a visual theme, e.g. "Default"
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgctxt "my settings summary"
+msgid "theme %s"
+msgstr "thema %s"
+
+#: src/Infrastructure/Identity/MySettingsGroups.php
+msgctxt "my settings summary"
+msgid "Your parent sees everything"
+msgstr "Je ouder ziet alles"
+
+#. translators: %d: number of record sections hidden from the player's parent
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgid "%d part hidden"
+msgid_plural "%d parts hidden"
+msgstr[0] "%d onderdeel verborgen"
+msgstr[1] "%d onderdelen verborgen"
+
+#. translators: %d: number of places the academy keeps the user's contact details
+#: src/Infrastructure/Identity/MySettingsGroups.php
+#, php-format
+msgid "Your details are kept in %d place"
+msgid_plural "Your details are kept in %d places"
+msgstr[0] "Je gegevens staan op %d plek"
+msgstr[1] "Je gegevens staan op %d plekken"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Manage two-factor"
+msgstr "Tweestapsverificatie beheren"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Your account details are yours to change under Account."
+msgstr "Je accountgegevens wijzig je zelf onder Account."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Something wrong or out of date? Your account details are yours to change "
+"under Account. Anything recorded on your child's file is changed by the "
+"academy — ask them and they will correct it."
+msgstr ""
+"Klopt er iets niet of is het verouderd? Je accountgegevens wijzig je zelf "
+"onder Account. Wat in het dossier van je kind staat, wijzigt de academie — "
+"vraag het hun en zij passen het aan."
+
+#: src/Shared/Frontend/ShellPreference.php
+msgctxt "navigation layout"
+msgid "Classic"
+msgstr "Klassiek"
+
+#: src/Shared/Frontend/ShellPreference.php
+msgctxt "navigation layout"
+msgid "App"
+msgstr "App"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Default"
+msgstr "Standaard"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Federation"
+msgstr "Federation"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Leon Hutten"
+msgstr "Leon Hutten"
+
+#: config/settings_entries.php
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "PDP conversation forms"
+msgstr "POP-gespreksformulieren"
+
+#: config/settings_entries.php
+msgid "The forms a PDP conversation is held on: a score from the player and from the trainer per item. Off unless the academy picks a set."
+msgstr "De formulieren waarop een POP-gesprek wordt gevoerd: per onderdeel een score van de speler en van de trainer. Staan uit tot de academie een set kiest."
+
+#: config/settings_entries.php
+msgctxt "settings search keywords"
+msgid "pdp, conversation, form, scores, player, trainer"
+msgstr "pop, pdp, gesprek, gespreksformulier, formulier, scores, speler, trainer, conversation, form"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "A conversation form gives the PDP conversation a fixed list of items, each scored by the player and by the trainer. The trainer's scores are also saved as an evaluation. The forms are the academy's own, with their own wording, and cannot be edited here."
+msgstr "Een gespreksformulier geeft het POP-gesprek een vaste lijst onderdelen, die de speler en de trainer elk een score geven. De scores van de trainer worden ook als evaluatie opgeslagen. De formulieren zijn van de academie zelf, met haar eigen tekst, en zijn hier niet te bewerken."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Conversation forms"
+msgstr "Gespreksformulieren"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "None (conversations without a form)"
+msgstr "Geen (gesprekken zonder formulier)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "A goalkeeper gets the goalkeeper form and every other player the outfield form."
+msgstr "Een keeper krijgt het keepersformulier en elke andere speler het formulier voor veldspelers."
+
+#: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
+msgid "The conversation forms score on five steps, and the academy's rating scale does not have five. Set the rating scale to five steps first."
+msgstr "De gespreksformulieren scoren in vijf stappen, en de beoordelingsschaal van de academie heeft er geen vijf. Stel de beoordelingsschaal eerst in op vijf stappen."
+
+#: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
+msgid "The evaluation categories of the conversation forms could not be saved, so the forms were not switched on. Try again; if it keeps failing, ask your administrator."
+msgstr "De evaluatiecategorieën van de gespreksformulieren konden niet worden opgeslagen, dus de formulieren zijn niet ingeschakeld. Probeer het opnieuw; lukt het steeds niet, vraag het dan je beheerder."
+
+#. translators: %s: the main evaluation categories that are missing or switched off.
+#: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
+msgid "The conversation forms score under the four main evaluation categories, and these are missing or switched off: %s."
+msgstr "De gespreksformulieren scoren onder de vier hoofdcategorieën voor evaluaties, en deze ontbreken of staan uit: %s."
+
+#: src/Modules/Pdp/Forms/PdpFormCategorySeeder.php
+msgid "That conversation form is not available."
+msgstr "Dat gespreksformulier is niet beschikbaar."
+
+#: src/Modules/Pdp/Rest/PdpFormsRestController.php
+msgid "That set of conversation forms is not available."
+msgstr "Die set gespreksformulieren is niet beschikbaar."
+
+#: src/Modules/Pdp/Rest/PdpFormsRestController.php
+msgid "Say which set of conversation forms to use, or none."
+msgstr "Geef aan welke set gespreksformulieren je wilt gebruiken, of geen."
+
+#: src/Infrastructure/REST/EvaluationsRestController.php
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php
+msgid "This evaluation was saved by a signed PDP conversation form, so it cannot be changed. Open the conversation to read it."
+msgstr "Deze evaluatie is opgeslagen door een ondertekend POP-gespreksformulier en kan daarom niet worden gewijzigd. Open het gesprek om haar te lezen."
+
+#: src/Shared/Frontend/CoachForms.php
+msgid "This evaluation was saved by a signed PDP conversation form, so it cannot be changed here."
+msgstr "Deze evaluatie is opgeslagen door een ondertekend POP-gespreksformulier en kan hier daarom niet worden gewijzigd."
+
+#: src/Shared/Frontend/CoachForms.php
+msgid "Open the conversation"
+msgstr "Open het gesprek"
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "This conversation does not use a conversation form."
+msgstr "Dit gesprek gebruikt geen gespreksformulier."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The form is not complete yet. Score every item, fill in the strongest quality, and give both development points an action, the trainer's help and a deadline."
+msgstr "Het formulier is nog niet compleet. Geef elk onderdeel een score, vul de grootste kwaliteit in en geef beide ontwikkelpunten een actie, de hulp van de trainer en een deadline."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The evaluation categories of the conversation form are missing. Ask your administrator to save the conversation forms setting again."
+msgstr "De evaluatiecategorieën van het gespreksformulier ontbreken. Vraag je beheerder de instelling voor de gespreksformulieren opnieuw op te slaan."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This conversation has already been signed off."
+msgstr "Dit gesprek is al ondertekend."
+
+#: src/Modules/Pdp/Forms/PdpFormSignoff.php
+msgid "The sign-off could not be saved. Nothing was changed; try again."
+msgstr "Het ondertekenen kon niet worden opgeslagen. Er is niets gewijzigd; probeer het opnieuw."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Say which conversation form to use."
+msgstr "Geef aan welk gespreksformulier je wilt gebruiken."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "That conversation form is not available at this academy."
+msgstr "Dat gespreksformulier is bij deze academie niet beschikbaar."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The player has started on this form, so it can no longer be switched."
+msgstr "De speler is met dit formulier begonnen, dus het kan niet meer worden gewisseld."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Only the current talk can be signed off. Earlier talks come first."
+msgstr "Alleen het huidige gesprek kan worden ondertekend. Eerdere gesprekken gaan voor."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Only the current talk can be filled in. Earlier talks come first."
+msgstr "Alleen het huidige gesprek kan worden ingevuld. Eerdere gesprekken gaan voor."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This conversation form has not been signed off yet, so there is nothing to acknowledge."
+msgstr "Dit gespreksformulier is nog niet ondertekend, dus er is nog niets om voor gezien te tekenen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the scores as an object of item => score."
+msgstr "Stuur de scores als object van onderdeel => score."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A score is a whole number from 1 to 5."
+msgstr "Een score is een heel getal van 1 tot 5."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the answers as an object of field => text."
+msgstr "Stuur de antwoorden als object van veld => tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "An answer is text."
+msgstr "Een antwoord is tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "Send the development points as an object of slot => fields."
+msgstr "Stuur de ontwikkelpunten als object van plek => velden."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point is an object of action, support, due_date and item_key."
+msgstr "Een ontwikkelpunt is een object met action, support, due_date en item_key."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point field is text."
+msgstr "Een veld van een ontwikkelpunt is tekst."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A deadline is a date (YYYY-MM-DD)."
+msgstr "Een deadline is een datum (JJJJ-MM-DD)."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "A development point refers to an item of this form."
+msgstr "Een ontwikkelpunt verwijst naar een onderdeel van dit formulier."
+
+#. translators: %s: comma-separated field names
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This form does not have: %s."
+msgstr "Dit formulier heeft geen: %s."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "You do not have permission to do this on this conversation form."
+msgstr "Je hebt geen toestemming om dit op dit gespreksformulier te doen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This conversation does not use a conversation form yet."
+msgstr "Dit gesprek gebruikt nog geen gespreksformulier."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This talk did not take place, so its form takes no entries."
+msgstr "Dit gesprek heeft niet plaatsgevonden, dus het formulier neemt niets meer op."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The conversation has started, so your part of the form can no longer be changed."
+msgstr "Het gesprek is begonnen, dus jouw deel van het formulier kan niet meer worden gewijzigd."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The form could not be saved. Try again."
+msgstr "Het formulier kon niet worden opgeslagen. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This conversation uses a conversation form. Sign it off on the form, so the trainer's scores and the development points are saved with it."
+msgstr "Dit gesprek gebruikt een gespreksformulier. Onderteken het op het formulier, zodat de scores van de trainer en de ontwikkelpunten mee worden opgeslagen."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This talk uses the goalkeeper form."
+msgstr "Dit gesprek gebruikt het keepersformulier."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This talk uses the outfield form."
+msgstr "Dit gesprek gebruikt het formulier voor veldspelers."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Switch form"
+msgstr "Formulier wisselen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "You can switch until the player starts filling in the form."
+msgstr "Je kunt wisselen tot de speler het formulier begint in te vullen."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "The conversation form was changed meanwhile. Reload the form and try again."
+msgstr "Het gespreksformulier is intussen gewijzigd. Laad het formulier opnieuw en probeer het nog eens."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+msgid "This talk did not take place, so the form can no longer be switched."
+msgstr "Dit gesprek is niet gehouden, dus het formulier kan niet meer worden gewisseld."
+
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "You can prepare once the conversation is planned."
+msgstr "Je kunt je voorbereiden zodra het gesprek is gepland."
+
+#. translators: %s: the date the player's preparation opens
+#: src/Modules/Pdp/Rest/PdpConversationFormRestController.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "You can prepare from %s."
+msgstr "Je kunt je voorbereiden vanaf %s."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Prepare your development talk"
+msgstr "POP-gesprek voorbereiden"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Saving your preparation…"
+msgstr "Je voorbereiding wordt opgeslagen…"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation could not be marked ready. Try again."
+msgstr "Je voorbereiding kon niet klaar worden gemeld. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation could not be reopened. Try again."
+msgstr "Je voorbereiding kon niet worden heropend. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation can no longer be saved. Reload the page to see why."
+msgstr "Je voorbereiding kan niet meer worden opgeslagen. Laad de pagina opnieuw om te zien waarom."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your last change has not been saved yet. Check your connection and try Ready again."
+msgstr "Je laatste wijziging is nog niet opgeslagen. Controleer je verbinding en probeer Klaar opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step: the strongest quality"
+msgid "Strength"
+msgstr "Wapen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Steps"
+msgstr "Stappen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Give yourself a score from 1 to 5 for each item. Your trainer sees your "
+"scores once you mark your preparation as ready. You can change everything "
+"until the conversation starts."
+msgstr ""
+"Geef jezelf per onderdeel een cijfer van 1 tot 5. Je trainer ziet jouw "
+"cijfers zodra je je voorbereiding klaar meldt. Je kunt alles aanpassen tot "
+"het gesprek begint."
+
+#. translators: %s: the item being scored
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "My score for %s"
+msgstr "Mijn cijfer voor %s"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Not filled in yet"
+msgstr "Nog niet ingevuld"
+
+#. translators: 1: the score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your score: %1$s · %2$s"
+msgstr "Jouw cijfer: %1$s · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation: mark it finished"
+msgid "Ready"
+msgstr "Klaar"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Your preparation is ready"
+msgstr "Je voorbereiding is klaar"
+
+#. translators: 1: items scored, 2: items on the form
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "%1$d of %2$d item scored"
+msgid_plural "%1$d of %2$d items scored"
+msgstr[0] "%1$d van %2$d onderdeel ingevuld"
+msgstr[1] "%1$d van %2$d onderdelen ingevuld"
+
+#. translators: %s: date and time of the talk
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Your talk is on %s. Your trainer can now read your scores. You can still "
+"change everything until the conversation starts."
+msgstr ""
+"Je gesprek is op %s. Je trainer kan je cijfers nu lezen. Tot het gesprek "
+"begint kun je nog alles aanpassen."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid ""
+"Your trainer can now read your scores. You can still change everything "
+"until the conversation starts."
+msgstr ""
+"Je trainer kan je cijfers nu lezen. Tot het gesprek begint kun je nog alles "
+"aanpassen."
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Change it after all"
+msgstr "Toch aanpassen"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "My scores in short"
+msgstr "Mijn cijfers in het kort"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "What do the scores mean?"
+msgstr "Wat betekenen de cijfers?"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Technique"
+msgstr "Techniek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Tactics"
+msgstr "Tactiek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Physical"
+msgstr "Fysiek"
+
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgctxt "PDP preparation step"
+msgid "Mental"
+msgstr "Mentaal"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "what the player does"
+msgstr "wat de speler doet"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "how the trainer helps"
+msgstr "hoe de trainer helpt"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "deadline"
+msgstr "deadline"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Conversation form"
+msgstr "Gespreksformulier"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "How the scores are shown"
+msgstr "Hoe de cijfers worden getoond"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer (you)"
+msgstr "Trainer (jij)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player and trainer scores differ"
+msgid "Discuss"
+msgstr "Bespreken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "the scores differ"
+msgstr "de cijfers verschillen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player has not marked the preparation ready yet. You see their scores once they do."
+msgstr "De speler heeft de voorbereiding nog niet klaar gemeld. Je ziet de cijfers zodra dat gebeurt."
+
+#. translators: %s: date and time the player marked the preparation ready
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player marked the preparation ready on %s."
+msgstr "De speler meldde de voorbereiding klaar op %s."
+
+#. translators: %d: items in the section where the player's and the trainer's scores differ
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "%d to discuss"
+msgid_plural "%d to discuss"
+msgstr[0] "%d te bespreken"
+msgstr[1] "%d te bespreken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player changed this score after marking ready"
+msgid "changed"
+msgstr "aangepast"
+
+#. translators: %s: the item being scored
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer score for %s"
+msgstr "Trainerscijfer voor %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "the player's score"
+msgstr "het cijfer van de speler"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer: not scored yet"
+msgstr "Trainer: nog geen cijfer"
+
+#. translators: 1: the score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer: %1$s · %2$s"
+msgstr "Trainer: %1$s · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: not ready yet"
+msgstr "Speler: nog niet klaar"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: not scored"
+msgstr "Speler: geen cijfer"
+
+#. translators: 1: the player's score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: %1$d · %2$s"
+msgstr "Speler: %1$d · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player wrote:"
+msgstr "De speler schreef:"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "not ready yet"
+msgstr "nog niet klaar"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player wrote nothing here"
+msgid "nothing"
+msgstr "niets"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "What you agreed"
+msgstr "Wat jullie afspraken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Development points (SMART)"
+msgstr "Ontwikkelpunten (SMART)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Each development point becomes one of the player's goals when you sign off, so its progress can be followed."
+msgstr "Elk ontwikkelpunt wordt bij het ondertekenen een doel van de speler, zodat je de voortgang kunt volgen."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Goal created"
+msgstr "Doel aangemaakt"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "What the player does"
+msgstr "Wat de speler doet"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "How the trainer helps"
+msgstr "Hoe de trainer helpt"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Item it develops (optional)"
+msgstr "Item dat het ontwikkelt (optioneel)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Still needed before you can sign off:"
+msgstr "Nog nodig voordat je kunt ondertekenen:"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Finish and sign the conversation"
+msgstr "Gesprek afronden en ondertekenen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Signing off fixes the scores, saves them as an evaluation, creates the two goals, and asks the player and the parent to confirm the conversation."
+msgstr "Ondertekenen zet de cijfers vast, bewaart ze als evaluatie, maakt de twee doelen aan en vraagt de speler en de ouder het gesprek te bevestigen."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Finish and sign this conversation? The scores are fixed and saved as an evaluation, the two development points become goals, and the player and the parent are asked to confirm. This cannot be undone."
+msgstr "Dit gesprek afronden en ondertekenen? De cijfers worden vastgezet en als evaluatie bewaard, de twee ontwikkelpunten worden doelen, en de speler en de ouder worden gevraagd te bevestigen. Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Your last change has not been saved yet. Check your connection and try again."
+msgstr "Je laatste wijziging is nog niet opgeslagen. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The form can no longer be saved. Reload the page to see why."
+msgstr "Het formulier kan niet meer worden opgeslagen. Laad de pagina opnieuw om te zien waarom."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The conversation could not be signed off. Try again."
+msgstr "Het gesprek kon niet worden ondertekend. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Signing off…"
+msgstr "Bezig met ondertekenen…"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "a required field"
+msgstr "een verplicht veld"
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Says a development talk has been signed off and asks to read and confirm it."
+msgstr "Meldt dat een ontwikkelgesprek is ondertekend en vraagt het te lezen en te bevestigen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The player and the parents, by the child's age as for other messages about a player, and parents only when the child shares the development plan with them."
+msgstr "De speler en de ouders, naar de leeftijd van het kind zoals bij andere berichten over een speler, en ouders alleen als het kind het ontwikkelplan met hen deelt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "When the trainer signs off a conversation form."
+msgstr "Als de trainer een gespreksformulier ondertekent."
+
+#: src/Modules/Comms/Templates/PdpConversationSignedTemplate.php
+msgid "PDP conversation ready to read and confirm"
+msgstr "POP-gesprek klaar om te lezen en te bevestigen"
+
+#: src/Modules/Comms/Templates/PdpConversationSignedTemplate.php
+msgid "{player_name}'s development talk is ready to read"
+msgstr "Het ontwikkelgesprek van {player_name} is klaar om te lezen"
+
+#: src/Modules/Comms/Templates/PdpConversationSignedTemplate.php
+msgid ""
+"Hi {recipient_first_name},\n"
+"\n"
+"{player_name}'s development talk ({conversation_name}) has been signed off. "
+"You can read the scores, the strongest quality and the two development "
+"points, and confirm that you have read them.\n"
+"\n"
+"Open it here: {deep_link}\n"
+"\n"
+"The coaching team"
+msgstr ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"Het ontwikkelgesprek van {player_name} ({conversation_name}) is ondertekend. "
+"Je kunt de scores, de grootste kwaliteit en de twee ontwikkelpunten lezen, "
+"en bevestigen dat je ze hebt gelezen.\n"
+"\n"
+"Open het hier: {deep_link}\n"
+"\n"
+"Het trainersteam"
+
+#: src/Modules/Comms/Templates/PdpConversationSignedTemplate.php
+msgid "Development talk ready"
+msgstr "Ontwikkelgesprek klaar"
+
+#: src/Modules/Comms/Templates/PdpConversationSignedTemplate.php
+msgid "{player_name}'s development talk ({conversation_name}) is ready to read. Open it to confirm."
+msgstr "Het ontwikkelgesprek van {player_name} ({conversation_name}) is klaar om te lezen. Open het om te bevestigen."
+
+#. translators: 1: the player's average for the section, 2: the trainer's
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Player %1$s · Trainer %2$s"
+msgstr "Speler %1$s · Trainer %2$s"
+
+#. translators: %s: the trainer's score and its label
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Trainer: %s"
+msgstr "Trainer: %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "not filled in"
+msgstr "niet ingevuld"
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Trainer's notes:"
+msgstr "Toelichting van de trainer:"
+
+#. translators: %s: what the player wrote, or "not filled in"
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "The player wrote: %s"
+msgstr "De speler schreef: %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Development points"
+msgstr "Ontwikkelpunten"
+
+#. translators: %s: how the trainer helps
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "The trainer helps: %s"
+msgstr "De trainer helpt: %s"
+
+#. translators: %s: the development point's deadline
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Deadline: %s"
+msgstr "Deadline: %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "Open the goal"
+msgstr "Open het doel"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgctxt "PDP conversation form: confirm reading the signed talk"
+msgid "I have read it"
+msgstr "Ik heb het gelezen"
+
+#. translators: %s: date and time the reader confirmed reading the signed talk
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "You confirmed you read it on %s."
+msgstr "Je hebt op %s bevestigd dat je het hebt gelezen."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "You can confirm this conversation once you may read its form."
+msgstr "Je kunt dit gesprek bevestigen zodra je het formulier mag lezen."
+
+#: src/Modules/Pdp/Frontend/PdpFormReadView.php
+msgid "The signed conversation form"
+msgstr "Het ondertekende gespreksformulier"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "A signed development talk is waiting for you to read and confirm it."
+msgid_plural "Signed development talks are waiting for you to read and confirm them."
+msgstr[0] "Er staat een ondertekend ontwikkelgesprek voor je klaar om te lezen en te bevestigen."
+msgstr[1] "Er staan ondertekende ontwikkelgesprekken voor je klaar om te lezen en te bevestigen."
+
+#. translators: %s: the talk's name, e.g. "Start-of-season talk"
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "Read %s"
+msgstr "%s lezen"
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "An acknowledgement time is a date and time (YYYY-MM-DD HH:MM:SS, UTC)."
+msgstr "Een bevestigingstijd is een datum en tijd (JJJJ-MM-DD UU:MM:SS, UTC)."
+
+#. translators: %s: the report's section titles, as a list
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Recipients get: %s."
+msgstr "Ontvangers krijgen: %s."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Recipients get the headline numbers only."
+msgstr "Ontvangers krijgen alleen de kerncijfers."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Attendance is left out, because not every recipient may read it."
+msgstr "Aanwezigheid is weggelaten, omdat niet elke ontvanger die mag lezen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid ""
+"Everyone receives the same PDF, so each section contains only what every "
+"recipient may read. A recipient with no account here counts as having no "
+"rights."
+msgstr ""
+"Iedereen ontvangt dezelfde pdf, dus elk onderdeel bevat alleen wat elke "
+"ontvanger mag lezen. Een ontvanger zonder account hier telt als iemand "
+"zonder rechten."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "After saving, the schedule list shows what the recipients get."
+msgstr "Na het opslaan toont de lijst met planningen wat de ontvangers krijgen."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid ""
+"This team has played matches, but none of them have minutes recorded. Check "
+"the minutes on the Activities log."
+msgstr ""
+"Dit team heeft wedstrijden gespeeld, maar bij geen ervan zijn minuten "
+"vastgelegd. Controleer de minuten in het activiteitenlog."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "You may not see this player."
+msgstr "Je mag deze speler niet zien."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "Live match sheet"
+msgstr "Live wedstrijdformulier"
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "Entered after the match"
+msgstr "Ingevoerd na de wedstrijd"
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More assists than goals we scored in this match."
+msgstr "Meer assists dan doelpunten die wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More goals attributed than we scored in this match."
+msgstr "Meer toegekende doelpunten dan wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "More goals or assists for this player than we scored in this match."
+msgstr "Meer doelpunten of assists voor deze speler dan wij in deze wedstrijd maakten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "No score recorded, and more goals or assists for this player than one match can hold."
+msgstr "Geen uitslag vastgelegd, en meer doelpunten of assists voor deze speler dan één wedstrijd kan bevatten."
+
+#: src/Modules/Analytics/Reports/GoalContributionDrilldown.php
+msgid "An assist recorded on an opponent goal or an own goal."
+msgstr "Een assist vastgelegd op een doelpunt van de tegenstander of een eigen doelpunt."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded in this season."
+msgstr "Geen doelpunten of assists vastgelegd in dit seizoen."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "goals and assists report"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded in this period."
+msgstr "Geen doelpunten of assists vastgelegd in deze periode."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No goals or assists recorded yet."
+msgstr "Nog geen doelpunten of assists vastgelegd."
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "Correct in the minutes grid"
+msgstr "Herstellen in het minutenraster"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "match venue"
+msgid "Home"
+msgstr "Thuis"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgctxt "match venue"
+msgid "Away"
+msgstr "Uit"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No score recorded"
+msgstr "Geen uitslag vastgelegd"
+
+#. translators: 1: minute in the half, 2: the half (1 or 2)
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "%1$d' (half %2$d)"
+msgstr "%1$d' (helft %2$d)"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "no minute"
+msgstr "geen minuut"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "No scorer recorded"
+msgstr "Geen maker vastgelegd"
+
+#. translators: %s: the player who put the ball in their own net
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "Own goal (%s)"
+msgstr "Eigen doelpunt (%s)"
+
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+msgid "recorded before tracking began"
+msgstr "vastgelegd voordat dit werd bijgehouden"
+
+#. translators: 1: date of the change, 2: the account that changed it
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "changed %1$s by %2$s"
+msgstr "gewijzigd %1$s door %2$s"
+
+#. translators: %s: date of the change
+#: src/Modules/Analytics/Frontend/GoalContributionsRenderer.php
+#, php-format
+msgid "changed %s"
+msgstr "gewijzigd %s"
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+msgid "Choose a team to see its goals and assists."
+msgstr "Kies een team om de doelpunten en assists te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+#: src/Infrastructure/REST/GoalContributionsRestController.php
+msgid "That season is not known."
+msgstr "Dat seizoen is niet bekend."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+#: src/Infrastructure/REST/GoalContributionsRestController.php
+msgid "Dates must be written as YYYY-MM-DD, with from on or before to."
+msgstr "Datums schrijf je als JJJJ-MM-DD, met de begindatum op of vóór de einddatum."
+
+#: src/Modules/Analytics/Frontend/FrontendGoalsAssistsReportView.php
+msgid "Choose a team"
+msgstr "Kies een team"
+
+#: src/Core/FeatureRegistry.php
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Goals and assists"
+msgstr "Team · Doelpunten en assists"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Goals and assists per player, and every match behind each count, with where each entry came from."
+msgstr "Doelpunten en assists per speler, en elke wedstrijd achter elk aantal, met waar elke invoer vandaan komt."
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php
+msgid "See every match in the goals and assists report"
+msgstr "Bekijk elke wedstrijd in het rapport doelpunten en assists"
+
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "Only a report about one player or one team can be frozen."
+msgstr "Alleen een rapport over één speler of één team kan worden vastgezet."
+
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "You may not freeze a report about this player."
+msgstr "Je mag geen rapport over deze speler vastzetten."
+
+#: src/Modules/ReportStudio/Domain/ReportSnapshots.php
+msgid "You may not freeze a report about this team."
+msgstr "Je mag geen rapport over dit team vastzetten."
+
+#: src/Modules/ReportStudio/Rest/ReportSnapshotsRestController.php
+msgid "This block is not on the snapshot."
+msgstr "Dit blok staat niet op de momentopname."
+
+#: src/Modules/ReportStudio/Rest/ReportSnapshotsRestController.php
+msgid "You may read this snapshot, not write on it."
+msgstr "Je mag deze momentopname lezen, maar er niet op schrijven."
+
+#: src/Modules/Export/Exporters/PlayerReportPdfExporter.php
+msgid "This snapshot prints from the Report Studio export."
+msgstr "Deze momentopname wordt afgedrukt via de export van de Report Studio."
+
+#: src/Modules/Export/Exporters/ReportStudioPdfExporter.php
+msgid "Report Studio report (PDF)"
+msgstr "Report Studio-rapport (PDF)"
+
+#: src/Modules/Export/Exporters/ReportStudioPdfExporter.php
+msgid "Report Studio is not part of your plan."
+msgstr "Report Studio hoort niet bij je abonnement."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Take snapshot"
+msgstr "Momentopname maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Snapshots"
+msgstr "Momentopnames"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "No snapshots yet. A snapshot keeps this report as it reads today, for a conversation or for the family."
+msgstr "Nog geen momentopnames. Een momentopname bewaart dit rapport zoals het vandaag leest, voor een gesprek of voor het gezin."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The report is frozen as it reads now, for the subject and period shown, and the player and their parents see it on the player's file."
+msgstr "Het rapport wordt vastgezet zoals het nu leest, voor het getoonde onderwerp en de getoonde periode, en de speler en de ouders zien het in het dossier van de speler."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The report is frozen as it reads now, for the subject and period shown. Staff who can see the subject can open it."
+msgstr "Het rapport wordt vastgezet zoals het nu leest, voor het getoonde onderwerp en de getoonde periode. Staf die het onderwerp mag zien, kan het openen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "The snapshot is saved."
+msgstr "De momentopname is opgeslagen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportView.php
+msgid "Note for this block"
+msgstr "Notitie bij dit blok"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Sharing and scheduling come in a later release."
+msgstr "Delen en plannen komen in een latere release."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid "An evaluation from a PDP conversation was imported without its link to the conversation."
+msgstr "Een evaluatie uit een POP-gesprek is geïmporteerd zonder de koppeling met het gesprek."
 
 #~ msgid "All states"
 #~ msgstr "Alle statussen"

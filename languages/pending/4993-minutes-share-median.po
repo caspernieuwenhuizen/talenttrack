@@ -1,7 +1,0 @@
-#: src/Shared/Frontend/FrontendStandardReportsView.php
-msgid ""
-"This team has played matches, but none of them have minutes recorded. Check "
-"the minutes on the Activities log."
-msgstr ""
-"Dit team heeft wedstrijden gespeeld, maar bij geen ervan zijn minuten "
-"vastgelegd. Controleer de minuten in het activiteitenlog."

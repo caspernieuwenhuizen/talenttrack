@@ -1,3 +1,0 @@
-# Trial and scouting tables on a phone read like every other table (#4911)
-
-The trial case lists (extensions, activities, evaluations, goals, letters), the trials list, the trial tracks and letter templates editors, the prospects on a scouting visit and the scout report history now use the shared table layout. On a phone each row is a card with each value beside its column's label, as on the other screens that have moved; a column with no visible name no longer shows a stray "Actions" label, and an empty actions cell takes no line. From 480px wide nothing changes. Screen readers read each table as a table with its column headers.

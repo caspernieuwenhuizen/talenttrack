@@ -1,3 +1,0 @@
-# Evaluation lists on a phone: a tap anywhere on the row opens the evaluation (#5042)
-
-On a phone, the date and the average in the evaluations list were small live links inside a row that already opens the evaluation on a tap. They now read as text there, like the team and coach in the same row, so a tap anywhere on the row opens the evaluation. A coach's My evaluations card had only the player's name as a way in; the whole card now opens the evaluation, and the name stays the link the keyboard reaches with Tab. From 480px the coach's list is a table as before, and each row opens its evaluation when clicked.

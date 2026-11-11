@@ -1,3 +1,0 @@
-# List rows that open a record stay table rows for a screen reader (#4884)
-
-In the players, goals, evaluations, activities and other lists where a tap on a row opens its record, the row used to call itself a link. Inside a table that took the row, and its cells, out of the table for a screen reader. The row now stays a table row with its cells under their column headers. The keyboard reaches the record through the link in the row: Tab moves to it, Enter opens it, and the row is tinted while it has focus. Lists whose rows had no link to their record (such as exercises, training plans and holidays) get one on the title. A tap anywhere on the row still opens the record, and the layout is unchanged at every width.

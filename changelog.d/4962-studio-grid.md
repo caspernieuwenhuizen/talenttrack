@@ -1,5 +1,0 @@
-# Report Studio: grid layout and dashboards as a role's home page (#4962)
-
-Bump: minor
-
-A Studio report or dashboard laid out as a grid now places its blocks on 12 columns on a desktop and stacks them in reading order on a phone. Blocks move and resize with the arrow keys (Shift with an arrow resizes), with buttons on each block, or by dragging on a desktop. Every move is one undo step and saves itself. The server checks every place on save: a block outside the grid or on top of another is refused. A grid is for staff screens only: it has no A4 view, PDF or snapshots, and print, mail and family shares stay in rows. A dashboard holds at most 12 blocks. The academy admin can make a published dashboard the home page of a staff role it is published to, under Home page in the Studio. Everyone in that role then lands on it with their own figures, in one request. Player and parent home pages stay on the dashboard editor. The choice is stored per club in tt_config. New routes: `GET /studio-homes`, `PUT` and `DELETE /studio-homes/{persona}`. Converting a rows report to a grid is not part of this release.
