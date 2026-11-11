@@ -8,6 +8,7 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshots;
+use TT\Modules\ReportStudio\Frontend\StudioDocumentView;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -126,6 +127,17 @@ final class PlayerReportSnapshotPage {
         $family = $snapshot['audience'] === PlayerReportAudience::FAMILY;
         self::renderHeader( $snapshot );
 
+        // #5021 — a Report Studio report's snapshot prints its own document,
+        // as part of the Studio's plan.
+        if ( $snapshot['document'] !== null ) {
+            if ( ! \TT\Modules\License\LicenseGate::allows( 'report_studio' ) ) {
+                echo \TT\Modules\License\UpgradePanel::render( 'report_studio' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- UpgradePanel returns escaped HTML
+                return true;
+            }
+            StudioDocumentView::render( $snapshot['document'], get_current_user_id(), $snapshot['notes'] );
+            return true;
+        }
+
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         PlayerReportPage::renderBlocks(
             $report,
@@ -152,6 +164,8 @@ final class PlayerReportSnapshotPage {
         if ( $snapshot === null
             || $snapshot['player_id'] !== $player_id
             || $snapshot['audience'] !== PlayerReportAudience::FAMILY
+            // #5021 — a Report Studio snapshot is part of the Studio's plan.
+            || ( $snapshot['document'] !== null && ! \TT\Modules\License\LicenseGate::allows( 'report_studio' ) )
         ) {
             return false;
         }
@@ -163,6 +177,12 @@ final class PlayerReportSnapshotPage {
         echo '<h3 class="tt-mr-snapshot-bar__t">' . esc_html( $snapshot['title'] ) . '</h3>';
         echo '<p class="tt-mr-muted">' . esc_html( self::sharedLine( $snapshot['created_by'], $snapshot['created_at'] ) ) . '</p>';
         echo '</div>';
+
+        // #5021 — a shared Report Studio report, as this family reader may read it.
+        if ( $snapshot['document'] !== null ) {
+            StudioDocumentView::render( $snapshot['document'], get_current_user_id() );
+            return true;
+        }
 
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         PlayerReportPage::renderBlocks(
@@ -188,7 +208,7 @@ final class PlayerReportSnapshotPage {
         );
     }
 
-    /** @param array{uuid:string, title:string, audience:string, created_by:int, created_at:string} $snapshot */
+    /** @param array{uuid:string, title:string, audience:string, created_by:int, created_at:string, document:array<string,mixed>|null} $snapshot */
     private static function renderHeader( array $snapshot ): void {
         $author = $snapshot['created_by'];
         $name   = $author > 0 ? (string) get_the_author_meta( 'display_name', $author ) : '';
@@ -209,17 +229,20 @@ final class PlayerReportSnapshotPage {
         }
         // #4718 — the PDF only for an account that may receive files.
         if ( \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ) {
-            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $snapshot['uuid'] ) ) . '">'
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $snapshot['uuid'], $snapshot['document'] !== null ) ) . '">'
                 . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
         }
         echo '</div>';
     }
 
-    /** The frozen report on paper, notes included, so print and screen agree. */
-    private static function pdfUrl( string $uuid ): string {
+    /**
+     * The frozen report on paper, notes included, so print and screen agree.
+     * A Report Studio snapshot prints through the Studio's exporter (#5021).
+     */
+    private static function pdfUrl( string $uuid, bool $studio = false ): string {
         return add_query_arg(
             [ 'format' => 'pdf', 'snapshot' => $uuid, '_wpnonce' => wp_create_nonce( 'wp_rest' ) ],
-            rest_url( 'talenttrack/v1/exports/player_report_pdf' )
+            rest_url( 'talenttrack/v1/exports/' . ( $studio ? 'report_studio_pdf' : 'player_report_pdf' ) )
         );
     }
 

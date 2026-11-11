@@ -230,12 +230,53 @@
 		dataTimer = window.setTimeout(loadData, 600);
 	}
 
+	/** The A4 view's container, when the page has one (#5021). */
+	function documentBox() { return $('[data-tt-rs-document]'); }
+
+	/** The PDF of the draft, for the subject, period and audience the canvas reads (#5021). */
+	function renderPdfLink() {
+		var link = $('[data-tt-rs-pdf]');
+		if (!link || !cfg.pdf) return;
+		var q = dataQuery();
+		var parts = [];
+		Object.keys(q).forEach(function (k) {
+			if (q[k] === '' || q[k] == null) return;
+			parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(q[k]));
+		});
+		link.href = cfg.pdf + (parts.length ? '&' + parts.join('&') : '');
+	}
+
+	/**
+	 * The A4 view (#5021): the document the PDF prints, drawn on the server
+	 * from the saved draft, with the page estimate for the meter.
+	 */
+	function loadDocument(seq) {
+		return api('GET', reportPath('/document'), null, dataQuery()).then(function (d) {
+			if (seq !== dataSeq) return;
+			state.context = d.context;
+			state.pageFit = d.page_fit || null;
+			var box = documentBox();
+			// The server escaped every value in it; it is the PDF's markup.
+			if (box) box.innerHTML = d.html || '';
+			if (dataFailed) { dataFailed = false; notice('', false); }
+			renderCanvas();
+		});
+	}
+
 	/** The whole canvas in one request, after the draft it reads is saved. */
 	function loadData() {
 		// A slower answer for an older subject or period must not land over
 		// the newer one: only the latest request is applied.
 		var seq = ++dataSeq;
 		var settle = pending();
+		renderPdfLink();
+		if (state.view === 'a4' && documentBox()) {
+			return Promise.resolve(settle).then(function () { return loadDocument(seq); })['catch'](function (err) {
+				if (seq !== dataSeq) return;
+				dataFailed = true;
+				notice(err.message || t.loadError, true);
+			});
+		}
 		return Promise.resolve(settle).then(function () {
 			return api('GET', reportPath('/data'), null, dataQuery());
 		}).then(function (d) {
@@ -441,6 +482,11 @@
 	function renderCanvas() {
 		var canvas = $('[data-tt-rs-canvas]');
 		if (!canvas) return;
+		// #5021 — A4 shows the server's document in place of the cards.
+		var box = documentBox();
+		var paper = state.view === 'a4' && !!box;
+		canvas.hidden = paper;
+		if (box) box.hidden = !paper;
 		canvas.dataset.view = state.view;
 		canvas.textContent = '';
 		if (!state.blocks.length) {
@@ -916,9 +962,11 @@
 
 		root.querySelectorAll('[data-tt-rs-view] input').forEach(function (input) {
 			input.addEventListener('change', function () {
+				var wasPaper = state.view === 'a4';
 				state.view = input.value;
 				renderCanvas();
-				if (state.view === 'a4') loadData();
+				// A4 reads the server's document; leaving it reads the cards' data again.
+				if (state.view === 'a4' || (wasPaper && documentBox())) loadData();
 			});
 		});
 		['from', 'to'].forEach(function (k) {

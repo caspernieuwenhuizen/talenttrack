@@ -10,6 +10,7 @@ use TT\Modules\Analytics\Reports\ReportBrandColour;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\LetterheadComposer as TeamLetterhead;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
 /**
@@ -22,7 +23,7 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
  * The player report's letterhead is on the scout and the family allowlists,
  * so a player's letterhead may reach both.
  */
-final class LetterheadBlock implements ReportBlock {
+final class LetterheadBlock implements ReportBlock, FamilySection {
 
     /** What a player letterhead carries, every one of them on the family allowlist. */
     private const PLAYER_KEYS = [
@@ -46,6 +47,10 @@ final class LetterheadBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return FamilySection::DOCUMENT;
     }
 
     public function capability(): string {

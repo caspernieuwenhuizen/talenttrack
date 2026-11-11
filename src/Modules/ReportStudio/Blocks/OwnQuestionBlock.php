@@ -54,7 +54,7 @@ final class OwnQuestionBlock implements ReportBlock, ChecksFactKeys {
     }
 
     public function audiences(): array {
-        return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+        return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::SCOUT ];
     }
 
     public function capability(): string {

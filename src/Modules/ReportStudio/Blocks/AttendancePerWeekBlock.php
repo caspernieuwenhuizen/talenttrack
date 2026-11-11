@@ -7,6 +7,7 @@ use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportSubjectAccess;
 use TT\Modules\ReportStudio\Domain\SharedReads;
@@ -17,7 +18,7 @@ use TT\Modules\ReportStudio\Domain\SubjectFilters;
  * every week's percentage is counted on the rows and the rule the attendance
  * reports use (#4584). One statement, whatever the squad size.
  */
-final class AttendancePerWeekBlock implements ReportBlock {
+final class AttendancePerWeekBlock implements ReportBlock, FamilySection {
 
     private const FACT = 'attendance';
 
@@ -35,6 +36,10 @@ final class AttendancePerWeekBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::ATTENDANCE;
     }
 
     public function capability(): string {

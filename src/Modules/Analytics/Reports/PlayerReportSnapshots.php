@@ -194,22 +194,53 @@ final class PlayerReportSnapshots {
      * @return array{uuid:string, player_id:int, title:string, audience:string, created_by:int, created_at:string,
      *     composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>},
      *     report:array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>},
-     *     notes:array<string,array{body:string, author:int, updated_at:string}>}|null
+     *     notes:array<string,array{body:string, author:int, updated_at:string}>,
+     *     document:array{report_id:int, version_id:int, name:string, context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>}|null}|null
+     *
+     * `document` is set on a Report Studio report's snapshot (#5021), whose
+     * frozen blocks it holds; `report` is then empty. Such a copy is shown
+     * under the reader's rights, not the taker's
+     * (`ReportSnapshots::forReader()`), and only to a reader who reads as
+     * staff; a family reader gets the family cut (`ReportSnapshots::forFamily()`).
      */
     public static function read( string $uuid, int $user_id ): ?array {
         $row = ( new PlayerReportSnapshotRepository() )->find( $uuid );
-        if ( $row === null ) return null;
+        return $row === null ? null : self::readRow( $row, $user_id );
+    }
 
+    /**
+     * `read()` for a row already loaded, so a caller that holds it does not
+     * read it again.
+     *
+     * @return array{uuid:string, player_id:int, title:string, audience:string, created_by:int, created_at:string,
+     *     composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>},
+     *     report:array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>},
+     *     notes:array<string,array{body:string, author:int, updated_at:string}>,
+     *     document:array{report_id:int, version_id:int, name:string, context:array<string,mixed>, blocks:list<array<string,mixed>>, page_fit:array<string,mixed>}|null}|null
+     */
+    public static function readRow( object $row, int $user_id ): ?array {
         $player_id = (int) ( $row->player_id ?? 0 );
         $audience  = PlayerReportSnapshotRepository::audienceOf( $row );
-        $report    = PlayerReportSnapshotRepository::reportOf( $row );
         $notes     = PlayerReportSnapshotRepository::notesOf( $row );
+        // #5021 — a Report Studio report's snapshot holds its frozen
+        // document, not player report sections.
+        $document  = StudioSnapshot::is( $row ) ? StudioSnapshot::documentOf( $row ) : null;
+        $report    = $document === null
+            ? PlayerReportSnapshotRepository::reportOf( $row )
+            : [ 'player_id' => $player_id, 'from' => (string) ( $row->period_from ?? '' ), 'to' => (string) ( $row->period_to ?? '' ), 'blocks' => [], 'data' => [] ];
 
         if ( ! PlayerReportAccess::canRead( $user_id, $player_id ) ) {
             if ( $audience !== PlayerReportAudience::FAMILY || ! self::isFamilyReader( $user_id, $player_id ) ) return null;
 
             $report = self::forFamilyReader( $report, $user_id, $player_id );
+            if ( $document !== null ) $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forFamily( $document, $user_id, $player_id );
             $notes  = [];
+        } elseif ( $document !== null ) {
+            // Studio snapshots follow the Studio's own access rule (#4695),
+            // and a copy for staff opens for a reader who reads as staff.
+            if ( ! \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id )->readsStudio() ) return null;
+            if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
+            $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forReader( $document, $user_id );
         }
 
         return [
@@ -222,6 +253,7 @@ final class PlayerReportSnapshots {
             'composition' => PlayerReportSnapshotRepository::compositionOf( $row ),
             'report'      => $report,
             'notes'       => $notes,
+            'document'    => $document,
         ];
     }
 
@@ -269,17 +301,27 @@ final class PlayerReportSnapshots {
         foreach ( $report['blocks'] as $block ) {
             if ( $block === PlayerReportBlock::LETTERHEAD ) { $keep[] = $block; continue; }
 
-            $rule = self::FAMILY_SECTIONS[ $block ] ?? null;
-            if ( $rule === null ) continue;
-            if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) continue;
-            if ( $rule['section'] !== ''
-                && ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, $rule['section'] ) ) continue;
-
+            if ( ! self::familyMayRead( $user_id, $player_id, $block ) ) continue;
             $keep[] = $block;
         }
 
         $report['blocks'] = $keep;
         $report['data']   = array_intersect_key( $report['data'], array_flip( $keep ) );
         return $report;
+    }
+
+    /**
+     * May this family reader read this section of the child's file today?
+     * Their grant on the section's records and, for a parent, the child's own
+     * choice. A section a family report cannot carry is never readable. Also
+     * the rule a shared Report Studio block answers to, by the section it
+     * names (#5021).
+     */
+    public static function familyMayRead( int $user_id, int $player_id, string $section ): bool {
+        $rule = self::FAMILY_SECTIONS[ $section ] ?? null;
+        if ( $rule === null ) return false;
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) return false;
+        return $rule['section'] === ''
+            || \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, $rule['section'] );
     }
 }

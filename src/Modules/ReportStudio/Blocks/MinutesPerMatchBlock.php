@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
@@ -21,7 +22,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * It is the player's own playing time, so it is on the family and the scout
  * lists, like the player report's minutes section.
  */
-final class MinutesPerMatchBlock implements ReportBlock {
+final class MinutesPerMatchBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'minutes_per_match';
@@ -37,6 +38,10 @@ final class MinutesPerMatchBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::MINUTES;
     }
 
     public function capability(): string {

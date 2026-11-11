@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
 /**
@@ -15,7 +16,7 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
  * read, so it is a player block only. Gated on the goals read, as open goals
  * are; on the family list, off the scout's.
  */
-final class GoalsCompletedBlock implements ReportBlock {
+final class GoalsCompletedBlock implements ReportBlock, FamilySection {
 
     public function key(): string {
         return 'goals_completed';
@@ -31,6 +32,10 @@ final class GoalsCompletedBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY ];
+    }
+
+    public function familySection(): string {
+        return \TT\Modules\Analytics\Reports\PlayerReportBlock::GOALS;
     }
 
     public function capability(): string {

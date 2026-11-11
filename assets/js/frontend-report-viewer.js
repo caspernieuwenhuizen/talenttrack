@@ -2,22 +2,26 @@
  * Report Studio reader's view (#4591) — `?tt_view=report&id=N`, a published
  * report for the people it is published to. Read only.
  *
- * Everything comes from REST: the report from `GET /reports/{id}`, the block
- * names from `GET /report-blocks`, the subjects the reader may switch to from
- * `GET /reports/{id}/subjects`, and the figures from one
- * `GET /reports/{id}/data?source=published`. The server decides the subject,
- * the period and every block's access on each call; a block the reader may
- * not see comes back as an error and is shown as "not available to you".
+ * Everything comes from REST: the report from `GET /reports/{id}`, the
+ * subjects the reader may switch to from `GET /reports/{id}/subjects`, and
+ * the report itself from one `GET /reports/{id}/document?source=published`
+ * (#5021): the document the PDF prints, drawn on the server, so the screen and
+ * the paper cannot show a block two ways. The server decides the subject, the
+ * period and every block's access on each call; a block the reader may not
+ * see is printed as "not available to you".
+ *
+ * Taking a snapshot (#5021) is its own control with its own confirm, and
+ * lands on the frozen copy.
  */
 (function () {
 	'use strict';
 
 	var cfg = window.TTReportViewer;
 	var root = document.querySelector('[data-tt-rv]');
-	if (!cfg || !root || !window.TT || !window.TT.ReportBlocks) return;
+	if (!cfg || !root) return;
 
 	var t = cfg.i18n || {};
-	var state = { report: null, catalog: {}, subject: {}, period: '', seq: 0 };
+	var state = { report: null, subject: {}, period: '', seq: 0 };
 
 	function $(sel) { return root.querySelector(sel); }
 	function el(tag, cls, text) {
@@ -27,25 +31,34 @@
 		return n;
 	}
 
-	function api(path, query) {
-		var url = cfg.rest + path;
+	function query(q) {
 		var parts = [];
-		Object.keys(query || {}).forEach(function (k) {
-			var v = query[k];
+		Object.keys(q || {}).forEach(function (k) {
+			var v = q[k];
 			if (v === '' || v == null) return;
 			parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
 		});
-		if (parts.length) url += '?' + parts.join('&');
-		return fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-WP-Nonce': cfg.nonce } })
-			.then(function (r) {
-				return r.json().catch(function () { return {}; }).then(function (json) {
-					if (r.ok) return json && json.data !== undefined ? json.data : json;
-					var e0 = json && json.errors && json.errors[0] ? json.errors[0] : {};
-					var err = new Error(e0.message || t.loadError);
-					err.status = r.status;
-					throw err;
-				});
+		return parts.join('&');
+	}
+
+	function api(method, path, q, body) {
+		var url = cfg.rest + path;
+		var qs = query(q);
+		if (qs) url += '?' + qs;
+		var init = { method: method, credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-WP-Nonce': cfg.nonce } };
+		if (body) {
+			init.headers['Content-Type'] = 'application/json';
+			init.body = JSON.stringify(body);
+		}
+		return fetch(url, init).then(function (r) {
+			return r.json().catch(function () { return {}; }).then(function (json) {
+				if (r.ok) return json && json.data !== undefined ? json.data : json;
+				var e0 = json && json.errors && json.errors[0] ? json.errors[0] : {};
+				var err = new Error(e0.message || t.loadError);
+				err.status = r.status;
+				throw err;
 			});
+		});
 	}
 
 	function notice(text, isError) {
@@ -56,16 +69,19 @@
 		n.classList.toggle('is-error', !!isError);
 	}
 
-	function label(key) {
-		return state.catalog[key] ? state.catalog[key].label : t.block;
+	/** What the reader chose: the subject and the period, for every request. */
+	function choice() {
+		var q = { period: state.period };
+		if (state.subject.player_id) q.player_id = state.subject.player_id;
+		if (state.subject.team_id) q.team_id = state.subject.team_id;
+		return q;
 	}
 
 	function renderSubjects(subjects) {
 		var box = $('[data-tt-rv-subject]');
 		if (!box) return;
 		box.textContent = '';
-		var report = state.report;
-		var isPlayer = report.scope === 'player';
+		var isPlayer = state.report.scope === 'player';
 		var list = isPlayer ? subjects.players : subjects.teams;
 		if (!list || !list.length) { box.hidden = true; return; }
 		box.hidden = false;
@@ -86,7 +102,7 @@
 		sel.addEventListener('change', function () {
 			state.subject = {};
 			if (sel.value) state.subject[isPlayer ? 'player_id' : 'team_id'] = parseInt(sel.value, 10);
-			loadData();
+			load();
 		});
 		box.appendChild(lab);
 		box.appendChild(sel);
@@ -106,7 +122,7 @@
 			input.checked = p.key === state.period;
 			input.addEventListener('change', function () {
 				state.period = p.key;
-				loadData();
+				load();
 			});
 			lab.appendChild(input);
 			lab.appendChild(el('span', null, p.label));
@@ -114,66 +130,88 @@
 		});
 	}
 
-	function renderBlocks(data) {
-		var list = $('[data-tt-rv-blocks]');
-		if (!list) return;
-		list.textContent = '';
-		var blocks = data ? data.blocks || [] : [];
-		if (data && !blocks.length) list.appendChild(el('li', 'tt-rs-empty', t.empty));
-		blocks.forEach(function (b) {
-			// A page break only acts on paper (#4572): an empty item, hidden on
-			// screen, that starts a new page when the browser prints.
-			if (b.key === 'page_break') {
-				var br = el('li', 'tt-rs-print-break');
-				br.setAttribute('aria-hidden', 'true');
-				br.dataset.ttRvBreak = b.id;
-				list.appendChild(br);
-				return;
-			}
-			var li = el('li', 'tt-rs-block tt-rs-block--' + (b.width === 'half' ? 'half' : 'full'));
-			var art = el('article', 'tt-rs-card');
-			if (!window.TT.ReportBlocks.untitled(b.key) || b.error) {
-				var head = el('header', 'tt-rs-card-head');
-				head.appendChild(el('h2', 'tt-rs-card-title', label(b.key)));
-				art.appendChild(head);
-			}
-			art.appendChild(window.TT.ReportBlocks.body(b, {
-				i18n: t, columns: cfg.columns, catalog: state.catalog, context: data.context, errorText: t.notAvailable, headingTag: 'h2'
-			}));
-			li.appendChild(art);
-			list.appendChild(li);
-		});
+	/** The PDF of what is on screen: the same subject and period. */
+	function renderPdf(ok) {
+		var link = $('[data-tt-rv-pdf]');
+		if (!link || !cfg.pdf) return;
+		var qs = query(choice());
+		link.href = cfg.pdf + (qs ? '&' + qs : '');
+		link.hidden = !ok;
 	}
 
-	function loadData() {
+	function load() {
 		var seq = ++state.seq;
-		var q = { source: 'published', period: state.period };
-		if (state.subject.player_id) q.player_id = state.subject.player_id;
-		if (state.subject.team_id) q.team_id = state.subject.team_id;
+		var box = $('[data-tt-rv-document]');
 		notice(t.loading, false);
-		return api('reports/' + cfg.id + '/data', q).then(function (d) {
+		var q = choice();
+		q.source = 'published';
+		return api('GET', 'reports/' + cfg.id + '/document', q).then(function (d) {
 			if (seq !== state.seq) return;
 			notice('', false);
-			renderBlocks(d);
+			// The server escaped every value in it; it is the PDF's markup.
+			if (box) box.innerHTML = d.html || '';
+			renderPdf(true);
+			renderSnapshotControl(!!(d.context && d.context.can_snapshot));
 		})['catch'](function (err) {
 			if (seq !== state.seq) return;
-			renderBlocks(null);
+			if (box) box.textContent = '';
+			renderPdf(false);
+			renderSnapshotControl(false);
 			notice(err.message || t.loadError, true);
 		});
 	}
 
-	api('reports/' + cfg.id).then(function (report) {
+	/** Take snapshot only where the server says it would succeed (#5021). */
+	function renderSnapshotControl(allowed) {
+		var open = $('[data-tt-rv-open-snapshot]');
+		var dialog = $('[data-tt-rv-snapshot]');
+		if (open) open.hidden = !allowed || !dialog || typeof dialog.showModal !== 'function';
+	}
+
+	function bindSnapshot() {
+		var open = $('[data-tt-rv-open-snapshot]');
+		var dialog = $('[data-tt-rv-snapshot]');
+		if (!open || !dialog || typeof dialog.showModal !== 'function') return;
+		var form = dialog.querySelector('form');
+		var name = dialog.querySelector('[data-tt-rv-snapshot-name]');
+		var error = dialog.querySelector('[data-tt-rv-snapshot-error]');
+		var busy = false;
+
+		open.addEventListener('click', function () {
+			if (error) error.textContent = '';
+			dialog.showModal();
+			if (name) name.focus();
+		});
+		form.addEventListener('submit', function (e) {
+			var submitter = e.submitter;
+			if (!submitter || submitter.value !== 'confirm') return;
+			e.preventDefault();
+			if (busy) return;
+			busy = true;
+			submitter.disabled = true;
+			var body = choice();
+			if (name && name.value.trim()) body.title = name.value.trim();
+			if (!body.period) delete body.period;
+			api('POST', 'reports/' + cfg.id + '/snapshots', null, body).then(function (s) {
+				notice(t.snapshotTaken, false);
+				window.location.href = String(cfg.snapshotUrl || '').replace('__uuid__', encodeURIComponent(s.uuid));
+			})['catch'](function (err) {
+				if (error) error.textContent = err.message || t.loadError;
+			}).then(function () {
+				busy = false;
+				submitter.disabled = false;
+			});
+		});
+	}
+
+	bindSnapshot();
+	api('GET', 'reports/' + cfg.id).then(function (report) {
 		state.report = report;
-		return Promise.all([
-			api('report-blocks', { scope: report.scope, audience: report.audience }).catch(function () { return { blocks: [] }; }),
-			api('reports/' + cfg.id + '/subjects').catch(function () { return { teams: [], players: [] }; })
-		]);
-	}).then(function (res) {
-		(res[0].blocks || []).forEach(function (b) { state.catalog[b.key] = b; });
-		(res[0].unavailable || []).forEach(function (b) { state.catalog[b.key] = state.catalog[b.key] || b; });
-		renderSubjects(res[1]);
+		return api('GET', 'reports/' + cfg.id + '/subjects').catch(function () { return { teams: [], players: [] }; });
+	}).then(function (subjects) {
+		renderSubjects(subjects);
 		renderPeriods();
-		return loadData();
+		return load();
 	})['catch'](function (err) {
 		notice(err.message || t.loadError, true);
 	});

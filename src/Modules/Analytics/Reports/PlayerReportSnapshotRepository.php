@@ -19,8 +19,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * @phpstan-type SnapshotRow object{id:int, uuid:string, club_id:int, player_id:int,
  *     title:string, period_from:string, period_to:string, composition_json:?string,
- *     data_json:?string, notes_json:?string, created_by:int, created_at:string,
- *     updated_at:string, archived_at:?string}
+ *     data_json:?string, notes_json:?string, report_id:?int, report_version_id:?int,
+ *     created_by:int, created_at:string, updated_at:string, archived_at:?string}
  */
 final class PlayerReportSnapshotRepository {
 
@@ -36,32 +36,38 @@ final class PlayerReportSnapshotRepository {
      * Freeze a composed report. Returns the new snapshot's uuid, or '' when
      * the write failed.
      *
+     * #5021 — a Report Studio report's snapshot names the report and the
+     * published version it was taken of, and `$report` is that report as read.
+     *
      * @param array<string,mixed> $composition
      * @param array<string,mixed> $report a `PlayerReport::forPlayer()` payload
      */
-    public function create( int $player_id, array $composition, array $report, string $title, int $user_id ): string {
+    public function create( int $player_id, array $composition, array $report, string $title, int $user_id, int $report_id = 0, int $report_version_id = 0 ): string {
         global $wpdb;
         if ( $player_id <= 0 || $user_id <= 0 ) return '';
 
-        $uuid = wp_generate_uuid4();
-        $ok   = $wpdb->insert(
-            $this->table(),
-            [
-                'uuid'             => $uuid,
-                'club_id'          => (int) CurrentClub::id(),
-                'player_id'        => $player_id,
-                'title'            => mb_substr( trim( $title ), 0, 255 ),
-                'period_from'      => (string) ( $report['from'] ?? '' ),
-                'period_to'        => (string) ( $report['to'] ?? '' ),
-                'composition_json' => (string) wp_json_encode( $composition ),
-                'data_json'        => (string) wp_json_encode( $report ),
-                'notes_json'       => '{}',
-                'created_by'       => $user_id,
-            ],
-            [ '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ]
-        );
+        $uuid   = wp_generate_uuid4();
+        $row    = [
+            'uuid'             => $uuid,
+            'club_id'          => (int) CurrentClub::id(),
+            'player_id'        => $player_id,
+            'title'            => mb_substr( trim( $title ), 0, 255 ),
+            'period_from'      => (string) ( $report['from'] ?? '' ),
+            'period_to'        => (string) ( $report['to'] ?? '' ),
+            'composition_json' => (string) wp_json_encode( $composition ),
+            'data_json'        => (string) wp_json_encode( $report ),
+            'notes_json'       => '{}',
+            'created_by'       => $user_id,
+        ];
+        $format = [ '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ];
+        if ( $report_id > 0 ) {
+            $row['report_id']         = $report_id;
+            $row['report_version_id'] = $report_version_id;
+            $format[]                 = '%d';
+            $format[]                 = '%d';
+        }
 
-        return $ok ? $uuid : '';
+        return $wpdb->insert( $this->table(), $row, $format ) ? $uuid : '';
     }
 
     /**
@@ -91,23 +97,36 @@ final class PlayerReportSnapshotRepository {
      * The audience lives in the stored composition rather than a column of its
      * own, so the filter runs here on at most a hundred of one player's rows.
      *
+     * #5021 — a Report Studio report's snapshots are listed next to the
+     * player report's, with the report they came from in `report_id`.
+     *
      * @return list<array{id:int, uuid:string, player_id:int, title:string,
      *     period_from:string, period_to:string, created_by:int,
-     *     created_at:string, updated_at:string, audience:string}>
+     *     created_at:string, updated_at:string, audience:string, report_id:int}>
      */
     public function listForPlayer( int $player_id, int $limit = 20, string $audience = '' ): array {
         global $wpdb;
         if ( $player_id <= 0 ) return [];
         $limit = max( 1, min( 100, $limit ) );
 
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, uuid, player_id, title, period_from, period_to, composition_json, created_by, created_at, updated_at
-               FROM {$wpdb->prefix}tt_player_report_snapshots
-              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
-           ORDER BY created_at DESC, id DESC
-              LIMIT 100",
-            $player_id, CurrentClub::id()
-        ), ARRAY_A );
+        // Before 0327 there is no report_id to read, and no Studio row.
+        $rows = StudioSnapshot::hasColumn( 'tt_player_report_snapshots' )
+            ? $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, uuid, player_id, title, period_from, period_to, composition_json, created_by, created_at, updated_at, report_id
+                   FROM {$wpdb->prefix}tt_player_report_snapshots
+                  WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
+               ORDER BY created_at DESC, id DESC
+                  LIMIT 100",
+                $player_id, CurrentClub::id()
+            ), ARRAY_A )
+            : $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, uuid, player_id, title, period_from, period_to, composition_json, created_by, created_at, updated_at
+                   FROM {$wpdb->prefix}tt_player_report_snapshots
+                  WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
+               ORDER BY created_at DESC, id DESC
+                  LIMIT 100",
+                $player_id, CurrentClub::id()
+            ), ARRAY_A );
 
         if ( ! is_array( $rows ) ) return [];
 
@@ -127,8 +146,46 @@ final class PlayerReportSnapshotRepository {
                 'created_at'  => (string) ( $row['created_at'] ?? '' ),
                 'updated_at'  => (string) ( $row['updated_at'] ?? '' ),
                 'audience'    => $row_audience,
+                'report_id'   => (int) ( $row['report_id'] ?? 0 ),
             ];
             if ( count( $out ) >= $limit ) break;
+        }
+        return $out;
+    }
+
+    /**
+     * #5021 — one Report Studio report's snapshots, most recent first,
+     * without their payloads. Not permission-scoped: the caller checks each
+     * row's player.
+     *
+     * @return list<array{uuid:string, player_id:int, title:string, period_from:string,
+     *     period_to:string, created_by:int, created_at:string, audience:string}>
+     */
+    public function listForReport( int $report_id, int $limit = 20 ): array {
+        global $wpdb;
+        if ( $report_id <= 0 || ! StudioSnapshot::hasColumn( 'tt_player_report_snapshots' ) ) return [];
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT uuid, player_id, title, period_from, period_to, composition_json, created_by, created_at
+               FROM {$wpdb->prefix}tt_player_report_snapshots
+              WHERE report_id = %d AND club_id = %d AND archived_at IS NULL
+           ORDER BY created_at DESC, id DESC
+              LIMIT %d",
+            $report_id, CurrentClub::id(), max( 1, min( 100, $limit ) )
+        ), ARRAY_A );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[] = [
+                'uuid'        => (string) ( $row['uuid'] ?? '' ),
+                'player_id'   => (int) ( $row['player_id'] ?? 0 ),
+                'title'       => (string) ( $row['title'] ?? '' ),
+                'period_from' => (string) ( $row['period_from'] ?? '' ),
+                'period_to'   => (string) ( $row['period_to'] ?? '' ),
+                'created_by'  => (int) ( $row['created_by'] ?? 0 ),
+                'created_at'  => (string) ( $row['created_at'] ?? '' ),
+                'audience'    => self::audienceOfJson( (string) ( $row['composition_json'] ?? '' ) ),
+            ];
         }
         return $out;
     }
@@ -157,8 +214,17 @@ final class PlayerReportSnapshotRepository {
         global $wpdb;
 
         $row = $this->find( $uuid );
-        if ( $row === null || $user_id <= 0 ) return false;
-        if ( ! PlayerReportBlock::isValid( $section ) ) return false;
+        return $row !== null && $this->writeNote( $row, $section, $body, $user_id ) !== null;
+    }
+
+    /**
+     * `putNote()` on a row already loaded (#5021). Returns the row with its
+     * new notes, or null when the section is not one the row could carry or
+     * the write failed.
+     */
+    public function writeNote( object $row, string $section, string $body, int $user_id ): ?object {
+        global $wpdb;
+        if ( $user_id <= 0 || ! self::isSection( $row, $section ) ) return null;
 
         $notes = self::notesOf( $row );
         $body  = trim( $body );
@@ -173,13 +239,17 @@ final class PlayerReportSnapshotRepository {
             ];
         }
 
-        return false !== $wpdb->update(
+        $json = (string) wp_json_encode( (object) $notes );
+        $ok   = false !== $wpdb->update(
             $this->table(),
-            [ 'notes_json' => (string) wp_json_encode( (object) $notes ), 'updated_at' => gmdate( 'Y-m-d H:i:s' ) ],
-            [ 'uuid' => $uuid, 'club_id' => (int) CurrentClub::id() ],
+            [ 'notes_json' => $json, 'updated_at' => gmdate( 'Y-m-d H:i:s' ) ],
+            [ 'uuid' => (string) ( $row->uuid ?? '' ), 'club_id' => (int) CurrentClub::id() ],
             [ '%s', '%s' ],
             [ '%s', '%d' ]
         );
+        if ( ! $ok ) return null;
+
+        return (object) array_merge( get_object_vars( $row ), [ 'notes_json' => $json ] );
     }
 
     /**
@@ -195,7 +265,7 @@ final class PlayerReportSnapshotRepository {
         $out = [];
         foreach ( $decoded as $section => $note ) {
             $section = sanitize_key( (string) $section );
-            if ( ! PlayerReportBlock::isValid( $section ) || ! is_array( $note ) ) continue;
+            if ( ! self::isSection( $row, $section ) || ! is_array( $note ) ) continue;
 
             $body = is_scalar( $note['body'] ?? null ) ? trim( (string) $note['body'] ) : '';
             if ( $body === '' ) continue;
@@ -207,6 +277,16 @@ final class PlayerReportSnapshotRepository {
             ];
         }
         return $out;
+    }
+
+    /**
+     * A section a note on this row may be kept under: a player report
+     * section, or for a Report Studio snapshot one of its blocks (#5021).
+     */
+    private static function isSection( object $row, string $section ): bool {
+        return StudioSnapshot::is( $row )
+            ? StudioSnapshot::isNoteKey( $row, $section )
+            : PlayerReportBlock::isValid( $section );
     }
 
     /**

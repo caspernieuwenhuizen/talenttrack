@@ -9,7 +9,9 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
+use TT\Modules\ReportStudio\Document\StudioDocument;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportSnapshots;
 use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReach;
 use TT\Modules\ReportStudio\Domain\ReportSubjectOptions;
@@ -39,6 +41,7 @@ use WP_REST_Response;
  *   GET    /reports/{id}/versions      the published versions
  *   POST   /reports/{id}/versions      publish my draft
  *   GET    /reports/{id}/data          every block's data, for me
+ *   GET    /reports/{id}/document      the same, with the document's HTML (#5021)
  *   GET    /reports/{id}/reach         how many people publishing to personas reaches
  *   GET    /reports/subject-options    the teams and players I build reports about
  *   GET    /reports/{id}/subjects      the subjects I may switch a report I read to
@@ -177,15 +180,15 @@ final class ReportsRestController extends BaseController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_data' ],
                 'permission_callback' => $view,
-                'args'                => [
-                    'source'    => [ 'type' => 'string', 'description' => 'draft (a builder\'s own, the default for builders) or published (the default for everyone else).' ],
-                    'player_id' => [ 'type' => 'integer', 'description' => 'The player, for a report about a player chosen when opened. A recipient cannot change a fixed subject.' ],
-                    'team_id'   => [ 'type' => 'integer', 'description' => 'The team, for a report about a team chosen when opened, or one of the viewer\'s teams.' ],
-                    'from'      => [ 'type' => 'string', 'description' => 'Y-m-d. Only for a period chosen when opened, or by a builder.' ],
-                    'to'        => [ 'type' => 'string', 'description' => 'Y-m-d. As from.' ],
-                    'audience'  => [ 'type' => 'string', 'description' => 'internal, scout or family: a builder previews the report as that audience gets it. A recipient reads the report\'s own audience.' ],
-                    'period'    => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season, computed today, instead of from and to. Same rule as from and to.' ],
-                ],
+                'args'                => self::dataArgs(),
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/(?P<id>\d+)/document', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_document' ],
+                'permission_callback' => $view,
+                'args'                => self::dataArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/reports/(?P<id>\d+)/subjects', [
@@ -229,6 +232,23 @@ final class ReportsRestController extends BaseController {
             'player_id'    => [ 'type' => 'integer', 'description' => 'The player, for a fixed report about one player.' ],
             'team_id'      => [ 'type' => 'integer', 'description' => 'The team, for a fixed report about one team.' ],
             'cohort'       => [ 'type' => 'object', 'description' => 'A group: team_ids (list), age_group and position (optional). Never player ids.' ],
+        ];
+    }
+
+    /**
+     * The read arguments `/data` and `/document` share.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function dataArgs(): array {
+        return [
+            'source'    => [ 'type' => 'string', 'description' => 'draft (a builder\'s own, the default for builders) or published (the default for everyone else).' ],
+            'player_id' => [ 'type' => 'integer', 'description' => 'The player, for a report about a player chosen when opened. A recipient cannot change a fixed subject.' ],
+            'team_id'   => [ 'type' => 'integer', 'description' => 'The team, for a report about a team chosen when opened, or one of the viewer\'s teams.' ],
+            'from'      => [ 'type' => 'string', 'description' => 'Y-m-d. Only for a period chosen when opened, or by a builder.' ],
+            'to'        => [ 'type' => 'string', 'description' => 'Y-m-d. As from.' ],
+            'audience'  => [ 'type' => 'string', 'description' => 'internal, scout or family: a builder previews the report as that audience gets it. A recipient reads the report\'s own audience.' ],
+            'period'    => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season, computed today, instead of from and to. Same rule as from and to.' ],
         ];
     }
 
@@ -575,6 +595,45 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function get_data( WP_REST_Request $r ): WP_REST_Response {
+        $read = self::read( $r );
+        if ( $read instanceof WP_REST_Response ) return $read;
+
+        return RestResponse::success( $read[0] );
+    }
+
+    /**
+     * #5021 — the report as one document: `GET /reports/{id}/data` read the
+     * same way, with the HTML the reader's view, the canvas's A4 view and the
+     * PDF all show. The data route stays the contract for any other front
+     * end; this is what the plugin's own pages draw.
+     */
+    public static function get_document( WP_REST_Request $r ): WP_REST_Response {
+        $read = self::read( $r );
+        if ( $read instanceof WP_REST_Response ) return $read;
+        [ $data, $reader, $report ] = $read;
+
+        // #5021 — whether this reader may freeze it for this subject, so a
+        // page offers Take snapshot only where it would succeed.
+        $context = [];
+        foreach ( is_array( $data['context'] ?? null ) ? $data['context'] : [] as $k => $v ) $context[ (string) $k ] = $v;
+        $context['can_snapshot'] = ReportSnapshots::canTake( $report, $context, $reader->userId );
+
+        return RestResponse::success( [
+            'report_id'  => $data['report_id'],
+            'source'     => $data['source'],
+            'version_no' => $data['version_no'],
+            'context'    => $context,
+            'page_fit'   => $data['page_fit'],
+            'html'       => StudioDocument::body( $data, $reader->userId ),
+        ] );
+    }
+
+    /**
+     * Every block of a report read for the caller, by the data route's rules.
+     *
+     * @return array{0:array<string,mixed>, 1:ReportReader, 2:Report}|WP_REST_Response
+     */
+    private static function read( WP_REST_Request $r ): array|WP_REST_Response {
         $blocked = LicenseGate::enforceFeatureRest( 'report_studio' );
         if ( $blocked ) return $blocked;
 
@@ -622,7 +681,7 @@ final class ReportsRestController extends BaseController {
         ], $reader );
         if ( $data instanceof StudioError ) return self::refuse( $data );
 
-        return RestResponse::success( $data );
+        return [ $data, $reader, $report ];
     }
 
     /**

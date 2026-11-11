@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\ReportStudio\Domain\BlockOption;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
+use TT\Modules\ReportStudio\Domain\FamilySection;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
 /**
@@ -15,7 +16,7 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
  * It is not a note about a player. Notes about a player live on a snapshot
  * (#3513), never in the report's stored definition, so the settings say so.
  */
-final class TextBlock implements ReportBlock {
+final class TextBlock implements ReportBlock, FamilySection {
 
     /** The longest heading, in characters. */
     public const MAX_HEADING = 120;
@@ -37,6 +38,10 @@ final class TextBlock implements ReportBlock {
 
     public function audiences(): array {
         return [ PlayerReportAudience::INTERNAL, PlayerReportAudience::FAMILY, PlayerReportAudience::SCOUT ];
+    }
+
+    public function familySection(): string {
+        return FamilySection::DOCUMENT;
     }
 
     public function capability(): string {

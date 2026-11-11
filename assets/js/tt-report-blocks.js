@@ -1,7 +1,11 @@
 /**
- * TT.ReportBlocks (#4591) — how a Report Studio block's data is drawn, for
- * the builder's canvas and the reader's view alike, so both show a block the
- * same way.
+ * TT.ReportBlocks (#4591) — how a Report Studio block's data is drawn on the
+ * builder's canvas while it is being edited.
+ *
+ * #5021 — this is the editing preview only. The reader's view, the canvas's
+ * A4 view and the PDF all show the document the server draws
+ * (`StudioDocument`, `GET /reports/{id}/document`), so no block has two final
+ * renderers.
  *
  *   TT.ReportBlocks.body(block, {
  *       i18n:    { loading, nothing, truncated, value, periodRange, sincePrevious,

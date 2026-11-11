@@ -520,6 +520,20 @@ final class TeamMonthlyReportLayout {
     }
 
     /**
+     * #5021 — one section's printed height in mm, as the portrait pack
+     * measures it: the height model a Report Studio block that is a monthly
+     * section is estimated with, so the Studio's page meter and this report's
+     * agree about it.
+     *
+     * @param array<string,mixed> $block_data the section's composer payload
+     */
+    public static function sectionHeight( string $block, array $block_data ): float {
+        $mm = 0.0;
+        foreach ( self::pieces( $block, $block_data, self::PACK, [] ) as $piece ) $mm += $piece[0];
+        return $mm;
+    }
+
+    /**
      * A window with no trainings or matches prints the letterhead and one
      * sentence, on one sheet, whatever the layout and the sections ticked.
      * The estimate and the document both read this one predicate, so the

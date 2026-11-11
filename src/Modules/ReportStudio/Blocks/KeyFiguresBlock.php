@@ -7,6 +7,9 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\KpiComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
 use TT\Modules\ReportStudio\Domain\ReportContext;
 
@@ -19,8 +22,11 @@ use TT\Modules\ReportStudio\Domain\ReportContext;
  *
  * Team scope only: there is no player version of these figures. Staff only,
  * because "need attention" is a judgement about players.
+ *
+ * #5021 — it is the monthly report's KPI section, so it prints with that
+ * report's section renderer and is measured with its heights.
  */
-final class KeyFiguresBlock implements ReportBlock {
+final class KeyFiguresBlock implements ReportBlock, RendersDocument {
 
     public function key(): string {
         return 'key_figures';
@@ -83,5 +89,34 @@ final class KeyFiguresBlock implements ReportBlock {
             'figures'  => $figures,
             'previous' => $report['previous'],
         ];
+    }
+
+    public function document( array $data ): string {
+        return '<div class="tt-mr-doc tt-sd-monthly">'
+            . TeamMonthlyReportDocument::sectionHtml( TeamMonthlyReportBlock::KPI, self::section( $data ) )
+            . '</div>';
+    }
+
+    public function documentHeight( array $data ): float {
+        return TeamMonthlyReportLayout::sectionHeight( TeamMonthlyReportBlock::KPI, self::section( $data ) );
+    }
+
+    /**
+     * The KPI section's payload back from the figures: each tile's value, its
+     * total where it counts out of one, and its change, keyed as the composer
+     * keys them. A tile the block left out stays out of the section.
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,array<string,mixed>>
+     */
+    public static function section( array $data ): array {
+        $out = [];
+        foreach ( is_array( $data['figures'] ?? null ) ? $data['figures'] : [] as $figure ) {
+            if ( ! is_array( $figure ) || ! is_string( $figure['key'] ?? null ) ) continue;
+            $out[ (string) $figure['key'] ] = ( $figure['unit'] ?? '' ) === 'count_of'
+                ? [ 'value' => $figure['value'] ?? null, 'of' => (int) ( $figure['of'] ?? 0 ), 'delta' => $figure['delta'] ?? null ]
+                : [ 'value' => $figure['value'] ?? null, 'delta' => $figure['delta'] ?? null ];
+        }
+        return $out;
     }
 }

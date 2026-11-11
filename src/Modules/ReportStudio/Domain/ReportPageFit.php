@@ -4,6 +4,8 @@ namespace TT\Modules\ReportStudio\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\PlayerReportLayout;
+use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
+use TT\Modules\ReportStudio\Blocks\PageBreakBlock;
 
 /**
  * ReportPageFit (#4571) — how a Studio report in rows falls over A4 pages:
@@ -14,6 +16,11 @@ use TT\Modules\Analytics\Reports\PlayerReportLayout;
  * is no estimator in the browser. Two half blocks side by side are one row,
  * as tall as the taller of the two, and a row that does not fit moves to the
  * next page whole, as the PDF moves it.
+ *
+ * #5021 — this is the one estimate for a Studio report. A block that prints
+ * with another report's renderer (`RendersDocument`, a monthly section) brings
+ * that report's height for itself in `height`, so it is measured as that
+ * report measures it, on the same A4 page.
  */
 final class ReportPageFit {
 
@@ -23,7 +30,7 @@ final class ReportPageFit {
      * (`letterhead: true`): it takes the letterhead's height where it is
      * placed, and a report without one reserves none.
      *
-     * @param list<array{id:string, width:string, rows:int, break?:bool, letterhead?:bool}> $blocks in canvas order
+     * @param list<array{id:string, width:string, rows:int, break?:bool, letterhead?:bool, height?:float}> $blocks in canvas order
      * @return array{pages:int, fill:list<int>, breaks:list<string>}
      */
     public static function estimate( array $blocks ): array {
@@ -71,6 +78,32 @@ final class ReportPageFit {
     }
 
     /**
+     * One read block as the estimate measures it (#5021): its place, its
+     * rows, whether it is a page break or the letterhead, and the height of a
+     * block that prints with another report's renderer.
+     *
+     * @param array<string,mixed> $block a block of `ReportData::compose()`
+     * @return array{id:string, width:string, rows:int, break:bool, letterhead:bool, height?:float}
+     */
+    public static function entryOf( array $block ): array {
+        $key   = (string) ( $block['key'] ?? '' );
+        $entry = [
+            'id'         => (string) ( $block['id'] ?? '' ),
+            'width'      => ( $block['width'] ?? '' ) === ReportDefinition::WIDTH_HALF ? ReportDefinition::WIDTH_HALF : ReportDefinition::WIDTH_FULL,
+            'rows'       => self::rowsOf( $block ),
+            'break'      => $key === PageBreakBlock::KEY,
+            'letterhead' => $key === LetterheadBlock::KEY,
+        ];
+        $renderer = BlockRegistry::find( $key );
+        if ( $renderer instanceof RendersDocument && ! isset( $block['error'] ) && is_array( $block['data'] ?? null ) ) {
+            $data = [];
+            foreach ( $block['data'] as $k => $v ) $data[ (string) $k ] = $v;
+            $entry['height'] = $renderer->documentHeight( $data );
+        }
+        return $entry;
+    }
+
+    /**
      * The rows a block prints: its table's rows, or none for a single figure,
      * an empty block or one that could not be read, which print as one line.
      *
@@ -83,12 +116,13 @@ final class ReportPageFit {
     }
 
     /**
-     * One block's printed height: the letterhead's for a letterhead block,
-     * a section of its rows for any other.
+     * One block's printed height: its own when it brings one, the
+     * letterhead's for a letterhead block, a section of its rows for any other.
      *
-     * @param array{rows:int, letterhead?:bool} $block
+     * @param array{rows:int, letterhead?:bool, height?:float} $block
      */
     private static function heightOf( array $block ): float {
+        if ( isset( $block['height'] ) ) return (float) $block['height'];
         return ! empty( $block['letterhead'] )
             ? PlayerReportLayout::letterheadHeight()
             : PlayerReportLayout::sectionHeight( $block['rows'] );

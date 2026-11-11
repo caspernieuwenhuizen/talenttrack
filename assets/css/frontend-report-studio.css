@@ -44,6 +44,53 @@
     display: none;
 }
 
+/* #5021 — the PDF and the snapshot controls, the frozen copies under it. */
+.tt-dashboard .tt-rv-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-rv-actions [hidden] {
+    display: none;
+}
+
+.tt-dashboard .tt-rv-snapshots {
+    margin: var(--tt-sp-5, 24px) 0 0;
+}
+
+.tt-dashboard .tt-rv-snapshots-title {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-h3, 1.125rem);
+}
+
+.tt-dashboard .tt-rv-snapshot-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-dashboard .tt-rv-snapshot-link {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--tt-sp-1, 4px);
+    min-block-size: var(--tt-tap-min, 48px);
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rv-snapshot-name {
+    font-weight: 600;
+}
+
+/* #5021 — the canvas's A4 view: the server's document in place of the cards. */
+.tt-dashboard .tt-rs-a4[hidden] {
+    display: none;
+}
+
 /* ---- the list --------------------------------------------------------- */
 
 .tt-dashboard .tt-rs-list-head {

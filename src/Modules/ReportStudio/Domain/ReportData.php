@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\ReportFilters;
-use TT\Modules\ReportStudio\Blocks\LetterheadBlock;
-use TT\Modules\ReportStudio\Blocks\PageBreakBlock;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
 
 /**
@@ -101,7 +99,7 @@ final class ReportData {
                 $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
             }
             $blocks[] = $out;
-            $layout[] = [ 'id' => $block['id'], 'width' => $block['width'], 'rows' => ReportPageFit::rowsOf( $out ), 'break' => $block['key'] === PageBreakBlock::KEY, 'letterhead' => $block['key'] === LetterheadBlock::KEY ];
+            $layout[] = ReportPageFit::entryOf( $out );
         }
 
         return [
