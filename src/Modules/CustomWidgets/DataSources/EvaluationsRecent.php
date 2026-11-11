@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
@@ -44,24 +45,48 @@ final class EvaluationsRecent implements CustomDataSource {
     }
 
     /**
-     * The WHERE the rows and the aggregate share: club and the date range.
+     * The WHERE the rows and the aggregate share: club, the date range and
+     * the team.
+     *
+     * #4596 — the team filter was declared and never applied. It narrows
+     * through the evaluated player's team, in SQL.
      *
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
     private function whereFor( array $filters, int $user_id ): array {
-        $where  = [ 'e.club_id = %d', SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ) ];
+        global $wpdb;
+        // Live evaluations only: not archived, not in the recycle bin, as
+        // the evaluations list shows them.
+        $where  = [
+            'e.club_id = %d',
+            ArchiveRepository::filterClause( 'active', 'e' ),
+            SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ),
+        ];
         $params = [ CurrentClub::id() ];
 
+        $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        if ( $team_id > 0 ) {
+            $where[]  = "e.player_id IN ( SELECT tp.id FROM {$wpdb->prefix}tt_players tp WHERE tp.team_id = %d AND tp.club_id = e.club_id )";
+            $params[] = $team_id;
+        }
+
+        // #4596 — the evaluation's own date, the one the profile and the
+        // evaluations list show, not the day it was typed in.
         if ( ! empty( $filters['date_from'] ) ) {
-            $where[]  = 'e.created_at >= %s';
-            $params[] = (string) $filters['date_from'];
+            $where[]  = self::dateSql() . ' >= %s';
+            $params[] = substr( (string) $filters['date_from'], 0, 10 );
         }
         if ( ! empty( $filters['date_to'] ) ) {
-            $where[]  = 'e.created_at <= %s';
-            $params[] = (string) $filters['date_to'];
+            $where[]  = self::dateSql() . ' <= %s';
+            $params[] = substr( (string) $filters['date_to'], 0, 10 );
         }
         return [ $where, $params ];
+    }
+
+    /** The evaluation date; the day it was written only where none is stored. */
+    private static function dateSql(): string {
+        return 'COALESCE( e.eval_date, DATE( e.created_at ) )';
     }
 
     /**
@@ -106,26 +131,35 @@ final class EvaluationsRecent implements CustomDataSource {
 
         [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
-        $sql = "SELECT e.id, e.created_at, e.evaluator_id, p.first_name, p.last_name,
+        // #4596 — the evaluator is `coach_id`; the table has no
+        // `evaluator_id`, so the name was always empty.
+        $date = self::dateSql();
+        $sql  = "SELECT e.id, {$date} AS eval_day, e.coach_id, p.first_name, p.last_name,
                        u.display_name AS evaluator_name
                   FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_players p ON p.id = e.player_id
-             LEFT JOIN {$wpdb->users} u ON u.ID = e.evaluator_id
+             LEFT JOIN {$wpdb->users} u ON u.ID = e.coach_id
                  WHERE " . implode( ' AND ', $where )
-              . " ORDER BY e.created_at DESC
+              . " ORDER BY {$date} DESC, e.id DESC
                  LIMIT %d";
         $params[] = max( 1, min( 1000, $limit ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
 
+        // The overall rating as the evaluation views compute it, for the
+        // whole page in one batch: the same read `aggregate()` averages.
+        $ids     = array_map( static fn( $row ): int => (int) ( $row->id ?? 0 ), $rows );
+        $overall = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $ids );
+
         $out = [];
         foreach ( $rows as $row ) {
+            $value = $overall[ (int) ( $row->id ?? 0 ) ]['value'] ?? null;
             $out[] = [
                 'player'    => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
-                'eval_date' => (string) ( $row->created_at ?? '' ),
+                'eval_date' => (string) ( $row->eval_day ?? '' ),
                 'evaluator' => (string) ( $row->evaluator_name ?? '' ),
-                'overall'   => '',
+                'overall'   => $value === null ? '' : round( (float) $value, 1 ),
             ];
         }
         if ( ! empty( $column_keys ) ) {

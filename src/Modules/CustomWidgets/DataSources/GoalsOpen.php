@@ -3,6 +3,11 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Query\GoalLifecycle;
+use TT\Infrastructure\Query\LookupTranslator;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
 
@@ -28,15 +33,31 @@ final class GoalsOpen implements CustomDataSource {
         ];
     }
 
+    /** @var list<array{value:string, label:string}>|null the status options, read once */
+    private ?array $status_options = null;
+
+    /**
+     * #4596 — the status filter offers the `goal_status` lookup rows, with
+     * their labels through the lookup translation. It used to offer
+     * `active`, `completed` and `archived`, which no goal carries. The value
+     * is the normalised status (`GoalLifecycle::normalise()`).
+     */
     public function filters(): array {
         return [
-            [ 'key' => 'status', 'label' => __( 'Status', 'talenttrack' ), 'kind' => 'enum',
-              'options' => [
-                  [ 'value' => 'active',    'label' => __( 'Active',    'talenttrack' ) ],
-                  [ 'value' => 'completed', 'label' => __( 'Completed', 'talenttrack' ) ],
-                  [ 'value' => 'archived',  'label' => __( 'Archived',  'talenttrack' ) ],
-              ] ],
+            [ 'key' => 'status', 'label' => __( 'Status', 'talenttrack' ), 'kind' => 'enum', 'options' => $this->statusOptions() ],
         ];
+    }
+
+    /** @return list<array{value:string, label:string}> */
+    private function statusOptions(): array {
+        if ( $this->status_options !== null ) return $this->status_options;
+        $options = [];
+        foreach ( QueryHelpers::get_lookups( 'goal_status' ) as $row ) {
+            $name = (string) ( $row->name ?? '' );
+            if ( $name === '' ) continue;
+            $options[] = [ 'value' => GoalLifecycle::normalise( $name ), 'label' => LookupTranslator::name( $row ) ];
+        }
+        return $this->status_options = $options;
     }
 
     public function aggregations(): array {
@@ -47,21 +68,33 @@ final class GoalsOpen implements CustomDataSource {
     }
 
     /**
-     * The WHERE the rows and the aggregate share: club and status.
+     * The WHERE the rows and the aggregate share: club, live goals (not
+     * archived, not in the recycle bin, as the goals list shows them) and
+     * the status.
      *
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
     private function whereFor( array $filters, int $user_id ): array {
-        $where  = [ 'g.club_id = %d', SourceScope::playerClause( $user_id, 'goals', 'g.player_id' ) ];
+        $where  = [
+            'g.club_id = %d',
+            ArchiveRepository::filterClause( 'active', 'g' ),
+            SourceScope::playerClause( $user_id, 'goals', 'g.player_id' ),
+        ];
         $params = [ CurrentClub::id() ];
 
-        $status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
-        if ( $status !== '' && in_array( $status, [ 'active', 'completed', 'archived' ], true ) ) {
-            $where[]  = 'g.status = %s';
+        // #4596 — a chosen status from the lookup, or a goal status code;
+        // otherwise the open set, through the goal lifecycle chokepoint.
+        $status  = isset( $filters['status'] ) ? GoalLifecycle::normalise( (string) $filters['status'] ) : '';
+        $allowed = array_merge(
+            array_map( [ GoalLifecycle::class, 'normalise' ], GoalStatus::ALL ),
+            array_column( $this->statusOptions(), 'value' )
+        );
+        if ( $status !== '' && in_array( $status, $allowed, true ) ) {
+            $where[]  = GoalLifecycle::statusClause( 'g' );
             $params[] = $status;
         } else {
-            $where[] = "g.status = 'active'";
+            $where[] = GoalLifecycle::openClause( 'g' );
         }
         return [ $where, $params ];
     }
@@ -89,11 +122,13 @@ final class GoalsOpen implements CustomDataSource {
 
         [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
-        $sql = "SELECT g.id, g.title, g.status, g.target_date, p.first_name, p.last_name
+        // #4596 — the column is `due_date`; `target_date` does not exist.
+        // Goals without a due date sort last.
+        $sql = "SELECT g.id, g.title, g.status, g.due_date, p.first_name, p.last_name
                   FROM {$p}tt_goals g
              LEFT JOIN {$p}tt_players p ON p.id = g.player_id
                  WHERE " . implode( ' AND ', $where )
-              . " ORDER BY g.target_date ASC
+              . " ORDER BY g.due_date IS NULL, g.due_date ASC, g.id ASC
                  LIMIT %d";
         $params[] = max( 1, min( 1000, $limit ) );
 
@@ -105,8 +140,8 @@ final class GoalsOpen implements CustomDataSource {
             $out[] = [
                 'player'    => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
                 'title'     => (string) ( $row->title ?? '' ),
-                'status'    => (string) ( $row->status ?? '' ),
-                'due_date'  => (string) ( $row->target_date ?? '' ),
+                'status'    => LookupTranslator::byTypeAndName( 'goal_status', (string) ( $row->status ?? '' ) ),
+                'due_date'  => (string) ( $row->due_date ?? '' ),
                 'principle' => '',
             ];
         }
