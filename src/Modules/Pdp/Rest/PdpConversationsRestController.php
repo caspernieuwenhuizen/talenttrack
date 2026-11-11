@@ -187,13 +187,14 @@ class PdpConversationsRestController {
         // page's render time, or any date a hand-made request chose. Staff
         // recording an acknowledgement for someone else keep the time they
         // enter, as long as it is one.
-        $uid      = get_current_user_id();
-        $is_staff = PdpAccess::canEditFile( $uid, (int) $file->player_id );
+        $uid         = get_current_user_id();
+        $file_player = (int) ( ( (array) $file )['player_id'] ?? 0 );
+        $is_staff    = PdpAccess::canEditFile( $uid, $file_player );
         foreach ( $acks as $field ) {
             if ( $patch[ $field ] === null ) continue;
             $own = $field === 'player_ack_at'
-                ? self::isLinkedPlayer( $uid, (int) $file->player_id )
-                : self::isParentOfPlayer( $uid, (int) $file->player_id );
+                ? self::isLinkedPlayer( $uid, $file_player )
+                : self::isParentOfPlayer( $uid, $file_player );
             if ( $own ) {
                 $patch[ $field ] = current_time( 'mysql', true );
                 continue;
