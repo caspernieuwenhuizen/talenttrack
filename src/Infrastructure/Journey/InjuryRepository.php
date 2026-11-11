@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Journey;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -184,10 +185,15 @@ final class InjuryRepository {
         return true;
     }
 
+    /**
+     * One injury, archived or not, but never one in the recycle bin (#5125):
+     * every read of this table goes through the lifecycle clause
+     * (`ArchiveRepository::listViewClause()`), as every other entity does.
+     */
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d AND " . ArchiveRepository::listViewClause( 'all' ),
             $id, CurrentClub::id()
         ) );
         return $row ?: null;
@@ -198,7 +204,7 @@ final class InjuryRepository {
      */
     public function listForPlayer( int $player_id, bool $include_archived = false ): array {
         if ( $player_id <= 0 ) return [];
-        $where = $include_archived ? '' : 'AND archived_at IS NULL';
+        $where = 'AND ' . ArchiveRepository::listViewClause( $include_archived ? 'all' : 'active' );
         /** @var list<object> $rows */
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
@@ -245,8 +251,7 @@ final class InjuryRepository {
                FROM {$p}tt_player_injuries
               WHERE player_id IN ($in)
                 AND club_id = %d
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
+                AND " . ArchiveRepository::listViewClause( 'active' ) . "
                 AND started_on <= %s
                 AND ( actual_return IS NULL OR actual_return > %s )",
             array_merge( $ids, [ (int) CurrentClub::id(), $to, $from ] )
@@ -346,6 +351,7 @@ final class InjuryRepository {
                FROM {$this->table} i
                {$join}
               WHERE {$where} i.club_id = %d
+                AND " . ArchiveRepository::listViewClause( 'active', 'i' ) . "
                 AND {$predicate}",
             array_merge( $ids, [ (int) CurrentClub::id() ], $params )
         ) );
@@ -427,7 +433,7 @@ final class InjuryRepository {
     private function teamsWhere( array $team_ids, array $filters ): array {
         $status = (string) ( $filters['status'] ?? 'open' );
 
-        $where = [ 'i.club_id = %d', 'i.archived_at IS NULL' ];
+        $where = [ 'i.club_id = %d', ArchiveRepository::listViewClause( 'active', 'i' ) ];
         $args  = [ CurrentClub::id() ];
 
         if ( ! empty( $team_ids ) ) {
