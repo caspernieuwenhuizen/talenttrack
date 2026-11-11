@@ -52,6 +52,7 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
     private int $hod        = 0;
     private int $own_eval   = 0;
     private int $other_eval = 0;
+    private int $player     = 0;
 
     public function set_up(): void {
         parent::set_up();
@@ -81,7 +82,8 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
             'club_id' => self::CLUB, 'team_id' => $this->team,
             'first_name' => 'Kpilink', 'last_name' => 'Playerx', 'status' => 'active',
         ] );
-        $player = (int) $wpdb->insert_id;
+        $player       = (int) $wpdb->insert_id;
+        $this->player = $player;
 
         $this->coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $wpdb->insert( "{$p}tt_people", [
@@ -112,7 +114,7 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
             'is_current' => 1,
         ] );
 
-        $today = gmdate( 'Y-m-d' );
+        $today = current_time( 'Y-m-d' );
         $wpdb->insert( "{$p}tt_evaluations", [
             'club_id' => self::CLUB, 'player_id' => $player, 'coach_id' => $this->coach, 'eval_date' => $today,
         ] );
@@ -204,6 +206,38 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
         $ids = $this->rowIds( $response );
         $this->assertContains( $this->own_eval, $ids );
         $this->assertContains( $this->other_eval, $ids, 'every evaluation on the coach\'s team' );
+    }
+
+    /**
+     * The "this week" card counts what its list shows: both go by the
+     * evaluation's date, not the day it was entered.
+     */
+    public function test_the_week_card_and_its_list_count_the_same_evaluations(): void {
+        global $wpdb;
+        $today   = new \DateTimeImmutable( current_time( 'Y-m-d' ), wp_timezone() );
+        $entered = current_time( 'mysql' );
+
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", [
+            'club_id' => self::CLUB, 'player_id' => $this->player, 'coach_id' => $this->coach,
+            'eval_date' => $today->sub( new \DateInterval( 'P14D' ) )->format( 'Y-m-d' ), 'created_at' => $entered,
+        ] );
+        $old = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", [
+            'club_id' => self::CLUB, 'player_id' => $this->player, 'coach_id' => $this->coach,
+            'eval_date' => $today->sub( new \DateInterval( 'P1D' ) )->format( 'Y-m-d' ), 'created_at' => $entered,
+        ] );
+        $yesterday = (int) $wpdb->insert_id;
+
+        $source = KpiDataSourceRegistry::get( 'my_evaluations_this_week' );
+        $this->assertNotNull( $source );
+        $ids = $this->rowIds( $this->listAs( $this->coach, $this->filterOf( $this->hrefFor( $source ) ) ) );
+        $this->assertContains( $yesterday, $ids, 'an evaluation dated yesterday is on the list' );
+        $this->assertNotContains( $old, $ids, 'one dated two weeks ago is not, though it was entered today' );
+
+        $card = $source->compute( $this->coach, self::CLUB );
+        $this->assertSame( (string) count( $ids ), $card->current, 'the card counts the rows its list shows' );
+        $sparkline = $card->sparkline;
+        $this->assertSame( (float) count( $ids ), (float) end( $sparkline ), 'the newest sparkline bucket is the card\'s window' );
     }
 
     // The author filter

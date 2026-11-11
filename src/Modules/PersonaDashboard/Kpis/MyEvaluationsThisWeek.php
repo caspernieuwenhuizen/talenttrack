@@ -27,9 +27,23 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
         return BackLink::appendTo( add_query_arg( [
             'filter' => [
                 'coach_id'  => $ctx->user_id,
-                'date_from' => gmdate( 'Y-m-d', strtotime( '-7 days' ) ),
+                'date_from' => self::daysBeforeToday( self::WINDOW_DAYS ),
             ],
         ], $ctx->viewUrl( $view ) ) );
+    }
+
+    /** The window compute() counts and linkUrl() filters, in days before today. */
+    private const WINDOW_DAYS = 7;
+
+    /**
+     * A date `$days` before today, in the site's timezone (`current_time()`,
+     * the clock `EvaluationDateRule` dates an evaluation against). A
+     * negative `$days` is a date after today.
+     */
+    private static function daysBeforeToday( int $days ): string {
+        $today = new \DateTimeImmutable( current_time( 'Y-m-d' ), wp_timezone() );
+        $step  = new \DateInterval( 'P' . abs( $days ) . 'D' );
+        return ( $days >= 0 ? $today->sub( $step ) : $today->add( $step ) )->format( 'Y-m-d' );
     }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
@@ -49,22 +63,28 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
         // the evaluations list under the same toggle.
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
-        $since = gmdate( 'Y-m-d 00:00:00', strtotime( '-7 days' ) );
+        // #5048 — counted on `eval_date`, the date of the evaluation and the
+        // column the list this card opens filters on (`filter[date_from]`).
+        // On `created_at`, an evaluation entered today for a match two weeks
+        // ago counted here and was missing from the list.
+        $since = self::daysBeforeToday( self::WINDOW_DAYS );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.created_at >= %s {$scope}",
+            "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.eval_date >= %s {$scope}",
             $user_id,
             $since
         ) );
 
-        // Sparkline: 4 trailing weekly buckets of *my* evaluations.
+        // Sparkline: 4 trailing weekly buckets of *my* evaluations, on the
+        // same date. The newest bucket is the count's window, so it runs
+        // through today; each older one is the 7 days before it.
         $sparkline = [];
         for ( $w = 3; $w >= 0; $w-- ) {
-            $start = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( ( $w + 1 ) * 7 ) . ' days' ) );
-            $end   = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( $w * 7 ) . ' days' ) );
+            $start = self::daysBeforeToday( ( $w + 1 ) * self::WINDOW_DAYS );
+            $end   = $w === 0 ? self::daysBeforeToday( -1 ) : self::daysBeforeToday( $w * self::WINDOW_DAYS );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.created_at >= %s AND e.created_at < %s {$scope}",
+                "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
                 $user_id, $start, $end
             ) );
         }
