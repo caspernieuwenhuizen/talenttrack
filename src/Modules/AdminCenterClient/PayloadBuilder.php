@@ -162,10 +162,10 @@ final class PayloadBuilder {
         }
 
         // The stored status, not a derived bucket: the two have disagreed
-        // before (#3396). Open is anything not completed or cancelled.
+        // before (#3396). #5074 — open is the one rule, `GoalLifecycle`.
         if ( TableExists::has( 'tt_goals' ) ) {
             $out['goals_active'] = (int) $wpdb->get_var(
-                "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND ( status IS NULL OR status NOT IN ('completed','cancelled') )"
+                "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( '' )
             );
         }
 

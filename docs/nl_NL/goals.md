@@ -71,6 +71,8 @@ principes, bewijslast — komen niet in het gesprek terecht.
 
 Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vordert. Het **Status**-filter op de doelenlijst groepeert doelen in **Actief**, **Behaald** en **Gemist**, en staat standaard op Actief zodat de lijst opent met wat er nog loopt. Archiveren staat daar los van: de lijst opent met niet-gearchiveerde doelen, en met de **⋯**-knop aan het eind van de filterrij schakel je naar de gearchiveerde. Wil je de doelen zien met een deadline in een bepaalde periode, open dan het **Deadline**-filter en kies een Vanaf- en T/m-datum.
 
+**Wat telt als een openstaand doel.** Eén regel, op elk scherm: een doel staat open als de status nog niet gestart is, wacht op goedkeuring van de coach, bezig, gepauzeerd of goedgekeurd is. De badge op het tabblad Doelen, het profiel, de dashboardwidgets, de melding voor verlopen doelen, de KPI-export, de tabel doelen per principe, de seizoensovergang en het POP-bewijs tellen allemaal dezelfde doelen. Een doel dat behaald, opgegeven of afgewezen is, of geen status heeft, staat niet open.
+
 ## Wie ziet wat
 
 - Spelers zien hun eigen doelen.

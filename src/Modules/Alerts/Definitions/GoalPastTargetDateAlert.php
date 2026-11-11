@@ -178,7 +178,7 @@ final class GoalPastTargetDateAlert extends AbstractPlayerAlert implements Audie
               WHERE " . QueryHelpers::clubScopeWhere( 'g' ) . "
                 AND g.archived_at IS NULL
                 AND g.trashed_at IS NULL
-                AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
+                AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( 'g' ) . "
                 AND g.due_date IS NOT NULL
                 AND g.due_date <> '0000-00-00'
                 AND g.due_date <= DATE_SUB( CURDATE(), INTERVAL %d DAY )

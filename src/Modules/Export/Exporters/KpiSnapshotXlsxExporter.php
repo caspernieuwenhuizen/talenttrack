@@ -167,7 +167,8 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface, ScopeGatedExpo
             $club_id
         ) );
         $goals_active = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE club_id = %d AND status IN ('pending', 'in_progress')",
+            // #5074 — open is the one rule, `GoalLifecycle`.
+            "SELECT COUNT(*) FROM {$p}tt_goals WHERE club_id = %d AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( '' ),
             $club_id
         ) );
         $goals_completed = (int) $wpdb->get_var( $wpdb->prepare(

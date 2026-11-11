@@ -75,7 +75,7 @@ JSON over HTTPS, ondertekend met HMAC-SHA256.
 | `value_signals.minutes_recorded_30d` | int | Activiteiten in de laatste 30 dagen met vastgelegde minuten op de presentielijst. |
 | `value_signals.evaluations_recorded_30d` | int | Evaluaties aangemaakt in de laatste 30 dagen. |
 | `value_signals.pdps_active` | int | Ontwikkelplannen die open staan: niet afgerond en niet gearchiveerd. |
-| `value_signals.goals_active` | int | Doelen waarvan de opgeslagen status niet afgerond of geannuleerd is, en die niet gearchiveerd zijn. |
+| `value_signals.goals_active` | int | Openstaande doelen die niet gearchiveerd zijn: de opgeslagen status is een van de open doelstatussen (pending, pending approval, in progress, on hold, approved), hoe die ook gespeld is. |
 
 ## Wat staat er NOOIT in de payload
 

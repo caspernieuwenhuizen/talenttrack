@@ -420,7 +420,7 @@ class FrontendMyProfileView extends FrontendViewBase {
                FROM {$p}tt_goals
               WHERE player_id = %d
                 AND archived_at IS NULL
-                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )
+                AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( '' ) . "
               ORDER BY ( due_date IS NULL ), due_date ASC, id DESC
               LIMIT %d",
             $player_id,
@@ -436,7 +436,7 @@ class FrontendMyProfileView extends FrontendViewBase {
             "SELECT COUNT(*) FROM {$p}tt_goals
               WHERE player_id = %d
                 AND archived_at IS NULL
-                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
+                AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( '' ),
             $player_id
         ) );
     }

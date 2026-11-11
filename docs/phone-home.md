@@ -74,7 +74,7 @@ JSON over HTTPS, signed with HMAC-SHA256.
 | `value_signals.minutes_recorded_30d` | int | Activities in the last 30 days with minutes recorded on their register. |
 | `value_signals.evaluations_recorded_30d` | int | Evaluations created in the last 30 days. |
 | `value_signals.pdps_active` | int | Development plans that are open: not completed and not archived. |
-| `value_signals.goals_active` | int | Goals whose stored status is not completed or cancelled, and that are not archived. |
+| `value_signals.goals_active` | int | Open goals that are not archived: the stored status is one of the open goal statuses (pending, pending approval, in progress, on hold, approved), whichever way it is spelled. |
 
 ## What's NEVER in the payload
 

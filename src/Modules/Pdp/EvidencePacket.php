@@ -13,6 +13,7 @@ use TT\Infrastructure\Journey\JourneyActivityResolver;
 use TT\Infrastructure\Journey\JourneySummaryLocaliser;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\GoalLifecycle;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\ReaderSet;
@@ -527,7 +528,7 @@ final class EvidencePacket {
 
             $created_in = $created !== '' && $created >= $from && $created <= $to;
             $updated_in = $updated !== '' && $updated >= $from && $updated <= $to;
-            $closed     = in_array( (string) ( $g->status ?? '' ), GoalsRepository::CLOSED_STATUSES, true );
+            $closed     = ! GoalLifecycle::isOpen( isset( $g->status ) ? (string) $g->status : null );
 
             // A goal closed before the window opened is history, not
             // evidence for this talk. Everything still open is, whether it

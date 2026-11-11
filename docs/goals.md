@@ -68,6 +68,8 @@ evidence — are not recorded in the conversation.
 
 Update the status and description over time as the player makes progress. The **Status** filter on the Goals list groups goals into **Active**, **Achieved** and **Missed**, and defaults to Active so the list opens on what's still being worked on. Archived goals are separate from that: the list opens on unarchived goals, and the **⋯** button at the end of the filter row switches to the archived ones. To see the goals due in a certain window, open the **Deadline** filter and pick a From and To date.
 
+**What counts as an open goal.** One rule, on every screen: a goal is open when its status is not started (Pending), waiting for the coach's approval, in progress, on hold or approved. The Goals tab badge, the profile, the dashboard widgets, the past-due alert, the KPI export, the goals-by-principle table, the season rollover and the PDP evidence all count the same goals. A goal that is achieved, abandoned, rejected or has no status is not open.
+
 ## Who sees what
 
 - Players see their own goals.

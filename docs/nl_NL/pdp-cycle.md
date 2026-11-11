@@ -142,7 +142,7 @@ De knop *Eindoordeel vastleggen* staat bij de gesprekkenlijst, onder de cyclus. 
 
 ## Carryover
 
-Bij het instellen van een nieuw huidig seizoen draait een eenmalige taak: elk open POP-dossier uit het vorige seizoen wordt voor het nieuwe seizoen gerepliceerd — verse gesprekken, vers `created_at`, maar de open doelen van de speler (alles behalve `completed` of `archived`) worden meegenomen.
+Bij het instellen van een nieuw huidig seizoen draait een eenmalige taak: elk open POP-dossier uit het vorige seizoen wordt voor het nieuwe seizoen gerepliceerd — verse gesprekken, vers `created_at`, maar de open doelen van de speler (de openstaande doelen, zoals op het tabblad Doelen) worden meegenomen.
 
 Tekstuele inhoud van gesprekken wordt **niet** meegenomen. Elk seizoen begint schoon; de geschiedenis blijft staan waar het stond.
 
