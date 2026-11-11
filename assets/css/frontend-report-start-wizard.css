@@ -70,9 +70,15 @@
     color: var(--tt-muted, #5b6660);
 }
 
-.tt-dashboard .tt-rsw-reason {
+.tt-dashboard .tt-rsw-reason,
+.tt-dashboard .tt-rsw-option-hint {
     font-size: 0.875rem;
     color: var(--tt-muted, #5b6660);
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-rsw-choices > .tt-rsw-option-hint {
+    margin: 0;
 }
 
 .tt-dashboard .tt-rsw-moved {

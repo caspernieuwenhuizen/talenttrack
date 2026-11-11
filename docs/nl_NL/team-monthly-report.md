@@ -452,6 +452,18 @@ Is bij een wedstrijd niet vastgelegd of die thuis of uit was, dan staat de
 tegenstander er zonder die vermelding bij — liever dat dan gokken hoe de
 uitslag om moet staan.
 
+## In de Report Studio
+
+Het maandrapport is ook een sjabloon in de Report Studio. **Rapport toevoegen**,
+dan **Beginnen met: Maandrapport team**, start een rapport met elk onderdeel van
+dit rapport, in deze volgorde, dat precies zo wordt afgedrukt als dit rapport ze
+afdrukt en dezelfde ruimte op de pagina inneemt. Kies in de wizard het team en de
+periode; daarna kun je blokken verplaatsen, weghalen of toevoegen, en het rapport
+publiceren, inplannen of delen zoals elk Studio-rapport. Wijzigen verandert nooit
+de sjabloon of dit rapport. Een trainer start het voor zijn eigen teams. Wat het
+overleg besloot, komt op een momentopname, als notitie bij het blok **Besluiten en
+acties**.
+
 ## Wie het kan zien
 
 Stafleden die rapporten van dat team mogen inzien. Het rapport noemt kinderen bij

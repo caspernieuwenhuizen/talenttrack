@@ -1694,14 +1694,22 @@ The blocks:
   options (`TeamMonthlyReport::forTeam()`, `PlayerReport::forPlayer()`):
   - `monthly_coverage`, `monthly_status`, `monthly_evaluations` (the whole
     section: averages, movers, spread and, under Details, the grid),
-    `monthly_attention`, `monthly_changes`, `monthly_tests`, `monthly_roster`
-    and `monthly_quality` (team, staff only). The attendance right cuts them
-    as it cuts the report (`attendance_pct` and `missed` leave the attention
-    and roster rows). `monthly_tests` takes `level`, `change` and
-    `definitions` (`ids`); `monthly_evaluations` takes `level`, `types`
-    (`ids`) and `sub`. Both are generated from the section's option class
-    (`TestsBlockOptions`, `EvaluationsBlockOptions`), which accepts no other
-    key.
+    `monthly_attendance`, `monthly_minutes`, `monthly_matches`,
+    `monthly_attention`, `monthly_changes`, `monthly_tests`, `monthly_roster`,
+    `monthly_notes` and `monthly_quality` (team, staff only): every section of
+    the monthly report but the letterhead and the KPI strip, which is
+    `key_figures` (#5023). The attendance right cuts them as it cuts the
+    report (`attendance_pct` and `missed` leave the attention and roster
+    rows), and `monthly_attendance` needs that right to be offered at all.
+    `monthly_tests` takes `level`, `change` and `definitions` (`ids`);
+    `monthly_evaluations` takes `level`, `types` (`ids`) and `sub`;
+    `monthly_attendance` and `monthly_minutes` take `level`;
+    `monthly_matches` takes `level`, `record`, `scorers` and `squads`. Each is
+    generated from the section's option class (`TestsBlockOptions`,
+    `EvaluationsBlockOptions`, `LevelBlockOptions`, `MatchesBlockOptions`),
+    which accepts no other key. `monthly_notes` is `{ lines }`, the report's
+    ruled area: what the meeting decided is a team snapshot note on that
+    block, never part of the definition.
   - `player_status`, `player_talking_points`, `player_ratings`,
     `player_attendance`, `player_minutes`, `player_goals`, `player_pdp`,
     `player_notes`, `player_matches`, `player_tests`, `player_journey`,
@@ -1787,7 +1795,11 @@ The player report templates are `player_report`, `player_report_scout` and
 for that audience (`PlayerReportAudience::blocksFor( audience, [] )`), in its
 order, with attendance and playing time side by side (`width: "half"`) when
 they follow each other. A family or a scout receives the report only as a
-snapshot.
+snapshot. `team_monthly_report` (#5023) holds every section of the team
+monthly report in print order (`TeamMonthlyReportBlock::normalise( [] )`):
+`letterhead`, `key_figures` and a `monthly_*` block for every other section,
+with the report's default options. `POST /reports` takes a template key as
+`template`; the start wizard's first step offers the same list.
 
 ## Report Studio reports (#4569, epic #4564)
 
@@ -1827,7 +1839,7 @@ routes, not an empty list.
 | Route | Cap | What |
 | --- | --- | --- |
 | `GET /reports` | `tt_view_reports` + *read* | Reports I own and reports published to a persona I hold. |
-| `POST /reports` | `tt_build_reports` | Create from the starting choices. |
+| `POST /reports` | `tt_build_reports` | Create from the starting choices. With `template` (a key from `GET /report-templates`, #5023) the report takes the choices the template fixes and its draft opens on a copy of the template's blocks: an unknown template, or one the caller may not start, is `400 invalid_field` (`details.field: "template"`); a fixed choice sent with another value is `400 invalid_field` naming that field. |
 | `GET /reports/{id}` | `tt_view_reports` + *read* | One report. An editor also gets their `draft` and the `persona_keys`. |
 | `PATCH /reports/{id}` | `tt_build_reports` | My draft and the name, partially. |
 | `DELETE /reports/{id}` | `tt_build_reports` | Archive. |

@@ -234,6 +234,7 @@ final class ReportsRestController extends BaseController {
             'player_id'    => [ 'type' => 'integer', 'description' => 'The player, for a fixed report about one player.' ],
             'team_id'      => [ 'type' => 'integer', 'description' => 'The team, for a fixed report about one team.' ],
             'cohort'       => [ 'type' => 'object', 'description' => 'A group: team_ids (list), age_group and position (optional). Never player ids.' ],
+            'template'     => [ 'type' => 'string', 'description' => 'A template key from GET /report-templates: the report takes the choices it fixes and opens on a copy of its blocks.' ],
         ];
     }
 

@@ -32,7 +32,9 @@ final class ReviewStep implements WizardStepInterface {
 
         $in = StartChoices::toInput( $state );
         echo '<dl class="tt-rsw-review">';
+        $template = StartChoices::template( $state );
         $rows = [
+            __( 'Start from', 'talenttrack' )       => $template !== null ? $template->label : __( 'An empty report', 'talenttrack' ),
             __( 'What', 'talenttrack' )             => ReportStartRules::label( 'kind', (string) ( $in['kind'] ?? '' ) ),
             __( 'About', 'talenttrack' )            => $this->subjectText( $in ),
             __( 'Written for', 'talenttrack' )      => ReportStartRules::label( 'audience', (string) ( $in['audience'] ?? '' ) ),

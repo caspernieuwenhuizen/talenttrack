@@ -104,7 +104,9 @@ final class ReportStudioSectionBlocksTest extends WP_UnitTestCase {
     // ---- coverage --------------------------------------------------------------
 
     public function test_every_section_of_both_reports_has_a_block_apart_from_the_notes(): void {
-        $monthly = array_diff( TeamMonthlyReportBlock::ALL, array_keys( self::FIRST_WAVE_MONTHLY ), [ TeamMonthlyReportBlock::NOTES ] );
+        // #5023 — every monthly section but the letterhead and the headline
+        // numbers (the key figures) is a section block.
+        $monthly = array_diff( TeamMonthlyReportBlock::ALL, [ TeamMonthlyReportBlock::LETTERHEAD, TeamMonthlyReportBlock::KPI ] );
         $this->assertEqualsCanonicalizing( array_values( $monthly ), array_keys( MonthlySectionBlock::KEYS ) );
 
         // #5022 — every player report section but the letterhead is a section

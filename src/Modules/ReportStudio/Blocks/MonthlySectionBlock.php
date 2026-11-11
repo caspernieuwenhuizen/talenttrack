@@ -3,6 +3,7 @@ namespace TT\Modules\ReportStudio\Blocks;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
@@ -26,6 +27,12 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  *
  * Team scope only, and staff only: every one of these sections names
  * players, or judges them.
+ *
+ * #5023 — attendance, minutes share, matches and the notes area are section
+ * blocks too, so the monthly template prints every section with the report's
+ * own renderer. The notes area (`monthly_notes`) prints the report's ruled
+ * lines; what the meeting decided is a snapshot's note on that block, never
+ * a value in the definition.
  */
 final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsForReader {
 
@@ -34,12 +41,21 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsFor
         TeamMonthlyReportBlock::COVERAGE    => 'monthly_coverage',
         TeamMonthlyReportBlock::STATUS      => 'monthly_status',
         TeamMonthlyReportBlock::EVALUATIONS => 'monthly_evaluations',
+        TeamMonthlyReportBlock::ATTENDANCE  => 'monthly_attendance',
+        TeamMonthlyReportBlock::MINUTES     => 'monthly_minutes',
+        TeamMonthlyReportBlock::MATCHES     => 'monthly_matches',
         TeamMonthlyReportBlock::ATTENTION   => 'monthly_attention',
         TeamMonthlyReportBlock::CHANGES     => 'monthly_changes',
         TeamMonthlyReportBlock::TESTS       => 'monthly_tests',
         TeamMonthlyReportBlock::ROSTER      => 'monthly_roster',
+        TeamMonthlyReportBlock::NOTES       => 'monthly_notes',
         TeamMonthlyReportBlock::QUALITY     => 'monthly_quality',
     ];
+
+    /** The Studio key of a monthly report section, or null for one without a section block. */
+    public static function keyFor( string $section ): ?string {
+        return self::KEYS[ $section ] ?? null;
+    }
 
     public function __construct( private readonly string $section ) {
         if ( ! isset( self::KEYS[ $section ] ) ) {
@@ -77,7 +93,13 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsFor
     }
 
     public function available( ReportContext $context ): bool {
-        return $context->scope === ReportContext::SCOPE_TEAM;
+        if ( $context->scope !== ReportContext::SCOPE_TEAM ) return false;
+        if ( $this->section !== TeamMonthlyReportBlock::ATTENDANCE ) return true;
+        // The report leaves its attendance section out for a reader without
+        // the team's attendance right (#4949), so the block is not offered.
+        return $context->teamId > 0
+            ? AuthorizationService::canReadTeamAttendance( $context->userId, $context->teamId )
+            : AuthorizationService::attendanceReadableTeamIds( $context->userId ) !== [];
     }
 
     public function externalKeys(): array {

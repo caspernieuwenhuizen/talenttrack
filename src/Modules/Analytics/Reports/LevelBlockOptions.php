@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * The default is recorded as absence (`BlockOptionsInterface`).
  */
-final class LevelBlockOptions implements BlockOptionsInterface {
+final class LevelBlockOptions implements DescribesOptions {
 
     public const LEVEL = SectionLevel::KEY;
 
@@ -37,8 +37,28 @@ final class LevelBlockOptions implements BlockOptionsInterface {
     public static function unknownKeys( array $raw ): array {
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
-            static fn( string $key ): bool => $key !== self::LEVEL
+            static fn( string $key ): bool => ! in_array( $key, array_column( self::fields(), 'key' ), true )
         ) );
+    }
+
+    /**
+     * #5023 — the options a panel offers, the ones `unknownKeys()` accepts.
+     *
+     * @return list<array{key:string, kind:string, default:mixed}>
+     */
+    public static function fields(): array {
+        return [
+            [ 'key' => self::LEVEL, 'kind' => self::KIND_LEVEL, 'default' => self::DEFAULT_LEVEL ],
+        ];
+    }
+
+    public static function fieldLabel( string $key ): string {
+        return $key === self::LEVEL ? _x( 'Level of detail', 'report section option', 'talenttrack' ) : '';
+    }
+
+    /** @return array<int|string,string> */
+    public static function fieldChoices( string $key ): array {
+        return [];
     }
 
     /**

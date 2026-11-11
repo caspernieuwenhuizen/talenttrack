@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\ReportStudio\Domain\ReportContext;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
+use TT\Modules\ReportStudio\Domain\ReportTemplate;
+use TT\Modules\ReportStudio\Domain\ReportTemplateRegistry;
 use TT\Modules\ReportStudio\Domain\StudioError;
 
 /**
@@ -56,6 +58,8 @@ final class StartChoices {
             ? (string) ( $state['period_rolling'] ?? '' )
             : ( $mode === ReportStartRules::PERIOD_FIXED ? (string) ( $state['period_from'] ?? '' ) . '/' . (string) ( $state['period_to'] ?? '' ) : '' );
         $in['name'] = (string) ( $state['name'] ?? '' );
+        $template   = self::template( $state );
+        if ( $template !== null ) $in['template'] = $template->key;
 
         // Only a report that always shows the same subject stores one; the
         // review reads this same input, so it never shows a dropped subject.
@@ -92,6 +96,18 @@ final class StartChoices {
             : (string) ( $answer['choices'][ $field ] ?? '' );
         $moved = is_array( $state['moved'] ?? null ) ? $state['moved'] : [];
 
+        // #5023 — a choice the template fixes offers only the template's value.
+        $fixed   = self::template( $state )?->choices[ $field ] ?? null;
+        $options = $answer['options'][ $field ] ?? [];
+        if ( $fixed !== null ) {
+            $current = $fixed;
+            foreach ( $options as $i => $option ) {
+                if ( $option['value'] === $fixed ) continue;
+                $options[ $i ]['ok']     = false;
+                $options[ $i ]['reason'] = __( 'The template you started from sets this.', 'talenttrack' );
+            }
+        }
+
         echo '<fieldset class="tt-rsw-choices">';
         echo '<legend>' . esc_html( $legend ) . '</legend>';
         if ( isset( $moved[ $field ] ) && is_string( $moved[ $field ] ) ) {
@@ -103,7 +119,7 @@ final class StartChoices {
                 )
             ) . '</p>';
         }
-        foreach ( $answer['options'][ $field ] ?? [] as $option ) {
+        foreach ( $options as $option ) {
             $id        = 'tt-rsw-' . $field . '-' . $option['value'];
             $reason_id = $id . '-why';
             $class     = 'tt-rsw-option' . ( $option['ok'] ? '' : ' tt-rsw-option--off' );
@@ -132,12 +148,17 @@ final class StartChoices {
      * @return array<string,string>|\WP_Error
      */
     public static function answers( array $fields, array $post, array $state ) {
-        $choices = self::choicesIn( $state );
-        $out     = [];
+        $choices  = self::choicesIn( $state );
+        $template = self::template( $state );
+        $out      = [];
         foreach ( $fields as $field ) {
             $value = isset( $post[ $field ] ) ? sanitize_key( (string) $post[ $field ] ) : '';
             if ( ! in_array( $value, ReportStartRules::values( $field ), true ) ) {
                 return new \WP_Error( 'tt_rsw_' . $field, __( 'Choose one of the options.', 'talenttrack' ) );
+            }
+            $fixed = $template !== null ? ( $template->choices[ $field ] ?? null ) : null;
+            if ( $fixed !== null && $value !== $fixed ) {
+                return new \WP_Error( 'tt_rsw_' . $field, __( 'The template you started from sets this.', 'talenttrack' ) );
             }
             $choices[ $field ] = $value;
             $out[ $field ]     = $value;
@@ -149,6 +170,69 @@ final class StartChoices {
             if ( isset( $check['moved'][ $field ] ) ) return new \WP_Error( 'tt_rsw_' . $field, $check['moved'][ $field ] );
         }
         return $out;
+    }
+
+    /**
+     * #5023 — the template the wizard started from, when this builder may
+     * still start it; null for an empty report.
+     *
+     * @param array<string,mixed> $state
+     */
+    public static function template( array $state ): ?ReportTemplate {
+        $key = is_string( $state['template'] ?? null ) ? (string) $state['template'] : '';
+        if ( $key === '' ) return null;
+        foreach ( ReportTemplateRegistry::startableBy( get_current_user_id() ) as $template ) {
+            if ( $template->key === $key ) return $template;
+        }
+        return null;
+    }
+
+    /**
+     * #5023 — "Start from": an empty report, or one of the templates this
+     * builder may start (`ReportTemplateRegistry::startableBy()`, the list
+     * `GET /report-templates` answers).
+     *
+     * @param array<string,mixed> $state
+     */
+    public static function templateFieldset( array $state ): void {
+        self::enqueue();
+        $templates = ReportTemplateRegistry::startableBy( get_current_user_id() );
+        if ( $templates === [] ) return;
+
+        $current = self::template( $state )?->key ?? '';
+        $options = [ [ 'value' => '', 'label' => __( 'An empty report', 'talenttrack' ), 'hint' => __( 'Choose every block yourself.', 'talenttrack' ) ] ];
+        foreach ( $templates as $template ) {
+            $options[] = [ 'value' => $template->key, 'label' => $template->label, 'hint' => $template->description ];
+        }
+
+        echo '<fieldset class="tt-rsw-choices">';
+        echo '<legend>' . esc_html__( 'Start from', 'talenttrack' ) . '</legend>';
+        foreach ( $options as $option ) {
+            $id      = 'tt-rsw-template-' . ( $option['value'] !== '' ? $option['value'] : 'none' );
+            $hint_id = $id . '-hint';
+            echo '<label class="tt-rsw-option" for="' . esc_attr( $id ) . '">';
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="start_template" value="' . esc_attr( $option['value'] ) . '"'
+                . checked( $current, $option['value'], false )
+                . ' aria-describedby="' . esc_attr( $hint_id ) . '" />';
+            echo '<span class="tt-rsw-option-text"><span class="tt-rsw-option-label">' . esc_html( $option['label'] ) . '</span>';
+            echo '<span class="tt-rsw-option-hint" id="' . esc_attr( $hint_id ) . '">' . esc_html( $option['hint'] ) . '</span>';
+            echo '</span></label>';
+        }
+        echo '<p class="tt-rsw-option-hint">' . esc_html__( 'A template sets what the report is, who it is about and who it is written for, and starts it with its blocks. You can change the blocks afterwards.', 'talenttrack' ) . '</p>';
+        echo '</fieldset>';
+    }
+
+    /**
+     * The template picked on the "Start from" fieldset: null for an empty
+     * report, or the template when this builder may start it.
+     *
+     * @param array<string,mixed> $post
+     */
+    public static function chosenTemplate( array $post ): ReportTemplate|\WP_Error|null {
+        $key = isset( $post['start_template'] ) ? sanitize_key( (string) $post['start_template'] ) : '';
+        if ( $key === '' ) return null;
+        $template = self::template( [ 'template' => $key ] );
+        return $template ?? new \WP_Error( 'tt_rsw_template', __( 'Choose one of the options.', 'talenttrack' ) );
     }
 
     /**

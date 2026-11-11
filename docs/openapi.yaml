@@ -431,7 +431,7 @@ paths:
     post:
       tags: [report-studio]
       summary: Create a report from its seven starting choices
-      description: 'Cap required: `tt_build_reports`. Body — kind, scope, binding, audience, period_mode, period_value, layout, sharing, name, player_id / team_id / cohort. Validated by the start rules; the subject must be one the caller builds for.'
+      description: 'Cap required: `tt_build_reports`. Body — kind, scope, binding, audience, period_mode, period_value, layout, sharing, name, player_id / team_id / cohort, and optionally template (a key from GET /report-templates: the report takes the choices it fixes and opens on a copy of its blocks; a fixed choice sent with another value is 400 invalid_field). Validated by the start rules; the subject must be one the caller builds for.'
       responses:
         '201': { description: Created }
         '400': { description: 'invalid_field with details.field, or unknown_field' }
