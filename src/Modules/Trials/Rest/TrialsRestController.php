@@ -1097,8 +1097,7 @@ class TrialsRestController {
 
         $viewer     = get_current_user_id();
         $is_manager = TrialCaseAccessPolicy::isManager( $viewer );
-        $staff      = new TrialCaseStaffRepository();
-        if ( ! $is_manager && ! $staff->isAssigned( $id, $viewer ) ) {
+        if ( ! TrialCaseAccessPolicy::readsReleasedInputs( $viewer, $id ) ) {
             return RestResponse::error( 'forbidden', __( 'Not assigned to this case.', 'talenttrack' ), 403 );
         }
 

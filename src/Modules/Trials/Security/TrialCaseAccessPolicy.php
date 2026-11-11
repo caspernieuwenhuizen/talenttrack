@@ -191,6 +191,18 @@ final class TrialCaseAccessPolicy {
         return ! self::readsEveryCase( $user_id );
     }
 
+    /**
+     * #4694 — may this user read the panel's released inputs on this case:
+     * who handed in, when, the rating and the notes? A manager, or someone
+     * seated on the case. The panel's inputs stay with the panel, so a
+     * reader who opens the case through readsEveryCase() reads none of them.
+     */
+    public static function readsReleasedInputs( int $user_id, int $case_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( self::isManager( $user_id ) ) return true;
+        return ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id );
+    }
+
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {
         if ( self::isManager( $user_id ) ) return true;
         if ( ! user_can( $user_id, 'tt_view_trial_synthesis' ) ) return false;

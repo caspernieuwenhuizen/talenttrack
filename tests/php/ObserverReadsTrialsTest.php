@@ -115,6 +115,22 @@ final class ObserverReadsTrialsTest extends WP_UnitTestCase {
         }
         $this->assertFalse( AuthorizationService::userCanOrMatrix( $this->observer, 'tt_manage_trials' ) );
         $this->assertFalse( TrialCaseAccessPolicy::seesCaseText( $this->observer, $this->case_elsewhere ) );
+        $this->assertFalse( TrialCaseAccessPolicy::readsReleasedInputs( $this->observer, $this->case_elsewhere ), 'the panel inputs stay with the panel' );
+        $this->assertTrue( TrialCaseAccessPolicy::readsReleasedInputs( $this->panellist, $this->case_elsewhere ) );
+    }
+
+    public function test_the_observer_reads_no_inputs_and_prints_no_letter(): void {
+        wp_set_current_user( $this->observer );
+        $response = rest_do_request( new \WP_REST_Request( 'GET', '/talenttrack/v1/trial-cases/' . $this->case_elsewhere . '/inputs' ) );
+        $this->assertSame( 403, $response->get_status() );
+
+        $this->assertFalse( \TT\Modules\Trials\Print\TrialLetterPrintRouter::canPrint( $this->observer, $this->case_elsewhere ) );
+
+        // `trial_letters_generated` read records the decision; no route asks
+        // it yet, so it opens nothing today: letters stay with the managers.
+        $this->assertTrue( MatrixGate::can( $this->observer, 'trial_letters_generated', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) );
+        $letters = rest_do_request( new \WP_REST_Request( 'GET', '/talenttrack/v1/trial-cases/' . $this->case_elsewhere . '/letters' ) );
+        $this->assertSame( 403, $letters->get_status() );
     }
 
     public function test_a_scout_and_a_head_coach_list_what_they_listed_before(): void {
@@ -144,9 +160,13 @@ final class ObserverReadsTrialsTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tab=decision', $overview, 'no Decision tab' );
         $this->assertStringNotContainsString( 'tab=letter', $overview, 'no Letter tab' );
 
+        // The panel's inputs stay with the panel: no Staff inputs tab, and
+        // asking for it by URL renders none of them (owner decision).
+        $this->assertStringNotContainsString( 'tab=inputs', $overview, 'no Staff inputs tab' );
         $inputs = $this->render( $this->observer, 'inputs' );
         $this->assertStringNotContainsString( self::INPUT, $inputs );
-        $this->assertStringContainsString( '<strong>7.00</strong>', $inputs, 'the rating shows' );
+        $this->assertStringNotContainsString( '7.00', $inputs, 'no rating' );
+        $this->assertStringNotContainsString( 'tt-trial-input-card', $inputs );
 
         $hod   = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         $staff = $this->render( $hod, 'inputs' );

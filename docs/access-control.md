@@ -192,7 +192,7 @@ Use cases:
 | **The exercise library** — the drills coaches build trainings from | Change the library or plan training |
 | **The academy's reference data** — seasons, methodology, football actions, evaluation categories and weights, the rating scale, holidays, the help pages | Change any of it |
 | **Prospects** — the onboarding board, the prospects list and each prospect's page: names, current club, birth year, stage, dates and consent outcomes, without the family contact, the scouting notes, who discovered the child, or who was asked for consent and what was said | Record, edit, move, invite or decide on a prospect; open a scouting visit |
-| **Trials** — every trial case: dates, track, status, the decision, the panel and the rating of each released input, without the case summary, the extension justifications or the input notes | Extend or decide a case, write an input, read the panel's synthesis, or open a letter |
+| **Trials** — every trial case: dates, track, status, the decision and who sits on the panel, without the case summary or the extension justifications | Extend or decide a case, write or read the panel's inputs, read the panel's synthesis, or open a letter |
 
 The rule behind the list: an observer reads everything that is not sensitive, and a sensitive field on a record it reads is masked, shown as "Hidden" on screen and left out of the API answer.
 

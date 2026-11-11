@@ -153,7 +153,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
         // input-only assistant coach gets Overview and Staff inputs.
         $sees_synthesis = TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id );
 
-        $tabs       = self::tabSet( $case, $is_manager, $sees_synthesis );
+        // #4694 — the panel's inputs stay with the panel and the managers.
+        $reads_inputs = TrialCaseAccessPolicy::readsReleasedInputs( $user_id, $case_id );
+
+        $tabs       = self::tabSet( $case, $is_manager, $sees_synthesis, $reads_inputs );
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : self::TAB_OVERVIEW;
         if ( ! array_key_exists( $active_tab, $tabs ) ) {
             $active_tab = self::TAB_OVERVIEW;
@@ -207,7 +210,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
                             // who reached the case can type.
                             if ( $sees_synthesis ) { self::renderExecutionTab( $case ); }
                             break;
-                        case self::TAB_INPUTS:    self::renderInputsTab( $case, $user_id ); break;
+                        case self::TAB_INPUTS:
+                            if ( $reads_inputs ) { self::renderInputsTab( $case, $user_id ); }
+                            break;
                         case self::TAB_DECISION:
                             if ( $is_manager ) { self::renderDecisionTab( $case ); }
                             break;
@@ -245,12 +250,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
      *
      * @return array<string,string>
      */
-    private static function tabSet( object $case, bool $is_manager, bool $sees_synthesis = true ): array {
+    private static function tabSet( object $case, bool $is_manager, bool $sees_synthesis = true, bool $reads_inputs = true ): array {
         $tabs = [ self::TAB_OVERVIEW => __( 'Overview', 'talenttrack' ) ];
         if ( $sees_synthesis ) {
             $tabs[ self::TAB_EXECUTION ] = __( 'Execution', 'talenttrack' );
         }
-        $tabs[ self::TAB_INPUTS ] = __( 'Staff inputs', 'talenttrack' );
+        if ( $reads_inputs ) {
+            $tabs[ self::TAB_INPUTS ] = __( 'Staff inputs', 'talenttrack' );
+        }
         if ( $is_manager ) {
             $tabs[ self::TAB_DECISION ] = __( 'Decision', 'talenttrack' );
             $tabs[ self::TAB_LETTER ]   = __( 'Letter', 'talenttrack' );
@@ -823,6 +830,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
     /* ===== Inputs tab ===== */
 
     private static function renderInputsTab( object $case, int $user_id ): void {
+        if ( ! TrialCaseAccessPolicy::readsReleasedInputs( $user_id, (int) $case->id ) ) return;
         $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
         $inputs_repo = new TrialStaffInputsRepository();
         $staff_repo  = new TrialCaseStaffRepository();
