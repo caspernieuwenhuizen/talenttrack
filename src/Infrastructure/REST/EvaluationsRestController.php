@@ -182,7 +182,7 @@ class EvaluationsRestController {
      *   ?filter[team_id]=<int|CSV>     — via player → team join (single id or comma-separated list, v4.20.26 / #1212)
      *   ?filter[player_id]=<int>
      *   ?filter[eval_type_id]=<int>
-     *   ?filter[coach_id]=<int>        — the author; another coach's id needs tt_view_analytics (403 otherwise, #5048)
+     *   ?filter[coach_id]=<int>        — the author; narrows within the caller's scope (#5048)
      *   ?filter[date_from]=<YYYY-MM-DD>
      *   ?filter[date_to]=<YYYY-MM-DD>
      *   ?orderby=eval_date|player_name|team_name|coach_name|avg_rating
@@ -321,21 +321,12 @@ class EvaluationsRestController {
         }
         // #1380 — coach (evaluator) filter, driven from the evaluation-
         // coverage report's per-coach chips. Filters on the evaluation's
-        // author (`e.coach_id`). #5048 — a reader of the list may filter
-        // to their own evaluations (the coach dashboard's KPIs land here);
-        // another coach's id needs `tt_view_analytics`. The rows stay inside
-        // the caller's scope either way.
+        // author (`e.coach_id`). #5048 — the coach dashboard's evaluation
+        // cards land here with the coach's own id. It is an AND on the scope
+        // WHERE above, so any id only narrows the rows the caller may read.
         if ( ! empty( $filter['coach_id'] ) ) {
-            $coach_filter_id = absint( $filter['coach_id'] );
-            if ( ! self::mayFilterByCoach( $coach_filter_id ) ) {
-                return RestResponse::error(
-                    'forbidden_coach_filter',
-                    __( 'You can only request your own evaluations.', 'talenttrack' ),
-                    403
-                );
-            }
             $where[]  = 'e.coach_id = %d';
-            $params[] = $coach_filter_id;
+            $params[] = absint( $filter['coach_id'] );
         }
         if ( ! empty( $filter['date_from'] ) ) {
             $where[]  = 'e.eval_date >= %s';
@@ -558,18 +549,6 @@ class EvaluationsRestController {
      * When false, the caller scopes to coach-owned teams + coach's
      * own authored rows.
      */
-    /**
-     * #5048 — may the current user narrow `GET /evaluations` to the
-     * evaluations this coach wrote? Their own id always; another coach's
-     * only with `tt_view_analytics` (the evaluation-coverage lens, #1380).
-     * The evaluations list offers its coach filter on the same rule.
-     */
-    public static function mayFilterByCoach( int $coach_id ): bool {
-        if ( $coach_id <= 0 ) return true;
-        if ( $coach_id === get_current_user_id() ) return true;
-        return current_user_can( 'tt_view_analytics' );
-    }
-
     private static function hasGlobalEvaluationsAccess(): bool {
         if ( current_user_can( 'tt_edit_settings' ) ) return true;
         if ( current_user_can( 'manage_options' ) ) return true;

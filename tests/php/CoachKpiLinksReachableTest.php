@@ -31,8 +31,8 @@ use TT\Shared\Tiles\TileRegistry;
  * about the slug for a head coach fixture.
  *
  * The cards that open the evaluations list filter it to `filter[coach_id]`,
- * which `GET /evaluations` accepts for the caller's own id and refuses for
- * another coach's without `tt_view_analytics`.
+ * which `GET /evaluations` applies inside the caller's scope: any id only
+ * narrows the rows the caller may already read.
  */
 final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
 
@@ -251,16 +251,40 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
 
     // The author filter
 
-    public function test_a_coach_filters_to_their_own_evaluations_and_not_to_another_coachs(): void {
+    public function test_a_coach_filters_to_their_own_evaluations(): void {
         $own = $this->listAs( $this->coach, [ 'coach_id' => (string) $this->coach ] );
         $this->assertSame( 200, $own->get_status() );
         $this->assertSame( [ $this->own_eval ], $this->rowIds( $own ) );
+    }
 
-        wp_set_current_user( $this->coach );
-        $this->assertFalse( current_user_can( 'tt_view_analytics' ), 'precondition: a coach has no analytics read' );
-        $theirs = $this->listAs( $this->coach, [ 'coach_id' => (string) $this->other ] );
-        $this->assertSame( 403, $theirs->get_status(), 'another coach\'s id needs tt_view_analytics' );
-        $this->assertStringNotContainsString( '"rows"', (string) wp_json_encode( $theirs->get_data() ) );
+    /**
+     * Another coach's id only narrows: the filter is an AND on the caller's
+     * scope, so a coach filtering on a colleague sees that colleague's
+     * evaluations on the coach's own teams and none from a team they do
+     * not coach.
+     */
+    public function test_another_coachs_id_stays_inside_the_callers_scope(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->insert( "{$p}tt_teams", [ 'club_id' => self::CLUB, 'name' => 'Kpilink JO17-2' ] );
+        $elsewhere = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_players", [
+            'club_id' => self::CLUB, 'team_id' => $elsewhere,
+            'first_name' => 'Kpilink', 'last_name' => 'Elsewherex', 'status' => 'active',
+        ] );
+        $wpdb->insert( "{$p}tt_evaluations", [
+            'club_id' => self::CLUB, 'player_id' => (int) $wpdb->insert_id,
+            'coach_id' => $this->other, 'eval_date' => current_time( 'Y-m-d' ),
+        ] );
+        $out_of_scope = (int) $wpdb->insert_id;
+
+        $response = $this->listAs( $this->coach, [ 'coach_id' => (string) $this->other ] );
+        $this->assertSame( 200, $response->get_status(), 'the filter narrows; it does not refuse' );
+        $this->assertSame( [ $this->other_eval ], $this->rowIds( $response ), 'only the colleague\'s evaluation on the coach\'s own team' );
+        $this->assertNotContains( $out_of_scope, $this->rowIds( $response ) );
+
+        $all = $this->listAs( $this->hod, [ 'coach_id' => (string) $this->other ] );
+        $this->assertContains( $out_of_scope, $this->rowIds( $all ), 'precondition: the row exists for a reader with academy-wide read' );
     }
 
     public function test_the_head_of_development_filters_by_any_coach(): void {

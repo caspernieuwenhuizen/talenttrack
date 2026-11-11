@@ -166,9 +166,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
         // viewers (the evaluation-coverage report links here per-coach).
         // Coaches with team-only scope don't see other coaches' lens, so
         // the full filter only renders for `tt_view_analytics` holders.
-        // #5048 — anyone else may filter to their own evaluations (the
-        // coach dashboard's KPIs open the list that way), on the rule
-        // `GET /evaluations` applies.
+        // #5048 — anyone else is offered their own name only, the lens this
+        // screen gives them; the coach dashboard's KPIs open the list that
+        // way. `GET /evaluations` keeps the filter inside the reader's scope.
         $coach_filter  = [];
         $coach_options = [];
         if ( current_user_can( 'tt_view_analytics' ) ) {

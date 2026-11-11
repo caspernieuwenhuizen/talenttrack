@@ -104,7 +104,7 @@ Click any row in the evaluations list to see the full breakdown — a radar char
 
 ## Your own evaluations
 
-The **Coach** filter on the evaluations list narrows it to the evaluations one coach wrote. As a coach you can pick yourself there; the cards on your dashboard that count your evaluations this week or this season open the list filtered that way. Filtering on another coach is for the head of development and others who read the evaluation coverage report.
+The **Coach** filter on the evaluations list narrows it to the evaluations one coach wrote. As a coach you can pick yourself there; the cards on your dashboard that count your evaluations this week or this season open the list filtered that way. The head of development and others who read the evaluation coverage report can pick any coach. The filter only narrows the list: it never shows an evaluation you could not already see.
 
 ## Removing or hiding old evaluations
 

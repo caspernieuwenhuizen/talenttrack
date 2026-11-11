@@ -51,14 +51,9 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
         // tt_evaluations (migration 0001) exists on every install; no table check.
-        // Some installs use `coach_id` for evaluation authorship rather than
-        // `created_by`. Detect once per call and pick the right column.
-        $col = $wpdb->get_var( $wpdb->prepare(
-            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'created_by'",
-            $table
-        ) );
-        $author_col = $col ? 'created_by' : 'coach_id';
+        // The author is `e.coach_id`, the column the list's `filter[coach_id]`
+        // reads. #5048 — no migration adds a `created_by` to this table, so
+        // the per-render INFORMATION_SCHEMA lookup for one is gone.
 
         // v3.110.182 (#781) — demo-mode scope so coach's count matches
         // the evaluations list under the same toggle.
@@ -69,13 +64,13 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
         // On `created_at`, an evaluation entered today for a match two weeks
         // ago counted here and was missing from the list.
         $since = self::daysBeforeToday( self::WINDOW_DAYS );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         // The list's other narrowing too: this club, and active evaluations
         // only (no archived or recycle-bin rows), the clause `list_evals`
         // applies on its default view.
         $active = ArchiveRepository::filterClause( 'active', 'e' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.{$author_col} = %d AND e.eval_date >= %s {$scope}",
+            "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.coach_id = %d AND e.eval_date >= %s {$scope}",
             $club_id,
             $user_id,
             $since
@@ -90,7 +85,7 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
             $end   = $w === 0 ? self::daysBeforeToday( -1 ) : self::daysBeforeToday( $w * self::WINDOW_DAYS );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.{$author_col} = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
+                "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.coach_id = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
                 $club_id, $user_id, $start, $end
             ) );
         }
