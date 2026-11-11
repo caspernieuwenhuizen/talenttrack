@@ -44,14 +44,25 @@ final class EvaluationsRecent implements CustomDataSource {
     }
 
     /**
-     * The WHERE the rows and the aggregate share: club and the date range.
+     * The WHERE the rows and the aggregate share: club, the date range and
+     * the team.
+     *
+     * #4596 — the team filter was declared and never applied. It narrows
+     * through the evaluated player's team, in SQL.
      *
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
     private function whereFor( array $filters, int $user_id ): array {
+        global $wpdb;
         $where  = [ 'e.club_id = %d', SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ) ];
         $params = [ CurrentClub::id() ];
+
+        $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        if ( $team_id > 0 ) {
+            $where[]  = "e.player_id IN ( SELECT tp.id FROM {$wpdb->prefix}tt_players tp WHERE tp.team_id = %d AND tp.club_id = e.club_id )";
+            $params[] = $team_id;
+        }
 
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'e.created_at >= %s';
@@ -106,11 +117,13 @@ final class EvaluationsRecent implements CustomDataSource {
 
         [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
-        $sql = "SELECT e.id, e.created_at, e.evaluator_id, p.first_name, p.last_name,
+        // #4596 — the evaluator is `coach_id`; the table has no
+        // `evaluator_id`, so the name was always empty.
+        $sql = "SELECT e.id, e.created_at, e.coach_id, p.first_name, p.last_name,
                        u.display_name AS evaluator_name
                   FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_players p ON p.id = e.player_id
-             LEFT JOIN {$wpdb->users} u ON u.ID = e.evaluator_id
+             LEFT JOIN {$wpdb->users} u ON u.ID = e.coach_id
                  WHERE " . implode( ' AND ', $where )
               . " ORDER BY e.created_at DESC
                  LIMIT %d";
@@ -119,13 +132,19 @@ final class EvaluationsRecent implements CustomDataSource {
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
 
+        // The overall rating as the evaluation views compute it, for the
+        // whole page in one batch: the same read `aggregate()` averages.
+        $ids     = array_map( static fn( $row ): int => (int) ( $row->id ?? 0 ), $rows );
+        $overall = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $ids );
+
         $out = [];
         foreach ( $rows as $row ) {
+            $value = $overall[ (int) ( $row->id ?? 0 ) ]['value'] ?? null;
             $out[] = [
                 'player'    => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
                 'eval_date' => (string) ( $row->created_at ?? '' ),
                 'evaluator' => (string) ( $row->evaluator_name ?? '' ),
-                'overall'   => '',
+                'overall'   => $value === null ? '' : round( (float) $value, 1 ),
             ];
         }
         if ( ! empty( $column_keys ) ) {

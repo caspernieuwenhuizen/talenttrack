@@ -25,6 +25,11 @@ Gebruik een aangepaste widget wanneer de vraag die je een dashboard wilt laten b
 
 Als het antwoord al via een standaardwidget (KPI-kaarten, datatabellen) plus bestaande gegevensbronnen kan worden bereikt, kies dan dat pad — minder bewegende delen.
 
+Een paar dingen bepalen de bronnen voor je:
+
+- **Evaluaties** tonen de coach die de evaluatie schreef en de totaalscore, op dezelfde manier berekend als op het spelersprofiel. Het teamfilter houdt de evaluaties van de spelers van dat team over.
+- **Doelen** toont de openstaande doelen op deadline, de eerstvolgende eerst, met elke status in je eigen taal. Open betekent: nog niet gestart, wacht op goedkeuring (een doel dat een speler zelf stelde), bezig, gepauzeerd of goedgekeurd. Het statusfilter biedt de doelstatussen van je academie; kies er een om alleen de doelen met die status te zien.
+
 ## Een widget bouwen
 
 De bouwer leeft op **TalentTrack → Aangepaste widgets** (ook bereikbaar via het Configuratie-tegelpaneel). Cap-gated op `tt_author_custom_widgets`. Zes stappen:

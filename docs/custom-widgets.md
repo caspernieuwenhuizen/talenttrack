@@ -25,6 +25,11 @@ Use a custom widget when the question you want a dashboard to answer doesn't alr
 
 If the answer can already be reached via a shipped widget (KPI cards, data tables) plus existing data sources, prefer the shipped path — fewer moving parts.
 
+A few things the sources decide for you:
+
+- **Evaluations** show the coach who wrote the evaluation and its overall rating, worked out the same way as on the player's profile. The team filter keeps the evaluations of that team's players.
+- **Goals** lists the open goals by due date, soonest first, with each status in your own language. Open means pending, waiting for approval (a goal a player set for themselves), in progress, on hold or approved. The status filter offers your academy's goal statuses; pick one to see only the goals with that status.
+
 ## Authoring a widget
 
 The builder lives at **TalentTrack → Custom widgets** (also reachable from the Configuration tile-landing). Cap-gated on `tt_author_custom_widgets`. Six steps:

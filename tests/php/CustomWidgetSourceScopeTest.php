@@ -57,7 +57,7 @@ final class CustomWidgetSourceScopeTest extends WP_UnitTestCase {
                 'club_id' => $this->club, 'player_id' => $pid, 'coach_id' => 1, 'eval_date' => gmdate( 'Y-m-d' ),
             ] );
             $wpdb->insert( "{$p}tt_goals", [
-                'club_id' => $this->club, 'player_id' => $pid, 'title' => 'Goal ' . $name, 'status' => 'active',
+                'club_id' => $this->club, 'player_id' => $pid, 'title' => 'Goal ' . $name, 'status' => 'in_progress',
             ] );
             $wpdb->insert( "{$p}tt_pdp_files", [
                 'club_id' => $this->club, 'player_id' => $pid, 'season_id' => 950001, 'status' => 'open',
