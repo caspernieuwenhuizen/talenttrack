@@ -12,6 +12,7 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReportBlockOptions;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TeamSectionRights;
+use TT\Modules\ReportStudio\Domain\CarriesSensitiveReads;
 use TT\Modules\ReportStudio\Domain\CutsForReader;
 use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
@@ -35,7 +36,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * lines; what the meeting decided is a snapshot's note on that block, never
  * a value in the definition.
  */
-final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsForReader {
+final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsForReader, CarriesSensitiveReads {
 
     /** The Studio key of each section this block covers. */
     public const KEYS = [
@@ -135,6 +136,33 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsFor
             $report = ( new TeamMonthlyReport() )->forContext( $ctx, [ $section ] );
             return is_array( $report['data'][ $section ] ?? null ) ? $report['data'][ $section ] : [];
         } );
+    }
+
+    /**
+     * #4963 — "what changed": its injury entries per player, and its medical
+     * and safeguarding entries per player as the reader's own read of them
+     * says (`TeamSectionRights::sensitiveChanges()`, the rule the monthly
+     * report's snapshot records by).
+     */
+    public function sensitiveReads( array $data, array $context, int $reader ): array {
+        if ( $this->section !== TeamMonthlyReportBlock::CHANGES ) return [];
+        $events = is_array( $data['events'] ?? null ) ? $data['events'] : [];
+        $team   = is_numeric( $context['team_id'] ?? null ) ? (int) $context['team_id'] : 0;
+        $from   = is_string( $context['from'] ?? null ) ? (string) $context['from'] : '';
+        $to     = is_string( $context['to'] ?? null ) ? (string) $context['to'] : '';
+        if ( $events === [] || $team <= 0 || $from === '' || $to === '' ) return [];
+
+        $injuries = [];
+        foreach ( $events as $e ) {
+            if ( ! is_array( $e ) || ! in_array( (string) ( $e['event_type'] ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) continue;
+            $pid = (int) ( $e['player_id'] ?? 0 );
+            if ( $pid > 0 ) $injuries[ $pid ] = ( $injuries[ $pid ] ?? 0 ) + 1;
+        }
+        $out = [];
+        if ( $injuries !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ] = $injuries;
+        $sensitive = TeamSectionRights::sensitiveChanges( $data, $reader, $team, $from, $to );
+        if ( $sensitive !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ] = $sensitive;
+        return $out;
     }
 
     /** The frozen section as this reader may read it now (`TeamSectionRights::cut()`). */

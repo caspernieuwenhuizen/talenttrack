@@ -2361,7 +2361,9 @@ preview and `GET /scheduled-reports/{id}` record no read. After a send, a PDF
 that shows a player's injuries or sensitive journey entries records one
 `player.injuries_viewed` / `player.sensitive_timeline_viewed` row per
 recipient, written as that recipient, with `surface: "scheduled_report"` and
-the `schedule_id`.
+the `schedule_id`. Each block that can carry such entries says which
+(`CarriesSensitiveReads`): a player report's injuries and journey sections,
+and a team report's "what changed", per player in it.
 
 **When it pauses.** The report gone, archived, unpublished or no longer
 schedulable, its fixed player or team gone, its owner no longer allowed to

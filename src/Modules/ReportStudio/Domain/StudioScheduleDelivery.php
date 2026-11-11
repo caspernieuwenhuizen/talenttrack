@@ -56,37 +56,29 @@ final class StudioScheduleDelivery {
     }
 
     /**
-     * The player-report sections whose entries a send is a read of: the
-     * injuries, and the journey's medical and safeguarding entries, keyed by
-     * the Studio block that carries them.
-     *
-     * Reads of them in the sent PDF, per player: what `runPdf()` records once
+     * The reads the sent PDF is of, per player: what `runPdf()` records once
      * per recipient after the send, because the composition itself is quiet.
+     * Each block that can carry injury or sensitive journey data says which
+     * (`CarriesSensitiveReads`): a player report's injuries and journey
+     * sections, a team report's "what changed". `$reader` is the owner, the
+     * reader the document was composed as.
      *
      * @param array<string,mixed> $doc
      * @return array<string, array<int,int>> action => player id => entries
      */
-    public static function sensitiveReads( array $doc ): array {
+    public static function sensitiveReads( array $doc, int $reader ): array {
         $context = is_array( $doc['context'] ?? null ) ? $doc['context'] : [];
-        $player  = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
-        if ( $player <= 0 ) return [];
-
-        $injuries_key = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ];
-        $journey_key  = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::JOURNEY ];
-        $out = [];
+        $out     = [];
         foreach ( is_array( $doc['blocks'] ?? null ) ? $doc['blocks'] : [] as $block ) {
             if ( ! is_array( $block ) || ! is_array( $block['data'] ?? null ) ) continue;
-            $items = is_array( $block['data']['items'] ?? null ) ? $block['data']['items'] : [];
-            if ( $items === [] ) continue;
-            if ( ( $block['key'] ?? '' ) === $injuries_key ) {
-                $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $player ] = count( $items );
-            } elseif ( ( $block['key'] ?? '' ) === $journey_key ) {
-                $ids = [];
-                foreach ( $items as $item ) {
-                    if ( is_array( $item ) ) $ids[] = (int) ( $item['id'] ?? 0 );
+            $renderer = BlockRegistry::find( (string) ( $block['key'] ?? '' ) );
+            if ( ! $renderer instanceof CarriesSensitiveReads ) continue;
+            $data = [];
+            foreach ( $block['data'] as $k => $v ) $data[ (string) $k ] = $v;
+            foreach ( $renderer->sensitiveReads( $data, $context, $reader ) as $action => $counts ) {
+                foreach ( $counts as $player => $n ) {
+                    $out[ $action ][ $player ] = ( $out[ $action ][ $player ] ?? 0 ) + $n;
                 }
-                $n = \TT\Infrastructure\Journey\InjuryReads::sensitiveCount( $player, $ids );
-                if ( $n > 0 ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $player ] = $n;
             }
         }
         return $out;
@@ -239,7 +231,7 @@ final class StudioScheduleDelivery {
         $out['bytes']    = $bytes;
         $out['filename'] = $payload['filename'];
         $out['label']    = $label;
-        $out['reads']    = self::sensitiveReads( $doc );
+        $out['reads']    = self::sensitiveReads( $doc, $owner );
         $left            = is_array( $doc['left_out'] ?? null ) ? $doc['left_out'] : [];
         if ( $left !== [] ) {
             $out['note'] = sprintf(

@@ -12,6 +12,7 @@ use TT\Modules\Analytics\Reports\PlayerReportComposers\PlayerReportContext;
 use TT\Modules\Analytics\Reports\PlayerReportLayout;
 use TT\Modules\Analytics\Reports\PlayerSectionRights;
 use TT\Modules\Export\Exporters\PlayerReportPdfDocument;
+use TT\Modules\ReportStudio\Domain\CarriesSensitiveReads;
 use TT\Modules\ReportStudio\Domain\CutsForReader;
 use TT\Modules\ReportStudio\Domain\RendersDocument;
 use TT\Modules\ReportStudio\Domain\ReportBlock;
@@ -42,7 +43,7 @@ use TT\Modules\ReportStudio\Domain\SharedReads;
  * as the report's ruled lines; what is said in the talk is a snapshot's note
  * on that block, never a value in the definition.
  */
-class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader {
+class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader, CarriesSensitiveReads {
 
     /** The Studio key of each section this block covers. */
     public const KEYS = [
@@ -170,6 +171,28 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader 
             \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'report_studio', $context->playerId, $shown, [ $context->userId ] );
         }
         return $shown;
+    }
+
+    /**
+     * #4963 — the injuries section's entries, and the journey section's
+     * medical and safeguarding ones, for the document's player.
+     */
+    public function sensitiveReads( array $data, array $context, int $reader ): array {
+        $player = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
+        $items  = is_array( $data['items'] ?? null ) ? $data['items'] : [];
+        if ( $player <= 0 || $items === [] ) return [];
+        if ( $this->section === PlayerReportBlock::INJURIES ) {
+            return [ \TT\Infrastructure\Journey\InjuryReads::INJURIES => [ $player => count( $items ) ] ];
+        }
+        if ( $this->section === PlayerReportBlock::JOURNEY ) {
+            $ids = [];
+            foreach ( $items as $item ) {
+                if ( is_array( $item ) ) $ids[] = (int) ( $item['id'] ?? 0 );
+            }
+            $n = \TT\Infrastructure\Journey\InjuryReads::sensitiveCount( $player, $ids );
+            return $n > 0 ? [ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE => [ $player => $n ] ] : [];
+        }
+        return [];
     }
 
     /** The frozen section as this reader may read it now (`PlayerSectionRights::cut()`). */

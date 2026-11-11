@@ -517,6 +517,47 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_a_team_report_with_what_changed_records_its_reads_per_recipient_too(): void {
+        global $wpdb;
+        FeatureRegistry::setEnabled( 'journey_medical_visibility', true );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_events", [
+            'club_id' => CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'player_id' => $this->child, 'event_type' => 'injury_started',
+            'event_date' => '2026-08-04 09:00:00', 'summary' => 'Injured: hamstring 4963.', 'visibility' => 'medical',
+            'source_module' => 'tests', 'source_entity_type' => 'test_event', 'source_entity_id' => 4963,
+        ] );
+        $hod2 = $this->persona( 'tt_head_dev', 'head_of_development', 0, 'hod2-4963@example.test' );
+        $this->assertTrue( ReaderSet::of( [ $this->hod, $hod2 ] )->seesMedical(), 'Precondition: both read medical entries.' );
+
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'monthly_changes' ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $hod2 ] ] );
+        $injuries  = $this->eventRows( 'player.injuries_viewed' );
+        $sensitive = $this->eventRows( 'player.sensitive_timeline_viewed' );
+        $all       = [ $this->eventRows( 'player.injuries_viewed', true ), $this->eventRows( 'player.sensitive_timeline_viewed', true ) ];
+
+        wp_set_current_user( $this->hod );
+        $this->assertSame( 200, $this->send( 'GET', "scheduled-reports/{$schedule}" )->get_status() );
+        $this->assertSame( 200, $this->send( 'GET', "reports/{$id}/schedules/preview", [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $hod2 ] ] )->get_status() );
+        $this->assertSame( $all, [ $this->eventRows( 'player.injuries_viewed', true ), $this->eventRows( 'player.sensitive_timeline_viewed', true ) ], 'the preview reads nothing, on any surface' );
+
+        // The block as the run composes it holds the entry, so the reads it
+        // records are of what was sent.
+        $report = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        $doc = ReportSchedules::compose( $report, [ 'from' => '2026-08-01', 'to' => '2026-08-31' ], [ $this->hod, $hod2 ] );
+        $this->assertIsArray( $doc );
+        $reads = \TT\Modules\ReportStudio\Domain\StudioScheduleDelivery::sensitiveReads( $doc, $this->hod );
+        $this->assertSame( [ $this->child => 1 ], $reads['player.injuries_viewed'] ?? [], 'the injury entry, per player' );
+        $this->assertSame( [ $this->child => 1 ], $reads['player.sensitive_timeline_viewed'] ?? [], 'and as a medical entry' );
+
+        wp_set_current_user( 0 );
+        $this->runOnce( $schedule );
+        if ( class_exists( \Dompdf\Dompdf::class ) ) {
+            $this->assertCount( 2, $this->sent, 'Precondition: both received it.' );
+            $this->assertSame( $injuries + 2, $this->eventRows( 'player.injuries_viewed' ), 'one injury read per recipient' );
+            $this->assertSame( $sensitive + 2, $this->eventRows( 'player.sensitive_timeline_viewed' ), 'one sensitive read per recipient' );
+        }
+    }
+
     public function test_a_preview_for_40_readers_costs_a_bounded_number_of_statements(): void {
         for ( $i = 0; $i < 38; $i++ ) $this->persona( 'tt_coach', 'head_coach', $this->team_a, "coach{$i}-4963@example.test" );
         $three = $this->published( $this->teamChoices(), $this->headings( 3 ) );
@@ -554,6 +595,17 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $out = [];
         for ( $i = 1; $i <= $n; $i++ ) $out[] = [ 'id' => 'b' . $i, 'key' => 'heading', 'options' => [ 'heading' => 'H' . $i ] ];
         return $out;
+    }
+
+    /** Reads of the child's entries: by a scheduled send, or on any surface. */
+    private function eventRows( string $action, bool $any_surface = false ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $action,
+            $this->child,
+            $any_surface ? '%' : '%"surface":"scheduled_report"%'
+        ) );
     }
 
     private function injuryRows(): int {
