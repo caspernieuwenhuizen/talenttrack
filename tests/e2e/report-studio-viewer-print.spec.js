@@ -23,9 +23,15 @@ const BODY =
 	'<div class="tt-rv" data-tt-rv><h1>Pack</h1>' +
 	'<div class="tt-rs-context tt-rv-context"><div class="tt-field" data-tt-rv-subject hidden></div>' +
 	'<fieldset class="tt-rs-radios" data-tt-rv-periods hidden><legend>Period</legend></fieldset></div>' +
-	'<div class="tt-rv-actions"><a class="tt-btn tt-btn-secondary" data-tt-rv-pdf href="#" hidden>Download PDF</a></div>' +
+	'<div class="tt-rv-actions"><a class="tt-btn tt-btn-secondary" data-tt-rv-pdf href="#" hidden>Download PDF</a>' +
+	'<button type="button" class="tt-btn tt-btn-secondary" data-tt-rv-open-snapshot hidden>Take snapshot</button></div>' +
 	'<p class="tt-rs-notice" data-tt-rv-notice role="status" hidden></p>' +
-	'<div class="tt-rv-document" data-tt-rv-document aria-live="polite"></div></div>';
+	'<div class="tt-rv-document" data-tt-rv-document aria-live="polite"></div>' +
+	'<dialog class="tt-rs-dialog" data-tt-rv-snapshot><form method="dialog" class="tt-rs-publish-form"><h2>Take snapshot</h2>' +
+	'<div class="tt-field"><label class="tt-field-label" for="tt-rv-snapshot-name">Name</label><input type="text" id="tt-rv-snapshot-name" class="tt-input" data-tt-rv-snapshot-name></div>' +
+	'<p class="tt-rs-error" data-tt-rv-snapshot-error role="alert"></p>' +
+	'<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-secondary" value="cancel" formnovalidate>Cancel</button>' +
+	'<button type="submit" class="tt-btn tt-btn-primary" value="confirm">Take snapshot</button></div></form></dialog></div>';
 
 const CONFIG = 'window.TTReportViewer = ' + JSON.stringify( {
 	id: 9, rest: REST, nonce: 'e2e', periods: [],
@@ -61,6 +67,7 @@ async function mount( page ) {
 			await route.fulfill( {
 				contentType: 'text/html',
 				body: '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>' +
+					asset( 'css', 'tokens.css' ) + asset( 'css', 'public.css' ) + asset( 'css', 'frontend-admin.css' ) +
 					asset( 'css', 'components/stack-table.css' ) + asset( 'css', 'frontend-report-studio.css' ) + asset( 'css', 'frontend-report-document.css' ) +
 					'</style></head><body class="tt-dashboard">' + BODY +
 					'<script>' + CONFIG + '</script><script>' + asset( 'js', 'frontend-report-viewer.js' ) + '</script></body></html>',
@@ -76,7 +83,7 @@ async function mount( page ) {
 		if ( p === 'reports/9/document' ) {
 			expect( url.searchParams.get( 'source' ) ).toBe( 'published' );
 			return json( {
-				context: { scope: 'team', team_id: 3, from: '2026-10-01', to: '2026-10-31', audience: 'internal' },
+				context: { scope: 'team', team_id: 3, from: '2026-10-01', to: '2026-10-31', audience: 'internal', can_snapshot: true },
 				page_fit: { pages: 2, fill: [ 30, 30 ], breaks: [ 'b3' ] },
 				html: DOCUMENT,
 			} );
@@ -115,4 +122,21 @@ test( 'at 360px the document has no sideways scroll', async ( { page } ) => {
 	const first = await halves.nth( 0 ).boundingBox();
 	const next = await halves.nth( 1 ).boundingBox();
 	expect( first && next && next.y >= first.y + first.height - 1 ).toBeTruthy();
+} );
+
+test( 'on a touch screen the snapshot dialog\'s buttons are 48px targets', async ( { browser } ) => {
+	const context = await browser.newContext( { viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true } );
+	const page = await context.newPage();
+	await mount( page );
+	expect( await page.evaluate( () => matchMedia( '(pointer: coarse)' ).matches ) ).toBe( true );
+
+	const open = page.locator( '[data-tt-rv-open-snapshot]' );
+	await expect( open ).toBeVisible();
+	await open.click();
+	const buttons = page.locator( '[data-tt-rv-snapshot] .tt-form-actions .tt-btn' );
+	await expect( buttons ).toHaveCount( 2 );
+	for ( const height of await buttons.evaluateAll( ( list ) => list.map( ( b ) => b.getBoundingClientRect().height ) ) ) {
+		expect( height ).toBeGreaterThanOrEqual( 48 );
+	}
+	await context.close();
 } );

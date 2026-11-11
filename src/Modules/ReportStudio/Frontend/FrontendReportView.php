@@ -55,7 +55,10 @@ final class FrontendReportView extends FrontendViewBase {
         }
 
         // #5021 — a frozen copy answers to its own subject, not to the
-        // report, so it opens after the report changed or was archived.
+        // report, so it opens after the report changed or was archived. This
+        // is a staff page: a family opens a copy shared with them on the
+        // Reports tab of the child's file, as it opens a shared player
+        // report, and the capability check above refuses them here on purpose.
         $snapshot = isset( $_GET['snapshot'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['snapshot'] ) ) : '';
         if ( $snapshot !== '' ) {
             self::renderSnapshot( $snapshot, $user_id );

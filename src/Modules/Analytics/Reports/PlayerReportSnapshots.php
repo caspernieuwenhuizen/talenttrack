@@ -236,6 +236,9 @@ final class PlayerReportSnapshots {
             if ( $document !== null ) $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forFamily( $document, $user_id, $player_id );
             $notes  = [];
         } elseif ( $document !== null ) {
+            // Studio snapshots follow the Studio's own access rule (#4695),
+            // and a copy for staff opens for a reader who reads as staff.
+            if ( ! \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id )->readsStudio() ) return null;
             if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
             $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forReader( $document, $user_id );
         }

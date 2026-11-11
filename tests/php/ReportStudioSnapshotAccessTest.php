@@ -206,6 +206,44 @@ final class ReportStudioSnapshotAccessTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->send( 'GET', "report-snapshots/{$uuid}" )->get_status() );
     }
 
+    public function test_the_read_only_observer_opens_no_studio_snapshot(): void {
+        $internal = $this->snapshot( $this->published( $this->playerChoices( 'internal' ), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Staff' ] ] ] ) );
+        $family   = $this->snapshot( $this->published( $this->playerChoices( 'family' ) + [ 'sharing' => 'family' ], [ [ 'id' => 'b1', 'key' => 'text', 'options' => [ 'heading' => 'For you', 'text' => 'Well done.' ] ] ] ) );
+        $team     = $this->snapshot( $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] ) );
+
+        $this->assertTrue( \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $this->observer, $this->child ), 'precondition: the observer reads the player\'s reports' );
+        wp_set_current_user( $this->observer );
+        foreach ( [ 'internal' => $internal, 'family' => $family, 'team' => $team ] as $kind => $uuid ) {
+            $this->assertNull( ReportSnapshots::read( $uuid, $this->observer ), $kind );
+            $this->assertSame( 403, $this->send( 'GET', "report-snapshots/{$uuid}" )->get_status(), $kind );
+            $this->assertStringNotContainsString( 'tt-sd-block', $this->renderSnapshotView( $this->observer, $uuid ), "{$kind}: the snapshot page does not open" );
+        }
+        foreach ( [ 'internal' => $internal, 'family' => $family ] as $kind => $uuid ) {
+            $this->assertSame( 403, $this->send( 'GET', "player-report-snapshots/{$uuid}" )->get_status(), $kind );
+        }
+    }
+
+    /**
+     * A family opens a shared Studio snapshot where it opens a shared player
+     * report: the Reports tab on the child's file. The Studio's snapshot page
+     * is a staff page, so it refuses a parent on purpose.
+     */
+    public function test_a_family_opens_its_studio_snapshot_on_the_players_reports_tab(): void {
+        $uuid = $this->snapshot( $this->published( $this->playerChoices( 'family' ) + [ 'sharing' => 'family' ], [ [ 'id' => 'b1', 'key' => 'text', 'options' => [ 'heading' => 'For you', 'text' => 'Well done.' ] ] ] ) );
+
+        wp_set_current_user( $this->parent );
+        $this->flush();
+        $_GET['report'] = $uuid;
+        ob_start();
+        \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::render( $this->child, $this->parent, home_url( '/?tt_view=players&id=' . $this->child . '&tab=reports' ) );
+        $tab = (string) ob_get_clean();
+        unset( $_GET['report'] );
+
+        $this->assertStringContainsString( 'report=' . $uuid, $tab, 'the tab lists it and links to it' );
+        $this->assertStringContainsString( 'Well done.', $tab, 'and opens it there' );
+        $this->assertStringNotContainsString( 'Well done.', $this->renderSnapshotView( $this->parent, $uuid ), 'the staff page refuses the parent' );
+    }
+
     public function test_a_read_only_observer_writes_no_note(): void {
         $uuid = $this->snapshot( $this->published( $this->playerChoices( 'internal' ), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Staff' ] ] ] ) );
 
@@ -443,6 +481,17 @@ final class ReportStudioSnapshotAccessTest extends WP_UnitTestCase {
         $wpdb->insert( "{$wpdb->prefix}tt_player_parents", [ 'club_id' => CurrentClub::id(), 'player_id' => $player, 'parent_user_id' => $uid ] );
         $this->flush();
         return $uid;
+    }
+
+    private function renderSnapshotView( int $user, string $uuid ): string {
+        wp_set_current_user( $user );
+        $this->flush();
+        $_GET['snapshot'] = $uuid;
+        ob_start();
+        \TT\Modules\ReportStudio\Frontend\FrontendReportView::render( $user, false );
+        $html = (string) ob_get_clean();
+        unset( $_GET['snapshot'] );
+        return $html;
     }
 
     private function notesJson( string $table, string $uuid ): string {

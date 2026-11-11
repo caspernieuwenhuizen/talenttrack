@@ -213,8 +213,7 @@ final class ReportSnapshots {
         }
 
         $team_id = (int) ( $row->team_id ?? 0 );
-        if ( ! TeamReportAccess::canRead( $user_id, $team_id ) ) return null;
-        if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
+        if ( ! self::readsAsStaff( $user_id ) || ! TeamReportAccess::canRead( $user_id, $team_id ) ) return null;
 
         return [
             'uuid'       => (string) ( $row->uuid ?? '' ),
@@ -295,7 +294,7 @@ final class ReportSnapshots {
      *     period_from:string, period_to:string, created_by:int, created_at:string}>
      */
     public static function listFor( array $report, int $user_id ): array {
-        if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return [];
+        if ( ! self::readsAsStaff( $user_id ) ) return [];
 
         $out = [];
         if ( $report['scope'] === ReportContext::SCOPE_PLAYER ) {
@@ -354,13 +353,23 @@ final class ReportSnapshots {
      */
     public static function canNoteLoaded( array $loaded, int $user_id ): bool {
         $row = $loaded['row'];
+        if ( ! self::readsAsStaff( $user_id ) ) return false;
         if ( $loaded['kind'] === self::PLAYER ) {
             return PlayerReportSnapshotRepository::audienceOf( $row ) !== PlayerReportAudience::FAMILY
-                && PlayerReportAudience::forReader( $user_id ) === PlayerReportAudience::INTERNAL
                 && self::mayCreate( self::PLAYER, (int) ( $row->player_id ?? 0 ), $user_id );
         }
-        return PlayerReportAudience::forReader( $user_id ) === PlayerReportAudience::INTERNAL
-            && self::mayCreate( self::TEAM, (int) ( $row->team_id ?? 0 ), $user_id );
+        return self::mayCreate( self::TEAM, (int) ( $row->team_id ?? 0 ), $user_id );
+    }
+
+    /**
+     * Opens a Studio snapshot as staff: Studio snapshots follow the Studio's
+     * own access rule (`ReportReader::readsStudio()`, #4695), and a copy for
+     * staff opens for a reader who reads as staff. A family reader reads a
+     * family copy by the family rule instead.
+     */
+    private static function readsAsStaff( int $user_id ): bool {
+        return ReportReader::for( $user_id )->readsStudio()
+            && PlayerReportAudience::forReader( $user_id ) === PlayerReportAudience::INTERNAL;
     }
 
     /** May this reader write notes on this Studio snapshot? */
