@@ -372,6 +372,50 @@ final class MinutesGridMinutesCheckTest extends WP_UnitTestCase {
     }
 
     /** @return array<string, mixed> */
+    /**
+     * #5095 — a match today, still planned, no score and no minutes yet: the
+     * coach typing minutes tonight. The audit report leaves it out (it is not
+     * played), but the grid still judges it against what it holds, on the
+     * grid and on GET /activities/{id}/minutes.
+     */
+    public function test_a_match_today_not_yet_played_keeps_its_yardstick(): void {
+        global $wpdb;
+        $today = (string) $wpdb->get_var( 'SELECT CURDATE()' );
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'              => $this->club,
+            'team_id'              => $this->team,
+            'title'                => 'Tonight O14-1',
+            'session_date'         => $today,
+            'activity_type_key'    => 'match',
+            'game_subtype_key'     => 'League',
+            'activity_status_key'  => 'planned',
+            'plan_state'           => 'scheduled',
+            'match_length_minutes' => 70,
+        ] );
+        $match = (int) $wpdb->insert_id;
+        foreach ( $this->insertPlayers( 14 ) as $pid ) {
+            $wpdb->insert( "{$this->p}tt_attendance", [
+                'club_id' => $this->club, 'activity_id' => $match, 'player_id' => $pid,
+                'status' => 'present', 'is_guest' => 0, 'record_type' => 'actual',
+            ] );
+        }
+
+        $this->assertSame( [], ( new MinutesAuditQuery() )->matrix( $this->team, $today, $today )['games'], 'the audit report lists played matches only' );
+
+        $matrix = ( new MinutesGridQuery() )->matrix( $this->team, $today, $today );
+        $column = $this->column( $matrix, $match );
+        $this->assertSame( 770, $column['available_minutes'], 'eleven a side over seventy minutes' );
+        $this->assertSame( 14, $column['squad_count'] );
+        $this->assertIsArray( $column['minutes_check'] );
+        $this->assertNotSame( '', $column['minutes_check']['status'], 'the Minutes row has its check before the first save' );
+
+        $one = ( new MinutesGridQuery() )->forActivity( $match );
+        $this->assertNotNull( $one );
+        $this->assertSame( 770, $one['activity']['available_minutes'], 'GET /activities/{id}/minutes carries it too' );
+        $this->assertSame( 14, $one['activity']['squad_count'] );
+        $this->assertNotSame( '', $one['activity']['minutes_check']['status'] );
+    }
+
     private function gridCheck( int $match ): array {
         $matrix = ( new MinutesGridQuery() )->matrix( $this->team, self::FROM, self::TO );
         $roster = array_map( static fn( array $pl ): int => (int) $pl['player_id'], $matrix['players'] );

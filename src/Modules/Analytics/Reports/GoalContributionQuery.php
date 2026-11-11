@@ -4,7 +4,7 @@ namespace TT\Modules\Analytics\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
-use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\ContributionsCeiling;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
@@ -34,9 +34,10 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
  *     tally that quietly said otherwise would be worse than not showing it.
  *   - **Reversed** (undone) events count for nobody, on either side.
  *
- * Reads are club-scoped and filtered to real, non-cancelled match activities,
- * matching the set {@see MinutesQuery} counts, so goals and minutes on the
- * same screen always describe the same matches.
+ * Reads are the played minutes-bearing matches (`PlayedMatch`), the set
+ * {@see MinutesQuery} counts, so goals and minutes on the same screen always
+ * describe the same matches. A goal logged on a match dated after today is
+ * not counted until the match date: such a match is not played.
  */
 final class GoalContributionQuery {
 
@@ -479,18 +480,16 @@ final class GoalContributionQuery {
         $to   = isset( $filters['to'] ) ? (string) $filters['to'] : '';
         $team = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
 
-        // The match types MinutesQuery counts, so goals and minutes describe
-        // the same matches.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
-        $params = [ $club_id, $club_id ];
+        // #5095 — the played minutes-bearing matches (`PlayedMatch`), the set
+        // MinutesQuery counts, so goals and minutes describe the same
+        // matches: live (club, not archived, trashed or cancelled, in the
+        // demo scope) and played by the one rule.
+        $played = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
+        $params = [ $club_id ];
 
         $where = "ge.club_id = %d
                     AND ge.reversed_at IS NULL
-                    AND a.club_id = %d
-                    AND {$is_match_sql}
-                    AND a.archived_at IS NULL
-                    AND a.trashed_at IS NULL
-                    AND " . ActivityLifecycle::notCancelledClause( 'a' );
+                    AND {$played}";
 
         if ( $team > 0 ) {
             $where .= ' AND a.team_id = %d';

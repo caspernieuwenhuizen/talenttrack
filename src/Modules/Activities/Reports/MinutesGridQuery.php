@@ -4,6 +4,7 @@ namespace TT\Modules\Activities\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
@@ -77,8 +78,9 @@ final class MinutesGridQuery {
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
-        // 1. Match activities for the team in the window (columns) — the same
-        //    set the Minutes-audit matrix uses, so the two reconcile.
+        // 1. Match activities for the team in the window (columns): every
+        //    live match, played or not. The yardstick reads the audit matrix
+        //    over this set (`auditYardstick()`), so the two reconcile.
         $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
@@ -330,7 +332,9 @@ final class MinutesGridQuery {
 
     /**
      * #4483 — `available_minutes` and `squad_count` per match column, read
-     * from the Minutes-audit matrix over the same window.
+     * from the Minutes-audit matrix over the same window and the grid's own
+     * column set: every live minutes-bearing match, played or not (#5095).
+     * The audit report itself lists the played ones only.
      *
      * Read from the audit rather than worked out again here, so the grid's
      * Minutes row is judged against exactly what the audit judges: the match
@@ -365,7 +369,12 @@ final class MinutesGridQuery {
         if ( ! $has_columns ) return [];
 
         $out = [];
-        foreach ( ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to )['games'] as $g ) {
+        // #5095 — the grid's own column set, the live matches, not the
+        // audit's default of played ones: the coach types minutes for a
+        // match tonight before it is marked completed, and that match needs
+        // its yardstick most.
+        $row_set = PlayedMatch::liveInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
+        foreach ( ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to, 'all', $row_set )['games'] as $g ) {
             if ( $g['is_rollup'] ) {
                 $out[ $g['activity_id'] ] = [
                     'available_minutes' => $g['available_minutes'],

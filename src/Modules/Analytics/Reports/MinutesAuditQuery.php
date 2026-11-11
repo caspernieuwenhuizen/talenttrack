@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
-use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
@@ -93,11 +93,17 @@ final class MinutesAuditQuery {
      * keeps every match type. One team of `matrixForTeams()`, so the two can
      * never answer differently.
      *
+     * `$row_set` is the matches the rows are: a `PlayedMatch` clause on the
+     * alias `a`. The default, '' , is the played minutes-bearing matches, the
+     * report's question ("which played matches have gaps"). The minutes entry
+     * grid asks what a match holds before it is played, and passes
+     * `PlayedMatch::liveInSetSql( MINUTES_BEARING, 'a' )` (#5095).
+     *
      * @return AuditMatrix
      */
-    public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all' ): array {
+    public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all', string $row_set = '' ): array {
         if ( $team_id <= 0 ) return self::emptyMatrix();
-        return $this->matrixForTeams( [ $team_id ], $from, $to, $type_filter )[ $team_id ] ?? self::emptyMatrix();
+        return $this->matrixForTeams( [ $team_id ], $from, $to, $type_filter, $row_set )[ $team_id ] ?? self::emptyMatrix();
     }
 
     /**
@@ -107,9 +113,10 @@ final class MinutesAuditQuery {
      * Each team's matrix is exactly what `matrix()` returns for it.
      *
      * @param array<int> $team_ids
+     * @param string     $row_set  as in {@see matrix()}; '' is the played matches
      * @return array<int, AuditMatrix> team id => matrix, one per team asked for
      */
-    public function matrixForTeams( array $team_ids, string $from, string $to, string $type_filter = 'all' ): array {
+    public function matrixForTeams( array $team_ids, string $from, string $to, string $type_filter = 'all', string $row_set = '' ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
@@ -129,31 +136,30 @@ final class MinutesAuditQuery {
         // filter; 'all' / '' keeps every type.
         $where_type = '';
         if ( $type_filter !== '' && $type_filter !== 'all' ) {
-            $where_type = $wpdb->prepare( ' AND game_subtype_key = %s', $type_filter );
+            $where_type = $wpdb->prepare( ' AND a.game_subtype_key = %s', $type_filter );
         }
 
         // 1. Game / tournament activities for the teams in the window — the
-        //    SAME set MinutesQuery counts (match | game | tournament), so
-        //    row totals reconcile with the minutes report.
+        //    SAME set MinutesQuery counts, so row totals reconcile with the
+        //    minutes report. #5095 — read from `PlayedMatch`: by default the
+        //    played minutes-bearing matches (match | game | tournament) and
+        //    their live clause, so a match not yet played is not a row of
+        //    gaps; the entry grid passes the live set (`$row_set`).
         $in_teams = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
+        $played   = $row_set !== '' ? $row_set : PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, team_id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
-                    match_length_minutes, start_time, end_time,
+            "SELECT a.id, a.team_id, a.game_subtype_key, a.activity_type_key, a.tournament_id, a.{$date_col} AS session_date, a.title,
+                    a.match_length_minutes, a.start_time, a.end_time,
                     ( SELECT mp.half_length_minutes FROM {$p}tt_match_prep mp
-                       WHERE mp.activity_id = {$p}tt_activities.id LIMIT 1 ) AS prep_half_minutes
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id IN ({$in_teams})
-                AND {$is_match_sql}
-                AND {$date_col} BETWEEN %s AND %s
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
+                       WHERE mp.activity_id = a.id LIMIT 1 ) AS prep_half_minutes
+               FROM {$p}tt_activities a
+              WHERE a.team_id IN ({$in_teams})
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND {$played}
                 {$where_type}
-              ORDER BY {$date_col} ASC, id ASC",
-            ...array_merge( [ $club_id ], $teams, [ $from, $to ] )
+              ORDER BY a.{$date_col} ASC, a.id ASC",
+            ...array_merge( $teams, [ $from, $to ] )
         ) );
         if ( empty( $activities ) ) return $out;
 

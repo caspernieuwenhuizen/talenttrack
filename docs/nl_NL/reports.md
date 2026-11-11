@@ -447,8 +447,9 @@ bevat, met het aantal. Je hoeft er niets mee.
 
 Het scherm is een matrix in spreadsheet-stijl:
 
-- **Rijen** zijn de wedstrijd-, match- en toernooiactiviteiten van het team in de
- periode (dezelfde set die het minutenrapport telt).
+- **Rijen** zijn de **gespeelde** wedstrijd-, match- en toernooiactiviteiten van
+ het team in de periode (dezelfde set die het minutenrapport telt): een
+ wedstrijd die nog niet gespeeld is, of na vandaag valt, is geen rij vol gaten.
 - **Kolommen** zijn de selectie — elke speler die voorkomt op de **aanwezigheid**
  van die wedstrijden. De selectie wordt bepaald op basis van aanwezigheid, niet
  op basis van de teamindeling van een speler, zodat een speler die voor één

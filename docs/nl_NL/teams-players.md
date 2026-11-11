@@ -222,7 +222,7 @@ Drie dingen zegt het tabblad in plaats van ze aan jou over te laten:
 - Wel gespeeld maar geen uitslag ingevoerd → apart geteld en benoemd, want een stille 0–0 zou de balans onjuist maken.
 - Doelpunten vastgelegd maar nog niet aan spelers toegewezen → dat staat er, in plaats van een lege lijst met doelpuntenmakers. Een lege lijst leest als "niemand scoorde", en dat is het bijna nooit.
 
-Toernooien blijven buiten de balans, met een regel over hoeveel het er waren: een toernooi zijn meerdere wedstrijden en één uitslag kan dat niet beschrijven. Doelpunten die daar vielen tellen wel mee voor de doelpuntenmakers.
+Toernooien blijven buiten de balans, met een regel over hoeveel het er waren: een toernooi zijn meerdere wedstrijden en één uitslag kan dat niet beschrijven. Doelpunten die daar vielen tellen wel mee voor de doelpuntenmakers. Doelpunten en assists tellen op gespeelde wedstrijden, dezelfde wedstrijden als de minuten: een doelpunt telt mee zodra de wedstrijd gespeeld is, en een doelpunt op een afgelaste wedstrijd telt niet.
 
 De nul houden wordt voor het team geteld en niet aan een keeper toegeschreven — de plugin legt niet vast wie een bepaalde wedstrijd keepte.
 

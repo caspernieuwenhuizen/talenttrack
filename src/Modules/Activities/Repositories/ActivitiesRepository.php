@@ -883,9 +883,7 @@ final class ActivitiesRepository {
         // one (pilot installs mix both), so exclude on both. The manage
         // list opts back in with the "show cancelled" filter.
         if ( ! $show_cancelled || $played_matches ) {
-            $where[]  = "( LOWER(COALESCE(s.plan_state, '')) <> %s AND LOWER(COALESCE(s.activity_status_key, '')) <> %s )";
-            $params[] = ActivityStatusKey::CANCELLED;
-            $params[] = ActivityStatusKey::CANCELLED;
+            $where[] = '( ' . ActivityLifecycle::notCancelledClause( 's' ) . ' )';
         }
 
         // #4507 — the minutes reports' "Matches played" drill: exactly the
@@ -1672,7 +1670,7 @@ final class ActivitiesRepository {
                 AND a.archived_at IS NULL
                 AND a.session_date >= %s
                 AND a.session_date <= %s
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 {$scope}
            ORDER BY a.session_date ASC, a.start_time IS NULL, a.start_time ASC, a.id ASC",
             ...$params
@@ -1766,7 +1764,7 @@ final class ActivitiesRepository {
                 AND a.archived_at IS NULL
                 AND a.session_date >= CURDATE()
                 AND a.session_date < DATE_ADD(CURDATE(), INTERVAL %d DAY)
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                AND " . ActivityLifecycle::outstandingClause( 'a' ) . "
                 {$scope}
            GROUP BY a.team_id",
             ...$params
@@ -1811,7 +1809,7 @@ final class ActivitiesRepository {
                 AND a.club_id = %d
                 AND a.archived_at IS NULL
                 AND a.session_date >= CURDATE()
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                AND " . ActivityLifecycle::outstandingClause( 'a' ) . "
                 {$scope}
            ORDER BY a.session_date ASC, a.id ASC
               LIMIT %d",
@@ -1848,7 +1846,7 @@ final class ActivitiesRepository {
                 AND a.archived_at IS NULL
                 AND a.activity_type_key IN ({$match_like})
                 AND a.session_date >= CURDATE()
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                AND " . ActivityLifecycle::outstandingClause( 'a' ) . "
                 {$scope}
            ORDER BY a.session_date ASC, a.id ASC
               LIMIT %d",

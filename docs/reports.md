@@ -426,8 +426,9 @@ them.
 
 The surface is a spreadsheet-style matrix:
 
-- **Rows** are the team's game, match and tournament activities in the window
- (the same set the minutes report counts).
+- **Rows** are the team's **played** game, match and tournament activities in the
+ window (the same set the minutes report counts): a match not played yet, or
+ dated after today, is not a row of gaps.
 - **Columns** are the squad — every player who appears on the **attendance** of
  those games. The squad is resolved from attendance, not from a player's team
  assignment, so a player who was borrowed for one game still shows up, and a
