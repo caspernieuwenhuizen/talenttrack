@@ -40,9 +40,13 @@ final class CourseSearchProvider extends MemorySearchProvider {
         $dashboard = RecordLink::dashboardUrl();
         $out       = [];
 
-        foreach ( $resolver->listableCourses( $person, $user_id ) as $slug => $manifest ) {
-            $slug   = (string) $slug;
-            $locked = $resolver->forCourse( $slug, $person, $user_id )->isLocked();
+        // One verdict per course, the pass `listableCourses()` makes, keeping
+        // the verdict for the lock: the courses page does the same.
+        foreach ( CourseRegistry::all() as $slug => $manifest ) {
+            $slug    = (string) $slug;
+            $verdict = $resolver->forCourse( $slug, $person, $user_id );
+            if ( ! $verdict->isListable() ) continue;
+            $locked = $verdict->isLocked();
             $text   = [ $manifest->summary() ];
             if ( ! $locked ) {
                 foreach ( CourseRegistry::lessons( $slug ) as $lesson ) $text[] = $lesson->title();

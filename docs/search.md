@@ -155,8 +155,8 @@ row says what it is: *Exercise*, *Training plan*, *Methodology* or *Course*.
   principles tab and a learning goal the framework tab, where each is listed.
 - **Courses** are found by their title, their summary and their lessons'
   titles. You find the courses the courses page lists for you. A course you
-  can't start yet, because another course comes first or your academy's plan doesn't include it, is listed and marked
-  *Locked*.
+  can't start yet, because another course comes first or your academy's
+  plan doesn't include it, is listed and marked *Locked*.
 
 An exercise or a plan shows a short excerpt of its description or notes,
 which its own page shows in full. A part of the library whose module is

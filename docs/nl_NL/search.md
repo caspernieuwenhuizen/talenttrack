@@ -162,8 +162,9 @@ spelprincipe of de cursus die nodig is via hetzelfde veld, onder
   staan.
 - **Cursussen** vind je op titel, samenvatting en de titels van hun lessen.
   Je vindt de cursussen die de cursuspagina voor je toont. Een cursus die je
-  nog niet kunt starten, omdat er eerst een andere cursus komt of het abonnement van je academie hem niet bevat, staat in de
-  lijst en is gemarkeerd als *Vergrendeld*.
+  nog niet kunt starten, omdat er eerst een andere cursus komt of het
+  abonnement van je academie hem niet bevat, staat in de lijst en is
+  gemarkeerd als *Vergrendeld*.
 
 Een oefening of een plan toont een kort fragment van de omschrijving of de
 notities, die op de eigen pagina volledig staan. Een deel van de bibliotheek

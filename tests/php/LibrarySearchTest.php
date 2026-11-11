@@ -209,6 +209,41 @@ final class LibrarySearchTest extends WP_UnitTestCase {
         $this->assertCount( 1, $this->itemsOf( $this->paged( $this->scout, self::METHOD_WORD ), 'methodology' ) );
     }
 
+    /**
+     * Stricter than the library page on purpose: the team manager reads
+     * activities, so opens the library, but holds no `exercises` read, so
+     * search finds no exercises for them. Pinned until the page asks the
+     * same entity.
+     */
+    public function test_a_team_manager_finds_no_exercises_though_the_library_opens(): void {
+        $manager = $this->persona( 'tt_team_manager', 'team_manager', $this->team_a, 'team_manager' );
+        $this->resetSearchCaches();
+        $this->assertTrue( user_can( $manager, 'tt_view_activities' ), 'precondition: the library page lets the team manager in' );
+
+        $data = $this->paged( $manager, self::EX_WORD );
+        $this->assertSame( [], $this->idsOf( $data, 'exercise' ) );
+        $this->assertSame( 0, $data['counts']['exercise'] ?? null );
+    }
+
+    /**
+     * One hit per page, so the count statement runs (a page short of full
+     * is counted from its own hits) and has to agree with the hits.
+     */
+    public function test_the_count_statement_agrees_with_the_hits(): void {
+        $one = [ 'per_page' => '1' ];
+
+        $coach = $this->paged( $this->personas['coach'], self::EX_WORD, $one + [ 'types' => 'exercise' ] );
+        $this->assertCount( 1, $coach['items'] );
+        $this->assertSame( 2, $coach['counts']['exercise'] ?? null );
+
+        $plans = $this->paged( $this->personas['coach'], self::PLAN_WORD, $one + [ 'types' => 'training_plan' ] );
+        $this->assertCount( 1, $plans['items'] );
+        $this->assertSame( 2, $plans['counts']['training_plan'] ?? null );
+
+        $hod = $this->paged( $this->personas['hod'], self::PLAN_WORD, $one + [ 'types' => 'training_plan' ] );
+        $this->assertSame( 3, $hod['counts']['training_plan'] ?? null );
+    }
+
     public function test_the_observer_finds_no_plans(): void {
         $data = $this->paged( $this->observer, self::PLAN_WORD );
         $this->assertSame( [], $this->idsOf( $data, 'training_plan' ) );

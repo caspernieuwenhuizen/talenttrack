@@ -13,12 +13,14 @@ use TT\Modules\Authorization\MatrixGate;
  * the club's, the current version only (`superseded_by_id IS NULL`), not
  * archived. The list and the detail page apply no further `visibility`
  * rule for the viewer, so neither does search (owner decision on #4942):
- * search never hides an exercise the viewer can open from the list, and
- * never shows one they could not.
+ * search never shows an exercise the viewer could not open from the list.
  *
- * The viewer needs the library page's own gate (`tt_view_activities`) and
- * the `exercises` read in the matrix. With the Exercises module off the
- * kind returns nothing.
+ * The viewer needs the library page's own gate (`tt_view_activities`) and,
+ * stricter than the page, the `exercises` read in the matrix: the entity
+ * that names the record decides. A team manager holds `activities` but no
+ * `exercises` read, so opens the library and finds no exercises in search,
+ * until the page asks the same entity (a separate authorization change).
+ * With the Exercises module off the kind returns nothing.
  */
 final class ExerciseSearchProvider extends LibraryRecordSearchProvider {
 
