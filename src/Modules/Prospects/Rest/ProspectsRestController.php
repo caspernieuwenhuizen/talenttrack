@@ -299,12 +299,17 @@ class ProspectsRestController {
      * 409 for one who has become a player or has a trial case.
      */
     public static function delete_prospect( \WP_REST_Request $r ): \WP_REST_Response {
-        $result = \TT\Modules\Prospects\Domain\ProspectDeletion::trash( (int) $r['id'], get_current_user_id() );
+        $id  = (int) $r['id'];
+        $uid = get_current_user_id();
+        if ( ! ProspectRecord::canOpen( $uid, $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+        $result = \TT\Modules\Prospects\Domain\ProspectDeletion::trash( $id, $uid );
         if ( $result instanceof \WP_Error ) {
             $status = $result->get_error_code() === \TT\Modules\Prospects\Domain\ProspectDeletion::ERR_IS_PLAYER ? 409 : 404;
             return RestResponse::error( (string) $result->get_error_code(), $result->get_error_message(), $status );
         }
-        return RestResponse::success( [ 'trashed' => true, 'id' => (int) $r['id'] ] );
+        return RestResponse::success( [ 'trashed' => true, 'id' => $id ] );
     }
 
     public static function can_view(): bool {
