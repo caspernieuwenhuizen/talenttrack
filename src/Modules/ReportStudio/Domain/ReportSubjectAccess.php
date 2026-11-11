@@ -42,8 +42,7 @@ final class ReportSubjectAccess {
             return $answer instanceof StudioError ? [ 'refused' => $answer->code ] : [ 'ids' => $answer->playerIds ];
         } );
         if ( isset( $decided['refused'] ) ) return self::forbidden( (string) $decided['refused'] );
-        $ids = is_array( $decided['ids'] ?? null ) ? array_values( array_map( 'intval', $decided['ids'] ) ) : [];
-        return $ids === $context->playerIds ? $context : $context->withPlayerIds( $ids );
+        return $decided['ids'] === $context->playerIds ? $context : $context->withPlayerIds( $decided['ids'] );
     }
 
     private static function decide( ReportContext $context ): ReportContext|StudioError {

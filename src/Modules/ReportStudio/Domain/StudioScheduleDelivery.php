@@ -71,8 +71,8 @@ final class StudioScheduleDelivery {
         $player  = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
         if ( $player <= 0 ) return [];
 
-        $injuries_key = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ] ?? '';
-        $journey_key  = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::JOURNEY ] ?? '';
+        $injuries_key = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ];
+        $journey_key  = \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::JOURNEY ];
         $out = [];
         foreach ( is_array( $doc['blocks'] ?? null ) ? $doc['blocks'] : [] as $block ) {
             if ( ! is_array( $block ) || ! is_array( $block['data'] ?? null ) ) continue;

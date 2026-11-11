@@ -544,7 +544,7 @@ final class ScheduledReportsRunner {
      * path does it.
      *
      * @param array<string,mixed> $schedule
-     * @param callable(array<string,mixed>, string, array{recipients: list<Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>}): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>} $render
+     * @param callable(array<string,mixed>, string, array{recipients: list<Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>}): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string, players?:list<int>, reads?:array<string, array<int,int>>} $render
      * @param callable(int, array<string,mixed>): bool $may_receive
      * @param bool $tell_owner_on_stop #4963 — a run that pauses the schedule tells its owner, once per breakage
      */
@@ -632,11 +632,12 @@ final class ScheduledReportsRunner {
             // #4963 — the PDF was composed quietly; what it showed of a
             // player's injuries or sensitive journey entries is a read by
             // each account it went to, recorded once per recipient.
-            if ( $sent && is_array( $result['reads'] ?? null ) && $result['reads'] !== [] ) {
+            $reads = $result['reads'] ?? [];
+            if ( $sent && $reads !== [] ) {
                 $to = [];
                 foreach ( $recipients as $recipient ) $to[] = (int) $recipient->userId;
-                foreach ( $result['reads'] as $action => $counts ) {
-                    \TT\Infrastructure\Journey\InjuryReads::recordSent( (string) $action, 'scheduled_report', (array) $counts, $to, [ 'schedule_id' => $id ] );
+                foreach ( $reads as $action => $counts ) {
+                    \TT\Infrastructure\Journey\InjuryReads::recordSent( $action, 'scheduled_report', $counts, $to, [ 'schedule_id' => $id ] );
                 }
             }
             $note = trim( (string) ( $result['note'] ?? '' ) . ' ' . $skipped_note );
