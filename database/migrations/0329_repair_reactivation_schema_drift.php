@@ -14,7 +14,8 @@
  *
  * Every step reads the live shape first and changes only what differs from
  * the migrated one, so an install that never drifted is left untouched.
- * Forward-only.
+ * The report counts each schema change as a write, so only an install with
+ * no drift reports nothing written. Forward-only.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -36,19 +37,49 @@ return new class extends Migration {
 
         $attendance = "{$p}tt_attendance";
         if ( $this->tableExists( $attendance ) ) {
+            $clauses = [];
             if ( MigrationHelpers::columnExists( $attendance, 'activity_id' ) && MigrationHelpers::columnExists( $attendance, 'session_id' ) ) {
+                // Refuse before anything is written when a row holds two
+                // different activities: which one is right cannot be told
+                // from the row.
+                $conflicts = (int) $wpdb->get_var(
+                    "SELECT COUNT(*) FROM `{$attendance}`
+                      WHERE session_id IS NOT NULL AND session_id <> 0
+                        AND activity_id IS NOT NULL AND activity_id <> 0
+                        AND activity_id <> session_id"
+                );
+                if ( $conflicts > 0 ) {
+                    throw new \RuntimeException( sprintf(
+                        '0329: %d tt_attendance row(s) hold a session_id that differs from their activity_id; resolve them before this repair runs. Nothing was changed.',
+                        $conflicts
+                    ) );
+                }
+                $kept = $this->exec(
+                    "UPDATE `{$attendance}`
+                        SET activity_id = session_id
+                      WHERE ( activity_id IS NULL OR activity_id = 0 )
+                        AND session_id IS NOT NULL AND session_id <> 0"
+                );
+                $written += $kept;
+                if ( $kept > 0 ) $notes[] = sprintf( 'tt_attendance: %d session_id value(s) kept in activity_id', $kept );
+
                 // Only an index on `session_id` alone goes; an `idx_session`
                 // over anything else is not the one the CREATE added.
                 if ( $this->indexColumns( $attendance, 'idx_session' ) === [ 'session_id' ] ) {
-                    $this->exec( "ALTER TABLE `{$attendance}` DROP INDEX `idx_session`" );
+                    $clauses[] = 'DROP INDEX `idx_session`';
                 }
-                $this->exec( "ALTER TABLE `{$attendance}` DROP COLUMN `session_id`" );
-                $notes[] = 'tt_attendance: dropped session_id';
+                $clauses[] = 'DROP COLUMN `session_id`';
+                $notes[]   = 'tt_attendance: dropped session_id';
             }
             $player = $this->column( $attendance, 'player_id' );
             if ( $player !== null && (string) ( $player['Null'] ?? '' ) !== 'YES' ) {
-                $this->exec( "ALTER TABLE `{$attendance}` MODIFY COLUMN `player_id` BIGINT UNSIGNED NULL" );
-                $notes[] = 'tt_attendance: player_id nullable';
+                $clauses[] = 'MODIFY COLUMN `player_id` BIGINT UNSIGNED NULL';
+                $notes[]   = 'tt_attendance: player_id nullable';
+            }
+            // One statement, so the table is rebuilt once.
+            if ( $clauses !== [] ) {
+                $this->exec( "ALTER TABLE `{$attendance}` " . implode( ', ', $clauses ) );
+                $written += count( $clauses );
             }
         }
 
@@ -62,6 +93,7 @@ return new class extends Migration {
             );
             $written += $copied;
             $this->exec( "ALTER TABLE `{$evaluations}` DROP COLUMN `match_result`" );
+            $written += 1;
             $notes[] = sprintf( 'tt_evaluations: dropped match_result, %d result(s) copied to game_result', $copied );
         }
 
@@ -74,6 +106,7 @@ return new class extends Migration {
                 $default = $account['Default'] ?? null;
                 if ( (string) ( $account['Null'] ?? '' ) !== 'YES' || ( $default !== null && strtoupper( (string) $default ) !== 'NULL' ) ) {
                     $this->exec( "ALTER TABLE `{$players}` MODIFY `wp_user_id` BIGINT UNSIGNED DEFAULT NULL" );
+                    $written += 1;
                     $notes[] = 'tt_players: wp_user_id defaults to NULL';
                 }
 
