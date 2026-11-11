@@ -11,6 +11,7 @@ use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgeModule;
 use TT\Modules\License\FeatureMap;
 use TT\Modules\License\LicenseGate;
+use TT\Modules\License\LicenseMode;
 use TT\Modules\Methodology\ActiveMethodologyResolver;
 use TT\Modules\Methodology\MethodologyScope;
 use TT\Shared\Frontend\FrontendSearchView;
@@ -86,6 +87,7 @@ final class LibrarySearchTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        LicenseMode::overrideForTests( null );
         LicenseGate::overrideTierForTests( null );
         FeatureRegistry::setEnabled( 'knowledge_courses', true );
         QueryHelpers::set_config( ActiveMethodologyResolver::CONFIG_KEY, $this->config_was );
@@ -165,6 +167,8 @@ final class LibrarySearchTest extends WP_UnitTestCase {
     }
 
     public function test_a_locked_course_is_listed_and_marked_locked(): void {
+        // A commercial install on the free plan: courses are locked, not hidden.
+        LicenseMode::overrideForTests( true );
         LicenseGate::overrideTierForTests( FeatureMap::TIER_FREE );
         $items = $this->itemsOf( $this->paged( $this->personas['hod'], self::COURSE_WORD ), 'course' );
         $this->assertCount( 1, $items );
