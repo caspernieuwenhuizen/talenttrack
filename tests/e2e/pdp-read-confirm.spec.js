@@ -69,10 +69,11 @@ test( 'the signed-off message lands the player on the talk, at its signed form, 
 
 // #4982 — one Print link shows: the PDF under a finger, the print page under
 // a mouse. Both are `.tt-btn`, so a print rule the button rule outranks shows
-// the two at once.
+// the two at once. The mouse case says `hasTouch: false` itself: the file's
+// `test.use()` is the default for every context the test opens.
 for ( const device of [
 	{ name: 'a phone under a finger', touch: true, shows: 'tt-pdp-printact__pdf', opts: { viewport: { width: 360, height: 800 }, hasTouch: true, isMobile: true } },
-	{ name: 'a computer with a mouse', touch: false, shows: 'tt-pdp-printact__page', opts: { viewport: { width: 1280, height: 900 } } },
+	{ name: 'a computer with a mouse', touch: false, shows: 'tt-pdp-printact__page', opts: { viewport: { width: 1280, height: 900 }, hasTouch: false, isMobile: false } },
 ] ) {
 	test( `the signed form offers exactly one Print link on ${ device.name }`, async ( { browser, baseURL } ) => {
 		const { context, page } = await signedIn( browser, baseURL, 'e2e_pop_read', device.opts );
