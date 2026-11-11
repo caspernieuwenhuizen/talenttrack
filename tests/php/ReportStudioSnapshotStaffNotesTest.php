@@ -21,9 +21,9 @@ use TT\Modules\Threads\Domain\ThreadAccess;
 /**
  * #5022 — the staff notes on a snapshot follow the thread's own rules for
  * whoever reads it now: none of them for a reader who may not read the
- * player's thread, the public ones only for a reader who may not see private
- * notes. The frozen copy cut for each reader holds exactly the notes the
- * live section composes for them.
+ * player's thread (a parent, an account without a role), all of them,
+ * private ones included, for the taker. The frozen copy cut for each reader
+ * holds exactly the notes the live section composes for them.
  */
 final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
 
@@ -76,8 +76,7 @@ final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
 
     public function test_staff_notes_on_a_snapshot_follow_the_threads_rules_for_each_reader(): void {
         $this->assertTrue( ThreadAccess::canSeePrivate( 'player', $this->player, $this->hod ), 'Precondition: the taker reads private notes.' );
-        $this->assertTrue( ThreadAccess::canRead( 'player', $this->player, $this->parent ), 'Precondition: the parent reads the thread.' );
-        $this->assertFalse( ThreadAccess::canSeePrivate( 'player', $this->player, $this->parent ), 'Precondition: but not its private notes.' );
+        $this->assertFalse( ThreadAccess::canRead( 'player', $this->player, $this->parent ), 'Precondition: a parent holds no read on the staff notes.' );
         $this->assertFalse( ThreadAccess::canRead( 'player', $this->player, $this->outsider ), 'Precondition: the outsider reads none of it.' );
 
         $block = BlockRegistry::find( PlayerSectionBlock::KEYS[ PlayerReportBlock::THREAD_NOTES ] );
@@ -99,8 +98,9 @@ final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
             );
         }
 
-        $this->assertSame( [ self::PUBLIC_NOTE ], array_column( $block->forReader( $frozen['data'], $this->parent, $this->player )['items'], 'body' ) );
+        $this->assertSame( [], $block->forReader( $frozen['data'], $this->parent, $this->player )['items'] );
         $this->assertSame( [], $block->forReader( $frozen['data'], $this->outsider, $this->player )['items'] );
+        $this->assertContains( self::PRIVATE_NOTE, array_column( $block->forReader( $frozen['data'], $this->hod, $this->player )['items'], 'body' ), 'the taker keeps them' );
     }
 
     private function flush(): void {
