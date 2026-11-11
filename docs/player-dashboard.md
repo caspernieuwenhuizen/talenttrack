@@ -85,6 +85,8 @@ A vertical timeline of your milestones, evaluations, injuries, age-group transit
 ### My PDP
 Your personal development plan — the long-form version of your active goals, with multi-conversation history, agreed actions, and the season verdict. Available where the PDP module is enabled.
 
+When your trainer signs off a talk held on a conversation form, you get a message and the talk opens here: one fold per part of the form with your average and your trainer's, both scores on every item, your trainer's notes, the strongest quality you agreed on, and your two development points with their deadlines. If you did not prepare, your column says "not filled in". Tap **I have read it** once you have read it; the talk then shows the date you confirmed.
+
 ## My settings (top-right username dropdown)
 
 Click your name or avatar in the top-right corner of the dashboard to open the user menu. The first item, **My settings**, is a TalentTrack-rendered settings screen — it never bounces you out to the WordPress admin. It contains only what end users actually need:

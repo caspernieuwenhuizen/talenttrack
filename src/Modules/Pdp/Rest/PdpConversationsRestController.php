@@ -180,6 +180,49 @@ class PdpConversationsRestController {
             );
         }
 
+        // #4981 (#5040 review) — the player and a parent confirm what they
+        // read, at the moment they confirm it. The server stamps the time on
+        // the caller's own column, whatever else they may do on the file (a
+        // coach who is also the parent): a value from the browser is the
+        // page's render time, or any date a hand-made request chose. Staff
+        // recording an acknowledgement for someone else keep the time they
+        // enter, as long as it is one.
+        $uid         = get_current_user_id();
+        $file_player = (int) ( ( (array) $file )['player_id'] ?? 0 );
+        $is_staff    = PdpAccess::canEditFile( $uid, $file_player );
+        foreach ( $acks as $field ) {
+            if ( $patch[ $field ] === null ) continue;
+            $own = $field === 'player_ack_at'
+                ? self::isLinkedPlayer( $uid, $file_player )
+                : self::isParentOfPlayer( $uid, $file_player );
+            if ( $own ) {
+                $patch[ $field ] = current_time( 'mysql', true );
+                continue;
+            }
+            $at = \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) $patch[ $field ], new \DateTimeZone( 'UTC' ) );
+            if ( $at === false || $at->format( 'Y-m-d H:i:s' ) !== (string) $patch[ $field ] ) {
+                return RestResponse::error(
+                    'bad_date',
+                    __( 'An acknowledgement time is a date and time (YYYY-MM-DD HH:MM:SS, UTC).', 'talenttrack' ),
+                    400,
+                    [ 'field' => $field ]
+                );
+            }
+        }
+        // On a form talk a parent confirms the signed form, so only a parent
+        // who may read it: the trainer's part follows the child's `pdp`
+        // switch (decision 7).
+        if ( $on_form && ! $is_staff && in_array( 'parent_ack_at', $acks, true ) ) {
+            $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( get_current_user_id(), $id );
+            if ( $access === null || ! $access->readsCoachPart() ) {
+                return RestResponse::error(
+                    'forbidden',
+                    __( 'You can confirm this conversation once you may read its form.', 'talenttrack' ),
+                    403
+                );
+            }
+        }
+
         // v3.110.197 (#809) — once ANY signature lands on the
         // conversation (coach_signoff_at / parent_ack_at / player_ack_at),
         // the row is read-only end-to-end. The second signatory can

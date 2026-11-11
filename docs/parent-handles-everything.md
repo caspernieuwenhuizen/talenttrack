@@ -48,6 +48,8 @@ After that you'll see "My child" in the dashboard. Tap to open your child's prof
 
 Your dashboard mirrors exactly what your child sees: the same development tiles, in the same order, relabeled to your child's first name — "Sven's card", "Sven's evaluations", "Sven's development plan", and so on. Whatever the academy switches on or off for players is reflected on your screen too, so you and your child are always looking at the same set of surfaces. Every tile opens your child's record. Your own account settings stay separate — they're not relabeled or duplicated per child.
 
+When a development talk held on a conversation form is signed off, you get a message, and the talk opens in your child's development plan: both your child's and the trainer's scores on every item, the trainer's notes, the strongest quality and the two development points. Tap **I have read it** to confirm for your part. You see nothing of the form before the trainer signs off, and nothing while your child keeps their development plan from you under *What your parent can see*.
+
 ## When you have multiple children at the academy
 
 A single parent account can be linked to several children. Each child has their own profile under "My children"; switching between them takes one tap. You only need one TalentTrack install and one set of notifications — pushes name the relevant child in the body so you know which one a message is about.

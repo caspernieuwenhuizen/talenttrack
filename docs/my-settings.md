@@ -46,7 +46,7 @@ How the app looks for you: the navigation layout, the visual theme and, for staf
 
 What you share and what the academy holds about you.
 
-- **What your parent can see** (players with a linked parent): choose which parts of your record your parent or guardian can see. Everything is shared until you switch a part off. Coaches and the academy are not affected. The summary line says "Your parent sees everything" or how many parts are hidden.
+- **What your parent can see** (players with a linked parent): choose which parts of your record your parent or guardian can see. Everything is shared until you switch a part off. Coaches and the academy are not affected. The summary line says "Your parent sees everything" or how many parts are hidden. A signed development talk follows the development plan switch, the trainer's scores on it included; the same scores, kept as an evaluation, follow the evaluations switch.
 - **What the academy holds about you**: every contact detail the academy holds about you, and where each one is kept. It is read-only. Your account details are changed under Account; anything on your child's file is changed by the academy.
 
 ## Saving

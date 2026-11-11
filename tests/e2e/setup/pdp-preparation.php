@@ -20,6 +20,9 @@
  *    locked, with one score and the strongest quality entered;
  *  - `e2e_pop_coach` (Mila Trainer4980): the talk is in 5 days, for the
  *    trainer's side (#4980): the admin scores it and signs it off.
+ *  - `e2e_pop_read` (Jip Reader4981) and the linked parent
+ *    `e2e_pop_read_parent`: yesterday's talk, signed off here by the
+ *    admin, for reading and confirming it (#4981).
  *
  * Idempotent: a second run puts both back as described, so the spec starts
  * from the same state on every run.
@@ -74,7 +77,7 @@ QueryHelpers::set_config( PdpFormRegistry::CONFIG_KEY, (string) wp_json_encode( 
  *
  * @param array{scores?:array<string,int>, answers?:array<string,string>} $entries
  */
-$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries, string $last = 'E2E' ) use ( $wpdb, $p, $club, $season ): void {
+$tt_e2e_player = static function ( string $login, string $first, int $scheduled, array $entries, string $last = 'E2E' ) use ( $wpdb, $p, $club, $season ): int {
 	$user = get_user_by( 'login', $login );
 	$uid  = $user ? (int) $user->ID : (int) wp_insert_user( [
 		'user_login' => $login,
@@ -140,6 +143,7 @@ $tt_e2e_player = static function ( string $login, string $first, int $scheduled,
 		] );
 	}
 	echo "PDP preparation fixture for {$login}: conversation {$conv}.\n";
+	return $conv;
 };
 
 $tt_e2e_player( 'e2e_pop_open', 'Sam', time() + 5 * DAY_IN_SECONDS, [] );
@@ -149,3 +153,45 @@ $tt_e2e_player( 'e2e_pop_locked', 'Noor', time() - DAY_IN_SECONDS, [
 ] );
 // #4980 — a talk the trainer fills in and signs off, found by its last name.
 $tt_e2e_player( 'e2e_pop_coach', 'Mila', time() + 5 * DAY_IN_SECONDS, [], 'Trainer4980' );
+
+// #4981 — a talk the trainer has signed off, for the player and the parent to
+// read and confirm. The player did not prepare (one score saved, never marked
+// ready), so their column reads "not filled in". The parent is linked, and
+// the child shares the PDP.
+$tt_e2e_read = $tt_e2e_player( 'e2e_pop_read', 'Jip', time() - DAY_IN_SECONDS, [ 'scores' => [ 'aannames' => 4 ] ], 'Reader4981' );
+$tt_e2e_kid  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT player_id FROM {$p}tt_pdp_files f JOIN {$p}tt_pdp_conversations c ON c.pdp_file_id = f.id WHERE c.id = %d", $tt_e2e_read ) );
+$tt_e2e_mum  = get_user_by( 'login', 'e2e_pop_read_parent' );
+$tt_e2e_mum  = $tt_e2e_mum ? (int) $tt_e2e_mum->ID : (int) wp_insert_user( [
+	'user_login' => 'e2e_pop_read_parent',
+	'user_pass'  => 'password',
+	'user_email' => 'e2e_pop_read_parent@example.test',
+	'role'       => 'tt_parent',
+] );
+if ( $tt_e2e_kid <= 0 || $tt_e2e_mum <= 0 ) {
+	fwrite( STDERR, "The #4981 reader fixture could not be made.\n" );
+	exit( 1 );
+}
+( new \TT\Modules\Invitations\PlayerParentsRepository() )->link( $tt_e2e_kid, $tt_e2e_mum, true );
+
+$tt_e2e_admin   = 1;
+$tt_e2e_entries = new \TT\Modules\Pdp\Forms\PdpFormEntriesRepository();
+$tt_e2e_def     = (array) PdpFormRegistry::definition( 'jg4it_elite_outfield' );
+foreach ( PdpFormRegistry::items( $tt_e2e_def ) as $tt_e2e_item ) {
+	$tt_e2e_entries->saveScore( $tt_e2e_read, 'jg4it_elite_outfield', (string) $tt_e2e_item['key'], 'coach', 3, $tt_e2e_admin );
+}
+$tt_e2e_entries->saveAnswer( $tt_e2e_read, 'jg4it_elite_outfield', 'strongest_quality', 'coach', 'Afgesproken: het overzicht in de opbouw.', $tt_e2e_admin );
+foreach ( [ 1, 2 ] as $tt_e2e_slot ) {
+	$tt_e2e_entries->saveGoal( $tt_e2e_read, $tt_e2e_slot, [
+		'action_text'  => "Ontwikkelpunt {$tt_e2e_slot}: twee keer per training scannen voor de aanname.",
+		'support_text' => 'Een oefenvorm met coaching op het kijken.',
+		'due_date'     => gmdate( 'Y-m-d', time() + 60 * DAY_IN_SECONDS ),
+	], $tt_e2e_admin );
+}
+$wpdb->update( "{$p}tt_pdp_conversations", [ 'player_ack_at' => null, 'parent_ack_at' => null ], [ 'id' => $tt_e2e_read ] );
+$tt_e2e_conv   = ( new \TT\Modules\Pdp\Repositories\PdpConversationsRepository() )->find( $tt_e2e_read );
+$tt_e2e_signed = $tt_e2e_conv ? \TT\Modules\Pdp\Forms\PdpFormSignoff::signOff( $tt_e2e_admin, $tt_e2e_conv, $tt_e2e_kid ) : null;
+if ( ! is_array( $tt_e2e_signed ) ) {
+	fwrite( STDERR, 'The #4981 talk could not be signed off: ' . wp_json_encode( $tt_e2e_signed instanceof \WP_Error ? $tt_e2e_signed->get_error_messages() : $tt_e2e_signed ) . "\n" );
+	exit( 1 );
+}
+echo "PDP reader fixture: conversation {$tt_e2e_read} signed off.\n";

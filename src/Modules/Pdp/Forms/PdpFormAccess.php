@@ -165,6 +165,20 @@ final class PdpFormAccess {
         return $this->coachWritable() && $this->signsOff();
     }
 
+    /**
+     * #4981 — does this signed form wait for this reader's "I have read it"?
+     * The player for their own column; a parent, who may read the form, for
+     * theirs. Staff confirm nothing here.
+     */
+    public function awaitsConfirmation(): bool {
+        $row = (array) $this->conversation;
+        if ( (string) ( $row['form_key'] ?? '' ) === '' || ! $this->signedOff() ) return false;
+        if ( $this->isPlayer() ) return empty( $row['player_ack_at'] );
+        return $this->parentReads()
+            && ParentChildResolver::isParentOf( $this->user_id, $this->player_id, ParentChildResolver::NEED_FULL )
+            && empty( $row['parent_ack_at'] );
+    }
+
     private function signedOff(): bool {
         return ! empty( ( (array) $this->conversation )['coach_signoff_at'] );
     }

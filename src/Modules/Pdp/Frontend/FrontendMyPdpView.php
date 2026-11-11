@@ -116,12 +116,21 @@ class FrontendMyPdpView extends FrontendViewBase {
             }
         }
 
+        // #4981 — `conv` (the signed-off message's link, the notice below)
+        // opens that talk's panel on arrival, at its signed form.
+        $open_id = absint( $_GET['conv'] ?? 0 );
+        $child   = $is_self ? null : (int) $player->id;
+        self::renderAwaitingConfirmation( $plan['conversations'], $child );
+
         self::renderSeasonTimeline(
             $season['name'],
             $plan['conversations'],
             (int) $plan['next_conversation_id'],
             $is_self,
-            $is_parent
+            $is_parent,
+            // #4981 — a parent's goal links carry the child.
+            $child,
+            $open_id
         );
         self::renderActiveGoals( $player, $voice, $plan['goals'] );
         // #4979 — a talk that uses a conversation form is prepared on the
@@ -149,7 +158,7 @@ class FrontendMyPdpView extends FrontendViewBase {
      *
      * @param list<array<string,mixed>> $convs
      */
-    private static function renderSeasonTimeline( string $season_name, array $convs, int $next_id, bool $is_self, bool $is_parent ): void {
+    private static function renderSeasonTimeline( string $season_name, array $convs, int $next_id, bool $is_self, bool $is_parent, ?int $child_id = null, int $open_id = 0 ): void {
         $done = 0;
         foreach ( $convs as $c ) {
             if ( $c['state'] === 'done' ) $done++;
@@ -191,7 +200,7 @@ class FrontendMyPdpView extends FrontendViewBase {
             $panel = 'tt-pdp-panel-' . $cid;
 
             echo '<button type="button" class="tt-pdp-marker ' . esc_attr( $state ) . '"'
-                . ' aria-expanded="false" aria-controls="' . esc_attr( $panel ) . '"'
+                . ' aria-expanded="' . ( $cid === $open_id ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $panel ) . '"'
                 . ( $next_id > 0 && $cid === $next_id ? ' aria-current="step"' : '' ) . '>';
             echo '<span class="tt-pdp-dot">' . self::markerGlyph( $c, $state ) . '</span>';
             echo '<span class="tt-pdp-mlabel">' . esc_html( $label ) . '</span>';
@@ -211,7 +220,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         // (unchanged from before).
         echo '<div class="tt-pdp-panels">';
         foreach ( $convs as $c ) {
-            self::renderConversationPanel( $c, $is_self, $is_parent );
+            self::renderConversationPanel( $c, $is_self, $is_parent, $child_id, $open_id );
         }
         echo '</div>';
 
@@ -226,7 +235,7 @@ class FrontendMyPdpView extends FrontendViewBase {
      *
      * @param array<string,mixed> $conv one entry from PdpFamilyReader.
      */
-    private static function renderConversationPanel( array $conv, bool $is_self, bool $is_parent ): void {
+    private static function renderConversationPanel( array $conv, bool $is_self, bool $is_parent, ?int $child_id = null, int $open_id = 0 ): void {
         $cid    = (int) $conv['id'];
         $signed = $conv['coach_signoff_at'] !== null;
         $title  = sprintf(
@@ -236,7 +245,7 @@ class FrontendMyPdpView extends FrontendViewBase {
             (string) $conv['template_label']
         );
 
-        echo '<div id="tt-pdp-panel-' . (int) $cid . '" class="tt-pdp-panel" hidden>';
+        echo '<div id="tt-pdp-panel-' . (int) $cid . '" class="tt-pdp-panel"' . ( $cid === $open_id ? '' : ' hidden' ) . '>';
         echo '<h3 class="tt-pdp-panel__title">' . esc_html( $title ) . '</h3>';
 
         $meta = [];
@@ -301,14 +310,24 @@ class FrontendMyPdpView extends FrontendViewBase {
                 . wp_kses_post( (string) $conv['player_reflection'] ) . '</div></div>';
         }
 
+        // #4981 — a signed conversation form: both scores per item, the
+        // strongest quality and the development points, as this reader may
+        // read them. Confirming it is "I have read it", with its date.
+        $form_read = $signed && PdpFormReadView::render( $cid, $child_id );
+        if ( $form_read ) {
+            self::renderReadConfirm( $conv, $is_self, $is_parent );
+        }
+
         // Acknowledgement flow — preserved exactly as-is (out of scope of
-        // the redesign): once the coach has signed off.
-        if ( $signed ) {
+        // the redesign): once the coach has signed off. Never on a form talk
+        // (#5040 review): that is confirmed on the signed form above, and a
+        // reader who may not read the form confirms nothing.
+        if ( $signed && ! $form_read && empty( $conv['on_form'] ) ) {
             $rest_path = 'pdp-conversations/' . $cid;
             if ( $is_self && $conv['player_ack_at'] === null ) {
                 ?>
                 <form class="tt-ajax-form tt-pdp-ack" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
-                    <input type="hidden" name="player_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
+                    <input type="hidden" name="player_ack_at" value="now" />
                     <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'I acknowledge this conversation', 'talenttrack' ); ?></button>
                     <div class="tt-form-msg"></div>
                 </form>
@@ -319,7 +338,7 @@ class FrontendMyPdpView extends FrontendViewBase {
             if ( $is_parent && $conv['parent_ack_at'] === null ) {
                 ?>
                 <form class="tt-ajax-form tt-pdp-ack" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
-                    <input type="hidden" name="parent_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
+                    <input type="hidden" name="parent_ack_at" value="now" />
                     <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'Acknowledge as parent / guardian', 'talenttrack' ); ?></button>
                     <div class="tt-form-msg"></div>
                 </form>
@@ -330,6 +349,83 @@ class FrontendMyPdpView extends FrontendViewBase {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * #4981 — "I have read it" on a signed conversation form: its own
+     * control, outside any autosaving form (§6), writing the existing
+     * acknowledgement through the conversation route; once recorded, the
+     * date instead.
+     *
+     * @param array<string,mixed> $conv one entry from PdpFamilyReader.
+     */
+    private static function renderReadConfirm( array $conv, bool $is_self, bool $is_parent ): void {
+        $rest_path = 'pdp-conversations/' . (int) $conv['id'];
+        /* translators: %s: date and time the reader confirmed reading the signed talk */
+        $done = __( 'You confirmed you read it on %s.', 'talenttrack' );
+        $rows = [];
+        if ( $is_self ) $rows[] = [ 'player_ack_at', $conv['player_ack_at'] ?? null, $done ];
+        if ( $is_parent ) $rows[] = [ 'parent_ack_at', $conv['parent_ack_at'] ?? null, $done ];
+        foreach ( $rows as [ $field, $at, $done ] ) {
+            if ( $at !== null ) {
+                echo '<p class="tt-pdp-acked">' . esc_html( sprintf( $done, TTDate::dateTimeFromGmt( (string) $at ) ) ) . '</p>';
+                continue;
+            }
+            $label = _x( 'I have read it', 'PDP conversation form: confirm reading the signed talk', 'talenttrack' );
+            // The field says which column; the server stamps the time it
+            // arrives (#5040 review), so the form carries none.
+            ?>
+            <form class="tt-ajax-form tt-pdp-ack tt-pdp-ack--read" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
+                <input type="hidden" name="<?php echo esc_attr( $field ); ?>" value="now" />
+                <?php
+                // One label in every state: a failed attempt must not turn
+                // the button into "Save" (#5006).
+                echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the helper escapes
+                    'label'        => $label,
+                    'label_saving' => $label,
+                    'label_saved'  => $label,
+                    'label_error'  => $label,
+                ] );
+                ?>
+                <div class="tt-form-msg" role="status" aria-live="polite"></div>
+            </form>
+            <?php
+        }
+    }
+
+    /**
+     * #4981 (#5040 walk) — a signed form that waits for this reader's "I have
+     * read it", named at the top of the page with a link that opens it. Gone
+     * once confirmed. Which talks wait is `PdpFormAccess`'s answer.
+     *
+     * @param list<array<string,mixed>> $convs
+     */
+    private static function renderAwaitingConfirmation( array $convs, ?int $child_id ): void {
+        $uid     = get_current_user_id();
+        $waiting = [];
+        foreach ( $convs as $c ) {
+            if ( empty( $c['on_form'] ) || $c['coach_signoff_at'] === null ) continue;
+            $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $uid, (int) $c['id'] );
+            if ( $access !== null && $access->awaitsConfirmation() ) $waiting[] = $c;
+        }
+        if ( $waiting === [] ) return;
+
+        echo '<div class="tt-notice tt-pdp-awaiting" role="status">';
+        echo '<p>' . esc_html( _n(
+            'A signed development talk is waiting for you to read and confirm it.',
+            'Signed development talks are waiting for you to read and confirm them.',
+            count( $waiting ),
+            'talenttrack'
+        ) ) . '</p><ul>';
+        foreach ( $waiting as $c ) {
+            $url = \TT\Modules\Comms\Send\PdpConversationSignedSend::link( (int) $c['id'], $child_id );
+            echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( sprintf(
+                /* translators: %s: the talk's name, e.g. "Start-of-season talk" */
+                __( 'Read %s', 'talenttrack' ),
+                (string) $c['template_label']
+            ) ) . '</a></li>';
+        }
+        echo '</ul></div>';
     }
 
     /**

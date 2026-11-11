@@ -144,6 +144,9 @@ final class PdpFamilyReader {
                 'not_held_at'            => self::nullableString( $row['not_held_at'] ?? null ),
                 'not_held_reason'        => self::nullableString( $row['not_held_reason'] ?? null ),
                 'coach_signoff_at'       => $signed,
+                // #4981 — held on a conversation form: confirmed on the
+                // signed form, never with the free-text acknowledgement.
+                'on_form'                => (string) ( $row['form_key'] ?? '' ) !== '',
                 'player_ack_at'          => self::nullableString( $row['player_ack_at'] ?? null ),
                 'parent_ack_at'          => self::nullableString( $row['parent_ack_at'] ?? null ),
                 'player_reflection'      => self::nullableString( $row['player_reflection'] ?? null ),

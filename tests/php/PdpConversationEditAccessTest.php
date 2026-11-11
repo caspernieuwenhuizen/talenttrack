@@ -138,7 +138,11 @@ final class PdpConversationEditAccessTest extends WP_UnitTestCase {
 
         [ , $status ] = $this->patch( $conv, [ 'parent_ack_at' => '2026-10-02 09:00:00' ] );
         $this->assertSame( 200, $status );
-        $this->assertSame( '2026-10-02 09:00:00', $this->column( $conv, 'parent_ack_at' ) );
+        // #4981 — written, at the moment it arrived: the server stamps a
+        // family acknowledgement, whatever date the request carried.
+        $stored = (string) $this->column( $conv, 'parent_ack_at' );
+        $this->assertNotSame( '2026-10-02 09:00:00', $stored );
+        $this->assertLessThan( 120, abs( strtotime( $stored . ' UTC' ) - time() ) );
     }
 
     public function test_a_signed_conversation_stays_locked_for_the_head_of_development(): void {
