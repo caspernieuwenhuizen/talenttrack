@@ -146,23 +146,13 @@ final class MonthlySectionBlock implements ReportBlock, RendersDocument, CutsFor
      */
     public function sensitiveReads( array $data, array $context, int $reader ): array {
         if ( $this->section !== TeamMonthlyReportBlock::CHANGES ) return [];
-        $events = is_array( $data['events'] ?? null ) ? $data['events'] : [];
-        $team   = is_numeric( $context['team_id'] ?? null ) ? (int) $context['team_id'] : 0;
-        $from   = is_string( $context['from'] ?? null ) ? (string) $context['from'] : '';
-        $to     = is_string( $context['to'] ?? null ) ? (string) $context['to'] : '';
-        if ( $events === [] || $team <= 0 || $from === '' || $to === '' ) return [];
-
-        $injuries = [];
-        foreach ( $events as $e ) {
-            if ( ! is_array( $e ) || ! in_array( (string) ( $e['event_type'] ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) continue;
-            $pid = (int) ( $e['player_id'] ?? 0 );
-            if ( $pid > 0 ) $injuries[ $pid ] = ( $injuries[ $pid ] ?? 0 ) + 1;
-        }
-        $out = [];
-        if ( $injuries !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ] = $injuries;
-        $sensitive = TeamSectionRights::sensitiveChanges( $data, $reader, $team, $from, $to );
-        if ( $sensitive !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ] = $sensitive;
-        return $out;
+        return TeamMonthlyReport::sensitiveReadsOf(
+            $data,
+            $reader,
+            is_numeric( $context['team_id'] ?? null ) ? (int) $context['team_id'] : 0,
+            is_string( $context['from'] ?? null ) ? (string) $context['from'] : '',
+            is_string( $context['to'] ?? null ) ? (string) $context['to'] : ''
+        );
     }
 
     /** The frozen section as this reader may read it now (`TeamSectionRights::cut()`). */
