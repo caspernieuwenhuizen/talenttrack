@@ -134,6 +134,9 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    /* A grid item of its form: without this the one-line title below 480px
+       would widen the form's track and scroll the page sideways. */
+    min-width: 0;
     padding: var(--tt-sp-3, 12px);
     background: var(--tt-bg-soft, #faf8f3);
     border-bottom: 1px solid var(--tt-line, #e3e1d8);
