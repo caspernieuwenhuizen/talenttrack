@@ -288,6 +288,18 @@ class GoalsPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
+        // #5112 — the goal-approval rule, as on the REST routes: a goal
+        // waiting for approval leaves that status only through the player's
+        // head coach or an administrator. Nothing is written otherwise.
+        if ( $id > 0 ) {
+            $stored = \TT\Infrastructure\Goals\GoalAccess::playerAndStatusOf( $id );
+            if ( $stored !== null
+                && ! \TT\Infrastructure\Goals\GoalAccess::mayChangeStatus( get_current_user_id(), $stored['player_id'], $stored['status'], (string) $data['status'] )
+            ) {
+                wp_die( esc_html__( 'Only the player\'s head coach can approve or reject this goal.', 'talenttrack' ), '', [ 'response' => 403 ] );
+            }
+        }
+
         if ( $id ) {
             $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {

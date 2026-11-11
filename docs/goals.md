@@ -130,7 +130,7 @@ Goals written before the picker existed keep whatever single principle they carr
 
 ## Player-created goals with approval
 
-If your installation grants players the goal-edit cap, a goal created by a player lands with status **Pending Approval**. The player's head coach can approve (status flips to Pending) or reject (Cancelled) via the existing status dropdown. Other coaches cannot approve — only the player's head coach, matching the PDP signoff trust pattern.
+If your installation grants players the goal-edit cap, a goal created by a player lands with status **Pending Approval**. The player's head coach can approve (status flips to Pending) or reject (Cancelled) via the existing status dropdown. Other coaches cannot approve — only the player's head coach or an administrator, matching the PDP signoff trust pattern. The rule holds wherever the status is changed: the status dropdown, the goal edit form and the wp-admin goal form. Another coach can still edit the goal's other fields while it waits.
 
 ## Progress and evidence
 

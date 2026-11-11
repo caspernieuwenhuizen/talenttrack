@@ -136,7 +136,7 @@ Doelen van vóór deze koppeling houden het principe dat ze al hadden; er wordt 
 
 ## Door spelers gemaakte doelen met goedkeuring
 
-Als jouw installatie spelers de doelen-bewerken-rechten geeft, krijgt een door een speler aangemaakt doel de status **Wacht op goedkeuring**. De hoofdcoach van de speler kan goedkeuren (status wordt In afwachting) of afwijzen (Geannuleerd) via de bestaande statusdropdown. Andere coaches kunnen niet goedkeuren — alleen de hoofdcoach van de speler, hetzelfde vertrouwenspatroon als bij PDP-ondertekening.
+Als jouw installatie spelers de doelen-bewerken-rechten geeft, krijgt een door een speler aangemaakt doel de status **Wacht op goedkeuring**. De hoofdcoach van de speler kan goedkeuren (status wordt In afwachting) of afwijzen (Geannuleerd) via de bestaande statusdropdown. Andere coaches kunnen niet goedkeuren — alleen de hoofdcoach van de speler of een beheerder, hetzelfde vertrouwenspatroon als bij PDP-ondertekening. De regel geldt overal waar de status verandert: de statusdropdown, het bewerkformulier van het doel en het doelformulier in wp-admin. Een andere coach kan de overige velden van het doel wel bewerken terwijl het wacht.
 
 ## Voortgang en bewijslast
 
