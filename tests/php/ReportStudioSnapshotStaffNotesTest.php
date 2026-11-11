@@ -99,7 +99,7 @@ final class ReportStudioSnapshotStaffNotesTest extends WP_UnitTestCase {
             );
         }
 
-        $cut = static fn( int $reader ): array => PlayerSectionRights::cut( PlayerReportBlock::THREAD_NOTES, $frozen['data'], ReaderSet::of( [ $reader ] ), $this->player )['items'];
+        $cut = fn( int $reader ): array => PlayerSectionRights::cut( PlayerReportBlock::THREAD_NOTES, $frozen['data'], ReaderSet::of( [ $reader ] ), $this->player )['items'];
         $this->assertSame( [], $cut( $this->parent ) );
         $this->assertSame( [], $cut( $this->outsider ) );
         $this->assertContains( self::PRIVATE_NOTE, array_column( $cut( $this->hod ), 'body' ), 'the taker keeps them' );
