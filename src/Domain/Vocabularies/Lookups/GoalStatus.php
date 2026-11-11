@@ -46,6 +46,23 @@ final class GoalStatus {
         self::CANCELLED,
     ];
 
+    /**
+     * #4596 — the goals that count as open (owner decision): not started,
+     * waiting for the coach's approval of a goal a player set, in progress,
+     * on hold, and approved. `approved` is a `goal_status` lookup value with
+     * no code of its own. Compare through `GoalLifecycle`, which normalises
+     * both stored spellings.
+     *
+     * @var list<string>
+     */
+    public const OPEN = [
+        self::PENDING,
+        self::PENDING_APPROVAL,
+        self::IN_PROGRESS,
+        self::ON_HOLD,
+        'approved',
+    ];
+
     public static function isValid( string $value ): bool {
         return in_array( $value, self::ALL, true );
     }

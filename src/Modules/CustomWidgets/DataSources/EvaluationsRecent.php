@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
@@ -55,7 +56,13 @@ final class EvaluationsRecent implements CustomDataSource {
      */
     private function whereFor( array $filters, int $user_id ): array {
         global $wpdb;
-        $where  = [ 'e.club_id = %d', SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ) ];
+        // Live evaluations only: not archived, not in the recycle bin, as
+        // the evaluations list shows them.
+        $where  = [
+            'e.club_id = %d',
+            ArchiveRepository::filterClause( 'active', 'e' ),
+            SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ),
+        ];
         $params = [ CurrentClub::id() ];
 
         $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
@@ -64,15 +71,22 @@ final class EvaluationsRecent implements CustomDataSource {
             $params[] = $team_id;
         }
 
+        // #4596 — the evaluation's own date, the one the profile and the
+        // evaluations list show, not the day it was typed in.
         if ( ! empty( $filters['date_from'] ) ) {
-            $where[]  = 'e.created_at >= %s';
-            $params[] = (string) $filters['date_from'];
+            $where[]  = self::dateSql() . ' >= %s';
+            $params[] = substr( (string) $filters['date_from'], 0, 10 );
         }
         if ( ! empty( $filters['date_to'] ) ) {
-            $where[]  = 'e.created_at <= %s';
-            $params[] = (string) $filters['date_to'];
+            $where[]  = self::dateSql() . ' <= %s';
+            $params[] = substr( (string) $filters['date_to'], 0, 10 );
         }
         return [ $where, $params ];
+    }
+
+    /** The evaluation date; the day it was written only where none is stored. */
+    private static function dateSql(): string {
+        return 'COALESCE( e.eval_date, DATE( e.created_at ) )';
     }
 
     /**
@@ -119,13 +133,14 @@ final class EvaluationsRecent implements CustomDataSource {
 
         // #4596 — the evaluator is `coach_id`; the table has no
         // `evaluator_id`, so the name was always empty.
-        $sql = "SELECT e.id, e.created_at, e.coach_id, p.first_name, p.last_name,
+        $date = self::dateSql();
+        $sql  = "SELECT e.id, {$date} AS eval_day, e.coach_id, p.first_name, p.last_name,
                        u.display_name AS evaluator_name
                   FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_players p ON p.id = e.player_id
              LEFT JOIN {$wpdb->users} u ON u.ID = e.coach_id
                  WHERE " . implode( ' AND ', $where )
-              . " ORDER BY e.created_at DESC
+              . " ORDER BY {$date} DESC, e.id DESC
                  LIMIT %d";
         $params[] = max( 1, min( 1000, $limit ) );
 
@@ -142,7 +157,7 @@ final class EvaluationsRecent implements CustomDataSource {
             $value = $overall[ (int) ( $row->id ?? 0 ) ]['value'] ?? null;
             $out[] = [
                 'player'    => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
-                'eval_date' => (string) ( $row->created_at ?? '' ),
+                'eval_date' => (string) ( $row->eval_day ?? '' ),
                 'evaluator' => (string) ( $row->evaluator_name ?? '' ),
                 'overall'   => $value === null ? '' : round( (float) $value, 1 ),
             ];

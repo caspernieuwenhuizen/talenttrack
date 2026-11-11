@@ -235,9 +235,10 @@ class LookupTranslator {
      * values and lookup-row names. Same rule as
      * `LookupPill::normaliseName()`, deliberately: two normalisers that
      * disagree would reintroduce the split this fixes, one surface at a
-     * time.
+     * time. Public since #4596: `GoalLifecycle` normalises goal statuses
+     * with it rather than with a rule of its own.
      */
-    private static function normaliseName( string $name ): string {
+    public static function normaliseName( string $name ): string {
         $n = strtolower( str_replace( [ '_', '-' ], ' ', $name ) );
         return trim( (string) preg_replace( '/\s+/', ' ', $n ) );
     }

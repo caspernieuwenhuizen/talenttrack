@@ -2,7 +2,9 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
+use TT\Infrastructure\Query\GoalLifecycle;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
@@ -68,6 +70,65 @@ final class CustomWidgetColumnsTest extends WP_UnitTestCase {
         $this->assertSame( round( (float) $expected, 1 ), $rows[0]['overall'], 'the overall as the evaluation views compute it' );
 
         $this->assertSame( 1.0, $source->aggregate( $this->viewer, $window + [ 'team_id' => $this->team ], 'count' ), 'the aggregate honours the same filter' );
+    }
+
+    /** A back-dated evaluation shows, filters and sorts on its own date. */
+    public function test_an_evaluation_reads_its_own_date_not_the_day_it_was_typed(): void {
+        $category = $this->mainCategory();
+        $this->evaluation( $this->player, '2033-02-20 09:00:00', $category, 6.0, '2033-01-10' );
+        $source = new EvaluationsRecent();
+
+        $january = $source->fetch( $this->viewer, [ 'date_from' => '2033-01-01', 'date_to' => '2033-01-31' ], [] );
+        $this->assertCount( 1, $january, 'found by the evaluation date' );
+        $this->assertSame( '2033-01-10', $january[0]['eval_date'] );
+        $this->assertSame( [], $source->fetch( $this->viewer, [ 'date_from' => '2033-02-01', 'date_to' => '2033-02-28' ], [] ), 'not by the day it was typed in' );
+        $this->assertSame( 1.0, $source->aggregate( $this->viewer, [ 'date_from' => '2033-01-01', 'date_to' => '2033-01-31' ], 'count' ) );
+    }
+
+    public function test_archived_and_trashed_evaluations_are_neither_listed_nor_counted(): void {
+        $category = $this->mainCategory();
+        $this->evaluation( $this->player, '2034-04-04 10:00:00', $category, 7.0 );
+        $archived = $this->evaluation( $this->player, '2034-04-05 10:00:00', $category, 7.0 );
+        $trashed  = $this->evaluation( $this->player, '2034-04-06 10:00:00', $category, 7.0 );
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_evaluations", [ 'archived_at' => '2034-04-07 10:00:00' ], [ 'id' => $archived ] );
+        $wpdb->update( "{$this->p}tt_evaluations", [ 'trashed_at' => '2034-04-07 10:00:00' ], [ 'id' => $trashed ] );
+
+        $window = [ 'date_from' => '2034-04-01', 'date_to' => '2034-04-30' ];
+        $source = new EvaluationsRecent();
+        $this->assertCount( 1, $source->fetch( $this->viewer, $window, [] ) );
+        $this->assertSame( 1.0, $source->aggregate( $this->viewer, $window, 'count' ) );
+    }
+
+    public function test_archived_and_trashed_goals_are_neither_listed_nor_counted(): void {
+        $source = new GoalsOpen();
+        $before = (float) $source->aggregate( $this->viewer, [], 'count' );
+
+        $this->goal( 'Cwcol levend', 'in_progress', '2032-07-01' );
+        $archived = $this->goal( 'Cwcol gearchiveerd', 'in_progress', '2032-07-02' );
+        $trashed  = $this->goal( 'Cwcol prullenbak', 'in_progress', '2032-07-03' );
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_goals", [ 'archived_at' => '2032-01-01 00:00:00' ], [ 'id' => $archived ] );
+        $wpdb->update( "{$this->p}tt_goals", [ 'trashed_at' => '2032-01-01 00:00:00' ], [ 'id' => $trashed ] );
+
+        $this->assertSame( [ 'Cwcol levend' ], array_column( $this->fixtureRows( $source->fetch( $this->viewer, [], [] ) ), 'title' ) );
+        $this->assertSame( $before + 1, $source->aggregate( $this->viewer, [], 'count' ) );
+    }
+
+    /** The chokepoint normalises as the lookup translator does. */
+    public function test_the_goal_lifecycle_normalises_every_spelling_as_the_lookup_does(): void {
+        foreach ( [ 'On Hold', 'on_hold', 'on-hold', ' On   Hold ' ] as $spelling ) {
+            $this->assertSame( 'on hold', GoalLifecycle::normalise( $spelling ), $spelling );
+            $this->assertSame( LookupTranslator::normaliseName( $spelling ), GoalLifecycle::normalise( $spelling ) );
+        }
+        $this->assertSame( [ 'pending', 'pending_approval', 'in_progress', 'on_hold', 'approved' ], GoalStatus::OPEN );
+
+        $this->goal( 'Cwcol koppel', 'on-hold', '2032-08-01' );
+        $this->goal( 'Cwcol spaties', 'Pending  Approval', '2032-08-02' );
+        $this->goal( 'Cwcol goedgekeurd', 'Approved', '2032-08-03' );
+        $this->goal( 'Cwcol zonder status', '', '2032-08-04' );
+        $titles = array_column( $this->fixtureRows( ( new GoalsOpen() )->fetch( $this->viewer, [], [] ) ), 'title' );
+        $this->assertSame( [ 'Cwcol koppel', 'Cwcol spaties', 'Cwcol goedgekeurd' ], $titles, 'every spelling of an open status counts; no status is not open' );
     }
 
     public function test_open_goals_are_listed_by_due_date_in_both_stored_spellings(): void {
@@ -144,11 +205,11 @@ final class CustomWidgetColumnsTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function evaluation( int $player_id, string $created_at, int $category_id, float $rating ): int {
+    private function evaluation( int $player_id, string $created_at, int $category_id, float $rating, ?string $eval_date = null ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_evaluations", [
             'club_id' => $this->club, 'player_id' => $player_id, 'coach_id' => $this->viewer,
-            'eval_date' => substr( $created_at, 0, 10 ), 'notes' => '', 'created_at' => $created_at,
+            'eval_date' => $eval_date ?? substr( $created_at, 0, 10 ), 'notes' => '', 'created_at' => $created_at,
         ] );
         $id = (int) $wpdb->insert_id;
         $wpdb->insert( "{$this->p}tt_eval_ratings", [
