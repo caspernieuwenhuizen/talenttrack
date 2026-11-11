@@ -14,6 +14,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\StackTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -398,39 +399,49 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             return;
         }
 
+        // #4912 — on the stack-table primitive: a table from 768px, one card
+        // per schedule below it. A cell with several parts (the KPI and what
+        // its recipients get, the status and its last error, the actions) is
+        // one value block, so the parts stack beside the label.
+        $cols = [
+            'name'      => __( 'Name', 'talenttrack' ),
+            'kpi'       => __( 'KPI', 'talenttrack' ),
+            'frequency' => __( 'Frequency', 'talenttrack' ),
+            'next'      => __( 'Next run', 'talenttrack' ),
+            'status'    => __( 'Status', 'talenttrack' ),
+            'actions'   => __( 'Actions', 'talenttrack' ),
+        ];
+        $value = '<div class="' . esc_attr( StackTable::VALUE ) . '">';
         echo '<div class="tt-report-card tt-sched-tablewrap"><div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-sched-table">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Name', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'KPI', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Frequency', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Next run', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<table class="tt-table tt-sched-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( $cols as $col ) {
+            echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $col ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $schedules as $schedule ) {
             $label = self::reportLabel( $schedule );
             $status = (string) $schedule['status'];
             $chip   = 'tt-sched-chip';
             if ( $status === 'active' )  $chip .= ' tt-sched-chip--active';
             if ( $status === 'paused' )  $chip .= ' tt-sched-chip--paused';
-            echo '<tr>';
-            echo '<td>' . esc_html( (string) $schedule['name'] ) . '</td>';
-            echo '<td>' . esc_html( $label );
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<td' . StackTable::attrs( 'cell', $cols['name'] ) . '>' . esc_html( (string) $schedule['name'] ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols['kpi'] ) . '>' . $value . esc_html( $label );
             self::renderRecipientsGet( $schedule );
-            echo '</td>';
-            echo '<td>' . esc_html( self::frequencyLabel( (string) $schedule['frequency'] ) ) . '</td>';
-            echo '<td><time>' . esc_html( (string) $schedule['next_run_at'] ) . ' UTC</time></td>';
-            echo '<td><span class="' . esc_attr( $chip ) . '">' . esc_html( ucfirst( $status ) ) . '</span>';
+            echo '</div></td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols['frequency'] ) . '>' . esc_html( self::frequencyLabel( (string) $schedule['frequency'] ) ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols['next'] ) . '><time>' . esc_html( (string) $schedule['next_run_at'] ) . ' UTC</time></td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols['status'] ) . '>' . $value . '<span class="' . esc_attr( $chip ) . '">' . esc_html( ucfirst( $status ) ) . '</span>';
             // #3462 — a schedule that did not send says why, here, rather
             // than just not arriving.
             if ( ! empty( $schedule['last_error'] ) ) {
                 echo '<p class="tt-sched-error">' . esc_html( (string) $schedule['last_error'] ) . '</p>';
             }
-            echo '</td>';
-            echo '<td>';
+            echo '</div></td>';
+            echo '<td class="tt-sched-actions-cell"' . StackTable::attrs( 'cell', $cols['actions'] ) . '>' . $value;
             self::renderRowActions( (int) $schedule['id'], $status );
-            echo '</td>';
+            echo '</div></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
