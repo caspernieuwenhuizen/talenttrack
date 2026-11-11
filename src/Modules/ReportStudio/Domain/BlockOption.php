@@ -22,8 +22,9 @@ final class BlockOption {
     public const TYPE_IDS       = 'ids';
 
     /**
-     * @param array<string,string>|array<string,array<string,string>> $choices
-     *        value => label; for a dependent option, parent value => (value => label)
+     * @param array<int|string,string>|array<string,array<string,string>> $choices
+     *        value => label; for a dependent option, parent value => (value => label).
+     *        A numeric value is an int key, as PHP stores it.
      */
     public function __construct(
         public readonly string $key,
