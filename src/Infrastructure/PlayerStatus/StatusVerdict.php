@@ -246,7 +246,7 @@ final class StatusVerdict {
             'potential'  => [ 'weight' => $weight ],
             'hide_score' => $hide_score,
             'reasons'    => $hide_score
-                ? array_values( array_map( static fn( string $r ): string => self::reasonWithoutComposite( $r ), $reasons ) )
+                ? array_map( static fn( string $r ): string => self::reasonWithoutComposite( $r ), $reasons )
                 : $reasons,
         ];
     }
