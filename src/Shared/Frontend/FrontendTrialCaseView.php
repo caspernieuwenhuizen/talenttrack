@@ -830,7 +830,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
     /* ===== Inputs tab ===== */
 
     private static function renderInputsTab( object $case, int $user_id ): void {
-        if ( ! TrialCaseAccessPolicy::readsReleasedInputs( $user_id, (int) $case->id ) ) return;
+        if ( ! TrialCaseAccessPolicy::readsReleasedInputs( $user_id, (int) ( ( (array) $case )['id'] ?? 0 ) ) ) return;
         $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
         $inputs_repo = new TrialStaffInputsRepository();
         $staff_repo  = new TrialCaseStaffRepository();
