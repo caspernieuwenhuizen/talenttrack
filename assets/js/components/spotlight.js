@@ -284,6 +284,14 @@
 			label.appendChild(document.createTextNode(' '));
 			label.appendChild(state);
 		}
+		// #4942 — a course locked behind a prerequisite or the plan says so.
+		if (item.locked) {
+			var lock = document.createElement('span');
+			lock.className = 'tt-spotlight__state';
+			lock.textContent = t('search_locked', 'Locked');
+			label.appendChild(document.createTextNode(' '));
+			label.appendChild(lock);
+		}
 		text.appendChild(label);
 		// #4936 — a player's shirt number and primary position, before the team.
 		var facts = [];
