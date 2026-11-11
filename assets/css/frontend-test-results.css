@@ -64,7 +64,7 @@
 }
 .tt-dashboard .tt-tr-export__note:not(:empty) {
     margin: 0.5rem 0 0;
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-size: var(--tt-fs-sm, 0.85rem);
 }
 
@@ -105,8 +105,8 @@
 .tt-dashboard .tt-tr-flag--warn { background: var(--tt-warning, #e8902b); }
 .tt-dashboard .tt-tr-flag--bad  { background: var(--tt-danger, #d8453b); }
 
-.tt-dashboard .tt-tr-trend--up   { color: var(--tt-success, #2f9e5e); }
-.tt-dashboard .tt-tr-trend--down { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-tr-trend--up   { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
+.tt-dashboard .tt-tr-trend--down { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
 .tt-dashboard .tt-tr-trend--flat { color: var(--tt-muted, #6a6d66); }
 
 /* #2628 — a test whose `direction` column is `neutral` (height, weight) has

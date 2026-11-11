@@ -112,7 +112,7 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     background: var(--tt-warning-subtle, #fdf3d8);
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
     padding: 0.0625rem 0.375rem;
     border-radius: 999px;
 }

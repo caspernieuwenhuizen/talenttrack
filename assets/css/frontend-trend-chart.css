@@ -104,7 +104,7 @@
     margin: 0.25rem 0 0;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--tt-info, #2d6fb3);
+    color: var(--tt-info-text, var(--tt-info, #2d6fb3));
 }
 .tt-trend-legend {
     display: flex;
@@ -330,8 +330,8 @@
 /* Direction-aware colouring: "up" means improvement in the terms of the
    test, which on a lower-is-better test is a NEGATIVE number. The class is
    named for the meaning, never for the sign. */
-.tt-tr-up { color: var(--tt-success, #2f9e5e); font-weight: 700; }
-.tt-tr-down { color: var(--tt-danger, #d8453b); font-weight: 700; }
+.tt-tr-up { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); font-weight: 700; }
+.tt-tr-down { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); font-weight: 700; }
 
 .tt-tr-verdict {
     display: inline-block;
@@ -348,6 +348,6 @@
 
 /* Pass / fail — a glyph, never colour alone. */
 .tt-meas-mark { font-weight: 700; }
-.tt-meas-mark--pass { color: var(--tt-success, #2f9e5e); }
-.tt-meas-mark--fail { color: var(--tt-danger, #d8453b); }
+.tt-meas-mark--pass { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
+.tt-meas-mark--fail { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
 .tt-meas-mark--none { color: var(--tt-line, #e3e6e1); }

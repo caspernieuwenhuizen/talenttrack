@@ -193,7 +193,7 @@
     font-size: 0.9375rem;
     color: var(--tt-muted, #6a6d66);
 }
-.tt-dashboard .tt-mye-detail-error { color: var(--tt-danger, #b32d2e); }
+.tt-dashboard .tt-mye-detail-error { color: var(--tt-danger-text, var(--tt-danger, #b32d2e)); }
 
 /* #3478 — which cut of the list is showing, and the link to the other. */
 .tt-dashboard .tt-mye-scope {

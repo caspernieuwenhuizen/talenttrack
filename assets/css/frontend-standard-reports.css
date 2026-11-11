@@ -158,7 +158,7 @@
 .tt-dashboard .tt-rep-note--warn {
     margin: 0;
     font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
 }
 
 /* Filter bar — plain GET round-trip, laid out as a card. */
@@ -214,7 +214,7 @@
  * the cell level to win over that. */
 .tt-dashboard .tt-report-card .tt-table tr.tt-rep-row--flag td { background: var(--tt-warning-subtle, #fdf3d8); }
 .tt-dashboard .tt-rep-flag-tag {
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -279,12 +279,12 @@
 
 .tt-dashboard .tt-learning-chip--overdue {
     background: var(--tt-danger-subtle, #fbeae9);
-    color: var(--tt-danger, #b3261e);
+    color: var(--tt-danger-text, var(--tt-danger, #b3261e));
 }
 
 .tt-dashboard .tt-learning-chip--complete {
     background: var(--tt-success-subtle, #e8f4ec);
-    color: var(--tt-success, #2f7d4f);
+    color: var(--tt-success-text, var(--tt-success, #2f7d4f));
 }
 
 .tt-dashboard .tt-learning-chip--partial {
@@ -345,12 +345,12 @@
     background: var(--tt-success);
 }
 .tt-dashboard .tt-rep-share.is-low .tt-rep-share__track > i { background: var(--tt-danger); }
-.tt-dashboard .tt-rep-share.is-low .tt-rep-share__v { color: var(--tt-danger); }
+.tt-dashboard .tt-rep-share.is-low .tt-rep-share__v { color: var(--tt-danger-text, var(--tt-danger)); }
 
 .tt-dashboard .tt-rep-share__flag {
     display: inline-block;
     margin-left: var(--tt-sp-2, 8px);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     font-size: var(--tt-fs-sm, 0.85rem);
     font-weight: 600;
     white-space: nowrap;

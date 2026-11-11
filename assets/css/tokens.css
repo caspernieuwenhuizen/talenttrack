@@ -167,4 +167,15 @@
     --tt-secondary-text:       var(--tt-secondary-text-color, #84660e);
     --tt-secondary-on-primary: var(--tt-secondary);
     --tt-secondary-on-chrome:  var(--tt-secondary);
+
+    /* A status colour printed as text (#5108). The four status hues are
+     * fills; every `color:` rule that prints one reads its `-text` variant,
+     * which clears 4.5:1 on paper and on the status's own `-subtle` fill.
+     * On the default design that is the status INK above. A theme that sets
+     * a status colour sets its `-text` too; Branding feeds the `-text-color`
+     * input with the same hue darkened (BrandStyles::statusTextColor()). */
+    --tt-success-text: var(--tt-success-text-color, var(--tt-success-ink));
+    --tt-warning-text: var(--tt-warning-text-color, var(--tt-warning-ink));
+    --tt-danger-text:  var(--tt-danger-text-color, var(--tt-danger-ink));
+    --tt-info-text:    var(--tt-info-text-color, var(--tt-info-ink));
 }

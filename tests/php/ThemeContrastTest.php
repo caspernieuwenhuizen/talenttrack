@@ -181,6 +181,26 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #5108 — a status colour printed as text reads its `-text` variant,
+     * which clears 4.5:1 on paper, the soft background and the status's own
+     * subtle fill. A theme that sets a status colour sets its `-text` itself.
+     */
+    public function test_status_text_reads(): void {
+        foreach ( $this->palettes() as $name => $p ) {
+            $d = $p['decls'];
+            foreach ( [ 'success', 'warning', 'danger', 'info' ] as $status ) {
+                if ( $name !== 'default' && preg_match( '/--tt-' . $status . '\s*:/', $p['own'] ) ) {
+                    $this->assertMatchesRegularExpression( '/--tt-' . $status . '-text\s*:/', $p['own'], "$name sets --tt-$status but not --tt-$status-text" );
+                }
+                $text = $this->token( '--tt-' . $status . '-text', $d );
+                foreach ( [ '--tt-paper', '--tt-bg-soft', '--tt-' . $status . '-subtle' ] as $bg ) {
+                    $this->assertRatio( 4.5, $text, $this->token( $bg, $d ), "$name --tt-$status-text on $bg" );
+                }
+            }
+        }
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {

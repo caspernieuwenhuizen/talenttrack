@@ -35,7 +35,7 @@
 }
 
 .tt-dashboard .tt-spond__set-flag {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     font-weight: 600;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .tt-dashboard .tt-spond__group {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 /* ---- Status badges -------------------------------------------------- */
 .tt-dashboard .tt-spond__badge {
@@ -150,17 +150,17 @@
 }
 
 .tt-dashboard .tt-spond__badge--ok {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     background: var(--tt-success-subtle, transparent);
 }
 
 .tt-dashboard .tt-spond__badge--error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     background: var(--tt-danger-subtle, transparent);
 }
 
 .tt-dashboard .tt-spond__badge--partial {
-    color: var(--tt-warning, #b45309);
+    color: var(--tt-warning-text, var(--tt-warning, #b45309));
     background: var(--tt-warning-subtle, transparent);
 }
 
@@ -205,11 +205,11 @@
 }
 
 .tt-dashboard .tt-spond__form-msg.tt-success {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-spond__form-msg.tt-error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 /* ---- Per-team account override (#2286) ------------------------------ */

@@ -317,7 +317,7 @@
         padding: var(--tt-sp-4);
     }
     .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td { color: var(--tt-muted); }
-    .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td { color: var(--tt-danger); }
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td { color: var(--tt-danger-text, var(--tt-danger)); }
     .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link { display: inline-block; }
     .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a,
     .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile-plain] a { pointer-events: auto; }

@@ -304,7 +304,7 @@
      * three things onto one line; it widens back out on tablet. */
     flex: 1 1 100%;
     font-size: var(--tt-fs-sm);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 .tt-profile-diff__pick--static {

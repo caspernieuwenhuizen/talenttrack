@@ -152,8 +152,8 @@
     color: var(--tt-ink, #0e1a14);
     margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-3, 12px);
 }
-.tt-dashboard .tt-ideas-note--reject { color: var(--tt-danger, #d8453b); }
-.tt-dashboard .tt-ideas-note--ok { color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-ideas-note--reject { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
+.tt-dashboard .tt-ideas-note--ok { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
 
 /* ---- Kanban board -------------------------------------------------- */
 .tt-dashboard .tt-kanban {
@@ -263,7 +263,7 @@
 }
 .tt-dashboard .tt-approval-card__error {
     margin: var(--tt-sp-3, 12px) 0 0;
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-size: var(--tt-fs-sm, 0.85rem);
 }
 .tt-dashboard .tt-approval-card__actions button { width: 100%; }
@@ -273,7 +273,7 @@
 }
 .tt-dashboard .tt-approval-card__reject > summary {
     cursor: pointer;
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-size: var(--tt-fs-sm, 0.85rem);
     min-height: 44px;
     line-height: 44px;
@@ -294,5 +294,5 @@
     margin: var(--tt-sp-4, 16px) 0 0;
     max-width: 48rem;
 }
-.tt-dashboard .tt-ideas-outcome--ok { color: var(--tt-success, #2f9e5e); }
-.tt-dashboard .tt-ideas-outcome--failed { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-ideas-outcome--ok { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
+.tt-dashboard .tt-ideas-outcome--failed { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }

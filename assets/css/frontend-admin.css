@@ -56,7 +56,7 @@
 }
 .tt-dashboard .tt-field-required::after {
     content: " *";
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 .tt-dashboard .tt-field-hint {
     font-size: var(--tt-fs-xs);
@@ -65,7 +65,7 @@
 }
 .tt-dashboard .tt-field-error {
     font-size: var(--tt-fs-xs);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     font-weight: 500;
 }
 /* A value that was saved but deserves a second look (a focus colour too
@@ -544,7 +544,7 @@
 
 .tt-dashboard .tt-list-table-status { min-height: 0; font-size: var(--tt-fs-xs); color: var(--tt-muted); margin-bottom: var(--tt-sp-2); }
 .tt-dashboard .tt-list-table-status.is-loading::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 2px solid var(--tt-muted); border-top-color: transparent; border-radius: 50%; animation: tt-spin 0.7s linear infinite; vertical-align: -1px; }
-.tt-dashboard .tt-list-table-status.is-error { color: var(--tt-danger); }
+.tt-dashboard .tt-list-table-status.is-error { color: var(--tt-danger-text, var(--tt-danger)); }
 
 /* #3669 — the body placeholder before the first fetch lands, and the row
    a failed fetch leaves behind. Deliberately not `.tt-list-table-empty`:
@@ -561,7 +561,7 @@
 .tt-dashboard div.tt-list-table-error,
 .tt-dashboard tr.tt-list-table-error > td {
     text-align: center;
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     padding: var(--tt-sp-4);
 }
 .tt-dashboard .tt-list-table-error .tt-btn { margin-left: var(--tt-sp-2); touch-action: manipulation; }
@@ -618,7 +618,7 @@
     margin-left: 4px;
 }
 .tt-dashboard .tt-list-table-action:hover { border-color: var(--tt-primary); }
-.tt-dashboard .tt-list-table-action-danger { color: var(--tt-danger); }
+.tt-dashboard .tt-list-table-action-danger { color: var(--tt-danger-text, var(--tt-danger)); }
 .tt-dashboard .tt-list-table-action-danger:hover { border-color: var(--tt-danger); }
 
 .tt-dashboard .tt-list-table-footer {
@@ -788,7 +788,7 @@
     line-height: 1;
 }
 .tt-dashboard .tt-psp .tt-psp-clear:hover {
-    color: var(--tt-danger, #b32d2e);
+    color: var(--tt-danger-text, var(--tt-danger, #b32d2e));
 }
 .tt-dashboard .tt-psp .tt-psp-results {
     position: absolute;
@@ -1203,7 +1203,7 @@
     font-weight: 600;
     color: var(--tt-ink, #0e1a14);
 }
-.tt-confirm-details .tt-cascade-heading-blocker { color: var(--tt-danger, #b32d2e); }
+.tt-confirm-details .tt-cascade-heading-blocker { color: var(--tt-danger-text, var(--tt-danger, #b32d2e)); }
 .tt-confirm-details .tt-cascade-list {
     margin: 0 0 4px;
     padding-left: 1.25rem;

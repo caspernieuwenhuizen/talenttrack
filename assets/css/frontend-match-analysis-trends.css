@@ -43,5 +43,5 @@
 
 /* The three markers are ordered, so they carry the ordered colour
    vocabulary the rest of the product uses for good / neutral / poor. */
-.tt-matrend__fact[data-marker="stood_out"] .tt-matrend__fact-value { color: var(--tt-success, #2f9e5e); }
-.tt-matrend__fact[data-marker="below_par"] .tt-matrend__fact-value { color: var(--tt-danger, #d8453b); }
+.tt-matrend__fact[data-marker="stood_out"] .tt-matrend__fact-value { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
+.tt-matrend__fact[data-marker="below_par"] .tt-matrend__fact-value { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }

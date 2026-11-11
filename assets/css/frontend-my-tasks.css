@@ -214,7 +214,7 @@
     white-space: nowrap;
 }
 .tt-dashboard .tt-mtasks-due.tt-overdue-text {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-weight: 600;
 }
 .tt-dashboard .tt-mtasks-action {

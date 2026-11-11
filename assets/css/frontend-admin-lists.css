@@ -181,7 +181,7 @@
 .tt-dashboard .tt-badge-current {
     display: inline-block;
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 999px;

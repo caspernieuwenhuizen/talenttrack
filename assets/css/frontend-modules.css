@@ -151,7 +151,7 @@
 /* Status: On (green) */
 .tt-dashboard .tt-tag-on {
     background: var(--tt-success-soft, #ebf7ee);
-    color: var(--tt-success, #00712a);
+    color: var(--tt-success-text, var(--tt-success, #00712a));
 }
 
 /* Status: Off (muted) */
@@ -163,7 +163,7 @@
 /* Feature count */
 .tt-dashboard .tt-tag-count {
     background: var(--tt-info-soft, #eef6fb);
-    color: var(--tt-info, #1d5f93);
+    color: var(--tt-info-text, var(--tt-info, #1d5f93));
 }
 
 /* Feature type tag — distinct shape (square-ish) + colour from Module */

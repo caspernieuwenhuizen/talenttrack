@@ -133,7 +133,7 @@
     padding: 0 var(--tt-sp-2, 8px);
     border-radius: 999px;
     background: var(--tt-danger-subtle, #fde2e2);
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-weight: 700;
 }
 
@@ -228,7 +228,7 @@
 }
 
 .tt-ec-cell--ok .tt-ec-cell__icon {
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 
 .tt-ec-cell--gap {
@@ -236,7 +236,7 @@
 }
 
 .tt-ec-cell--gap .tt-ec-cell__icon {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 /* #4026 — a window that has not started yet. Neutral, not red: nobody is
@@ -275,7 +275,7 @@
 }
 
 .tt-ec-att-bar.is-low .tt-ec-att-bar__v {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 .tt-ec-att-bar__track {

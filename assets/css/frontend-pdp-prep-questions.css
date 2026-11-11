@@ -126,7 +126,7 @@
 }
 
 .tt-pdp-prep-config .tt-form-msg.is-error {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 /* Tablet and up: the question and its controls sit side by side, which

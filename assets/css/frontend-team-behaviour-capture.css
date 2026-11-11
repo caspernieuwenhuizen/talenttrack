@@ -100,7 +100,7 @@
 
 .tt-dashboard .tt-tbc-row-error {
     margin-top: var(--tt-sp-1, 4px);
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
     font-size: 0.78rem;
 }
 

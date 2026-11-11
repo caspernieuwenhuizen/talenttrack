@@ -107,7 +107,7 @@
 
 /* "(set)" credential indicator. */
 .tt-dashboard .tt-translations__set-flag {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     font-size: 0.875rem;
     font-weight: 600;
 }
@@ -172,11 +172,11 @@
 }
 
 .tt-dashboard .tt-translations__form-msg.tt-success {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-translations__form-msg.tt-error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 @media (min-width: 768px) {

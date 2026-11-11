@@ -116,7 +116,7 @@
 	font: inherit;
 	font-size: var(--tt-fs-sm, 0.875rem);
 	font-weight: 600;
-	color: var(--tt-info, #2d6fb3);
+	color: var(--tt-info-text, var(--tt-info, #2d6fb3));
 	cursor: pointer;
 	touch-action: manipulation;
 }

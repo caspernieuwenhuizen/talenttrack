@@ -131,12 +131,12 @@
     white-space: nowrap;
 }
 .tt-dashboard .tt-sched-chip--active {
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
     border-color: var(--tt-success, #2f9e5e);
     background: var(--tt-success-subtle, #dff5e1);
 }
 .tt-dashboard .tt-sched-chip--paused {
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
     border-color: var(--tt-warning, #e8902b);
     background: var(--tt-warning-subtle, #fdf3d8);
 }
@@ -176,7 +176,7 @@
 @media (pointer: coarse) {
     .tt-dashboard .tt-sched-action { min-height: var(--tt-tap-min, 48px); }
 }
-.tt-dashboard .tt-sched-action--danger { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-sched-action--danger { color: var(--tt-danger-text, var(--tt-danger, #d8453b)); }
 .tt-dashboard .tt-sched-action--danger:hover,
 .tt-dashboard .tt-sched-action--danger:focus-visible {
     border-color: var(--tt-danger, #d8453b);

@@ -75,6 +75,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-warning:        #a87a00;
+    --tt-warning-text:   #896400;
     --tt-warning-subtle: #fff5cc;
 
     /* ---- Record links ---------------------------------------------- */

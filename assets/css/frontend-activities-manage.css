@@ -1058,7 +1058,7 @@
 .tt-dashboard .tt-act-rp__plan {
     font-size: 0.625rem;
     font-weight: 600;
-    color: var(--tt-warning, #b46a1f);
+    color: var(--tt-warning-text, var(--tt-warning, #b46a1f));
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
@@ -1497,11 +1497,11 @@
 }
 .tt-dashboard .tt-act-pill[data-type="friendly"] {
     background: var(--tt-warning-subtle, #fdf3d8);
-    color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning-text, var(--tt-warning, #e8902b));
 }
 .tt-dashboard .tt-act-pill[data-status="completed"] {
     background: var(--tt-success-subtle, #dff5e1);
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 
 /* ---- #1726 — match-completion direct minutes entry ---------- */

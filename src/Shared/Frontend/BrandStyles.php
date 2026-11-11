@@ -49,6 +49,18 @@ class BrandStyles {
     /** The status colours, which some installs hold as a stored `#000000`. */
     private const STATUS_KEYS = [ 'color_danger', 'color_warning', 'color_success', 'color_info' ];
 
+    /**
+     * Each status's `-subtle` fill in tokens.css, which its text sits on
+     * (#5108). Branding sets the status colour, not the fill, so its text
+     * shade has to read on this one. Pinned to tokens.css by a test.
+     */
+    private const STATUS_SUBTLE = [
+        'color_danger'  => '#fde2e2',
+        'color_warning' => '#fdf3d8',
+        'color_success' => '#dff5e1',
+        'color_info'    => '#e6f0fa',
+    ];
+
     /** Config key → token it sets on `.tt-root`. */
     private const COLOR_TOKENS = [
         'primary_color'   => '--tt-primary',
@@ -127,6 +139,12 @@ class BrandStyles {
             // `--tt-focus-ring` is drawn from directly (frontend-eval-form.css).
             if ( $key === 'color_focus' && ! $focus_own ) continue;
             $decls[] = $token . ':' . esc_attr( $value );
+            if ( in_array( $key, self::STATUS_KEYS, true ) ) {
+                // #5108 — the status keeps every fill; printed as text it
+                // takes a shade that reads on paper and on its subtle fill.
+                $status_text = self::statusTextColor( $key, $value );
+                if ( $status_text !== '' ) $decls[] = $token . '-text-color:' . esc_attr( $status_text );
+            }
             if ( $key === 'primary_color' ) {
                 $decls[] = '--tt-primary-rgb:' . esc_attr( self::hexToRgb( $value ) );
                 // #4804 — the focus ring is drawn in the primary colour; a
@@ -249,18 +267,49 @@ class BrandStyles {
     }
 
     /**
-     * Lower the lightness in 2% steps until the colour reaches `$min`
-     * against the page background.
+     * The text-safe shade of a Branding status colour (#5108): the colour
+     * itself when it reaches 4.5:1 on the page background and on that
+     * status's subtle fill, otherwise the same hue darkened until it does.
+     * '' for a value that is not a colour or a key that is not a status.
+     */
+    public static function statusTextColor( string $key, string $hex ): string {
+        $rgb = self::parseHex( $hex );
+        if ( $rgb === null || ! isset( self::STATUS_SUBTLE[ $key ] ) ) return '';
+        $subtle = self::parseHex( self::STATUS_SUBTLE[ $key ] );
+        $extra  = $subtle === null ? [] : [ $subtle ];
+        if ( self::readsOn( $rgb, self::TEXT_MIN_CONTRAST, $extra ) ) {
+            return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
+        }
+        return self::darkenUntil( $rgb, self::TEXT_MIN_CONTRAST, $extra );
+    }
+
+    /**
+     * Whether a colour reaches `$min` on the page background and on every
+     * extra background.
      *
      * @param array{0:int,1:int,2:int} $rgb
+     * @param list<array{0:int,1:int,2:int}> $extra
      */
-    private static function darkenUntil( array $rgb, float $min ): string {
-        $bg = self::FOCUS_BACKGROUND;
+    private static function readsOn( array $rgb, float $min, array $extra = [] ): bool {
+        foreach ( array_merge( [ self::FOCUS_BACKGROUND ], $extra ) as $bg ) {
+            if ( self::contrast( $rgb, $bg ) < $min ) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Lower the lightness in 2% steps until the colour reaches `$min`
+     * against the page background and any extra background.
+     *
+     * @param array{0:int,1:int,2:int} $rgb
+     * @param list<array{0:int,1:int,2:int}> $extra
+     */
+    private static function darkenUntil( array $rgb, float $min, array $extra = [] ): string {
         [ $h, $s, $l ] = self::rgbToHsl( $rgb );
         while ( $l > 0 ) {
             $l   = max( 0.0, $l - 0.02 );
             $rgb = self::hslToRgb( $h, $s, $l );
-            if ( self::contrast( $rgb, $bg ) >= $min ) break;
+            if ( self::readsOn( $rgb, $min, $extra ) ) break;
         }
         return sprintf( '#%02x%02x%02x', $rgb[0], $rgb[1], $rgb[2] );
     }

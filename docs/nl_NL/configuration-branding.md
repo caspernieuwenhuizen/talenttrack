@@ -184,6 +184,8 @@ Een veld leeg laten herstelt de standaard­token uit de stylesheet van de plugin
 
 **Focus-ringkleur.** Zonder focuskleur volgt de focusrand van het toetsenbord de primaire kleur. Het blauw dat het veld toont voordat je iets kiest (`#1e88e5`), telt als geen focuskleur. Een focuskleur die je instelt, neemt die plaats in, zolang hij goed afsteekt tegen de pagina (een contrast van minstens 3 op 1). Een vagere kleur wordt wel opgeslagen, maar het formulier waarschuwt dat hij slecht zichtbaar is als focusrand, en de rand blijft de primaire kleur volgen, zodat wie het toetsenbord gebruikt altijd ziet waar hij is. Onder een visueel thema bepaalt het thema de rand.
 
+**Statuskleuren als tekst.** De gevaar-, waarschuwings-, succes- en infokleur vullen banners, labels en badges precies zoals je ze kiest. Waar een van die kleuren als woorden wordt getoond, zoals een foutmelding of een statuslabel, gebruikt de tekst een donkerdere tint van dezelfde kleur als die van jou te licht is om te lezen op wit of op de lichte banner (een contrast van minstens 4,5 op 1). Een donkere kleur wordt gebruikt zoals hij is. Tekst in de secundaire kleur werkt op dezelfde manier.
+
 ### Achterwaartse compatibiliteit
 
 De bestaande velden **Primaire kleur** en **Secundaire kleur** blijven ongewijzigd werken. De nieuwe velden zijn additief — installaties die ze niet aanraken, zien geen visueel verschil.

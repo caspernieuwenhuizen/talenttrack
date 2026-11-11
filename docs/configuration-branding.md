@@ -184,6 +184,8 @@ Leaving a field empty restores the default token from the plugin's stylesheet. T
 
 **Focus ring color.** Without a focus colour, the keyboard focus ring follows the primary colour. The blue the field shows before you pick anything (`#1e88e5`) counts as no focus colour. A focus colour you set takes its place, as long as it stands out against the page (a contrast of at least 3 to 1). A fainter colour is still saved, but the form warns that it is hard to see as a focus outline, and the ring keeps following the primary colour so keyboard users can always see where they are. Under a visual theme the theme decides the ring.
 
+**Status colours as text.** The danger, warning, success and info colours fill banners, pills and badges exactly as you pick them. Where one is printed as words, such as an error message or a status label, the text uses a darker shade of the same colour when yours is too light to read on white or on its pale banner (a contrast of at least 4.5 to 1). A dark colour is used as it is. Secondary-colour text works the same way.
+
 ### Backward compatibility
 
 The existing **Primary color** and **Secondary color** fields keep working unchanged. The new fields are additive — installs that don't touch them see no visual difference.

@@ -119,9 +119,13 @@
        because TalentTrack status always ships with an icon and a label,
        never colour alone. */
     --tt-success:        #1e7a4c;
+    --tt-success-text:   #1e7a4c;
     --tt-warning:        #b3730a;
+    --tt-warning-text:   #966008;
     --tt-danger:         #c62828;
+    --tt-danger-text:   #c62828;
     --tt-info:           #1b5fa8;
+    --tt-info-text:   #1b5fa8;
     --tt-success-subtle: #e5f2ec;
     --tt-warning-subtle: #f8efdc;
     --tt-danger-subtle:  #fbeaea;

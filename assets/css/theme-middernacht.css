@@ -107,6 +107,7 @@
 
     /* ---- Status (from the design) ---------------------------------- */
     --tt-info:           #0567b1;
+    --tt-info-text:   #0567b1;
     --tt-info-subtle:    #e3f0fb;
 
     /* ---- Record links ---------------------------------------------- */

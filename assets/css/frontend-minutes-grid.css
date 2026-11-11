@@ -225,7 +225,7 @@
 
 /* Shape as well as colour — the flag carries the meaning on its own. */
 .tt-agrid-recon__cell.is-mismatch {
-  color: var(--tt-warning, #e8902b);
+  color: var(--tt-warning-text, var(--tt-warning, #e8902b));
   font-weight: 700;
 }
 

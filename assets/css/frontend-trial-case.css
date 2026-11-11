@@ -25,7 +25,7 @@
 
 .tt-dashboard .tt-trial-detail .tt-player-pill[data-status="open"]     { background: var(--tt-gold-soft, #fff3d9); color: var(--tt-gold); }
 .tt-dashboard .tt-trial-detail .tt-player-pill[data-status="extended"] { background: var(--tt-accent-soft); color: var(--tt-accent); }
-.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="decided"]  { background: var(--tt-success-soft, #e0efe5); color: var(--tt-success); }
+.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="decided"]  { background: var(--tt-success-soft, #e0efe5); color: var(--tt-success-text, var(--tt-success)); }
 .tt-dashboard .tt-trial-detail .tt-player-pill[data-status="archived"] { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
 
 /* ---- Card intro copy (decision tab guidance, etc.) ------------------- */

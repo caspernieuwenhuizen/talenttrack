@@ -58,9 +58,9 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
-.tt-dashboard .tt-tdash-pct-good { color: var(--tt-success, #2f9e5e); font-weight: 700; }
-.tt-dashboard .tt-tdash-pct-mid  { color: var(--tt-warning, #e8902b); font-weight: 700; }
-.tt-dashboard .tt-tdash-pct-bad  { color: var(--tt-danger, #d8453b);  font-weight: 700; }
+.tt-dashboard .tt-tdash-pct-good { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); font-weight: 700; }
+.tt-dashboard .tt-tdash-pct-mid  { color: var(--tt-warning-text, var(--tt-warning, #e8902b)); font-weight: 700; }
+.tt-dashboard .tt-tdash-pct-bad  { color: var(--tt-danger-text, var(--tt-danger, #d8453b));  font-weight: 700; }
 
 .tt-dashboard .tt-tdash-empty {
     color: var(--tt-muted, #6a6d66);

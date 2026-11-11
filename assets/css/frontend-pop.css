@@ -712,7 +712,7 @@
 .tt-dashboard .tt-pdp-ack { margin-top: 0.6rem; }
 .tt-dashboard .tt-pdp-acked {
     margin: 0.6rem 0 0;
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
     font-size: 0.85rem;
 }
 
@@ -1107,7 +1107,7 @@
     border-radius: 2px;
     overflow: hidden;
     background: var(--tt-line-soft);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 .tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar::-webkit-progress-bar {
     background: var(--tt-line-soft);
@@ -1287,7 +1287,7 @@
     border-radius: var(--tt-radius, 8px);
 }
 .tt-pdp-prep__readyh { margin: 0; font-weight: 700; }
-.tt-pdp-prep__tick { color: var(--tt-success, #15803d); }
+.tt-pdp-prep__tick { color: var(--tt-success-text, var(--tt-success, #15803d)); }
 .tt-pdp-prep__readycount,
 .tt-pdp-prep__readytext { margin: 0; font-size: 0.9rem; }
 .tt-pdp-prep__ready .tt-btn { min-height: var(--tt-tap-min, 48px); touch-action: manipulation; }

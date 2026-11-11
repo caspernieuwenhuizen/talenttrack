@@ -88,7 +88,7 @@
 
 .tt-dashboard .tt-mt-chip--on {
     background: var(--tt-success-subtle, #dff5e1);
-    color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success-text, var(--tt-success, #2f9e5e));
 }
 
 .tt-dashboard .tt-mt-chip--off {
@@ -114,13 +114,13 @@
 }
 
 .tt-dashboard .tt-mt-action--archive {
-    color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-text, var(--tt-danger, #d8453b));
 }
 
 /* Results export trigger (#2139). Subtle accent so it reads as a "take it
    out" action, distinct from the destructive archive. */
 .tt-dashboard .tt-mt-action--export {
-    color: var(--tt-info, #2d6fb3);
+    color: var(--tt-info-text, var(--tt-info, #2d6fb3));
 }
 
 /* Export-results block on the edit view — sits below the save form. */

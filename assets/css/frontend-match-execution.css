@@ -1685,7 +1685,7 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
-.tt-mexec-state-pill--pending_review { background: var(--tt-warning-subtle, #fff4d4); color: var(--tt-warning, #92651b); }
+.tt-mexec-state-pill--pending_review { background: var(--tt-warning-subtle, #fff4d4); color: var(--tt-warning-text, var(--tt-warning, #92651b)); }
 .tt-mexec-state-pill--finalized     { background: var(--tt-bg-soft, #e6e9ed);     color: var(--tt-ink-soft, #5b6e75); }
 .tt-mexec-finalize-btn {
     display: block;
@@ -1751,7 +1751,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: var(--tt-warning, #c75c1f);
+    color: var(--tt-warning-text, var(--tt-warning, #c75c1f));
 }
 .tt-mexec-late-event-hint { font-size: 11px; color: var(--tt-ink-soft, #5b6e75); }
 .tt-mexec-late-event-panel {
@@ -1764,7 +1764,7 @@
     padding: 12px 14px;
     cursor: pointer;
     font-weight: 600;
-    color: var(--tt-warning, #8a5e0a);
+    color: var(--tt-warning-text, var(--tt-warning, #8a5e0a));
     min-height: 48px;
     display: flex;
     align-items: center;

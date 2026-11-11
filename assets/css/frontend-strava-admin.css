@@ -152,12 +152,12 @@
 }
 
 .tt-dashboard .tt-strava-admin__badge--ok {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     background: var(--tt-success-subtle, transparent);
 }
 
 .tt-dashboard .tt-strava-admin__badge--error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
     background: var(--tt-danger-subtle, transparent);
 }
 
@@ -172,11 +172,11 @@
 }
 
 .tt-dashboard .tt-strava-admin__msg.tt-success {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-strava-admin__msg.tt-error {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 @media (min-width: 768px) {

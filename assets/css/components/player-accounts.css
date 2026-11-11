@@ -140,8 +140,8 @@
 .tt-dashboard .tt-pa-user-select { min-height: 48px; max-width: 100%; }
 .tt-dashboard .tt-pa-msg { margin: 0; font-size: 0.82rem; }
 .tt-dashboard .tt-pa-msg:empty { display: none; }
-.tt-dashboard .tt-pa-msg--error { color: var(--tt-danger, #b3261e); }
-.tt-dashboard .tt-pa-msg--ok    { color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-pa-msg--error { color: var(--tt-danger-text, var(--tt-danger, #b3261e)); }
+.tt-dashboard .tt-pa-msg--ok    { color: var(--tt-success-text, var(--tt-success, #2f9e5e)); }
 
 .tt-dashboard .tt-pa-truncated { margin-top: 0.75rem; }
 

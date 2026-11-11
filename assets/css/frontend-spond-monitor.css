@@ -94,7 +94,7 @@
 
 .tt-dashboard .tt-spm__msg--error {
     background: var(--tt-danger-subtle);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 .tt-dashboard .tt-spm__result-summary {
@@ -124,32 +124,32 @@
 
 .tt-dashboard .tt-spm__chip--new {
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-spm__chip--update {
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 .tt-dashboard .tt-spm__chip--archive {
     background: var(--tt-danger-subtle);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 .tt-dashboard .tt-spm__chip--ok {
     background: var(--tt-success-subtle);
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 .tt-dashboard .tt-spm__chip--partial {
     background: var(--tt-warning-subtle);
-    color: var(--tt-warning);
+    color: var(--tt-warning-text, var(--tt-warning));
 }
 
 .tt-dashboard .tt-spm__chip--error {
     background: var(--tt-danger-subtle);
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 .tt-dashboard .tt-spm__chip--muted {
@@ -227,7 +227,7 @@
 }
 
 .tt-dashboard .tt-spm__no-changes {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
     margin: var(--tt-sp-2) 0;
 }
 
@@ -252,11 +252,11 @@
 }
 
 .tt-dashboard .tt-spm__changes-from {
-    color: var(--tt-danger);
+    color: var(--tt-danger-text, var(--tt-danger));
 }
 
 .tt-dashboard .tt-spm__changes-to {
-    color: var(--tt-success);
+    color: var(--tt-success-text, var(--tt-success));
 }
 
 /* ---- Archive list --------------------------------------------------- */
