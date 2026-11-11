@@ -78,7 +78,8 @@ final class PdpTalkPartsTest extends WP_UnitTestCase {
         $details = $this->part( $html, 'tt-pdp-part tt-pdp-part--details' );
         $form    = $this->part( $html, 'tt-pdp-part tt-pdp-coachform' );
 
-        $this->assertSame( 2, substr_count( $html, 'data-tt-save-state' ), 'one save state per part' );
+        // The Preparation pane, on the same page, has a save state of its own.
+        $this->assertSame( 2, substr_count( $this->pane( $html ), 'data-tt-save-state' ), 'one save state per part' );
         $this->assertSame( 1, substr_count( $details, 'data-tt-save-state' ) );
         $this->assertSame( 1, substr_count( $form, 'data-tt-save-state' ) );
         $this->assertSame( 1, substr_count( $details, 'data-tt-save-undo' ), 'part 1 has its own undo' );
@@ -129,7 +130,7 @@ final class PdpTalkPartsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'name="notes"', $html );
         $this->assertStringContainsString( 'name="agreed_actions"', $html );
         $this->assertStringNotContainsString( 'tt-pdp-coachform', $html );
-        $this->assertSame( 1, substr_count( $html, 'data-tt-save-state' ) );
+        $this->assertSame( 1, substr_count( $this->pane( $html ), 'data-tt-save-state' ) );
         $this->assertStringNotContainsString( 'tt-pdp-part__num', $html, 'one part needs no number' );
         $this->assertStringContainsString( '<h2 class="tt-pdp-finish-h">Finish</h2>', $html, 'sign-off under its own heading' );
     }
@@ -156,6 +157,14 @@ final class PdpTalkPartsTest extends WP_UnitTestCase {
         ob_start();
         FrontendPdpManageView::render( $this->trainer, true );
         return (string) ob_get_clean();
+    }
+
+    /** The Conversation pane: from its opening tag to the Background pane after it. */
+    private function pane( string $html ): string {
+        $at = strpos( $html, 'id="tt-pdp-pane-conversation"' );
+        if ( $at === false ) return '';
+        $end = strpos( $html, 'id="tt-pdp-pane-evidence"', $at );
+        return substr( $html, $at, $end === false ? null : $end - $at );
     }
 
     /** One part's markup: from its opening tag to the first `</section>` after it. */
