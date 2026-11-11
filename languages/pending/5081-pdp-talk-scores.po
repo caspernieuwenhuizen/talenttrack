@@ -33,6 +33,40 @@ msgid "%1$d of %2$d scored"
 msgstr "%1$d van %2$d gescoord"
 
 #: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: its text is written"
+msgid "Filled in"
+msgstr "Ingevuld"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: its text is still empty"
+msgid "Not filled in yet"
+msgstr "Nog niet ingevuld"
+
+#. translators: %d: development points on the form
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "%d development point"
+msgid_plural "%d development points"
+msgstr[0] "%d SMART-punt"
+msgstr[1] "%d SMART-punten"
+
+#. translators: %d: development points still missing a field
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "%d still empty"
+msgstr "%d nog leeg"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: every development point is complete"
+msgid "all filled in"
+msgstr "alles ingevuld"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Tap your score again, or choose Clear, to empty it."
+msgstr "Tik je cijfer nog eens, of kies Wissen, om het leeg te maken."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
 msgctxt "PDP form section: what tapping a closed section does"
 msgid "Expand"
 msgstr "Openklappen"

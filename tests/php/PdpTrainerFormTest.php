@@ -138,6 +138,27 @@ final class PdpTrainerFormTest extends WP_UnitTestCase {
         $this->assertSame( 1, substr_count( $this->screen(), 'tt-pdp-coachform__changed' ) );
     }
 
+    /**
+     * #5081 — a player who clears a score after "klaar" has changed it, so
+     * the trainer keeps the "changed" mark on that item.
+     */
+    public function test_a_score_the_player_clears_after_klaar_is_marked_changed(): void {
+        global $wpdb;
+        $this->playerPrepares( [ 'aannames' => 4, 'technisch_rechts' => 2 ] );
+        $wpdb->query( $wpdb->prepare( "UPDATE {$this->p}tt_pdp_conversations SET player_prepared_at = DATE_SUB(player_prepared_at, INTERVAL 60 SECOND) WHERE id = %d", $this->conv ) );
+        $wpdb->query( $wpdb->prepare( "UPDATE {$this->p}tt_pdp_form_scores SET updated_at = DATE_SUB(updated_at, INTERVAL 120 SECOND) WHERE conversation_id = %d", $this->conv ) );
+
+        // The emptied input, as the autosave sends it, beside a score resent as it was.
+        wp_set_current_user( $this->account );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => '', 'technisch_rechts' => 2 ] ] )[1] );
+        $this->assertNull( $this->send( 'GET', 'form', [] )[0]['data']['player']['scores']['aannames'] ?? null, 'stored as null' );
+
+        wp_set_current_user( $this->trainer );
+        $state = $this->send( 'GET', 'form', [] )[0]['data']['state'];
+        $this->assertSame( [ 'aannames' ], $state['player_changed_items'], 'a clear is a change' );
+        $this->assertSame( 1, substr_count( $this->screen(), 'tt-pdp-coachform__changed' ), 'the trainer still sees it' );
+    }
+
     // ---- sign-off ------------------------------------------------------------
 
     public function test_an_incomplete_form_names_what_is_missing_and_cannot_be_signed(): void {
@@ -235,6 +256,13 @@ final class PdpTrainerFormTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'data-tt-pdp-folds="close"', $html );
         $this->assertStringContainsString( 'tt-pdp-coachform__chev', $html );
         $this->assertMatchesRegularExpression( '/\d+ items? · <span data-tt-pdp-scored data-total="\d+">1 of \d+ scored<\/span>/', $html, 'the count line of the first section' );
+        $this->assertStringContainsString( '<span data-tt-pdp-filled>Not filled in yet</span>', $html, 'the strongest quality has a count line too' );
+        $this->assertStringContainsString( '2 development points · <span data-tt-pdp-goals-empty>2 still empty</span>', $html, 'and the SMART points' );
+        $this->assertStringContainsString( 'Tap your score again, or choose Clear, to empty it.', $html, 'the legend says how to clear' );
+        $this->fillTrainerPart();
+        $full = $this->screen();
+        $this->assertStringContainsString( '<span data-tt-pdp-filled>Filled in</span>', $full );
+        $this->assertStringContainsString( '<span data-tt-pdp-goals-empty>all filled in</span>', $full );
         $this->assertStringContainsString( 'tt-pdp-coachform__toggle-open">Expand</span>', $html );
         $this->assertStringContainsString( 'tt-pdp-coachform__toggle-close">Collapse</span>', $html );
     }

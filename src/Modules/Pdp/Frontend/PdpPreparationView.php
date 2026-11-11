@@ -144,6 +144,8 @@ final class PdpPreparationView {
         echo '</ol>';
 
         echo '<p class="tt-pdp-prep__intro">' . esc_html__( 'Give yourself a score from 1 to 5 for each item. Your trainer sees your scores once you mark your preparation as ready. You can change everything until the conversation starts.', 'talenttrack' ) . '</p>';
+        // #5081 — the same row clears for the player as for the trainer.
+        echo '<p class="tt-help-text tt-pdp-prep__clearhint">' . esc_html__( 'Tap your score again, or choose Clear, to empty it.', 'talenttrack' ) . '</p>';
         self::renderLegend( $definition );
 
         $labels = self::scaleLabels( $definition );

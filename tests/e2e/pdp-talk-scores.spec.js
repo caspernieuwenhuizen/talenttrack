@@ -84,6 +84,11 @@ test( 'the sections read as folds, and open all / close all work by keyboard', a
 	expect( box && box.height >= 56, 'a section row is at least 56px' ).toBe( true );
 	await expect( sum.locator( '.tt-pdp-coachform__chev' ) ).toHaveCount( 1 );
 	await expect( sum.locator( '.tt-pdp-coachform__count' ) ).toContainText( 'scored' );
+	for ( let i = 0; i < count; i++ ) {
+		await expect( sections.nth( i ).locator( ':scope > summary .tt-pdp-coachform__count' ), `section ${ i } has a count line` ).toHaveCount( 1 );
+	}
+	await expect( sections.last().locator( '[data-tt-pdp-goals-empty]' ), 'the SMART points say how many are still empty' ).toHaveCount( 1 );
+	await expect( form.locator( '.tt-pdp-coachform__legend' ) ).toContainText( 'Tap your score again, or choose Clear, to empty it.' );
 
 	const close = form.locator( '[data-tt-pdp-folds="close"]' );
 	const open  = form.locator( '[data-tt-pdp-folds="open"]' );

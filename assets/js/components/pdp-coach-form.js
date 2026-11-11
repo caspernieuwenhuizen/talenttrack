@@ -130,7 +130,29 @@
 					.replace('%1$d', String(scored))
 					.replace('%2$d', total);
 			});
+
+			// A text the trainer agrees: filled in or not.
+			Array.prototype.forEach.call(form.querySelectorAll('[data-tt-pdp-filled]'), function (line) {
+				var d    = line.closest('[data-tt-pdp-section]');
+				var area = d ? d.querySelector('textarea[name^="answers["]') : null;
+				if (!area) return;
+				line.textContent = area.value.trim() !== '' ? t('filled', 'Filled in') : t('unfilled', 'Not filled in yet');
+			});
+
+			// The SMART points: empty until action, help and deadline are set.
+			Array.prototype.forEach.call(form.querySelectorAll('[data-tt-pdp-goals-empty]'), function (line) {
+				var d = line.closest('[data-tt-pdp-section]');
+				if (!d) return;
+				var empty = 0;
+				Array.prototype.forEach.call(d.querySelectorAll('.tt-pdp-coachform__goal'), function (goal) {
+					var parts = goal.querySelectorAll('[name$="[action]"], [name$="[support]"], [name$="[due_date]"]');
+					var full  = Array.prototype.every.call(parts, function (el) { return String(el.value).trim() !== ''; });
+					if (!full) empty++;
+				});
+				line.textContent = empty === 0 ? t('allFull', 'all filled in') : t('empty', '%d still empty').replace('%d', String(empty));
+			});
 		}
+		form.addEventListener('change', recount);
 		form.addEventListener('input', recount);
 		form.addEventListener('tt:form-remounted', recount);
 	}

@@ -253,6 +253,27 @@ final class PdpPreparationTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'data-tt-autosave-form', $html, 'wired by its own script, so klaar can flush first' );
     }
 
+    /**
+     * #5081 — the player's row clears like the trainer's: the emptied input
+     * stores null, the row reads "Not filled in yet" again, and the screen
+     * says how to clear.
+     */
+    public function test_the_player_clears_a_score_and_it_reads_not_filled_in(): void {
+        wp_set_current_user( $this->account );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4 ] ] )[1] );
+        $this->assertStringContainsString( 'name="scores[aannames]" value="4"', $this->myPdp() );
+
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => '' ] ] )[1] );
+        $this->assertNull( $this->send( 'GET', 'form', [] )[0]['data']['player']['scores']['aannames'] ?? null, 'stored as null' );
+
+        $html = $this->myPdp();
+        $this->assertStringContainsString( 'name="scores[aannames]" value=""', $html );
+        $row = substr( $html, (int) strpos( $html, 'name="scores[aannames]"' ), 4000 );
+        $this->assertStringContainsString( '>Not filled in yet</output>', $row, 'the readout says so' );
+        $this->assertStringContainsString( 'data-clearable="1"', $row, 'the player\'s row clears too' );
+        $this->assertStringContainsString( 'Tap your score again, or choose Clear, to empty it.', $html, 'and the screen says how' );
+    }
+
     public function test_my_pdp_shows_the_summary_after_klaar_and_read_only_after_the_lock(): void {
         wp_set_current_user( $this->account );
         $this->assertSame( 200, $this->send( 'PATCH', 'form/player', [ 'scores' => [ 'aannames' => 4, 'technisch_rechts' => 2 ], 'answers' => [ 'strongest_quality' => 'Antwoord van Sam 4979' ] ] )[1] );
