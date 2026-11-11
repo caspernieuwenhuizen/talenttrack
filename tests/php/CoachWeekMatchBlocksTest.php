@@ -241,16 +241,16 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
     }
 
     public function test_the_query_count_does_not_grow_with_the_number_of_completed_matches(): void {
-        // Week of 9 November: six completed matches. Week of 16 November: one.
-        foreach ( [ '2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14' ] as $date ) {
+        // Week of 5 October: six completed matches. Week of 12 October: one.
+        foreach ( [ '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10' ] as $date ) {
             $this->minutes( $this->completedMatch( $date, 1, 0, 'home' ), 60 );
         }
-        $this->minutes( $this->completedMatch( '2026-11-16', 1, 0, 'home' ), 60 );
+        $this->minutes( $this->completedMatch( '2026-10-12', 1, 0, 'home' ), 60 );
 
-        $this->queriesFor( '2026-11-15' );
-        $this->queriesFor( '2026-11-22' );
-        $six = $this->queriesFor( '2026-11-15' );
-        $one = $this->queriesFor( '2026-11-22' );
+        $this->queriesFor( '2026-10-11' );
+        $this->queriesFor( '2026-10-18' );
+        $six = $this->queriesFor( '2026-10-11' );
+        $one = $this->queriesFor( '2026-10-18' );
 
         $this->assertSame( 6, $six['checked'] );
         $this->assertSame( 1, $one['checked'] );
@@ -313,10 +313,10 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $original = $this->team;
         foreach ( $teams as $team ) {
             $this->team = $team;
-            $this->minutes( $this->completedMatch( '2026-11-14', 1, 0, 'home' ), 60 );
+            $this->minutes( $this->completedMatch( '2026-10-10', 1, 0, 'home' ), 60 );
         }
         $this->team = $teams[0];
-        $this->minutes( $this->completedMatch( '2026-11-21', 1, 0, 'home' ), 60 );
+        $this->minutes( $this->completedMatch( '2026-10-17', 1, 0, 'home' ), 60 );
         $this->team = $original;
 
         // Only the minutes check on, so this measures the audit read alone.
@@ -339,10 +339,10 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
             return [ $sql, count( array_filter( $week['rows'], static fn( $r ) => $r['minutes_check'] !== null ) ) ];
         };
 
-        $count( '2026-11-15' );
-        $count( '2026-11-22' );
-        [ $six_sql, $six ] = $count( '2026-11-15' );
-        [ $one_sql, $one ] = $count( '2026-11-22' );
+        $count( '2026-10-11' );
+        $count( '2026-10-18' );
+        [ $six_sql, $six ] = $count( '2026-10-11' );
+        [ $one_sql, $one ] = $count( '2026-10-18' );
 
         $this->assertGreaterThanOrEqual( 6, $six, 'the admin sees the six teams\' matches with a minutes check' );
         $this->assertSame( 1, $one );

@@ -136,6 +136,9 @@ final class GoalContributionDrilldownTest extends WP_UnitTestCase {
     public function test_the_statement_count_does_not_grow_with_the_matches(): void {
         $exec = $this->match( '2026-02-01', 1, 0 );
         $this->goal( $exec, $this->striker );
+        // The first scoped read of a request reads the demo mode once
+        // (`PlayedMatch::liveSql()`'s demo scope, #5095); count after it.
+        $this->statementsFor( $this->striker );
         $one = $this->statementsFor( $this->striker );
 
         for ( $i = 2; $i <= 6; $i++ ) {
