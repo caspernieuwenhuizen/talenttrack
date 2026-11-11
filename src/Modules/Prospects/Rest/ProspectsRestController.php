@@ -103,6 +103,14 @@ class ProspectsRestController {
                 'permission_callback' => [ self::class, 'can_log' ],
                 'args'                => self::updateArgs(),
             ],
+            // #4840 — delete: to the recycle bin, with its observations,
+            // consent log and tasks kept until a purge.
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ self::class, 'delete_prospect' ],
+                'permission_callback' => [ self::class, 'can_delete' ],
+                'args'                => [],
+            ],
         ] );
         // #3710 — put a prospect forward for a test training. The invite
         // task is the only thing that links a prospect to one, and until
@@ -278,6 +286,30 @@ class ProspectsRestController {
         $uid = get_current_user_id();
         if ( $uid <= 0 ) return false;
         return AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' );
+    }
+
+    /** #4840 — deleting asks `prospects: create_delete`. */
+    public static function can_delete(): bool {
+        return \TT\Modules\Prospects\Domain\ProspectDeletion::canDelete( get_current_user_id() );
+    }
+
+    /**
+     * DELETE /prospects/{id} — move the prospect to the recycle bin (#4840).
+     * 404 for a prospect outside the caller's scope or already in the bin,
+     * 409 for one who has become a player or has a trial case.
+     */
+    public static function delete_prospect( \WP_REST_Request $r ): \WP_REST_Response {
+        $id  = (int) $r['id'];
+        $uid = get_current_user_id();
+        if ( ! ProspectRecord::canOpen( $uid, $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+        $result = \TT\Modules\Prospects\Domain\ProspectDeletion::trash( $id, $uid );
+        if ( $result instanceof \WP_Error ) {
+            $status = $result->get_error_code() === \TT\Modules\Prospects\Domain\ProspectDeletion::ERR_IS_PLAYER ? 409 : 404;
+            return RestResponse::error( (string) $result->get_error_code(), $result->get_error_message(), $status );
+        }
+        return RestResponse::success( [ 'trashed' => true, 'id' => $id ] );
     }
 
     public static function can_view(): bool {

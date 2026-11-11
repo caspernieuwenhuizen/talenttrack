@@ -71,6 +71,10 @@ class ArchiveRepository {
         // #4569 — a Report Studio report. Deleting it archives; the bin
         // restores or purges it with its drafts, versions and publications.
         'report'                 => 'tt_reports',
+        // #4840 — a prospect. `DELETE /prospects/{id}` archives and bins it
+        // in one step; a restore puts it back where it was (see
+        // restoreFromTrash()).
+        'prospect'               => 'tt_prospects',
     ];
 
     /**
@@ -432,9 +436,12 @@ class ArchiveRepository {
      * @param string $entity
      * @param int[]  $ids
      * @param int    $by_user_id  wp user id of the person trashing
+     * @param array<string,mixed> $context Extra facts for the audit payload,
+     *                                     under `context` (#4840: the state
+     *                                     a prospect had before the delete).
      * @return int  Number of rows actually moved to the bin.
      */
-    public function trash( string $entity, array $ids, int $by_user_id ): int {
+    public function trash( string $entity, array $ids, int $by_user_id, array $context = [] ): int {
         $table = $this->resolveTable( $entity );
         if ( $table === null ) return 0;
         $ids = $this->cleanIds( $ids );
@@ -453,11 +460,13 @@ class ArchiveRepository {
         $n = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
 
         if ( $n > 0 ) {
+            $payload = [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ];
+            if ( $context !== [] ) $payload['context'] = $context;
             $this->audit->record(
                 RecycleBinAuditActions::trashed( $entity ),
                 $entity,
                 count( $ids ) === 1 ? (int) $ids[0] : 0,
-                [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ]
+                $payload
             );
         }
         $this->announceRowsChanged( $entity, $ids, $players, $n );
@@ -495,6 +504,23 @@ class ArchiveRepository {
                   AND trashed_at IS NOT NULL";
         $args = $ids;
         $n = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+
+        // #4840 — a prospect goes back where it was before the delete. One
+        // that was on the pipeline was archived by the delete itself, under
+        // its own reason; that archive is undone. One that was archived
+        // already keeps its own reason and stays archived.
+        if ( $entity === 'prospect' && $n > 0 ) {
+            $wpdb->query( $wpdb->prepare(
+                /* search-text-ok: no source column */
+                "UPDATE {$table}
+                    SET archived_at = NULL, archived_by = NULL, archive_reason = NULL
+                  WHERE id IN ({$ph})
+                    AND {$this->clubScope()}
+                    AND trashed_at IS NULL
+                    AND archive_reason = %s",
+                ...array_merge( $ids, [ \TT\Modules\Prospects\Domain\ProspectDeletion::ARCHIVE_REASON ] )
+            ) );
+        }
 
         if ( $n > 0 ) {
             $this->audit->record(

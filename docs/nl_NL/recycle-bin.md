@@ -30,8 +30,8 @@ AVG-verplichtingen van de academie voor gegevens van minderjarigen.
 
 ## Wat in de prullenbak kan
 
-Elke entiteit die gearchiveerd kan worden, kan ook in de prullenbak — 20
-recordtypen, van spelers en teams tot beoordelingen, doelen, proefdossiers,
+Elke entiteit die gearchiveerd kan worden, kan ook in de prullenbak, van
+spelers en teams tot beoordelingen, doelen, proefdossiers, prospects,
 blessures, metingen en geplande rapporten. Keuzelijst- en configuratietabellen
 (beoordelingsschalen, leeftijdsgroepen, woordenlijsten) kunnen **niet** in de
 prullenbak: dat zijn gedeelde instellingen, geen spelerrecords, en er valt
@@ -174,6 +174,15 @@ Dit zijn gegevens van minderjarigen, dus de bewaargrondslag is expliciet.
  gesprekken, verdicten, geüploade bestanden en koppelingen naar doelbewijs
  mee. Op een actief POP-dossier staat bewust geen verwijderknop: archiveer
  het eerst, net als bij al het andere.
+- **Prospects zitten er ook in.** Een prospect is vaak een kind van wie een
+ scout de gegevens vastlegde voordat het gezin toestemming gaf. **Verwijderen**
+ op de pagina van de prospect of op het onboardingbord verplaatst de prospect
+ in één stap hierheen. Herstellen zet de prospect terug waar hij stond: op het
+ bord, of gearchiveerd als hij al gearchiveerd was. Definitief verwijderen wist
+ ook de waarnemingen bij scoutingbezoeken, de toestemmingsverzoeken en de
+ workflowtaken; het opschonen na de bewaartermijn voor prospects wist precies
+ hetzelfde. Een prospect die speler is geworden, verwijder je nooit op deze
+ manier, alleen via de speler.
 - **Overeenstemming met verwijdering.** Elke speler-PII-entiteit die de
  prullenbak kan bevatten, is geregistreerd in `PlayerDataMap`, het centrale
  manifest dat de inzage- en verwijdertooling doorloopt. Zo werken een

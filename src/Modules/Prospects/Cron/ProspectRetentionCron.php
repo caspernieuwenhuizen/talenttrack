@@ -207,28 +207,19 @@ final class ProspectRetentionCron {
 
         $wpdb->delete( $prospects_table, [ 'id' => $prospect_id, 'club_id' => $club_id ] );
 
-        // Cascade workflow tasks linked via entity-link prospect_id.
-        // The workflow tasks table doesn't have a `prospect_id` column
-        // until #0081 child 2 lands; until then this cascade is a no-op.
-        $tasks_table = "{$p}tt_workflow_tasks";
-        $has_prospect_col = $wpdb->get_var( $wpdb->prepare(
-            "SHOW COLUMNS FROM {$tasks_table} LIKE %s", 'prospect_id'
-        ) );
-        if ( $has_prospect_col === 'prospect_id' ) {
-            $wpdb->delete( $tasks_table, [ 'prospect_id' => $prospect_id ] );
-        }
-
-        // #3812 — and the consent log, which is about this child and must
-        // not outlive them. The table names no family member, but it
-        // records that an academy asked about a named prospect, and a
-        // retention purge that left it behind would keep exactly the trace
-        // the purge exists to remove.
-        $consent_table = "{$p}tt_prospect_consent_requests";
-        $has_consent_table = $wpdb->get_var( $wpdb->prepare(
-            'SHOW TABLES LIKE %s', $consent_table
-        ) ) === $consent_table;
-        if ( $has_consent_table ) {
-            $wpdb->delete( $consent_table, [ 'prospect_id' => $prospect_id, 'club_id' => $club_id ] );
+        // #4840 — the prospect's own records, from the recycle bin's cascade
+        // plan, so a retention purge and a purge from the bin remove the
+        // same things: the observations at visits, the consent log (#3812:
+        // it records that the academy asked about a named child) and the
+        // workflow tasks. Asked per row with the club the cron passes,
+        // because the cron runs outside any club context.
+        $plan = \TT\Infrastructure\Archive\CascadeRegistry::plan( 'prospect' );
+        foreach ( (array) ( $plan['cascade'] ?? [] ) as [ $child, $column ] ) {
+            $child_table = $p . (string) $child;
+            if ( ! \TT\Infrastructure\Database\MigrationHelpers::columnExists( $child_table, (string) $column ) ) continue;
+            $where = [ (string) $column => $prospect_id ];
+            if ( \TT\Infrastructure\Database\MigrationHelpers::columnExists( $child_table, 'club_id' ) ) $where['club_id'] = $club_id;
+            $wpdb->delete( $child_table, $where );
         }
 
         // Audit row. Reason embedded in `note` so the audit trail is

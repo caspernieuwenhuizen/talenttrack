@@ -32,7 +32,9 @@ class ProspectsRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            // #4840 — a prospect in the recycle bin is not found. The bin
+            // reads it through ArchiveRepository::findIncludingArchived().
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d AND trashed_at IS NULL",
             $id, CurrentClub::id()
         ) );
         return $row ?: null;
@@ -127,7 +129,8 @@ class ProspectsRepository {
      * @return array{0:list<string>,1:list<mixed>}
      */
     private function buildWhere( array $filters ): array {
-        $where  = [ 'club_id = %d' ];
+        // #4840 — never a prospect in the recycle bin, archived or not.
+        $where  = [ 'club_id = %d', 'trashed_at IS NULL' ];
         $params = [ CurrentClub::id() ];
 
         if ( ! empty( $filters['discovered_by_user_id'] ) ) {
