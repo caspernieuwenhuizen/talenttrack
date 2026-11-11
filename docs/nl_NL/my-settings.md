@@ -46,7 +46,7 @@ Hoe de app er voor jou uitziet: de navigatie-indeling, het thema en, voor stafle
 
 Wat je deelt en wat de academie van jou heeft.
 
-- **Wat je ouder kan zien** (spelers met een gekoppelde ouder): kies welke delen van je dossier je ouder of verzorger kan zien. Alles wordt gedeeld tot je een deel uitzet. Trainers en de academie merken hier niets van. De samenvattingsregel zegt "Je ouder ziet alles" of hoeveel onderdelen verborgen zijn.
+- **Wat je ouder kan zien** (spelers met een gekoppelde ouder): kies welke delen van je dossier je ouder of verzorger kan zien. Alles wordt gedeeld tot je een deel uitzet. Trainers en de academie merken hier niets van. De samenvattingsregel zegt "Je ouder ziet alles" of hoeveel onderdelen verborgen zijn. Een ondertekend ontwikkelgesprek volgt de schakelaar voor het ontwikkelplan, ook de scores van de trainer erin; dezelfde scores, bewaard als evaluatie, volgen de schakelaar voor evaluaties.
 - **Wat de academie van jou heeft**: elk contactgegeven dat de academie van je heeft, en waar het staat. Dit is alleen ter inzage. Je accountgegevens wijzig je onder Account; wat in het dossier van je kind staat, wijzigt de academie.
 
 ## Opslaan

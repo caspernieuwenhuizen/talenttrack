@@ -63,6 +63,8 @@ final class TemplateCatalog {
             new TrainingCancelledTemplate(),
             new SelectionLetterTemplate(),
             new PdpReadyTemplate(),
+            // #4981 — a PDP form conversation signed off.
+            new \TT\Modules\Comms\Templates\PdpConversationSignedTemplate(),
             new ParentMeetingInviteTemplate(),
             new TrialPlayerWelcomeTemplate(),
             new GuestPlayerInviteTemplate(),

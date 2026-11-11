@@ -236,6 +236,17 @@ On the conversation screen, a talk that uses a conversation form shows the form 
 - **Finish and sign the conversation** is its own button, with a confirm. It stays closed until the form is complete, and the list above it names what is still missing: a score on every item, the agreed strongest quality, and each development point's action, help and deadline. The player's preparation is not required. Signing off fixes the scores and saves them as an evaluation, which the radar and the evaluation history then show; it creates the two goals, linked to the conversation next to the goals you marked as discussed; and it asks the player and the parent to confirm. Nothing reaches the evaluations or the goals before that.
 - After sign-off the form is read-only, and you can record the player's and the parent's acknowledgement as before.
 
+#### Reading and confirming the signed form
+
+Once the trainer signs off, the player and the family are told and can read the whole talk in *My PDP*.
+
+- **One message on sign-off**, to the player and to each linked parent who may see the development plan. A parent does not get it while the player keeps their PDP from them, or while the academy has not opened development information to the family. The message links to *My PDP*. It is sent once; signing off cannot happen twice.
+- **The signed form, one fold per section.** The title of each fold shows the player's average and the trainer's. Inside, every item shows both scores with their labels, followed by the trainer's notes for that section. The first fold is open; the others open with a tap or with Enter.
+- **A player who did not prepare** reads "not filled in" in their own column. The trainer's scores are there all the same.
+- **Below the folds**: the agreed strongest quality with what the player wrote under it, and the two development points with the action, how the trainer helps, the deadline and a link to the goal.
+- **I have read it** confirms the talk. The player confirms for themselves and a parent for their own part; afterwards the panel says when it was confirmed. Before sign-off there is nothing to confirm, and the confirmation is refused.
+- Nothing of the form is visible to a parent before sign-off, and nothing at all to a parent who is not linked to the player.
+
 ## Workflow nudges
 
 Three task templates are registered:

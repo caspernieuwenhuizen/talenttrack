@@ -121,7 +121,9 @@ class FrontendMyPdpView extends FrontendViewBase {
             $plan['conversations'],
             (int) $plan['next_conversation_id'],
             $is_self,
-            $is_parent
+            $is_parent,
+            // #4981 — a parent's goal links carry the child.
+            $is_self ? null : (int) $player->id
         );
         self::renderActiveGoals( $player, $voice, $plan['goals'] );
         // #4979 — a talk that uses a conversation form is prepared on the
@@ -149,7 +151,7 @@ class FrontendMyPdpView extends FrontendViewBase {
      *
      * @param list<array<string,mixed>> $convs
      */
-    private static function renderSeasonTimeline( string $season_name, array $convs, int $next_id, bool $is_self, bool $is_parent ): void {
+    private static function renderSeasonTimeline( string $season_name, array $convs, int $next_id, bool $is_self, bool $is_parent, ?int $child_id = null ): void {
         $done = 0;
         foreach ( $convs as $c ) {
             if ( $c['state'] === 'done' ) $done++;
@@ -211,7 +213,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         // (unchanged from before).
         echo '<div class="tt-pdp-panels">';
         foreach ( $convs as $c ) {
-            self::renderConversationPanel( $c, $is_self, $is_parent );
+            self::renderConversationPanel( $c, $is_self, $is_parent, $child_id );
         }
         echo '</div>';
 
@@ -226,7 +228,7 @@ class FrontendMyPdpView extends FrontendViewBase {
      *
      * @param array<string,mixed> $conv one entry from PdpFamilyReader.
      */
-    private static function renderConversationPanel( array $conv, bool $is_self, bool $is_parent ): void {
+    private static function renderConversationPanel( array $conv, bool $is_self, bool $is_parent, ?int $child_id = null ): void {
         $cid    = (int) $conv['id'];
         $signed = $conv['coach_signoff_at'] !== null;
         $title  = sprintf(
@@ -301,9 +303,17 @@ class FrontendMyPdpView extends FrontendViewBase {
                 . wp_kses_post( (string) $conv['player_reflection'] ) . '</div></div>';
         }
 
+        // #4981 — a signed conversation form: both scores per item, the
+        // strongest quality and the development points, as this reader may
+        // read them. Confirming it is "I have read it", with its date.
+        $form_read = $signed && PdpFormReadView::render( $cid, $child_id );
+        if ( $form_read ) {
+            self::renderReadConfirm( $conv, $is_self, $is_parent );
+        }
+
         // Acknowledgement flow — preserved exactly as-is (out of scope of
         // the redesign): once the coach has signed off.
-        if ( $signed ) {
+        if ( $signed && ! $form_read ) {
             $rest_path = 'pdp-conversations/' . $cid;
             if ( $is_self && $conv['player_ack_at'] === null ) {
                 ?>
@@ -330,6 +340,36 @@ class FrontendMyPdpView extends FrontendViewBase {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * #4981 — "I have read it" on a signed conversation form: its own
+     * control, outside any autosaving form (§6), writing the existing
+     * acknowledgement through the conversation route; once recorded, the
+     * date instead.
+     *
+     * @param array<string,mixed> $conv one entry from PdpFamilyReader.
+     */
+    private static function renderReadConfirm( array $conv, bool $is_self, bool $is_parent ): void {
+        $rest_path = 'pdp-conversations/' . (int) $conv['id'];
+        /* translators: %s: date and time the reader confirmed reading the signed talk */
+        $done = __( 'You confirmed you read it on %s.', 'talenttrack' );
+        $rows = [];
+        if ( $is_self ) $rows[] = [ 'player_ack_at', $conv['player_ack_at'] ?? null, $done ];
+        if ( $is_parent ) $rows[] = [ 'parent_ack_at', $conv['parent_ack_at'] ?? null, $done ];
+        foreach ( $rows as [ $field, $at, $done ] ) {
+            if ( $at !== null ) {
+                echo '<p class="tt-pdp-acked">' . esc_html( sprintf( $done, TTDate::dateTimeFromGmt( (string) $at ) ) ) . '</p>';
+                continue;
+            }
+            ?>
+            <form class="tt-ajax-form tt-pdp-ack tt-pdp-ack--read" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
+                <input type="hidden" name="<?php echo esc_attr( $field ); ?>" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
+                <button type="submit" class="tt-btn tt-btn-primary"><?php echo esc_html_x( 'I have read it', 'PDP conversation form: confirm reading the signed talk', 'talenttrack' ); ?></button>
+                <div class="tt-form-msg" role="status" aria-live="polite"></div>
+            </form>
+            <?php
+        }
     }
 
     /**

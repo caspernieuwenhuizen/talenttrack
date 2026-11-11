@@ -260,6 +260,13 @@ final class TemplateGuide {
                 'when'      => __( 'When a plan or evaluation is published.', 'talenttrack' ),
                 'triggered' => true,
             ],
+            'pdp_conversation_signed' => [
+                'family'    => self::FAMILY_MILESTONE,
+                'what'      => __( 'Says a development talk has been signed off and asks to read and confirm it.', 'talenttrack' ),
+                'who'       => __( 'The player, and the parents when the child shares the development plan with them.', 'talenttrack' ),
+                'when'      => __( 'When the trainer signs off a conversation form.', 'talenttrack' ),
+                'triggered' => true,
+            ],
             'parent_meeting_invite' => [
                 'family'    => self::FAMILY_MILESTONE,
                 'what'      => __( 'Invites parents to a meeting about their child.', 'talenttrack' ),

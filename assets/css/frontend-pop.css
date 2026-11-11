@@ -1377,3 +1377,54 @@
 .tt-pdp-coachform__missing ul { margin: 0; padding-left: 1.2rem; }
 .tt-pdp-coachform__signoff .tt-help-text { margin: 0; }
 .tt-pdp-coachform__signed { margin: 0; }
+
+/*
+ * #4981 — a signed conversation form, as the player and the family read it.
+ * Mobile-first: a fold per section with both averages in its title, each
+ * item a row with both scores under its name.
+ */
+.tt-pdp-formread { display: grid; gap: 0.5rem; margin: 0.75rem 0; min-width: 0; }
+.tt-pdp-formread__section { border-top: 1px solid var(--tt-line, #e2e8f0); min-width: 0; }
+.tt-pdp-formread__sum {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    min-height: var(--tt-tap-min, 48px);
+    padding: 0.25rem 0;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-pdp-formread__sum:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 2px; }
+.tt-pdp-formread__savg { font-size: 0.8rem; font-weight: 600; color: var(--tt-muted, #5b6470); }
+.tt-pdp-formread__items { margin: 0; padding: 0; list-style: none; }
+.tt-pdp-formread__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--tt-line-soft, #eef1ef);
+}
+.tt-pdp-formread__iname { font-weight: 600; overflow-wrap: anywhere; }
+.tt-pdp-formread__player { font-size: 0.85rem; color: var(--tt-info-ink, #1c5aa0); }
+.tt-pdp-formread__coach { font-size: 0.85rem; }
+.tt-pdp-formread__note { margin: 0.5rem 0; font-size: 0.9rem; overflow-wrap: anywhere; }
+.tt-pdp-formread__h { margin: 0.75rem 0 0.25rem; font-size: 1rem; }
+.tt-pdp-formread__agreed,
+.tt-pdp-formread__wrote,
+.tt-pdp-formread__action,
+.tt-pdp-formread__support,
+.tt-pdp-formread__due { margin: 0; overflow-wrap: anywhere; }
+.tt-pdp-formread__wrote,
+.tt-pdp-formread__support,
+.tt-pdp-formread__due { font-size: 0.85rem; color: var(--tt-muted, #5b6470); }
+.tt-pdp-formread__goals { display: grid; gap: 0.75rem; margin: 0; padding-left: 1.2rem; }
+.tt-pdp-formread__goal { display: grid; gap: 0.2rem; }
+.tt-pdp-formread__goallink {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tt-tap-min, 48px);
+    touch-action: manipulation;
+}

@@ -236,6 +236,17 @@ Op het gespreksscherm staat bij een gesprek met een gespreksformulier het formul
 - **Gesprek afronden en ondertekenen** is een eigen knop, met een bevestiging. Die blijft dicht tot het formulier compleet is, en de lijst erboven noemt wat nog ontbreekt: een cijfer op elk item, de afgesproken grootste kwaliteit, en van elk ontwikkelpunt de actie, de hulp en de deadline. De voorbereiding van de speler is niet nodig. Ondertekenen zet de cijfers vast en bewaart ze als evaluatie, die het radardiagram en de evaluatiegeschiedenis dan tonen; het maakt de twee doelen aan, gekoppeld aan het gesprek naast de doelen die je als besproken markeerde; en het vraagt de speler en de ouder om te bevestigen. Voor die tijd komt er niets in de evaluaties of de doelen.
 - Na het ondertekenen is het formulier alleen-lezen, en kun je de bevestiging van de speler en de ouder vastleggen zoals voorheen.
 
+#### Het ondertekende formulier lezen en bevestigen
+
+Zodra de trainer ondertekent, krijgen de speler en het gezin bericht en kunnen ze het hele gesprek lezen in *Mijn POP*.
+
+- **Eén bericht bij het ondertekenen**, aan de speler en aan elke gekoppelde ouder die het ontwikkelplan mag zien. Een ouder krijgt het niet zolang de speler de POP voor die ouder afschermt, of zolang de academie de ontwikkelinformatie nog niet voor het gezin heeft opengezet. Het bericht linkt naar *Mijn POP*. Het gaat één keer weg; twee keer ondertekenen kan niet.
+- **Het ondertekende formulier, één uitklapblok per onderdeel.** De titel van elk blok toont het gemiddelde van de speler en dat van de trainer. Daarin staan bij elk item beide cijfers met hun label, en daarna de toelichting van de trainer bij dat onderdeel. Het eerste blok staat open; de andere gaan open met een tik of met Enter.
+- **Een speler die niet heeft voorbereid**, leest "niet ingevuld" in de eigen kolom. De cijfers van de trainer staan er gewoon.
+- **Onder de blokken**: de afgesproken grootste kwaliteit met daaronder wat de speler schreef, en de twee ontwikkelpunten met de actie, hoe de trainer helpt, de deadline en een link naar het doel.
+- **Gelezen** bevestigt het gesprek. De speler bevestigt voor zichzelf en een ouder voor het eigen deel; daarna staat in het blok wanneer het is bevestigd. Voor het ondertekenen valt er niets te bevestigen, en wordt de bevestiging geweigerd.
+- Een ouder ziet niets van het formulier voor het ondertekenen, en een ouder die niet aan de speler is gekoppeld ziet helemaal niets.
+
 ## Werkflow­herinneringen
 
 Er zijn drie taaktemplates geregistreerd:
