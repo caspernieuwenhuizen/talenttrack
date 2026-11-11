@@ -15,9 +15,10 @@ test.describe.configure( { mode: 'serial' } );
  * @param {import('@playwright/test').Browser} browser
  * @param {string|undefined} baseURL
  * @param {string} login
+ * @param {object} [opts] context options; a phone under a finger by default
  */
-async function signedIn( browser, baseURL, login ) {
-	const context = await browser.newContext( { baseURL, viewport: { width: 360, height: 800 }, hasTouch: true, isMobile: true } );
+async function signedIn( browser, baseURL, login, opts = { viewport: { width: 360, height: 800 }, hasTouch: true, isMobile: true } ) {
+	const context = await browser.newContext( { baseURL, ...opts } );
 	const page    = await context.newPage();
 	await page.goto( '/wp-login.php' );
 	await page.fill( 'input[name="log"]', login );
@@ -34,10 +35,10 @@ async function signedIn( browser, baseURL, login ) {
 }
 
 /** Open the talk's panel from the timeline, and return the signed form. */
-async function openTalk( page ) {
+async function openTalk( page, touch = true ) {
 	const node = page.locator( '[aria-controls^="tt-pdp-panel-"]' ).first();
 	await expect( node, 'the talk is on the timeline' ).toBeVisible();
-	if ( ( await node.getAttribute( 'aria-expanded' ) ) !== 'true' ) await node.tap();
+	if ( ( await node.getAttribute( 'aria-expanded' ) ) !== 'true' ) await ( touch ? node.tap() : node.click() );
 	const form = page.locator( '.tt-pdp-panel:not([hidden]) .tt-pdp-formread' );
 	await expect( form, 'the signed form shows in the panel' ).toBeVisible();
 	return form;
@@ -65,6 +66,30 @@ test( 'the signed-off message lands the player on the talk, at its signed form, 
 		await context.close();
 	}
 } );
+
+// #4982 — one Print link shows: the PDF under a finger, the print page under
+// a mouse. Both are `.tt-btn`, so a print rule the button rule outranks shows
+// the two at once. The mouse case says `hasTouch: false` itself: the file's
+// `test.use()` is the default for every context the test opens.
+for ( const device of [
+	{ name: 'a phone under a finger', touch: true, shows: 'tt-pdp-printact__pdf', opts: { viewport: { width: 360, height: 800 }, hasTouch: true, isMobile: true } },
+	{ name: 'a computer with a mouse', touch: false, shows: 'tt-pdp-printact__page', opts: { viewport: { width: 1280, height: 900 }, hasTouch: false, isMobile: false } },
+] ) {
+	test( `the signed form offers exactly one Print link on ${ device.name }`, async ( { browser, baseURL } ) => {
+		const { context, page } = await signedIn( browser, baseURL, 'e2e_pop_read', device.opts );
+		try {
+			const form    = await openTalk( page, device.touch );
+			const visible = form.locator( '.tt-pdp-printact a:visible' );
+			await expect( visible, 'one Print link' ).toHaveCount( 1 );
+			await expect( visible ).toHaveClass( new RegExp( device.shows ) );
+			const box = await visible.boundingBox();
+			const min = device.touch ? 48 : 36;
+			expect( box && box.height >= min, `the link is a ${ min }px target` ).toBe( true );
+		} finally {
+			await context.close();
+		}
+	} );
+}
 
 for ( const who of [ 'e2e_pop_read', 'e2e_pop_read_parent' ] ) {
 	test( `${ who } reads every item with both scores, opens the folds by keyboard, and confirms`, async ( { browser, baseURL } ) => {

@@ -134,6 +134,8 @@ final class PdpFormReadView {
             }
             echo '</ol>';
         }
+        // #4982 — the same document, printed or as a PDF.
+        PdpFormPrintAction::render( $conv_id );
         echo '</div>';
         return true;
     }

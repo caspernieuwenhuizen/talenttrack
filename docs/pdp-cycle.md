@@ -165,6 +165,16 @@ A goal can also link to a **development talk**. On the conversation form, the co
 
 The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 carrying the same evidence the coach reads on the Evidence tab and the head of academy reads on the verdict screen — one assembly, so the printed numbers and the on-screen ones cannot disagree. The evidence page is staff-only: a player or parent printing their own file gets the single A4, and the toggle is not offered to them.
 
+### Printing a signed conversation form
+
+A talk held on a conversation form prints as the academy's A4 form once the trainer has signed it off. **Print** sits under the signed form: on a phone it opens the PDF, on a computer the print page. Both show the same document.
+
+- **On the page:** the player, date, team and trainer, then the scale, then every item with the player's score (S) and the trainer's (T), section by section, with the trainer's notes under each section. Below that come the strongest quality (what the player wrote and what was agreed), the two development points with what the player does, how the trainer helps and the deadline, and who confirmed it when, in place of signature lines.
+- **What it says when something is missing:** a player who did not prepare reads "not filled in" in their column, and a confirmation not yet given reads "not yet confirmed", never a date.
+- **Before sign-off** nothing of the form prints: the page says it prints once the trainer has signed it off.
+- **Who may print it** is who may read it on screen: staff who may open the file, the player, and a parent while the child shares the development plan, after sign-off. Everyone else gets the same refusal as on screen.
+- A talk without a form prints its whole file, as described above.
+
 ## Configuration
 
 - **Configuration → Lookups → Player values** — edit the value vocabulary.

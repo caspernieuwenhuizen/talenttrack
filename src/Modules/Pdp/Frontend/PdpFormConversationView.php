@@ -221,6 +221,8 @@ final class PdpFormConversationView {
         if ( $signed ) {
             echo '<p class="tt-pdp-coachform__signed"><strong>' . esc_html__( 'Signed off', 'talenttrack' ) . '</strong> — '
                 . esc_html( TTDate::dateTimeFromGmt( (string) $state['coach_signoff_at'] ) ) . '</p>';
+            // #4982 — the signed form as the academy's A4 form.
+            PdpFormPrintAction::render( $conv_id );
         } elseif ( $signs_off ) {
             $missing = [];
             foreach ( (array) ( $state['missing'] ?? [] ) as $m ) {

@@ -14,6 +14,9 @@ use TT\Infrastructure\Query\LookupTranslator;
  * PdpPrintRouter — isolated print route for a single PDP file.
  *
  * URL: ?tt_pdp_print=1&file_id=N (optionally &include_evidence=1)
+ *      ?tt_pdp_print=1&conversation_id=N — one talk's conversation form
+ *      (#4982, `PdpFormPrintableRenderer`); a talk without a form prints
+ *      its file.
  *
  * Same isolation pattern as Stats\PrintRouter: intercept before the
  * admin / theme shell renders, emit a standalone document, exit.
@@ -37,10 +40,32 @@ class PdpPrintRouter {
     public static function maybeRender(): void {
         if ( empty( $_GET['tt_pdp_print'] ) ) return;
         $file_id = absint( $_GET['file_id'] ?? 0 );
-        if ( $file_id <= 0 ) return;
+        $conv_id = absint( $_GET['conversation_id'] ?? 0 );
+        if ( $file_id <= 0 && $conv_id <= 0 ) return;
 
         if ( ! is_user_logged_in() ) {
             wp_die( esc_html__( 'Log in to print this PDP file.', 'talenttrack' ) );
+        }
+
+        // #4982 — one conversation's form. A talk without a form prints as
+        // its file does, below.
+        if ( $conv_id > 0 ) {
+            $printed = self::renderConversationHtml( $conv_id, get_current_user_id() );
+            if ( $printed['status'] === PdpFormPrintableRenderer::NOT_FOUND ) {
+                wp_die( esc_html__( 'PDP file not found.', 'talenttrack' ) );
+            }
+            if ( $printed['status'] === PdpFormPrintableRenderer::REFUSED ) {
+                wp_die( esc_html__( 'You do not have access to this PDP file.', 'talenttrack' ) );
+            }
+            if ( $printed['html'] !== '' ) {
+                add_filter( 'show_admin_bar', '__return_false' );
+                status_header( 200 );
+                nocache_headers();
+                header( 'Content-Type: text/html; charset=UTF-8' );
+                echo $printed['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled with esc_html() on every dynamic field
+                exit;
+            }
+            $file_id = $printed['file_id'];
         }
 
         $files = new PdpFilesRepository();
@@ -85,6 +110,58 @@ class PdpPrintRouter {
         ob_start();
         self::emit( $file, $include_evidence );
         return (string) ob_get_clean();
+    }
+
+    /**
+     * #4982 — the standalone document for one conversation's form, as this
+     * user may read it. `html` is empty when the talk has no form (print the
+     * file, `file_id`) or the user is refused (`status` says which).
+     *
+     * Public so `PdpPdfExporter` renders the same document. Access is the
+     * renderer's, which is `PdpFormAccess`'s: the caller adds none of its own.
+     *
+     * @return array{status:string, html:string, file_id:int}
+     */
+    public static function renderConversationHtml( int $conversation_id, int $user_id ): array {
+        $printed = PdpFormPrintableRenderer::forConversation( $conversation_id, $user_id );
+        $status  = $printed['status'];
+        if ( $status !== PdpFormPrintableRenderer::OK && $status !== PdpFormPrintableRenderer::UNSIGNED ) {
+            return [ 'status' => $status, 'html' => '', 'file_id' => $printed['file_id'] ];
+        }
+
+        $close_url = \TT\Modules\Pdp\PdpAccess::canSeeFile( $user_id, self::playerOfFile( $printed['file_id'] ) )
+            ? add_query_arg( [ 'tt_view' => 'pdp', 'id' => $printed['file_id'], 'conv' => $conversation_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
+            : add_query_arg( [ 'tt_view' => 'my-pdp' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+
+        ob_start();
+        ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title><?php echo esc_html( $printed['title'] ); ?></title>
+    <style><?php /* tt-inline-ok — a standalone print document renders outside the WP shell, where wp_enqueue_style never runs; the same constraint MatchAnalysisPrintRouter has. */ ?>
+        <?php echo PdpFormPrintableRenderer::styleBlock(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- controlled CSS string ?>
+        .toolbar { margin-bottom: 4mm; }
+        .toolbar button, .toolbar a { display: inline-block; padding: 6px 12px; margin-right: 8px; border: 1px solid #c5c8cc; background: #fff; border-radius: 4px; font-size: 10pt; color: #1a1d21; text-decoration: none; }
+        @media print { .toolbar { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button type="button" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
+        <a href="<?php echo esc_url( $close_url ); ?>" onclick="if (window.opener) { window.close(); return false; }"><?php esc_html_e( 'Close', 'talenttrack' ); ?></a>
+    </div>
+    <?php echo $printed['body']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by the renderer ?>
+</body>
+</html><?php
+        return [ 'status' => $status, 'html' => (string) ob_get_clean(), 'file_id' => $printed['file_id'] ];
+    }
+
+    private static function playerOfFile( int $file_id ): int {
+        $file = $file_id > 0 ? ( new PdpFilesRepository() )->find( $file_id ) : null;
+        return $file ? (int) $file->player_id : 0;
     }
 
     /**
