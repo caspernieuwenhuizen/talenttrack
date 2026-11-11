@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
-use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
@@ -133,27 +133,25 @@ final class MinutesAuditQuery {
         }
 
         // 1. Game / tournament activities for the teams in the window — the
-        //    SAME set MinutesQuery counts (match | game | tournament), so
-        //    row totals reconcile with the minutes report.
+        //    SAME set MinutesQuery counts, so row totals reconcile with the
+        //    minutes report. #5095 — read from `PlayedMatch`: the played
+        //    minutes-bearing matches (match | game | tournament) and their
+        //    live clause, so a match not yet played is not a row of gaps.
         $in_teams = implode( ',', array_fill( 0, count( $teams ), '%d' ) );
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
+        $played   = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, team_id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
-                    match_length_minutes, start_time, end_time,
+            "SELECT a.id, a.team_id, a.game_subtype_key, a.activity_type_key, a.tournament_id, a.{$date_col} AS session_date, a.title,
+                    a.match_length_minutes, a.start_time, a.end_time,
                     ( SELECT mp.half_length_minutes FROM {$p}tt_match_prep mp
-                       WHERE mp.activity_id = {$p}tt_activities.id LIMIT 1 ) AS prep_half_minutes
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id IN ({$in_teams})
-                AND {$is_match_sql}
-                AND {$date_col} BETWEEN %s AND %s
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
+                       WHERE mp.activity_id = a.id LIMIT 1 ) AS prep_half_minutes
+               FROM {$p}tt_activities a
+              WHERE a.team_id IN ({$in_teams})
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND {$played}
                 {$where_type}
-              ORDER BY {$date_col} ASC, id ASC",
-            ...array_merge( [ $club_id ], $teams, [ $from, $to ] )
+              ORDER BY a.{$date_col} ASC, a.id ASC",
+            ...array_merge( $teams, [ $from, $to ] )
         ) );
         if ( empty( $activities ) ) return $out;
 
