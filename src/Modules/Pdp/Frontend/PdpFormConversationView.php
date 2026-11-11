@@ -260,7 +260,7 @@ final class PdpFormConversationView {
      * `FrontendPdpManageView`, which draws it for a talk without a form.
      */
     public static function finishHeading(): string {
-        return '<h2 class="tt-pdp-finish-h">' . esc_html__( 'Finish', 'talenttrack' ) . '</h2>';
+        return '<h2 class="tt-pdp-finish-h">' . esc_html_x( 'Finish', 'PDP talk heading over sign-off and the other irreversible steps', 'talenttrack' ) . '</h2>';
     }
 
     /**
