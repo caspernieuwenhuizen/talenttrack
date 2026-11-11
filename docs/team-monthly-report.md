@@ -341,6 +341,15 @@ it. The PDF of a snapshot prints the notes, so the printed copy and the screen
 say the same thing. The page count of a snapshot includes its notes, so a long
 note that moves a section to another page is counted.
 
+Writing notes is for whoever may save this team's snapshot. A reader of the
+report only sees the notes but is not offered the editor. Each note written is
+recorded in the audit log.
+
+A snapshot shows each reader what they may read today, section by section, as
+the live report does: journey entries at the levels the reader holds, open
+injuries only for a reader of the squad's injuries, and attendance only for a
+reader of the team's attendance. On screen and in the PDF.
+
 ### Snapshots cannot be shared by link
 
 **A snapshot is only readable by someone who is signed in and can already see

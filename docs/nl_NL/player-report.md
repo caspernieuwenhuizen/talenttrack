@@ -231,11 +231,24 @@ Alleen ingelogde stafleden die het rapport van deze speler mogen openen, kunnen
 een momentopname ervan openen. Een momentopname heeft geen deelbare link; geef
 iemand in plaats daarvan de PDF.
 
+Een momentopname toont elke lezer wat die vandaag mag lezen. De cijfers blijven
+zoals ze waren, maar een sectie die de lezer niet mag zien valt weg of wordt
+korter, net als op het live rapport: blessures alleen voor stafleden met het
+medische recht, trajectmomenten op de niveaus die de lezer heeft, enzovoort. De
+pagina van de momentopname en de PDF tonen hetzelfde. Een scout ziet en opent geen
+momentopname die voor de staf is opgeslagen, en leest een kopie die met het
+gezin is gedeeld als de eigen scoutversie.
+
+Een notitie volgt haar sectie: een notitie bij de blessures bereikt alleen
+stafleden met het medische recht, een notitie bij de stafnotities alleen wie
+de privénotities van de speler leest, en een notitie bij het
+ontwikkelplan alleen wie het plan mag openen.
+
 Een momentopname opslaan, het rapport met het gezin delen en een notitie
 schrijven zijn voor stafleden die rapporten van deze speler mogen maken, niet
-alleen lezen. Wie rapporten alleen leest, zoals de alleen-lezen-waarnemer of een
-scout, ziet de eerdere momentopnames en hun notities, maar krijgt opslaan, delen
-en de notitie-editor niet aangeboden. Elke opgeslagen momentopname en elke
+alleen lezen. Wie rapporten alleen leest, zoals de alleen-lezen-waarnemer, ziet
+de eerdere momentopnames en hun notities, maar krijgt opslaan, delen en de
+notitie-editor niet aangeboden. Elke opgeslagen momentopname en elke
 geschreven notitie wordt vastgelegd in het auditlogboek.
 
 ## Het rapport delen met de speler en de ouders

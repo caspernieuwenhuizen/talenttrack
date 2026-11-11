@@ -183,19 +183,35 @@ final class TeamMonthlyReport {
     }
 
     /**
-     * #4949 — a composed report as this viewer may read it: unchanged for a
-     * reader with the team's attendance right, without its attendance
-     * otherwise. For a payload composed earlier, under somebody else's
-     * rights: a snapshot, frozen when it was taken, is filtered when it is
-     * shown and when it is printed, whenever it was taken.
+     * #4949 — a composed report as this viewer may read it: each section cut
+     * by `TeamSectionRights::cut()`, the rules the live report is composed
+     * with, and a section the viewer may not read left out. For a payload
+     * composed earlier, under somebody else's rights: a snapshot, frozen when
+     * it was taken, is filtered when it is shown and when it is printed,
+     * whenever it was taken.
      *
      * @param array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string} $report
      * @return array{data: array<string, array<string, mixed>>, blocks: list<string>, from: string, to: string}
      */
     public static function forReader( array $report, int $team_id, int $viewer_user_id ): array {
-        return \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer_user_id, $team_id )
-            ? $report
-            : self::withoutAttendance( $report );
+        $from = (string) $report['from'];
+        $to   = (string) $report['to'];
+        $ymd  = static fn( string $d ): bool => (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
+        if ( ! $ymd( $from ) || ! $ymd( $to ) || $from > $to ) {
+            // Without a period the section rules have nothing to read over;
+            // the attendance cut still applies.
+            return \TT\Infrastructure\Security\AuthorizationService::canReadTeamAttendance( $viewer_user_id, $team_id ) ? $report : self::withoutAttendance( $report );
+        }
+        foreach ( $report['data'] as $section => $data ) {
+            $cut = TeamSectionRights::cut( (string) $section, $data, $viewer_user_id, $team_id, $from, $to );
+            if ( $cut === null ) {
+                unset( $report['data'][ $section ] );
+                $report['blocks'] = array_values( array_diff( $report['blocks'], [ (string) $section ] ) );
+                continue;
+            }
+            $report['data'][ $section ] = $cut;
+        }
+        return $report;
     }
 
     /**

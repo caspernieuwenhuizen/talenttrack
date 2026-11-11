@@ -186,8 +186,9 @@ final class PlayerReportSnapshots {
     /**
      * The snapshot as data, for a reader who may see it; null otherwise.
      *
-     * Staff who may read the player's report read any snapshot of that player
-     * as stored. A family reader reads only what was shared with the family,
+     * Staff who may read the player's report read a snapshot of that player
+     * with each section cut to what they may read now; a copy for staff opens
+     * only for a reader who reads as staff. A family reader reads only what was shared with the family,
      * without notes, and only the sections their own access to the child
      * reaches.
      *
@@ -241,6 +242,16 @@ final class PlayerReportSnapshots {
             if ( ! \TT\Modules\ReportStudio\Domain\ReportReader::for( $user_id )->readsStudio() ) return null;
             if ( PlayerReportAudience::forReader( $user_id ) !== PlayerReportAudience::INTERNAL ) return null;
             $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forReader( $document, $user_id );
+            $notes    = \TT\Modules\ReportStudio\Domain\ReportSnapshots::notesFor( $notes, $document, $user_id );
+        } else {
+            // Frozen under the taker's rights, shown under the reader's: a
+            // copy for staff opens for a reader who reads as staff, each
+            // section holds what the live report would show this reader, and
+            // the report ends in the reader's own audience, as the live one does.
+            $reads_as = PlayerReportAudience::forReader( $user_id );
+            if ( $audience === PlayerReportAudience::INTERNAL && $reads_as !== PlayerReportAudience::INTERNAL ) return null;
+            $report = PlayerReportAudience::apply( self::forStaffReader( $report, $user_id, $player_id ), $reads_as );
+            $notes  = self::notesForStaffReader( $notes, $report, $user_id, $player_id );
         }
 
         return [
@@ -255,6 +266,21 @@ final class PlayerReportSnapshots {
             'notes'       => $notes,
             'document'    => $document,
         ];
+    }
+
+    /**
+     * The player's snapshots a staff reader is listed, newest first: a copy
+     * for staff only for a reader who reads as staff, the rule `readRow()`
+     * opens it by, so no row leads into a refusal.
+     *
+     * @return list<array{id:int, uuid:string, player_id:int, title:string,
+     *     period_from:string, period_to:string, created_by:int,
+     *     created_at:string, updated_at:string, audience:string, report_id:int}>
+     */
+    public static function listForStaffReader( int $player_id, int $user_id, int $limit = 20, string $audience = '' ): array {
+        $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, $limit, $audience );
+        if ( PlayerReportAudience::forReader( $user_id ) === PlayerReportAudience::INTERNAL ) return $rows;
+        return array_values( array_filter( $rows, static fn( array $row ): bool => $row['audience'] !== PlayerReportAudience::INTERNAL ) );
     }
 
     /**
@@ -308,6 +334,42 @@ final class PlayerReportSnapshots {
         $report['blocks'] = $keep;
         $report['data']   = array_intersect_key( $report['data'], array_flip( $keep ) );
         return $report;
+    }
+
+    /**
+     * A frozen report with each section cut to what this staff reader may
+     * read now, by the rights the live sections are composed with
+     * (`PlayerSectionRights::cut()`).
+     *
+     * @param array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>} $report
+     * @return array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>}
+     */
+    private static function forStaffReader( array $report, int $user_id, int $player_id ): array {
+        $readers = \TT\Infrastructure\Visibility\ReaderSet::of( [ $user_id ] );
+        foreach ( $report['data'] as $section => $data ) {
+            $report['data'][ $section ] = PlayerSectionRights::cut( (string) $section, $data, $readers, $player_id );
+        }
+        return $report;
+    }
+
+    /**
+     * The section notes of a frozen report that reach this staff reader: a
+     * note on a section the reader's copy still holds, by
+     * `PlayerSectionRights::keepsNote()`.
+     *
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     * @param array{data:array<string,array<string,mixed>>}                    $report the report as this reader reads it
+     * @return array<string,array{body:string, author:int, updated_at:string}>
+     */
+    private static function notesForStaffReader( array $notes, array $report, int $user_id, int $player_id ): array {
+        $readers = \TT\Infrastructure\Visibility\ReaderSet::of( [ $user_id ] );
+        $out     = [];
+        foreach ( $notes as $section => $note ) {
+            if ( ! isset( $report['data'][ $section ] ) ) continue;
+            if ( ! PlayerSectionRights::keepsNote( (string) $section, $readers, $player_id ) ) continue;
+            $out[ $section ] = $note;
+        }
+        return $out;
     }
 
     /**

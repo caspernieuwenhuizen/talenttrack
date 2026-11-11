@@ -157,7 +157,7 @@ class PlayersRestController {
                     return \TT\Modules\Analytics\Reports\PlayerReportSnapshots::canNote( (string) $r['uuid'], get_current_user_id() );
                 },
                 'args'                => [
-                    'body' => [ 'type' => 'string', 'description' => 'The note. Empty removes it.' ],
+                    'body' => [ 'type' => 'string', 'description' => 'The note. Required; empty removes it.' ],
                 ],
             ],
         ] );
@@ -782,8 +782,9 @@ class PlayersRestController {
         if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $uid, $player_id ) ) {
             $rows = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::sharedWithFamily( $player_id, $uid );
         } else {
-            $rows = ( new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository() )->listForPlayer(
+            $rows = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::listForStaffReader(
                 $player_id,
+                $uid,
                 20,
                 in_array( $audience, [ 'internal', 'family' ], true ) ? $audience : ''
             );
@@ -872,10 +873,21 @@ class PlayersRestController {
         if ( ! \TT\Modules\Analytics\Reports\PlayerReportBlock::isValid( $section ) ) {
             return RestResponse::error( 'unknown_section', __( 'Unknown report section.', 'talenttrack' ), 400, [ 'section' => $section ] );
         }
+        // `body` is required: leaving it out changes nothing; an empty one removes the note.
+        // Not `checkBody()`: it treats '' as missing, and '' here is the way to remove a note.
+        if ( ! $r->has_param( 'body' ) || ! is_string( $r->get_param( 'body' ) ) ) {
+            return RestResponse::error(
+                'missing_fields',
+                /* translators: %s: comma-separated field names */
+                sprintf( __( 'These fields are required: %s.', 'talenttrack' ), 'body' ),
+                400,
+                [ 'fields' => [ 'body' ] ]
+            );
+        }
         $ok = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::note(
             (string) $r['uuid'],
             $section,
-            sanitize_textarea_field( (string) ( $r['body'] ?? '' ) ),
+            sanitize_textarea_field( (string) $r->get_param( 'body' ) ),
             get_current_user_id()
         );
         if ( ! $ok ) {

@@ -147,6 +147,26 @@ final class ReportStudioSnapshotSectionsTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_a_note_on_the_injuries_block_reaches_only_a_reader_of_the_injuries(): void {
+        $uuid  = $this->snapshot( $this->published() );
+        $index = array_search( PlayerSectionBlock::KEYS[ \TT\Modules\Analytics\Reports\PlayerReportBlock::INJURIES ], array_values( PlayerSectionBlock::KEYS ), true );
+        $this->assertIsInt( $index );
+        $block = 'b' . ( $index + 2 );
+
+        wp_set_current_user( $this->hod );
+        $res = $this->send( 'PUT', "report-snapshots/{$uuid}/notes/{$block}", [ 'body' => 'Back in full training from the 18th.' ] );
+        $this->assertSame( 200, $res->get_status(), (string) wp_json_encode( $res->get_data() ) );
+
+        foreach ( [ [ $this->assistant, false ], [ $this->hod, true ] ] as [ $reader, $sees ] ) {
+            $this->flush();
+            $read = ReportSnapshots::read( $uuid, $reader );
+            $this->assertIsArray( $read );
+            $this->assertSame( $sees, isset( $read['notes'][ $block ] ), 'the injuries note on the Studio copy' );
+            $pdf = ReportStudioPdfExporter::documentPayload( $read['document'], $reader, 'Snapshot', $read['notes'] )['html'];
+            $this->assertSame( $sees, str_contains( (string) $pdf, 'Back in full training from the 18th.' ), 'and in its PDF' );
+        }
+    }
+
     // ---- helpers ---------------------------------------------------------------------
 
     /** A staff report on the player with every player section, published by the head of development. */

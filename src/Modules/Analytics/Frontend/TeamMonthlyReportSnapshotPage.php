@@ -119,22 +119,47 @@ final class TeamMonthlyReportSnapshotPage {
         check_admin_referer( self::ACTION_NOTE );
 
         $uuid    = isset( $_POST['snapshot'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['snapshot'] ) ) : '';
-        $repo    = new TeamReportSnapshotRepository();
-        $row     = $repo->find( $uuid );
-        $user_id = get_current_user_id();
+        $section = isset( $_POST['section'] ) ? sanitize_key( wp_unslash( (string) $_POST['section'] ) ) : '';
 
-        // The team comes from the snapshot, never from the request.
-        if ( $row === null || ! TeamReportAccess::canRead( $user_id, (int) $row->team_id ) ) {
+        // A post without the note changes nothing; an empty one removes it.
+        if ( ! isset( $_POST['note'] ) || ! is_string( $_POST['note'] ) ) {
+            wp_die(
+                /* translators: %s: comma-separated field names */
+                esc_html( sprintf( __( 'These fields are required: %s.', 'talenttrack' ), 'note' ) ),
+                '',
+                [ 'response' => 400 ]
+            );
+        }
+        $body = sanitize_textarea_field( wp_unslash( $_POST['note'] ) );
+
+        if ( ! self::note( $uuid, $section, $body, get_current_user_id() ) ) {
             wp_die( esc_html__( 'You do not have access to this snapshot.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
 
-        $section = isset( $_POST['section'] ) ? sanitize_key( wp_unslash( (string) $_POST['section'] ) ) : '';
-        $body    = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['note'] ) ) : '';
-
-        $repo->putNote( $uuid, $section, $body, $user_id );
-
         wp_safe_redirect( self::url( $uuid ) . '#tt-mr-note-' . rawurlencode( $section ) );
         exit;
+    }
+
+    /**
+     * Write one section's note on a snapshot. False when the snapshot is gone,
+     * the reader may not take this team's snapshot (`TeamReportAccess::canCreate()`)
+     * or the write failed. Each write is audit-logged.
+     */
+    public static function note( string $uuid, string $section, string $body, int $user_id ): bool {
+        $repo = new TeamReportSnapshotRepository();
+        $row  = $repo->find( $uuid );
+
+        // The team comes from the snapshot, never from the request.
+        if ( $row === null || ! TeamReportAccess::canCreate( $user_id, (int) $row->team_id ) ) return false;
+        if ( ! $repo->putNote( $uuid, $section, $body, $user_id ) ) return false;
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record(
+            'team_report.snapshot_noted',
+            'team',
+            (int) $row->team_id,
+            [ 'snapshot' => $uuid, 'section' => $section, 'cleared' => trim( $body ) === '' ]
+        );
+        return true;
     }
 
     /** The snapshot's stable URL. Signed-in readers only; it carries no token. */
@@ -183,13 +208,14 @@ final class TeamMonthlyReportSnapshotPage {
 
         // #4097 — the frozen payload through the renderer the PDF prints
         // with, notes included: the snapshot on screen is its PDF.
-        $layout = (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'];
+        $layout   = (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'];
+        $can_note = TeamReportAccess::canCreate( get_current_user_id(), (int) $row->team_id );
         TeamMonthlyReportPage::renderDocument(
             TeamMonthlyReportDocument::prepare( $report, $layout, $notes ),
             $layout,
             (string) ( $team->name ?? '' ),
             $notes,
-            static fn( string $section ): string => self::noteEditor( $section, $notes, $uuid ),
+            static fn( string $section ): string => $can_note ? self::noteEditor( $section, $notes, $uuid ) : '',
             // #4718 — no PDF link for an account that may receive no file.
             \TT\Modules\Export\ExportGate::mayExport( get_current_user_id() ) ? self::pdfUrl( $uuid ) : ''
         );
