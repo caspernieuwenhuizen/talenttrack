@@ -100,21 +100,45 @@ final class PlayerReport {
             'data'      => $data,
         ], $audience ) + [ 'audience' => $audience ];
 
-        // The injuries section as composed for the reader is a read of them.
-        $injuries = $report['data'][ PlayerReportBlock::INJURIES ]['items'] ?? [];
-        if ( is_array( $injuries ) && $injuries !== [] ) {
-            \TT\Infrastructure\Journey\InjuryReads::record(
-                \TT\Infrastructure\Journey\InjuryReads::INJURIES,
-                'player_report',
-                [ $player_id => count( $injuries ) ],
-                $readers->readers
-            );
-        }
-        // And its journey section's medical and safeguarding entries.
-        if ( isset( $report['data'][ PlayerReportBlock::JOURNEY ] ) ) {
-            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'player_report', $player_id, $report['data'][ PlayerReportBlock::JOURNEY ], $readers->readers );
+        // The injuries section as composed for the reader is a read of them,
+        // and so are its journey section's medical and safeguarding entries.
+        // Asked only when a reader is there to record them for: a
+        // composition for several readers records at its send (#5134).
+        if ( \TT\Infrastructure\Journey\InjuryReads::recordsFor( $readers->readers ) ) {
+            foreach ( self::sensitiveReadsOf( $player_id, $report['data'] ) as $action => $counts ) {
+                \TT\Infrastructure\Journey\InjuryReads::record( $action, 'player_report', $counts, $readers->readers );
+            }
         }
         return $report;
+    }
+
+    /**
+     * #5134 — the reads a player report's sections are of: its injuries
+     * section's entries as `player.injuries_viewed`, and its journey
+     * section's medical and safeguarding entries as
+     * `player.sensitive_timeline_viewed` (`InjuryReads::sensitiveCount()`).
+     * The one classification the report on screen and a scheduled send
+     * record by.
+     *
+     * @param array<string,mixed> $data the report's sections as shown or sent
+     * @return array<string, array<int,int>> action => player id => entries
+     */
+    public static function sensitiveReadsOf( int $player_id, array $data ): array {
+        if ( $player_id <= 0 ) return [];
+        $out      = [];
+        $injuries = is_array( $data[ PlayerReportBlock::INJURIES ]['items'] ?? null ) ? $data[ PlayerReportBlock::INJURIES ]['items'] : [];
+        if ( $injuries !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ] = [ $player_id => count( $injuries ) ];
+
+        $journey = is_array( $data[ PlayerReportBlock::JOURNEY ]['items'] ?? null ) ? $data[ PlayerReportBlock::JOURNEY ]['items'] : [];
+        if ( $journey !== [] ) {
+            $ids = [];
+            foreach ( $journey as $item ) {
+                if ( is_array( $item ) ) $ids[] = (int) ( $item['id'] ?? 0 );
+            }
+            $n = \TT\Infrastructure\Journey\InjuryReads::sensitiveCount( $player_id, $ids );
+            if ( $n > 0 ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ] = [ $player_id => $n ];
+        }
+        return $out;
     }
 
     /**

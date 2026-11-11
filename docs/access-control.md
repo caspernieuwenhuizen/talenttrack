@@ -745,11 +745,11 @@ per recipient, as opening the player's file would. Previewing what the
 recipients get records none.
 
 **Every scheduled send records who received injury details.** The same holds
-for the scheduled team monthly report: a send that includes injury entries,
-or medical and safeguarding journey entries, records one read per recipient
-and player, written as that recipient, with the schedule it came from. A send
-without them records nothing. The monthly report on screen records its reads
-for the person viewing it, as it always did.
+for the scheduled team monthly report and the scheduled player report: a send
+that includes injury entries, or medical and safeguarding journey entries,
+records one read per recipient and player, written as that recipient, with the
+schedule it came from. A send without them records nothing. The reports on
+screen record their reads for the person viewing them, as they always did.
 
 ## Strava connection — players connect their own
 
