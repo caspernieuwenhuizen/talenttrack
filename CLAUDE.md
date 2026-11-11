@@ -358,7 +358,8 @@ other views (`FrontendThreadView`, etc.), and:
 
 > *Presentation surfaces* listed in `config/presentation_surfaces.php`: a room display of one record. It emits **one** affordance, a close control back to that record's page, instead of the chain and the pill. On every refused path it renders as a normal view, in the shell, with the chain.
 
-The view declares it on its success path with
+The view declares it on its success path, after every access and
+record check has passed, with
 `\TT\Shared\Frontend\PresentationSurfaces::present( $close_url )`,
 which draws that close control and refuses (renders nothing, leaves the
 request a normal view) on an unlisted slug, a second call, a chain

@@ -220,7 +220,7 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
             'a negative id'          => $this->recordUrl( 'players', -3 ),
             'a non-numeric id'       => $this->recordUrl( 'players', 'abc' ),
             'a padded id'            => $this->recordUrl( 'players', '05' ),
-            'an unknown slug'        => $this->recordUrl( 'no-such-view-5088' ),
+            'an unsanitised slug'    => $this->recordUrl( 'Players' ),
             'a presentation surface' => $this->recordUrl( self::SLUG ),
             'no slug'                => add_query_arg( [ 'id' => 5 ], $home ),
             'a script'               => 'javascript:alert(1)',
@@ -237,6 +237,22 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
         $this->assertFalse( PresentationSurfaces::isPresenting() );
         $this->assertTrue( PresentationSurfaces::isRecordUrl( $this->recordUrl() ) );
         $this->assertTrue( PresentationSurfaces::isRecordUrl( $this->recordUrl() . '#tt-form' ), 'a fragment is not a query argument' );
+    }
+
+    public function test_every_shipped_presentation_surface_is_routable(): void {
+        // Routability is checked here, where it costs nothing and cannot break
+        // silently, rather than at request time. A listed slug the dispatcher
+        // does not answer would be a room display nobody can open. A claimed
+        // view whose close target is another slug asserts that target in its
+        // own test.
+        PresentationSurfaces::useFile( null );
+        $routable = \TT\Shared\Cli\AdminRoutesCommand::routableSlugs();
+        $this->assertNotEmpty( $routable, 'the route deriver found no routes at all' );
+
+        foreach ( PresentationSurfaces::map() as $slug => $reason ) {
+            $this->assertNotSame( '', trim( $reason ), "presentation surface '{$slug}' has no reason" );
+            $this->assertContains( $slug, $routable, "presentation surface '{$slug}' is not a route" );
+        }
     }
 
     // ---------------------------------------------------------------
@@ -382,6 +398,9 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
      * before #5088, run in the class's own scope so it calls the same
      * private helpers. The support banner hooked `tt_dashboard_before_body`
      * at priority 4 then; it is put back there for the reference run.
+     *
+     * A frozen copy, for the merge-time proof. When the sequence changes on
+     * purpose later, update this copy in the same PR or delete it.
      */
     private function renderBefore(): string {
         $reference = \Closure::bind( static function (): string {
@@ -605,6 +624,21 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'Evaluation saved', $html, 'the flash message is in the compared output' );
         $this->assertStringContainsString( 'tt-alert-bar', $html, 'the alert is in the compared output' );
+    }
+
+    public function test_an_unclaimed_slug_with_an_active_support_grant_renders_as_before(): void {
+        // The banner moved from tt_dashboard_before_body at 4 to the safety
+        // action fired just before it. With a grant live, the move is compared.
+        SupportGrants::store( [ [
+            'id'         => 7,
+            'operator'   => 'Casper',
+            'reason'     => 'Comparing the support banner',
+            'expires_at' => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+        ] ] );
+
+        $html = $this->assertUnchanged( [ 'tt_view' => 'players' ], $this->user_id );
+
+        $this->assertStringContainsString( 'Comparing the support banner', $html, 'the banner is in the compared output' );
     }
 
     /** A registered alert whose default surfaces include the banner. */

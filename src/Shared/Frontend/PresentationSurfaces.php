@@ -3,7 +3,6 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Shared\Cli\AdminRoutesCommand;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -16,7 +15,10 @@ use TT\Shared\Frontend\Components\RecordLink;
  * `isPresenting()` is per request: the view reached its success path and
  * declared it through `present()`. Only the declaration changes what the
  * page draws, so a reader refused on a claimed slug still gets the shell
- * and the chain.
+ * and the chain. The view calls `present()` on its success path, after every
+ * access and record check has passed: from then on the chain stays silent
+ * for the rest of the request, so a refusal drawn after it would land in
+ * the bare wrapper with no way back.
  *
  * Three readers, and a view is none of them:
  *
@@ -90,8 +92,9 @@ final class PresentationSurfaces {
     }
 
     /**
-     * The view's declaration, on its success path and before any other
-     * output: this request presents. Draws the one close control, back to
+     * The view's declaration, on its success path, after every access and
+     * record check has passed, and before any other output: this request
+     * presents. Draws the one close control, back to
      * the record's page, and returns true.
      *
      * Returns false, draws nothing and leaves the request a normal view
@@ -123,8 +126,12 @@ final class PresentationSurfaces {
     /**
      * A same-site record page: the dashboard's own address carrying exactly
      * `tt_view=<slug>` and `id=<n>`, where `n` is a positive integer and the
-     * slug is routable and not itself a presentation surface. A fragment is
-     * allowed; any other query argument is not.
+     * slug is a sanitised key that is not itself a presentation surface. A
+     * fragment is allowed; any other query argument is not.
+     *
+     * The close URL is written by the view, never taken from the request, so
+     * this shape is the boundary. That the slug is routable is a property of
+     * each listed view, asserted by a test rather than checked here.
      */
     public static function isRecordUrl( string $url ): bool {
         $parts = wp_parse_url( $url );
@@ -148,9 +155,8 @@ final class PresentationSurfaces {
 
         $slug = $args['tt_view'];
         if ( ! is_string( $slug ) || $slug === '' || sanitize_key( $slug ) !== $slug ) return false;
-        if ( self::claims( $slug ) ) return false;
 
-        return in_array( $slug, AdminRoutesCommand::routableSlugs(), true );
+        return ! self::claims( $slug );
     }
 
     /** Test seam: drops the resolved map and the request state. */

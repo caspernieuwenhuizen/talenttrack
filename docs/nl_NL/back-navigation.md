@@ -90,7 +90,8 @@ hij de keten + pill emitteren.
 ### Presentatieoppervlakken: hoe de uitzondering standhoudt
 
 Op de lijst staan betekent alleen dat een slug **mag** presenteren. De
-view verklaart het op zijn succespad, vóór alle andere uitvoer en
+view verklaart het op zijn succespad, nadat alle toegangs- en
+recordcontroles geslaagd zijn, vóór alle andere uitvoer en
 zonder `fromDashboard()` aan te roepen:
 
 ```php
@@ -105,8 +106,10 @@ PresentationSurfaces::present( $record_url );  // tekent de ene sluitknop
 gewone view als de slug niet op de lijst staat, als hij al eerder is
 aangeroepen, als er al een keten is getekend, of als de sluit-URL geen
 recordpagina op dezelfde site is (`?tt_view=<slug>&id=<n>` en verder
-geen queryparameter, waarbij de slug routeerbaar is en zelf geen
-presentatieoppervlak). Geeft hij `true`, dan laat de shell de kop, de
+geen queryparameter, waarbij de slug zelf geen presentatieoppervlak is;
+dat hij routeerbaar is, controleert een test). Roep hem pas aan als
+alle toegangs- en recordcontroles geslaagd zijn: daarna blijft de keten
+de rest van het verzoek stil. Geeft hij `true`, dan laat de shell de kop, de
 shell-navigatie en de balk onderaan, de flashmeldingen, de overige
 banners en de help weg, en tekent `FrontendBreadcrumbs::render()`
 niets. Banners op `tt_dashboard_safety_banners` en de

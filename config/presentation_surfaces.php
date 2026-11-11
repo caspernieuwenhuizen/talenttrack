@@ -9,8 +9,9 @@
  * laptop, not to the room.
  *
  * Listing a slug here means only that the surface **may** present. Nothing
- * changes until the view, on its success path, declares that it is
- * presenting through `PresentationSurfaces::present()`. A request that does
+ * changes until the view, on its success path, after every access and
+ * record check has passed, declares that it is presenting through
+ * `PresentationSurfaces::present()`. A request that does
  * not declare, which includes every refusal, renders as a normal view in
  * the shell with its breadcrumb chain.
  *

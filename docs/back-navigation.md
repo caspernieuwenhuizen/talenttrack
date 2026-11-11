@@ -47,7 +47,7 @@ If you're adding a new view and it isn't one of these, it MUST emit the chain + 
 
 ### Presentation surfaces: how the exemption holds
 
-Being on the list only means a slug **may** present. The view declares it on its success path, before any other output and without calling `fromDashboard()`:
+Being on the list only means a slug **may** present. The view declares it on its success path, after every access and record check has passed, before any other output and without calling `fromDashboard()`:
 
 ```php
 if ( ! $access->canRead() ) {
@@ -57,7 +57,7 @@ if ( ! $access->canRead() ) {
 PresentationSurfaces::present( $record_url );  // draws the one close control
 ```
 
-`present()` returns `false`, draws nothing and leaves the request a normal view when the slug isn't listed, when it was already called, when a chain was already drawn, or when the close URL isn't a same-site record page (`?tt_view=<slug>&id=<n>` and no other query argument, where the slug is routable and not itself a presentation surface). Once it returns `true`, the shell leaves out the header, the shell navigation and bottom bar, the flash messages, the ambient banners and the help, and `FrontendBreadcrumbs::render()` draws nothing. Banners on `tt_dashboard_safety_banners` and the impersonation banner still render. The WordPress admin bar goes by the list alone, because WordPress decides it before the view runs.
+`present()` returns `false`, draws nothing and leaves the request a normal view when the slug isn't listed, when it was already called, when a chain was already drawn, or when the close URL isn't a same-site record page (`?tt_view=<slug>&id=<n>` and no other query argument, where the slug is not itself a presentation surface; that it is routable is asserted by a test). Call it only after every access and record check has passed: once it has run, the chain stays silent for the rest of the request. Once it returns `true`, the shell leaves out the header, the shell navigation and bottom bar, the flash messages, the ambient banners and the help, and `FrontendBreadcrumbs::render()` draws nothing. Banners on `tt_dashboard_safety_banners` and the impersonation banner still render. The WordPress admin bar goes by the list alone, because WordPress decides it before the view runs.
 
 **Being routable settles it.** A class reachable by its own `?tt_view=` slug is a view and emits the chain, however it is composed elsewhere. `FrontendTeammateView` was listed here as a sub-view until #3395, while being dispatched standalone — so a player who tapped a teammate on My team landed on a screen with no chain and no pill, and only the browser's back button to leave by. Before adding a class to this list, check that `TileRegistry::canAccessViewSlug()` does not route it.
 
