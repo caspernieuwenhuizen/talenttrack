@@ -242,7 +242,7 @@ On the conversation screen, a talk that uses a conversation form shows two parts
 - **1 Conversation details:** the planned and the conducted date, and the goals discussed. There are no *Notes (post-meeting)* or *Agreed actions* fields here, because the form asks for a note per section and the development points. On an older talk that already has text in them, it shows read only under the details, so nothing written is hidden.
 - **2 Conversation form · Outfield player** (or **Goalkeeper**): the form itself. Its header, with the save state, stays in view while you scroll through the sections.
 
-On a phone the save state sits under the part's title. The sign-off sits under its own heading, **Finish**, below both parts.
+On a phone the save state sits under the part's title, and the form's title keeps to one line, cut short with an ellipsis when it is long. The sign-off sits under its own heading, **Finish**, below both parts.
 
 - **The player's preparation is beside your scores.** Before the player marks it ready, every item says *Player: not ready yet* and none of their answers shows. From "ready" on, each item shows the player's score, in light blue on its choice, and their strongest quality shows above yours.
 - **One row per item.** You score it with the five numbered choices; the player's score is marked on the same row. **Discuss** marks every item where the two scores differ, by any amount, and a section's heading counts them. **Changed** marks an item the player changed after marking the preparation ready.

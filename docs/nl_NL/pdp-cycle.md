@@ -242,7 +242,7 @@ Op het gespreksscherm staan bij een gesprek met een gespreksformulier twee delen
 - **1 Gespreksgegevens:** de geplande en de gehouden datum, en de besproken doelen. De velden *Notities (na het gesprek)* en *Afgesproken acties* staan hier niet, omdat het formulier om een notitie per sectie en om de ontwikkelpunten vraagt. Bij een ouder gesprek waar al tekst in staat, wordt die alleen-lezen onder de gegevens getoond, zodat niets wat geschreven is verdwijnt.
 - **2 Gespreksformulier · Veldspeler** (of **Keeper**): het formulier zelf. De kop, met de opslagstatus, blijft in beeld terwijl je door de secties scrolt.
 
-Op een telefoon staat de opslagstatus onder de titel van het deel. Het ondertekenen staat onder een eigen kop, **Afronden**, onder beide delen.
+Op een telefoon staat de opslagstatus onder de titel van het deel, en blijft de titel van het formulier op één regel, afgekort met een beletselteken als hij lang is. Het ondertekenen staat onder een eigen kop, **Afronden**, onder beide delen.
 
 - **De voorbereiding van de speler staat naast jouw cijfers.** Zolang de speler die niet klaar meldt, staat bij elk item *Speler: nog niet klaar* en zie je geen van de antwoorden. Vanaf "klaar" zie je bij elk item het cijfer van de speler, lichtblauw op de keuze, en staat de grootste kwaliteit van de speler boven die van jou.
 - **Eén rij per item.** Je geeft je cijfer met de vijf genummerde keuzes; het cijfer van de speler staat op dezelfde rij. **Bespreken** staat bij elk item waar de twee cijfers verschillen, hoe weinig ook, en de kop van een onderdeel telt ze. **Aangepast** staat bij een item dat de speler wijzigde nadat de voorbereiding klaar was gemeld.
