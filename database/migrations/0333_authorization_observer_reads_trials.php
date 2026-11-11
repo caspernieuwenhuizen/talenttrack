@@ -27,7 +27,7 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
 return new class extends Migration {
 
     public const PERSONA  = 'readonly_observer';
-    public const ENTITIES = [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_tracks', 'trial_letters_generated' ];
+    public const ENTITIES = [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_letters_generated' ];
 
     public function getName(): string {
         return '0333_authorization_observer_reads_trials';

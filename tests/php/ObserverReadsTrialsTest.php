@@ -148,8 +148,10 @@ final class ObserverReadsTrialsTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( self::INPUT, $inputs );
         $this->assertStringContainsString( '<strong>7.00</strong>', $inputs, 'the rating shows' );
 
-        $panel = $this->render( $this->panellist, 'inputs' );
-        $this->assertStringContainsString( self::INPUT, $panel, 'the panel reads the text' );
+        $hod   = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+        $staff = $this->render( $hod, 'inputs' );
+        $this->assertStringContainsString( self::INPUT, $staff, 'a trial manager reads the text' );
+        $this->assertStringContainsString( self::SUMMARY, $this->render( $hod, null ) );
     }
 
     public function test_the_migration_adds_the_rows_once(): void {
@@ -162,7 +164,7 @@ final class ObserverReadsTrialsTest extends WP_UnitTestCase {
         $this->migration()->up();
 
         $rows = $wpdb->get_col( "SELECT entity FROM {$table} WHERE persona = 'readonly_observer' AND entity LIKE 'trial\\_%' AND activity = 'read' AND scope_kind = 'global' ORDER BY entity" );
-        $this->assertSame( [ 'trial_cases', 'trial_decisions', 'trial_inputs', 'trial_letters_generated', 'trial_synthesis', 'trial_tracks' ], array_values( $rows ) );
+        $this->assertSame( [ 'trial_cases', 'trial_decisions', 'trial_inputs', 'trial_letters_generated', 'trial_synthesis' ], array_values( $rows ) );
         $this->flush();
         $this->assertTrue( MatrixGate::can( $this->observer, 'trial_cases', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) );
     }

@@ -164,14 +164,15 @@ final class HodSettingsObserverJourneyTest extends WP_UnitTestCase {
 
     /**
      * A journey entry follows the read right of the record it describes: the
-     * observer, who reads the journey but not trials or suspensions, gets
-     * neither entry; a head coach of the team, who reads both, gets both.
+     * observer, who reads the journey and (#4694 b) the trials but not
+     * suspensions, gets the trial entry and not the suspension one; a head
+     * coach of the team, who reads both, gets both.
      */
     public function test_trial_and_suspension_entries_follow_their_own_read_right(): void {
         wp_set_current_user( $this->observer );
         $observer_types = $this->timelineTypes();
         $this->assertContains( 'position_changed', $observer_types, 'the journey is read' );
-        $this->assertNotContains( 'trial_ended', $observer_types, 'no trial entry without the trial read' );
+        $this->assertContains( 'trial_ended', $observer_types, 'the trial entry follows the trial read' );
         $this->assertNotContains( 'suspension_started', $observer_types, 'no suspension entry without the suspension read' );
 
         $coach = $this->headCoach();
@@ -189,13 +190,14 @@ final class HodSettingsObserverJourneyTest extends WP_UnitTestCase {
         wp_set_current_user( $this->observer );
 
         $timeline = $this->timelineTypes();
-        foreach ( [ 'injury_started', 'note_added', 'trial_ended', 'suspension_started' ] as $type ) {
+        foreach ( [ 'injury_started', 'note_added', 'suspension_started' ] as $type ) {
             $this->assertNotContains( $type, $timeline, "timeline: {$type}" );
         }
 
         FeatureRegistry::setEnabled( 'cohort_transitions', true );
         $this->flush();
-        foreach ( [ 'injury_started', 'note_added', 'trial_ended', 'suspension_started', 'pdp_verdict_recorded' ] as $type ) {
+        // #4694 (b) — trial entries follow the trial read, which the observer holds.
+        foreach ( [ 'injury_started', 'note_added', 'suspension_started', 'pdp_verdict_recorded' ] as $type ) {
             $request = new WP_REST_Request( 'GET', '/talenttrack/v1/journey/cohort-transitions' );
             $request->set_param( 'event_type', $type );
             $request->set_param( 'from', '2026-06-01 00:00:00' );

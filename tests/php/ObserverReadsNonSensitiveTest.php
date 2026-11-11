@@ -197,7 +197,7 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
             self::HELD_BEFORE,
             $this->granted(),
             [ 'player_timeline', 'cohort_transitions', 'evaluations_panel', 'prospects', 'test_trainings' ],
-            [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_tracks', 'trial_letters_generated' ]
+            [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_letters_generated' ]
         );
         sort( $seeded );
         sort( $expected );

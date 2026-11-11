@@ -1379,13 +1379,14 @@ return array_merge(
         // input notes are masked (`seesCaseText()`). The synthesis stays with
         // the panel: `canViewSynthesis()` still asks for a seat, whatever the
         // `trial_synthesis` row says. Decisions, letters and every write ask
-        // `tt_manage_trials`. Existing installs get these through migration
-        // 0333.
+        // `tt_manage_trials`. No `trial_tracks` row: it is the entity of the
+        // track editor tile, which needs `tt_manage_trials`, and the track
+        // list reads through the trials read. Existing installs get these
+        // through migration 0333.
         'trial_cases'             => [ 'r', 'global', $mod_trials ],
         'trial_inputs'            => [ 'r', 'global', $mod_trials ],
         'trial_synthesis'         => [ 'r', 'global', $mod_trials ],
         'trial_decisions'         => [ 'r', 'global', $mod_trials ],
-        'trial_tracks'            => [ 'r', 'global', $mod_trials ],
         'trial_letters_generated' => [ 'r', 'global', $mod_trials ],
     ] ),
 
