@@ -137,7 +137,7 @@ final class ProspectRecord {
      * surface, and a head coach who reads their age group's prospects does
      * not read a scout's visits.
      *
-     * @return list<array{visit_id:int,visit_date:string,event:string,scout_user_id:int,notes:string,is_discovery:bool}>
+     * @return list<array{prospect_id:int,visit_id:int,visit_date:string,event:string,scout_user_id:int,notes:string,is_discovery:bool}>
      */
     public static function visits( int $user_id, int $prospect_id ): array {
         $is_admin = user_can( $user_id, 'tt_edit_settings' );
@@ -163,6 +163,9 @@ final class ProspectRecord {
             if ( $event === '' ) $event = trim( (string) ( $row->location ?? '' ) );
 
             $out[] = [
+                // #5085 — the prospect the row is about, so the discovery
+                // flag can be masked by the prospect's own rule.
+                'prospect_id'   => $prospect_id,
                 'visit_id'      => $visit_id,
                 'visit_date'    => (string) ( $row->visit_date ?? '' ),
                 'event'         => $event,

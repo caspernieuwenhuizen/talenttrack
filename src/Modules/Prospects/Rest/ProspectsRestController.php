@@ -144,7 +144,11 @@ class ProspectsRestController {
         if ( ! ProspectRecord::canOpen( $uid, $id ) ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
-        return RestResponse::success( [ 'prospect_id' => $id, 'visits' => ProspectRecord::visits( $uid, $id ) ] );
+        // #5085 — the visit notes and the discovery flag follow
+        // `config/sensitive_fields.php`.
+        $visits = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'prospect_visits', ProspectRecord::visits( $uid, $id ), $uid );
+        $visits = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'prospects', $visits, $uid, 'prospect_id' );
+        return RestResponse::success( [ 'prospect_id' => $id, 'visits' => $visits ] );
     }
 
     /**

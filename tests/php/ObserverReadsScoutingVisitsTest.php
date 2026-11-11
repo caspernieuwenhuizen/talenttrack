@@ -141,6 +141,55 @@ final class ObserverReadsScoutingVisitsTest extends WP_UnitTestCase {
         $this->assertSame( self::NOTES, (string) ( $visit['notes'] ?? '' ), 'the head of development reads the notes' );
     }
 
+    /**
+     * Hidde's decision: the visit facts stay visible to the observer; which
+     * visit a child was found at is the discovery fact and follows
+     * `prospect_staff`.
+     */
+    public function test_the_discovery_fact_stays_with_the_funnel(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_prospects", [
+            'club_id'               => $this->club,
+            'first_name'            => 'Fenna',
+            'last_name'             => 'Gevondenx',
+            'discovered_at'         => '2026-11-20',
+            'discovered_by_user_id' => $this->other,
+            'scouting_visit_id'     => $this->theirs,
+        ] );
+        $prospect = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$this->p}tt_prospect_visit_observations", [
+            'uuid' => wp_generate_uuid4(), 'club_id' => $this->club,
+            'prospect_id' => $prospect, 'scouting_visit_id' => $this->theirs, 'observed_at' => '2026-11-20',
+        ] );
+        $this->flush();
+
+        foreach ( [ 'observer' => [ $this->observer, false ], 'scout' => [ $this->scout, true ], 'head of development' => [ $this->hod, true ] ] as $who => [ $user, $sees ] ) {
+            wp_set_current_user( $user );
+            $this->flush();
+
+            $visits = (array) ( $this->data( $this->dispatch( 'GET', '/talenttrack/v1/prospects/' . $prospect . '/visits' ) )['visits'] ?? [] );
+            $this->assertCount( 1, $visits, "{$who}: the visit is listed" );
+            $this->assertSame( $sees, array_key_exists( 'is_discovery', (array) $visits[0] ), "{$who}: the flag on the prospect's visits" );
+
+            $obs  = (array) ( $this->data( $this->dispatch( 'GET', '/talenttrack/v1/scouting-visits/' . $this->theirs . '/observations' ) )['observations'] ?? [] );
+            $mine = array_values( array_filter( $obs, static fn( $o ): bool => (int) ( (array) $o )['id'] === $prospect ) );
+            $this->assertCount( 1, $mine, "{$who}: the observation is listed" );
+            $this->assertSame( $sees, array_key_exists( 'is_discovery', (array) $mine[0] ), "{$who}: the flag on the visit's observations" );
+
+            $_GET['id'] = (string) $prospect;
+            ob_start();
+            \TT\Modules\Prospects\Frontend\FrontendProspectDetailView::render( $user );
+            $page = (string) ob_get_clean();
+            $this->assertSame( $sees, str_contains( $page, 'Found here' ), "{$who}: the Found here chip" );
+
+            $_GET['id'] = (string) $this->theirs;
+            ob_start();
+            FrontendScoutingVisitDetailView::render( $user, false );
+            $visit_page = (string) ob_get_clean();
+            $this->assertSame( $sees, str_contains( $visit_page, 'Discovered here' ), "{$who}: the Discovered here badge" );
+        }
+    }
+
     public function test_the_observer_writes_nothing(): void {
         wp_set_current_user( $this->observer );
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/scouting-visits', [ 'visit_date' => '2026-12-01', 'location' => 'X' ] )->get_status() );

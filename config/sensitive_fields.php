@@ -124,6 +124,9 @@ return [
         'routes' => [
             '/talenttrack/v1/prospects'             => [ 'rows' => 'data.rows.*' ],
             '/talenttrack/v1/prospects/(?P<id>\d+)' => [ 'rows' => 'data.prospect' ],
+            // #5085 — which visit a child was found at is the discovery fact.
+            '/talenttrack/v1/prospects/(?P<id>\d+)/visits'                  => [ 'rows' => 'data.visits.*', 'id_key' => 'prospect_id' ],
+            '/talenttrack/v1/scouting-visits/(?P<id>\d+)/observations'      => [ 'rows' => 'data.observations.*' ],
         ],
         'id_key' => 'id',
         'fields' => [
@@ -134,6 +137,7 @@ return [
             'date_of_birth'         => 'prospect_staff',
             'discovered_by_user_id' => 'prospect_staff',
             'discovered_by'         => 'prospect_staff',
+            'is_discovery'          => 'prospect_staff',
         ],
     ],
 

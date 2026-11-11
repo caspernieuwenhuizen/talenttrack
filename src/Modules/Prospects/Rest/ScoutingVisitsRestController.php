@@ -623,6 +623,10 @@ class ScoutingVisitsRestController {
                 'is_discovery'   => (int) ( $row['scouting_visit_id'] ?? 0 ) === $visit_id,
             ];
             if ( $masked ) unset( $out[ count( $out ) - 1 ]['notes'] );
+            // #5085 — which visit found the child is the prospect's fact.
+            if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'prospects', 'is_discovery', get_current_user_id(), (int) ( $row['id'] ?? 0 ) ) ) {
+                unset( $out[ count( $out ) - 1 ]['is_discovery'] );
+            }
         }
         return $out;
     }
