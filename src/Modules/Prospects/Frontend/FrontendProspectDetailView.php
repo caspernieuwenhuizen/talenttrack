@@ -4,6 +4,8 @@ namespace TT\Modules\Prospects\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\RecordRedactor;
+use TT\Shared\Frontend\Components\MaskedValue;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ProspectDeletion;
 use TT\Modules\Prospects\Domain\ProspectOutcome;
@@ -121,18 +123,20 @@ class FrontendProspectDetailView extends FrontendViewBase {
         if ( $entries === [] ) {
             echo '<p class="tt-prospect-record-empty">' . esc_html__( 'No consent request logged yet.', 'talenttrack' ) . '</p>';
         } else {
+            // #4694 — who was asked and the notes follow the prospect rule.
+            $masked = RecordRedactor::isMasked( 'prospect_consent_requests', 'asked_of', $user_id, $id );
             echo '<ul class="tt-prospect-record-list">';
             foreach ( $entries as $entry ) {
                 $asked_at = (string) ( $entry['asked_at'] ?? '' );
                 $notes    = trim( (string) ( $entry['notes'] ?? '' ) );
                 echo '<li class="tt-prospect-record-row">';
                 echo '<span class="tt-prospect-record-when">' . esc_html( $asked_at !== '' ? TTDate::date( $asked_at ) : '' ) . '</span>';
-                echo '<span class="tt-prospect-record-what">' . esc_html( (string) ( $entry['asked_of'] ?? '' ) ) . '</span>';
+                echo '<span class="tt-prospect-record-what">' . ( $masked ? MaskedValue::html() : esc_html( (string) ( $entry['asked_of'] ?? '' ) ) ) . '</span>';
                 $outcome = (string) ( $entry['outcome'] ?? '' );
                 echo '<span class="tt-chip tt-chip--' . esc_attr( $outcome === ConsentOutcome::AWAITING ? 'awaiting' : ( $outcome === ConsentOutcome::AGREED ? 'agreed' : 'answered' ) ) . '">'
                     . esc_html( ConsentOutcome::label( $outcome ) ) . '</span>';
                 if ( $notes !== '' ) {
-                    echo '<span class="tt-prospect-record-note">' . esc_html( $notes ) . '</span>';
+                    echo '<span class="tt-prospect-record-note">' . ( $masked ? MaskedValue::html() : esc_html( $notes ) ) . '</span>';
                 }
                 echo '</li>';
             }
@@ -158,7 +162,9 @@ class FrontendProspectDetailView extends FrontendViewBase {
         echo '<section class="tt-prospect-record-section" aria-labelledby="tt-prospect-visits">';
         echo '<h2 id="tt-prospect-visits" class="tt-prospect-record-heading">' . esc_html( _x( 'Scouting', 'prospect page section: notes and visits', 'talenttrack' ) ) . '</h2>';
         if ( $notes !== '' ) {
-            echo '<p class="tt-prospect-record-notes">' . nl2br( esc_html( $notes ) ) . '</p>';
+            echo '<p class="tt-prospect-record-notes">'
+                . ( RecordRedactor::isMasked( 'prospects', 'scouting_notes', $user_id, $id ) ? MaskedValue::html() : nl2br( esc_html( $notes ) ) )
+                . '</p>';
         }
         if ( $visits === [] ) {
             echo '<p class="tt-prospect-record-empty">' . esc_html__( 'No scouting visits you can open are linked to this prospect.', 'talenttrack' ) . '</p>';

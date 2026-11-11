@@ -625,6 +625,9 @@ The rule: the read-only observer reads everything in the academy that is not sen
 | Reference data | `seasons`, `methodology`, `football_actions`, `evaluation_categories`, `category_weights`, `rating_scale`, `holidays`, `documentation` |
 | Panels | `goals_panel` |
 | The journey | `player_timeline`, `cohort_transitions` |
+| Prospects | `prospects`, `test_trainings` |
+
+**Prospects, masked.** The observer opens the onboarding board, the prospects list and a prospect's page, and sees names, the current club, the stage, dates and consent outcomes. The family contact (`parent_name`, `parent_email`, `parent_phone`), the scouting notes, and who was asked for consent with what was said read "Hidden" on screen and are left out of `GET /prospects/{id}` and `GET /prospects/{id}/consent-requests`. Who found the child is not shown either: no "Discovered by" column or filter on the overview, and no `discovered_by` / `discovered_by_user_id` in `GET /prospects` or `GET /prospects/{id}`. The date of birth is the birth year only, as on the page. `GET /prospects/{id}` gives this reader an allow-listed set of keys (`ProspectRecord::READER_KEYS`), so a new column is not exposed by default. The rule is `prospect_staff`: whoever may change prospects, and whoever reads the prospect through their own squads' age groups rather than academy-wide, so the scout, the head of development, the admin and a head coach on their own age group see everything as before. `test_trainings` read records the decision; no route asks it yet. **Scouting visits stay closed**: the observer holds no `scouting_visits_panel`, so there is no Scouting visits tile and no visit route, and `scout_access`, `scout_my_players` and `scout_history` are not granted. Migration `0331_authorization_observer_reads_prospects` adds the two rows on existing installs and leaves a cell an academy changed alone.
 
 A journey entry follows the read right of the record it describes, on the timeline, the transitions view and cohort transitions alike: trial entries ask `trial_cases`, suspension entries `player_suspensions`, injury entries `player_injuries` and PDP verdict entries `pdp_verdict`. The observer holds none of those, so its journey carries none of those entries. Cohort transitions opens only while the academy has the feature switched on.
 
@@ -637,7 +640,7 @@ A journey entry follows the read right of the record it describes, on the timeli
 | `attendance` | absence reasons |
 | `evaluations_panel` | evaluation comments |
 | `player_status`, `player_status_breakdown` | potential notes, which the status routes return |
-| `trial_*`, `prospects`, `test_trainings`, `scout_*`, `scouting_visits_panel`, `player_potential` | contact details and free-text judgements |
+| `trial_*`, `player_potential` | contact details and free-text judgements |
 | `custom_field_values` | the club's own player fields |
 | `people_directory_panel` | parent and guardian contact in the people list |
 | `team_roster_panel`, `coach_player_list_panel`, `compare` | date of birth |

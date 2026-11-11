@@ -104,7 +104,13 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
         // #4795 — the journey opens to the observer academy-wide.
         $this->assertSame( 200, $this->status( "/talenttrack/v1/players/{$this->playerA}/timeline" ) );
 
-        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status', 'prospects' ] as $entity ) {
+        // #4694 — the observer reads the prospects, masked, so the section
+        // check passes; the Discovery card asks `ProspectScope::worksTheFunnel()`
+        // as well and stays closed (see the profile cards test).
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'prospects' ) );
+        $this->assertFalse( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $observer ) );
+
+        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status' ] as $entity ) {
             $this->assertFalse(
                 AuthorizationService::canReadPlayerSection( $observer, $this->playerA, $entity ),
                 "the observer holds no {$entity} row; opening the record does not grant it"

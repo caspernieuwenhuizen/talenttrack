@@ -47,6 +47,10 @@ class SemanticRegistry {
         'tt_match_prep_availability' => true,
         // A guardian's e-mail and phone.
         'tt_people'                  => true,
+        // #4694 — a prospect's family contact and scouting notes, and who was
+        // asked for consent with what was said.
+        'tt_prospects'                 => true,
+        'tt_prospect_consent_requests' => true,
     ];
 
     /**

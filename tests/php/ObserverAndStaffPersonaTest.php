@@ -71,6 +71,12 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         // #4997 — and the evaluations list 0321 brings.
         $evaluations = require dirname( __DIR__, 2 ) . '/database/migrations/0321_authorization_observer_evaluations_panel.php';
         $entities[]  = (string) constant( get_class( $evaluations ) . '::ENTITY' );
+
+        // #4694 — and the prospects, masked, that 0331 brings.
+        $prospects = require dirname( __DIR__, 2 ) . '/database/migrations/0331_authorization_observer_reads_prospects.php';
+        foreach ( (array) constant( get_class( $prospects ) . '::ENTITIES' ) as $entity ) {
+            $entities[] = (string) $entity;
+        }
         return $entities;
     }
 

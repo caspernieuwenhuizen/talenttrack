@@ -38,8 +38,16 @@ final class RecordRedactor {
      *    the player's team).
      *  - `evaluation_comment`: those, and the player and a linked guardian:
      *    the comments a family already reads.
+     *  - `prospect_staff`: on a prospect row (the id is the prospect's, who
+     *    is not a player yet), whoever may change prospects, and whoever
+     *    reads this prospect through their own squads' age groups
+     *    (`ProspectScope`) rather than academy-wide. A seat that reads every
+     *    prospect and changes none, the read-only observer, does not.
      */
-    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment' ];
+    private const RULES = [ 'staff_for_player', 'staff_or_family', 'guardian_contact', 'evaluation_notes', 'evaluation_comment', 'prospect_staff' ];
+
+    /** @var array<string, bool> "user|prospect" => may read that prospect's sensitive fields */
+    private static array $prospect = [];
 
     /** @var array<string, bool> "user|person" => may read that person's guardian contact */
     private static array $guardian = [];
@@ -118,6 +126,10 @@ final class RecordRedactor {
         $rule = self::fields( $entity )[ $field ] ?? null;
         if ( $rule === null ) return true;
         if ( $user_id <= 0 || ! in_array( $rule, self::RULES, true ) ) return false;
+
+        if ( $rule === 'prospect_staff' ) {
+            return AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
+        }
 
         // Academy-wide staff are staff for every child, so for every
         // guardian's contact too.
@@ -316,6 +328,7 @@ final class RecordRedactor {
         self::$guardian    = [];
         self::$writer      = [];
         self::$writer_team = [];
+        self::$prospect    = [];
     }
 
     // Internals
@@ -323,6 +336,16 @@ final class RecordRedactor {
     private static function mayRead( string $rule, int $user_id, int $player_id ): bool {
         if ( ! in_array( $rule, self::RULES, true ) ) return false;
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
+
+        if ( $rule === 'prospect_staff' ) {
+            // The id is a prospect's, not a player's.
+            $key = $user_id . '|' . $player_id;
+            if ( ! isset( self::$prospect[ $key ] ) ) {
+                $scope = \TT\Modules\Prospects\ProspectScope::class;
+                self::$prospect[ $key ] = $scope::worksTheFunnel( $user_id ) && $scope::canSee( $user_id, $player_id );
+            }
+            return self::$prospect[ $key ];
+        }
 
         if ( $rule === 'guardian_contact' ) {
             // The id is a person's, not a player's.
@@ -379,6 +402,10 @@ final class RecordRedactor {
 
     /** @param list<array<string, mixed>> $rows */
     private static function primeRows( string $entity, array $rows, string $id_key, int $user_id ): void {
+        // Prospect rows carry no player to prime; their rule is answered per
+        // prospect in mayRead().
+        if ( array_diff( array_values( self::fields( $entity ) ), [ 'prospect_staff' ] ) === [] ) return;
+
         if ( in_array( 'guardian_contact', self::fields( $entity ), true ) ) {
             $ids = [];
             foreach ( $rows as $row ) $ids[] = (int) ( $row[ $id_key ] ?? 0 );

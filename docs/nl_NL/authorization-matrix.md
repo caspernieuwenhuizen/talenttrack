@@ -624,6 +624,9 @@ De regel: de alleen-lezen waarnemer leest alles in de academie wat niet gevoelig
 | Referentiegegevens | `seasons`, `methodology`, `football_actions`, `evaluation_categories`, `category_weights`, `rating_scale`, `holidays`, `documentation` |
 | Panelen | `goals_panel` |
 | Het spelerspad | `player_timeline`, `cohort_transitions` |
+| Prospects | `prospects`, `test_trainings` |
+
+**Prospects, gemaskeerd.** De waarnemer opent het onboardingbord, de prospectlijst en de pagina van een prospect, en ziet namen, de huidige club, de fase, datums en de uitkomsten van toestemmingsverzoeken. De contactgegevens van het gezin (`parent_name`, `parent_email`, `parent_phone`), de scoutingnotities, en wie om toestemming is gevraagd met wat er gezegd is, staan op het scherm als "Verborgen" en ontbreken in `GET /prospects/{id}` en `GET /prospects/{id}/consent-requests`. Wie het kind gevonden heeft, staat er evenmin: geen kolom of filter "Ontdekt door" in het overzicht, en geen `discovered_by` / `discovered_by_user_id` in `GET /prospects` of `GET /prospects/{id}`. Van de geboortedatum staat alleen het geboortejaar er, zoals op de pagina. `GET /prospects/{id}` geeft deze lezer een vaste lijst van velden (`ProspectRecord::READER_KEYS`), zodat een nieuwe kolom niet vanzelf zichtbaar wordt. De regel is `prospect_staff`: wie prospects mag wijzigen, en wie de prospect leest via de leeftijdsgroepen van de eigen teams in plaats van academiebreed. De scout, het hoofd opleiding, de beheerder en een hoofdtrainer voor de eigen leeftijdsgroep zien dus alles zoals voorheen. Leesrecht op `test_trainings` legt het besluit vast; er is nog geen route die erom vraagt. **Scoutingbezoeken blijven dicht**: de waarnemer heeft geen `scouting_visits_panel`, dus geen tegel Scoutingbezoeken en geen bezoekroute, en `scout_access`, `scout_my_players` en `scout_history` worden niet toegekend. Migratie `0331_authorization_observer_reads_prospects` voegt de twee rijen toe op bestaande installaties en laat een cel die een academie zelf heeft aangepast ongemoeid.
 
 Een regel in het spelerspad volgt het leesrecht van het record dat die beschrijft, op de tijdlijn, in de overgangen en bij de cohortovergangen: regels over proeftrainingen vragen `trial_cases`, over schorsingen `player_suspensions`, over blessures `player_injuries` en over een POP-besluit `pdp_verdict`. De waarnemer heeft geen van die rechten, dus het spelerspad van de waarnemer bevat geen van die regels. Cohortovergangen opent alleen zolang de academie die functie heeft aangezet.
 
@@ -636,7 +639,7 @@ Een regel in het spelerspad volgt het leesrecht van het record dat die beschrijf
 | `attendance` | redenen van afwezigheid |
 | `evaluations_panel` | opmerkingen bij evaluaties |
 | `player_status`, `player_status_breakdown` | toelichting bij de potentie, die de statusroutes teruggeven |
-| `trial_*`, `prospects`, `test_trainings`, `scout_*`, `scouting_visits_panel`, `player_potential` | contactgegevens en vrije-tekstoordelen |
+| `trial_*`, `player_potential` | contactgegevens en vrije-tekstoordelen |
 | `custom_field_values` | de eigen spelersvelden van de club |
 | `people_directory_panel` | contactgegevens van ouders en verzorgers in de personenlijst |
 | `team_roster_panel`, `coach_player_list_panel`, `compare` | geboortedatum |

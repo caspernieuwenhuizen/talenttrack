@@ -49,46 +49,58 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Prospects', 'talenttrack' ) );
         self::renderHeader( __( 'Prospects', 'talenttrack' ) );
 
+        // #4694 — who found a child is shown, and filtered on, only for the
+        // people who work the funnel.
+        $works_funnel = \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $user_id );
+
+        $filters = [
+            'status' => [
+                'type'    => 'select',
+                'label'   => __( 'Status', 'talenttrack' ),
+                'options' => [
+                    // FilterBar renders the empty "All" option from the
+                    // group placeholder; an explicit '' here would double it.
+                    'active'   => __( 'Active',   'talenttrack' ),
+                    'trial'    => __( 'In trial', 'talenttrack' ),
+                    'joined'   => __( 'Joined',   'talenttrack' ),
+                    // #4251 — a decided trial that did not admit.
+                    'not_admitted' => __( 'Not admitted', 'talenttrack' ),
+                    'archived' => __( 'Archived', 'talenttrack' ),
+                ],
+            ],
+        ];
+        if ( $works_funnel ) {
+            $filters['discovered_by_user_id'] = [
+                'type'    => 'select',
+                'label'   => __( 'Discovered by', 'talenttrack' ),
+                'options' => self::discovererOptions(),
+            ];
+        }
+
+        $columns = [
+            'last_name'     => [ 'label' => __( 'Last name',     'talenttrack' ), 'sortable' => true ],
+            'first_name'    => [ 'label' => __( 'First name',    'talenttrack' ), 'sortable' => true ],
+            'birth_year'    => [ 'label' => __( 'Born',          'talenttrack' ) ],
+            'current_club'  => [ 'label' => __( 'Club',          'talenttrack' ), 'sortable' => true ],
+            'discovered_at' => [ 'label' => __( 'Discovered',    'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
+        ];
+        if ( $works_funnel ) {
+            $columns['discovered_by'] = [ 'label' => __( 'Discovered by', 'talenttrack' ) ];
+        }
+        $columns['status_label'] = [ 'label' => __( 'Status', 'talenttrack' ) ];
+        // #4017 — a consent request logged as waiting was invisible here, so
+        // the only thing chasing it was the scout's own notebook. Empty when
+        // nothing is waiting.
+        $columns['consent_waiting_label'] = [ 'label' => __( 'Consent waiting', 'talenttrack' ) ];
+
         echo '<div class="tt-prospects-overview">';
         echo FrontendListTable::render( [
             'rest_path' => 'prospects',
             'search'    => [
                 'placeholder' => __( 'Search by name…', 'talenttrack' ),
             ],
-            'filters' => [
-                'status' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Status', 'talenttrack' ),
-                    'options' => [
-                        // FilterBar renders the empty "All" option from the
-                        // group placeholder; an explicit '' here would double it.
-                        'active'   => __( 'Active',   'talenttrack' ),
-                        'trial'    => __( 'In trial', 'talenttrack' ),
-                        'joined'   => __( 'Joined',   'talenttrack' ),
-                        // #4251 — a decided trial that did not admit.
-                        'not_admitted' => __( 'Not admitted', 'talenttrack' ),
-                        'archived' => __( 'Archived', 'talenttrack' ),
-                    ],
-                ],
-                'discovered_by_user_id' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Discovered by', 'talenttrack' ),
-                    'options' => self::discovererOptions(),
-                ],
-            ],
-            'columns' => [
-                'last_name'     => [ 'label' => __( 'Last name',     'talenttrack' ), 'sortable' => true ],
-                'first_name'    => [ 'label' => __( 'First name',    'talenttrack' ), 'sortable' => true ],
-                'birth_year'    => [ 'label' => __( 'Born',          'talenttrack' ) ],
-                'current_club'  => [ 'label' => __( 'Club',          'talenttrack' ), 'sortable' => true ],
-                'discovered_at' => [ 'label' => __( 'Discovered',    'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
-                'discovered_by' => [ 'label' => __( 'Discovered by', 'talenttrack' ) ],
-                'status_label'  => [ 'label' => __( 'Status',        'talenttrack' ) ],
-                // #4017 — a consent request logged as waiting was invisible
-                // here, so the only thing chasing it was the scout's own
-                // notebook. Empty when nothing is waiting.
-                'consent_waiting_label' => [ 'label' => __( 'Consent waiting', 'talenttrack' ) ],
-            ],
+            'filters' => $filters,
+            'columns' => $columns,
             // #2838 — the correction path. `{id}` is a raw template the
             // list-table JS substitutes per row; tt_back is appended so
             // Cancel and the back-pill return here rather than to a

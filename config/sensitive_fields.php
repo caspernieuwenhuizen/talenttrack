@@ -42,6 +42,9 @@
  *                        player's evaluations (`evaluations` change, globally
  *                        or on the player's team).
  *   'evaluation_comment' — those, and the player and a linked guardian.
+ *   'prospect_staff'   — on a prospect row: whoever may change prospects, and
+ *                        whoever reads the prospect through their own squads'
+ *                        age groups rather than academy-wide.
  *
  * The owner's list (2 November 2026) is wider than what is registered here:
  * the contact details and judgements on trials, prospects, scouting and
@@ -113,6 +116,39 @@ return [
 
     // A guardian is a person record too: their e-mail and phone are the
     // family's contact, whichever list the person appears on.
+    // #4694 — a prospect is a child the academy has not taken on: the family
+    // contact, the date of birth, what the scout wrote and who found the
+    // child stay with the people who work the funnel. The id is the
+    // prospect's.
+    'prospects' => [
+        'routes' => [
+            '/talenttrack/v1/prospects'             => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/prospects/(?P<id>\d+)' => [ 'rows' => 'data.prospect' ],
+        ],
+        'id_key' => 'id',
+        'fields' => [
+            'parent_name'           => 'prospect_staff',
+            'parent_email'          => 'prospect_staff',
+            'parent_phone'          => 'prospect_staff',
+            'scouting_notes'        => 'prospect_staff',
+            'date_of_birth'         => 'prospect_staff',
+            'discovered_by_user_id' => 'prospect_staff',
+            'discovered_by'         => 'prospect_staff',
+        ],
+    ],
+
+    // #4694 — who the academy asked for consent, and what was said.
+    'prospect_consent_requests' => [
+        'routes' => [
+            '/talenttrack/v1/prospects/(?P<id>\d+)/consent-requests' => [ 'rows' => 'data.requests.*' ],
+        ],
+        'id_key' => 'prospect_id',
+        'fields' => [
+            'asked_of' => 'prospect_staff',
+            'notes'    => 'prospect_staff',
+        ],
+    ],
+
     'people' => [
         'routes' => [
             '/talenttrack/v1/people'              => [ 'rows' => 'data.rows.*' ],

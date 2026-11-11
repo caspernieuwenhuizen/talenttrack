@@ -2062,7 +2062,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // coach holds it on their own squads, a scout and the head of
         // development academy-wide. A reader of the record alone is not
         // a reader of how the academy found the child.
+        //
+        // #4694 — and of the people who work the funnel: the read-only
+        // observer reads prospects academy-wide and does not see how the
+        // academy found a child.
         if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'prospects' ) ) return;
+        if ( ! \TT\Modules\Prospects\ProspectScope::worksTheFunnel( get_current_user_id() ) ) return;
 
         // #1358 — the promoted-prospect row comes from
         // ProspectsRepository (which also owns the table-exists guard

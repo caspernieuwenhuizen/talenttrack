@@ -352,7 +352,9 @@ class ProspectsRestController {
         if ( $include_archived ) {
             $search_args['include_archived'] = true;
         }
-        if ( ! empty( $filter['discovered_by_user_id'] ) ) {
+        // #4694 — who found a child is not asked of the list by a reader who
+        // may not see it: filtering by scout would answer the question.
+        if ( ! empty( $filter['discovered_by_user_id'] ) && \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $uid ) ) {
             $search_args['discovered_by_user_id'] = (int) $filter['discovered_by_user_id'];
         }
         if ( ! empty( $r['search'] ) ) {
@@ -452,6 +454,9 @@ class ProspectsRestController {
             ];
         }, $rows );
 
+        // #4694 — "discovered by" follows the prospect rule.
+        $formatted = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'prospects', array_values( $formatted ), $uid );
+
         return RestResponse::success( [
             'rows'     => $formatted,
             'total'    => $total,
@@ -545,6 +550,10 @@ class ProspectsRestController {
         if ( ! self::visibleTo( $id, get_current_user_id() ) ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
+        // #4694 — the family contact and the scouting notes follow the
+        // prospect rule in `config/sensitive_fields.php`.
+        $uid = get_current_user_id();
+        $row = (object) \TT\Infrastructure\Security\RecordRedactor::redact( 'prospects', ProspectRecord::forReader( (array) $row, $uid ), $uid, $id );
         return RestResponse::success( [ 'prospect' => $row ] );
     }
 

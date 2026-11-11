@@ -43,6 +43,20 @@ final class DataBrowserSensitiveFieldsTest extends WP_UnitTestCase {
             'email_link_html' => 'tt_people',
             'phone'           => 'tt_people',
         ],
+        'prospects' => [
+            'parent_name'    => 'tt_prospects',
+            'parent_email'   => 'tt_prospects',
+            'parent_phone'   => 'tt_prospects',
+            'scouting_notes' => 'tt_prospects',
+            'date_of_birth'  => 'tt_prospects',
+            'discovered_by_user_id' => 'tt_prospects',
+            // The scout's name, resolved from the row's discovered_by_user_id.
+            'discovered_by'  => 'tt_prospects',
+        ],
+        'prospect_consent_requests' => [
+            'asked_of' => 'tt_prospect_consent_requests',
+            'notes'    => 'tt_prospect_consent_requests',
+        ],
     ];
 
     /** @return array<string, mixed> */
