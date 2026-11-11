@@ -155,3 +155,7 @@ msgstr "Het gesprek kon niet worden ondertekend. Probeer het opnieuw."
 #: src/Modules/Pdp/Frontend/PdpFormConversationView.php
 msgid "Signing off…"
 msgstr "Bezig met ondertekenen…"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "a required field"
+msgstr "een verplicht veld"

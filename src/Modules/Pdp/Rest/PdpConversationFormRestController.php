@@ -237,10 +237,8 @@ final class PdpConversationFormRestController extends BaseController {
         $definition = self::chosenDefinition( $access );
         if ( $definition === null ) return self::noForm();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
-        // #2041 — the trainer's part is talk content, written in order like
-        // the conversation route's notes. Choosing the form stays open, as
-        // scheduling does.
-        if ( ! self::isCurrentTalk( $conv ) ) return self::notActive( __( 'Only the current talk can be filled in. Earlier talks come first.', 'talenttrack' ) );
+        // #2041 — written in order; see `PdpFormAccess::isCurrentTalk()`.
+        if ( ! $access->isCurrentTalk() ) return self::notActive( __( 'Only the current talk can be filled in. Earlier talks come first.', 'talenttrack' ) );
 
         $parsed = self::parseEntries( $r, $definition, PdpFormAuthor::COACH, true );
         if ( $parsed instanceof WP_REST_Response ) return $parsed;
@@ -266,13 +264,19 @@ final class PdpConversationFormRestController extends BaseController {
         if ( ! $access->signsOff() ) return self::forbidden();
         if ( PdpCycleState::isNotHeld( $conv ) ) return self::notHeld();
         // #2041 — talks are signed off in order, as on the conversation route.
-        if ( ! self::isCurrentTalk( $conv ) ) return self::notActive( __( 'Only the current talk can be signed off. Earlier talks come first.', 'talenttrack' ) );
+        if ( ! $access->isCurrentTalk() ) return self::notActive( __( 'Only the current talk can be signed off. Earlier talks come first.', 'talenttrack' ) );
 
         $result = PdpFormSignoff::signOff( $uid, $conv, $access->playerId() );
         if ( $result instanceof \WP_Error ) {
             $data   = (array) $result->get_error_data();
             $status = (int) ( $data['status'] ?? 400 );
             unset( $data['status'] );
+            // #4980 — with what the trainer reads for each missing field, as
+            // `state.missing` has it, so a refusal names them too.
+            if ( $result->get_error_code() === 'missing_fields' ) {
+                $fresh           = ( new PdpFormReader() )->read( $access, $access->conversation() );
+                $data['missing'] = $fresh['state']['missing'] ?? [];
+            }
             return RestResponse::error( (string) $result->get_error_code(), $result->get_error_message(), $status, $data );
         }
         return RestResponse::success( $result, 201 );
@@ -479,12 +483,6 @@ final class PdpConversationFormRestController extends BaseController {
         }
         $ok = ( new PdpConversationsRepository() )->update( $conversation_id, [ 'form_key' => $form_key, 'form_version' => (int) $definition['version'] ] );
         return $ok ? null : self::dbError();
-    }
-
-    /** Is this the talk the file is on now (#2041)? */
-    private static function isCurrentTalk( object $conv ): bool {
-        $row = (array) $conv;
-        return (int) $row['id'] === ( new PdpConversationsRepository() )->activeConversationId( (int) ( $row['pdp_file_id'] ?? 0 ) );
     }
 
     private static function notActive( string $message ): WP_REST_Response {

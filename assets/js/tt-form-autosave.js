@@ -125,7 +125,8 @@
 
 	/**
 	 * Wire one form. Returns the saver so a surface can add its own
-	 * deliberate commit beside it (match analysis's Mark as final), or null
+	 * deliberate commit beside it through `saver.commit(req)` (a PDP
+	 * preparation's "ready", a talk's sign-off), or null
 	 * when the runtime cannot support autosave — in which case the caller's
 	 * form is left exactly as the server rendered it.
 	 *

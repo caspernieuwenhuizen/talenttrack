@@ -134,7 +134,16 @@
  * exists.
  *
  * `onError` receives an `Error` carrying `.status`, which is how a surface
- * tells a 409 from a 500 in the first place.
+ * tells a 409 from a 500 in the first place, and `.code`, `.reason` and
+ * `.details` from the response body, which is how it says which 409.
+ *
+ * ## Committing beside the form (#4980)
+ *
+ * `commit(req)` is the deliberate step next to an autosaving form: a
+ * preparation marked ready, a talk signed off. It flushes the form, sends
+ * the commit on the same stream, and resolves to the server's answer. A
+ * refused commit leaves undo, revert and autosaving as they were. See the
+ * method for the contract.
  */
 (function () {
 	'use strict';
@@ -292,17 +301,53 @@
 		}
 	}
 
+	/** A response body as JSON, or null when there is none to read. */
+	function readBody(r) {
+		if (r.status === 204) return Promise.resolve(null);
+		return r.json()['catch'](function () { return null; });
+	}
+
+	/**
+	 * A refusal as the REST envelope states it: the first error's code,
+	 * message and details. Empty strings and `{}` when the body carries none,
+	 * so a caller never has to guard each field.
+	 */
+	function reasonOf(status, json) {
+		var e = (json && json.errors && json.errors[0]) || {};
+		return {
+			ok:      false,
+			status:  status,
+			code:    e.code ? String(e.code) : '',
+			message: e.message ? String(e.message) : '',
+			details: (e.details && typeof e.details === 'object') ? e.details : {},
+			data:    (json && json.data != null) ? json.data : null
+		};
+	}
+
 	/**
 	 * A failed response, as an Error that still says which failure it was.
 	 * `onError` handlers need the status: a 409 from a record someone else
 	 * has moved is a different sentence to a 500, and a component that
 	 * flattened both into "Save failed" would make the useful one
-	 * unreachable (#3007).
+	 * unreachable (#3007). The body is kept for the same reason (#4980):
+	 * `.code`, `.reason` (the server's message) and `.details` say which 409
+	 * it was and what to tell the coach. Resolves to the Error.
 	 */
 	function httpError(r) {
-		var err = new Error('HTTP ' + r.status);
-		err.status = r.status;
-		return err;
+		return readBody(r).then(function (json) {
+			var why = reasonOf(r.status, json);
+			var err = new Error('HTTP ' + r.status);
+			err.status  = r.status;
+			err.code    = why.code;
+			err.reason  = why.message;
+			err.details = why.details;
+			err.body    = json;
+			return err;
+		});
+	}
+
+	function throwHttpError(r) {
+		return httpError(r).then(function (err) { throw err; });
 	}
 
 	var REVERT_DIALOG_ID = 'tt-autosave-revert-dialog';
@@ -557,7 +602,7 @@
 			},
 			body: req.body != null ? JSON.stringify(req.body) : null
 		}).then(function (r) {
-			if (!r.ok) throw httpError(r);
+			if (!r.ok) return throwHttpError(r);
 			return r.status === 204 ? null : r.json();
 		}).then(function (resp) {
 			self.inFlight = false;
@@ -645,7 +690,7 @@
 			},
 			body: req.body != null ? JSON.stringify(req.body) : null
 		}).then(function (r) {
-			if (!r.ok) throw httpError(r);
+			if (!r.ok) return throwHttpError(r);
 			return r.status === 204 ? null : r.json();
 		}).then(function (resp) {
 			self.inFlight = false;
@@ -660,6 +705,108 @@
 			self.render();
 			if (typeof self.opts.onError === 'function') self.opts.onError(err);
 			return null;
+		});
+	};
+
+	/**
+	 * Wait until nothing is pending: a debounce fires now, a save in flight
+	 * lands, a queued one goes out, and an unsaved edit (a failed save
+	 * included) is tried once more. A save that fails leaves `failed` set
+	 * and resolves.
+	 */
+	Autosave.prototype._settle = function () {
+		var self = this;
+		if (this.halted) return Promise.resolve();
+		if (this.inFlight) {
+			return new Promise(function (resolve) {
+				setTimeout(function () { resolve(self._settle()); }, 40);
+			});
+		}
+		if (this.timer || this.queued || this.dirty) {
+			return this.saveNow().then(function () {
+				return (self.inFlight || self.timer || self.queued) ? self._settle() : null;
+			});
+		}
+		return Promise.resolve();
+	};
+
+	/**
+	 * A commit beside the autosaving form (#4980): "klaar", a sign-off, a
+	 * publish. The irreversible step CLAUDE.md §6 keeps out of the form, on
+	 * the form's own save stream, so it can neither race a save nor go out
+	 * ahead of the edit the user just made.
+	 *
+	 *     saver.commit({ method: 'POST', url: base + 'signoff' }).then(function (res) {
+	 *         if (res.ok) { location.reload(); return; }
+	 *         line.textContent = res.message;   // the server's reason
+	 *     });
+	 *
+	 * It flushes first, through `saveNow()`, so undo keeps working. Then it
+	 * refuses without sending when the form is halted (`code: 'halted'`,
+	 * `message` the save state's own halt text) or the flush did not store
+	 * (`code: 'not_saved'`). Otherwise it sends the commit and resolves to
+	 * `{ ok, status, code, message, details, data }` from the response
+	 * envelope; a network failure is `code: 'network'`, status 0.
+	 *
+	 * What it does not do, unlike `send()`: it leaves the undo target and the
+	 * sitting snapshot alone, because a commit that is refused has changed
+	 * nothing the user would want to undo. It never calls `onError` and never
+	 * halts the form for its own refusal: a stale sign-off is a sentence for
+	 * the line under the button, not a reason to stop autosaving. Always
+	 * resolves; never rejects.
+	 */
+	Autosave.prototype.commit = function (req) {
+		var self = this;
+
+		function refused(code, message) {
+			return { ok: false, status: 0, code: code, message: message || '', details: {}, data: null };
+		}
+
+		if (!req || !req.url) return Promise.resolve(refused('no_request'));
+		if (this.halted) return Promise.resolve(refused('halted', this.haltMessage));
+		if (this._committing) return Promise.resolve(refused('busy'));
+		this._committing = true;
+
+		return this._settle().then(function () {
+			if (self.halted) return refused('halted', self.haltMessage);
+			if (self.failed || self.dirty) return refused('not_saved', self.words.error);
+
+			self.inFlight = true;
+			self.render();
+
+			return fetch(req.url, {
+				method: req.method || 'POST',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+					'X-WP-Nonce': self.opts.nonce || ''
+				},
+				body: req.body != null ? JSON.stringify(req.body) : null
+			}).then(function (r) {
+				return readBody(r).then(function (json) {
+					if (!r.ok) return reasonOf(r.status, json);
+					var data = (json && json.data !== undefined) ? json.data : json;
+					return { ok: true, status: r.status, code: '', message: '', details: {}, data: data };
+				});
+			}, function () {
+				return refused('network');
+			}).then(function (result) {
+				self.inFlight = false;
+				self.render();
+				// An edit made while the commit was out was queued; it goes
+				// out now, as any other save would.
+				if (self.queued) { self.queued = false; self.dirty = true; self.saveNow(); }
+				return result;
+			});
+		}).then(function (result) {
+			self._committing = false;
+			return result;
+		}, function () {
+			self._committing = false;
+			self.inFlight    = false;
+			self.render();
+			return refused('network');
 		});
 	};
 

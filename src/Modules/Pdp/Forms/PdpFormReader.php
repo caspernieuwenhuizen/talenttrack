@@ -133,6 +133,10 @@ final class PdpFormReader {
                 'player_changed_after_prepared' => $changed_after,
                 'player_changed_items'          => $changed_items,
                 'missing'                       => $missing,
+                // #4980 — whether this reader can write the trainer's part
+                // and sign off now; null for a reader of neither.
+                'coach_writable'                => $access->readsCoachPart() ? $access->coachWritable() : null,
+                'signs_off'                     => $access->readsCoachPart() ? $access->signsOffNow() : null,
                 'coach_signoff_at'              => self::nullable( $row['coach_signoff_at'] ?? null ),
                 'player_locked'                 => PdpCycleState::playerPartLocked( $conversation, $now_ts ),
                 // #4979 — the player's preparation window: open from 14 days
@@ -174,6 +178,8 @@ final class PdpFormReader {
     /**
      * #4980 — sign-off's missing field paths, each with what a trainer reads:
      * the item's label, the prompt's label, or "Ontwikkelpunt 1: deadline".
+     * An item without a label reads as its section's title; anything else
+     * without one as "a required field". A trainer never reads a stored path.
      *
      * @param array<string,mixed> $definition
      * @param list<string>        $fields
@@ -181,11 +187,17 @@ final class PdpFormReader {
      */
     private static function missingWithLabels( array $definition, array $fields ): array {
         $items = [];
-        foreach ( PdpFormRegistry::items( $definition ) as $item ) $items[ $item['key'] ] = $item['label'];
+        foreach ( (array) $definition['sections'] as $section ) {
+            foreach ( (array) ( $section['items'] ?? [] ) as $item ) {
+                $label = trim( (string) ( $item['label'] ?? '' ) );
+                $items[ (string) $item['key'] ] = $label !== '' ? $label : trim( (string) ( $section['title'] ?? '' ) );
+            }
+        }
         $prompts = [];
-        foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = (string) $prompt['label'];
-        $slots = PdpFormRegistry::goalSlots( $definition );
-        $parts = [
+        foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = trim( (string) $prompt['label'] );
+        $slots   = PdpFormRegistry::goalSlots( $definition );
+        $generic = __( 'a required field', 'talenttrack' );
+        $parts   = [
             'action'   => __( 'what the player does', 'talenttrack' ),
             'support'  => __( 'how the trainer helps', 'talenttrack' ),
             'due_date' => __( 'deadline', 'talenttrack' ),
@@ -194,16 +206,18 @@ final class PdpFormReader {
         $out = [];
         foreach ( $fields as $field ) {
             $bits  = explode( '.', $field, 3 );
-            $label = $field;
+            $label = '';
             if ( $bits[0] === 'scores' ) {
-                $label = (string) ( $items[ $bits[1] ?? '' ] ?? $field );
+                $label = $items[ $bits[1] ?? '' ] ?? '';
             } elseif ( $bits[0] === 'answers' ) {
-                $label = (string) ( $prompts[ substr( $field, 8 ) ] ?? $field );
+                $label = $prompts[ substr( $field, 8 ) ] ?? '';
             } elseif ( $bits[0] === 'goals' ) {
-                $slot  = (int) ( $bits[1] ?? 0 );
-                $label = (string) ( $prompts[ $slots[ $slot ] ?? '' ] ?? $field ) . ': ' . (string) ( $parts[ $bits[2] ?? '' ] ?? '' );
+                $slot   = (int) ( $bits[1] ?? 0 );
+                $prompt = $prompts[ $slots[ $slot ] ?? '' ] ?? '';
+                $part   = $parts[ $bits[2] ?? '' ] ?? '';
+                if ( $prompt !== '' && $part !== '' ) $label = $prompt . ': ' . $part;
             }
-            $out[] = [ 'field' => $field, 'label' => $label ];
+            $out[] = [ 'field' => $field, 'label' => $label !== '' ? $label : $generic ];
         }
         return $out;
     }

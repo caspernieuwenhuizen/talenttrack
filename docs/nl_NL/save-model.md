@@ -113,6 +113,11 @@ Deze schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
 Ze zijn in de praktijk onomkeerbaar, en dat is precies waarom geen van hen
 een vinkje is op een scherm dat zichzelf opslaat.
 
+Wordt een van deze knoppen geweigerd (het formulier is nog niet compleet, of
+iemand anders heeft het intussen veranderd), dan staat de reden onder de knop,
+en blijft de rest zoals het was: het scherm blijft zichzelf opslaan, en
+Ongedaan maken neemt je laatste wijziging nog steeds terug.
+
 ## 2. Opslaan, met een echte Annuleren
 
 **Wat je ziet.** Een knop **Opslaan** met daarnaast **Annuleren**, Annuleren
@@ -250,7 +255,12 @@ Drie regels die gelden welk model je ook kiest:
   `tests/php/AutosaveWriteContractTest.php` is het patroon.
 - **Een vastlegging die niet terug te draaien is, is nooit een veld op een
   formulier dat zichzelf opslaat.** Publiceren, ondertekenen, indienen: eigen
-  knop, eigen bevestiging, buiten het formulier.
+  knop, eigen bevestiging, buiten het formulier. Verstuur hem met de saver
+  van het formulier, `saver.commit(req)` in `assets/js/tt-autosave.js`: die
+  slaat het formulier eerst op, laat ongedaan maken en terugdraaien met rust,
+  zet het formulier nooit stil om een eigen weigering, en geeft het antwoord
+  van de server terug als `{ ok, status, code, message, details, data }`.
+  Niet `send()`, die bij de opslagstroom hoort en ongedaan maken intrekt.
 - **Zeg welk model het scherm gebruikt.** Een scherm dat zichzelf opslaat toont
   de statusregel; een scherm dat dat niet doet toont een opslaanknop. Zwijgen is
   precies de fout die deze regel wegneemt.

@@ -43,7 +43,15 @@ function rowsOf( json ) {
 	return [];
 }
 
-test( 'the trainer scores every item, writes the agreements and signs off', async ( { page } ) => {
+test.describe.configure( { mode: 'serial' } );
+
+/**
+ * Open the fixture talk's conversation screen.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @return {Promise<{ form: import('@playwright/test').Locator, playerId: number }>}
+ */
+async function openTalk( page ) {
 	await page.goto( '/?tt_view=pdp' );
 	await page.waitForLoadState( 'load', { timeout: 30000 } );
 
@@ -62,6 +70,32 @@ test( 'the trainer scores every item, writes the agreements and signs off', asyn
 
 	const form = page.locator( '[data-tt-pdp-coachform]' );
 	await expect( form ).toBeVisible();
+	return { form, playerId };
+}
+
+/** The first item's choices, with its fold open. */
+async function firstRow( form ) {
+	const fold = form.locator( 'details.tt-pdp-coachform__section' ).first();
+	if ( ! ( await fold.evaluate( ( el ) => el.open ) ) ) await fold.locator( 'summary' ).tap();
+	return form.locator( '.tt-rating-stars--choices' ).first();
+}
+
+/** Wait until every edit is stored: the save state settles on saved. */
+async function settled( form ) {
+	await expect( form.locator( '[data-tt-save-state]' ) ).toHaveClass( /is-saved/, { timeout: 15000 } );
+}
+
+/** A REST refusal in the plugin's envelope. */
+function refusal( code, message ) {
+	return {
+		status: 409,
+		contentType: 'application/json',
+		body: JSON.stringify( { success: false, data: null, errors: [ { code, message, details: {} } ] } ),
+	};
+}
+
+test( 'the trainer scores every item and writes the agreements', async ( { page } ) => {
+	const { form } = await openTalk( page );
 	await expect( form.locator( '.tt-pdp-coachform__player' ).first(), 'the player has not prepared' ).toContainText( 'not ready yet' );
 
 	// Open every fold, then score every item 3.
@@ -92,6 +126,64 @@ test( 'the trainer scores every item, writes the agreements and signs off', asyn
 
 	const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );
 	expect( overflow, 'no sideways scroll at 360' ).toBeLessThanOrEqual( 0 );
+	await settled( form );
+} );
+
+test( 'a sign-off the server refuses says why, keeps undo, and leaves the form saving', async ( { page } ) => {
+	const { form } = await openTalk( page );
+	const message  = 'The conversation form was changed meanwhile. Reload the form and try again.';
+	const signoff  = ( url ) => decodeURIComponent( url.href ).includes( '/signoff' );
+	await page.route( signoff, ( route ) => ( route.request().method() === 'POST' ? route.fulfill( refusal( 'form_changed', message ) ) : route.continue() ) );
+
+	// A real, stored change: the one undo should take back.
+	const row = await firstRow( form );
+	await expect( row.locator( '[aria-checked="true"]' ) ).toHaveAttribute( 'data-value', '3' );
+	await row.locator( 'button[data-value="4"]' ).tap();
+	await settled( form );
+
+	page.once( 'dialog', ( dialog ) => dialog.accept() );
+	await page.locator( '[data-tt-coach-signoff]' ).tap();
+	await expect( page.locator( '[data-tt-coach-signoff-box] .tt-form-msg' ), 'the server\'s reason' ).toHaveText( message, { timeout: 15000 } );
+	await expect( form.locator( '[data-tt-save-state]' ), 'a stale sign-off does not halt the form' ).toHaveClass( /is-saved/ );
+	await expect( page.locator( '[data-tt-coach-signoff]' ) ).toBeEnabled();
+
+	const undo = form.locator( '[data-tt-save-undo]' );
+	await expect( undo, 'undo survives the refusal' ).toBeVisible();
+	await undo.tap();
+	await expect( row.locator( '[aria-checked="true"]' ), 'undo took the change back' ).toHaveAttribute( 'data-value', '3' );
+	await settled( form );
+	await page.unroute( signoff );
+} );
+
+test( 'a halted form gives one reason, in the line and in the save state, and sends no sign-off', async ( { page } ) => {
+	const { form } = await openTalk( page );
+	const message  = 'This conversation has already been signed off.';
+	const coach    = ( url ) => decodeURIComponent( url.href ).includes( '/form/coach' );
+	await page.route( coach, ( route ) => ( route.request().method() === 'PATCH' ? route.fulfill( refusal( 'already_signed_off', message ) ) : route.continue() ) );
+	let posted = false;
+	page.on( 'request', ( r ) => { if ( r.url().includes( '/signoff' ) && r.method() === 'POST' ) posted = true; } );
+
+	const row = await firstRow( form );
+	await row.locator( 'button[data-value="4"]' ).tap();
+	const state = form.locator( '[data-tt-save-state]' );
+	await expect( state, 'the save halts with the server\'s reason' ).toHaveText( message, { timeout: 15000 } );
+
+	page.once( 'dialog', ( dialog ) => dialog.accept() );
+	await page.locator( '[data-tt-coach-signoff]' ).tap();
+	await expect( page.locator( '[data-tt-coach-signoff-box] .tt-form-msg' ) ).toHaveText( message );
+	await expect( form.locator( '[data-tt-save-undo]' ), 'nothing writes once halted' ).toBeHidden();
+	expect( posted, 'no sign-off goes out from a halted form' ).toBe( false );
+
+	const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );
+	expect( overflow, 'the line wraps: no sideways scroll at 360' ).toBeLessThanOrEqual( 0 );
+	await page.unroute( coach );
+} );
+
+test( 'the trainer signs off, which writes the evaluation and the two goals', async ( { page } ) => {
+	const { form, playerId } = await openTalk( page );
+	const signoff = page.locator( '[data-tt-coach-signoff]' );
+	await expect( signoff, 'the form stored in the first test is complete' ).toBeEnabled();
+	await expect( form.locator( '.tt-rating-stars--choices' ).first().locator( '[aria-checked="true"]' ), 'undo restored the score' ).toHaveAttribute( 'data-value', '3' );
 
 	page.once( 'dialog', ( dialog ) => dialog.accept() );
 	await Promise.all( [

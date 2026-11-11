@@ -7,10 +7,10 @@
  * with the form as the trainer reads it, which says what sign-off still
  * needs; the list under the button and the button itself follow it.
  *
- * Sign-off is its own control (CLAUDE.md §6): confirm, then flush the form
- * through the saver (`send()` queues behind a save on its way), then
- * `POST …/signoff`. A flush that did not store, or a halted saver, stops
- * there with the form on screen.
+ * Sign-off is its own control (CLAUDE.md §6): confirm, then `saver.commit()`,
+ * which flushes the form and sends `POST …/signoff` on the same stream. A
+ * refusal is the server's sentence under the button; it leaves undo and
+ * autosaving alone, so a stale sign-off never freezes the form.
  */
 (function () {
 	'use strict';
@@ -36,7 +36,7 @@
 		var msg     = box ? box.querySelector('.tt-form-msg') : null;
 
 		function say(text) {
-			if (msg) msg.textContent = text;
+			if (msg) msg.textContent = text || '';
 		}
 
 		function showMissing(missing) {
@@ -60,7 +60,10 @@
 				if (state) showMissing(state.missing);
 			},
 			onError: function (err) {
-				if (err && err.status === 409) saver.halt(t('closed', 'The form can no longer be saved. Reload the page to see why.'));
+				// An autosave the server refuses for good (signed off
+				// meanwhile, a later talk, the form switched): say its reason
+				// and stop writing.
+				if (err && err.status === 409) saver.halt(err.reason || t('closed', 'The form can no longer be saved. Reload the page to see why.'));
 			}
 		});
 		if (!saver || !button) return;
@@ -69,47 +72,24 @@
 			if (button.disabled) return;
 			if (!window.confirm(t('confirm', 'Finish and sign this conversation? This cannot be undone.'))) return;
 
-			function stay(text) {
-				button.disabled = false;
-				say(text);
-			}
-			function halted() {
-				if (!saver.halted) return false;
-				stay(t('closed', 'The form can no longer be saved. Reload the page to see why.'));
-				return true;
-			}
-			if (halted()) return;
-
 			button.disabled = true;
 			say(t('signing', 'Signing off…'));
 
-			saver.send({
-				method: 'PATCH',
-				url: restBase() + String(form.getAttribute('data-rest-path') || ''),
-				body: TT.FormAutosave.body(form)
-			}).then(function (saved) {
-				if (halted()) return null;
-				if (!saved || saver.isPending()) {
-					stay(t('unsaved', 'Your last change has not been saved yet. Check your connection and try again.'));
-					return null;
+			saver.commit({
+				method: 'POST',
+				url: restBase() + String(form.getAttribute('data-signoff-path') || ''),
+				body: null
+			}).then(function (res) {
+				if (res.ok) { window.location.reload(); return; }
+				button.disabled = false;
+				if (res.code === 'not_saved') {
+					say(t('unsaved', 'Your last change has not been saved yet. Check your connection and try again.'));
+					return;
 				}
-				var state = saved.data && saved.data.state;
-				if (state && Array.isArray(state.missing) && state.missing.length) {
-					showMissing(state.missing);
-					say('');
-					return null;
-				}
-				return saver.send({
-					method: 'POST',
-					url: restBase() + String(form.getAttribute('data-signoff-path') || ''),
-					body: null
-				}).then(function (signed) {
-					if (signed) { window.location.reload(); return; }
-					if (halted()) return;
-					stay(t('failed', 'The conversation could not be signed off. Try again.'));
-				});
-			}, function () {
-				stay(t('failed', 'The conversation could not be signed off. Try again.'));
+				if (res.code === 'missing_fields' && Array.isArray(res.details.missing)) showMissing(res.details.missing);
+				// The halt text, or the server's reason: one sentence, the
+				// same one the save state shows when the form is halted.
+				say(res.message || t('failed', 'The conversation could not be signed off. Try again.'));
 			});
 		});
 	}

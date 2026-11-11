@@ -162,7 +162,9 @@ final class PdpFormEntriesRepository {
      * Store one score. #4980 — the change stamp moves only when the score
      * does: an autosave sends the whole form, and a stamp that moved on every
      * save would mark every item as changed. The stamp columns are assigned
-     * before `score`, so they compare against the stored value.
+     * before `score`, so they compare against the stored value. So
+     * `updated_by` and `updated_at` mean "last changed by / at", not "last
+     * saved by / at".
      */
     public function saveScore( int $conversation_id, string $form_key, string $item_key, string $author, ?int $score, int $user_id ): bool {
         global $wpdb;

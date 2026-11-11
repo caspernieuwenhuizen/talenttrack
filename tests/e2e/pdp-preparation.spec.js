@@ -170,7 +170,49 @@ test( 'klaar after a save that failed keeps the form, and does not mark it ready
 	}
 } );
 
-test( 'after a 409 halts the save, klaar gives the reload advice, and the line wraps at 360', async ( { browser, baseURL } ) => {
+test( 'klaar refused by the server says why, and undo still works after it', async ( { browser, baseURL } ) => {
+	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
+	try {
+		const form = page.locator( '[data-tt-pdp-prep]' );
+		await expect( form ).toBeVisible();
+
+		const refusal = 'The conversation has started, so your part of the form can no longer be changed.';
+		const ready = ( url ) => decodeURIComponent( url.href ).includes( '/form/player/preparation' );
+		await page.route( ready, ( route ) => ( route.request().method() === 'PUT'
+			? route.fulfill( {
+				status: 409,
+				contentType: 'application/json',
+				body: JSON.stringify( { success: false, data: null, errors: [ { code: 'form_locked', message: refusal, details: {} } ] } ),
+			} )
+			: route.continue() ) );
+
+		// A real, stored change: the one undo should take back.
+		const row    = form.locator( '[data-tt-prep-step]:not([hidden]) .tt-rating-stars--choices' ).first();
+		const before = String( await row.locator( '[aria-checked="true"]' ).getAttribute( 'data-value' ) );
+		await row.locator( `button[data-value="${ before === '5' ? 4 : 5 }"]` ).tap();
+		await settled( form );
+
+		const last = await form.locator( '[data-tt-prep-goto]' ).count();
+		await form.locator( `[data-tt-prep-goto="${ last - 1 }"]` ).tap();
+		await form.locator( '[data-tt-prep-done]' ).tap();
+
+		await expect( form.locator( '.tt-form-msg' ), 'the server\'s reason' ).toHaveText( refusal, { timeout: 15000 } );
+		await expect( form.locator( '[data-tt-save-state]' ), 'the refusal does not halt the form' ).toHaveClass( /is-saved/ );
+		await expect( form.locator( '[data-tt-prep-done]' ) ).toBeEnabled();
+
+		const undo = form.locator( '[data-tt-save-undo]' );
+		await expect( undo, 'undo survives the refusal' ).toBeVisible();
+		await form.locator( '[data-tt-prep-goto="0"]' ).tap();
+		await undo.tap();
+		await expect( row.locator( '[aria-checked="true"]' ), 'undo took the change back' ).toHaveAttribute( 'data-value', before );
+		await settled( form );
+		await page.unroute( ready );
+	} finally {
+		await context.close();
+	}
+} );
+
+test( 'after a 409 halts the save, klaar gives the same reason as the save state, and the line wraps at 360', async ( { browser, baseURL } ) => {
 	const { context, page } = await playerPage( browser, baseURL, 'e2e_pop_open' );
 	try {
 		const form = page.locator( '[data-tt-pdp-prep]' );
@@ -185,7 +227,7 @@ test( 'after a 409 halts the save, klaar gives the reload advice, and the line w
 			? route.fulfill( {
 				status: 409,
 				contentType: 'application/json',
-				body: JSON.stringify( { success: false, data: null, errors: [ { code: 'form_locked', message: 'Locked.', details: {} } ] } ),
+				body: JSON.stringify( { success: false, data: null, errors: [ { code: 'form_locked', message: 'The conversation has started, so your part of the form can no longer be changed.', details: {} } ] } ),
 			} )
 			: route.continue() ) );
 
@@ -199,7 +241,8 @@ test( 'after a 409 halts the save, klaar gives the reload advice, and the line w
 		await form.locator( '[data-tt-prep-done]' ).tap();
 
 		const msg = form.locator( '.tt-form-msg' );
-		await expect( msg ).toContainText( 'Reload the page' );
+		await expect( msg ).toHaveText( 'The conversation has started, so your part of the form can no longer be changed.' );
+		await expect( form.locator( '[data-tt-save-state]' ), 'one reason, in the line and in the save state' ).toHaveText( String( await msg.textContent() ) );
 		await expect( msg, 'not the connection advice, which would contradict the halt' ).not.toContainText( 'connection' );
 
 		const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );

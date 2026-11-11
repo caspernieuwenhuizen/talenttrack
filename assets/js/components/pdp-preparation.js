@@ -4,8 +4,8 @@
  *
  * One step per section, then the strongest quality. Every score and answer
  * autosaves through `TT.FormAutosave` (save model A) to
- * `PATCH …/form/player`. "Ready" is its own control: it flushes the pending
- * save, then `PUT …/form/player/preparation`. "Change it after all" is the
+ * `PATCH …/form/player`. "Ready" is its own control: `saver.commit()`
+ * flushes the pending save, then sends `PUT …/form/player/preparation`. "Change it after all" is the
  * `DELETE` of that resource. Both reload the page, which draws the new state
  * from the server.
  *
@@ -66,7 +66,7 @@
 				// 409: outside the window, locked, or signed off meanwhile.
 				// Retrying cannot help; say why and stop.
 				if (err && err.status === 409) {
-					saver.halt(t('closed', 'Your preparation can no longer be saved. Reload the page to see why.'));
+					saver.halt(err.reason || t('closed', 'Your preparation can no longer be saved. Reload the page to see why.'));
 				}
 			}
 		}) : null;
@@ -110,47 +110,25 @@
 				done.disabled = true;
 				say(form, t('saving', 'Saving your preparation…'));
 
-				function stay(text) {
+				// `commit()` stores the edit just made first, then sends
+				// "ready" on the same stream. A failed save leaves the form on
+				// screen, with the edit in it, to try again; a reload now would
+				// draw a summary without it. A refusal is the server's own
+				// sentence, and undo still works after it.
+				saver.commit({
+					method: 'PUT',
+					url: restBase() + String(form.getAttribute('data-prepared-path') || ''),
+					body: null
+				}).then(function (res) {
+					if (res.ok) { window.location.reload(); return; }
 					done.disabled = false;
-					say(form, text);
-				}
-
-				// A 409 halted the saver: the window closed or the talk was
-				// signed off. Trying again cannot help, so say what the save
-				// state says, not "check your connection".
-				function halted() {
-					if (!saver.halted) return false;
-					stay(t('closed', 'Your preparation can no longer be saved. Reload the page to see why.'));
-					return true;
-				}
-				if (halted()) return;
-
-				// The form as it stands, through the saver: `send()` queues
-				// behind a save already on its way, so this lands after it.
-				// "Ready" goes out only once that has been stored. A failed
-				// save leaves the form on screen, with the edit in it, to try
-				// again; a reload now would draw a summary without it.
-				saver.send({
-					method: 'PATCH',
-					url: restBase() + String(form.getAttribute('data-rest-path') || ''),
-					body: TT.FormAutosave.body(form)
-				}).then(function (saved) {
-					if (halted()) return null;
-					if (!saved || saver.isPending()) {
-						stay(t('unsaved', 'Your last change has not been saved yet. Check your connection and try Ready again.'));
-						return null;
+					if (res.code === 'not_saved') {
+						say(form, t('unsaved', 'Your last change has not been saved yet. Check your connection and try Ready again.'));
+						return;
 					}
-					return saver.send({
-						method: 'PUT',
-						url: restBase() + String(form.getAttribute('data-prepared-path') || ''),
-						body: null
-					}).then(function (marked) {
-						if (marked) { window.location.reload(); return; }
-						if (halted()) return;
-						stay(t('failed', 'Your preparation could not be marked ready. Try again.'));
-					});
-				}, function () {
-					stay(t('failed', 'Your preparation could not be marked ready. Try again.'));
+					// A halted form gives its halt text, the same sentence the
+					// save state shows; anything else the server's reason.
+					say(form, res.message || t('failed', 'Your preparation could not be marked ready. Try again.'));
 				});
 			});
 		}

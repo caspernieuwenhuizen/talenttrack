@@ -154,9 +154,58 @@ final class PdpTrainerFormTest extends WP_UnitTestCase {
         $this->assertContains( 'scores.technisch_rechts', array_column( $missing, 'field' ) );
         $this->assertNotContains( 'scores.aannames', array_column( $missing, 'field' ) );
 
+        $state = $this->send( 'GET', 'form', [] )[0]['data']['state'];
+        $this->assertTrue( $state['coach_writable'], 'the current talk takes the trainer\'s write' );
+        $this->assertTrue( $state['signs_off'], 'and offers sign-off' );
+
         [ $data, $status ] = $this->send( 'POST', 'signoff', [] );
         $this->assertSame( 400, $status );
         $this->assertSame( 'missing_fields', $data['errors'][0]['code'] );
+        $labels = array_column( (array) $data['errors'][0]['details']->missing, 'label' );
+        $this->assertContains( 'Technisch rechts', $labels, 'the refusal names what is missing, as the screen does' );
+    }
+
+    public function test_on_a_later_talk_the_trainers_part_is_closed_and_the_route_refuses(): void {
+        global $wpdb;
+        $file = (int) $wpdb->get_var( $wpdb->prepare( "SELECT pdp_file_id FROM {$this->p}tt_pdp_conversations WHERE id = %d", $this->conv ) );
+        $wpdb->insert( "{$this->p}tt_pdp_conversations", [
+            'club_id' => $this->club, 'pdp_file_id' => $file, 'sequence' => 2, 'template_key' => 'mid',
+            'scheduled_at' => gmdate( 'Y-m-d H:i:s', time() + 40 * DAY_IN_SECONDS ),
+        ] );
+        $first      = $this->conv;
+        $this->conv = (int) $wpdb->insert_id;
+
+        wp_set_current_user( $this->trainer );
+        $state = $this->send( 'GET', 'form', [] )[0]['data']['state'];
+        $this->assertFalse( $state['coach_writable'], 'a later talk does not take the trainer\'s write' );
+        $this->assertFalse( $state['signs_off'], 'nor offers sign-off' );
+        [ $data, $status ] = $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'aannames' => 3 ] ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'conversation_not_active', $data['errors'][0]['code'] );
+
+        $html = $this->screen();
+        $this->assertStringNotContainsString( 'data-tt-save-state', $html, 'the screen reads the same answer: no autosave' );
+        $this->assertStringNotContainsString( 'data-tt-coach-signoff', $html, 'and no sign-off' );
+
+        wp_set_current_user( $this->account );
+        $state = $this->send( 'GET', 'form', [] )[0]['data']['state'];
+        $this->assertNull( $state['coach_writable'], 'null for a reader of neither' );
+        $this->assertNull( $state['signs_off'] );
+
+        $this->conv = $first;
+        wp_set_current_user( $this->trainer );
+        $this->assertTrue( $this->send( 'GET', 'form', [] )[0]['data']['state']['coach_writable'], 'the first talk stays the current one' );
+    }
+
+    public function test_a_missing_field_without_a_label_never_reads_as_its_path(): void {
+        $definition = [
+            'sections' => [ [ 'key' => 'technical', 'title' => 'Techniek', 'items' => [ [ 'key' => 'aannames', 'label' => '' ] ] ] ],
+            'prompts'  => [],
+        ];
+        $method = new \ReflectionMethod( \TT\Modules\Pdp\Forms\PdpFormReader::class, 'missingWithLabels' );
+        $method->setAccessible( true );
+        $out = $method->invoke( null, $definition, [ 'scores.aannames', 'answers.strongest_quality', 'goals.1.due_date' ] );
+        $this->assertSame( [ 'Techniek', 'a required field', 'a required field' ], array_column( $out, 'label' ) );
     }
 
     public function test_without_the_players_preparation_it_can_be_signed_and_nothing_is_written_before(): void {

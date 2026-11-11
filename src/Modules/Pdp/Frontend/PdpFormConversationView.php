@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Pdp\Forms\PdpFormAccess;
 use TT\Modules\Pdp\Forms\PdpFormReader;
 use TT\Modules\Pdp\Forms\PdpFormRegistry;
-use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\FormAutosave;
@@ -45,8 +44,8 @@ final class PdpFormConversationView {
         $definition = (array) $form['form']['definition'];
         $state      = (array) $form['state'];
         $signed     = ( $state['coach_signoff_at'] ?? null ) !== null;
-        $active     = $conv_id === ( new PdpConversationsRepository() )->activeConversationId( (int) ( ( (array) $conv )['pdp_file_id'] ?? 0 ) );
-        $writable   = ! $signed && $active && $access->writesCoachPart();
+        $writable   = ( $state['coach_writable'] ?? false ) === true;
+        $signs_off  = ( $state['signs_off'] ?? false ) === true;
 
         self::enqueue();
 
@@ -222,7 +221,7 @@ final class PdpFormConversationView {
         if ( $signed ) {
             echo '<p class="tt-pdp-coachform__signed"><strong>' . esc_html__( 'Signed off', 'talenttrack' ) . '</strong> — '
                 . esc_html( TTDate::dateTimeFromGmt( (string) $state['coach_signoff_at'] ) ) . '</p>';
-        } elseif ( $writable && $access->signsOff() ) {
+        } elseif ( $signs_off ) {
             $missing = [];
             foreach ( (array) ( $state['missing'] ?? [] ) as $m ) {
                 if ( is_array( $m ) ) $missing[] = (string) ( $m['label'] ?? '' );
