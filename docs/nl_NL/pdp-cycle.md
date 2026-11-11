@@ -165,6 +165,16 @@ Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksf
 
 De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekening­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met hetzelfde bewijs dat de trainer op het tabblad Bewijs leest en het hoofd opleiding op het eindoordeelscherm — één verzameling, dus de cijfers op papier en op het scherm kunnen niet uit elkaar lopen. De bewijspagina is alleen voor de staf: een speler of ouder die het eigen dossier print, krijgt de enkele A4, en de schakelaar wordt hun niet aangeboden.
 
+### Een ondertekend gespreksformulier printen
+
+Een gesprek op een gespreksformulier print als het A4-formulier van de academie, zodra de trainer het heeft ondertekend. **Printen** staat onder het ondertekende formulier: op een telefoon opent het de PDF, op een computer de printpagina. Beide tonen hetzelfde document.
+
+- **Op de pagina:** de speler, de datum, het team en de trainer, dan de schaal, dan elk item met het cijfer van de speler (S) en dat van de trainer (T), per onderdeel, met de toelichting van de trainer onder elk onderdeel. Daaronder de grootste kwaliteit (wat de speler schreef en wat is afgesproken), de twee ontwikkelpunten met wat de speler doet, hoe de trainer helpt en de deadline, en wie het wanneer bevestigde, in plaats van handtekeningregels.
+- **Als er iets ontbreekt:** een speler die niet heeft voorbereid, leest "niet ingevuld" in de eigen kolom, en een bevestiging die nog niet is gegeven leest "nog niet bevestigd", nooit een datum.
+- **Voor het ondertekenen** print er niets van het formulier: de pagina zegt dat het print zodra de trainer heeft ondertekend.
+- **Wie het mag printen**, is wie het op het scherm mag lezen: staf die het dossier mag openen, de speler, en een ouder zolang het kind het ontwikkelplan deelt, na het ondertekenen. Iedereen anders krijgt dezelfde weigering als op het scherm.
+- Een gesprek zonder formulier print het hele dossier, zoals hierboven beschreven.
+
 ## Configuratie
 
 - **Configuratie → Keuzelijsten → Spelers­waarden** — bewerk de waarde-woordenlijst.

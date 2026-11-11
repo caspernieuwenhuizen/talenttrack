@@ -81,7 +81,9 @@ final class PdpFormPrintableRenderer {
         $prepared   = ( $form['state']['player_prepared_at'] ?? null ) !== null && $p_part !== null;
         $not_filled = __( 'not filled in', 'talenttrack' );
 
-        $team    = $player && ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
+        $prow    = $player ? (array) $player : [];
+        $team_id = (int) ( $prow['team_id'] ?? 0 );
+        $team    = $team_id > 0 ? (array) QueryHelpers::get_team( $team_id ) : [];
         $trainer = self::trainerName( (int) $conv['id'] );
         $when    = (string) ( $conv['conducted_at'] ?? '' ) !== '' ? (string) $conv['conducted_at'] : (string) ( $conv['scheduled_at'] ?? '' );
 
@@ -94,7 +96,7 @@ final class PdpFormPrintableRenderer {
         echo '<table class="tt-pdpform-print__head"><tr>'
             . '<td><span>' . esc_html__( 'Player', 'talenttrack' ) . '</span>' . esc_html( $name ) . '</td>'
             . '<td><span>' . esc_html__( 'Date', 'talenttrack' ) . '</span>' . esc_html( $when !== '' ? TTDate::date( get_date_from_gmt( $when ) ) : '—' ) . '</td>'
-            . '<td><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>' . esc_html( $team ? (string) $team->name : '—' ) . '</td>'
+            . '<td><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>' . esc_html( (string) ( $team['name'] ?? '' ) !== '' ? (string) $team['name'] : '—' ) . '</td>'
             . '<td><span>' . esc_html__( 'Trainer', 'talenttrack' ) . '</span>' . esc_html( $trainer !== '' ? $trainer : '—' ) . '</td>'
             . '</tr></table>';
 
@@ -165,7 +167,7 @@ final class PdpFormPrintableRenderer {
         echo '<table class="tt-pdpform-print__confirm"><tr>'
             . '<td><span>' . esc_html__( 'Player', 'talenttrack' ) . '</span>' . esc_html( $name ) . '<br />' . esc_html( $stamp( $conv['player_ack_at'] ?? null ) ) . '</td>'
             . '<td><span>' . esc_html__( 'Trainer', 'talenttrack' ) . '</span>' . esc_html( $trainer !== '' ? $trainer : '—' ) . '<br />' . esc_html( $stamp( $conv['coach_signoff_at'] ?? null ) ) . '</td>'
-            . '<td><span>' . esc_html__( 'Parent', 'talenttrack' ) . '</span>' . esc_html( self::parentNames( (int) ( $player->id ?? 0 ) ) ) . '<br />' . esc_html( $stamp( $conv['parent_ack_at'] ?? null ) ) . '</td>'
+            . '<td><span>' . esc_html__( 'Parent', 'talenttrack' ) . '</span>' . esc_html( self::parentNames( (int) ( $prow['id'] ?? 0 ) ) ) . '<br />' . esc_html( $stamp( $conv['parent_ack_at'] ?? null ) ) . '</td>'
             . '</tr></table>';
         echo '</div>';
         return (string) ob_get_clean();
