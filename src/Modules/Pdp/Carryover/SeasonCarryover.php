@@ -140,7 +140,7 @@ class SeasonCarryover {
               WHERE player_id = %d
                 AND club_id = %d
                 AND archived_at IS NULL
-                AND status NOT IN ('completed', 'archived')",
+                AND " . \TT\Infrastructure\Query\GoalLifecycle::openClause( '' ),
             $player_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return;

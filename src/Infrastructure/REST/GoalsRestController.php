@@ -320,8 +320,9 @@ class GoalsRestController {
         }
         // #2202 — the goals list filter bar now offers three semantic status
         // buckets (Active / Achieved / Missed) instead of the raw lookup
-        // codes. `active` = any goal still open (status not a terminal code);
-        // `achieved` = completed; `missed` = cancelled. Raw lookup codes are
+        // codes. `active` = an open goal, `GoalStatus::OPEN` in any spelling
+        // (#5074; it used to be any status not completed or cancelled, NULL
+        // included); `achieved` = completed; `missed` = cancelled. Raw lookup codes are
         // still honoured for back-compat with existing deep links. An unset
         // status still means "all statuses" here — the Active default is a
         // list-view chrome choice (the pill seeds `filter[status]=active`),
@@ -512,7 +513,9 @@ class GoalsRestController {
      * The goals list filter exposes three semantic buckets that map onto the
      * canonical terminal codes used throughout the goals domain
      * (`completed` / `cancelled`):
-     *   - `active`   → the goal is still open (status NULL or not a terminal)
+     *   - `active`   → the goal is open: `GoalLifecycle::openClause()`, the
+     *                  statuses in `GoalStatus::OPEN` in any spelling. A goal
+     *                  with no status, or a rejected one, is in no bucket.
      *   - `achieved` → status = 'completed'
      *   - `missed`   → status = 'cancelled'
      * Any other non-empty value is treated as a raw lookup code for
@@ -708,7 +711,11 @@ class GoalsRestController {
             'player_id'           => absint( $r['player_id'] ?? 0 ),
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'description'         => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
-            'status'              => sanitize_text_field( (string) ( $r['status'] ?? $default_status ) ),
+            // #5074 — an empty status is the default, not '': a goal with
+            // no status is not open, so it would vanish from every count.
+            'status'              => trim( sanitize_text_field( (string) ( $r['status'] ?? '' ) ) ) !== ''
+                ? sanitize_text_field( (string) $r['status'] )
+                : $default_status,
             'priority'            => sanitize_text_field( (string) ( $r['priority'] ?? GoalPriority::MEDIUM ) ),
             'due_date'            => ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null,
             'linked_principle_id' => ( ! empty( $r['linked_principle_id'] ) && (int) $r['linked_principle_id'] > 0 )
@@ -881,6 +888,14 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        // #5074 — a status sent empty is refused, as PATCH .../status
+        // refuses it: a goal with no status is not open, and an autosaved
+        // edit must not write back the empty statuses migration 0332 repairs.
+        // About the body alone, so it is answered before the record is read.
+        if ( isset( $r['status'] ) && trim( sanitize_text_field( (string) $r['status'] ) ) === '' ) {
+            return RestResponse::error( 'invalid_field', __( 'Status is required.', 'talenttrack' ), 400, [ 'field' => 'status' ] );
+        }
+
         $refusal = self::goalRefusal( $goal_id );
         if ( $refusal !== null ) return $refusal;
 

@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Domain\Vocabularies\Enums\GoalOrigin;
-use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\GoalLifecycle;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -36,20 +36,15 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class GoalsRepository {
 
-    /**
-     * Terminal goal statuses. A goal carrying one of these is finished —
-     * it is history, not something the player is still working on.
-     *
-     * #3033 — the plugin had grown four hand-written copies of this list
-     * and one surface with no status filter at all, so the Goals tab
-     * badge, its list header and the profile KPI could each show a
-     * different number for the same player. Everything that asks "is
-     * this goal active?" now goes through `activeStatusClause()` /
-     * `closedStatusClause()` below, so the answer cannot drift again.
-     *
-     * @var list<string>
+    /*
+     * #3033 — the plugin had grown four hand-written copies of the
+     * terminal-status list and one surface with no status filter at all, so
+     * the Goals tab badge, its list header and the profile KPI could each
+     * show a different number for the same player. Everything that asks "is
+     * this goal active?" goes through `activeStatusClause()` /
+     * `closedStatusClause()` below. #5074 — both delegate to
+     * `GoalLifecycle`, the rule every other open-goal count uses too.
      */
-    public const CLOSED_STATUSES = [ GoalStatus::COMPLETED, GoalStatus::CANCELLED ];
 
     /**
      * Write a goal and announce it. The only place `tt_goals` is inserted.
@@ -130,25 +125,18 @@ class GoalsRepository {
     /**
      * SQL predicate for "this goal is still being worked on".
      *
-     * Contains no caller-supplied data — the status codes are class
-     * constants — so it is safe to concatenate into a prepared statement
-     * without a placeholder.
+     * #5074 — `GoalLifecycle::openClause()`, the one open-goal rule
+     * (`GoalStatus::OPEN`): every spelling of an open status counts, and a
+     * goal with no status is not open. Contains no caller-supplied data, so
+     * it is safe to concatenate into a prepared statement.
      */
     public static function activeStatusClause( string $alias = '' ): string {
-        return sprintf(
-            '( %1$s IS NULL OR %1$s NOT IN ( %2$s ) )',
-            self::statusColumn( $alias ),
-            self::closedStatusList()
-        );
+        return '( ' . GoalLifecycle::openClause( $alias ) . ' )';
     }
 
     /** The exact negation of `activeStatusClause()`, so no goal falls in neither list. */
     public static function closedStatusClause( string $alias = '' ): string {
-        return sprintf(
-            '( %1$s IS NOT NULL AND %1$s IN ( %2$s ) )',
-            self::statusColumn( $alias ),
-            self::closedStatusList()
-        );
+        return GoalLifecycle::notOpenClause( $alias );
     }
 
     /**
@@ -160,16 +148,6 @@ class GoalsRepository {
         return sprintf( '( %1$s = %2$d OR %1$s IS NULL )', $col, CurrentClub::id() );
     }
 
-    private static function statusColumn( string $alias ): string {
-        return $alias !== '' ? "{$alias}.status" : 'status';
-    }
-
-    private static function closedStatusList(): string {
-        return implode( ', ', array_map(
-            static fn( string $code ): string => "'" . $code . "'",
-            self::CLOSED_STATUSES
-        ) );
-    }
 
     /**
      * Which principles a squad currently has open goals on (#2497).

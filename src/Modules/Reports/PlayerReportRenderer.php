@@ -507,7 +507,7 @@ class PlayerReportRenderer {
                FROM {$p}tt_goals
               WHERE player_id = %d
                 AND archived_at IS NULL
-              ORDER BY ( status IN ( 'completed', 'cancelled' ) ) ASC,
+              ORDER BY ( " . \TT\Infrastructure\Query\GoalLifecycle::notOpenClause( '' ) . " ) ASC,
                        ( due_date IS NULL ) ASC,
                        due_date ASC
               LIMIT 10",

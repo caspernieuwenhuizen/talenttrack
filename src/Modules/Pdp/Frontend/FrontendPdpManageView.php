@@ -1962,7 +1962,8 @@ class FrontendPdpManageView extends FrontendViewBase {
         $where_status = match ( $filter ) {
             'completed' => "AND g.status = 'completed'",
             'all'       => '',
-            default     => "AND g.status NOT IN ('completed','archived')",
+            // #5074 — "active" is the one open-goal rule.
+            default     => 'AND ' . \TT\Infrastructure\Query\GoalLifecycle::openClause( 'g' ),
         };
 
         $goals = $wpdb->get_results( $wpdb->prepare(

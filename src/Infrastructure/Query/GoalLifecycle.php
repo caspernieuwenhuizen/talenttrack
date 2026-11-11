@@ -17,9 +17,12 @@ use TT\Domain\Vocabularies\Lookups\GoalStatus;
  * lower case, underscores and hyphens as spaces, whitespace collapsed. One
  * rule, so a status the lookup resolves is a status this counts.
  *
- * Open is `GoalStatus::OPEN` (owner decision on #4596). The custom-widget
- * goals source is the first consumer; the other places that define "open
- * goal" for themselves move onto this in a follow-up.
+ * Open is `GoalStatus::OPEN` (owner decision on #4596). #5074 moved every
+ * other definition onto it: the Goals tab and the profile KPI (through
+ * `GoalsRepository::activeStatusClause()`), the past-due alert, the KPI
+ * export, the goals-by-principle table, the Admin Center payload, the PDP
+ * goals block, the season carry-over and the player report's order.
+ * `GoalLifecycleGuardTest` fails on a new literal list of goal statuses.
  *
  * The clauses are literal SQL built from constants and the caller's alias;
  * {@see self::statusClause()} carries its value as a placeholder.
@@ -47,8 +50,28 @@ final class GoalLifecycle {
 
     /** "This goal is open." */
     public static function openClause( string $alias = 'g' ): string {
-        $codes = array_map( static fn( string $code ): string => "'" . self::normalise( $code ) . "'", GoalStatus::OPEN );
-        return self::normalisedSql( $alias ) . ' IN ( ' . implode( ', ', $codes ) . ' )';
+        return self::normalisedSql( $alias ) . ' IN ( ' . self::openList() . ' )';
+    }
+
+    /**
+     * #5074 — "This goal is not open": the exact negation of
+     * {@see self::openClause()}, so every goal is in exactly one of the two.
+     * A goal with no status, or a status outside `GoalStatus::OPEN`, is here.
+     */
+    public static function notOpenClause( string $alias = 'g' ): string {
+        $col = self::normalisedSql( $alias );
+        return "( {$col} IS NULL OR {$col} NOT IN ( " . self::openList() . ' ) )';
+    }
+
+    /** #5074 — the same rule in PHP, for a status already read. */
+    public static function isOpen( ?string $status ): bool {
+        if ( $status === null ) return false;
+        $open = array_map( [ self::class, 'normalise' ], GoalStatus::OPEN );
+        return in_array( self::normalise( $status ), $open, true );
+    }
+
+    private static function openList(): string {
+        return implode( ', ', array_map( static fn( string $code ): string => "'" . self::normalise( $code ) . "'", GoalStatus::OPEN ) );
     }
 
     /**

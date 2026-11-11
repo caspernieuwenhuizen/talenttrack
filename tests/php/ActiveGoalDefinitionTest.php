@@ -28,7 +28,8 @@ final class ActiveGoalDefinitionTest extends WP_UnitTestCase {
         $player_id = $this->player( 'Agr', 'Eement' );
 
         $this->goal( $player_id, 'still working', 'in_progress' );
-        $this->goal( $player_id, 'no status yet', null );
+        // #5074 — a goal with no status is not open; not started is.
+        $this->goal( $player_id, 'not started yet', 'pending' );
         $this->goal( $player_id, 'done', 'completed' );
         $this->goal( $player_id, 'dropped', 'cancelled' );
 
@@ -46,7 +47,7 @@ final class ActiveGoalDefinitionTest extends WP_UnitTestCase {
         $player_id = $this->player( 'Par', 'Tition' );
 
         $this->goal( $player_id, 'open', 'in_progress' );
-        $this->goal( $player_id, 'pending', null );
+        $this->goal( $player_id, 'pending', 'pending' );
         $this->goal( $player_id, 'achieved', 'completed' );
         $this->goal( $player_id, 'abandoned', 'cancelled' );
 
