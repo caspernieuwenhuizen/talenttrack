@@ -108,6 +108,11 @@ These screens keep deliberate buttons, and none of them is a Save:
 They are irreversible in practice, which is why none of them is a checkbox on
 a screen that saves itself.
 
+When one of them is refused (the form is incomplete, or someone else changed
+it meanwhile), the reason shows under the button, and everything else stays as
+it was: the screen keeps saving itself, and Undo still takes back your last
+change.
+
 ## 2. Save, with a real Cancel
 
 **What you see.** A **Save** button and a **Cancel** button beside it, Cancel
@@ -228,7 +233,11 @@ Three rules that hold whichever model you pick:
   is the pattern.
 - **A commit that cannot be taken back is never a field on an autosaving
   form.** Publishing, signing off, submitting: separate control, separate
-  confirm, outside the form.
+  confirm, outside the form. Send it with the form's saver, `saver.commit(req)`
+  in `assets/js/tt-autosave.js`: it flushes the form first, leaves undo and
+  revert alone, never halts the form for its own refusal, and resolves to the
+  server's `{ ok, status, code, message, details, data }`. Not `send()`, which
+  belongs to the save stream and retires undo.
 - **Say which model the surface is using.** A screen that saves itself shows
   the status line; a screen that does not shows a Save button. Silence is the
   failure this rule exists to remove.

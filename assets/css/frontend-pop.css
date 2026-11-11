@@ -1307,3 +1307,73 @@
 .tt-pdp-prep__sumcount { font-size: 0.8rem; color: var(--tt-muted, #5b6470); }
 .tt-pdp-prep__sumavg { font-weight: 700; text-align: right; color: var(--tt-primary, #1565c0); }
 .tt-pdp-prep__answer { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+
+/*
+ * #4980 — the trainer's side of a conversation form, on the conversation
+ * screen. Mobile-first: the sections are folds, the five choices fill the
+ * row (rating-input.css), and items are rows with a divider so 272px of
+ * choices fits a 320px phone inside the pane.
+ */
+.tt-pdp-coachform { display: grid; gap: 0.75rem; margin: 1rem 0; min-width: 0; }
+.tt-pdp-coachform__h { margin: 0; font-size: 1.15rem; }
+.tt-pdp-coachform__legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0; padding: 0; list-style: none; font-size: 0.8rem; color: var(--tt-muted, #5b6470); }
+.tt-pdp-coachform__legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.tt-pdp-coachform__swatch { width: 0.9rem; height: 0.9rem; border-radius: 0.2rem; }
+.tt-pdp-coachform__swatch--player { background: var(--tt-info-subtle, #e6f0fa); border: 2px solid var(--tt-info, #2d6fb3); }
+.tt-pdp-coachform__swatch--coach { background: var(--tt-accent, var(--tt-primary, #0b3d2e)); }
+.tt-pdp-coachform__status {
+    margin: 0;
+    padding: 0.6rem 0.8rem;
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-radius: var(--tt-radius, 8px);
+    font-size: 0.9rem;
+}
+.tt-pdp-coachform__form { display: grid; gap: 0.75rem; min-width: 0; }
+.tt-pdp-coachform__section { border-top: 1px solid var(--tt-line, #e2e8f0); padding: 0.25rem 0 0.5rem; min-width: 0; }
+.tt-pdp-coachform__sum {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: var(--tt-tap-min, 48px);
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-pdp-coachform__sum:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 2px; }
+.tt-pdp-coachform__item { display: grid; gap: 0.4rem; padding: 0.75rem 0; border-top: 1px solid var(--tt-line-soft, #eef1ef); }
+.tt-pdp-coachform__iname { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.5rem; margin: 0; font-weight: 700; }
+.tt-pdp-coachform__iname > span:first-child { flex: 1 1 auto; }
+.tt-pdp-coachform__idef { margin: 0; font-size: 0.85rem; line-height: 1.4; color: var(--tt-muted, #5b6470); }
+.tt-pdp-coachform__player { margin: 0; font-size: 0.8rem; color: var(--tt-info-ink, #1c5aa0); }
+.tt-pdp-coachform__flag,
+.tt-pdp-coachform__changed {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.tt-pdp-coachform__flag { color: var(--tt-warning-ink, #7a4a00); background: var(--tt-warning-subtle, #fdf3d8); }
+.tt-pdp-coachform__changed { color: var(--tt-info-ink, #1c5aa0); background: var(--tt-info-subtle, #e6f0fa); }
+.tt-pdp-coachform__theirs {
+    margin: 0 0 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-info-ink, #1c5aa0);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+.tt-pdp-coachform__goal { display: grid; gap: 0.5rem; margin: 0.5rem 0 0; padding: 0.75rem 0 0; border: 0; border-top: 1px solid var(--tt-line-soft, #eef1ef); min-width: 0; }
+.tt-pdp-coachform__goal legend { padding: 0; font-weight: 700; }
+.tt-pdp-coachform__made { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--tt-success-ink, #1f6d41); }
+.tt-pdp-coachform__goal .tt-field { display: grid; gap: 0.3rem; }
+.tt-pdp-coachform__save { justify-content: flex-start; }
+.tt-pdp-coachform__signoff { display: grid; gap: 0.5rem; justify-items: start; padding-top: 0.5rem; border-top: 1px solid var(--tt-line, #e2e8f0); }
+.tt-pdp-coachform__missing { font-size: 0.9rem; }
+.tt-pdp-coachform__missing p { margin: 0 0 0.25rem; font-weight: 600; }
+.tt-pdp-coachform__missing ul { margin: 0; padding-left: 1.2rem; }
+.tt-pdp-coachform__signoff .tt-help-text { margin: 0; }
+.tt-pdp-coachform__signed { margin: 0; }

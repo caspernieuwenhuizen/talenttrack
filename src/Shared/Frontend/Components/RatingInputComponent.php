@@ -96,8 +96,11 @@ class RatingInputComponent {
      *   max?:float, step?:float, disabled?:bool, input_class?:string,
      *   data_attrs?:array<string,string|int>, after_html?:string,
      *   variant?:string, labels?:list<string>, empty_text?:string,
-     *   readout_format?:string
+     *   readout_format?:string, marked?:int|string|null, marked_note?:string
      * } $args
+     *        #4980 `marked`: a second, read-only value shown on its choice
+     *        (the player's score beside the trainer's), with `marked_note`
+     *        added to that choice's accessible name.
      *        `labels`: one label per value, lowest first, in place of the
      *        qualitative words. `empty_text`: the readout before a choice.
      *        `readout_format`: a sprintf pattern for the readout, given the
@@ -117,6 +120,8 @@ class RatingInputComponent {
         $labels       = isset( $args['labels'] ) ? array_map( 'strval', $args['labels'] ) : [];
         $empty_text   = (string) ( $args['empty_text'] ?? '' );
         $format       = (string) ( $args['readout_format'] ?? '' );
+        $marked       = isset( $args['marked'] ) ? (string) $args['marked'] : '';
+        $marked_note  = (string) ( $args['marked_note'] ?? '' );
 
         [ $min, $max, $step ] = self::scale( $args );
 
@@ -136,7 +141,7 @@ class RatingInputComponent {
             }
             $out .= '</label>';
         }
-        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false, $labels, $empty_text, $format, $choices );
+        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false, $labels, $empty_text, $format, $choices, $marked, $marked_note );
         // #3949 — trusted, already-escaped markup a caller hangs on the row,
         // such as the category-note toggle and its panel.
         $out .= (string) ( $args['after_html'] ?? '' );
@@ -154,7 +159,8 @@ class RatingInputComponent {
         string $name, string $value, string $aria_label,
         float $min, float $max, float $step,
         bool $disabled, string $input_class, array $data_attrs, bool $required,
-        array $custom_labels = [], string $empty_text = '', string $format = '', bool $choices = false
+        array $custom_labels = [], string $empty_text = '', string $format = '', bool $choices = false,
+        string $marked = '', string $marked_note = ''
     ): string {
         $values     = self::stepSeries( $min, $max, $step );
         $labels     = $custom_labels !== [] ? $custom_labels : self::qualitativeLabels();
@@ -209,8 +215,10 @@ class RatingInputComponent {
             $on  = ( ! $is_empty && (float) $cur >= $v - 0.001 );
             $sel = ( ! $is_empty && abs( (float) $cur - $v ) < 0.001 );
             $star_label = $has_labels ? $labels[ $i ] : self::format( $v );
+            $is_marked  = $marked !== '' && abs( (float) $marked - $v ) < 0.001;
+            if ( $is_marked && $marked_note !== '' ) $star_label .= ', ' . $marked_note;
             $tabindex   = ( $sel || ( $is_empty && $i === 0 ) ) ? '0' : '-1';
-            $out .= '<button type="button" class="tt-rating-star' . ( $choices ? ' tt-rating-choice' : '' ) . ( $on ? ' is-on' : '' ) . '"';
+            $out .= '<button type="button" class="tt-rating-star' . ( $choices ? ' tt-rating-choice' : '' ) . ( $is_marked ? ' is-marked' : '' ) . ( $on ? ' is-on' : '' ) . '"';
             $out .= ' role="radio" aria-checked="' . ( $sel ? 'true' : 'false' ) . '"';
             $out .= ' data-value="' . esc_attr( self::format( $v ) ) . '"';
             $out .= ' aria-label="' . esc_attr( $star_label ) . '"';

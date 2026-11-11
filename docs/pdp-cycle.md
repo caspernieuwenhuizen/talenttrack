@@ -223,6 +223,19 @@ At an academy with conversation forms, the player prepares the next talk on the 
 - **Once the talk starts**, at its planned time or at sign-off, the preparation is read-only: *My PDP* shows the summary with a line saying the conversation has started.
 - The trainer sees that the player has started, because the form switch disappears at the player's first save. What the player wrote stays out of sight until "ready".
 
+#### The trainer fills in the form
+
+On the conversation screen, a talk that uses a conversation form shows the form on the **Conversation** tab, under the planned date and the notes.
+
+- **The player's preparation is beside your scores.** Before the player marks it ready, every item says *Player: not ready yet* and none of their answers shows. From "ready" on, each item shows the player's score, in light blue on its choice, and their strongest quality shows above yours.
+- **One row per item.** You score it with the five numbered choices; the player's score is marked on the same row. **Discuss** marks every item where the two scores differ, by any amount, and a section's heading counts them. **Changed** marks an item the player changed after marking the preparation ready.
+- **Sections are folds**, one per category, then the strongest quality and the two development points. Each category has a notes field.
+- **The strongest quality:** what the player wrote, and what you agreed.
+- **Two development points (SMART).** Each has what the player does, how the trainer helps, a deadline, and optionally the item it develops. Each becomes one of the player's goals when you sign off.
+- **Everything saves itself**, with the usual save state, undo and revert.
+- **Finish and sign the conversation** is its own button, with a confirm. It stays closed until the form is complete, and the list above it names what is still missing: a score on every item, the agreed strongest quality, and each development point's action, help and deadline. The player's preparation is not required. Signing off fixes the scores and saves them as an evaluation, which the radar and the evaluation history then show; it creates the two goals, linked to the conversation next to the goals you marked as discussed; and it asks the player and the parent to confirm. Nothing reaches the evaluations or the goals before that.
+- After sign-off the form is read-only, and you can record the player's and the parent's acknowledgement as before.
+
 ## Workflow nudges
 
 Three task templates are registered:

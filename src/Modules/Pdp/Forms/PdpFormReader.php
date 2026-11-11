@@ -77,6 +77,8 @@ final class PdpFormReader {
         $coach  = null;
         $goals  = null;
         $changed_after = null;
+        $changed_items = null;
+        $missing       = null;
 
         if ( $definition !== null && $access->readsPlayerPart() ) {
             $player = [
@@ -86,6 +88,9 @@ final class PdpFormReader {
             if ( $prepared !== null ) {
                 $last          = $this->entries->lastChange( $id, $form_key, PdpFormAuthor::PLAYER );
                 $changed_after = $last !== null && $last > $prepared;
+                // #4980 — which scores moved after "klaar", for the trainer's
+                // "aangepast" marker.
+                $changed_items = $this->entries->scoresChangedAfter( $id, $form_key, PdpFormAuthor::PLAYER, $prepared );
             }
         }
         if ( $definition !== null && $access->readsCoachPart() ) {
@@ -93,6 +98,11 @@ final class PdpFormReader {
                 'scores'  => $this->entries->scores( $id, $form_key, PdpFormAuthor::COACH ),
                 'answers' => $this->entries->answers( $id, $form_key, PdpFormAuthor::COACH ),
             ];
+            // #4980 — what sign-off still needs, with a label each, so the
+            // screen can name it and keep its button closed until it is all
+            // there (decision 4). The rule is sign-off's own.
+            $missing = self::missingWithLabels( $definition, PdpFormSignoff::missing( $definition, $coach['scores'], $coach['answers'], $this->entries->goals( $id ) ) );
+
             $goals = [];
             $saved = $this->entries->goals( $id );
             foreach ( PdpFormRegistry::goalSlots( $definition ) as $slot => $prompt_key ) {
@@ -121,6 +131,12 @@ final class PdpFormReader {
                 'form_switch_to'                => $switch_to,
                 'player_prepared_at'            => $prepared,
                 'player_changed_after_prepared' => $changed_after,
+                'player_changed_items'          => $changed_items,
+                'missing'                       => $missing,
+                // #4980 — whether this reader can write the trainer's part
+                // and sign off now; null for a reader of neither.
+                'coach_writable'                => $access->readsCoachPart() ? $access->coachWritable() : null,
+                'signs_off'                     => $access->readsCoachPart() ? $access->signsOffNow() : null,
                 'coach_signoff_at'              => self::nullable( $row['coach_signoff_at'] ?? null ),
                 'player_locked'                 => PdpCycleState::playerPartLocked( $conversation, $now_ts ),
                 // #4979 — the player's preparation window: open from 14 days
@@ -157,6 +173,53 @@ final class PdpFormReader {
     private static function opensAt( object $conversation ): ?string {
         $ts = PdpCycleState::preparationOpensAt( $conversation );
         return $ts !== null ? gmdate( 'Y-m-d H:i:s', $ts ) : null;
+    }
+
+    /**
+     * #4980 — sign-off's missing field paths, each with what a trainer reads:
+     * the item's label, the prompt's label, or "Ontwikkelpunt 1: deadline".
+     * An item without a label reads as its section's title; anything else
+     * without one as "a required field". A trainer never reads a stored path.
+     *
+     * @param array<string,mixed> $definition
+     * @param list<string>        $fields
+     * @return list<array{field:string, label:string}>
+     */
+    private static function missingWithLabels( array $definition, array $fields ): array {
+        $items = [];
+        foreach ( (array) $definition['sections'] as $section ) {
+            foreach ( (array) ( $section['items'] ?? [] ) as $item ) {
+                $label = trim( (string) ( $item['label'] ?? '' ) );
+                $items[ (string) $item['key'] ] = $label !== '' ? $label : trim( (string) ( $section['title'] ?? '' ) );
+            }
+        }
+        $prompts = [];
+        foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = trim( (string) $prompt['label'] );
+        $slots   = PdpFormRegistry::goalSlots( $definition );
+        $generic = __( 'a required field', 'talenttrack' );
+        $parts   = [
+            'action'   => __( 'what the player does', 'talenttrack' ),
+            'support'  => __( 'how the trainer helps', 'talenttrack' ),
+            'due_date' => __( 'deadline', 'talenttrack' ),
+        ];
+
+        $out = [];
+        foreach ( $fields as $field ) {
+            $bits  = explode( '.', $field, 3 );
+            $label = '';
+            if ( $bits[0] === 'scores' ) {
+                $label = $items[ $bits[1] ?? '' ] ?? '';
+            } elseif ( $bits[0] === 'answers' ) {
+                $label = $prompts[ substr( $field, 8 ) ] ?? '';
+            } elseif ( $bits[0] === 'goals' ) {
+                $slot   = (int) ( $bits[1] ?? 0 );
+                $prompt = $prompts[ $slots[ $slot ] ?? '' ] ?? '';
+                $part   = $parts[ $bits[2] ?? '' ] ?? '';
+                if ( $prompt !== '' && $part !== '' ) $label = $prompt . ': ' . $part;
+            }
+            $out[] = [ 'field' => $field, 'label' => $label !== '' ? $label : $generic ];
+        }
+        return $out;
     }
 
     /** @param mixed $value */

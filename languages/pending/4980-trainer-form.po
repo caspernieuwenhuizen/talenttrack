@@ -1,0 +1,161 @@
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "what the player does"
+msgstr "wat de speler doet"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "how the trainer helps"
+msgstr "hoe de trainer helpt"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "deadline"
+msgstr "deadline"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Conversation form"
+msgstr "Gespreksformulier"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "How the scores are shown"
+msgstr "Hoe de cijfers worden getoond"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer (you)"
+msgstr "Trainer (jij)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player and trainer scores differ"
+msgid "Discuss"
+msgstr "Bespreken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "the scores differ"
+msgstr "de cijfers verschillen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player has not marked the preparation ready yet. You see their scores once they do."
+msgstr "De speler heeft de voorbereiding nog niet klaar gemeld. Je ziet de cijfers zodra dat gebeurt."
+
+#. translators: %s: date and time the player marked the preparation ready
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player marked the preparation ready on %s."
+msgstr "De speler meldde de voorbereiding klaar op %s."
+
+#. translators: %d: items in the section where the player's and the trainer's scores differ
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "%d to discuss"
+msgid_plural "%d to discuss"
+msgstr[0] "%d te bespreken"
+msgstr[1] "%d te bespreken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player changed this score after marking ready"
+msgid "changed"
+msgstr "aangepast"
+
+#. translators: %s: the item being scored
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer score for %s"
+msgstr "Trainerscijfer voor %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "the player's score"
+msgstr "het cijfer van de speler"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer: not scored yet"
+msgstr "Trainer: nog geen cijfer"
+
+#. translators: 1: the score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Trainer: %1$s · %2$s"
+msgstr "Trainer: %1$s · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: not ready yet"
+msgstr "Speler: nog niet klaar"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: not scored"
+msgstr "Speler: geen cijfer"
+
+#. translators: 1: the player's score, 2: its label in the form's scale
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Player: %1$d · %2$s"
+msgstr "Speler: %1$d · %2$s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The player wrote:"
+msgstr "De speler schreef:"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "not ready yet"
+msgstr "nog niet klaar"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: the player wrote nothing here"
+msgid "nothing"
+msgstr "niets"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "What you agreed"
+msgstr "Wat jullie afspraken"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Development points (SMART)"
+msgstr "Ontwikkelpunten (SMART)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Each development point becomes one of the player's goals when you sign off, so its progress can be followed."
+msgstr "Elk ontwikkelpunt wordt bij het ondertekenen een doel van de speler, zodat je de voortgang kunt volgen."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Goal created"
+msgstr "Doel aangemaakt"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "What the player does"
+msgstr "Wat de speler doet"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "How the trainer helps"
+msgstr "Hoe de trainer helpt"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Item it develops (optional)"
+msgstr "Item dat het ontwikkelt (optioneel)"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Still needed before you can sign off:"
+msgstr "Nog nodig voordat je kunt ondertekenen:"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Finish and sign the conversation"
+msgstr "Gesprek afronden en ondertekenen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Signing off fixes the scores, saves them as an evaluation, creates the two goals, and asks the player and the parent to confirm the conversation."
+msgstr "Ondertekenen zet de cijfers vast, bewaart ze als evaluatie, maakt de twee doelen aan en vraagt de speler en de ouder het gesprek te bevestigen."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Finish and sign this conversation? The scores are fixed and saved as an evaluation, the two development points become goals, and the player and the parent are asked to confirm. This cannot be undone."
+msgstr "Dit gesprek afronden en ondertekenen? De cijfers worden vastgezet en als evaluatie bewaard, de twee ontwikkelpunten worden doelen, en de speler en de ouder worden gevraagd te bevestigen. Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Your last change has not been saved yet. Check your connection and try again."
+msgstr "Je laatste wijziging is nog niet opgeslagen. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The form can no longer be saved. Reload the page to see why."
+msgstr "Het formulier kan niet meer worden opgeslagen. Laad de pagina opnieuw om te zien waarom."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "The conversation could not be signed off. Try again."
+msgstr "Het gesprek kon niet worden ondertekend. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Signing off…"
+msgstr "Bezig met ondertekenen…"
+
+#: src/Modules/Pdp/Forms/PdpFormReader.php
+msgid "a required field"
+msgstr "een verplicht veld"

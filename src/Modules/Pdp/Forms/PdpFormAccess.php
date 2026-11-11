@@ -45,6 +45,7 @@ final class PdpFormAccess {
     private ?bool $is_parent = null;
     private ?bool $sees_file = null;
     private ?bool $edits_file = null;
+    private ?bool $current_talk = null;
 
     public function __construct( int $user_id, object $conversation, int $player_id ) {
         $this->user_id      = $user_id;
@@ -129,6 +130,39 @@ final class PdpFormAccess {
      */
     public function signsOff(): bool {
         return $this->editsFile() && EvaluationInserter::mayWriteFor( $this->user_id, $this->player_id );
+    }
+
+    /**
+     * Is this the talk the file is on now (#2041)? The trainer's part is
+     * talk content, written and signed off in order, like the conversation
+     * route's notes. Choosing the form stays open, as scheduling does.
+     */
+    public function isCurrentTalk(): bool {
+        if ( $this->current_talk === null ) {
+            $row = (array) $this->conversation;
+            $this->current_talk = (int) ( $row['id'] ?? 0 ) === ( new \TT\Modules\Pdp\Repositories\PdpConversationsRepository() )->activeConversationId( (int) ( $row['pdp_file_id'] ?? 0 ) );
+        }
+        return $this->current_talk;
+    }
+
+    /**
+     * Would the trainer's part take a write from this user now? The same
+     * rule `PATCH …/form/coach` applies: not signed off, held, the current
+     * talk, and a user who writes the trainer's part.
+     */
+    public function coachWritable(): bool {
+        return $this->writesCoachPart()
+            && ! PdpCycleState::isNotHeld( $this->conversation )
+            && $this->isCurrentTalk();
+    }
+
+    /**
+     * May this user sign the conversation off now? A writable trainer's
+     * part, and the right to sign off. Completeness is `PdpFormSignoff`'s,
+     * read as `missing`.
+     */
+    public function signsOffNow(): bool {
+        return $this->coachWritable() && $this->signsOff();
     }
 
     private function signedOff(): bool {
