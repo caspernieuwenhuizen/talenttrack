@@ -844,11 +844,11 @@ final class TeamMonthlyReportLayout {
 
     /**
      * #4957 — the section header's meta line prints whole and wraps, so a
-     * long one makes the header band taller than its one-line 6.5 mm. A line
-     * of 7.5 pt is about 3.4 mm, with 0.8 mm padding above and below; the
-     * characters per line are the meta cell's width beside the widest title
-     * at about 1.45 mm a character, rounded down so a close call estimates a
-     * line too many.
+     * long one makes the header band taller than its 6.5 mm. A line of 7.5 pt
+     * at 1.25 is about 3.4 mm, so two lines still fit the band and a third
+     * grows it; the characters per line are the meta cell's width beside the
+     * widest title at about 1.45 mm a character, rounded down so a close call
+     * estimates a line too many.
      *
      * @param array<string,mixed> $block_data
      */
@@ -856,13 +856,12 @@ final class TeamMonthlyReportLayout {
         if ( ! in_array( $block, TeamMonthlyReportBlock::HEADED, true ) ) return 0.0;
         $per   = $layout === self::MATRIX ? self::HEADER_META_CHARS_WIDE : self::HEADER_META_CHARS;
         $lines = self::lines( mb_strlen( TeamMonthlyReport::sectionMeta( $block, $block_data ) ), $per );
-        return max( 0.0, $lines * self::HEADER_META_LINE_MM + self::HEADER_META_PAD_MM - self::HEADER_BAND_MM );
+        return max( 0.0, $lines * self::HEADER_META_LINE_MM - self::HEADER_BAND_MM );
     }
 
     private const HEADER_META_CHARS      = 76;
     private const HEADER_META_CHARS_WIDE = 140;
     private const HEADER_META_LINE_MM    = 3.4;
-    private const HEADER_META_PAD_MM     = 1.6;
     private const HEADER_BAND_MM         = 6.5;
 
     /**

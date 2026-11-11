@@ -2264,7 +2264,7 @@ final class TeamMonthlyReportDocument {
             . '.tt-mr-sh td{height:6.5mm;padding:0 2mm;vertical-align:middle;white-space:nowrap}'
             . '.tt-mr-sh td.tt-mr-sh__no{width:6mm;border-left:1.2mm solid ' . self::$primary . ';font-size:8pt;font-weight:bold;color:' . ReportBrandColour::numberColour( self::$primary ) . '}'
             . '.tt-mr-sh h2{margin:0;padding:0;font-size:11pt;font-weight:bold;color:' . $ink . '}'
-            . '.tt-mr-sh td.tt-mr-sh__meta{text-align:right;font-size:7.5pt;color:#3d4a43;white-space:normal;line-height:1.25;padding-top:0.8mm;padding-bottom:0.8mm}'
+            . '.tt-mr-sh td.tt-mr-sh__meta{text-align:right;font-size:7.5pt;color:#3d4a43;white-space:normal;line-height:1.25}'
             . '.tt-mr-sh--compact h2{font-size:9.5pt}'
             . '.band{height:6mm;margin-bottom:1mm}.band td{color:#fff;font-weight:bold;text-align:center;font-size:7.5pt}'
             . '.b-green{background:#1f7a4a}.b-amber{background:#c88a12}.b-red{background:#b3261e}.b-unknown{background:#8a8f96}'
