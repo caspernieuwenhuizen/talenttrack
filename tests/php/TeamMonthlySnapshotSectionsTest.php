@@ -74,8 +74,8 @@ final class TeamMonthlySnapshotSectionsTest extends WP_UnitTestCase {
             $cut  = TeamMonthlyReport::forReader( $frozen, $this->team, $reader );
             foreach ( $frozen['blocks'] as $section ) {
                 $this->assertSame(
-                    wp_json_encode( $live['data'][ $section ] ?? null ),
-                    wp_json_encode( $cut['data'][ $section ] ?? null ),
+                    $this->json( $live['data'][ $section ] ?? null ),
+                    $this->json( $cut['data'][ $section ] ?? null ),
                     "{$section} for the {$who}: the snapshot reads as the live report"
                 );
             }
@@ -121,6 +121,23 @@ final class TeamMonthlySnapshotSectionsTest extends WP_UnitTestCase {
         $this->flush();
         wp_set_current_user( $this->hod );
         return ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [], $this->hod );
+    }
+
+    /**
+     * The payload as JSON without the moment it was composed: the live report
+     * and the frozen one are composed a moment apart, and that moment is not a
+     * section's content.
+     */
+    private function json( mixed $payload ): string {
+        return (string) wp_json_encode( $this->level( $payload ) );
+    }
+
+    private function level( mixed $payload ): mixed {
+        if ( ! is_array( $payload ) ) return $payload;
+        foreach ( $payload as $key => $value ) {
+            $payload[ $key ] = $key === 'generated_at' || $key === 'as_of' ? '' : $this->level( $value );
+        }
+        return $payload;
     }
 
     private function flush(): void {
