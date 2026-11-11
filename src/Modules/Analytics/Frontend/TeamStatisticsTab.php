@@ -322,10 +322,10 @@ final class TeamStatisticsTab {
         if ( $rows === [] ) return;
 
         self::sectionOpen( $title );
-        // #4912 — a card per player on a phone, a table from 768px up
+        // #4912 — a card per player on a phone, a table from 480px up
         // (owner decision): the stack-table primitive.
         $th = StackTable::attrs( 'columnheader' );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
         echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         echo '<th scope="col"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '<th scope="col" class="tt-ts-table__n"' . $th . '>' . esc_html( $column ) . '</th>';
@@ -360,12 +360,12 @@ final class TeamStatisticsTab {
 
         self::sectionOpen( __( 'Appearances and minutes', 'talenttrack' ) );
 
-        // #4912 — as the leaderboards: cards on a phone, a table from 768px.
+        // #4912 — as the leaderboards: cards on a phone, a table from 480px.
         $c_apps    = _x( 'Apps', 'column: matches appeared in', 'talenttrack' );
         $c_starts  = __( 'Starts', 'talenttrack' );
         $c_minutes = __( 'Minutes', 'talenttrack' );
         $th        = StackTable::attrs( 'columnheader' );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-ts-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
         echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         echo '<th scope="col"' . $th . '>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         foreach ( [ $c_apps, $c_starts, $c_minutes ] as $header ) {

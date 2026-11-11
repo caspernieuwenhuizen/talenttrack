@@ -128,9 +128,9 @@
     margin: 0;
 }
 
-/* The leaderboards are on the stack-table primitive (StackTable::TO_768,
+/* The leaderboards are on the stack-table primitive (StackTable::TO_480,
    with cards): a card per player on a phone, the player's name heading the
-   card and one "label  figure" line per column; a table from 768px up.
+   card and one "label  figure" line per column; a table from 480px up.
    The primitive owns the layout; this sheet owns the cells' look. */
 
 /* Phone: the card. The player heads it, a full tap target. */
@@ -185,13 +185,13 @@
     }
 }
 
-/* From 768px: the table. The player is a row header (`<th scope="row">`),
+/* From 480px: the table. The player is a row header (`<th scope="row">`),
    and public.css styles `tbody td` only, so both cells get the same
    padding, border and stripe here, which keeps the stripe on the whole row
    and the name level with its number. The 48px touch target lives on the
    cell rather than on the link, so the text stays centred in a row of
    normal height. */
-@media (min-width: 768px) {
+@media (min-width: 480px) {
     .tt-table.tt-ts-table.tt-stack-table > tbody > tr > th[role="rowheader"],
     .tt-table.tt-ts-table.tt-stack-table > tbody > tr > td {
         display: table-cell;
