@@ -68,7 +68,10 @@ final class ReportStudioSnapshotTeamSectionsTest extends WP_UnitTestCase {
 
             $frozen = $this->render( $key, $input, $this->hod );
             foreach ( [ 'head of development' => $this->hod, 'narrower reader' => $this->narrow ] as $who => $reader ) {
-                $live = $this->render( $key, $input, $reader );
+                // A block the reader is not offered live is left out of the copy.
+                $context = ReportContext::fromInput( $input, $reader );
+                $this->assertInstanceOf( ReportContext::class, $context );
+                $live = $block->available( $context ) ? $this->render( $key, $input, $reader ) : null;
                 $cut  = $block->forReader( $frozen, $reader, $input );
                 $this->assertSame( wp_json_encode( $live ), wp_json_encode( $cut ), "{$key} for the {$who}" );
             }
