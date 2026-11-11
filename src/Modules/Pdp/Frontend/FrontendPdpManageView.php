@@ -2313,8 +2313,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         $file    = ( new PdpFilesRepository() )->find( $file_id );
         if ( ! $file || ! self::canSeeFile( $file, $user_id, $is_admin ) ) return $generic;
         $conv = ( new PdpConversationsRepository() )->find( $conv_id );
-        if ( ! $conv || (int) $conv->pdp_file_id !== (int) $file->id ) return $generic;
-        $player = QueryHelpers::get_player( (int) $file->player_id );
+        $f    = (array) $file;
+        if ( ! $conv || (int) ( ( (array) $conv )['pdp_file_id'] ?? 0 ) !== (int) ( $f['id'] ?? 0 ) ) return $generic;
+        $player = QueryHelpers::get_player( (int) ( $f['player_id'] ?? 0 ) );
         return [
             $player ? QueryHelpers::player_display_name( $player ) : $generic[0],
             self::conversationTitle( $conv ),
@@ -2323,11 +2324,12 @@ class FrontendPdpManageView extends FrontendViewBase {
 
     /** "Conversation 2 (Mid season)": the talk's name in the breadcrumb chain. */
     private static function conversationTitle( object $conv ): string {
+        $c = (array) $conv;
         return sprintf(
             /* translators: %1$d sequence, %2$s template */
             __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
-            (int) $conv->sequence,
-            self::templateLabel( (string) $conv->template_key )
+            (int) ( $c['sequence'] ?? 0 ),
+            self::templateLabel( (string) ( $c['template_key'] ?? '' ) )
         );
     }
 
@@ -2340,15 +2342,18 @@ class FrontendPdpManageView extends FrontendViewBase {
      * @return array{name:string, photo_url:string, meta:string, talk:string}
      */
     private static function talkIdentity( object $file, object $conv, PdpConversationsRepository $convs_repo ): array {
-        $player = QueryHelpers::get_player( (int) $file->player_id );
+        $f      = (array) $file;
+        $c      = (array) $conv;
+        $player = QueryHelpers::get_player( (int) ( $f['player_id'] ?? 0 ) );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : __( 'Player', 'talenttrack' );
 
         $meta = [];
         if ( $player ) {
-            $team = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
-            if ( $team ) $meta[] = (string) $team->name;
-            if ( ! empty( $player->jersey_number ) ) $meta[] = '#' . (int) $player->jersey_number;
-            $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
+            $p    = (array) $player;
+            $team = ! empty( $p['team_id'] ) ? QueryHelpers::get_team( (int) $p['team_id'] ) : null;
+            if ( $team ) $meta[] = (string) ( ( (array) $team )['name'] ?? '' );
+            if ( ! empty( $p['jersey_number'] ) ) $meta[] = '#' . (int) $p['jersey_number'];
+            $positions = json_decode( (string) ( $p['preferred_positions'] ?? '' ), true );
             if ( is_array( $positions ) ) {
                 foreach ( $positions as $code ) {
                     $code = trim( (string) $code );
@@ -2359,25 +2364,25 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
         }
 
-        $total = (int) ( $file->cycle_size ?? 0 );
+        $total = (int) ( $f['cycle_size'] ?? 0 );
         if ( $total <= 0 ) {
-            $total = count( $convs_repo->listForFile( (int) $file->id ) );
+            $total = count( $convs_repo->listForFile( (int) ( $f['id'] ?? 0 ) ) );
         }
-        $sequence = (int) $conv->sequence;
+        $sequence = (int) ( $c['sequence'] ?? 0 );
         $total    = max( $total, $sequence );
-        $template = self::templateLabel( (string) $conv->template_key );
+        $template = self::templateLabel( (string) ( $c['template_key'] ?? '' ) );
 
-        if ( ! empty( $conv->conducted_at ) ) {
+        if ( ! empty( $c['conducted_at'] ) ) {
             $talk = sprintf(
                 /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
                 __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::date( (string) $conv->conducted_at )
+                $template, $sequence, $total, \TT\Shared\Dates\TTDate::date( (string) $c['conducted_at'] )
             );
-        } elseif ( ! empty( $conv->scheduled_at ) ) {
+        } elseif ( ! empty( $c['scheduled_at'] ) ) {
             $talk = sprintf(
                 /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
                 __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::dateTime( (string) $conv->scheduled_at )
+                $template, $sequence, $total, \TT\Shared\Dates\TTDate::dateTime( (string) $c['scheduled_at'] )
             );
         } else {
             $talk = sprintf(
