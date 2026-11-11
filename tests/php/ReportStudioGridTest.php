@@ -234,14 +234,17 @@ final class ReportStudioGridTest extends WP_UnitTestCase {
 
     public function test_a_studio_home_is_only_for_a_persona_a_report_is_published_to(): void {
         $dashboard = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
-        $fixed     = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid', 'period_mode' => 'on_open' ] );
         $report    = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
         $unpublished = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'binding' => 'viewer', 'layout' => 'grid', 'sharing' => 'role', 'period_mode' => 'on_open' ] );
         $this->publish( $dashboard, [ 'head_coach' ] );
-        $this->publish( $fixed, [] );
         $this->publish( $report, [ 'head_coach' ] );
 
+        // A dashboard about one fixed team is kept for its owner (a fixed
+        // subject is never published to a role); the admin owns this one, so
+        // the refusal under test is the home rule, not the read check.
         wp_set_current_user( $this->admin );
+        $fixed = $this->create( [ 'kind' => 'dashboard', 'scope' => 'team', 'team_id' => $this->team_a, 'layout' => 'grid', 'period_mode' => 'on_open' ] );
+        $this->publish( $fixed, [] );
         foreach ( [ 'player', 'parent', 'scout', 'readonly_observer' ] as $persona ) {
             $res = $this->send( 'PUT', "studio-homes/{$persona}", [ 'report_id' => $dashboard ] );
             $this->assertSame( 400, $res->get_status(), $persona );
