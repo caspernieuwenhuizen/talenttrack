@@ -214,10 +214,10 @@ class EvaluationsRestController {
         // archivable), so the alias keeps trashed_at unambiguous.
         // #5118 — an ordinary list never serves the recycle bin: `trashed`
         // reads as `active` (`ArchiveRepository::listViewClause()`).
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::listView(
-            is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause(
+            is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : '',
+            'e'
         );
-        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $archived_view, 'e' );
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 

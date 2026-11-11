@@ -2509,7 +2509,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // default) keeps the timeline as-is; 'archived' replaces the
         // buckets with a flat restore/delete list; 'all' shows the
         // active timeline with the archived list appended below it.
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::listView(
             isset( $_GET['archived'] ) ? (string) $_GET['archived'] : 'active'
         );
 

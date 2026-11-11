@@ -804,7 +804,7 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $view_clause = ArchiveRepository::filterClause( ArchiveRepository::sanitizeView( $view ), 'a' );
+        $view_clause = ArchiveRepository::listViewClause( $view, 'a' );
         $scope       = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         $limit       = max( 1, min( 200, $limit ) );
 

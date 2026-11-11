@@ -12,9 +12,10 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * `GET /activities` does since #5103; the recycle-bin screen still lists
  * the binned items for whoever may open it.
  *
- * The goals and evaluations are read by SearchFixtures' head coach of team
- * A, a non-admin with list scope through the auth bridge; the holidays by
- * an administrator, who holds the holidays read.
+ * Every list is read by SearchFixtures' head coach of team A, a non-admin
+ * with list scope through the auth bridge (goals and evaluations on the
+ * team, the global holidays read). The wp-admin lists, which take the state
+ * from `?tt_view=`, follow the same rule.
  */
 final class ListsHideRecycleBinTest extends WP_UnitTestCase {
 
@@ -82,7 +83,7 @@ final class ListsHideRecycleBinTest extends WP_UnitTestCase {
         foreach ( [
             'goals'       => [ $this->personas['coach'], '/goals', [ 'player_id' => (string) $this->players['besten'] ], $this->goals ],
             'evaluations' => [ $this->personas['coach'], '/evaluations', [ 'player_id' => (string) $this->players['besten'] ], $this->evaluations ],
-            'holidays'    => [ $this->personas['admin'], '/holidays', [], $this->holidays ],
+            'holidays'    => [ $this->personas['coach'], '/holidays', [], $this->holidays ],
         ] as $what => [ $user, $route, $filter, $ids ] ) {
             if ( $state !== '' ) $filter['archived'] = $state;
             $listed = $this->listIds( $user, $route, $filter );
@@ -95,7 +96,7 @@ final class ListsHideRecycleBinTest extends WP_UnitTestCase {
         foreach ( [
             'goals'       => [ $this->personas['coach'], '/goals', [ 'player_id' => (string) $this->players['besten'] ], $this->goals ],
             'evaluations' => [ $this->personas['coach'], '/evaluations', [ 'player_id' => (string) $this->players['besten'] ], $this->evaluations ],
-            'holidays'    => [ $this->personas['admin'], '/holidays', [], $this->holidays ],
+            'holidays'    => [ $this->personas['coach'], '/holidays', [], $this->holidays ],
         ] as $what => [ $user, $route, $filter, $ids ] ) {
             $active  = $this->listIds( $user, $route, $filter + [ 'archived' => 'active' ] );
             $trashed = $this->listIds( $user, $route, $filter + [ 'archived' => 'trashed' ] );
@@ -114,6 +115,27 @@ final class ListsHideRecycleBinTest extends WP_UnitTestCase {
             $this->assertContains( $ids['trashed'], $binned, $entity );
             $this->assertContains( $ids['archived_trashed'], $binned, $entity );
         }
+    }
+
+    /** The wp-admin goals list, asked for `?tt_view=trashed`, lists what Active lists. */
+    public function test_a_wp_admin_list_never_shows_a_binned_row(): void {
+        wp_set_current_user( $this->personas['admin'] );
+        $this->resetSearchCaches();
+        $html = [];
+        foreach ( [ 'trashed', 'active', 'all' ] as $state ) {
+            $_GET['tt_view'] = $state;
+            ob_start();
+            \TT\Modules\Goals\Admin\GoalsPage::render_page();
+            $html[ $state ] = (string) ob_get_clean();
+        }
+        unset( $_GET['tt_view'] );
+
+        foreach ( $html as $state => $page ) {
+            $this->assertStringNotContainsString( 'Bin goal trashed', $page, "tt_view={$state}" );
+            $this->assertStringNotContainsString( 'Bin goal archived_trashed', $page, "tt_view={$state}" );
+        }
+        $this->assertStringContainsString( 'Bin goal live', $html['trashed'], 'tt_view=trashed reads as active' );
+        $this->assertStringNotContainsString( 'Bin goal archived', str_replace( 'Bin goal archived_trashed', '', $html['trashed'] ), 'not as all' );
     }
 
     public function test_the_list_view_reads_trashed_as_active(): void {

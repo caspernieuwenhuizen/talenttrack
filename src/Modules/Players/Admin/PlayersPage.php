@@ -129,8 +129,8 @@ class PlayersPage {
         }
 
         // v2.17.0: archive view filter.
-        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pl' );
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::listView( $_GET['tt_view'] ?? 'active' ); // #5118 — the recycle bin is its own screen
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $view, 'pl' );
 
         // v3.85.4 — `?demo_scope=all` bypasses the demo-mode scope so an
         // admin can see every row, including the ones that never got

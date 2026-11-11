@@ -1,0 +1,47 @@
+name: Archive list view lint
+
+# #5118 — an ordinary list never shows items in the recycle bin. The bin is
+# its own screen, behind `tt_manage_recycle_bin`; every other list reads the
+# `trashed` state as `active` through `ArchiveRepository::listView()` /
+# `listViewClause()`.
+#
+# `ArchiveRepository::filterClause()` answers every state, the bin included,
+# so a list that handed it a request value straight from `sanitizeView()`
+# served the bin to anyone who asked for it. This gate fails any call outside
+# the archive and recycle-bin code whose state is not a literal ordinary-list
+# state or a `listView()` result.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-archive-list-view.php'
+      - 'tools/lib/archive-list-view.php'
+      - '.github/workflows/archive-list-view-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tools/check-archive-list-view.php'
+      - 'tools/lib/archive-list-view.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every list reads the archive state through listView
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check archive list views
+        run: php tools/check-archive-list-view.php
