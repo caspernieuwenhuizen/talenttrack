@@ -841,13 +841,14 @@ final class ActivitiesRepository {
 
     /**
      * #4507 — "a played match", in the words the minutes reports count it:
-     * a minutes-bearing match (match, game, tournament) played by the one
-     * rule (`PlayedMatch`). Callers add the cancelled and archived
-     * exclusions they already carry.
+     * a live minutes-bearing match (match, game, tournament) played by the
+     * one rule (`PlayedMatch`), its live clause included: a trashed match
+     * reached the REST list's played drill because only the list view had
+     * its own trash filter.
      */
     private static function playedMatchesClause( string $alias ): string {
         $alias = preg_replace( '/[^A-Za-z0-9_]/', '', $alias ) ?: 's';
-        return PlayedMatch::setSql( PlayedMatch::MINUTES_BEARING, $alias ) . ' AND ' . PlayedMatch::playedSql( $alias );
+        return PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, $alias );
     }
 
     /**
