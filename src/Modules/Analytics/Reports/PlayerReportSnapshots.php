@@ -255,7 +255,7 @@ final class PlayerReportSnapshots {
             $notes  = self::notesForStaffReader( $notes, $report, $user_id, $player_id );
         }
 
-        self::recordInjuryRead( (string) ( $row->uuid ?? '' ), $player_id, $report, $user_id );
+        self::recordInjuryRead( (string) ( $row->uuid ?? '' ), $player_id, $report, $document, $user_id );
         return [
             'uuid'        => (string) ( $row->uuid ?? '' ),
             'player_id'   => $player_id,
@@ -390,21 +390,37 @@ final class PlayerReportSnapshots {
     }
 
     /**
-     * Opening a snapshot whose injuries section, as this reader reads it,
-     * still lists injuries is a read of them (`InjuryReads`).
+     * Opening a snapshot is a read of what it still shows this reader after
+     * the cut (`InjuryReads`): the injuries listed and the journey's medical
+     * and safeguarding entries. A Report Studio copy holds them as blocks.
      *
-     * @param array{data:array<string,array<string,mixed>>} $report
+     * @param array{data:array<string,array<string,mixed>>}   $report
+     * @param array{blocks:list<array<string,mixed>>}|null     $document
      */
-    private static function recordInjuryRead( string $uuid, int $player_id, array $report, int $user_id ): void {
-        $items = $report['data'][ PlayerReportBlock::INJURIES ]['items'] ?? [];
-        if ( ! is_array( $items ) || $items === [] ) return;
+    private static function recordInjuryRead( string $uuid, int $player_id, array $report, ?array $document, int $user_id ): void {
+        $sections = $report['data'];
+        if ( $document !== null ) {
+            // A Report Studio copy holds its sections as blocks.
+            $keys = array_flip( \TT\Modules\ReportStudio\Blocks\PlayerSectionBlock::KEYS );
+            foreach ( $document['blocks'] as $block ) {
+                $section = $keys[ (string) ( $block['key'] ?? '' ) ] ?? null;
+                if ( $section !== null && is_array( $block['data'] ?? null ) ) $sections[ (string) $section ] = $block['data'];
+            }
+        }
+        $extra = [ 'snapshot' => $uuid ];
 
-        \TT\Infrastructure\Journey\InjuryReads::record(
-            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
-            'player_report_snapshot',
-            [ $player_id => count( $items ) ],
-            [ $user_id ],
-            [ 'snapshot' => $uuid ]
-        );
+        $items = $sections[ PlayerReportBlock::INJURIES ]['items'] ?? [];
+        if ( is_array( $items ) && $items !== [] ) {
+            \TT\Infrastructure\Journey\InjuryReads::record(
+                \TT\Infrastructure\Journey\InjuryReads::INJURIES,
+                'player_report_snapshot',
+                [ $player_id => count( $items ) ],
+                [ $user_id ],
+                $extra
+            );
+        }
+        if ( isset( $sections[ PlayerReportBlock::JOURNEY ] ) ) {
+            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'player_report_snapshot', $player_id, $sections[ PlayerReportBlock::JOURNEY ], [ $user_id ], $extra );
+        }
     }
 }

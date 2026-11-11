@@ -269,7 +269,124 @@ final class ReportInjuryReadAuditTest extends WP_UnitTestCase {
         $this->assertSame( $before + 1, $this->rowsFor( 'pdp', $this->player ) );
     }
 
+    // ---- medical and safeguarding journey entries ------------------------------------
+
+    public function test_the_player_report_journey_logs_its_medical_entry_on_each_surface(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->sensitiveFor( 'player_report', $this->player );
+
+        $report = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'journey' ], $this->hod );
+        $this->assertCount( 1, (array) ( $report['data']['journey']['items'] ?? [] ), 'Precondition: the medical entry is shown.' );
+        $this->assertSame( $before + 1, $this->sensitiveFor( 'player_report', $this->player ), 'the page' );
+
+        $this->flush();
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/report' );
+        $req->set_param( 'from', self::FROM );
+        $req->set_param( 'to', self::TO );
+        $req->set_param( 'blocks', 'journey' );
+        $this->assertSame( 200, rest_get_server()->dispatch( $req )->get_status() );
+        $this->assertSame( $before + 2, $this->sensitiveFor( 'player_report', $this->player ), 'the REST route' );
+
+        $this->flush();
+        ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $this->hod, null, [
+            'player_id' => $this->player, 'from' => self::FROM, 'to' => self::TO, 'layout' => 'A', 'blocks' => [ 'journey' ],
+        ] ) );
+        $this->assertSame( $before + 3, $this->sensitiveFor( 'player_report', $this->player ), 'the PDF' );
+    }
+
+    public function test_a_reader_without_the_medical_level_writes_no_journey_row(): void {
+        wp_set_current_user( $this->assistant );
+        $before = $this->rows( InjuryReads::SENSITIVE, $this->player );
+
+        $report = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'journey' ], $this->assistant );
+        $this->assertSame( [], (array) ( $report['data']['journey']['items'] ?? [] ), 'Precondition: no medical entry for this reader.' );
+        $this->assertSame( $before, $this->rows( InjuryReads::SENSITIVE, $this->player ) );
+    }
+
+    public function test_opening_a_player_snapshot_with_a_medical_entry_writes_one_row(): void {
+        wp_set_current_user( $this->hod );
+        $uuid = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'journey' ], $this->hod );
+        $this->assertNotSame( '', $uuid );
+        $before = $this->sensitiveFor( 'player_report_snapshot', $this->player );
+
+        foreach ( [ [ $this->assistant, 0 ], [ $this->hod, 1 ] ] as [ $reader, $rows ] ) {
+            $this->flush();
+            wp_set_current_user( $reader );
+            $this->assertNotNull( PlayerReportSnapshots::read( $uuid, $reader ) );
+            $this->assertSame( $before + $rows, $this->sensitiveFor( 'player_report_snapshot', $this->player ), 'only where the cut keeps the entry' );
+        }
+    }
+
+    public function test_opening_a_team_snapshot_with_a_medical_entry_writes_one_row_per_player(): void {
+        wp_set_current_user( $this->hod );
+        $frozen = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'changes' ], $this->hod );
+        $uuid   = ( new TeamReportSnapshotRepository() )->create( $this->team, [ 'team_id' => $this->team, 'layout' => 'A', 'blocks' => [ 'changes' ] ], $frozen, 'Snapshot', $this->hod );
+        $before   = $this->sensitiveFor( 'team_monthly_snapshot', $this->player );
+        $teammate = $this->sensitiveFor( 'team_monthly_snapshot', $this->teammate );
+
+        $this->flush();
+        ob_start();
+        $this->assertTrue( TeamMonthlyReportSnapshotPage::render( $uuid ) );
+        ob_end_clean();
+        $this->assertSame( $before + 1, $this->sensitiveFor( 'team_monthly_snapshot', $this->player ), 'the page' );
+
+        $this->flush();
+        ( new TeamMonthlyReportPdfExporter() )->collect( new ExportRequest( 'team_monthly_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $uuid ] ) );
+        $this->assertSame( $before + 2, $this->sensitiveFor( 'team_monthly_snapshot', $this->player ), 'the PDF' );
+        $this->assertSame( $teammate, $this->sensitiveFor( 'team_monthly_snapshot', $this->teammate ), 'a public entry is not logged' );
+    }
+
+    // ---- the batched write and the quiet mode ----------------------------------------
+
+    public function test_a_read_of_many_players_costs_a_fixed_number_of_statements(): void {
+        wp_set_current_user( $this->hod );
+        $few  = $this->statementsFor( 2 );
+        $many = $this->statementsFor( 12 );
+
+        $this->assertSame( $few, $many, 'one table check and one insert, whatever the squad' );
+        $this->assertLessThan( 12, $many, 'fewer statements than players' );
+    }
+
+    public function test_nothing_is_written_while_quiet(): void {
+        wp_set_current_user( $this->hod );
+        $before = $this->allRows();
+
+        InjuryReads::quietly( function (): void {
+            ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'injuries', 'journey' ], $this->hod );
+            ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'changes' ], $this->hod );
+            EvidencePacket::forFile( $this->pdpFile() );
+            $uuid = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'injuries,journey' ], $this->hod );
+            PlayerReportSnapshots::read( $uuid, $this->hod );
+        } );
+        $this->assertSame( $before, $this->allRows() );
+    }
+
     // ---- helpers ---------------------------------------------------------------------
+
+    /** The audit statements one read of this many players costs. */
+    private function statementsFor( int $players ): int {
+        global $wpdb;
+        $this->flush();
+        $counts = [];
+        for ( $i = 1; $i <= $players; $i++ ) $counts[ 900000 + $i ] = 1;
+        $before = (int) $wpdb->num_queries;
+        InjuryReads::record( InjuryReads::INJURIES, 'player_report', $counts, [ $this->hod ] );
+        return (int) $wpdb->num_queries - $before;
+    }
+
+    private function sensitiveFor( string $surface, int $player_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.sensitive_timeline_viewed' AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $player_id,
+            '%"surface":"' . $wpdb->esc_like( $surface ) . '"%'
+        ) );
+    }
+
+    private function allRows(): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action IN ('player.injuries_viewed', 'player.sensitive_timeline_viewed')" );
+    }
 
     private function rowsFor( string $surface, int $player_id ): int {
         global $wpdb;

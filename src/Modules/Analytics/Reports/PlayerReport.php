@@ -110,6 +110,10 @@ final class PlayerReport {
                 $readers->readers
             );
         }
+        // And its journey section's medical and safeguarding entries.
+        if ( isset( $report['data'][ PlayerReportBlock::JOURNEY ] ) ) {
+            \TT\Infrastructure\Journey\InjuryReads::recordJourney( 'player_report', $player_id, $report['data'][ PlayerReportBlock::JOURNEY ], $readers->readers );
+        }
         return $report;
     }
 
