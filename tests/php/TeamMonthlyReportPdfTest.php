@@ -747,7 +747,6 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         return $report;
     }
 
-    /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */
     /**
      * #5115 — the coverage banner at the top prints whole and wraps inside
      * the page. It was one line cut at 150 characters and clipped at the
@@ -767,6 +766,23 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $text = TeamMonthlyReportDocument::coverageText( $report['data']['coverage'] );
         $this->assertGreaterThan( 300, mb_strlen( $text ), 'precondition: a banner of three lines and more' );
 
+        // The estimate grows by a wrapped 7.5pt line (4.2 mm) for every line
+        // past the two the 7 mm band holds, at 110 characters a line, and by
+        // nothing for a banner of one or two lines.
+        $one_line = [ 'state' => 'complete', 'completed' => 3, 'with_register' => 3, 'missing' => [], 'never_closed' => [] ];
+        $base     = TeamMonthlyReportLayout::sectionHeight( 'coverage', $one_line );
+        $lines    = (int) ceil( mb_strlen( $text ) / 110 );
+        $this->assertGreaterThanOrEqual( 3, $lines );
+        $this->assertEqualsWithDelta( ( $lines - 2 ) * 4.2, TeamMonthlyReportLayout::sectionHeight( 'coverage', $report['data']['coverage'] ) - $base, 0.001, 'the long banner costs its wrapped lines' );
+
+        $two_lines = $report['data']['coverage'];
+        $two_lines['missing'] = array_slice( $two_lines['missing'], 0, 2 );
+        $two_lines['never_closed'] = [];
+        $two_len = mb_strlen( TeamMonthlyReportDocument::coverageText( $two_lines ) );
+        $this->assertGreaterThan( 110, $two_len, 'precondition: a banner of two lines' );
+        $this->assertLessThanOrEqual( 220, $two_len );
+        $this->assertEqualsWithDelta( 0.0, TeamMonthlyReportLayout::sectionHeight( 'coverage', $two_lines ) - $base, 0.001, 'two lines fit the band' );
+
         foreach ( [ 'A', 'B' ] as $layout ) {
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
             $this->assertStringContainsString( esc_html( $text ), $payload['html'], "{$layout}: the whole banner, no cut" );
@@ -785,6 +801,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         }
     }
 
+    /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */
     public function test_written_text_prints_whole(): void {
         $report = $this->withLongText( $this->only( $this->report( 20 ), [ 'attention', 'changes', 'quality' ] ) );
         $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
