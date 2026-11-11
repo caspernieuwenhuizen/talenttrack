@@ -84,7 +84,7 @@ final class PlayerSectionRights {
     public static function readableJourney( ReaderSet $readers, array $rows, int $player_id ): array {
         $levels = self::journeyLevels( $readers );
         $rows   = array_values( array_filter( $rows, static fn( object $row ): bool => in_array( (string) ( $row->visibility ?? '' ), $levels, true ) ) );
-        return array_values( PlayerEventsRepository::readableByAll( $readers->readers, $rows, $player_id ) );
+        return PlayerEventsRepository::readableByAll( $readers->readers, $rows, $player_id );
     }
 
     /**
