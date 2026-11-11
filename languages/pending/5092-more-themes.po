@@ -1,0 +1,102 @@
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Kristalblauw — deep blues and cyan, Open Sans"
+msgstr "Kristalblauw — diepe blauwtinten en cyaan, Open Sans"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Geel-Zwart — black and signal yellow"
+msgstr "Geel-Zwart — zwart en signaalgeel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Groen-Wit — green and mint white"
+msgstr "Groen-Wit — groen en mintwit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Paars-Wit — violet and lilac"
+msgstr "Paars-Wit — violet en lila"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Wapenschild — black, green and yellow"
+msgstr "Wapenschild — zwart, groen en geel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Streepshirt — black and bright green"
+msgstr "Streepshirt — zwart en felgroen"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Wedstrijddag — deep green and yellow"
+msgstr "Wedstrijddag — diepgroen en geel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Middernacht — midnight navy and electric blue"
+msgstr "Middernacht — middernachtblauw en elektrisch blauw"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Neon — midnight navy and neon lime"
+msgstr "Neon — middernachtblauw en neonlimoen"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Stadionlicht — electric blue and cyan"
+msgstr "Stadionlicht — elektrisch blauw en cyaan"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Kristalblauw"
+msgstr "Kristalblauw"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Geel-Zwart"
+msgstr "Geel-Zwart"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Groen-Wit"
+msgstr "Groen-Wit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Paars-Wit"
+msgstr "Paars-Wit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Wapenschild"
+msgstr "Wapenschild"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Streepshirt"
+msgstr "Streepshirt"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Wedstrijddag"
+msgstr "Wedstrijddag"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Middernacht"
+msgstr "Middernacht"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Neon"
+msgstr "Neon"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Stadionlicht"
+msgstr "Stadionlicht"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Changes colours, corners and heading type only — never what anyone can see "
+"or do. A theme supplies the whole colour scheme, so the Colours settings do "
+"not apply while one is active; your logo and academy name still do. Everyone "
+"can pick their own theme in My settings; this is what they get until they do."
+msgstr ""
+"Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of "
+"doen. Een thema levert het complete kleurenschema, dus de instellingen onder "
+"Kleuren gelden niet zolang er een thema actief is; je logo en academienaam "
+"wel. Iedereen kan onder Mijn instellingen een eigen thema kiezen; dit is wat "
+"ze krijgen zolang ze dat niet doen."

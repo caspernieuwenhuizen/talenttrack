@@ -20,12 +20,12 @@ sectie waar je bent. Strakkere hoeken (4px in plaats van 8px), een smalle
 kopletter en een marineblauw getinte diepte, zodat schaduwen bij het palet
 horen in plaats van er als grijze waas overheen te liggen.
 
-**Leon Hutten** — het ontwerp van Leon Hutten Talenten Academie, gebouwd op
-het clubembleem. De zwarte band uit het embleem wordt de kopbalk en de
-navigatiekolom; de diagonale streep van cyaan naar marineblauw sluit de
-kopbalk en het merkblok af. Knoppen en links krijgen het diepe blauw, cyaan
-markeert de sectie waar je bent, en het hele thema staat in Open Sans. De
-hoeken zijn bijna haaks (3px).
+**Kristalblauw** — diepe blauwtinten en cyaan, in Open Sans. Een zwarte
+kopbalk en navigatiekolom, afgesloten door een diagonale streep van cyaan naar
+marineblauw. Knoppen en links krijgen het diepe blauw, cyaan markeert de
+sectie waar je bent. De hoeken zijn bijna haaks (3px). Het thema is hernoemd
+zonder verder iets te veranderen, dus een academie die het al had gekozen,
+houdt het en ziet er hetzelfde uit.
 
 **Clubrood** — traditioneel clubrood, zwart en gedempt goud, met Barlow
 Condensed voor de koppen. Klassieke shirtkleuren; de smalle koppen lezen als
@@ -49,14 +49,38 @@ het thema, en markeert het accent de sectie waar je bent. Waar het accent te
 licht is om als tekst op wit te lezen, staan woorden in die kleur in een
 donkerdere tint ervan.
 
+**Geel-Zwart** — tweekleurig zwart en signaalgeel, met Oswald voor de koppen.
+
+**Groen-Wit** — tweekleurig groen in tinten en mintwit, in Manrope.
+
+**Paars-Wit** — tweekleurig violet in tinten en lila, in Outfit.
+
+**Wapenschild** — een zwarte kopbalk, groene knoppen en een geel accent, in
+Montserrat.
+
+**Streepshirt** — tweekleurig zwart en felgroen, in Montserrat.
+
+**Wedstrijddag** — diepgroen met geel, met Barlow Condensed voor de koppen en
+Montserrat voor de rest.
+
+**Middernacht** — tweekleurig middernachtblauw en elektrisch blauw, met Exo
+voor de koppen en Poppins voor de rest.
+
+**Neon** — middernachtblauw en neonlimoen, met Exo voor de koppen en Poppins
+voor de rest.
+
+**Stadionlicht** — elektrisch blauw met cyaan, met Exo voor de koppen en
+Poppins voor de rest.
+
+In de thema's met een heel licht accent (Geel-Zwart, Neon, Stadionlicht)
+markeert en vult het accent; het wordt nooit gebruikt voor tekst op wit.
+
 ### De letters zitten in de plugin
 
-De letters die deze thema's gebruiken, zitten in de plugin zelf. Een pagina
+De letters die de thema's gebruiken, zitten in de plugin zelf. Een pagina
 vraagt ze nooit op bij Google Fonts of een andere letterdienst, en een letter
 wordt alleen gedownload zolang zijn thema aanstaat. Tot hij binnen is, staat de
 tekst in een vergelijkbare systeemletter, zodat niets erop hoeft te wachten.
-Leon Hutten is de enige uitzondering: dat thema laadt Open Sans nog via Google
-Fonts.
 
 ## Een thema vervangt je kleurinstellingen
 
@@ -228,9 +252,19 @@ vasthouden zolang hij laadt.
 | `tactiekbord` | IBM Plex Sans |
 | `bordeaux` | Source Serif 4 (koppen), Source Sans 3 (tekst) |
 | `polder` | DM Sans |
+| `leon-hutten` (Kristalblauw) | Open Sans |
+| `geel-zwart` | Oswald (koppen) |
+| `groen-wit` | Manrope |
+| `paars-wit` | Outfit |
+| `wapenschild`, `streepshirt` | Montserrat |
+| `wedstrijddag` | Barlow Condensed (koppen), Montserrat (tekst) |
+| `middernacht`, `neon`, `stadionlicht` | Exo (koppen), Poppins (tekst) |
 
-`leon-hutten` laadt Open Sans nog met een `@import` van Google Fonts bovenaan
-zijn eigen stijlblad; die letter meeleveren is een aparte wijziging.
+Geen enkel themastijlblad importeert van Google Fonts.
+
+De waarde `leon-hutten` is historisch: het thema heet Kristalblauw, en de
+opgeslagen waarde en de naam van het stijlblad zijn gebleven, zodat
+installaties die het hadden gekozen hun keuze houden zonder migratie.
 
 De koppen van Federation staan in de meegeleverde Barlow Condensed. De
 lopende tekst blijft in de systeemletter: Barlow regular wordt niet

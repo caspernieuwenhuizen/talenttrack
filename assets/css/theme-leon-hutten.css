@@ -1,5 +1,10 @@
 /*
- * theme-leon-hutten.css — the `leon-hutten` theme (#2939).
+ * theme-leon-hutten.css — the `leon-hutten` theme, labelled Kristalblauw.
+ *
+ * The value and this filename are historical: the theme was built as the
+ * Leon Hutten club design (#2939) and relabelled Kristalblauw (#5092)
+ * without changing the stored value, so installs keep their choice and
+ * this sheet with no migration.
  *
  * Built from the club's design-system handoff. The palette is not a
  * recolour: every value was sampled from the club crest, which is a
@@ -36,12 +41,41 @@
  */
 
 /*
- * Open Sans. A theme owns its type as well as its colour, and
- * `BrandStyles::enqueueFonts()` returns early while a theme is active,
- * so the club's font picker never fires and nothing else would load
- * this. Same mechanism `player-card.css` already uses.
+ * Open Sans, bundled under `assets/fonts/open-sans/` (OFL, #5092). A theme
+ * owns its type as well as its colour, and `BrandStyles::enqueueFonts()`
+ * returns early while a theme is active, so nothing else would load it.
  */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap");
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/open-sans/open-sans-latin-800-normal.woff2") format("woff2");
+}
 
 .tt-dashboard.tt-theme-leon-hutten {
     /* ---- Brand tokens ---------------------------------------------- */

@@ -1,0 +1,89 @@
+/*
+ * theme-wedstrijddag.css — the `wedstrijddag` theme (#5092): deep green with yellow, with
+ * Barlow Condensed for the headings and Montserrat for the rest.
+ *
+ * Loaded ONLY when ThemePreference resolves to `wedstrijddag`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The fonts are bundled under `assets/fonts/barlow-condensed/` and `assets/fonts/montserrat/` (OFL), so they load only while
+ * this theme is active and the page makes no request to a third-party
+ * font host.
+ */
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-800-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/montserrat/montserrat-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-wedstrijddag {
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+    --tt-font-body:    "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-wedstrijddag .tt-spine__name,
+.tt-dashboard.tt-theme-wedstrijddag .tt-player-hero__name,
+.tt-dashboard.tt-theme-wedstrijddag .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

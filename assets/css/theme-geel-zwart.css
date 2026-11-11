@@ -1,0 +1,48 @@
+/*
+ * theme-geel-zwart.css — the `geel-zwart` theme (#5092): black and signal yellow, with
+ * a Oswald display face.
+ *
+ * Loaded ONLY when ThemePreference resolves to `geel-zwart`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The fonts are bundled under `assets/fonts/oswald/` (OFL), so they load only while
+ * this theme is active and the page makes no request to a third-party
+ * font host.
+ */
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Oswald";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/oswald/oswald-latin-700-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-geel-zwart {
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Oswald", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-geel-zwart .tt-spine__name,
+.tt-dashboard.tt-theme-geel-zwart .tt-player-hero__name,
+.tt-dashboard.tt-theme-geel-zwart .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

@@ -1,0 +1,81 @@
+/*
+ * theme-neon.css — the `neon` theme (#5092): midnight navy and neon lime, with
+ * Exo for the headings and Poppins for the rest.
+ *
+ * Loaded ONLY when ThemePreference resolves to `neon`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The fonts are bundled under `assets/fonts/exo/` and `assets/fonts/poppins/` (OFL), so they load only while
+ * this theme is active and the page makes no request to a third-party
+ * font host.
+ */
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Exo";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/exo/exo-latin-800-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/poppins/poppins-latin-700-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-neon {
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Exo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-neon .tt-spine__name,
+.tt-dashboard.tt-theme-neon .tt-player-hero__name,
+.tt-dashboard.tt-theme-neon .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

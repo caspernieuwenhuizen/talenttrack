@@ -19,12 +19,11 @@ Squarer corners (4px instead of 8px), a condensed heading face, and a
 navy-tinted depth so shadows read as part of the palette rather than as grey
 haze over it.
 
-**Leon Hutten** — the Leon Hutten Talenten Academie design system, built from
-the club's own crest. The crest's black banner becomes the header and the
-navigation rail; its diagonal cyan-to-navy stripe closes the header and the
-brand block. Buttons and links take the deep blue, cyan marks the section
-you are on, and the whole theme is set in Open Sans. Corners are nearly
-square (3px).
+**Kristalblauw** — deep blues and cyan, set in Open Sans. A black header and
+navigation rail, closed by a diagonal cyan-to-navy stripe. Buttons and links
+take the deep blue, cyan marks the section you are on. Corners are nearly
+square (3px). The theme was renamed without changing anything else, so an
+academy that had already chosen it keeps it, looking the same.
 
 **Clubrood** — heritage red, black and muted gold, with Barlow Condensed for
 the headings. Classic shirt colours; the condensed headings read like a
@@ -47,13 +46,39 @@ In these themes the header and the navigation rail take the theme's deepest
 colour, and the accent marks the section you are on. Where the accent is too
 light to read as text on white, words in that colour use a darker shade of it.
 
+**Geel-Zwart** — two-tone black and signal yellow, with Oswald for the
+headings.
+
+**Groen-Wit** — two-tone tonal green and mint white, set in Manrope.
+
+**Paars-Wit** — two-tone tonal violet and lilac, set in Outfit.
+
+**Wapenschild** — a black header, green actions and a yellow accent, set in
+Montserrat.
+
+**Streepshirt** — two-tone black and bright green, set in Montserrat.
+
+**Wedstrijddag** — deep green with yellow, with Barlow Condensed for the
+headings and Montserrat for the rest.
+
+**Middernacht** — two-tone midnight navy and electric blue, with Exo for the
+headings and Poppins for the rest.
+
+**Neon** — midnight navy and neon lime, with Exo for the headings and Poppins
+for the rest.
+
+**Stadionlicht** — electric blue with cyan, with Exo for the headings and
+Poppins for the rest.
+
+In the themes with a very light accent (Geel-Zwart, Neon, Stadionlicht) the
+accent marks and fills; it is never used for text on white.
+
 ### Fonts come with the plugin
 
-The fonts these themes use are part of the plugin. A page never asks Google
+The fonts the themes use are part of the plugin. A page never asks Google
 Fonts or any other font service for them, and a font is only downloaded while
 its theme is on. Until it arrives the text shows in a similar system font, so
-nothing waits for it. Leon Hutten is the one exception: it still loads Open
-Sans from Google Fonts.
+nothing waits for it.
 
 ## A theme replaces your colour settings
 
@@ -215,9 +240,19 @@ while it does.
 | `tactiekbord` | IBM Plex Sans |
 | `bordeaux` | Source Serif 4 (display), Source Sans 3 (body) |
 | `polder` | DM Sans |
+| `leon-hutten` (Kristalblauw) | Open Sans |
+| `geel-zwart` | Oswald (display) |
+| `groen-wit` | Manrope |
+| `paars-wit` | Outfit |
+| `wapenschild`, `streepshirt` | Montserrat |
+| `wedstrijddag` | Barlow Condensed (display), Montserrat (body) |
+| `middernacht`, `neon`, `stadionlicht` | Exo (display), Poppins (body) |
 
-`leon-hutten` still loads Open Sans with an `@import` from Google Fonts at the
-top of its own sheet; bundling it is a separate change.
+No theme sheet imports from Google Fonts.
+
+The value `leon-hutten` is historical: the theme is labelled Kristalblauw, and
+the stored value and the sheet name stayed so that installs which chose it
+keep their choice without a migration.
 
 Federation's headings are set in the bundled Barlow Condensed. Its body text
 stays in the system face: Barlow regular is not bundled. The player card

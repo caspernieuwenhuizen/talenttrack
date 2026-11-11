@@ -1,0 +1,65 @@
+/*
+ * theme-paars-wit.css — the `paars-wit` theme (#5092): tonal violet and lilac, with
+ * set in Outfit.
+ *
+ * Loaded ONLY when ThemePreference resolves to `paars-wit`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The fonts are bundled under `assets/fonts/outfit/` (OFL), so they load only while
+ * this theme is active and the page makes no request to a third-party
+ * font host.
+ */
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/outfit/outfit-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/outfit/outfit-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/outfit/outfit-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/outfit/outfit-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/outfit/outfit-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-paars-wit {
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-paars-wit .tt-spine__name,
+.tt-dashboard.tt-theme-paars-wit .tt-player-hero__name,
+.tt-dashboard.tt-theme-paars-wit .tt-fview-title {
+    font-family: var(--tt-font-display);
+}
