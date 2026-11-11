@@ -164,6 +164,17 @@ final class PdpFormPrintTest extends WP_UnitTestCase {
             $this->assertStringContainsString( 'tt-pdpform-print__t', $printed['body'], $who . ' reads the trainer\'s scores' );
         }
 
+        // Print is offered where the form is read: under the family's read
+        // view, and under the trainer's signed form.
+        wp_set_current_user( $this->parent );
+        ob_start();
+        \TT\Modules\Pdp\Frontend\PdpFormReadView::render( $this->conv, $this->player );
+        $this->assertStringContainsString( 'conversation_id=' . $this->conv, (string) ob_get_clean(), 'the parent\'s read view' );
+        wp_set_current_user( $this->trainer );
+        ob_start();
+        \TT\Modules\Pdp\Frontend\PdpFormConversationView::render( $this->conv, $this->trainer );
+        $this->assertStringContainsString( 'tt-pdp-printact', (string) ob_get_clean(), 'the trainer\'s signed form' );
+
         $stranger = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
         $observer = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
         $wpdb->insert( "{$this->p}tt_people", [ 'club_id' => $this->club, 'first_name' => 'Obs', 'last_name' => '4982', 'role_type' => 'readonly_observer', 'wp_user_id' => $observer, 'status' => 'active' ] );
