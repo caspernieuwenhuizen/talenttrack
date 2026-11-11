@@ -56,6 +56,7 @@ test( 'the pinned strip on a player profile stays below the app shell header', a
 
 				const seen = await page.evaluate( () => {
 					const name = /** @type {HTMLElement} */ ( document.querySelector( '.tt-player-sticky__name' ) );
+					const strip = /** @type {HTMLElement} */ ( document.querySelector( '.tt-player-sticky' ) );
 					const header = document.querySelector( '.tt-dashboard.tt-shell-app .tt-dash-header' );
 					const bar = document.getElementById( 'wpadminbar' );
 					const r = name.getBoundingClientRect();
@@ -63,8 +64,12 @@ test( 'the pinned strip on a player profile stays below the app shell header', a
 					const points = [ r.top + 1, r.top + r.height / 2, r.bottom - 1 ];
 					return {
 						nameTop: r.top,
+						stripTop: strip.getBoundingClientRect().top,
+						headerSticky: !! header && getComputedStyle( header ).position === 'sticky',
 						headerBottom: header ? header.getBoundingClientRect().bottom : 0,
 						barBottom: bar ? bar.getBoundingClientRect().bottom : 0,
+						// Where the visible chrome ends when only the admin bar stays.
+						fixedBarBottom: bar && getComputedStyle( bar ).position === 'fixed' ? bar.getBoundingClientRect().bottom : 0,
 						stuck: Math.round( r.top ) < 600,
 						clear: points.every( ( y ) => {
 							const hit = document.elementFromPoint( x, y );
@@ -78,6 +83,14 @@ test( 'the pinned strip on a player profile stays below the app shell header', a
 				expect( seen.clear, at + ': the name row is painted on top, not covered' ).toBe( true );
 				expect( seen.nameTop, at + ': below the shell header' ).toBeGreaterThanOrEqual( seen.headerBottom - 0.5 );
 				expect( seen.nameTop, at + ': below the admin bar' ).toBeGreaterThanOrEqual( seen.barBottom - 0.5 );
+				expect( seen.headerSticky, at + ': the shell header sticks below 1024px only' ).toBe( viewport.width < 1024 );
+				if ( ! seen.headerSticky ) {
+					// The header scrolled away with the page (from 1024px), so
+					// the strip pins straight under the admin bar, or at the top:
+					// no band between the chrome and the strip for the page to
+					// show through.
+					expect( Math.abs( seen.stripTop - seen.fixedBarBottom ), at + ': no band above the strip ' + JSON.stringify( seen ) ).toBeLessThanOrEqual( 1 );
+				}
 			}
 		} );
 	} finally {

@@ -459,7 +459,9 @@ Content that sticks to the page has to pin **below** the shell's sticky header,
 not under it. The shell publishes where that is as one token,
 `--tt-shell-sticky-top`: the admin bar offset (`--tt-shell-top`, 32px for
 signed-in staff on a wide screen, otherwise 0) plus the header's measured
-height (`--tt-shell-header-h`). Use it with a `0px` fallback, so the same rule
+height (`--tt-shell-header-h`) where the header sticks. From 1024px the header
+scrolls away with the page (the sidebar carries the navigation), so there the
+token is the admin bar offset alone. Use it with a `0px` fallback, so the same rule
 reads `top: 0` under `classic`, where the token is not set:
 
 ```css

@@ -112,3 +112,39 @@ test( 'under the app shell: the hero, and a stuck spine the shell header does no
 		expect( sizes.top, 'the spine sticks at the header\'s bottom edge' ).toBeGreaterThanOrEqual( sizes.header - 1 );
 	} );
 } );
+
+test.describe( 'on a desktop', () => {
+	test.use( { viewport: { width: 1280, height: 800 }, hasTouch: false, isMobile: false } );
+
+	test( 'under the app shell at 1280: the stuck spine leaves no band under the admin bar', async ( { page } ) => {
+		await underAppShell( page, async () => {
+			await openTalk( page );
+			const spine = page.locator( '.tt-spine:not(.tt-spine--side)' ).first();
+			await expect( spine.locator( '.tt-spine__name' ) ).toHaveText( /Trainer4980/ );
+
+			// Room to scroll whatever the talk holds, then past the hero.
+			await page.evaluate( () => {
+				const dash = /** @type {HTMLElement} */ ( document.querySelector( '.tt-dashboard' ) );
+				dash.style.paddingBottom = '3000px';
+				const sp = /** @type {HTMLElement} */ ( document.querySelector( '.tt-spine:not(.tt-spine--side)' ) );
+				window.scrollTo( 0, sp.getBoundingClientRect().top + window.scrollY + 600 );
+			} );
+			await page.waitForTimeout( 300 );
+
+			const seen = await page.evaluate( () => {
+				const header = document.querySelector( '.tt-dashboard.tt-shell-app .tt-dash-header' );
+				const bar    = document.getElementById( 'wpadminbar' );
+				const sp     = /** @type {HTMLElement} */ ( document.querySelector( '.tt-spine:not(.tt-spine--side)' ) );
+				return {
+					headerSticky:   !! header && getComputedStyle( header ).position === 'sticky',
+					fixedBarBottom: bar && getComputedStyle( bar ).position === 'fixed' ? bar.getBoundingClientRect().bottom : 0,
+					spineTop:       sp.getBoundingClientRect().top,
+				};
+			} );
+			expect( seen.headerSticky, 'at 1280 the shell header scrolls away' ).toBe( false );
+			// The spine pins straight under the admin bar (or at the top), so
+			// nothing shows through between the chrome and the spine.
+			expect( Math.abs( seen.spineTop - seen.fixedBarBottom ), 'no band above the stuck spine ' + JSON.stringify( seen ) ).toBeLessThanOrEqual( 1 );
+		} );
+	} );
+} );
