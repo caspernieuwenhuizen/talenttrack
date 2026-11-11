@@ -84,7 +84,10 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         $c_match  = __( 'Match', 'talenttrack' );
         $th       = StackTable::attrs( 'columnheader' );
         // #4914 — a card per evaluation on a phone, a table from 480px.
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
+        // #5042 — each row is a row link (tt-table-tools.js): a tap anywhere
+        // on the card opens the evaluation. The row stays a table row; the
+        // player's link is the keyboard path (#1472, #4884).
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-mye-authored ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '>';
         echo '<thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
             . '<th' . $th . '>' . esc_html( $c_date ) . '</th>'
             . '<th' . $th . '>' . esc_html( $c_player ) . '</th>'
@@ -103,7 +106,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                 $match_text = (string) $e->opponent;
                 if ( ! empty( $e->game_result ) ) $match_text .= ' (' . (string) $e->game_result . ')';
             }
-            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<tr class="is-row-link" data-row-href="' . esc_url( $detail_url ) . '"' . StackTable::attrs( 'row' ) . '>';
             echo '<td' . StackTable::attrs( 'cell', $c_date ) . '>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td>';
             echo '<td' . StackTable::attrs( 'cell', $c_player ) . '><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
             // #806 — pre-localised by EvaluationsRepository so bypass
