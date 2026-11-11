@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Modules\Analytics\Reports\ReportBrandColour;
 use TT\Shared\Frontend\ThemePreference;
 use WP_UnitTestCase;
 
@@ -82,8 +83,25 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         $this->assertSame( 'theme-polder.css', ThemePreference::styleFile( $user ) );
     }
 
+    /** Reports take the theme's primary, so the map has to match every sheet. */
+    public function test_report_colour_follows_each_theme_sheet(): void {
+        $user = self::factory()->user->create();
+
+        foreach ( ThemePreference::themes() as $theme ) {
+            if ( $theme === ThemePreference::DEFAULT_THEME ) {
+                continue;
+            }
+            $css = (string) file_get_contents( $this->root() . '/assets/css/theme-' . $theme . '.css' );
+            $this->assertSame( 1, preg_match( '/--tt-primary:\s*(#[0-9a-fA-F]{6})\b/', $css, $m ), $theme );
+
+            ThemePreference::setUserOverride( $user, $theme );
+            $this->assertSame( strtolower( $m[1] ), ReportBrandColour::primary( $user ), $theme );
+        }
+    }
+
     public function test_bundled_fonts_load_from_the_plugin_with_swap(): void {
         $sheets = array_merge( self::NEW_THEMES, [ ThemePreference::FEDERATION ] );
+        $this->assertStringNotContainsString( 'fonts.googleapis.com', (string) file_get_contents( $this->root() . '/assets/css/player-card.css' ), 'player-card.css' );
 
         foreach ( $sheets as $theme ) {
             $css = (string) file_get_contents( $this->root() . '/assets/css/theme-' . $theme . '.css' );

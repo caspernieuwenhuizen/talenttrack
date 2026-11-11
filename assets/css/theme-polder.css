@@ -1,14 +1,27 @@
 /*
- * theme-polder.css — the `polder` theme (#5089): deep teal and coral,
- * set in DM Sans.
+ * theme-polder.css — the `polder` theme (#5089): deep teal and coral.
  *
  * Loaded ONLY when ThemePreference resolves to `polder`. Under the
  * `default` theme this file is never enqueued and no theme class is
  * stamped, which is what keeps `default` a complete rollback.
  *
- * The font is bundled under `assets/fonts/dm-sans/` (OFL), so the face
- * loads only while this theme is active and the page makes no request to
- * a third-party font host.
+ * The palette is the owner's design (`themes/talenttrack-themes.css`),
+ * mapped onto the product's tokens the way theme-federation.css and
+ * theme-leon-hutten.css are:
+ *
+ *   --tt-green-deep  -> the header and rail chrome, --tt-primary-deep
+ *   --tt-green       -> --tt-primary, --tt-accent, --tt-link
+ *   --tt-green-soft  -> --tt-primary-ink (primary button hover), link hover
+ *   --tt-gold        -> --tt-secondary, --tt-primary-hover, the active marker
+ *
+ * The rail's hover, pressed, line and soft-ink steps are the deep colour
+ * mixed toward white. Where a design colour misses a contrast floor in a
+ * text or focus role, that role takes the same hue stepped toward the
+ * theme's deep colour (on light surfaces) or toward white (on dark ones)
+ * until it clears; the colour itself stays for fills.
+ *
+ * The fonts are bundled under `assets/fonts/dm-sans/` (OFL), so they load only while this
+ * theme is active and the page makes no request to a font host.
  */
 
 @font-face {
@@ -44,9 +57,193 @@
 }
 
 .tt-dashboard.tt-theme-polder {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /* Required: around forty surfaces read these with the shipped green
+       as a hardcoded fallback. */
+    --tt-primary:       #0d5c63;
+    --tt-primary-rgb:   13, 92, 99;
+    --tt-secondary:     #ff8a65;
+    --tt-secondary-rgb: 255, 138, 101;
+    --tt-accent:        #0d5c63;
+    --tt-primary-deep:  #062a2e;
+    --tt-primary-ink:   #157a82;
+    /* Light, because public.css pairs it with ink text. */
+    --tt-primary-hover: #ff8a65;
+
+    /* ---- Neutrals -------------------------------------------------- */
+    --tt-ink:        #0e1d1f;
+    --tt-ink-soft:   #435557;
+    --tt-muted:      #607275;
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f2f7f6;
+    --tt-line:       #dce6e5;
+
+    /* ---- Status (from the design) ---------------------------------- */
+    --tt-info:           #1f6fa8;
+    --tt-info-subtle:    #e4f0f8;
+
+    /* ---- Record links ---------------------------------------------- */
+    --tt-link:       #0d5c63;
+    --tt-link-hover: #157a82;
+    --tt-link-wash:  rgba(13, 92, 99, 0.10);
+
+    /* ---- Depth ----------------------------------------------------- */
+    --tt-shadow-lg:  0 18px 48px rgba(13,92,99,0.18);
+
     /* ---- Type ------------------------------------------------------ */
     --tt-font-display: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --tt-font-body:    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- Theme-local ----------------------------------------------- */
+    --tt-theme-chrome:          #062a2e;
+    --tt-theme-chrome-2:        #1a3b3f;
+    --tt-theme-chrome-active:   #2e4c4f;
+    --tt-theme-chrome-ink:      #ffffff;
+    --tt-theme-chrome-ink-soft: #b4bfc0;
+    --tt-theme-chrome-line:     #29484b;
+    --tt-theme-marker:          #ff8a65;
+    --tt-theme-accent-text:     #8f5f4c;
+    --tt-theme-accent-on-primary: #ffb9a3;
+    --tt-theme-accent-on-chrome:  #ff8a65;
+}
+
+/* ---- Chrome: the header -------------------------------------------- */
+/* The deep colour, closed by the shipped 3px rule in the secondary: the
+   design's header underline. */
+.tt-dashboard.tt-theme-polder .tt-dash-header {
+    background: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-polder .tt-dash-help:hover,
+.tt-dashboard.tt-theme-polder .tt-dash-help:focus-visible {
+    color: var(--tt-theme-accent-on-chrome);
+}
+
+/* ---- Chrome: the rail ---------------------------------------------- */
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav {
+    background: var(--tt-theme-chrome);
+    border-inline-end-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-theme-chrome-2);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-theme-chrome-active);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+    box-shadow: inset 3px 0 0 var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-theme-marker);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-theme-chrome-2);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: -2px;
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-theme-chrome-line);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-theme-marker);
+    color: var(--tt-theme-chrome);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-theme-chrome-active);
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-theme-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-theme-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-theme-marker);
+    outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-theme-chrome-line);
+        background: var(--tt-theme-chrome-2);
+        color: var(--tt-theme-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-polder.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-theme-chrome-ink);
+    }
+}
+
+/* ---- The accent as text -------------------------------------------- */
+/* These surfaces print --tt-secondary as text. The accent is for fills
+   and markers, so as text it takes the variant that clears 4.5:1 on the
+   surface underneath. */
+.tt-dashboard.tt-theme-polder .tt-404-emblem,
+.tt-dashboard.tt-theme-polder .tt-viewchip__star,
+.tt-dashboard.tt-theme-polder .tt-podium-team-header h2 a:hover,
+.tt-dashboard.tt-theme-polder .tt-podium-team-header h2 a:focus-visible,
+.tt-dashboard.tt-theme-polder .tt-pop-pct {
+    color: var(--tt-theme-accent-text);
+}
+
+.tt-dashboard.tt-theme-polder .tt-ov-ovr-label,
+.tt-dashboard.tt-theme-polder .tt-devhome-today__cta,
+.tt-dashboard.tt-theme-polder .tt-mt-mate__initials {
+    color: var(--tt-theme-accent-on-primary);
 }
 
 /* ---- Display type -------------------------------------------------- */

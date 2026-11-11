@@ -28,16 +28,26 @@ markeert de sectie waar je bent, en het hele thema staat in Open Sans. De
 hoeken zijn bijna haaks (3px).
 
 **Clubrood** — traditioneel clubrood, zwart en gedempt goud, met Barlow
-Condensed voor de koppen.
+Condensed voor de koppen. Klassieke shirtkleuren; de smalle koppen lezen als
+een wedstrijdprogramma.
 
-**Oranje** — marineblauw en Hollands oranje, in Archivo.
+**Oranje** — marineblauw en Hollands oranje, in Archivo. De energie van het
+nationale elftal, met het accent met het meeste contrast van de reeks.
 
-**Tactiekbord** — leisteengrijs en krijtmint, in IBM Plex Sans.
+**Tactiekbord** — leisteengrijs en krijtmint, in IBM Plex Sans. Koel en
+analytisch; past bij academies die werken vanuit data en methodiek.
 
 **Bordeaux** — wijnrood en zand, met Source Serif 4 voor de koppen en Source
-Sans 3 voor de rest.
+Sans 3 voor de rest. Redactioneel en rustig; de schreefkoppen geven rapporten
+een gedrukt gevoel.
 
-**Polder** — diep petrol en koraal, in DM Sans.
+**Polder** — diep petrol en koraal, in DM Sans. Warm en toegankelijk; past goed
+bij jongere leeftijdsgroepen en bij wat ouders zien.
+
+In deze thema's krijgen de kopbalk en de navigatiekolom de diepste kleur van
+het thema, en markeert het accent de sectie waar je bent. Waar het accent te
+licht is om als tekst op wit te lezen, staan woorden in die kleur in een
+donkerdere tint ervan.
 
 ### De letters zitten in de plugin
 
@@ -217,11 +227,37 @@ zijn eigen stijlblad; die letter meeleveren is een aparte wijziging.
 
 De koppen van Federation staan in de meegeleverde Barlow Condensed. De
 lopende tekst blijft in de systeemletter: Barlow regular wordt niet
-meegeleverd.
+meegeleverd. De spelerskaart (`player-card.css`) laadt haar Oswald en Manrope
+uit dezelfde map.
+
+### Een ontwerppalet vertalen
+
+De vijf paletten komen uit een ontwerp dat zijn kleuren noemt naar het
+designsysteem. Elk stijlblad vertaalt ze op dezelfde manier:
+
+| Ontwerp | Product |
+| --- | --- |
+| `--tt-green-deep` | de kopbalk en navigatiekolom (`--tt-theme-chrome`), `--tt-primary-deep` |
+| `--tt-green` | `--tt-primary`, `--tt-primary-rgb`, `--tt-accent`, `--tt-link` |
+| `--tt-green-soft` | `--tt-primary-ink` (hover van de primaire knop), `--tt-link-hover` |
+| `--tt-gold` | `--tt-secondary`, `--tt-secondary-rgb`, `--tt-primary-hover`, de actieve markering |
+| inkt, muted, lijn, papier, paper-soft, status | `--tt-ink`, `--tt-muted`, `--tt-line`, `--tt-paper`, `--tt-bg-soft`, de statustokens |
+
+De hover-, ingedrukt-, lijn- en zachte inkttinten van de navigatiekolom zijn de
+chroomkleur gemengd richting wit. Een ontwerpkleur die in een tekst- of
+focusrol een contrastgrens mist, houdt haar waarde voor vlakken; die rol krijgt
+dezelfde tint, stapsgewijs richting de diepe kleur van het thema (op lichte
+vlakken) of richting wit (op donkere), tot hij de grens haalt. Vlakken die
+`--tt-secondary` als tekst gebruiken, lezen in plaats daarvan
+`--tt-theme-accent-text` (op papier) of `--tt-theme-accent-on-primary` (op de
+primaire band). De focusring volgt `--tt-primary`; een thema zet geen
+`--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` bevat de primaire kleur
+van elk thema, zodat rapporten het thema ook volgen.
 
 `tests/php/ThemeContrastTest.php` controleert elk `theme-*.css` op de
-contrastgrenzen (inkt op papier en op de zachte achtergrond 4,5:1, wit op de
-primaire kleur 4,5:1, de focusring en de actieve markering in de
-navigatiekolom 3:1). `tests/php/ThemePreferenceTest.php` controleert dat elk
+contrastgrenzen: inkt op papier en op de zachte achtergrond, wit op de
+primaire kleur en op de hover daarvan, inkt op de knophover, links en het
+accent als tekst op 4,5:1; de focusring en de actieve markering in de
+navigatiekolom, tegen de kolom en tegen de actieve regel, op 3:1. `tests/php/ThemePreferenceTest.php` controleert dat elk
 thema zijn labels en stijlblad heeft, dat `default` geen stijlblad laadt en
 geen klasse zet, en dat meegeleverde letters uit de plugin laden met `swap`.

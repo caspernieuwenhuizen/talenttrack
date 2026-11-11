@@ -27,16 +27,25 @@ you are on, and the whole theme is set in Open Sans. Corners are nearly
 square (3px).
 
 **Clubrood** — heritage red, black and muted gold, with Barlow Condensed for
-the headings.
+the headings. Classic shirt colours; the condensed headings read like a
+matchday programme.
 
-**Oranje** — navy and Dutch orange, set in Archivo.
+**Oranje** — navy and Dutch orange, set in Archivo. National-team energy,
+with the highest-contrast accent of the set.
 
-**Tactiekbord** — slate and chalk mint, set in IBM Plex Sans.
+**Tactiekbord** — slate and chalk mint, set in IBM Plex Sans. Cool and
+analytical; it suits academies that lead with data and methodology.
 
 **Bordeaux** — wine and sand, with Source Serif 4 for the headings and Source
-Sans 3 for the rest.
+Sans 3 for the rest. Editorial and calm; the serif headings give reports a
+printed feel.
 
-**Polder** — deep teal and coral, set in DM Sans.
+**Polder** — deep teal and coral, set in DM Sans. Warm and approachable; a
+good fit for younger age groups and for what parents see.
+
+In these themes the header and the navigation rail take the theme's deepest
+colour, and the accent marks the section you are on. Where the accent is too
+light to read as text on white, words in that colour use a darker shade of it.
 
 ### Fonts come with the plugin
 
@@ -204,11 +213,37 @@ while it does.
 top of its own sheet; bundling it is a separate change.
 
 Federation's headings are set in the bundled Barlow Condensed. Its body text
-stays in the system face: Barlow regular is not bundled.
+stays in the system face: Barlow regular is not bundled. The player card
+(`player-card.css`) loads its Oswald and Manrope from the same folder.
+
+### Mapping a design palette
+
+The five palettes come from a design that names its colours after the design
+system. Each sheet maps them the same way:
+
+| Design | Product |
+| --- | --- |
+| `--tt-green-deep` | the header and rail (`--tt-theme-chrome`), `--tt-primary-deep` |
+| `--tt-green` | `--tt-primary`, `--tt-primary-rgb`, `--tt-accent`, `--tt-link` |
+| `--tt-green-soft` | `--tt-primary-ink` (primary button hover), `--tt-link-hover` |
+| `--tt-gold` | `--tt-secondary`, `--tt-secondary-rgb`, `--tt-primary-hover`, the active marker |
+| ink, muted, line, paper, paper-soft, status | `--tt-ink`, `--tt-muted`, `--tt-line`, `--tt-paper`, `--tt-bg-soft`, the status tokens |
+
+The rail's hover, pressed, line and soft-ink steps are the chrome colour mixed
+toward white. A design colour that misses a contrast floor in a text or focus
+role keeps its value for fills, and that role takes the same hue stepped
+toward the theme's deep colour (on light surfaces) or toward white (on dark
+ones) until it clears. Surfaces that print `--tt-secondary` as text read
+`--tt-theme-accent-text` (on paper) or `--tt-theme-accent-on-primary` (on the
+primary band) instead. The focus ring follows `--tt-primary`; a theme does not
+set `--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` carries each theme's
+primary, so reports follow the theme too.
 
 `tests/php/ThemeContrastTest.php` checks every `theme-*.css` against the
-contrast floors (ink on paper and soft background 4.5:1, white on the primary
-4.5:1, the focus ring and the rail's active marker 3:1).
+contrast floors: ink on paper and soft background, white on the primary and
+on the primary hover, ink on the button hover, links and the accent as text
+at 4.5:1; the focus ring, and the rail's active marker against the rail and
+the active row, at 3:1.
 `tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
 sheet, that `default` loads no sheet and stamps no class, and that bundled
 fonts load from the plugin with `swap`.

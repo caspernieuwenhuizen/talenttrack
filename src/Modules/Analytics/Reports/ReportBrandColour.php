@@ -39,6 +39,11 @@ final class ReportBrandColour {
     private const THEME_PRIMARY = [
         ThemePreference::FEDERATION  => '#1b3660',
         ThemePreference::LEON_HUTTEN => '#0262a1',
+        ThemePreference::CLUBROOD    => '#a3121e',
+        ThemePreference::ORANJE      => '#1d3a7a',
+        ThemePreference::TACTIEKBORD => '#2f4858',
+        ThemePreference::BORDEAUX    => '#6d1a36',
+        ThemePreference::POLDER      => '#0d5c63',
     ];
 
     /** The club colour for whoever the report is rendered for. */

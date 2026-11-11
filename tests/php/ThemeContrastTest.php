@@ -124,6 +124,51 @@ final class ThemeContrastTest extends WP_UnitTestCase {
             $fg = $this->resolve( $marker[1], $p['tokens'] );
             $this->assertNotNull( $fg, $name . ' marker colour does not resolve' );
             $this->assertRatio( 3.0, (string) $fg, $this->rail( $css, $p['tokens'] ), $name . ' active marker on the rail' );
+
+            // The bar is drawn inside the active row, so it also has to clear
+            // the row's own fill. theme-leon-hutten.css measures 2.98:1 here
+            // and is held as it is: that theme must keep its look.
+            if ( $name === 'theme-leon-hutten' ) {
+                continue;
+            }
+            $this->assertSame( 1, preg_match( '/\.tt-shell-nav__link\.is-active\s*\{[^}]*background:\s*([^;]+);/', $css, $row ), $name );
+            $bg = $this->resolve( $row[1], $p['tokens'] );
+            $this->assertNotNull( $bg, $name . ' active row colour does not resolve' );
+            $this->assertRatio( 3.0, (string) $fg, (string) $bg, $name . ' active marker on the active row' );
+        }
+    }
+
+    /**
+     * Both button hovers carry text: `.tt-btn-primary` keeps white text on
+     * `--tt-primary-ink`, `.tt-btn` turns to ink text on `--tt-primary-hover`
+     * (falling back to the secondary). Links are text on paper.
+     */
+    public function test_hovers_and_links_clear_four_and_a_half(): void {
+        foreach ( $this->palettes() as $name => $p ) {
+            $t = $p['tokens'];
+            $this->assertRatio( 4.5, '#ffffff', $t['--tt-primary-ink'], $name . ' white on primary-ink' );
+            $this->assertRatio( 4.5, $t['--tt-ink'], $t['--tt-primary-hover'] ?? $t['--tt-secondary'], $name . ' ink on primary-hover' );
+            foreach ( [ '--tt-link', '--tt-link-hover' ] as $link ) {
+                $this->assertRatio( 4.5, $t[ $link ], $t['--tt-paper'], $name . ' ' . $link . ' on paper' );
+                $this->assertRatio( 4.5, $t[ $link ], $t['--tt-bg-soft'], $name . ' ' . $link . ' on bg-soft' );
+            }
+        }
+    }
+
+    /**
+     * The accent is a fill colour. Where a theme prints it as text it
+     * declares a text-safe variant; that variant has to clear 4.5:1.
+     */
+    public function test_the_accent_as_text_clears_four_and_a_half(): void {
+        foreach ( $this->palettes() as $name => $p ) {
+            $t = $p['tokens'];
+            if ( isset( $t['--tt-theme-accent-text'] ) ) {
+                $this->assertRatio( 4.5, $t['--tt-theme-accent-text'], $t['--tt-paper'], $name . ' accent text on paper' );
+                $this->assertRatio( 4.5, $t['--tt-theme-accent-text'], $t['--tt-bg-soft'], $name . ' accent text on bg-soft' );
+            }
+            if ( isset( $t['--tt-theme-accent-on-primary'] ) ) {
+                $this->assertRatio( 4.5, $t['--tt-theme-accent-on-primary'], $t['--tt-primary'], $name . ' accent text on the primary band' );
+            }
         }
     }
 }

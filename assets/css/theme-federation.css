@@ -79,7 +79,9 @@
     --tt-secondary:     #e0a92a;
     --tt-secondary-rgb: 224, 169, 42;
     --tt-accent:        #1b3660;
-    --tt-focus-ring:    #e0a92a;
+    /* No `--tt-focus-ring`: the eval form draws it on white, where the gold
+       measured 2.13:1. Unset, the form falls back to the navy primary. The
+       rail rings in gold through its own rules below. */
 
     /* The derived brand shades. `frontend-admin.css` and the app chrome read
        these with green hardcoded as the fallback, so they have to be stated
