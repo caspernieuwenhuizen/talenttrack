@@ -75,12 +75,43 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         foreach ( self::NEW_THEMES as $theme ) {
             ThemePreference::setUserOverride( $user, $theme );
             $this->assertSame( 'theme-' . $theme . '.css', ThemePreference::styleFile( $user ) );
-            $this->assertSame( 'tt-theme-' . $theme, ThemePreference::rootClass( $user ) );
+            $this->assertSame( 'tt-theme-' . $theme . ' ' . ThemePreference::SHARED_CLASS, ThemePreference::rootClass( $user ) );
+            $this->assertSame( ThemePreference::SHARED_SHEET, ThemePreference::sharedStyleFile( $user ) );
         }
 
         ThemePreference::setUserOverride( $user, ThemePreference::INHERIT );
         ThemePreference::setClubDefault( ThemePreference::POLDER );
         $this->assertSame( 'theme-polder.css', ThemePreference::styleFile( $user ) );
+    }
+
+    /** Federation and Kristalblauw keep their own rules: no shared sheet, one class. */
+    public function test_the_two_older_themes_do_not_load_the_shared_sheet(): void {
+        $user = self::factory()->user->create();
+        foreach ( [ ThemePreference::FEDERATION, ThemePreference::LEON_HUTTEN ] as $theme ) {
+            ThemePreference::setUserOverride( $user, $theme );
+            $this->assertSame( '', ThemePreference::sharedStyleFile( $user ), $theme );
+            $this->assertSame( 'tt-theme-' . $theme, ThemePreference::rootClass( $user ), $theme );
+        }
+        ThemePreference::setUserOverride( $user, ThemePreference::DEFAULT_THEME );
+        $this->assertSame( '', ThemePreference::sharedStyleFile( $user ) );
+    }
+
+    /**
+     * A token-only theme sheet is @font-face rules and one token block, so
+     * every rule it draws lives in the shared sheet and cannot drift.
+     */
+    public function test_a_shared_theme_sheet_is_fonts_and_tokens_only(): void {
+        $this->assertFileExists( $this->root() . '/assets/css/' . ThemePreference::SHARED_SHEET );
+
+        foreach ( ThemePreference::sharedSheetThemes() as $theme ) {
+            $css = (string) file_get_contents( $this->root() . '/assets/css/theme-' . $theme . '.css' );
+            $css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+            $css = (string) preg_replace( '/@font-face\s*\{[^}]*\}/', '', $css );
+
+            $this->assertSame( 1, preg_match_all( '/([^{}]+)\{[^}]*\}/', $css, $blocks ), $theme . ' has rules besides its token block' );
+            $this->assertSame( '.tt-dashboard.tt-theme-' . $theme, trim( $blocks[1][0] ), $theme );
+            $this->assertDoesNotMatchRegularExpression( '/^\s*(?!--)[a-z-]+\s*:/m', $blocks[0][0], $theme . ' sets a property in its token block' );
+        }
     }
 
     /** Reports take the theme's primary, so the map has to match every sheet. */

@@ -178,7 +178,14 @@ they are written beats out-specifying a moving target.
 1. Add the value to `ThemePreference::themes()` and a label in `labels()`.
 2. Add `assets/css/theme-<value>.css`. `styleFile()` derives the filename, so
    nothing else needs editing to enqueue it.
-3. Add the config key to the allowlist in `ConfigRestController` only if you
+3. For a theme that is a palette only, add the value to
+   `ThemePreference::sharedSheetThemes()` and keep its sheet to its
+   `@font-face` rules and one token block. `assets/css/theme-shared.css` draws
+   the header, the rail and the display type from those tokens, once, for
+   every such theme; `DashboardShortcode` enqueues it before the theme sheet
+   and the root carries `tt-theme-shared`. Federation and Kristalblauw predate
+   it and keep their own rules.
+4. Add the config key to the allowlist in `ConfigRestController` only if you
    introduce a new key — `tt_frontend_theme` is already allowed.
 
 The enqueue in `DashboardShortcode` picks up the shell stylesheet as a
@@ -233,17 +240,35 @@ The rail's hover, pressed, line and soft-ink steps are the chrome colour mixed
 toward white. A design colour that misses a contrast floor in a text or focus
 role keeps its value for fills, and that role takes the same hue stepped
 toward the theme's deep colour (on light surfaces) or toward white (on dark
-ones) until it clears. Surfaces that print `--tt-secondary` as text read
-`--tt-theme-accent-text` (on paper) or `--tt-theme-accent-on-primary` (on the
-primary band) instead. The focus ring follows `--tt-primary`; a theme does not
+ones) until it clears. The focus ring follows `--tt-primary`; a theme does not
 set `--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` carries each theme's
 primary, so reports follow the theme too.
 
-`tests/php/ThemeContrastTest.php` checks every `theme-*.css` against the
-contrast floors: ink on paper and soft background, white on the primary and
-on the primary hover, ink on the button hover, links and the accent as text
-at 4.5:1; the focus ring, and the rail's active marker against the rail and
-the active row, at 3:1.
+### The secondary as text
+
+`--tt-secondary` is a fill colour. A component that prints it as words or
+numerals reads one of three tokens from `tokens.css` instead, by the surface
+underneath:
+
+| Token | Surface | Read by |
+| --- | --- | --- |
+| `--tt-secondary-text` | paper | the 404 emblem, the saved-view star, the podium team link on hover, the popularity percentage |
+| `--tt-secondary-on-primary` | the primary band | the overview rating label, the today card's call to action, a teammate's initials |
+| `--tt-secondary-on-chrome` | the header | the help icon on hover |
+
+Each follows `--tt-secondary` unless a theme sets it. They are declared on
+`.tt-dashboard` as well as `.tt-root`, like `--tt-focus`, so they follow a
+theme's secondary. A theme that declares a secondary declares at least
+`--tt-secondary-text` itself.
+
+`tests/php/ThemeContrastTest.php` checks every registered theme against the
+contrast floors, resolving each token as the browser does: ink, soft ink,
+muted text and links on paper and the soft background, white on the primary
+and its hover, ink on the button hover, the three secondary-as-text tokens,
+the header's text, and the rail's text, soft text and brand mark at 4.5:1; the
+focus ring, the header icon, and the rail's marker and focus ring against the
+rail and the active row, at 3:1. Kristalblauw's cyan as text and its marker
+on the active row are named exceptions, held so that theme keeps its look.
 `tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
 sheet, that `default` loads no sheet and stamps no class, and that bundled
 fonts load from the plugin with `swap`.

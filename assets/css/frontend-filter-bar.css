@@ -1296,7 +1296,7 @@ html.tt-sheet-lock body {
 }
 
 .tt-dashboard .tt-viewchip__star {
-	color: var(--tt-secondary, #e8b624);
+	color: var(--tt-secondary-text, var(--tt-secondary, #e8b624));
 }
 
 /* The overflow count and the bookmark share one <summary>, which is how

@@ -153,4 +153,15 @@
 .tt-root,
 .tt-dashboard {
     --tt-focus: 0 0 0 2px var(--tt-focus-color, var(--tt-primary));
+
+    /* The secondary printed as text (#5089). The secondary is a fill
+     * colour; a component that prints it as words or numerals reads one of
+     * these instead, by the surface underneath: paper, the primary band, or
+     * the header chrome. Each follows the secondary unless a theme sets it,
+     * and is declared here on `.tt-dashboard` for the reason the focus ring
+     * is. `--tt-secondary-text-color` is the input Branding sets, as
+     * `--tt-focus-color` is for the ring. */
+    --tt-secondary-text:       var(--tt-secondary-text-color, var(--tt-secondary));
+    --tt-secondary-on-primary: var(--tt-secondary);
+    --tt-secondary-on-chrome:  var(--tt-secondary);
 }

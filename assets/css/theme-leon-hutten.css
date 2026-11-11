@@ -62,6 +62,10 @@
     --tt-primary-rgb:   2, 98, 161;
     --tt-secondary:     #02a2da;   /* brightest stripe — signature accent */
     --tt-secondary-rgb: 2, 162, 218;
+    /* The cyan printed as text, set here rather than inherited so the
+       theme's look does not move when tokens.css changes its own value.
+       2.92:1 on white: held as it is, so this theme keeps its look. */
+    --tt-secondary-text: #02a2da;
     --tt-accent:        #0262a1;
 
     /*

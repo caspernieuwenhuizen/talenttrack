@@ -79,6 +79,10 @@
     --tt-secondary:     #e0a92a;
     --tt-secondary-rgb: 224, 169, 42;
     --tt-accent:        #1b3660;
+    /* The gold printed as text: the same hue darkened until it clears 4.5:1
+       on white and on this theme's soft background. The gold itself measures
+       2.13:1 there and stays for fills and the marker. */
+    --tt-secondary-text: #866414;
     /* No `--tt-focus-ring`: the eval form draws it on white, where the gold
        measured 2.13:1. Unset, the form falls back to the navy primary. The
        rail rings in gold through its own rules below. */

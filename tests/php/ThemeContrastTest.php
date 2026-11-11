@@ -1,32 +1,103 @@
 <?php
 namespace TT\Tests\Php;
 
+use TT\Shared\Frontend\ThemePreference;
 use WP_UnitTestCase;
 
 /**
  * #5089 — every theme clears the contrast floors of CLAUDE.md §2.
  *
- * Body ink at 4.5:1 on paper and on the soft background, white on the
- * primary button at 4.5:1, the focus ring at 3:1 on paper, and the app
- * shell's active marker at 3:1 on the rail it sits on. A theme inherits
- * any token it does not set from tokens.css, and a new theme-*.css is
- * picked up by glob.
+ * Text at 4.5:1, the focus ring and the active marker at 3:1, for every
+ * role a theme sets: body, muted and soft ink, the buttons and their
+ * hovers, links, the secondary printed as text, the header, and the
+ * rail's text, marker and brand mark. A token resolves the way the browser
+ * resolves it: the theme's own declaration, else tokens.css, following
+ * `var()` and its fallback. A token-only theme is measured with the rules
+ * of theme-shared.css, which it loads.
+ *
+ * Named exceptions, each an owner decision rather than an oversight:
+ *   - `theme-leon-hutten` (Kristalblauw) keeps its look on live installs:
+ *     its cyan as text and on the primary band, and its marker on the
+ *     active row (2.98:1), are held as they are.
+ *   - `default` prints the secondary as text at 1.9:1 until #5105 lands.
  */
 final class ThemeContrastTest extends WP_UnitTestCase {
+
+    /** @var array<string, list<string>> palette => roles it is excused from */
+    private const EXCEPTIONS = [
+        'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary', 'marker-on-active-row' ],
+        'default'           => [ 'secondary-text' ],
+    ];
 
     private function root(): string {
         return dirname( __DIR__, 2 );
     }
 
-    /** @return array<string, string> token => hex, first declaration wins */
-    private function tokens( string $css ): array {
+    /** A sheet with its comments removed, so prose is never read as a rule. */
+    private function css( string $file ): string {
+        $css = (string) file_get_contents( $this->root() . '/assets/css/' . $file );
+        return (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+    }
+
+    /** @return array<string, string> token => raw value, first declaration wins */
+    private function declarations( string $css ): array {
         $out = [];
-        if ( preg_match_all( '/(--tt-[a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{6})\b/', $css, $m, PREG_SET_ORDER ) ) {
+        if ( preg_match_all( '/(--tt-[a-z0-9-]+)\s*:\s*([^;{}]+);/', $css, $m, PREG_SET_ORDER ) ) {
             foreach ( $m as $row ) {
-                if ( ! isset( $out[ $row[1] ] ) ) $out[ $row[1] ] = strtolower( $row[2] );
+                if ( ! isset( $out[ $row[1] ] ) ) $out[ $row[1] ] = trim( $row[2] );
             }
         }
         return $out;
+    }
+
+    /**
+     * Resolve a value to a hex colour: a hex as it is, a `var()` through the
+     * declarations and then its fallback. Null for anything else.
+     *
+     * @param array<string, string> $d
+     */
+    private function resolve( string $value, array $d, int $depth = 0 ): ?string {
+        $value = trim( $value );
+        if ( $depth > 10 ) return null;
+        if ( preg_match( '/^#[0-9a-fA-F]{6}$/', $value ) ) return strtolower( $value );
+        if ( ! preg_match( '/^var\(\s*(--tt-[a-z0-9-]+)\s*(?:,(.*))?\)$/s', $value, $m ) ) return null;
+        if ( isset( $d[ $m[1] ] ) ) {
+            return $this->resolve( $d[ $m[1] ], $d, $depth + 1 );
+        }
+        return isset( $m[2] ) ? $this->resolve( $m[2], $d, $depth + 1 ) : null;
+    }
+
+    /** @param array<string, string> $d */
+    private function token( string $name, array $d ): string {
+        $hex = $this->resolve( 'var(' . $name . ')', $d );
+        $this->assertNotNull( $hex, $name . ' does not resolve to a colour' );
+        return (string) $hex;
+    }
+
+    /** @return array<string, array{decls: array<string, string>, rules: string, own: string}> */
+    private function palettes(): array {
+        $base     = $this->declarations( $this->css( 'tokens.css' ) );
+        $palettes = [ 'default' => [ 'decls' => $base, 'rules' => '', 'own' => '' ] ];
+        foreach ( ThemePreference::themes() as $theme ) {
+            if ( $theme === ThemePreference::DEFAULT_THEME ) continue;
+            $own   = $this->css( 'theme-' . $theme . '.css' );
+            $rules = ThemePreference::usesSharedSheet( $theme ) ? $this->css( ThemePreference::SHARED_SHEET ) . "\n" . $own : $own;
+            $palettes[ 'theme-' . $theme ] = [
+                'decls' => array_merge( $base, $this->declarations( $own ) ),
+                'rules' => $rules,
+                'own'   => $own,
+            ];
+        }
+        return $palettes;
+    }
+
+    private function excused( string $palette, string $role ): bool {
+        return in_array( $role, self::EXCEPTIONS[ $palette ] ?? [], true );
+    }
+
+    private function assertRatio( float $floor, string $fg, string $bg, string $what ): void {
+        $ratio = $this->contrast( $fg, $bg );
+        $this->assertGreaterThanOrEqual( $floor, $ratio, sprintf( '%s: %s on %s is %.2f:1', $what, $fg, $bg, $ratio ) );
     }
 
     private function luminance( string $hex ): float {
@@ -45,130 +116,119 @@ final class ThemeContrastTest extends WP_UnitTestCase {
     }
 
     /**
-     * A colour value as written in a rule: a hex, or a var() resolved against the tokens.
+     * The colour a rule sets for a property, resolved; null when the rule
+     * is absent.
      *
-     * @param array<string, string> $t
+     * @param array<string, string> $d
      */
-    private function resolve( string $value, array $t ): ?string {
-        $value = trim( $value );
-        if ( preg_match( '/^#[0-9a-fA-F]{6}$/', $value ) ) {
-            return strtolower( $value );
-        }
-        if ( preg_match( '/^var\((--tt-[a-z0-9-]+)\)$/', $value, $m ) ) {
-            return $t[ $m[1] ] ?? null;
-        }
-        return null;
+    private function ruleColour( string $rules, string $selectorPattern, string $property, array $d ): ?string {
+        if ( ! preg_match( '/' . $selectorPattern . '\s*\{([^}]*)\}/', $rules, $rule ) ) return null;
+        if ( ! preg_match( '/(?:^|;|\s)' . preg_quote( $property, '/' ) . ':\s*([^;]+);/', $rule[1], $m ) ) return null;
+        $value = trim( $m[1] );
+        if ( $property === 'box-shadow' ) $value = (string) preg_replace( '/^inset 3px 0 0 /', '', $value );
+        if ( $property === 'outline' ) $value = (string) preg_replace( '/^2px solid /', '', $value );
+        $hex = $this->resolve( $value, $d );
+        $this->assertNotNull( $hex, $selectorPattern . ' ' . $property . ' does not resolve: ' . $value );
+        return $hex;
     }
 
-    /** @return array<string, array{tokens: array<string, string>, css: string}> */
-    private function palettes(): array {
-        $base     = $this->tokens( (string) file_get_contents( $this->root() . '/assets/css/tokens.css' ) );
-        $palettes = [ 'default' => [ 'tokens' => $base, 'css' => '' ] ];
-        foreach ( glob( $this->root() . '/assets/css/theme-*.css' ) ?: [] as $path ) {
-            $css = (string) file_get_contents( $path );
-            $palettes[ basename( $path, '.css' ) ] = [
-                'tokens' => array_merge( $base, $this->tokens( $css ) ),
-                'css'    => $css,
-            ];
-        }
-        return $palettes;
-    }
-
-    private function assertRatio( float $floor, string $fg, string $bg, string $what ): void {
-        $ratio = $this->contrast( $fg, $bg );
-        $this->assertGreaterThanOrEqual( $floor, $ratio, sprintf( '%s: %s on %s is %.2f:1', $what, $fg, $bg, $ratio ) );
-    }
-
-    public function test_body_ink_and_the_primary_button_clear_four_and_a_half(): void {
+    public function test_text_on_paper_clears_four_and_a_half(): void {
         foreach ( $this->palettes() as $name => $p ) {
-            $t = $p['tokens'];
-            $this->assertRatio( 4.5, $t['--tt-ink'], $t['--tt-paper'], $name . ' ink on paper' );
-            $this->assertRatio( 4.5, $t['--tt-ink'], $t['--tt-bg-soft'], $name . ' ink on bg-soft' );
-            $this->assertRatio( 4.5, '#ffffff', $t['--tt-primary'], $name . ' white on primary' );
+            $d = $p['decls'];
+            foreach ( [ '--tt-paper', '--tt-bg-soft' ] as $bg ) {
+                foreach ( [ '--tt-ink', '--tt-ink-soft', '--tt-muted', '--tt-link', '--tt-link-hover' ] as $fg ) {
+                    $this->assertRatio( 4.5, $this->token( $fg, $d ), $this->token( $bg, $d ), "$name $fg on $bg" );
+                }
+            }
+        }
+    }
+
+    public function test_buttons_and_their_hovers_clear_four_and_a_half(): void {
+        foreach ( $this->palettes() as $name => $p ) {
+            $d = $p['decls'];
+            $this->assertRatio( 4.5, '#ffffff', $this->token( '--tt-primary', $d ), "$name white on primary" );
+            $this->assertRatio( 4.5, '#ffffff', $this->token( '--tt-primary-ink', $d ), "$name white on primary-ink" );
+            $hover = isset( $d['--tt-primary-hover'] ) ? '--tt-primary-hover' : '--tt-secondary';
+            $this->assertRatio( 4.5, $this->token( '--tt-ink', $d ), $this->token( $hover, $d ), "$name ink on the button hover" );
+        }
+    }
+
+    /** `--tt-focus` is drawn in `--tt-primary` (tokens.css). */
+    public function test_the_focus_ring_clears_three_on_paper(): void {
+        foreach ( $this->palettes() as $name => $p ) {
+            $d = $p['decls'];
+            $this->assertRatio( 3.0, $this->token( '--tt-primary', $d ), $this->token( '--tt-paper', $d ), "$name focus ring" );
         }
     }
 
     /**
-     * `--tt-focus` is drawn in `--tt-primary` (tokens.css). On the rail a
-     * theme rings in its own colour, which has to clear the rail instead.
+     * The secondary printed as text: on paper, on the primary band, on the
+     * header. Checked for every palette; a theme that declares a secondary
+     * declares the text token itself rather than inheriting tokens.css's.
      */
-    public function test_the_focus_ring_clears_three(): void {
+    public function test_the_secondary_as_text_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {
-            $t = $p['tokens'];
-            $this->assertRatio( 3.0, $t['--tt-primary'], $t['--tt-paper'], $name . ' focus ring on paper' );
-
-            if ( ! preg_match( '/\.tt-shell-nav__link:focus-visible\s*\{[^}]*outline:\s*2px solid ([^;]+);/', $p['css'], $ring ) ) {
-                continue;
+            $d = $p['decls'];
+            if ( $name !== 'default' && preg_match( '/--tt-secondary\s*:/', $p['own'] ) ) {
+                $this->assertMatchesRegularExpression( '/--tt-secondary-text\s*:/', $p['own'], "$name sets a secondary but not --tt-secondary-text" );
             }
-            $rail = $this->rail( $p['css'], $t );
-            $fg   = $this->resolve( $ring[1], $t );
-            $this->assertNotNull( $fg, $name . ' rail focus colour does not resolve' );
-            $this->assertRatio( 3.0, (string) $fg, $rail, $name . ' focus ring on the rail' );
+            if ( ! $this->excused( $name, 'secondary-text' ) ) {
+                foreach ( [ '--tt-paper', '--tt-bg-soft' ] as $bg ) {
+                    $this->assertRatio( 4.5, $this->token( '--tt-secondary-text', $d ), $this->token( $bg, $d ), "$name secondary-text on $bg" );
+                }
+            }
+            if ( ! $this->excused( $name, 'secondary-on-primary' ) ) {
+                $this->assertRatio( 4.5, $this->token( '--tt-secondary-on-primary', $d ), $this->token( '--tt-primary', $d ), "$name secondary-on-primary" );
+            }
         }
     }
 
-    /** @param array<string, string> $t */
-    private function rail( string $css, array $t ): string {
-        $this->assertSame( 1, preg_match( '/\.tt-shell-nav\s*\{[^}]*background:\s*([^;]+);/', $css, $rail ), 'a themed rail rule paints no rail' );
-        $bg = $this->resolve( $rail[1], $t );
-        $this->assertNotNull( $bg, 'rail colour does not resolve' );
-        return (string) $bg;
-    }
-
-    public function test_the_active_marker_clears_three_on_the_rail(): void {
+    /** The header: its text at 4.5:1 and the accent icon at 3:1. */
+    public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {
-            $css = $p['css'];
-            if ( ! preg_match( '/\.tt-shell-nav__link\.is-active\s*\{[^}]*box-shadow:\s*inset 3px 0 0 ([^;]+);/', $css, $marker ) ) {
-                continue;
-            }
-            $fg = $this->resolve( $marker[1], $p['tokens'] );
-            $this->assertNotNull( $fg, $name . ' marker colour does not resolve' );
-            $this->assertRatio( 3.0, (string) $fg, $this->rail( $css, $p['tokens'] ), $name . ' active marker on the rail' );
-
-            // The bar is drawn inside the active row, so it also has to clear
-            // the row's own fill. theme-leon-hutten.css measures 2.98:1 here
-            // and is held as it is: that theme must keep its look.
-            if ( $name === 'theme-leon-hutten' ) {
-                continue;
-            }
-            $this->assertSame( 1, preg_match( '/\.tt-shell-nav__link\.is-active\s*\{[^}]*background:\s*([^;]+);/', $css, $row ), $name );
-            $bg = $this->resolve( $row[1], $p['tokens'] );
-            $this->assertNotNull( $bg, $name . ' active row colour does not resolve' );
-            $this->assertRatio( 3.0, (string) $fg, (string) $bg, $name . ' active marker on the active row' );
+            $d      = $p['decls'];
+            $header = $this->ruleColour( $p['rules'], '\.tt-dash-header', 'background', $d ) ?? $this->token( '--tt-primary', $d );
+            $this->assertRatio( 4.5, $this->token( '--tt-color-on-primary', $d ), $header, "$name header text" );
+            $this->assertRatio( 3.0, $this->token( '--tt-secondary-on-chrome', $d ), $header, "$name accent on the header" );
         }
     }
 
     /**
-     * Both button hovers carry text: `.tt-btn-primary` keeps white text on
-     * `--tt-primary-ink`, `.tt-btn` turns to ink text on `--tt-primary-hover`
-     * (falling back to the secondary). Links are text on paper.
+     * A themed rail: text on the rail, its hover and its active row; soft
+     * text on the rail and its hover; the marker and the rail's focus ring
+     * on the rail and the active row; the brand mark's text on its fill.
      */
-    public function test_hovers_and_links_clear_four_and_a_half(): void {
+    public function test_the_rail_reads(): void {
+        $checked = 0;
         foreach ( $this->palettes() as $name => $p ) {
-            $t = $p['tokens'];
-            $this->assertRatio( 4.5, '#ffffff', $t['--tt-primary-ink'], $name . ' white on primary-ink' );
-            $this->assertRatio( 4.5, $t['--tt-ink'], $t['--tt-primary-hover'] ?? $t['--tt-secondary'], $name . ' ink on primary-hover' );
-            foreach ( [ '--tt-link', '--tt-link-hover' ] as $link ) {
-                $this->assertRatio( 4.5, $t[ $link ], $t['--tt-paper'], $name . ' ' . $link . ' on paper' );
-                $this->assertRatio( 4.5, $t[ $link ], $t['--tt-bg-soft'], $name . ' ' . $link . ' on bg-soft' );
-            }
-        }
-    }
+            $d     = $p['decls'];
+            $rules = $p['rules'];
+            $rail  = $this->ruleColour( $rules, '\.tt-shell-nav', 'background', $d );
+            if ( $rail === null ) continue;
+            $checked++;
 
-    /**
-     * The accent is a fill colour. Where a theme prints it as text it
-     * declares a text-safe variant; that variant has to clear 4.5:1.
-     */
-    public function test_the_accent_as_text_clears_four_and_a_half(): void {
-        foreach ( $this->palettes() as $name => $p ) {
-            $t = $p['tokens'];
-            if ( isset( $t['--tt-theme-accent-text'] ) ) {
-                $this->assertRatio( 4.5, $t['--tt-theme-accent-text'], $t['--tt-paper'], $name . ' accent text on paper' );
-                $this->assertRatio( 4.5, $t['--tt-theme-accent-text'], $t['--tt-bg-soft'], $name . ' accent text on bg-soft' );
+            $hover  = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link:hover', 'background', $d );
+            $active = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link\.is-active', 'background', $d );
+            $ink    = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link', 'color', $d );
+            $inkOn  = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link\.is-active', 'color', $d );
+            $soft   = (string) $this->ruleColour( $rules, '\.tt-shell-nav__icon', 'color', $d );
+            $marker = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link\.is-active', 'box-shadow', $d );
+            $ring   = (string) $this->ruleColour( $rules, '\.tt-shell-nav__link:focus-visible', 'outline', $d );
+            $markBg = (string) $this->ruleColour( $rules, '\.tt-shell-nav__mark', 'background', $d );
+            $markFg = (string) $this->ruleColour( $rules, '\.tt-shell-nav__mark', 'color', $d );
+
+            foreach ( [ 'rail' => $rail, 'hover' => $hover ] as $where => $bg ) {
+                $this->assertRatio( 4.5, $ink, $bg, "$name rail ink on the $where" );
+                $this->assertRatio( 4.5, $soft, $bg, "$name rail soft ink on the $where" );
             }
-            if ( isset( $t['--tt-theme-accent-on-primary'] ) ) {
-                $this->assertRatio( 4.5, $t['--tt-theme-accent-on-primary'], $t['--tt-primary'], $name . ' accent text on the primary band' );
+            $this->assertRatio( 4.5, $inkOn, $active, "$name rail ink on the active row" );
+            $this->assertRatio( 3.0, $marker, $rail, "$name marker on the rail" );
+            $this->assertRatio( 3.0, $ring, $rail, "$name rail focus ring on the rail" );
+            if ( ! $this->excused( $name, 'marker-on-active-row' ) ) {
+                $this->assertRatio( 3.0, $marker, $active, "$name marker on the active row" );
             }
+            $this->assertRatio( 4.5, $markFg, $markBg, "$name brand mark text" );
         }
+        $this->assertGreaterThan( 0, $checked, 'no themed rail was measured' );
     }
 }

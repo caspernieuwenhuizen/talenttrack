@@ -189,7 +189,14 @@ plek waar ze geschreven worden is beter dan een bewegend doel overtroeven.
 2. Voeg `assets/css/theme-<waarde>.css` toe. `styleFile()` leidt de
    bestandsnaam af, dus er hoeft niets anders aangepast te worden om het in te
    laden.
-3. Voeg alleen een configuratiesleutel toe aan de lijst in
+3. Voor een thema dat alleen een palet is: voeg de waarde toe aan
+   `ThemePreference::sharedSheetThemes()` en houd het stijlblad bij zijn
+   `@font-face`-regels en één tokenblok. `assets/css/theme-shared.css` tekent
+   de kopbalk, de navigatiekolom en de kopletter uit die tokens, één keer, voor
+   elk zo'n thema; `DashboardShortcode` laadt het vóór het themastijlblad en de
+   root krijgt `tt-theme-shared`. Federation en Kristalblauw zijn ouder en
+   houden hun eigen regels.
+4. Voeg alleen een configuratiesleutel toe aan de lijst in
    `ConfigRestController` als je een nieuwe sleutel introduceert —
    `tt_frontend_theme` staat er al in.
 
@@ -247,17 +254,39 @@ De hover-, ingedrukt-, lijn- en zachte inkttinten van de navigatiekolom zijn de
 chroomkleur gemengd richting wit. Een ontwerpkleur die in een tekst- of
 focusrol een contrastgrens mist, houdt haar waarde voor vlakken; die rol krijgt
 dezelfde tint, stapsgewijs richting de diepe kleur van het thema (op lichte
-vlakken) of richting wit (op donkere), tot hij de grens haalt. Vlakken die
-`--tt-secondary` als tekst gebruiken, lezen in plaats daarvan
-`--tt-theme-accent-text` (op papier) of `--tt-theme-accent-on-primary` (op de
-primaire band). De focusring volgt `--tt-primary`; een thema zet geen
-`--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` bevat de primaire kleur
-van elk thema, zodat rapporten het thema ook volgen.
+vlakken) of richting wit (op donkere), tot hij de grens haalt. De focusring
+volgt `--tt-primary`; een thema zet geen `--tt-focus-ring`.
+`ReportBrandColour::THEME_PRIMARY` bevat de primaire kleur van elk thema,
+zodat rapporten het thema ook volgen.
 
-`tests/php/ThemeContrastTest.php` controleert elk `theme-*.css` op de
-contrastgrenzen: inkt op papier en op de zachte achtergrond, wit op de
-primaire kleur en op de hover daarvan, inkt op de knophover, links en het
-accent als tekst op 4,5:1; de focusring en de actieve markering in de
-navigatiekolom, tegen de kolom en tegen de actieve regel, op 3:1. `tests/php/ThemePreferenceTest.php` controleert dat elk
+### De secundaire kleur als tekst
+
+`--tt-secondary` is een vlakkleur. Een component die haar als woorden of
+cijfers toont, leest in plaats daarvan een van drie tokens uit `tokens.css`,
+naar het vlak eronder:
+
+| Token | Vlak | Gelezen door |
+| --- | --- | --- |
+| `--tt-secondary-text` | papier | het 404-embleem, de ster van een opgeslagen weergave, de teamlink op het podium bij hover, het populariteitspercentage |
+| `--tt-secondary-on-primary` | de primaire band | het beoordelingslabel in het overzicht, de oproep op de kaart van vandaag, de initialen van een teamgenoot |
+| `--tt-secondary-on-chrome` | de kopbalk | het helppictogram bij hover |
+
+Elk volgt `--tt-secondary`, tenzij een thema het zet. Ze worden op
+`.tt-dashboard` en op `.tt-root` gedeclareerd, net als `--tt-focus`, zodat ze
+de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
+declareert, declareert ten minste `--tt-secondary-text` zelf.
+
+`tests/php/ThemeContrastTest.php` controleert elk geregistreerd thema op de
+contrastgrenzen en lost elk token op zoals de browser dat doet: inkt, zachte
+inkt, gedempte tekst en links op papier en op de zachte achtergrond, wit op de
+primaire kleur en de hover daarvan, inkt op de knophover, de drie tokens voor
+de secundaire kleur als tekst, de tekst van de kopbalk, en de tekst, zachte
+tekst en het merkteken van de navigatiekolom op 4,5:1; de focusring, het
+pictogram in de kopbalk en de markering en focusring van de navigatiekolom,
+tegen de kolom en tegen de actieve regel, op 3:1. De cyaan als tekst en de
+markering op de actieve regel van Kristalblauw zijn benoemde uitzonderingen,
+behouden zodat dat thema er hetzelfde uit blijft zien.
+
+`tests/php/ThemePreferenceTest.php` controleert dat elk
 thema zijn labels en stijlblad heeft, dat `default` geen stijlblad laadt en
 geen klasse zet, en dat meegeleverde letters uit de plugin laden met `swap`.

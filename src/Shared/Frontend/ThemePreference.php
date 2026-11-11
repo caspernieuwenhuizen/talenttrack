@@ -173,7 +173,10 @@ final class ThemePreference {
      */
     public static function rootClass( int $user_id = 0 ): string {
         $theme = self::resolve( $user_id );
-        return $theme === self::DEFAULT_THEME ? '' : 'tt-theme-' . $theme;
+        if ( $theme === self::DEFAULT_THEME ) {
+            return '';
+        }
+        return 'tt-theme-' . $theme . ( self::usesSharedSheet( $theme ) ? ' ' . self::SHARED_CLASS : '' );
     }
 
     /**
@@ -183,6 +186,34 @@ final class ThemePreference {
     public static function styleFile( int $user_id = 0 ): string {
         $theme = self::resolve( $user_id );
         return $theme === self::DEFAULT_THEME ? '' : 'theme-' . $theme . '.css';
+    }
+
+    /** The chrome and display rules the token-only themes share (#5089). */
+    public const SHARED_SHEET = 'theme-shared.css';
+
+    /** Root class those themes carry, which the shared sheet is scoped to. */
+    public const SHARED_CLASS = 'tt-theme-shared';
+
+    /**
+     * Themes whose sheet is a token layer only, with every rule in the
+     * shared sheet. Federation and Kristalblauw keep their own rules.
+     *
+     * @return list<string>
+     */
+    public static function sharedSheetThemes(): array {
+        return [ self::CLUBROOD, self::ORANJE, self::TACTIEKBORD, self::BORDEAUX, self::POLDER ];
+    }
+
+    public static function usesSharedSheet( string $theme ): bool {
+        return in_array( $theme, self::sharedSheetThemes(), true );
+    }
+
+    /**
+     * The shared sheet's filename when the resolved theme uses it, relative
+     * to `assets/css/`; '' otherwise.
+     */
+    public static function sharedStyleFile( int $user_id = 0 ): string {
+        return self::usesSharedSheet( self::resolve( $user_id ) ) ? self::SHARED_SHEET : '';
     }
 
     /**

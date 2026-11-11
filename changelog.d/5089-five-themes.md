@@ -14,6 +14,8 @@ only the weights in use, loaded with `font-display: swap` only while the theme
 is on, so a page makes no request to Google Fonts for them. Federation now
 uses the bundled Barlow Condensed for its headings, and its keyboard focus
 ring on the evaluation form is navy instead of a gold that was hard to see on
-white. The player card loads Oswald and Manrope from the plugin instead of
+white; where Federation prints its gold as text on white (the podium link,
+the saved-view star, percentages, the 404 page) it uses a darker gold that
+reads. The player card loads Oswald and Manrope from the plugin instead of
 from Google Fonts. A contrast test checks every theme. Default stays a
 complete rollback.
