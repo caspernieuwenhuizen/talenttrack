@@ -135,9 +135,12 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
 
         $this->assertSame( self::GOALKEEPER, $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'] );
         $control = $this->switchControl( $conv );
-        $this->assertStringContainsString( 'Switch form', $control );
+        $this->assertStringContainsString( 'Form: Outfield player', $control );
+        $this->assertStringContainsString( 'Switch to goalkeeper', $control );
         $this->assertStringContainsString( 'tt-save-btn', $control, 'the shared save-button states, not the plain-button fallback' );
-        $this->assertStringContainsString( 'data-label-error="Switch form"', $control, 'a refused switch keeps the label' );
+        $this->assertStringContainsString( 'data-label-error="Switch to goalkeeper"', $control, 'a refused switch keeps the label' );
+        $this->assertStringContainsString( 'aria-describedby="tt-pdp-form-switch-help-' . $conv . '"', $control, 'the button says until when it can switch' );
+        $this->assertStringContainsString( 'title="You can switch until the player starts filling in the form."', $control );
         $this->assertStringContainsString( 'value="' . self::GOALKEEPER . '"', $control, 'it switches to the goalkeeper form' );
         $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
         $this->assertSame( 200, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::OUTFIELD ] )[1], 'and back' );
@@ -154,8 +157,8 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
         $this->assertSame( 'form_fixed', $data['errors'][0]['code'] );
         $this->assertNull( $this->send( 'GET', $conv, 'form', [] )[0]['data']['state']['form_switch_to'], 'the reader offers no switch' );
         $control = $this->switchControl( $conv );
-        $this->assertStringContainsString( 'This talk uses the outfield form.', $control );
-        $this->assertStringNotContainsString( 'Switch form', $control, 'and the control is gone' );
+        $this->assertStringContainsString( 'Form: Outfield player', $control );
+        $this->assertStringNotContainsString( 'tt-pdp-form-switch__form', $control, 'and the control is gone' );
     }
 
     public function test_the_player_and_a_parent_are_offered_no_switch(): void {
@@ -187,7 +190,7 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
         $this->assertSame( 200, $status );
         $this->assertNull( $data['data']['state']['form_switch_to'], 'no switch is offered' );
         $this->assertSame( 403, $this->send( 'PATCH', $conv, 'form', [ 'form_key' => self::GOALKEEPER ] )[1] );
-        $this->assertStringNotContainsString( 'Switch form', $this->switchControl( $conv ) );
+        $this->assertStringNotContainsString( 'tt-pdp-form-switch__form', $this->switchControl( $conv ) );
     }
 
     public function test_klaar_fixes_the_form_too(): void {
@@ -301,11 +304,9 @@ final class PdpFormChoiceTest extends WP_UnitTestCase {
     }
 
     private function switchControl( int $conv ): string {
-        $method = new \ReflectionMethod( \TT\Modules\Pdp\Frontend\FrontendPdpManageView::class, 'renderFormSwitch' );
+        $method = new \ReflectionMethod( \TT\Modules\Pdp\Frontend\FrontendPdpManageView::class, 'formAside' );
         $method->setAccessible( true );
-        ob_start();
-        $method->invoke( null, $conv, get_current_user_id() );
-        return (string) ob_get_clean();
+        return (string) $method->invoke( null, $conv, get_current_user_id() );
     }
 
     /**

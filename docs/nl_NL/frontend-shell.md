@@ -370,6 +370,15 @@ paneel is het enige zonder `hidden`. `record-spine-tabs.js` legt het wisselen en
 de pijltjestoetsen erbovenop, dus een pagina die dat bestand niet laadt toont het
 standaardpaneel in plaats van niets.
 
+**Detailregel en aside.** Twee optionele sleutels, allebei leeg tenzij de
+aanroeper ze meegeeft; zonder deze sleutels rendert de strook precies als
+voorheen.
+
+| Sleutel | Wat | Waar |
+| --- | --- | --- |
+| `detail` | een tweede identiteitsregel onder naam en meta: waar de pagina over gaat binnen het record, bijvoorbeeld welk gesprek van een cyclus open staat | alleen in `app`, net als de rest van de identiteit |
+| `aside` | HTML die de aanroeper al heeft ge-escaped, rechts in de rij tabbladen: een bediening die bij het record hoort en niet bij één tab, zoals het formulier van een POP-gesprek met de wisselknop | overal waar de tabs renderen, `classic` inbegrepen; op een telefoon loopt hij door onder de tabs, zonder horizontaal scrollen |
+
 ### De slots van de onderbalk
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier

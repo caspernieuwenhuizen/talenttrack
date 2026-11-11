@@ -193,11 +193,9 @@ final class PdpPreparationTest extends WP_UnitTestCase {
         $this->assertSame( 'conversation_not_held', $data['errors'][0]['code'] );
         $this->assertSame( 'This talk did not take place, so the form can no longer be switched.', $data['errors'][0]['message'] );
 
-        $method = new \ReflectionMethod( \TT\Modules\Pdp\Frontend\FrontendPdpManageView::class, 'renderFormSwitch' );
+        $method = new \ReflectionMethod( \TT\Modules\Pdp\Frontend\FrontendPdpManageView::class, 'formAside' );
         $method->setAccessible( true );
-        ob_start();
-        $method->invoke( null, $this->conv, $this->trainer );
-        $this->assertSame( '', trim( (string) ob_get_clean() ), 'the form block draws nothing next to the not-held line' );
+        $this->assertSame( '', trim( (string) $method->invoke( null, $this->conv, $this->trainer ) ), 'the form aside draws nothing next to the not-held line' );
     }
 
     // ---- My PDP -----------------------------------------------------------

@@ -46,7 +46,10 @@ class FormSaveButton {
      * `ignore_back => true` for the rare form that must always return to a
      * fixed place regardless of how it was reached.
      *
-     * @param array{label?:string, label_saving?:string, label_saved?:string, label_error?:string, variant?:string, block?:bool, id?:string, cancel_url?:string, cancel_label?:string, ignore_back?:bool} $args
+     * `title` and `describedby` (the id of an element carrying a longer
+     * description) are optional attributes on the submit button.
+     *
+     * @param array{label?:string, label_saving?:string, label_saved?:string, label_error?:string, variant?:string, block?:bool, id?:string, title?:string, describedby?:string, cancel_url?:string, cancel_label?:string, ignore_back?:bool} $args
      */
     public static function render( array $args = [] ): string {
         $label        = (string) ( $args['label']        ?? __( 'Save', 'talenttrack' ) );
@@ -70,12 +73,17 @@ class FormSaveButton {
 
         $class = 'tt-btn tt-btn-' . $variant . ' tt-save-btn' . ( $block ? ' tt-btn-block' : '' );
 
+        $title       = (string) ( $args['title'] ?? '' );
+        $describedby = (string) ( $args['describedby'] ?? '' );
+        $extra       = ( $title !== '' ? ' title="' . esc_attr( $title ) . '"' : '' )
+            . ( $describedby !== '' ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '' );
+
         $save_html = sprintf(
             '<button type="submit"%s class="%s" data-state="idle"'
             . ' data-label-idle="%s" data-label-saving="%s" data-label-saved="%s" data-label-error="%s">'
             . '<span class="tt-save-btn-label">%s</span>'
             . '</button>',
-            $id !== '' ? ' id="' . esc_attr( $id ) . '"' : '',
+            ( $id !== '' ? ' id="' . esc_attr( $id ) . '"' : '' ) . $extra,
             esc_attr( $class ),
             esc_attr( $label ),
             esc_attr( $label_saving ),

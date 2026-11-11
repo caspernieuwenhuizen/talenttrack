@@ -305,4 +305,51 @@ class RecordSpineTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'tt-spine--side', $html, 'the rows are the only way between the sections' );
     }
+
+    /* ---- Detail line and aside (#5079) ------------------------------ */
+
+    public function test_a_strip_without_an_aside_renders_exactly_as_before(): void {
+        $config = [ 'name' => 'Ajax JO15-1', 'meta' => 'JO15', 'tabs' => $this->panelTabs() ];
+
+        $before = $this->render( $config );
+        $this->assertSame( $before, $this->render( $config + [ 'aside' => '' ] ) );
+        $this->assertSame( $before, $this->render( $config + [ 'aside' => '   ', 'detail' => '' ] ) );
+        $this->assertStringNotContainsString( 'tt-spine__row', $before );
+        $this->assertStringNotContainsString( 'tt-spine__aside', $before );
+        $this->assertStringNotContainsString( 'tt-spine__detail', $before );
+    }
+
+    public function test_the_aside_sits_in_the_tab_row_after_the_tabs(): void {
+        $html = $this->render( [
+            'name'  => 'Ajax JO15-1',
+            'tabs'  => $this->panelTabs(),
+            'aside' => '<span class="tt-x-aside">Form: Outfield player</span>',
+        ] );
+
+        $this->assertStringContainsString( '<div class="tt-spine__row">', $html );
+        $this->assertStringContainsString( '<div class="tt-spine__aside"><span class="tt-x-aside">Form: Outfield player</span></div>', $html );
+        $this->assertGreaterThan( strpos( $html, 'role="tablist"' ), strpos( $html, 'tt-spine__aside' ), 'right of the tabs, after them in reading order' );
+    }
+
+    public function test_the_aside_survives_the_classic_shell_with_the_tabs(): void {
+        ShellPreference::setClubDefault( ShellPreference::CLASSIC );
+
+        $html = $this->render( [
+            'name'   => 'Ajax JO15-1',
+            'detail' => 'Mid season',
+            'tabs'   => $this->panelTabs(),
+            'aside'  => '<span class="tt-x-aside">Form</span>',
+        ] );
+
+        $this->assertStringContainsString( 'tt-spine--tabs-only', $html );
+        $this->assertStringContainsString( 'tt-x-aside', $html );
+        $this->assertStringNotContainsString( 'Mid season', $html, 'the detail line is identity, and identity is app-only' );
+    }
+
+    public function test_the_detail_line_renders_under_the_name_escaped(): void {
+        $html = $this->render( [ 'name' => 'Mila de Jong', 'meta' => 'O17-1', 'detail' => 'Mid season <b>2</b>' ] );
+
+        $this->assertStringContainsString( 'tt-spine__id tt-spine__id--detail', $html );
+        $this->assertStringContainsString( '<span class="tt-spine__detail">Mid season &lt;b&gt;2&lt;/b&gt;</span>', $html );
+    }
 }

@@ -125,12 +125,18 @@ class FrontendPdpManageView extends FrontendViewBase {
             // file they were in. Add the file-detail crumb as the
             // intermediate (back-to-file) affordance per CLAUDE.md §5:
             // "PDP → PDP file detail → Conversation".
+            //
+            // #5079 — the chain ends in the player's name, then the talk:
+            // "PDP → Mila de Jong → Conversation 2 (Mid season)". Only for a
+            // reader who may see the file; anyone else gets the generic
+            // labels, so the crumb never names a player the page refuses.
+            [ $file_label, $conv_label ] = self::conversationCrumbLabels( $file_id, $conv_id, $user_id, $is_admin );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                __( 'Conversation', 'talenttrack' ),
+                $conv_label,
                 [
                     \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ),
                     [
-                        'label' => __( 'PDP file detail', 'talenttrack' ),
+                        'label' => $file_label,
                         'url'   => add_query_arg(
                             [ 'tt_view' => 'pdp', 'id' => $file_id ],
                             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -1290,13 +1296,16 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        $title = sprintf(
-            /* translators: %1$d sequence, %2$s template */
-            __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
-            (int) $conv->sequence,
-            self::templateLabel( (string) $conv->template_key )
-        );
-        self::renderHeader( $title );
+        // #5079 — the page names the player and the talk. The spine carries
+        // both under the app shell; its identity strip is aria-hidden there,
+        // so the heading stays for assistive tech, visually hidden. Under
+        // `classic` the spine draws no identity, and the heading is the only
+        // name on the page, so it shows. Exactly one of the two is seen.
+        $identity  = self::talkIdentity( $file, $conv, $convs_repo );
+        $is_app    = \TT\Shared\Frontend\ShellPreference::isApp();
+        $sr_suffix = $is_app ? ' tt-screen-reader-text' : '';
+        echo '<h1 class="tt-fview-title tt-pdp-conv-title' . esc_attr( $sr_suffix ) . '">' . esc_html( $identity['name'] ) . '</h1>';
+        echo '<p class="tt-pdp-conv-talkline' . esc_attr( $sr_suffix ) . '">' . esc_html( $identity['talk'] ) . '</p>';
 
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
 
@@ -1335,10 +1344,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         // conversation, so they are content rather than navigation and do not
         // count against the two-affordance budget.
         //
-        // The spine is passed no identity: the view's own header already
-        // names the conversation, and a second name strip above it would say
-        // the same thing twice. `tabs_always` keeps the strip under the
-        // `classic` shell, where it is the only route to the Evidence pane.
+        // #5079 — the spine carries the player and the talk, and the form in
+        // use with its switch on the right of the tab row (`aside`), which
+        // renders under `classic` too because the tabs do.
         // #3306 (epic #3301) — Preparation joins the strip, and leads it
         // while the talk is still ahead. A coach opening a scheduled
         // conversation is preparing it; one opening a conducted talk is
@@ -1365,14 +1373,21 @@ class FrontendPdpManageView extends FrontendViewBase {
             'panel'  => 'tt-pdp-pane-conversation',
             'active' => ! $prep_is_open,
         ];
+        // #5079 — "Evidence" read too strong for the season's background
+        // behind the talk. The panel id stays: it is a DOM contract.
         $tabs[] = [
-            'label' => __( 'Evidence', 'talenttrack' ),
+            'label' => _x( 'Background', 'PDP conversation tab: what is on record about the player this season', 'talenttrack' ),
             'panel' => 'tt-pdp-pane-evidence',
         ];
 
         \TT\Shared\Frontend\Components\RecordSpine::render( [
+            'name'        => $identity['name'],
+            'photo_url'   => $identity['photo_url'],
+            'meta'        => $identity['meta'],
+            'detail'      => $identity['talk'],
             'tabs_always' => true,
             'tabs'        => $tabs,
+            'aside'       => self::formAside( $conv_id, $user_id ),
         ] );
 
         if ( $can_prepare ) {
@@ -1387,10 +1402,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<div class="tt-pdp-conv-pane" id="tt-pdp-pane-conversation" role="tabpanel"'
             . ' aria-labelledby="' . esc_attr( \TT\Shared\Frontend\Components\RecordSpine::tabId( 'tt-pdp-pane-conversation' ) ) . '"'
             . ( $prep_is_open ? ' hidden' : '' ) . '>';
-
-        // #4978 — which conversation form the talk uses, and the trainer's
-        // switch while the player has not saved anything yet.
-        self::renderFormSwitch( $conv_id, $user_id );
 
         // v3.110.197 (#809) — locked banner. Names the signatory chain so
         // the coach knows why edits are blocked.
@@ -1645,6 +1656,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // Hidden by default; the tab strip above reveals it.
         echo '<div class="tt-pdp-conv-pane" id="tt-pdp-pane-evidence" role="tabpanel"'
             . ' aria-labelledby="' . esc_attr( \TT\Shared\Frontend\Components\RecordSpine::tabId( 'tt-pdp-pane-evidence' ) ) . '" hidden>';
+        echo '<p class="tt-help-text tt-pdp-background-lede">' . esc_html__( 'What is on record about the player this season, to support the talk.', 'talenttrack' ) . '</p>';
         \TT\Shared\Frontend\Components\EvidencePanel::enqueue();
         \TT\Shared\Frontend\Components\EvidencePanel::render(
             \TT\Modules\Pdp\EvidencePacket::forConversation( $conv_id )
@@ -1905,7 +1917,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // the two are visibly one set of numbers rather than two.
         \TT\Shared\Frontend\Components\EvidencePanel::enqueue();
         echo '<details class="tt-pdp-verdict-evidence"><summary>'
-            . esc_html__( 'Evidence for this season', 'talenttrack' )
+            . esc_html__( 'Background for this season', 'talenttrack' )
             . '</summary>';
         \TT\Shared\Frontend\Components\EvidencePanel::render(
             \TT\Modules\Pdp\EvidencePacket::forFile( $file_id )
@@ -2289,6 +2301,100 @@ class FrontendPdpManageView extends FrontendViewBase {
         return $key;
     }
 
+    /**
+     * The file and talk crumbs of a conversation page: the player's name and
+     * the talk's title for a reader who may see the file, the generic
+     * "PDP file detail" / "Conversation" otherwise.
+     *
+     * @return array{0:string, 1:string}
+     */
+    private static function conversationCrumbLabels( int $file_id, int $conv_id, int $user_id, bool $is_admin ): array {
+        $generic = [ __( 'PDP file detail', 'talenttrack' ), __( 'Conversation', 'talenttrack' ) ];
+        $file    = ( new PdpFilesRepository() )->find( $file_id );
+        if ( ! $file || ! self::canSeeFile( $file, $user_id, $is_admin ) ) return $generic;
+        $conv = ( new PdpConversationsRepository() )->find( $conv_id );
+        if ( ! $conv || (int) $conv->pdp_file_id !== (int) $file->id ) return $generic;
+        $player = QueryHelpers::get_player( (int) $file->player_id );
+        return [
+            $player ? QueryHelpers::player_display_name( $player ) : $generic[0],
+            self::conversationTitle( $conv ),
+        ];
+    }
+
+    /** "Conversation 2 (Mid season)": the talk's name in the breadcrumb chain. */
+    private static function conversationTitle( object $conv ): string {
+        return sprintf(
+            /* translators: %1$d sequence, %2$s template */
+            __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
+            (int) $conv->sequence,
+            self::templateLabel( (string) $conv->template_key )
+        );
+    }
+
+    /**
+     * #5079 — who and which talk, for the conversation page's spine and
+     * heading: the player's name, photo and team · shirt number · position,
+     * and one line for the talk ("Mid season · conversation 2 of 3 ·
+     * planned …", or "held …" once conducted).
+     *
+     * @return array{name:string, photo_url:string, meta:string, talk:string}
+     */
+    private static function talkIdentity( object $file, object $conv, PdpConversationsRepository $convs_repo ): array {
+        $player = QueryHelpers::get_player( (int) $file->player_id );
+        $name   = $player ? QueryHelpers::player_display_name( $player ) : __( 'Player', 'talenttrack' );
+
+        $meta = [];
+        if ( $player ) {
+            $team = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
+            if ( $team ) $meta[] = (string) $team->name;
+            if ( ! empty( $player->jersey_number ) ) $meta[] = '#' . (int) $player->jersey_number;
+            $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
+            if ( is_array( $positions ) ) {
+                foreach ( $positions as $code ) {
+                    $code = trim( (string) $code );
+                    if ( $code === '' ) continue;
+                    $meta[] = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
+                    break;
+                }
+            }
+        }
+
+        $total = (int) ( $file->cycle_size ?? 0 );
+        if ( $total <= 0 ) {
+            $total = count( $convs_repo->listForFile( (int) $file->id ) );
+        }
+        $sequence = (int) $conv->sequence;
+        $total    = max( $total, $sequence );
+        $template = self::templateLabel( (string) $conv->template_key );
+
+        if ( ! empty( $conv->conducted_at ) ) {
+            $talk = sprintf(
+                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
+                __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
+                $template, $sequence, $total, \TT\Shared\Dates\TTDate::date( (string) $conv->conducted_at )
+            );
+        } elseif ( ! empty( $conv->scheduled_at ) ) {
+            $talk = sprintf(
+                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
+                __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
+                $template, $sequence, $total, \TT\Shared\Dates\TTDate::dateTime( (string) $conv->scheduled_at )
+            );
+        } else {
+            $talk = sprintf(
+                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle */
+                __( '%1$s · conversation %2$d of %3$d', 'talenttrack' ),
+                $template, $sequence, $total
+            );
+        }
+
+        return [
+            'name'      => $name,
+            'photo_url' => $player ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '',
+            'meta'      => implode( ' · ', $meta ),
+            'talk'      => $talk,
+        ];
+    }
+
     private static function decisionLabel( string $decision ): string {
         // v3.110.208 (#843) — delegate to PdpVerdictsRepository::label()
         // which routes through LookupTranslator for the per-locale
@@ -2309,48 +2415,59 @@ class FrontendPdpManageView extends FrontendViewBase {
      * the first save, and the switch is offered only while the reader says
      * so (staff who may choose, before sign-off, while the player has saved
      * nothing; owner decision 6). The switch is saved through
-     * `PATCH /pdp-conversations/{id}/form`. Nothing renders when the
-     * academy uses no conversation forms.
+     * `PATCH /pdp-conversations/{id}/form`. Empty when the academy uses no
+     * conversation forms.
+     *
+     * #5079 — returned as HTML for the spine's `aside`, so the form in use
+     * sits on the right of the tab row instead of in a block above the talk.
      */
-    private static function renderFormSwitch( int $conv_id, int $user_id ): void {
+    private static function formAside( int $conv_id, int $user_id ): string {
         $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $user_id, $conv_id );
-        if ( $access === null || ! $access->canRead() ) return;
+        if ( $access === null || ! $access->canRead() ) return '';
         // #4979 — a talk that did not take place shows only its not-held line.
-        if ( \TT\Modules\Pdp\Services\PdpCycleState::isNotHeld( $access->conversation() ) ) return;
+        if ( \TT\Modules\Pdp\Services\PdpCycleState::isNotHeld( $access->conversation() ) ) return '';
         $form = ( new \TT\Modules\Pdp\Forms\PdpFormReader() )->read( $access, $access->conversation() );
-        if ( $form['form'] === null ) return;
+        if ( $form['form'] === null ) return '';
 
-        $group = (string) ( $form['form']['definition']['position_group'] ?? '' );
-        echo '<div class="tt-pdp-form-switch">';
-        echo '<p class="tt-pdp-form-switch__current">' . esc_html(
-            $group === \TT\Modules\Pdp\Forms\PdpFormRegistry::GROUP_GOALKEEPER
-                ? __( 'This talk uses the goalkeeper form.', 'talenttrack' )
-                : __( 'This talk uses the outfield form.', 'talenttrack' )
-        ) . '</p>';
+        $is_keeper = (string) ( $form['form']['definition']['position_group'] ?? '' ) === \TT\Modules\Pdp\Forms\PdpFormRegistry::GROUP_GOALKEEPER;
+        $html  = '<div class="tt-pdp-form-switch">';
+        $html .= '<span class="tt-pdp-form-switch__current">'
+            . \TT\Shared\Icons\IconRenderer::render( 'docs', [ 'width' => 18, 'height' => 18 ] )
+            . '<span>' . esc_html(
+                $is_keeper
+                    ? __( 'Form: Goalkeeper', 'talenttrack' )
+                    : __( 'Form: Outfield player', 'talenttrack' )
+            ) . '</span></span>';
 
         $target = $form['state']['form_switch_to'] ?? null;
         if ( is_string( $target ) && $target !== '' ) {
-            echo '<form class="tt-ajax-form tt-pdp-form-switch__form"'
+            $help_id = 'tt-pdp-form-switch-help-' . $conv_id;
+            $help    = __( 'You can switch until the player starts filling in the form.', 'talenttrack' );
+            $html   .= '<form class="tt-ajax-form tt-pdp-form-switch__form"'
                 . ' data-rest-path="' . esc_attr( 'pdp-conversations/' . $conv_id . '/form' ) . '"'
                 . ' data-rest-method="PATCH"'
                 . ' data-redirect-after-save="reload">';
-            echo '<input type="hidden" name="form_key" value="' . esc_attr( $target ) . '" />';
+            $html .= '<input type="hidden" name="form_key" value="' . esc_attr( $target ) . '" />';
             // FormSaveButton, so the shared script drives its states from the
             // button's own labels; a plain button would read "Save" after a
             // refused switch. One label for every state (ui-copy §3).
-            $label = __( 'Switch form', 'talenttrack' );
-            echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the helper escapes its own output.
+            $label = $is_keeper
+                ? __( 'Switch to outfield player', 'talenttrack' )
+                : __( 'Switch to goalkeeper', 'talenttrack' );
+            $html .= \TT\Shared\Frontend\Components\FormSaveButton::render( [
                 'label'        => $label,
                 'label_saving' => $label,
                 'label_saved'  => $label,
                 'label_error'  => $label,
                 'variant'      => 'secondary',
+                'title'        => $help,
+                'describedby'  => $help_id,
             ] );
-            echo '<p class="tt-help-text">' . esc_html__( 'You can switch until the player starts filling in the form.', 'talenttrack' ) . '</p>';
-            echo '<div class="tt-form-msg" role="status" aria-live="polite"></div>';
-            echo '</form>';
+            $html .= '<span class="tt-screen-reader-text" id="' . esc_attr( $help_id ) . '">' . esc_html( $help ) . '</span>';
+            $html .= '<div class="tt-form-msg" role="status" aria-live="polite"></div>';
+            $html .= '</form>';
         }
-        echo '</div>';
+        return $html . '</div>';
     }
 
     /**

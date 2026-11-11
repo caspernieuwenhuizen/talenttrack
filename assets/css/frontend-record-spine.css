@@ -95,6 +95,22 @@
     margin-right: 6px;
 }
 
+/* A second identity line (`detail`): what the page is about within the
+   record. It takes a line of its own under the name and meta, indented
+   past the avatar. */
+.tt-shell-app .tt-spine__id--detail {
+    flex-wrap: wrap;
+    row-gap: 2px;
+}
+
+.tt-shell-app .tt-spine__detail {
+    flex: 1 0 100%;
+    padding-inline-start: 34px;
+    font-size: 12px;
+    color: var(--tt-ink-soft, #6a6d66);
+    overflow-wrap: anywhere;
+}
+
 /* ---- Optional tabs ------------------------------------------------- */
 /* Two kinds share this styling: navigating tabs (<a href>) and in-page
    tabs (<button role="tab">). See the RecordSpine docblock.
@@ -177,6 +193,38 @@
     border-color: var(--tt-primary, #0b3d2e);
     color: #fff;
     font-weight: 600;
+}
+
+/* The tab row with an `aside`: the caller's control on the right. On a
+   phone it wraps under the tabs rather than squeezing them, so the row
+   never scrolls sideways. Unscoped, like the tabs: it renders under
+   `classic` too. */
+.tt-spine__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+}
+
+.tt-spine__row > .tt-spine__tabs {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tt-spine__aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    margin-inline-start: auto;
+    padding: 0 14px 10px;
+}
+
+.tt-spine--tabs-only .tt-spine__aside {
+    padding-block-start: 10px;
 }
 
 /* Focus rings must not be clipped by the strip's horizontal overflow, and
