@@ -47,6 +47,16 @@
      * it, so a longer academy name or a zoomed browser stays correct.
      */
     --tt-shell-header-h: 56px;
+    /*
+     * Where content that sticks to the page pins under the shell: below the
+     * admin bar and the sticky header. Declared on this element because
+     * app-shell.js writes the header height here and the admin-bar rule
+     * below overrides --tt-shell-top here, so the sum resolves with both
+     * final values. Content sheets read this token rather than adding the
+     * two up themselves; under `classic` it is unset and their 0px fallback
+     * applies.
+     */
+    --tt-shell-sticky-top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px));
 
     /*
      * #2504 — the app shell owns the page frame.
