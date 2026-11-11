@@ -434,7 +434,7 @@ paths:
       description: 'Cap required: `tt_build_reports`. Body — kind, scope, binding, audience, period_mode, period_value, layout, sharing, name, player_id / team_id / cohort, and optionally template (a key from GET /report-templates: the report takes the choices it fixes and opens on a copy of its blocks; a fixed choice sent with another value is 400 invalid_field). Validated by the start rules; the subject must be one the caller builds for.'
       responses:
         '201': { description: Created }
-        '400': { description: 'invalid_field with details.field, or unknown_field' }
+        '400': { description: 'invalid_field with details.field, or unknown_field. A cohort.position that is not one of the academy''s position codes is invalid_field with details.field cohort; a known code is stored upper-cased, and the group holds the players whose primary position it is.' }
         '402': { description: license_required }
         '403': { description: 'forbidden_team, forbidden_player or forbidden_scope' }
 
@@ -459,7 +459,7 @@ paths:
       summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
       description: 'Body — name, definition (at most 40 blocks, 12 for a dashboard, of id, key, options, width full | half, and for a report laid out as a grid its place, grid { x, y, w, h } on 12 columns: inside the grid, whole cells, no two blocks in one cell, checked on the server; a block without one takes the first free place, and a rows report refuses it), revision; revision may also be a query parameter. The name is the caller''s draft name; readers keep the published name until the next publish. A stale revision is 409 stale_revision with details.current_revision.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
-      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field, no_writable_field, or unknown_dimension (a block names an analytics field its fact no longer has)' }, '403': { description: forbidden }, '409': { description: stale_revision } }
+      responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field, no_writable_field, or unknown_dimension (a block names an analytics field its fact no longer has). On a group report, a block that does not work for a group is invalid_field with details.block (its index), details.key and details.reason block_scope.' }, '403': { description: forbidden }, '409': { description: stale_revision } }
     delete:
       tags: [report-studio]
       summary: Archive the report

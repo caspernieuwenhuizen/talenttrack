@@ -506,23 +506,33 @@ final class ReportsRepository {
      */
     public function cohortPlayers( array $cohort ): array {
         global $wpdb;
+        $team_ids = array_values( array_unique( array_filter( array_map( 'intval', $cohort['team_ids'] ), static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $team_ids === [] ) return [];
         $position = strtoupper( trim( (string) $cohort['position'] ) );
-        $ids      = [];
-        foreach ( $cohort['team_ids'] as $team_id ) {
-            $rows = $wpdb->get_results( $wpdb->prepare(
-                "SELECT pl.id, pl.preferred_positions FROM {$wpdb->prefix}tt_players pl
-                   JOIN {$wpdb->prefix}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
-                  WHERE pl.team_id = %d AND pl.club_id = %d
-                    AND pl.status = 'active' AND pl.archived_at IS NULL AND pl.trashed_at IS NULL
-                    AND ( %s = '' OR t.age_group = %s )
-                  ORDER BY pl.id ASC",
-                $team_id, CurrentClub::id(),
-                $cohort['age_group'], $cohort['age_group']
-            ) );
-            foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-                if ( $position !== '' && strtoupper( PlayerPosition::primaryCodeOf( $row ) ) !== $position ) continue;
-                $ids[ (int) $row->id ] = (int) $row->id;
-            }
+
+        // One read for every team in the group; the position is matched
+        // below, on the primary code `PlayerPosition` reads.
+        $in   = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id, pl.team_id, pl.preferred_positions FROM {$wpdb->prefix}tt_players pl
+               JOIN {$wpdb->prefix}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+              WHERE pl.team_id IN ({$in}) AND pl.club_id = %d
+                AND pl.status = 'active' AND pl.archived_at IS NULL AND pl.trashed_at IS NULL
+                AND ( %s = '' OR t.age_group = %s )
+              ORDER BY pl.id ASC",
+            array_merge( $team_ids, [ CurrentClub::id(), $cohort['age_group'], $cohort['age_group'] ] )
+        ) );
+
+        // In the group's team order, as the per-team reads gave them, so the
+        // group limit keeps the same players.
+        $by_team = array_fill_keys( $team_ids, [] );
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            if ( $position !== '' && strtoupper( PlayerPosition::primaryCodeOf( $row ) ) !== $position ) continue;
+            $by_team[ (int) $row->team_id ][] = (int) $row->id;
+        }
+        $ids = [];
+        foreach ( $by_team as $players ) {
+            foreach ( $players as $id ) $ids[ $id ] = $id;
         }
         return array_values( $ids );
     }

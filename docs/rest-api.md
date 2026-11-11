@@ -1805,11 +1805,11 @@ A draft is also refused with `400 invalid_field` (`details.block` the index)
 when a block does not fit the report's scope or audience, for example the key
 figures on a player report or a staff-only block on a family report. Before
 #4572 such a block was stored and then left out when the report was read.
-On a group report a block that does not declare the `group` scope is
-refused with `400 block_scope` instead (#4964), `details.block` the index and
-`details.key` the block, with the reason `GET /report-blocks?scope=group`
-lists it under `unavailable` with: "This block does not work for a group of
-players."
+On a group report, a block that does not declare the `group` scope gets the
+same `400 invalid_field` (#4964). Its message is "This block does not work
+for a group of players.", the reason `GET /report-blocks?scope=group` gives
+for that block under `unavailable`. The details also carry
+`reason: "block_scope"` and `key`, the block's key.
 
 Shared reads are memoised per request by subject and period, so several
 blocks on one subject read it once.

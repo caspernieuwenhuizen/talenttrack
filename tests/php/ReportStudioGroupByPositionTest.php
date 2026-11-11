@@ -193,9 +193,12 @@ final class ReportStudioGroupByPositionTest extends WP_UnitTestCase {
         $id  = $this->send( 'POST', 'reports', [ 'scope' => 'group', 'binding' => 'on_open', 'sharing' => 'role', 'cohort' => [ 'team_ids' => [ $this->team_a ] ] ] )->get_data()['data']['id'];
         $res = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [ [ 'key' => 'attendance_per_week' ], [ 'key' => 'goals_assists' ] ] ] ] );
         $this->assertSame( 400, $res->get_status() );
-        $this->assertSame( 'block_scope', (string) ( $res->get_data()['errors'][0]['code'] ?? '' ) );
+        $this->assertSame( 'invalid_field', (string) ( $res->get_data()['errors'][0]['code'] ?? '' ), 'the code a refused block always had' );
         $this->assertSame( 'This block does not work for a group of players.', (string) ( $res->get_data()['errors'][0]['message'] ?? '' ) );
-        $this->assertSame( 1, (int) ( $this->details( $res )['block'] ?? -1 ), 'naming the block' );
+        $details = $this->details( $res );
+        $this->assertSame( 'block_scope', (string) ( $details['reason'] ?? '' ) );
+        $this->assertSame( 'goals_assists', (string) ( $details['key'] ?? '' ) );
+        $this->assertSame( 1, (int) ( $details['block'] ?? -1 ), 'naming the block' );
     }
 
     /** The first error's details, which the envelope carries as an object. @return array<string,mixed> */
