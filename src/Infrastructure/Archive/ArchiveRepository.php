@@ -949,6 +949,30 @@ class ArchiveRepository {
     }
 
     /**
+     * #5118 — the archive state clause of an ordinary list: `active` (the
+     * default), `archived` or `all`, through {@see self::filterClause()}.
+     * The recycle bin is not a state of an ordinary list, so asking for it
+     * reads as `active`; the recycle-bin screen reads the bin itself, behind
+     * its own check. Every list route that takes an archive state uses this.
+     *
+     * @param mixed $view the requested state, unsanitised
+     */
+    public static function listViewClause( $view, string $alias = '' ): string {
+        return self::filterClause( self::listView( $view ), $alias );
+    }
+
+    /**
+     * #5118 — the archive state an ordinary list honours: the sanitised
+     * view, with `trashed` read as `active`.
+     *
+     * @param mixed $view
+     */
+    public static function listView( $view ): string {
+        $view = self::sanitizeView( $view );
+        return $view === 'trashed' ? 'active' : $view;
+    }
+
+    /**
      * Normalize the ?tt_view query-string value to one of
      * active / archived / trashed / all. `trashed` is a valid vocabulary
      * member here, but surfacing it is the caller's decision: the recycle-bin

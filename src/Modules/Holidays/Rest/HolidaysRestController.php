@@ -189,8 +189,10 @@ final class HolidaysRestController {
         // archive state.
         $filter = is_array( $req['filter'] ?? null ) ? $req['filter'] : [];
         $raw    = $filter['archived'] ?? ( $filter['status'] ?? null );
+        // #5118 — an ordinary list never serves the recycle bin: `trashed`
+        // reads as `active` (`ArchiveRepository::listView()`).
         $status = $raw !== null
-            ? \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( (string) $raw )
+            ? \TT\Infrastructure\Archive\ArchiveRepository::listView( (string) $raw )
             : 'active';
         $rows = ( new HolidaysRepository() )->list(
             (string) $req->get_param( 'from' ),

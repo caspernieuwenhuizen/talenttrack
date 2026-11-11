@@ -273,16 +273,18 @@ class GoalsRestController {
 
         // #1470 — Active / Archived / All status filter. Back-compat:
         // the legacy `include_archived=1` still maps to "all".
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+        // #5118 — an ordinary list never serves the recycle bin: `trashed`
+        // reads as `active` (`ArchiveRepository::listViewClause()`).
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::listView(
             is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
         );
         if ( ! empty( $r['include_archived'] ) ) {
             $archived_view = 'all';
         }
-        // #2023 — through filterClause (alias 'g') so every state also hides
-        // trashed (recycle-bin) rows; the query joins tt_players + tt_teams
-        // (also archivable), so the alias keeps trashed_at unambiguous.
-        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 'g' );
+        // #2023 — alias 'g' so every state also hides trashed (recycle-bin)
+        // rows; the query joins tt_players + tt_teams (also archivable), so
+        // the alias keeps trashed_at unambiguous.
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $archived_view, 'g' );
 
         // v3.91.2 — bypass coach-scope filter for personas with matrix
         // `goals:r[global]` (head_of_development, academy_admin).

@@ -212,10 +212,12 @@ class EvaluationsRestController {
         // #2023 — through filterClause (alias 'e') so every state also hides
         // trashed (recycle-bin) rows; the query joins tt_players (also
         // archivable), so the alias keeps trashed_at unambiguous.
-        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+        // #5118 — an ordinary list never serves the recycle bin: `trashed`
+        // reads as `active` (`ArchiveRepository::listViewClause()`).
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::listView(
             is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
         );
-        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 'e' );
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::listViewClause( $archived_view, 'e' );
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
