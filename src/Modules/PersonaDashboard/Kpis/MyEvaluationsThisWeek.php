@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
@@ -69,8 +70,13 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
         // ago counted here and was missing from the list.
         $since = self::daysBeforeToday( self::WINDOW_DAYS );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // The list's other narrowing too: this club, and active evaluations
+        // only (no archived or recycle-bin rows), the clause `list_evals`
+        // applies on its default view.
+        $active = ArchiveRepository::filterClause( 'active', 'e' );
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.eval_date >= %s {$scope}",
+            "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.{$author_col} = %d AND e.eval_date >= %s {$scope}",
+            $club_id,
             $user_id,
             $since
         ) );
@@ -84,8 +90,8 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
             $end   = $w === 0 ? self::daysBeforeToday( -1 ) : self::daysBeforeToday( $w * self::WINDOW_DAYS );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} e WHERE e.{$author_col} = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
-                $user_id, $start, $end
+                "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND {$active} AND e.{$author_col} = %d AND e.eval_date >= %s AND e.eval_date < %s {$scope}",
+                $club_id, $user_id, $start, $end
             ) );
         }
         $trend = null;

@@ -210,7 +210,9 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
 
     /**
      * The "this week" card counts what its list shows: both go by the
-     * evaluation's date, not the day it was entered.
+     * evaluation's date, not the day it was entered, and both leave out an
+     * archived evaluation. The card's count equal to the list's rows is what
+     * shows the dated-back and the archived ones are off the card too.
      */
     public function test_the_week_card_and_its_list_count_the_same_evaluations(): void {
         global $wpdb;
@@ -227,12 +229,19 @@ final class CoachKpiLinksReachableTest extends WP_UnitTestCase {
             'eval_date' => $today->sub( new \DateInterval( 'P1D' ) )->format( 'Y-m-d' ), 'created_at' => $entered,
         ] );
         $yesterday = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", [
+            'club_id' => self::CLUB, 'player_id' => $this->player, 'coach_id' => $this->coach,
+            'eval_date' => $today->sub( new \DateInterval( 'P1D' ) )->format( 'Y-m-d' ), 'created_at' => $entered,
+            'archived_at' => $entered,
+        ] );
+        $archived = (int) $wpdb->insert_id;
 
         $source = KpiDataSourceRegistry::get( 'my_evaluations_this_week' );
         $this->assertNotNull( $source );
         $ids = $this->rowIds( $this->listAs( $this->coach, $this->filterOf( $this->hrefFor( $source ) ) ) );
         $this->assertContains( $yesterday, $ids, 'an evaluation dated yesterday is on the list' );
         $this->assertNotContains( $old, $ids, 'one dated two weeks ago is not, though it was entered today' );
+        $this->assertNotContains( $archived, $ids, 'an archived one from this week is not' );
 
         $card = $source->compute( $this->coach, self::CLUB );
         $this->assertSame( (string) count( $ids ), $card->current, 'the card counts the rows its list shows' );
