@@ -77,7 +77,7 @@
     font-weight: 600;
     color: var(--ttw-ink);
 }
-.tt-tournament-wizard .ttw-req { color: var(--ttw-danger); font-weight: 700; margin-left: 2px; }
+.tt-tournament-wizard .ttw-req { color: var(--tt-danger-text, var(--ttw-danger)); font-weight: 700; margin-left: 2px; }
 .tt-tournament-wizard .ttw-hint {
     font-size: 0.75rem;
     color: var(--ttw-ink-soft);
@@ -105,7 +105,7 @@
     border-color: var(--ttw-accent);
 }
 .tt-tournament-wizard .ttw-field .ttw-error {
-    color: var(--ttw-danger);
+    color: var(--tt-danger-text, var(--ttw-danger));
     font-size: 0.75rem;
     font-weight: 600;
     margin-top: 2px;
@@ -376,7 +376,7 @@
 .tt-tournament-wizard .ttw-match-head .ttw-remove {
     border: 0;
     background: transparent;
-    color: var(--ttw-danger);
+    color: var(--tt-danger-text, var(--ttw-danger));
     cursor: pointer;
     font: inherit;
     font-size: 0.8125rem;
@@ -430,7 +430,7 @@
     min-width: 24px;
     min-height: 24px;
 }
-.tt-tournament-wizard .ttw-chip .ttw-chip-x:hover { color: var(--ttw-danger); }
+.tt-tournament-wizard .ttw-chip .ttw-chip-x:hover { color: var(--tt-danger-text, var(--ttw-danger)); }
 .tt-tournament-wizard .ttw-chip-editor input {
     border: 0;
     outline: none;

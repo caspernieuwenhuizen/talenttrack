@@ -152,10 +152,10 @@
     color: var(--tt-mexec-ink-soft);
     margin: 0 0 2px;
 }
-.tt-mexec-timer-half[data-status="live"] { color: var(--tt-mexec-success); }
+.tt-mexec-timer-half[data-status="live"] { color: var(--tt-success-text, var(--tt-mexec-success)); }
 .tt-mexec-timer-half[data-status="live"]::before {
     content: '\25CF';
-    color: var(--tt-mexec-success);
+    color: var(--tt-success-text, var(--tt-mexec-success));
     margin-right: 4px;
     animation: tt-mexec-pulse 1.4s ease-in-out infinite;
 }
@@ -627,7 +627,7 @@
     border: 1px solid var(--tt-mexec-line);
     border-radius: 6px;
     background: var(--tt-mexec-paper);
-    color: var(--tt-mexec-danger);
+    color: var(--tt-danger-text, var(--tt-mexec-danger));
     font: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -893,7 +893,7 @@
     border: 1px solid var(--tt-mexec-line);
     border-radius: 8px;
     background: var(--tt-mexec-paper);
-    color: var(--tt-mexec-danger);
+    color: var(--tt-danger-text, var(--tt-mexec-danger));
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
@@ -1411,12 +1411,12 @@
 /* Colour + icon + text, never colour alone. */
 .tt-mxp-log-chip--goal {
     background: var( --tt-success-subtle, #e3f4e6 );
-    color: var( --tt-success, #1f7a3a );
+    color: var( --tt-success-text, var( --tt-success, #1f7a3a ));
 }
 
 .tt-mxp-log-chip--substitution {
     background: var( --tt-info-subtle, #e4eefb );
-    color: var( --tt-info, #235ea8 );
+    color: var( --tt-info-text, var( --tt-info, #235ea8 ));
 }
 
 /* #2275 — an opponent goal reads grey, distinct from our green goal chip. */
@@ -1475,8 +1475,8 @@
     text-align: center;
     font-weight: 800;
 }
-.tt-mxp-log-swap-line--on .tt-mxp-log-swap-dir { color: var( --tt-success, #2f9e5e ); }
-.tt-mxp-log-swap-line--off .tt-mxp-log-swap-dir { color: var( --tt-danger, #d8453b ); }
+.tt-mxp-log-swap-line--on .tt-mxp-log-swap-dir { color: var( --tt-success-text, var( --tt-success, #2f9e5e )); }
+.tt-mxp-log-swap-line--off .tt-mxp-log-swap-dir { color: var( --tt-danger-text, var( --tt-danger, #d8453b )); }
 .tt-mxp-log-swap-line--off .tt-mxp-log-swap-who { color: var( --tt-ink-soft, #6a6d66 ); }
 .tt-mxp-log-swap-who {
     font-weight: 600;
@@ -2003,7 +2003,7 @@
 
 .tt-mexec-goal-sheet-error {
     margin: 0;
-    color: var(--tt-mexec-danger);
+    color: var(--tt-danger-text, var(--tt-mexec-danger));
     font-size: 0.9rem;
     font-weight: 600;
 }
