@@ -873,7 +873,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $target    = (int) $data['target_pct'];
         $players   = $data['players'];
         $available = (int) $data['available_minutes'];
-        $median    = \TT\Modules\Analytics\Reports\MinutesShareQuery::medianShare( $players );
+        $median    = \TT\Modules\Analytics\Reports\MinutesQuery::medianShare( $players );
         $below     = 0;
         foreach ( $players as $p ) {
             if ( $p['below_target'] ) $below++;
@@ -1177,68 +1177,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             return;
         }
 
-        global $wpdb;
-        // #2158 — attendance→activity FK is `activity_id` (migration 0027
-        // renamed the legacy session FK); the old join column did not exist
-        // on the current schema. The activity date column was not renamed.
-        $att_fk   = 'activity_id';
-        $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities
-        $club_id  = CurrentClub::id();
-        // #2434 — one window for the whole page: the squad query, both match
+        // #2434 — one window for the whole page: the squad, both match
         // counts, the per-player breakdown and the Explorer drill all read
         // it. Defaults to the rolling 12 months this report has always used.
         $win     = self::resolveReportWindow( self::rollingYearWindow() );
         $bd_from = $win['from'];
         $bd_to   = $win['to'];
-        // #2339 — resolve the squad the SAME way the rest of analytics does:
-        // players with recorded attendance on THIS TEAM's match/game/tournament
-        // activities (`tt_activities.team_id`), NOT `tt_players.team_id`. The
-        // old `FROM tt_players p WHERE p.team_id = %d` gate diverged from the
-        // activity-team definition — for installs where `tt_players.team_id`
-        // is unset it returned an empty squad while the match count (keyed on
-        // `tt_activities.team_id`) still found matches ("18 matches, 0
-        // players"). Mirrors AttendanceRankingQuery (population from attendance
-        // on the team's activities) and MinutesQuery::forTeam (minutes summed
-        // per player, `record_type='actual'` only, #2193). A player is in the
-        // squad if they have ANY canonical attendance row on the team's
-        // activities in the window — so players appear even with 0 recorded
-        // minutes, and the squad + match count share one team-membership
-        // definition.
-        //
-        // #4549 — the query names the squad and the matches each player has a
-        // register row on; the minutes are the minutes reports' own read,
-        // `MinutesQuery::minutesForActivities()`: one figure per (player,
-        // match) by the #4526 rule, so a duplicate row is read once, and the
-        // #4053 plan fallback on an old tournament fixture. A SQL aggregate
-        // here never asked the resolver, so those fixtures read 0.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
-        $pairs = $wpdb->get_results( $wpdb->prepare(
-            // #2849 — `tt_players` has no `name`; it carries `first_name` and
-            // `last_name`. Selecting the column that does not exist made the
-            // whole query fail, and `get_results()` returns null on error, so
-            // every caller quietly saw an empty squad — which is what the
-            // pilot reported as "1 wedstrijd vastgelegd, 0 spelers in
-            // selectie". #2833 converged the two counts, correctly, but the
-            // contradiction had this cause underneath it.
-            "SELECT p.id AS player_id, p.first_name, p.last_name, p.jersey_number,
-                    att.{$att_fk} AS activity_id
-               FROM {$wpdb->prefix}tt_attendance att
-               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
-                    AND a.team_id = %d
-                    AND a.club_id = %d
-                    AND a.archived_at IS NULL
-                    AND a.trashed_at IS NULL
-                    AND a.plan_state <> 'cancelled'
-                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
-               JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.archived_at IS NULL
-              WHERE att.record_type = 'actual'
-                AND att.is_guest = 0
-                AND {$is_match_sql}
-                AND a.{$date_col} BETWEEN %s AND %s
-              GROUP BY p.id, p.first_name, p.last_name, p.jersey_number, att.{$att_fk}",
-            $team_id, $club_id, $bd_from, $bd_to
-        ) );
-        $rows = array_slice( \TT\Modules\Analytics\Reports\MinutesQuery::squadTotals( is_array( $pairs ) ? $pairs : [] ), 0, 60 );
+
+        // #5019 — the one minutes squad (`MinutesQuery::squadForTeam()`): the
+        // attendees of the team's played matches plus the current roster, the
+        // squad the Minutes share and the monthly report read too.
+        $minutes_query = new \TT\Modules\Analytics\Reports\MinutesQuery();
+        $rows          = array_slice( $minutes_query->squadForTeam( $team_id, $bd_from, $bd_to ), 0, 60 );
 
         // #2433 — the counted match, resolved in the domain layer (§4) so the
         // report and any future REST consumer answer identically. The old
@@ -1246,12 +1196,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // carry and had no upper date bound, which is how the report could
         // claim "19 matches" beside an empty squad. See
         // MinutesQuery::matchCountsForTeam() for why there are two numbers.
-        $minutes_query    = new \TT\Modules\Analytics\Reports\MinutesQuery();
         $match_counts     = $minutes_query->matchCountsForTeam( $team_id, $bd_from, $bd_to );
         $recorded_matches = $match_counts['recorded'];
         $played_matches   = $match_counts['played'];
-        $top = $rows ? (int) $rows[0]->total_minutes : 0;
-        $bottom = $rows ? (int) $rows[ count( $rows ) - 1 ]->total_minutes : 0;
+        $top = $rows ? $rows[0]['total_minutes'] : 0;
+        $bottom = $rows ? $rows[ count( $rows ) - 1 ]['total_minutes'] : 0;
         $spread_pct = $top > 0 ? (int) round( ( ( $top - $bottom ) / $top ) * 100 ) : 0;
 
         // #2434 — the drill carries the window the report is showing.
@@ -1345,22 +1294,22 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // is the same instance the match counts came from.
         $threshold = $top > 0 ? (int) round( $top * 0.5 ) : 0;
         foreach ( $rows as $r ) {
-            $mins = (int) $r->total_minutes;
+            $mins = $r['total_minutes'];
             $pct  = $top > 0 ? max( 5, (int) round( ( $mins / $top ) * 100 ) ) : 0;
             $warn = $mins < $threshold ? '1' : '0';
             // #2160 — each player row is a <details> drill-down (keyboard-
             // operable, no-JS, reconciles at 360px). The summary keeps the
             // existing bar visual; the body lists the per-match rows.
-            $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, (int) $r->player_id, $bd_from, $bd_to );
+            $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, $r['player_id'], $bd_from, $bd_to );
             echo '<details class="tt-rep-bar-details">';
             echo '<summary class="tt-rep-bar-row">';
-            echo '<span>' . esc_html( (string) $r->name ) . '</span>';
+            echo '<span>' . esc_html( trim( $r['first_name'] . ' ' . $r['last_name'] ) ) . '</span>';
             echo '<div class="tt-rep-bar-track"><div class="tt-rep-bar-fill" data-warn="' . $warn . '" style="width:' . (int) $pct . '%;"></div></div>'; /* tt-inline-ok */ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — computed progress-bar width; $pct is an int.
             echo '<span class="num">' . esc_html( (string) $mins ) . '</span>';
             echo '</summary>';
             // #2348 — shared breakdown component; identical rows to the
             // former per-file renderer, still reconciling to the total.
-            MinutesBreakdown::render( $breakdown, (int) $r->player_id );
+            MinutesBreakdown::render( $breakdown, $r['player_id'] );
             echo '</details>';
         }
         echo '</section>';

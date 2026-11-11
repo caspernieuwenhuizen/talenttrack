@@ -24,6 +24,19 @@ the **team manager**, for the teams they manage and no others, whether they
 hold the team manager role or a staff account with the Manager role on the
 team.
 
+## Who is in the squad
+
+The same squad every minutes report and the team monthly report use: every
+player on the register of one of the team's played matches in the window,
+whatever team they are on now, **plus everyone on the team's current roster**.
+A player on the roster who was never put on a register shows at 0 minutes,
+because that is the player the report exists to flag. A team whose players
+have all moved on still shows the squad that played for it. Archived players
+are left out.
+
+One limit: in a window in the past, the roster half can add a player who
+joined the team later, at 0 minutes.
+
 ## How the available minutes are worked out
 
 Every match the team **played** in the window **with minutes recorded**, at

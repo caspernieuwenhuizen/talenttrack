@@ -66,10 +66,14 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
      *
      * Six more with #4957: every minutes read now carries the demo scope
      * (`PlayedMatch::liveSql()`), and the demo scope reads the demo-only
-     * toggle from `tt_config` once per call, uncached.
+     * toggle from `tt_config` once per call, uncached. Three more with #5019:
+     * the player's minutes share reads the one minutes squad
+     * (`MinutesQuery::squadForTeam()`), the attendees plus the roster, beside
+     * `forTeam()`'s read, where it read the attendees alone before. A fixed
+     * count either way: nothing per player or per match.
      */
     private const TEAM_QUERY_BASELINE   = 191;
-    private const PLAYER_QUERY_BASELINE = 84;
+    private const PLAYER_QUERY_BASELINE = 87;
 
     private int $admin = 0;
     private int $team  = 0;

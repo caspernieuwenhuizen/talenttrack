@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\MinutesShareQuery;
 
 /**
@@ -171,7 +172,12 @@ final class MinutesShareTest extends WP_UnitTestCase {
         $data = ( new MinutesShareQuery() )->forTeam( $team_id, self::FROM, self::TO );
 
         $this->assertSame( 0, $data['available_minutes'] );
-        $this->assertSame( [], $data['players'], 'no attendance rows, so no squad' );
+        // #5019 — the roster player is in the squad, with no share: nothing
+        // was available, so they are not flagged either.
+        $this->assertCount( 1, $data['players'], 'the roster is the squad when nobody attended' );
+        $this->assertSame( 0, $data['players'][0]['minutes'] );
+        $this->assertNull( $data['players'][0]['share_pct'] );
+        $this->assertFalse( $data['players'][0]['below_target'] );
     }
 
     /** The target is academy-configurable, and the flag follows it. */
@@ -210,8 +216,8 @@ final class MinutesShareTest extends WP_UnitTestCase {
             [ 'share_pct' => 20.0 ],
             [ 'share_pct' => 100.0 ],
         ];
-        $this->assertSame( 20.0, MinutesShareQuery::medianShare( $players ) );
-        $this->assertNull( MinutesShareQuery::medianShare( [] ) );
+        $this->assertSame( 20.0, MinutesQuery::medianShare( $players ) );
+        $this->assertNull( MinutesQuery::medianShare( [] ) );
     }
 
     /** One player's row is the same answer the squad view gives. */

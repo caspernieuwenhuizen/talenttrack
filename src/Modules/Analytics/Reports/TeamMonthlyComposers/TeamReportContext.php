@@ -14,7 +14,6 @@ use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\MinutesQuery;
-use TT\Modules\Analytics\Reports\MinutesShareQuery;
 use TT\Modules\Analytics\Reports\PlayerOrder;
 use TT\Modules\Analytics\Reports\TeamMatchRecord;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
@@ -340,49 +339,18 @@ final class TeamReportContext {
     }
 
     /**
-     * Minutes for every player in the squad over a window.
-     *
-     * #3589 — `MinutesQuery::forTeam()` only returns players who got on the
-     * pitch, which left out exactly the player the minutes block exists to
-     * flag: in the squad, available, never played. Every squad player without
-     * a row gets one at zero, against the same available minutes as the rest
-     * (the query's figure is squad-wide). The query itself is left as it is;
-     * its other callers rely on its shape.
+     * Minutes for every player in the minutes squad over a window: the one
+     * squad every minutes surface reads (`MinutesQuery::squadForTeam()`,
+     * #5019), the attendees of the team's played matches plus the current
+     * roster at zero (#3589). {@see players()} stays the roster, for the
+     * sections that report on the squad as it stands.
      *
      * @return list<MinutesRow>
      */
     public function minutesIn( string $from, string $to ): array {
         $key = $from . '|' . $to;
         if ( ! isset( $this->minutes[ $key ] ) ) {
-            $rows = ( new MinutesQuery() )->forTeam( $this->team_id, $from, $to );
-
-            $seen = [];
-            foreach ( $rows as $r ) $seen[ $r['player_id'] ] = true;
-
-            $available = null;
-            foreach ( $this->players() as $pid => $player ) {
-                if ( isset( $seen[ $pid ] ) ) continue;
-                if ( $available === null ) {
-                    $available = $rows !== []
-                        ? $rows[0]['available_minutes']
-                        : ( new MinutesShareQuery() )->availableForTeam( $this->team_id, $from, $to )['minutes'];
-                }
-                $player = (array) $player;
-                $rows[] = [
-                    'player_id'         => (int) $pid,
-                    'first_name'        => (string) ( $player['first_name'] ?? '' ),
-                    'last_name'         => (string) ( $player['last_name'] ?? '' ),
-                    'jersey_number'     => isset( $player['jersey_number'] ) ? (int) $player['jersey_number'] : null,
-                    'total_minutes'     => 0,
-                    'matches'           => 0,
-                    'starts'            => 0,
-                    'subs_in'           => 0,
-                    'subs_off'          => 0,
-                    'by_type'           => [],
-                    'available_minutes' => $available,
-                ];
-            }
-            $this->minutes[ $key ] = $rows;
+            $this->minutes[ $key ] = ( new MinutesQuery() )->squadForTeam( $this->team_id, $from, $to );
         }
         return $this->minutes[ $key ];
     }

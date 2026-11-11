@@ -187,7 +187,8 @@ final class PlayerTalkingPoints {
 
         $available = 0;
         $played    = 0;
-        foreach ( ( new MinutesQuery() )->forTeam( $team_id, $from, $to ) as $row ) {
+        // #5019 — the one minutes squad, the one the Minutes share reads.
+        foreach ( ( new MinutesQuery() )->squadForTeam( $team_id, $from, $to ) as $row ) {
             $available = max( $available, (int) $row['available_minutes'] );
             if ( (int) $row['player_id'] === $player_id ) $played = (int) $row['total_minutes'];
         }

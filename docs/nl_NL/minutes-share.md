@@ -24,6 +24,20 @@ openen. Dat geldt ook voor de **teammanager**, voor de teams die hij beheert en
 geen andere, of hij nu de rol teammanager heeft of een stafaccount met de rol
 Manager op het team.
 
+## Wie er in de selectie zit
+
+Dezelfde selectie die elk minutenrapport en het maandrapport van het team
+gebruiken: elke speler op de presentielijst van een van de gespeelde
+wedstrijden van het team in de periode, bij welk team hij nu ook speelt,
+**plus iedereen op de huidige selectie van het team**. Een speler uit de
+selectie die nooit op een presentielijst stond, staat erin met 0 minuten,
+want dat is precies de speler die het rapport moet laten zien. Een team
+waarvan alle spelers zijn doorgeschoven, toont nog steeds de selectie die
+voor het team speelde. Gearchiveerde spelers blijven erbuiten.
+
+Eén beperking: in een periode in het verleden kan de huidige selectie een
+speler toevoegen die pas later bij het team kwam, met 0 minuten.
+
 ## Hoe de beschikbare minuten worden bepaald
 
 Elke wedstrijd die het team in de periode **gespeeld** heeft **met vastgelegde

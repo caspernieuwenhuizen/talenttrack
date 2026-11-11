@@ -667,14 +667,29 @@ de filters in het gebruikelijke bottom-sheet; elke bediening houdt een aanraakdo
 van 48px. De subregel van elk rapport en de Verkenner-drill noemen nu hetzelfde
 venster, zodat het cijfer en de drill overeenkomen.
 
-Het rapport **Team · Minutenverdeling** had een selectiefout: het telde
-wedstrijden op basis van de activiteiten van het team, maar bouwde de spelerslijst
-op uit `tt_players.team_id` — dus een team waarvan de spelers geen `team_id`
-hadden, toonde "18 wedstrijden, 0 spelers". De selectie wordt nu op **dezelfde
-manier bepaald als in de rest van de analytics** — spelers met geregistreerde
-aanwezigheid op de wedstrijd-/toernooiactiviteiten van het team — zodat de
-spelerslijst en het wedstrijdaantal één definitie delen, en een speler
-verschijnt ook met **0 geregistreerde minuten**. Minuten komen nog steeds
+**Eén minutenselectie in elk rapport.** Team · Minutenverdeling, Team ·
+Minutenaandeel, de minutensectie van het maandrapport van het team en de
+gespreksonderwerpen lezen allemaal dezelfde selectie: elke speler op de
+presentielijst van een van de **gespeelde** wedstrijd-, game- of
+toernooiactiviteiten van het team in de periode, bij welk team hij nu ook
+speelt, **plus iedereen op de huidige selectie van het team**. Gearchiveerde
+spelers blijven erbuiten. Een speler verschijnt dus ook met **0 geregistreerde
+minuten**, een speler uit de selectie die nooit op een presentielijst stond
+staat erin met 0, en een team van vorig seizoen waarvan de spelers zijn
+doorgeschoven, toont nog steeds de selectie die voor het team speelde. De vier
+rapporten geven daardoor dezelfde spelers, dezelfde minuten en dezelfde mediaan
+voor hetzelfde team en dezelfde periode. Eén beperking: in een periode in het
+verleden kan de huidige selectie een speler toevoegen die pas later bij het
+team kwam, met 0 minuten.
+
+**Wat hierdoor veranderde.** Het maandrapport telde alleen de spelers met
+minuten plus de huidige selectie, en het Minutenaandeel alleen de spelers op
+een presentielijst, dus de twee konden voor dezelfde maand een heel andere
+mediaan tonen. Beide tonen nu de selectie hierboven; bij een team waarvan de
+spelers zijn doorgeschoven, kan de minutentabel van het maandrapport meer
+spelers tonen, en kan de mediaan zakken naar die van het Minutenaandeel.
+
+Minuten komen nog steeds
 uitsluitend uit vastgelegde `record_type='actual'`-aanwezigheidsrijen (ze worden
 nooit geschat), dus een wedstrijd zonder geregistreerde minuten telt 0.
 

@@ -627,13 +627,25 @@ bottom-sheet; every control keeps a 48px touch target. Each report's page
 sub-line and its Explorer drill now name the same window, so the figure and the
 drill agree.
 
-The **Team · Minutes distribution** report had a squad-resolution bug: it counted
-matches from the team's activities but built the player list from
-`tt_players.team_id`, so a team whose players had no `team_id` set showed
-"18 matches, 0 players". The squad is now derived the **same way the rest of
-analytics resolves a team** — players with recorded attendance on the team's
-match / game / tournament activities — so the player list and the match count
-share one definition, and a player appears even with **0 recorded minutes**.
+**One minutes squad on every report.** Team · Minutes distribution, Team ·
+Minutes share, the team monthly report's minutes section and the talking
+points all read the same squad: every player on the register of one of the
+team's **played** match, game or tournament activities in the window, whatever
+team they are on now, **plus everyone on the team's current roster**. Archived
+players are left out. So a player appears even with **0 recorded minutes**, a
+roster player never put on a register is there at 0, and a past-season team
+whose players have moved on still shows the squad that played for it. The
+four reports therefore give the same players, the same minutes and the same
+median for the same team and window. One limit: in a window in the past, the
+roster half can add a player who joined the team later, at 0 minutes.
+
+**What this changed.** The monthly report used to count only the players with
+minutes plus the current roster, and the Minutes share only the players on a
+register, so the two could show very different medians for the same month.
+Both now show the squad above; on a team whose players have moved on, the
+monthly report's minutes table can list more players, and its median can drop
+to the Minutes share's.
+
 Minutes still come only from persisted `record_type='actual'` attendance rows
 (they are never estimated), so a match with no recorded minutes contributes 0.
 
