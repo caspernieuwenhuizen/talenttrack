@@ -34,15 +34,19 @@ class BackupDependencyMap {
      * Foreign-key-like references inside the tt_* domain.
      *
      * Format: child_table => [
-     *   ['column' => string, 'parent_table' => string, 'parent_column' => string],
+     *   ['column' => string, 'parent_table' => string, 'parent_column' => string, 'optional' => bool?],
      *   ...
      * ]
+     *
+     * An `optional` reference is a link the child row is whole without. It
+     * orders the restore, and a migration import remaps it or sets it to
+     * NULL, but the closure walk does not follow it.
      *
      * Returns only references between tt_* tables — references that
      * point at WP core tables (wp_users, etc.) are explicitly excluded
      * because those tables aren't in the backup scope.
      *
-     * @return array<string, array<int, array{column:string, parent_table:string, parent_column:string}>>
+     * @return array<string, array<int, array{column:string, parent_table:string, parent_column:string, optional?:bool}>>
      */
     public static function refs(): array {
         return [
@@ -52,6 +56,13 @@ class BackupDependencyMap {
             'tt_evaluations' => [
                 [ 'column' => 'player_id',    'parent_table' => 'tt_players',  'parent_column' => 'id' ],
                 [ 'column' => 'eval_type_id', 'parent_table' => 'tt_lookups',  'parent_column' => 'id' ],
+                // #5051 — a match evaluation's activity. Optional: an
+                // evaluation is whole without it, so a migration import
+                // sets it to NULL when the activity is not in the archive
+                // rather than skipping the evaluation, and a partial restore
+                // does not pull the activity in. Restore order still puts
+                // activities first.
+                [ 'column' => 'activity_id',  'parent_table' => 'tt_activities', 'parent_column' => 'id', 'optional' => true ],
             ],
             'tt_eval_ratings' => [
                 [ 'column' => 'evaluation_id', 'parent_table' => 'tt_evaluations',     'parent_column' => 'id' ],
@@ -100,6 +111,7 @@ class BackupDependencyMap {
         $out = [];
         foreach ( self::refs() as $child => $references ) {
             foreach ( $references as $ref ) {
+                if ( ! empty( $ref['optional'] ) ) continue; // not walked (#5051)
                 $parent = (string) $ref['parent_table'];
                 $col    = (string) $ref['column'];
                 $out[ $parent ][ $child ][] = $col;
