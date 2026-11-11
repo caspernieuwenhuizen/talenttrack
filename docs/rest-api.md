@@ -1132,6 +1132,11 @@ player (`surface` `player_report`, `count`), as the injuries screens do. The
 page, this route and the PDF each compose once, so each writes one. A reader
 without the medical right gets no injuries and writes none; a composition for
 several readers or for nobody signed in, as a scheduled send is, writes none.
+Opening a snapshot whose injuries section still lists injuries for the reader
+(`GET /player-report-snapshots/{uuid}`, the snapshot page, the snapshot PDF)
+writes one row with `surface` `player_report_snapshot` and the `snapshot`
+uuid, once per request. The PDP evidence packet (`EvidencePacket::forFile()`,
+`forConversation()`) writes one with `surface` `pdp` for the signed-in reader.
 
 **Window.** `from` + `to` (`Y-m-d`, `from` on or before `to`) win. Without
 them, `period` resolves one (`last_week`, `last_month`, `this_month`,
@@ -1334,7 +1339,10 @@ audit row, and each player with a medical or safeguarding entry shown one
 `player.sensitive_timeline_viewed` row, both with `surface`
 `team_monthly_report`, as the injuries screen and the journey timeline log
 theirs. A reader shown none writes none; a composition for several readers or
-for nobody signed in, as a scheduled send is, writes none.
+for nobody signed in, as a scheduled send is, writes none. Opening a snapshot
+(the snapshot page or its PDF) whose `changes`, as the reader reads it, still
+lists injury entries writes one `player.injuries_viewed` row per player shown,
+with `surface` `team_monthly_snapshot` and the `snapshot` uuid.
 
 **Attendance (#4949).** The `attendance` block and the `kpi` block's
 `attendance_pct` answer to the attendance read right

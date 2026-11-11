@@ -243,6 +243,7 @@ final class PlayerReportSnapshots {
             $document = \TT\Modules\ReportStudio\Domain\ReportSnapshots::forReader( $document, $user_id );
         }
 
+        self::recordInjuryRead( (string) ( $row->uuid ?? '' ), $player_id, $report, $user_id );
         return [
             'uuid'        => (string) ( $row->uuid ?? '' ),
             'player_id'   => $player_id,
@@ -323,5 +324,33 @@ final class PlayerReportSnapshots {
         if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) return false;
         return $rule['section'] === ''
             || \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, $rule['section'] );
+    }
+
+    /** @var array<string,true> the snapshot reads logged in this request, by uuid and reader */
+    private static array $injury_reads = [];
+
+    /**
+     * Opening a snapshot whose injuries section, as this reader reads it,
+     * still lists injuries is a read of them, logged as the injuries screens
+     * log theirs. Once per snapshot and reader in a request: a route that
+     * checks access by reading the snapshot and then returns it is one read.
+     * Only for the signed-in reader.
+     *
+     * @param array{data:array<string,array<string,mixed>>} $report
+     */
+    private static function recordInjuryRead( string $uuid, int $player_id, array $report, int $user_id ): void {
+        $items = $report['data'][ PlayerReportBlock::INJURIES ]['items'] ?? [];
+        if ( ! is_array( $items ) || $items === [] ) return;
+        if ( $user_id <= 0 || get_current_user_id() !== $user_id ) return;
+
+        $key = $uuid . '|' . $user_id;
+        if ( isset( self::$injury_reads[ $key ] ) ) return;
+        self::$injury_reads[ $key ] = true;
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+            'surface'  => 'player_report_snapshot',
+            'snapshot' => $uuid,
+            'count'    => count( $items ),
+        ] );
     }
 }

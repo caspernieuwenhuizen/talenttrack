@@ -10,12 +10,17 @@ use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Modules\Analytics\Domain\FactScope;
+use TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage;
 use TT\Modules\Analytics\Reports\PlayerReport;
+use TT\Modules\Analytics\Reports\PlayerReportSnapshots;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
+use TT\Modules\Analytics\Reports\TeamReportSnapshotRepository;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\Exporters\PlayerReportPdfExporter;
+use TT\Modules\Export\Exporters\TeamMonthlyReportPdfExporter;
+use TT\Modules\Pdp\EvidencePacket;
 use TT\Modules\ReportStudio\Domain\SharedReads;
 
 /**
@@ -153,7 +158,87 @@ final class ReportInjuryReadAuditTest extends WP_UnitTestCase {
         $this->assertSame( $before, $this->rows( 'player.injuries_viewed', $this->player ) );
     }
 
+    // ---- snapshots -------------------------------------------------------------------
+
+    public function test_opening_a_player_snapshot_that_lists_injuries_writes_one_row(): void {
+        wp_set_current_user( $this->hod );
+        $uuid = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'injuries' ], $this->hod );
+        $this->assertNotSame( '', $uuid );
+        $before = $this->rowsFor( 'player_report_snapshot', $this->player );
+
+        $this->flush();
+        $res = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/player-report-snapshots/' . $uuid ) );
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertNotEmpty( $res->get_data()['data']['report']['data']['injuries']['items'] ?? [], 'Precondition: the snapshot lists the injury.' );
+        $this->assertSame( $before + 1, $this->rowsFor( 'player_report_snapshot', $this->player ), 'the route reads the snapshot twice, one read' );
+
+        $pdf_uuid = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'injuries' ], $this->hod );
+        ( new PlayerReportPdfExporter() )->collect( new ExportRequest( 'player_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $pdf_uuid ] ) );
+        $this->assertSame( $before + 2, $this->rowsFor( 'player_report_snapshot', $this->player ), 'the PDF' );
+    }
+
+    public function test_a_player_snapshot_without_injury_items_writes_no_row(): void {
+        wp_set_current_user( $this->hod );
+        $uuid   = PlayerReportSnapshots::take( $this->player, [ 'from' => self::FROM, 'to' => self::TO, 'blocks' => 'status' ], $this->hod );
+        $before = $this->rowsFor( 'player_report_snapshot', $this->player );
+
+        $this->assertNotNull( PlayerReportSnapshots::read( $uuid, $this->hod ) );
+        $this->assertSame( $before, $this->rowsFor( 'player_report_snapshot', $this->player ) );
+    }
+
+    public function test_opening_a_team_snapshot_that_lists_injury_entries_writes_one_row_per_player(): void {
+        wp_set_current_user( $this->hod );
+        $frozen = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'changes' ], $this->hod );
+        $uuid   = ( new TeamReportSnapshotRepository() )->create( $this->team, [ 'team_id' => $this->team, 'layout' => 'A', 'blocks' => [ 'changes' ] ], $frozen, 'Snapshot', $this->hod );
+        $this->assertNotSame( '', $uuid );
+        $before   = $this->rowsFor( 'team_monthly_snapshot', $this->player );
+        $teammate = $this->rowsFor( 'team_monthly_snapshot', $this->teammate );
+
+        $this->flush();
+        ob_start();
+        $this->assertTrue( TeamMonthlyReportSnapshotPage::render( $uuid ) );
+        ob_end_clean();
+        $this->assertSame( $before + 1, $this->rowsFor( 'team_monthly_snapshot', $this->player ), 'the page' );
+
+        ( new TeamMonthlyReportPdfExporter() )->collect( new ExportRequest( 'team_monthly_report_pdf', 'pdf', $this->club, $this->hod, null, [ 'snapshot' => $uuid ] ) );
+        $this->assertSame( $before + 2, $this->rowsFor( 'team_monthly_snapshot', $this->player ), 'the PDF' );
+        $this->assertSame( $teammate, $this->rowsFor( 'team_monthly_snapshot', $this->teammate ), 'a player with no injury entry is not logged' );
+    }
+
+    // ---- the PDP path ----------------------------------------------------------------
+
+    public function test_the_pdp_packet_logs_the_injury_read_for_the_signed_in_reader(): void {
+        $file = $this->pdpFile();
+
+        wp_set_current_user( 0 );
+        $before = $this->rowsFor( 'pdp', $this->player );
+        $this->assertNotEmpty( EvidencePacket::forFile( $file )['injuries'] ?? [], 'Precondition: the packet carries the injury.' );
+        $this->assertSame( $before, $this->rowsFor( 'pdp', $this->player ), 'nobody signed in: no row' );
+
+        wp_set_current_user( $this->hod );
+        EvidencePacket::forFile( $file );
+        $this->assertSame( $before + 1, $this->rowsFor( 'pdp', $this->player ) );
+    }
+
     // ---- helpers ---------------------------------------------------------------------
+
+    private function rowsFor( string $surface, int $player_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $player_id,
+            '%"surface":"' . $wpdb->esc_like( $surface ) . '"%'
+        ) );
+    }
+
+    /** A PDP file for the player over a season that holds March 2020. */
+    private function pdpFile(): int {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_seasons", [ 'club_id' => $this->club, 'name' => '2019/20', 'start_date' => '2019-08-01', 'end_date' => '2020-06-30' ] );
+        $season = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_pdp_files", [ 'club_id' => $this->club, 'player_id' => $this->player, 'season_id' => $season, 'status' => 'open' ] );
+        return (int) $wpdb->insert_id;
+    }
 
     private function rows( string $action, int $player_id ): int {
         global $wpdb;
