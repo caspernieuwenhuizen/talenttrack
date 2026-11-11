@@ -22,6 +22,8 @@ final class StudioDocumentView {
         wp_enqueue_style( 'tt-stack-table', TT_PLUGIN_URL . 'assets/css/components/stack-table.css', [], TT_VERSION );
         wp_enqueue_style( 'tt-report-document', TT_PLUGIN_URL . 'assets/css/frontend-report-document.css', [ 'tt-stack-table' ], TT_VERSION );
         wp_add_inline_style( 'tt-report-document', StudioDocument::screenCss() );
+        // #4962 — a dashboard laid out as a grid places the same blocks.
+        wp_enqueue_style( 'tt-report-grid', TT_PLUGIN_URL . 'assets/css/frontend-report-grid.css', [ 'tt-report-document' ], TT_VERSION );
 
         // A monthly section prints as on the monthly report's page: its phone
         // cards and, from the desktop up, its paper.

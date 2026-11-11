@@ -3,6 +3,8 @@ namespace TT\Modules\PersonaDashboard\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Util\GridReadingOrder;
+
 /**
  * GridLayout — ordered list of WidgetSlots making up a persona's grid.
  *
@@ -35,12 +37,11 @@ final class GridLayout {
 
     /** @return list<WidgetSlot> ordered for desktop render (y, then x). */
     public function desktopOrder(): array {
-        $copy = $this->slots;
-        usort( $copy, static function ( WidgetSlot $a, WidgetSlot $b ): int {
-            if ( $a->y !== $b->y ) return $a->y <=> $b->y;
-            return $a->x <=> $b->x;
-        } );
-        return $copy;
+        return GridReadingOrder::sort(
+            $this->slots,
+            static fn( WidgetSlot $s ): int => $s->x,
+            static fn( WidgetSlot $s ): int => $s->y
+        );
     }
 
     /** @return list<WidgetSlot> ordered for mobile stack (priority, then grid). */

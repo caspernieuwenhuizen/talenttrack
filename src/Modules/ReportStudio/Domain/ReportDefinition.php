@@ -15,11 +15,25 @@ use TT\Modules\Analytics\Domain\UnknownFactKeyException;
  * block when its data is read, because which options a block offers depends
  * on the subject it is read about. A block is a full row unless it says
  * `half` (#4571).
+ *
+ * In a report laid out as a grid (#4962) a block also has its place,
+ * `"grid": { "x": 0, "y": 0, "w": 6, "h": 2 }`, checked by `ReportGrid`: inside
+ * the grid, whole cells, no two blocks in one cell. A block sent without a
+ * place is put in the first free one. A report in rows refuses a place.
+ *
+ * @phpstan-import-type Place from ReportGrid
  */
 final class ReportDefinition {
 
     /** The most blocks one definition holds. */
     public const MAX_BLOCKS = 40;
+
+    /**
+     * The most blocks a dashboard holds (#4962). A dashboard can be a
+     * persona's home, the first screen after every login, so what it reads
+     * stays small.
+     */
+    public const MAX_DASHBOARD_BLOCKS = 12;
 
     /** The largest stored definition, in bytes of JSON. */
     public const MAX_BYTES = 65536;
@@ -34,10 +48,11 @@ final class ReportDefinition {
      * `$audience` are the report's (#4572): a block bound to another layout,
      * or one that does not fit the report's subject or audience, is refused
      * on save rather than stored and then dropped when the report is read.
+     * `$kind` caps a dashboard at `MAX_DASHBOARD_BLOCKS`.
      *
-     * @return array{blocks:list<array{id:string, key:string, options:array<mixed>, width:string}>}|StudioError
+     * @return array{blocks:list<array{id:string, key:string, options:array<mixed>, width:string, grid?:Place}>}|StudioError
      */
-    public static function normalise( mixed $raw, ?string $layout = null, ?string $scope = null, ?string $audience = null ): array|StudioError {
+    public static function normalise( mixed $raw, ?string $layout = null, ?string $scope = null, ?string $audience = null, ?string $kind = null ): array|StudioError {
         if ( $raw === null || $raw === '' || $raw === [] ) return [ 'blocks' => [] ];
         if ( ! is_array( $raw ) ) return self::invalid( __( 'The definition must be an object.', 'talenttrack' ) );
 
@@ -55,11 +70,17 @@ final class ReportDefinition {
             /* translators: %d: maximum number of blocks */
             return self::invalid( sprintf( __( 'A report holds at most %d blocks.', 'talenttrack' ), self::MAX_BLOCKS ) );
         }
+        if ( $kind === ReportStartRules::KIND_DASHBOARD && count( $blocks ) > self::MAX_DASHBOARD_BLOCKS ) {
+            /* translators: %d: maximum number of blocks */
+            return self::invalid( sprintf( __( 'A dashboard holds at most %d blocks.', 'talenttrack' ), self::MAX_DASHBOARD_BLOCKS ) );
+        }
+        $is_grid = $layout === ReportStartRules::LAYOUT_GRID;
 
-        $out = [];
+        $out    = [];
+        $places = [];
         foreach ( $blocks as $i => $block ) {
             if ( ! is_array( $block ) ) return self::invalid( __( 'Every block must be an object.', 'talenttrack' ) );
-            $extra = array_values( array_diff( array_map( 'strval', array_keys( $block ) ), [ 'id', 'key', 'options', 'width' ] ) );
+            $extra = array_values( array_diff( array_map( 'strval', array_keys( $block ) ), [ 'id', 'key', 'options', 'width', 'grid' ] ) );
             if ( $extra !== [] ) {
                 /* translators: %s: comma-separated field names */
                 return self::invalid( sprintf( __( 'A block does not accept: %s.', 'talenttrack' ), implode( ', ', $extra ) ) );
@@ -97,7 +118,41 @@ final class ReportDefinition {
                 return self::invalid( __( 'A block is full or half width.', 'talenttrack' ) );
             }
 
-            $out[] = [ 'id' => $id, 'key' => $key, 'options' => $options, 'width' => $width ];
+            $entry = [ 'id' => $id, 'key' => $key, 'options' => $options, 'width' => $width ];
+            if ( array_key_exists( 'grid', $block ) ) {
+                if ( ! $is_grid ) {
+                    return new StudioError( 'invalid_field', __( 'Only a report laid out as a grid places its blocks in a grid.', 'talenttrack' ), 400, [ 'field' => 'definition', 'block' => $i ] );
+                }
+                $place = ReportGrid::place( $block['grid'] );
+                if ( is_string( $place ) ) {
+                    return new StudioError( 'invalid_field', $place, 400, [ 'field' => 'definition', 'block' => $i ] );
+                }
+                $entry['grid'] = $place;
+                $places[ $i ]  = $place;
+            }
+            $out[] = $entry;
+        }
+
+        if ( $is_grid ) {
+            $placed  = array_values( $places );
+            $overlap = ReportGrid::firstOverlap( $placed );
+            if ( $overlap !== null ) {
+                $index = array_keys( $places )[ $overlap ];
+                return new StudioError( 'invalid_field', __( 'Two blocks cannot share a place in the grid.', 'talenttrack' ), 400, [ 'field' => 'definition', 'block' => $index ] );
+            }
+            $filled = [];
+            foreach ( $out as $i => $entry ) {
+                if ( ! isset( $entry['grid'] ) ) {
+                    $free = ReportGrid::freePlace( $placed );
+                    if ( $free === null ) {
+                        return new StudioError( 'invalid_field', __( 'The grid has no room left for this block.', 'talenttrack' ), 400, [ 'field' => 'definition', 'block' => $i ] );
+                    }
+                    $entry['grid'] = $free;
+                    $placed[]      = $free;
+                }
+                $filled[] = $entry;
+            }
+            $out = $filled;
         }
 
         $definition = [ 'blocks' => $out ];
@@ -109,12 +164,14 @@ final class ReportDefinition {
     }
 
     /**
-     * The blocks of a stored definition, skipping anything malformed.
+     * The blocks of a stored definition, skipping anything malformed. For a
+     * grid (`$layout`), each block carries its place: the stored one when it
+     * is valid and free, else the first free one.
      *
      * @param array<mixed> $definition
-     * @return list<array{id:string, key:string, options:array<mixed>, width:string}>
+     * @return list<array{id:string, key:string, options:array<mixed>, width:string, grid?:Place}>
      */
-    public static function blocks( array $definition ): array {
+    public static function blocks( array $definition, ?string $layout = null ): array {
         $out = [];
         foreach ( is_array( $definition['blocks'] ?? null ) ? $definition['blocks'] : [] as $i => $block ) {
             if ( ! is_array( $block ) || ! is_string( $block['key'] ?? null ) ) continue;
@@ -123,9 +180,41 @@ final class ReportDefinition {
                 'key'     => (string) $block['key'],
                 'options' => is_array( $block['options'] ?? null ) ? $block['options'] : [],
                 'width'   => ( $block['width'] ?? '' ) === self::WIDTH_HALF ? self::WIDTH_HALF : self::WIDTH_FULL,
+                'stored'  => $block['grid'] ?? null,
             ];
         }
-        return $out;
+
+        $is_grid = $layout === ReportStartRules::LAYOUT_GRID;
+        $taken   = [];
+        $result  = [];
+        foreach ( $out as $block ) {
+            $stored = $block['stored'];
+            unset( $block['stored'] );
+            if ( $is_grid ) {
+                $place = ReportGrid::place( $stored );
+                if ( is_array( $place ) && ! self::collides( $place, $taken ) ) {
+                    $block['grid'] = $place;
+                } else {
+                    $free = ReportGrid::freePlace( $taken );
+                    if ( $free === null ) continue;
+                    $block['grid'] = $free;
+                }
+                $taken[] = $block['grid'];
+            }
+            $result[] = $block;
+        }
+        return $result;
+    }
+
+    /**
+     * @param Place       $place
+     * @param list<Place> $taken
+     */
+    private static function collides( array $place, array $taken ): bool {
+        foreach ( $taken as $other ) {
+            if ( ReportGrid::overlaps( $other, $place ) ) return true;
+        }
+        return false;
     }
 
     private static function invalid( string $message ): StudioError {

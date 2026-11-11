@@ -65,6 +65,10 @@ final class ReportSnapshots {
         if ( ! in_array( $report['scope'], self::SCOPES, true ) ) {
             return new StudioError( 'invalid_field', __( 'Only a report about one player or one team can be frozen.', 'talenttrack' ), 400, [ 'field' => 'scope' ] );
         }
+        // #4962 — a snapshot is printed; a grid never is.
+        if ( ! ReportGrid::printable( $report['layout'] ) ) {
+            return new StudioError( 'invalid_field', ReportGrid::notPrintedReason(), 400, [ 'field' => 'layout' ] );
+        }
 
         $read = ReportData::compose( $report, [
             'source'    => 'published',
@@ -151,6 +155,7 @@ final class ReportSnapshots {
      */
     public static function canTake( array $report, array $context, int $user_id ): bool {
         if ( $report['published_version_id'] === null || ! in_array( $report['scope'], self::SCOPES, true ) ) return false;
+        if ( ! ReportGrid::printable( $report['layout'] ) ) return false;
         $is_player = $report['scope'] === ReportContext::SCOPE_PLAYER;
         $id        = $is_player ? ( $context['player_id'] ?? 0 ) : ( $context['team_id'] ?? 0 );
         return is_numeric( $id ) && self::mayCreate( $is_player ? self::PLAYER : self::TEAM, (int) $id, $user_id );

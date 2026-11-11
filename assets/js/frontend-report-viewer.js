@@ -1,6 +1,8 @@
 /**
  * Report Studio reader's view (#4591) — `?tt_view=report&id=N`, a published
- * report for the people it is published to. Read only.
+ * report for the people it is published to. Read only. The same script shows
+ * a dashboard that is a persona's home (#4962); the page then passes the
+ * report and its subjects in `TTReportViewer`, and only the document is asked.
  *
  * Everything comes from REST: the report from `GET /reports/{id}`, the
  * subjects the reader may switch to from `GET /reports/{id}/subjects`, and
@@ -21,7 +23,8 @@
 	if (!cfg || !root) return;
 
 	var t = cfg.i18n || {};
-	var state = { report: null, subject: {}, period: '', seq: 0 };
+	// A home hands over the one subject a reader with one team opens on (#4962).
+	var state = { report: null, subject: cfg.subject && typeof cfg.subject === 'object' ? cfg.subject : {}, period: '', seq: 0 };
 
 	function $(sel) { return root.querySelector(sel); }
 	function el(tag, cls, text) {
@@ -205,10 +208,18 @@
 	}
 
 	bindSnapshot();
-	api('GET', 'reports/' + cfg.id).then(function (report) {
-		state.report = report;
-		return api('GET', 'reports/' + cfg.id + '/subjects').catch(function () { return { teams: [], players: [] }; });
-	}).then(function (subjects) {
+	// A persona's home (#4962) hands over the report and its subjects, so the
+	// landing reads the dashboard in one request: the document.
+	var start = cfg.report
+		? Promise.resolve([cfg.report, cfg.subjects || { teams: [], players: [] }])
+		: api('GET', 'reports/' + cfg.id).then(function (report) {
+			return api('GET', 'reports/' + cfg.id + '/subjects')
+				.catch(function () { return { teams: [], players: [] }; })
+				.then(function (subjects) { return [report, subjects]; });
+		});
+	start.then(function (pair) {
+		state.report = pair[0];
+		var subjects = pair[1];
 		renderSubjects(subjects);
 		renderPeriods();
 		return load();

@@ -5,7 +5,8 @@
  * Mobile-first (CLAUDE.md §2). At ~360px everything stacks: the library and
  * the settings are bottom sheets (<dialog>), half blocks are full rows, and
  * reordering uses the arrows. From 768px half blocks sit side by side; from
- * 1024px the library and the settings are side panels next to the canvas.
+ * 1024px the library and the settings are side panels next to the canvas,
+ * and a report laid out as a grid (#4962) places its blocks on 12 columns.
  * Every control is a 48px target under a coarse pointer, nothing depends on
  * hover, and colours come from tokens.css. Scoped under .tt-dashboard.
  */
@@ -731,6 +732,34 @@
 
     .tt-dashboard .tt-rs-library:not(:modal) .tt-rs-sheet-close {
         display: none;
+    }
+}
+
+/* ---- a grid (#4962): its place on 12 columns from the desktop up -------------------
+   Below the desktop, and in the phone view, the blocks stack in the order the
+   script draws them: reading order, top row first. */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rs-canvas--grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-rs-canvas--grid:not([data-view="phone"]) {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-auto-rows: minmax(6rem, auto);
+    }
+
+    .tt-dashboard .tt-rs-canvas--grid:not([data-view="phone"]) > .tt-rs-block--grid {
+        grid-column: var(--tt-sg-x, 1) / span var(--tt-sg-w, 12);
+        grid-row: var(--tt-sg-y, 1) / span var(--tt-sg-h, 1);
+    }
+
+    .tt-dashboard .tt-rs-canvas--grid > .tt-rs-block--grid > .tt-rs-card {
+        height: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
     }
 }
 

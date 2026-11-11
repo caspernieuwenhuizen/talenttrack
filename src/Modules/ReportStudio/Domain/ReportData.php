@@ -87,7 +87,7 @@ final class ReportData {
 
         $blocks = [];
         $layout = [];
-        foreach ( ReportDefinition::blocks( $definition['definition'] ) as $block ) {
+        foreach ( ReportDefinition::blocks( $definition['definition'], $report['layout'] ) as $block ) {
             $read = BlockEngine::preview( $block['key'], $context, self::stringKeys( $block['options'] ), $user_id );
             if ( $read instanceof StudioError ) {
                 if ( in_array( $read->code, self::SUBJECT_CODES, true )
@@ -98,6 +98,8 @@ final class ReportData {
             } else {
                 $out = [ 'id' => $block['id'], 'key' => $block['key'], 'width' => $block['width'], 'options' => $read['options'], 'data' => $read['data'] ];
             }
+            // #4962 — a grid block's place, for every front end that lays it out.
+            if ( isset( $block['grid'] ) ) $out['grid'] = $block['grid'];
             $blocks[] = $out;
             $layout[] = ReportPageFit::entryOf( $out );
         }
@@ -107,6 +109,7 @@ final class ReportData {
             'uuid'       => $report['uuid'],
             'source'     => $definition['source'],
             'version_no' => $definition['version_no'],
+            'layout'     => $report['layout'],
             'context'    => [
                 'scope'      => $report['scope'],
                 'player_id'  => $subject['player_id'],
