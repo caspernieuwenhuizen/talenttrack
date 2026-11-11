@@ -598,12 +598,17 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             </summary>
             <ol class="tt-psc-history__list">
                 <?php foreach ( $entries as $entry ) :
-                    $direction = (string) $entry['direction'];
+                    // #4694 — a hidden band comes without its label, direction and notes.
+                    $direction = (string) ( $entry['direction'] ?? '' );
                     [ $glyph, $word ] = self::directionCue( $direction );
                     ?>
                     <li class="tt-psc-history__item tt-psc-history__item--<?php echo esc_attr( $direction ); ?>">
                         <p class="tt-psc-history__head">
-                            <span class="tt-psc-history__band"><?php echo esc_html( (string) $entry['label'] ); ?></span>
+                            <span class="tt-psc-history__band"><?php
+                                echo ! array_key_exists( 'band', $entry )
+                                    ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                                    : esc_html( (string) ( $entry['label'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
+                            ?></span>
                             <?php if ( $word !== '' ) : ?>
                                 <span class="tt-psc-history__dir">
                                     <span aria-hidden="true"><?php echo esc_html( $glyph ); ?></span>
@@ -627,8 +632,8 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             }
                             ?>
                         </p>
-                        <?php if ( (string) $entry['notes'] !== '' ) : ?>
-                            <p class="tt-psc-history__notes"><?php echo esc_html( (string) $entry['notes'] ); ?></p>
+                        <?php if ( (string) ( $entry['notes'] ?? '' ) !== '' ) : ?>
+                            <p class="tt-psc-history__notes"><?php echo esc_html( (string) ( $entry['notes'] ?? '' ) ); ?></p>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>

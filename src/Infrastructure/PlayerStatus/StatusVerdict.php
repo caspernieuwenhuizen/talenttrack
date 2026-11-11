@@ -48,7 +48,11 @@ final class StatusVerdict {
     public string $color;
     public ?float $score;
 
-    /** @var array<string,array{value:?float,weight:int,score:?float}> */
+    /**
+     * #4694 — `withoutPotential()` leaves the potential input as its weight.
+     *
+     * @var array<string,array{value?:?float,weight:int,score?:?float}>
+     */
     public array $inputs;
 
     /** @var list<string> */
@@ -163,6 +167,41 @@ final class StatusVerdict {
             case self::COLOR_RED:     return __( 'Could use extra support right now', 'talenttrack' );
             default:                  return __( 'Building first picture', 'talenttrack' );
         }
+    }
+
+    /**
+     * #4694 — the verdict as this reader may read it for this player.
+     *
+     * Where the potential band is hidden from them (the `potential_judgement`
+     * rule, `PotentialTrajectory::bandHiddenFrom()`), see
+     * {@see self::withoutPotential()}. Every other reader gets the verdict
+     * as it was computed.
+     */
+    public function forReader( int $reader_id, int $player_id ): self {
+        if ( ! isset( $this->inputs['potential'] ) ) return $this;
+        if ( ! \TT\Modules\Players\Services\PotentialTrajectory::bandHiddenFrom( $reader_id, $player_id ) ) return $this;
+        return $this->withoutPotential();
+    }
+
+    /**
+     * The verdict without the band: the potential input keeps its weight and
+     * leaves out its value and score, which encode the band. A potential that
+     * was never set is still named in `missing_inputs`, so a reader can tell
+     * the two apart. When the band counted towards the composite, the
+     * composite `score` is null too, because the composite and the other
+     * inputs' scores would give the band back by arithmetic. The colour, the
+     * reasons, the coverage and the missing inputs stay.
+     */
+    public function withoutPotential(): self {
+        if ( ! isset( $this->inputs['potential'] ) ) return $this;
+
+        $copy      = clone $this;
+        $potential = $this->inputs['potential'];
+        $copy->inputs['potential'] = [ 'weight' => (int) $potential['weight'] ];
+        if ( ( $potential['score'] ?? null ) !== null && (int) $potential['weight'] > 0 ) {
+            $copy->score = null;
+        }
+        return $copy;
     }
 
     /** @return array<string,mixed> */

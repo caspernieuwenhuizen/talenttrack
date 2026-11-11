@@ -598,7 +598,10 @@ final class PlayerReportPdfDocument {
             if ( ! is_array( $row ) ) continue;
             $rows[] = [
                 TTDate::date( substr( (string) ( $row['set_at'] ?? '' ), 0, 10 ) ),
-                self::cut( \TT\Modules\Players\Services\PotentialTrajectory::labelFor( (string) ( $row['potential_band'] ?? '' ) ), 60 ),
+                // #4694 — a band hidden from this report's readers reads "Hidden".
+                ! empty( $row['band_hidden'] )
+                    ? \TT\Shared\Frontend\Components\MaskedValue::label()
+                    : self::cut( \TT\Modules\Players\Services\PotentialTrajectory::labelFor( (string) ( $row['potential_band'] ?? '' ) ), 60 ),
             ];
         }
         return $out . self::table( [ __( 'Date', 'talenttrack' ), _x( 'Potential', 'player report section', 'talenttrack' ) ], $rows, [ 'w-date', 'w-rest' ] )

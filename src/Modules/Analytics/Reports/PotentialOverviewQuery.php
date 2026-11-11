@@ -58,6 +58,15 @@ use TT\Modules\Players\Services\PotentialTrajectory;
  *     direction:string, previous_band:string, previous_band_label:string,
  *     revisions:int
  * }
+ *
+ * ## A band the caller may not see (#4694)
+ *
+ * The rows come as the caller may read them. Where the `potential_judgement`
+ * rule hides a player's band, the row says a band is recorded, when and by
+ * whom, with the band, its label, its movement and its notes empty; the
+ * REST route then leaves those keys out, and the view asks the same rule to
+ * print "Hidden". A hidden band matches no band filter and carries the
+ * unrecorded rank, so neither the filter nor the sort gives it back.
  */
 final class PotentialOverviewQuery {
 
@@ -187,10 +196,18 @@ final class PotentialOverviewQuery {
             $players
         ) );
 
+        // #4694 — the staff half of the band rule for the whole squad in one
+        // pass: the players' teams are already here.
+        $team_by_player = [];
+        foreach ( $players as $player ) $team_by_player[ $player['player_id'] ] = $player['team_id'];
+        \TT\Infrastructure\Security\RecordRedactor::prime( $user_id, $team_by_player );
+
         $rows = [];
         foreach ( $players as $player ) {
             $team   = $by_id[ $player['team_id'] ] ?? [ 'team_name' => '', 'age_group' => '' ];
-            $series = PotentialTrajectory::seriesFrom( $history[ $player['player_id'] ] ?? [] );
+            // #4694 — as this caller may read it: a hidden band is no band
+            // here, so it can be neither shown, filtered on nor sorted by.
+            $series = PotentialTrajectory::seriesFrom( $history[ $player['player_id'] ] ?? [], $user_id );
             $rows[] = $this->composeRow( $player, (string) $team['team_name'], (string) $team['age_group'], $series );
         }
 
@@ -210,9 +227,9 @@ final class PotentialOverviewQuery {
         $current  = $count > 0 ? $series[ $count - 1 ] : null;
         $previous = $count > 1 ? $series[ $count - 2 ] : null;
 
-        $band       = $current !== null ? (string) $current['band'] : '';
+        $band       = $current !== null ? (string) ( $current['band'] ?? '' ) : '';
         $rank       = $band !== '' ? PotentialTrajectory::rank( $band ) : null;
-        $prev_band  = $previous !== null ? (string) $previous['band'] : '';
+        $prev_band  = $previous !== null ? (string) ( $previous['band'] ?? '' ) : '';
 
         return [
             'player_id'           => $player['player_id'],
@@ -231,8 +248,8 @@ final class PotentialOverviewQuery {
             'set_at'              => $current !== null ? (string) $current['set_at'] : '',
             'set_by'              => $current !== null ? (int) $current['set_by'] : 0,
             'set_by_name'         => $current !== null ? (string) $current['set_by_name'] : '',
-            'notes'               => $current !== null ? (string) $current['notes'] : '',
-            'direction'           => $current !== null ? (string) $current['direction'] : '',
+            'notes'               => $current !== null ? (string) ( $current['notes'] ?? '' ) : '',
+            'direction'           => $current !== null ? (string) ( $current['direction'] ?? '' ) : '',
             'previous_band'       => $prev_band,
             'previous_band_label' => $prev_band !== '' ? PotentialTrajectory::labelFor( $prev_band ) : '',
             'revisions'           => $count,

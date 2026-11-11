@@ -109,11 +109,13 @@ final class PlayerStatusRenderer {
         if ( $show_breakdown ) {
             $out .= '  <ul class="tt-status-panel__breakdown">';
             foreach ( $verdict->inputs as $key => $row ) {
-                if ( $row['score'] === null ) continue;
+                // #4694 — a hidden band has no score to show.
+                $score = $row['score'] ?? null;
+                if ( $score === null ) continue;
                 $out .= sprintf(
                     '    <li>%s: <strong>%s</strong> <small>(weight %d%%)</small></li>',
                     esc_html( ucfirst( $key ) ),
-                    esc_html( (string) $row['score'] ),
+                    esc_html( (string) $score ),
                     (int) $row['weight']
                 );
             }

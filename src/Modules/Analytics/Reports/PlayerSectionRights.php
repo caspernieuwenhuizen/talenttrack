@@ -10,6 +10,7 @@ use TT\Infrastructure\Visibility\ReaderSet;
 use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Pdp\PdpAccess;
+use TT\Modules\Players\Services\PotentialTrajectory;
 use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 
@@ -24,6 +25,8 @@ use TT\Modules\Threads\Domain\ThreadVisibility;
  * - staff notes: the thread's read, and its private notes;
  * - the development plan: the PDP file;
  * - evaluation notes: the sensitive-field registry;
+ * - the potential band, in its own section and in the status verdict: the
+ *   sensitive-field registry (#4694);
  * - the journey: the visibility levels and each entry's own record right;
  * - tests: the measurement levels.
  */
@@ -68,6 +71,14 @@ final class PlayerSectionRights {
                 if ( self::seesEvaluationNotes( $readers, $player_id ) || ! is_array( $data['evaluations'] ?? null ) ) return $data;
                 $data['evaluations'] = self::withoutEvaluationNotes( array_values( array_filter( $data['evaluations'], 'is_array' ) ) );
                 return $data;
+
+            case PlayerReportBlock::POTENTIAL:
+                if ( self::seesPotential( $readers, $player_id ) ) return $data;
+                $data['items'] = self::withoutPotentialBand( $items( $data ) );
+                return $data;
+
+            case PlayerReportBlock::STATUS:
+                return self::seesPotential( $readers, $player_id ) ? $data : self::statusWithoutPotential( $data );
 
             case PlayerReportBlock::JOURNEY:
                 $ids  = array_map( static fn( $e ): int => is_array( $e ) ? (int) ( $e['id'] ?? 0 ) : 0, $items( $data ) );
@@ -135,6 +146,53 @@ final class PlayerSectionRights {
 
     public static function seesPdpFile( ReaderSet $readers, int $player_id ): bool {
         return $readers->every( static fn( int $reader ): bool => PdpAccess::canSeeFile( $reader, $player_id ) );
+    }
+
+    /**
+     * #4694 — does every reader see this player's potential band? The
+     * `potential_judgement` rule of the sensitive-field registry.
+     */
+    public static function seesPotential( ReaderSet $readers, int $player_id ): bool {
+        return $readers->every( static fn( int $reader ): bool => ! PotentialTrajectory::bandHiddenFrom( $reader, $player_id ) );
+    }
+
+    /**
+     * Potential entries as a reader the band is hidden from reads them: when
+     * each was set and by whom, with `band_hidden`, and no band or notes.
+     *
+     * @param array<int|string,mixed> $rows repository rows, as objects or arrays
+     * @return list<array<string,mixed>>
+     */
+    public static function withoutPotentialBand( array $rows ): array {
+        $out = [];
+        foreach ( $rows as $row ) {
+            if ( is_object( $row ) ) $row = get_object_vars( $row );
+            if ( ! is_array( $row ) ) continue;
+            $out[] = PotentialTrajectory::withoutJudgement( $row );
+        }
+        return $out;
+    }
+
+    /**
+     * A status verdict payload (`StatusVerdict::toArray()`) as a reader the
+     * band is hidden from reads it: the rule `StatusVerdict::withoutPotential()`
+     * applies, on the array a section or a snapshot holds.
+     *
+     * @param array<string,mixed> $status
+     * @return array<string,mixed>
+     */
+    public static function statusWithoutPotential( array $status ): array {
+        $inputs    = is_array( $status['inputs'] ?? null ) ? $status['inputs'] : [];
+        $potential = is_array( $inputs['potential'] ?? null ) ? $inputs['potential'] : null;
+        if ( $potential === null ) return $status;
+
+        $weight              = (int) ( $potential['weight'] ?? 0 );
+        $inputs['potential'] = [ 'weight' => $weight ];
+        $status['inputs']    = $inputs;
+        if ( ( $potential['score'] ?? null ) !== null && $weight > 0 ) {
+            $status['score'] = null;
+        }
+        return $status;
     }
 
     public static function seesEvaluationNotes( ReaderSet $readers, int $player_id ): bool {

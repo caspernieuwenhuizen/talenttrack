@@ -65,7 +65,7 @@ final class BehaviourPotentialSummary {
      *   },
      *   potential: ?array{
      *     can_record: bool,
-     *     current: ?array{band: string, label: string, set_at: string, set_by: string},
+     *     current: ?array{band?: string, label?: string, set_at: string, set_by: string, band_hidden?: true},
      *     days_since: ?int,
      *     overdue: bool,
      *     entries: int
@@ -119,7 +119,7 @@ final class BehaviourPotentialSummary {
     /**
      * @return ?array{
      *   can_record: bool,
-     *   current: ?array{band: string, label: string, set_at: string, set_by: string},
+     *   current: ?array{band?: string, label?: string, set_at: string, set_by: string, band_hidden?: true},
      *   days_since: ?int,
      *   overdue: bool,
      *   entries: int
@@ -137,12 +137,20 @@ final class BehaviourPotentialSummary {
             $band = (string) ( $row['potential_band'] ?? '' );
             $when = (string) ( $row['set_at'] ?? '' );
 
-            $current = [
-                'band'   => $band,
-                'label'  => PotentialTrajectory::labelFor( $band ),
-                'set_at' => $when,
-                'set_by' => self::displayName( (int) ( $row['set_by'] ?? 0 ) ),
-            ];
+            // #4694 — a reader the band is hidden from gets when it was set
+            // and by whom, without the band.
+            $current = PotentialTrajectory::bandHiddenFrom( $user_id, $player_id )
+                ? [
+                    'set_at'      => $when,
+                    'set_by'      => self::displayName( (int) ( $row['set_by'] ?? 0 ) ),
+                    'band_hidden' => true,
+                ]
+                : [
+                    'band'   => $band,
+                    'label'  => PotentialTrajectory::labelFor( $band ),
+                    'set_at' => $when,
+                    'set_by' => self::displayName( (int) ( $row['set_by'] ?? 0 ) ),
+                ];
 
             $ts = $when !== '' ? strtotime( $when ) : false;
             if ( $ts !== false ) {

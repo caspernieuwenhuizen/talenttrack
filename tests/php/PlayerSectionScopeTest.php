@@ -110,7 +110,11 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
         $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'prospects' ) );
         $this->assertFalse( \TT\Modules\Prospects\ProspectScope::worksTheFunnel( $observer ) );
 
-        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media', 'player_status' ] as $entity ) {
+        // #4694 (c) — `player_status` opens to the observer, with the
+        // potential band masked (ObserverReadsPotentialTest).
+        $this->assertTrue( AuthorizationService::canReadPlayerSection( $observer, $this->playerA, 'player_status' ) );
+
+        foreach ( [ 'measurements', 'player_injuries', 'safeguarding_notes', 'media' ] as $entity ) {
             $this->assertFalse(
                 AuthorizationService::canReadPlayerSection( $observer, $this->playerA, $entity ),
                 "the observer holds no {$entity} row; opening the record does not grant it"
@@ -129,8 +133,9 @@ final class PlayerSectionScopeTest extends WP_UnitTestCase {
     /**
      * The profile's staff cards ask their own entity, not "is this staff":
      * the Behaviour & potential card asks `player_status`, the Discovery
-     * card `prospects`. A head of development holds both; the observer
-     * holds neither.
+     * card `prospects`. A head of development holds both. The observer holds
+     * both read-only (#4694) and is not staff for the player, which both
+     * cards ask as well, so it gets neither.
      */
     public function test_the_profile_staff_cards_follow_their_own_entity(): void {
         $hod      = $this->makeUser( 'tt_head_dev', 'head_of_development' );

@@ -11,6 +11,7 @@ use TT\Modules\Players\Services\PotentialTrajectory;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\MaskedValue;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Dates\TTDate;
@@ -238,6 +239,9 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
      * @param array<string,string> $bands
      */
     private static function bandCell( array $row, array $bands, bool $editable ): string {
+        // #4694 — a band is recorded and hidden from this reader.
+        if ( self::bandHidden( $row ) ) return MaskedValue::html();
+
         if ( ! $editable ) {
             return $row['recorded']
                 ? '<span class="tt-po-band">' . esc_html( (string) $row['band_label'] ) . '</span>'
@@ -277,6 +281,8 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
         if ( ! $row['recorded'] ) {
             return '<span class="tt-po-move tt-po-move--none">—</span>';
         }
+        // #4694 — the movement is the band's, and hidden with it.
+        if ( self::bandHidden( $row ) ) return MaskedValue::html();
 
         $direction = (string) $row['direction'];
         $previous  = (string) $row['previous_band_label'];
@@ -301,6 +307,17 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
             . '<span class="tt-po-move__arrow" aria-hidden="true">' . $arrow . '</span>'
             . '<span class="tt-po-move__text">' . esc_html( $text ) . '</span>'
             . '</span>';
+    }
+
+    /**
+     * #4694 — a recorded band this reader may not see: the rule the query
+     * composed the row with (`PotentialTrajectory::bandHiddenFrom()`).
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function bandHidden( array $row ): bool {
+        return ! empty( $row['recorded'] )
+            && PotentialTrajectory::bandHiddenFrom( get_current_user_id(), (int) ( $row['player_id'] ?? 0 ) );
     }
 
     /** @param array<string,mixed> $row */

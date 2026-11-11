@@ -46,9 +46,6 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
     /** Not granted here: each follows with its masking or its own review. */
     private const WITH_THEIR_MASKING = [
         'attendance'              => 'its masking (#4692)',
-        'player_status'           => 'its masking (#4694)',
-        'player_status_breakdown' => 'its masking (#4694)',
-        'player_potential'        => 'its masking (#4694)',
         'scout_history'           => 'nothing checks it (#4694)',
         'custom_field_values'     => 'its masking (#4716)',
         'people_directory_panel'  => 'its masking (#4715)',
@@ -198,12 +195,14 @@ final class ObserverReadsNonSensitiveTest extends WP_UnitTestCase {
             [ 'player_timeline', 'cohort_transitions', 'evaluations_panel', 'prospects', 'test_trainings' ],
             [ 'trial_cases', 'trial_inputs', 'trial_synthesis', 'trial_decisions', 'trial_letters_generated' ],
             // #5085 — every scouting visit, brought by migration 0334.
-            [ 'scouting_visits_panel', 'scouting_visits_all' ]
+            [ 'scouting_visits_panel', 'scouting_visits_all' ],
+            // #4694 (c) — status and potential, masked, brought by migration 0335.
+            [ 'player_status', 'player_status_breakdown', 'player_potential' ]
         );
         sort( $seeded );
         sort( $expected );
 
-        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312, 0321, 0331, 0333, 0334) have drifted apart' );
+        $this->assertSame( $expected, $seeded, 'the seed and the migrations (0310, 0312, 0321, 0331, 0333, 0334, 0335) have drifted apart' );
         $this->assertSame( [], array_intersect( $this->granted(), self::CLOSED ) );
         $this->assertSame( [], array_intersect( $this->granted(), array_keys( self::WITH_THEIR_MASKING ) ) );
     }

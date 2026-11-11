@@ -89,6 +89,12 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         foreach ( (array) constant( get_class( $visits ) . '::ENTITIES' ) as $entity ) {
             $entities[] = (string) $entity;
         }
+
+        // #4694 (c) — and status and potential, masked, which 0335 brings.
+        $potential = require dirname( __DIR__, 2 ) . '/database/migrations/0335_authorization_observer_reads_potential.php';
+        foreach ( (array) constant( get_class( $potential ) . '::ENTITIES' ) as $entity ) {
+            $entities[] = (string) $entity;
+        }
         return $entities;
     }
 
@@ -155,6 +161,9 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
      * 2 November 2026). Named individually, because "not everything" is
      * not a property a future edit can trip over but "not
      * safeguarding_notes" is.
+     *
+     * #4694 (c) — `player_potential` left this list: the owner opened it,
+     * read-only, with the band and the notes masked (ObserverReadsPotentialTest).
      */
     public function test_the_observer_reaches_nothing_sensitive(): void {
         $entities = array_map(
@@ -167,7 +176,6 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
             'player_injuries',
             'player_notes',
             'player_behaviour_ratings',
-            'player_potential',
             'parent_accounts',
             'media',
             'staff_only_notes',

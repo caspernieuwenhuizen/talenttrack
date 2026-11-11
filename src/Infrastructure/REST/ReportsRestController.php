@@ -279,12 +279,18 @@ final class ReportsRestController extends BaseController {
             'teams'     => $query->teamsInScope( $user_id, $scope, $team_id, $age_group ),
             'summary'   => \TT\Modules\Analytics\Reports\PotentialOverviewQuery::summarise( $all ),
             // #4691 — the date of birth follows the sensitive-field registry;
-            // the birth year stays on every row.
+            // the birth year stays on every row. #4694 — and so do the band,
+            // its movement and its notes (`player_potential`).
             'rows'      => \TT\Infrastructure\Security\RecordRedactor::redactRows(
                 'players',
-                array_map(
-                    static fn( array $row ): array => $row + [ 'birth_year' => \TT\Infrastructure\Players\PlayerDates::birthYear( $row['date_of_birth'] ) ],
-                    $rows
+                \TT\Infrastructure\Security\RecordRedactor::redactRows(
+                    'player_potential',
+                    array_map(
+                        static fn( array $row ): array => $row + [ 'birth_year' => \TT\Infrastructure\Players\PlayerDates::birthYear( $row['date_of_birth'] ) ],
+                        $rows
+                    ),
+                    $user_id,
+                    'player_id'
                 ),
                 $user_id,
                 'player_id'

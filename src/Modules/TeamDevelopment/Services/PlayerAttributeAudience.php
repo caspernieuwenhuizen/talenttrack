@@ -42,10 +42,15 @@ final class PlayerAttributeAudience {
     /**
      * May this reader see the potential / forecast / ceiling group for
      * this player?
+     *
+     * #4694 — the read right, and the band itself not hidden from them: a
+     * reader who reads potential academy-wide only to see that it was set
+     * (the read-only observer) reads no forecast either.
      */
     public static function canReadDevelopment( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        return AuthorizationService::canReadPlayerSection( $user_id, $player_id, self::ENTITY );
+        return AuthorizationService::canReadPlayerSection( $user_id, $player_id, self::ENTITY )
+            && ! \TT\Modules\Players\Services\PotentialTrajectory::bandHiddenFrom( $user_id, $player_id );
     }
 
     /**

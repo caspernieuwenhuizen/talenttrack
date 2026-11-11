@@ -1286,9 +1286,7 @@ return array_merge(
     //   - closed to the observer by #4695: `report_studio`,
     //     `report_publishing`;
     //   - granted with their masking, never before it: `attendance`
-    //     (#4692, absence reasons), `player_status`, `player_status_breakdown`
-    //     (#4694, potential notes and band),
-    //     `player_potential` (#4694), `custom_field_values` (#4716),
+    //     (#4692, absence reasons), `custom_field_values` (#4716),
     //     `people_directory_panel` (#4715), `team_roster_panel`,
     //     `coach_player_list_panel`, `compare` (#4691, date of birth);
     //   - held for their own review: `vct` (load-restriction reasons per
@@ -1393,6 +1391,17 @@ return array_merge(
         // Existing installs get both through migration 0334.
         'scouting_visits_panel'   => [ 'r', 'global', $mod_prospects ],
         'scouting_visits_all'     => [ 'r', 'global', $mod_prospects ],
+
+        // #4694 (c) — the player's status and potential, read-only. The band,
+        // its movement and its notes are masked (`potential_judgement` in
+        // `config/sensitive_fields.php`, `PotentialAccess`): the observer
+        // sees that a potential was set, when and by whom, and the status
+        // colour and reasons, never the band. `player_potential` read at
+        // global scope without a change right is the shape that rule masks.
+        // Existing installs get these through migration 0335.
+        'player_status'           => [ 'r', 'global', $mod_players ],
+        'player_status_breakdown' => [ 'r', 'global', $mod_players ],
+        'player_potential'        => [ 'r', 'global', $mod_players ],
     ] ),
 
     // ─── STAFF ──────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\LookupTranslator;
+use TT\Infrastructure\Security\RecordRedactor;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 
 /**
@@ -109,15 +110,18 @@ class PotentialTrajectory {
      * returns newest-first for the "what is it now" question, which is a
      * different one. A surface that wants newest-first can reverse it.
      *
+     * #4694 — as this reader may read it: see {@see self::seriesFrom()}.
+     *
+     * @param int|null $reader_id the reader; the current user when null.
      * @return list<array{
-     *     id:int, band:string, label:string, set_at:string, set_by:int,
-     *     set_by_name:string, notes:string, direction:string, steps:int
+     *     id:int, player_id:int, band?:string, label?:string, set_at:string, set_by:int,
+     *     set_by_name:string, notes?:string, direction?:string, steps?:int
      * }>
      */
-    public function forPlayer( int $player_id ): array {
+    public function forPlayer( int $player_id, ?int $reader_id = null ): array {
         if ( $player_id <= 0 ) return [];
 
-        return self::seriesFrom( $this->repo->historyFor( $player_id ) );
+        return self::seriesFrom( $this->repo->historyFor( $player_id ), $reader_id );
     }
 
     /**
@@ -128,14 +132,25 @@ class PotentialTrajectory {
      * direction, and a second implementation of "a lower index is a better
      * band" is exactly the thing that ends up backwards on one surface.
      *
+     * #4694 — the series comes as this reader may read it. Where the
+     * `potential_judgement` rule hides the band from them, each entry keeps
+     * its id, its player, when it was set and by whom, and leaves out the
+     * band, its label, its direction, its steps and its notes
+     * (`config/sensitive_fields.php`, `player_potential`), as a REST answer
+     * leaves out every masked field: no `null`, no flag. The direction is
+     * worked out from the bands first, so the masking changes nothing for
+     * the next entry.
+     *
      * @param list<object> $history newest-first, as the repository returns it
+     * @param int|null     $reader_id the reader; the current user when null.
      * @return list<array{
-     *     id:int, band:string, label:string, set_at:string, set_by:int,
-     *     set_by_name:string, notes:string, direction:string, steps:int
+     *     id:int, player_id:int, band?:string, label?:string, set_at:string, set_by:int,
+     *     set_by_name:string, notes?:string, direction?:string, steps?:int
      * }>
      */
-    public static function seriesFrom( array $history ): array {
-        $rows = array_reverse( $history );
+    public static function seriesFrom( array $history, ?int $reader_id = null ): array {
+        $reader_id = $reader_id ?? get_current_user_id();
+        $rows      = array_reverse( $history );
 
         $out       = [];
         $prev_rank = null;
@@ -159,10 +174,12 @@ class PotentialTrajectory {
                 $steps     = abs( $rank - $prev_rank );
             }
 
-            $set_by = (int) ( $row->set_by ?? 0 );
+            $set_by    = (int) ( $row->set_by ?? 0 );
+            $player_id = (int) ( $row->player_id ?? 0 );
 
-            $out[] = [
+            $entry = [
                 'id'          => (int) ( $row->id ?? 0 ),
+                'player_id'   => $player_id,
                 'band'        => $band,
                 'label'       => self::labelFor( $band ),
                 'set_at'      => (string) ( $row->set_at ?? $row->created_at ?? '' ),
@@ -172,11 +189,64 @@ class PotentialTrajectory {
                 'direction'   => $direction,
                 'steps'       => $steps,
             ];
+            $out[] = self::forReader( $entry, $player_id, $reader_id );
 
             if ( $rank !== null ) $prev_rank = $rank;
         }
 
         return $out;
+    }
+
+    /**
+     * #4694 — is this player's potential band hidden from this reader? The
+     * `potential_judgement` rule of the sensitive-field registry, asked once
+     * per reader and player. Every source that hands out a band asks this.
+     *
+     * The rule masks a reader of a known shape, so a read with no reader at
+     * all (a scheduled job, the command line, a report's recipient whose
+     * rights cannot be checked) reads the band as it did before.
+     */
+    public static function bandHiddenFrom( int $reader_id, int $player_id ): bool {
+        if ( $reader_id <= 0 ) return false;
+        // A row that names no player: masked exactly for the shape the rule
+        // masks, whoever the player turns out to be.
+        if ( $player_id <= 0 ) return \TT\Modules\Players\PotentialAccess::readsWithoutJudgement( $reader_id );
+        return RecordRedactor::isMasked( 'player_potential', 'band', $reader_id, $player_id );
+    }
+
+    /**
+     * #4694 — a row that carries a potential band, as a reader the band is
+     * hidden from reads it: without any key the registry masks for
+     * `player_potential`, and with `band_hidden`, so a report composed for
+     * several readers can say "Hidden" rather than "not recorded" (the
+     * `notes_hidden` of `PlayerSectionRights::withoutEvaluationNotes()`).
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    public static function withoutJudgement( array $row ): array {
+        foreach ( array_keys( RecordRedactor::fields( 'player_potential' ) ) as $field ) {
+            unset( $row[ $field ] );
+        }
+        $row['band_hidden'] = true;
+        return $row;
+    }
+
+    /**
+     * One decorated entry as this reader may read it.
+     *
+     * @param array{id:int, player_id:int, band:string, label:string, set_at:string, set_by:int, set_by_name:string, notes:string, direction:string, steps:int} $entry
+     * @return array{id:int, player_id:int, band?:string, label?:string, set_at:string, set_by:int, set_by_name:string, notes?:string, direction?:string, steps?:int}
+     */
+    private static function forReader( array $entry, int $player_id, int $reader_id ): array {
+        if ( ! self::bandHiddenFrom( $reader_id, $player_id ) ) return $entry;
+        return [
+            'id'          => $entry['id'],
+            'player_id'   => $entry['player_id'],
+            'set_at'      => $entry['set_at'],
+            'set_by'      => $entry['set_by'],
+            'set_by_name' => $entry['set_by_name'],
+        ];
     }
 
     /**
