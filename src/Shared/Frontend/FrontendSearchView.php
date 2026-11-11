@@ -45,6 +45,11 @@ class FrontendSearchView extends FrontendViewBase {
      * Players, Teams, Activities, Evaluations & goals, Notes, then the
      * family's Messages, People, Settings & modules, Sections, Help.
      *
+     * #4942 — the Library group, staff only: exercises, training plans,
+     * methodology and courses, between Settings & modules and Sections. A
+     * family viewer's library kinds return nothing, so the group never
+     * shows for them.
+     *
      * @return list<array{kind:string, kinds:list<string>, label:string, limit:int}>
      */
     public static function groups(): array {
@@ -57,6 +62,7 @@ class FrontendSearchView extends FrontendViewBase {
             [ 'kind' => 'message',           'kinds' => [ 'message' ],            'label' => _x( 'Messages', 'search group', 'talenttrack' ),            'limit' => 3 ],
             [ 'kind' => 'person',            'kinds' => [ 'person' ],             'label' => _x( 'People', 'search group', 'talenttrack' ),              'limit' => 3 ],
             [ 'kind' => 'setting',           'kinds' => [ 'setting' ],            'label' => _x( 'Settings & modules', 'search group', 'talenttrack' ),  'limit' => 3 ],
+            [ 'kind' => 'library',           'kinds' => [ 'exercise', 'training_plan', 'methodology', 'course' ], 'label' => _x( 'Library', 'search group', 'talenttrack' ), 'limit' => 3 ],
             [ 'kind' => 'view',              'kinds' => [ 'view' ],               'label' => _x( 'Sections', 'search group', 'talenttrack' ),            'limit' => 3 ],
             [ 'kind' => 'help',              'kinds' => [ 'help' ],               'label' => _x( 'Help', 'search group', 'talenttrack' ),                'limit' => 3 ],
         ];
@@ -96,6 +102,12 @@ class FrontendSearchView extends FrontendViewBase {
             case 'setting':    return _x( 'Setting', 'search result kind', 'talenttrack' );
             case 'view':       return _x( 'Section', 'search result kind', 'talenttrack' );
             case 'help':       return _x( 'Help topic', 'search result kind', 'talenttrack' );
+            // #4942 — a library hit's sublabel starts with its kind, so the
+            // header box says it too; the row does not say it twice.
+            case 'exercise':
+            case 'training_plan':
+            case 'methodology':
+            case 'course':     return '';
             default:           return '';
         }
     }
@@ -314,6 +326,9 @@ class FrontendSearchView extends FrontendViewBase {
             echo '<span class="tt-search-page__label">' . esc_html( $label );
             if ( ! empty( $item['disabled'] ) ) {
                 echo ' <span class="tt-search-page__state">' . esc_html_x( 'Off', 'search result of a switched-off module', 'talenttrack' ) . '</span>';
+            }
+            if ( ! empty( $item['locked'] ) ) {
+                echo ' <span class="tt-search-page__state">' . esc_html_x( 'Locked', 'search result of a locked course', 'talenttrack' ) . '</span>';
             }
             echo '</span>';
             $meta = array_filter( [ self::kindLabel( $type ), self::playerFacts( $item ), $sub ] );

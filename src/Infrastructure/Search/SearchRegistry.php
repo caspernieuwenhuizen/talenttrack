@@ -25,7 +25,8 @@ use TT\Infrastructure\Search\Providers\TeamSearchProvider;
  * Phase 1 kinds: sections (`view`), players, teams, people, activities,
  * settings and help topics. #4673 added the family's evaluations, goals and
  * messages; #4936 the staff's evaluations and goals, as a second scope of
- * the same kinds, and player notes. A kind added later registers a
+ * the same kinds, and player notes; #4942 the library for staff: exercises,
+ * training plans, methodology and courses. A kind added later registers a
  * {@see SearchProvider} here and inherits the whole contract: scoped in SQL,
  * confirmed per row, counted over the same scope.
  *
@@ -58,6 +59,10 @@ final class SearchRegistry {
                 new MessageSearchProvider(),
                 new PlayerNoteSearchProvider(),
                 new SettingSearchProvider(),
+                new ExerciseSearchProvider(),
+                new TrainingPlanSearchProvider(),
+                new MethodologySearchProvider(),
+                new CourseSearchProvider(),
                 new HelpSearchProvider(),
             ] as $provider ) {
                 $by_kind[ $provider->kind() ][] = $provider;

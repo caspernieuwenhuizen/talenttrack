@@ -728,7 +728,7 @@ standard envelope:
       "actions": [ { "key": "new_evaluation", "label": "New evaluation", "url": "https://…" },
                    { "key": "goals", "label": "Goals", "url": "https://…" } ] }
   ],
-  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "evaluation": 0, "goal": 0, "message": 0, "player_note": 0, "setting": 0, "help": 0 },
+  "counts": { "view": 0, "player": 1, "team": 0, "person": 0, "activity": 0, "evaluation": 0, "goal": 0, "message": 0, "player_note": 0, "setting": 0, "exercise": 0, "training_plan": 0, "methodology": 0, "course": 0, "help": 0 },
   "understood": [ { "pattern": "shirt_number", "value": "7", "label": "Shirt number 7" } ],
   "total": 1 }, "errors": [] }
 ```
@@ -745,6 +745,10 @@ standard envelope:
 | `message` | A parent's own inbox (`recipient_user_id`) | The same rule |
 | `player_note` | The player notes thread's read (`tt_view_player_notes`; the global `player_notes` read, otherwise the teams the caller coaches) on top of `PlayerVisibility::sqlClause()`; a staff-only note only where `ThreadAccess::canSeePrivateOnTeams()` holds. Nothing for the read-only observer, a parent or a player | `canViewPlayers()`, `PlayerThreadAdapter::canReadMany()` and the same staff-only rule |
 | `setting` | `SettingsRegistry::navigableEntriesFor()`: the entries the caller may open, on a screen their navigation offers them (a screen with no tile of its own needs the Configuration tile); for a caller with `tt_manage_modules` also every switched-off module (`SettingsRegistry::offModulesFor()`). Nothing for a parent or a player | — |
+| `exercise` | The exercise library's own gate (`tt_view_activities`) and the `exercises` read (matrix); the club's exercises, current version only (`superseded_by_id IS NULL`), not archived, the rows `GET /exercises?browse=1` lists. No `visibility` filter: the library list and the detail page apply none. Nothing for a parent or a player, or with the Exercises module off | The same gate |
+| `training_plan` | `tt_training_plan`, then the plan detail's scope (`TrainingPlansRestController::planRefusal()`): every plan with a global `team` read, otherwise the plans with no team (club-wide) plus those of the caller's teams. Not archived. No `visibility` filter, as on the list and the detail. Nothing for a parent or a player, or with the Training module off | The same scope per hit |
+| `methodology` | `tt_view_methodology`; the principles, sub-principles and learning goals of the club's active methodology (`MethodologyScope::active()`, plus rows of no set; the learning goals of the active framework primer), read through the repositories the methodology page reads and matched in memory in the caller's language. Nothing for a parent or a player, or with the Methodology module off | — |
+| `course` | `tt_view_knowledge`; `CourseAccessResolver::listableCourses()`: an unavailable or denied course never comes back, a locked one is listed with `locked: true`. Matched on the title and summary, and on the lesson titles of a course that is not locked. Nothing for a parent or a player, or with the Knowledge module off | — |
 | `help` | `HelpTopics::visibleFor()`, in the caller's language | — |
 
 - **Matching.** The text is folded (lower case, accents removed, so *jose*
@@ -806,6 +810,17 @@ standard envelope:
   (`"Configuration › Academy › Appearance"`, also the `sublabel`), and whether
   it belongs to a switched-off module. A disabled item carries one action,
   `turn_on`, whose `url` opens the Modules page at that module's switch.
+- **The library kinds (#4942)**, `exercise`, `training_plan`, `methodology`
+  and `course`, answer staff only. Their `sublabel` starts with the kind
+  (*Exercise*, *Training plan*, *Methodology*, *Course*). An exercise is
+  matched on its name, description and category label, a plan on its title,
+  notes and theme, both on the raw columns lower-cased, with the same score.
+  A plan honours `team_id`; no library kind honours a pattern. An `exercise`
+  carries an `excerpt` of its description and a `training_plan` of its notes,
+  both shown in full on the detail page. A `course` carries `locked: true`
+  when it is listed but locked behind a prerequisite or the plan. A
+  sub-principle or a learning goal has no detail page, so its `url` opens the
+  methodology tab that lists it.
 - **The staff scope of `evaluation` and `goal`, and `player_note`**, match
   the player's name (folded), and on the record's own text: an evaluation's
   type (in the caller's language or as stored), opponent and staff notes; a

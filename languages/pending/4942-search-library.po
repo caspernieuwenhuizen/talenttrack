@@ -1,0 +1,45 @@
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Library"
+msgstr "Bibliotheek"
+
+#: src/Infrastructure/Search/Providers/ExerciseSearchProvider.php
+msgctxt "search result kind"
+msgid "Exercise"
+msgstr "Oefening"
+
+#: src/Infrastructure/Search/Providers/TrainingPlanSearchProvider.php
+msgctxt "search result kind"
+msgid "Training plan"
+msgstr "Trainingsplan"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "search result kind"
+msgid "Methodology"
+msgstr "Methodiek"
+
+#: src/Infrastructure/Search/Providers/CourseSearchProvider.php
+msgctxt "search result kind"
+msgid "Course"
+msgstr "Cursus"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Principle"
+msgstr "Spelprincipe"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Sub-principle"
+msgstr "Sub-principe"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Learning goal"
+msgstr "Leerdoel"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+#: src/Shared/Frontend/DashboardShortcode.php
+msgctxt "search result of a locked course"
+msgid "Locked"
+msgstr "Vergrendeld"

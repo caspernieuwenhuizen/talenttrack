@@ -240,6 +240,8 @@ final class SearchService {
             if ( isset( $hit[ $key ] ) && (string) $hit[ $key ] !== '' ) $item[ $key ] = (string) $hit[ $key ];
         }
         if ( array_key_exists( 'disabled', $hit ) ) $item['disabled'] = (bool) $hit['disabled'];
+        // #4942 — a course locked behind a prerequisite or the plan.
+        if ( ! empty( $hit['locked'] ) ) $item['locked'] = true;
         $item['actions'] = array_values( (array) ( $hit['actions'] ?? [] ) );
         return $item;
     }

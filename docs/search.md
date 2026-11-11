@@ -1,7 +1,7 @@
 ---
 title: Search
 group: basics
-summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen, for staff the evaluations, goals and notes they may read, and for parents and players their own records.
+summary: The search box in the top bar and the results page behind it, for finding a player, team, activity, person, setting or help topic from any screen, for staff the evaluations, goals and notes they may read and the library, and for parents and players their own records.
 audience: [user, admin, player, parent]
 views: [search]
 order: 22
@@ -25,8 +25,9 @@ in it and the results appear underneath, grouped:
 6. Messages (for parents)
 7. People
 8. Settings & modules
-9. Sections
-10. Help
+9. Library (for staff)
+10. Sections
+11. Help
 
 Each group shows its best four players or three of the rest. When there are
 more, an *All* link at the foot of the group opens the full list on the
@@ -135,6 +136,32 @@ switched off, and their settings, under *Settings & modules*. Such a row is
 marked *Off* and has a *Turn on* action, which opens the Modules page at that
 module's switch. Nobody else sees a switched-off module in search.
 
+## For staff: the library
+
+A coach planning a training finds the exercise, the plan, the methodology
+principle or the course they need from the same box, under *Library*. Each
+row says what it is: *Exercise*, *Training plan*, *Methodology* or *Course*.
+
+- **Exercises** are found by their name, their description and their
+  category. You find the exercises the exercise library shows you: the
+  current version of each, never an archived one.
+- **Training plans** are found by their title, their notes and their theme.
+  A coach finds the plans of their own teams and the club's templates, never
+  another team's plans; the head of development finds every plan. An archived
+  plan is not found.
+- **Methodology** holds the principles, sub-principles and learning goals of
+  the methodology your academy has selected, found by their name and their
+  description. A principle opens its own page; a sub-principle opens the
+  principles tab and a learning goal the framework tab, where each is listed.
+- **Courses** are found by their title, their summary and their lessons'
+  titles. You find the courses the courses page lists for you. A course you
+  can't start yet, because another course comes first or your academy's plan doesn't include it, is listed and marked
+  *Locked*.
+
+An exercise or a plan shows a short excerpt of its description or notes,
+which its own page shows in full. A part of the library whose module is
+switched off is not searched. Parents and players get no *Library* group.
+
 ## For parents
 
 A coach texts you that a session is "in TalentTrack now". This is how you find
@@ -194,8 +221,10 @@ for the recent list, and `POST /talenttrack/v1/me/recent` to note an opened
 record. Evaluations and goals are the kinds `evaluation` and `goal` for
 everyone: a family finds their own children's, staff the players they read,
 and a staff member who is also a parent finds each record once. Notes are
-the kind `player_note`. Items may carry `shirt_number`, `position`,
-`excerpt`, `path` and `disabled`.
+the kind `player_note`. The library is the kinds `exercise`,
+`training_plan`, `methodology` and `course`, for staff only. Items may carry
+`shirt_number`, `position`, `excerpt`, `path`, `disabled` and, on a course,
+`locked`.
 `GET /talenttrack/v1/me/search` stays for its existing callers: it
 answers in its old shape (`children`, `results`, `total`), built from the same
 engine. The old help topic for the parent search opens this one. Opening a player, team or activity page notes it on the server, so

@@ -1,7 +1,7 @@
 ---
 title: Zoeken
 group: basics
-summary: Het zoekveld in de bovenbalk en de resultatenpagina erachter, om vanaf elk scherm een speler, team, activiteit, persoon, instelling of helponderwerp te vinden, voor staf de evaluaties, doelen en notities die ze mogen lezen, en voor ouders en spelers hun eigen records.
+summary: Het zoekveld in de bovenbalk en de resultatenpagina erachter, om vanaf elk scherm een speler, team, activiteit, persoon, instelling of helponderwerp te vinden, voor staf de evaluaties, doelen en notities die ze mogen lezen en de bibliotheek, en voor ouders en spelers hun eigen records.
 audience: [user, admin, player, parent]
 views: [search]
 order: 22
@@ -25,8 +25,9 @@ Typ erin en de resultaten verschijnen eronder, gegroepeerd:
 6. Berichten (voor ouders)
 7. Mensen
 8. Instellingen & modules
-9. Onderdelen
-10. Help
+9. Bibliotheek (voor staf)
+10. Onderdelen
+11. Help
 
 Elke groep toont de beste vier spelers of drie van de rest. Zijn er meer, dan
 opent een link *Alle* onderaan de groep de volledige lijst op de
@@ -140,6 +141,35 @@ met *Uit* en heeft een actie *Aanzetten*, die de pagina Modules opent bij de
 schakelaar van die module. Niemand anders ziet een uitgeschakelde module in
 het zoeken.
 
+## Voor staf: de bibliotheek
+
+Een trainer die een training voorbereidt, vindt de oefening, het plan, het
+spelprincipe of de cursus die nodig is via hetzelfde veld, onder
+*Bibliotheek*. Elke regel zegt wat het is: *Oefening*, *Trainingsplan*,
+*Methodiek* of *Cursus*.
+
+- **Oefeningen** vind je op naam, omschrijving en categorie. Je vindt de
+  oefeningen die de oefenbibliotheek je toont: van elke de huidige versie,
+  nooit een gearchiveerde.
+- **Trainingsplannen** vind je op titel, notities en thema. Een trainer vindt
+  de plannen van de eigen teams en de sjablonen van de club, nooit de plannen
+  van een ander team; het hoofd opleiding vindt elk plan. Een gearchiveerd
+  plan wordt niet gevonden.
+- **Methodiek** bevat de spelprincipes, sub-principes en leerdoelen van de
+  methodiek die je academie heeft gekozen, te vinden op naam en omschrijving.
+  Een spelprincipe opent zijn eigen pagina; een sub-principe opent het
+  tabblad met de spelprincipes en een leerdoel het tabblad Framework, waar ze
+  staan.
+- **Cursussen** vind je op titel, samenvatting en de titels van hun lessen.
+  Je vindt de cursussen die de cursuspagina voor je toont. Een cursus die je
+  nog niet kunt starten, omdat er eerst een andere cursus komt of het abonnement van je academie hem niet bevat, staat in de
+  lijst en is gemarkeerd als *Vergrendeld*.
+
+Een oefening of een plan toont een kort fragment van de omschrijving of de
+notities, die op de eigen pagina volledig staan. Een deel van de bibliotheek
+waarvan de module uit staat, wordt niet doorzocht. Ouders en spelers krijgen
+geen groep *Bibliotheek*.
+
 ## Voor ouders
 
 Een trainer appt je dat een training "nu in TalentTrack staat". Zo vind je hem:
@@ -201,8 +231,10 @@ met `page` voor de gegroepeerde en gepagineerde resultaten,
 en doelen zijn voor iedereen de soorten `evaluation` en `goal`: een gezin
 vindt die van de eigen kinderen, staf die van de spelers die ze lezen, en een
 staflid dat ook ouder is vindt elk record één keer. Notities zijn de soort
-`player_note`. Items kunnen `shirt_number`, `position`, `excerpt`, `path` en
-`disabled` hebben. Het
+`player_note`. De bibliotheek bestaat uit de soorten `exercise`,
+`training_plan`, `methodology` en `course`, alleen voor staf. Items kunnen
+`shirt_number`, `position`, `excerpt`, `path`, `disabled` en, bij een cursus,
+`locked` hebben. Het
 openen van een spelers-, team- of activiteitpagina legt dat op de server vast,
 zodat elke frontend dezelfde lijst vult. `GET /talenttrack/v1/me/search` blijft
 bestaan voor wie hem al gebruikt: hij antwoordt in zijn oude vorm (`children`,

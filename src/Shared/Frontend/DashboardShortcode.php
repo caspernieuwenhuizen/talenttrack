@@ -317,6 +317,8 @@ class DashboardShortcode {
                 'search_see_all'          => __( 'Press Enter to see every result.', 'talenttrack' ),
                 // #4936 — the mark on a switched-off module's row.
                 'search_off'              => _x( 'Off', 'search result of a switched-off module', 'talenttrack' ),
+                // #4942 — the mark on a locked course's row.
+                'search_locked'           => _x( 'Locked', 'search result of a locked course', 'talenttrack' ),
                 'search_close'            => __( 'Close search', 'talenttrack' ),
                 'peek_title'              => __( 'Preview', 'talenttrack' ),
                 'peek_loading'            => __( 'Loading…', 'talenttrack' ),
