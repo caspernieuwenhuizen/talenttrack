@@ -129,6 +129,44 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
         $this->assertSame( 1, PlayerFileCounts::for( $this->linked )['notes'], 'the current user is the default reader' );
     }
 
+    /**
+     * With the matrix off (`tt_authorization_active = 0`) the bridge filter
+     * is not hooked and the role capabilities decide. The scout role holds
+     * `tt_edit_evaluations` natively, which counts only on a team the reader
+     * coaches.
+     */
+    public function test_with_the_matrix_off_a_scout_sees_no_staff_only_note_and_a_coach_does(): void {
+        $coach = $this->coachOnTeam();
+        $bridge = [ \TT\Modules\Authorization\AuthorizationModule::class, 'filterUserHasCap' ];
+        $hooked = has_filter( 'user_has_cap', $bridge );
+        $config = new \TT\Infrastructure\Config\ConfigService();
+        $was    = (string) $config->get( 'tt_authorization_active', '' );
+        $config->set( 'tt_authorization_active', '0' );
+        remove_filter( 'user_has_cap', $bridge, 10 );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+
+        try {
+            $scout_reach = ThreadAccess::canSeePrivateOnTeams( $this->scout, [ self::TEAM_ID ] );
+            $this->assertFalse( $scout_reach['all'] );
+            $this->assertFalse( $scout_reach['teams'][ self::TEAM_ID ] ?? true, 'no staff-only reach on a team the scout does not coach' );
+            $this->assertFalse( ThreadAccess::canSeePrivate( 'player', $this->linked, $this->scout ) );
+
+            wp_set_current_user( $this->scout );
+            $response = $this->dispatch( 'GET', '/talenttrack/v1/threads/player/' . $this->linked );
+            if ( $response->get_status() === 200 ) {
+                $this->assertNotContains( $this->staff_only_id, $this->messageIds( $response ) );
+            }
+
+            $this->assertTrue( user_can( $coach, 'tt_edit_evaluations' ), 'precondition: the coach role holds it' );
+            $this->assertTrue( ThreadAccess::canSeePrivateOnTeams( $coach, [ self::TEAM_ID ] )['teams'][ self::TEAM_ID ] ?? false, 'the coach keeps the reach on their team' );
+            $this->assertTrue( ThreadAccess::canSeePrivate( 'player', $this->linked, $coach ), 'the coach still sees the staff-only note' );
+        } finally {
+            $config->set( 'tt_authorization_active', $was );
+            if ( $hooked !== false ) add_filter( 'user_has_cap', $bridge, 10, 4 );
+            \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        }
+    }
+
     public function test_the_head_of_development_keeps_every_note(): void {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         $adapter = new PlayerThreadAdapter();
@@ -145,6 +183,14 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
     }
 
     public function test_a_coach_keeps_the_notes_of_their_own_team(): void {
+        $coach = $this->coachOnTeam();
+
+        $adapter = new PlayerThreadAdapter();
+        $this->assertTrue( $adapter->canRead( $coach, $this->linked ), 'a player on the coach\'s team' );
+        $this->assertTrue( $adapter->canRead( $coach, $this->unlinked ), 'and every other one on it' );
+    }
+
+    private function coachOnTeam(): int {
         global $wpdb;
         $p     = $wpdb->prefix;
         $coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
@@ -164,10 +210,8 @@ final class ScoutPlayerNotesScopeTest extends WP_UnitTestCase {
             'scope_id'   => self::TEAM_ID,
         ] );
         MatrixRepository::clearCache();
-
-        $adapter = new PlayerThreadAdapter();
-        $this->assertTrue( $adapter->canRead( $coach, $this->linked ), 'a player on the coach\'s team' );
-        $this->assertTrue( $adapter->canRead( $coach, $this->unlinked ), 'and every other one on it' );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        return $coach;
     }
 
     public function test_a_parent_is_refused_as_before(): void {

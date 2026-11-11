@@ -58,7 +58,17 @@ return new class extends Migration {
                     AND activity = 'read' AND scope_kind = 'global'
                     AND is_default = 1"
             );
-            $note = $written > 0 ? 'narrowed the default global row' : 'no default global row (customised or absent)';
+            $note = $written > 0 ? 'narrowed the default global row' : 'no default global row';
+        }
+
+        $customised = (int) $wpdb->get_var(
+            "SELECT COUNT(1) FROM {$table}
+              WHERE persona = 'scout' AND entity = 'thread_messages'
+                AND activity = 'read' AND scope_kind = 'global'
+                AND is_default = 0"
+        );
+        if ( $customised > 0 ) {
+            $note .= '; kept a customised global row (is_default = 0): this academy set it, so scouts still read conversations academy-wide there';
         }
 
         $this->report( $written, 'thread_messages: ' . $note );
