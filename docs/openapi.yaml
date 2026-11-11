@@ -447,7 +447,7 @@ paths:
     patch:
       tags: [report-studio]
       summary: 'Partial update of the caller''s draft (definition) and the name; an omitted field keeps its value, an empty one clears it'
-      description: 'Body — name, definition (at most 40 blocks of id, key, options and width full | half), revision; revision may also be a query parameter. The name is the caller''s draft name; readers keep the published name until the next publish. A stale revision is 409 stale_revision with details.current_revision.'
+      description: 'Body — name, definition (at most 40 blocks, 12 for a dashboard, of id, key, options, width full | half, and for a report laid out as a grid its place, grid { x, y, w, h } on 12 columns: inside the grid, whole cells, no two blocks in one cell, checked on the server; a block without one takes the first free place, and a rows report refuses it), revision; revision may also be a query parameter. The name is the caller''s draft name; readers keep the published name until the next publish. A stale revision is 409 stale_revision with details.current_revision.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '400': { description: 'invalid_field, unknown_field, no_writable_field, or unknown_dimension (a block names an analytics field its fact no longer has)' }, '403': { description: forbidden }, '409': { description: stale_revision } }
     delete:
@@ -483,7 +483,7 @@ paths:
     get:
       tags: [report-studio]
       summary: The report as one document, with its HTML (#5021)
-      description: 'The query and the rules of `GET /reports/{id}/data`. Answers report_id, source, version_no, context, page_fit and html: the document the reader''s view, the canvas''s A4 view and the PDF (`exports/report_studio_pdf`) all show, every value escaped. `/data` stays the contract for a front end that draws blocks itself.'
+      description: 'The query and the rules of `GET /reports/{id}/data`. Answers report_id, source, version_no, layout, context, page_fit and html. A report laid out as a grid (#4962) answers the grid in reading order, page_fit null and context.can_snapshot false; it has no PDF and no snapshots. Otherwise html is the document the reader''s view, the canvas''s A4 view and the PDF (`exports/report_studio_pdf`) all show, every value escaped. `/data` stays the contract for a front end that draws blocks itself.'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '400': { description: 'invalid_field, bad_date or bad_filter' }, '402': { description: license_required }, '403': { description: 'forbidden, forbidden_team, forbidden_player, forbidden_scope, fixed_subject, fixed_period or fixed_audience' }, '404': { description: not_published } }
 
@@ -518,6 +518,27 @@ paths:
         - { in: path, name: uuid, required: true, schema: { type: string } }
         - { in: path, name: block, required: true, schema: { type: string } }
       responses: { '200': { description: 'OK — the snapshot' }, '400': { description: 'missing_fields (no body), unknown_section (the block is not on the snapshot), unknown_field' }, '402': { description: license_required }, '403': { description: forbidden }, '500': { description: note_failed } }
+
+  /studio-homes:
+    get:
+      tags: [report-studio]
+      summary: Every persona that can have a Studio dashboard as its home, with its dashboard (#4962)
+      description: 'Cap required: `tt_edit_persona_templates`, with the report_studio feature on. Answers homes: [{ persona, label, report_id, report_name }] for each of `ReportAccess::PUBLISHABLE_PERSONAS`; report_id is null where the persona''s own template shows. Stored per club in tt_config (`persona_dashboard.<persona>.studio_report`).'
+      responses: { '200': { description: OK }, '402': { description: license_required }, '403': { description: rest_forbidden } }
+
+  /studio-homes/{persona}:
+    put:
+      tags: [report-studio]
+      summary: Make a Studio dashboard a persona's home (#4962)
+      description: 'Cap required: `tt_edit_persona_templates`. Body — report_id. Only a persona a report is published to (a player or a parent is 400 invalid_field on persona). The report must be a dashboard, published, published to that persona, with a binding chosen when opened or following the viewer, or about the academy; otherwise 400 invalid_field on report_id. A dashboard the caller cannot open is 403. Replaces the persona''s home before.'
+      parameters: [{ in: path, name: persona, required: true, schema: { type: string } }]
+      responses: { '200': { description: 'OK — { persona, label, report_id, report_name }' }, '400': { description: 'invalid_field, missing_fields, unknown_field' }, '402': { description: license_required }, '403': { description: 'rest_forbidden or forbidden' }, '404': { description: 'not_found — no such dashboard, or archived' } }
+    delete:
+      tags: [report-studio]
+      summary: Give a persona back its own dashboard template (#4962)
+      description: 'Cap required: `tt_edit_persona_templates`. A persona that cannot have a Studio home is 400 invalid_field.'
+      parameters: [{ in: path, name: persona, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '400': { description: invalid_field }, '402': { description: license_required }, '403': { description: rest_forbidden } }
 
   /reports/{id}/subjects:
     get:

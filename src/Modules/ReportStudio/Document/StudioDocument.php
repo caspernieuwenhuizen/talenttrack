@@ -180,6 +180,18 @@ final class StudioDocument {
         return '<div class="tt-sd-block" id="tt-sd-' . esc_attr( $id ) . '">' . $out . '</div>';
     }
 
+    /**
+     * #4962 — one block's markup for a layout other than Rows: the grid
+     * places the same blocks, so a block reads alike in both.
+     *
+     * @param array<string,mixed> $block a block of a `ReportData::compose()` answer
+     */
+    public static function blockMarkup( array $block, DocumentWords $words ): string {
+        $keyed       = self::keyed( $block );
+        $keyed['id'] = self::text( $keyed['id'] ?? '' );
+        return self::block( $keyed, $words, [] );
+    }
+
     /** Blocks that are their own heading, so no block name prints above them. */
     private const UNTITLED = [ LetterheadBlock::KEY, 'heading', 'text', PageBreakBlock::KEY ];
 

@@ -118,6 +118,10 @@ final class ReportStudioPdfExporter implements ExporterInterface, ScopeGatedExpo
         if ( $report === null || ! $reader->readsStudio() || ! ReportAccess::canRead( $reader, $report ) ) {
             throw new ExportException( 'forbidden', __( 'This report is not shared with you.', 'talenttrack' ) );
         }
+        // #4962 — a grid is for staff screens; only rows print.
+        if ( ! \TT\Modules\ReportStudio\Domain\ReportGrid::printable( $report['layout'] ) ) {
+            throw new ExportException( 'bad_filters', \TT\Modules\ReportStudio\Domain\ReportGrid::notPrintedReason() );
+        }
 
         $filters = $request->filters;
         $id      = static fn( mixed $v ): ?int => is_numeric( $v ) && (int) $v > 0 ? (int) $v : null;

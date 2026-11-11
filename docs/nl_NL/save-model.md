@@ -157,6 +157,12 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
   notitie bij het verslag van een gesprek is erger dan een verloren notitie.
   De momentopname maken is zelf een eigen knop met een eigen bevestiging,
   omdat de momentopname van een rapport voor het gezin het gezin bereikt.
+- **Startpagina** op een Studio-dashboard, dat het daarmee het
+  [eerste scherm van een rol](reports.md#report-studio--een-dashboard-als-startpagina-van-een-rol)
+  maakt. Eén set vinkjes verandert wat iedereen in die rollen na het inloggen
+  ziet, dus het wordt één keer vastgelegd, bij Opslaan, en Annuleren laat de
+  startpagina van elke rol zoals hij was. Het staat als eigen venster naast
+  het canvas dat zichzelf opslaat, nooit als veld erop.
 
 **Waarom de cycluskalender.** Eén week wijzigen verschuift elke week erna
 voor de rest van het seizoen. Elke schakelaar opslaan op het moment dat hij

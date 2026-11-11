@@ -29,6 +29,7 @@ use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
 use TT\Modules\ReportStudio\Rest\ReportSnapshotsRestController;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
+use TT\Modules\ReportStudio\Rest\StudioHomesRestController;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -69,6 +70,7 @@ class ReportStudioModule implements ModuleInterface {
         ReportBlocksRestController::init();
         ReportsRestController::init();
         ReportSnapshotsRestController::init();
+        StudioHomesRestController::init();
 
         // #4570 — the start wizard. Registered on `init` so the registry is
         // populated before a request resolves `?tt_view=wizard&slug=new-report`.

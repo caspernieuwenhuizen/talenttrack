@@ -709,7 +709,7 @@ The **Report Studio** tile under Reports lists the reports you made, with the **
 - **Settings**: the block's choices in plain words, whether a family may see it, and where its figures come from.
 - **A block that refers to a field that no longer exists** says so and names the field, in the builder and for every reader, instead of showing a figure; the rest of the report reads as usual. A report with such a block cannot be saved until you change or remove it. A field that was renamed keeps working.
 
-A report holds at most 40 blocks.
+A report holds at most 40 blocks; a dashboard holds at most 12, because it can be the first screen a role sees.
 
 **Saving.** The canvas saves itself as you work; there is no Save button. **Undo** goes back step by step, up to 50 steps in this sitting, and **Revert changes** puts the report back to how it was when you opened it. If you have the same report open in a second tab, the tab with the older copy reloads the newest one rather than writing over it. See [How saving works](save-model.md).
 
@@ -773,7 +773,7 @@ A report someone published for your role appears on the Reports launcher under *
 - **Who it is about** depends on how it was made. A report about a fixed team or player shows that team or player. A report chosen when it is opened lets you pick one of your own teams or players. A report that follows whoever opens it shows your own team.
 - **The period** is the one the report was made for. When it is chosen on opening, pick one of the period options: last week, last month, this month or this season.
 - **A block you may not see** says "Not available to you." and shows no figures. Contact details of a family you do not work with are never shown.
-- **What you read is what prints.** The report on screen is the same document as its PDF, page for page. **Download PDF** prints it for the subject and period you chose. From a tablet up it is shown as A4 pages; on a phone the blocks stack one under the other, and a table reads as labelled lines.
+- **What you read is what prints.** The report on screen is the same document as its PDF, page for page. **Download PDF** prints it for the subject and period you chose. From a tablet up it is shown as A4 pages; on a phone the blocks stack one under the other, and a table reads as labelled lines. A report laid out as a grid is the exception: it is for the screen, so it has no PDF and no snapshots.
 - A letterhead, a heading and a text are shown without a block name above them, and a page break starts a new page.
 
 A report that is no longer published for your role, or about a team you no longer work with, drops off the list and cannot be opened.
@@ -788,3 +788,27 @@ A snapshot keeps a report as it reads today, so it can sit on the table in a con
 - **Opening one.** The report's snapshots are listed under **Snapshots** on the report. Each opens for staff who may see its player or its team, by the same rules as the player report's and the monthly report's snapshots, even after the report itself has changed. It is shown with your own rights, not the rights of whoever took it: a block you could not see on the live report is left out, and so is a row about a player you cannot see. Studio snapshots follow the Studio's own access rule, so they are closed to the read-only observer as the Studio is. **Download PDF** prints it.
 - **For the family.** A snapshot of a report made for the family is shared with the player and their parents: it appears on the player's file under **Reports**, next to the player reports shared with them. Each of them sees the blocks their own access to the player's file allows, as with a shared player report: evaluation averages follow the evaluations, playing time the minutes, attendance the attendance, goals the goals. The letterhead, headings and text are always there. A block the family could not see on the player's file is left out.
 - **Notes.** On a snapshot for staff, whoever may take that player's or that team's snapshots writes a note under each block, kept with the snapshot's notes, never in the report itself. A snapshot shared with the family takes no notes: nothing written on it would reach the people it was written for.
+
+A report laid out as a grid has no snapshots: a snapshot prints, and a grid does not.
+
+## Report Studio — the grid
+
+A report or dashboard laid out as a **grid** places its blocks side by side on a screen, at the size you give them, instead of one under the other. The grid is chosen when you start the report and stays: a report in rows does not become a grid later, or the other way round.
+
+- **For staff, on screen.** A grid is for a staff audience. It is never printed, mailed or shared with a family: a report for a family or a scout, a scheduled mail and a report shared with the family are laid out in rows, and the wizard switches the grid off for them, with the reason. A grid has no **A4** view, no **Make PDF** and no snapshots.
+- **Placing a block.** The grid has 12 columns. A new block takes the first free place, 6 columns wide and 2 rows tall. Each block's buttons move it left, right, up or down by one cell and make it narrower, wider, shorter or taller. With the keyboard, Tab to a block, then the arrow keys move it and Shift with an arrow key resizes it. On a desktop you can also drag a block by its handle to another cell. A block is one to four rows tall.
+- **No overlap.** Two blocks never share a cell, and a block never leaves the grid. A move or a resize that would do either is not made, and the button for it is switched off. The server checks the same rules on every save, so a report saved another way is held to them too.
+- **Undo and saving.** Every move and every resize is one step of **Undo**, and is saved like any other change.
+- **On a phone** the grid stacks the blocks in one column, in reading order: the top row first, left to right within a row. The **Phone** view on the canvas shows that order. Nothing scrolls sideways.
+
+## Report Studio — a dashboard as a role's home page
+
+The academy admin can make a published Studio dashboard the home page of a role: everyone holding that role sees it first after logging in, in place of the role's own dashboard.
+
+- **Which roles.** Only the roles a report is published to: the head of development, the academy admin, the head coach, the assistant coach and the team manager. A player and a parent keep their own dashboard, because a family never reads a live report; it reads only what is shared with it.
+- **Which dashboards.** A dashboard, published to that role, whose subject is chosen when it is opened or follows whoever opens it, so every reader sees their own team or player. A dashboard about one fixed team cannot be a home page. A dashboard about the whole academy can.
+- **Choosing it.** On the dashboard in the Report Studio, choose **Home page**, tick the roles it should be the home page of, and **Save**. **Cancel** changes nothing. Untick a role to give it back its own dashboard. A role has one home page; ticking a role whose home page is another dashboard replaces that one, and the dialog names it.
+- **What each reader sees.** The dashboard with their own figures: a head coach sees their own team, and another head coach theirs. A block they may not see says so, as on any shared report.
+- **When it stops.** When the dashboard is archived, no longer published, or no longer published to the role, the role's own dashboard comes back by itself.
+
+The choice is kept per academy, and it needs the right to edit the role dashboards, the same right the dashboard editor asks. The role dashboards themselves are unchanged and still edited in the dashboard editor.

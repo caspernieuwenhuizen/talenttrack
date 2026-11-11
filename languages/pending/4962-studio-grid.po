@@ -1,0 +1,145 @@
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A block's place in the grid is an object with x, y, w and h."
+msgstr "De plek van een blok in het raster is een object met x, y, w en h."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A place in the grid does not accept: %s."
+msgstr "Een plek in het raster accepteert niet: %s."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A place in the grid is whole cells: x, y, w and h are whole numbers."
+msgstr "Een plek in het raster bestaat uit hele vakken: x, y, w en h zijn hele getallen."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block lies inside the grid's %d columns."
+msgstr "Een blok ligt binnen de %d kolommen van het raster."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block is one to %d rows tall."
+msgstr "Een blok is één tot %d rijen hoog."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+#, php-format
+msgid "A block lies inside the grid's %d rows."
+msgstr "Een blok ligt binnen de %d rijen van het raster."
+
+#: src/Modules/ReportStudio/Domain/ReportGrid.php
+msgid "A grid is laid out for staff screens and is not printed. Build the report in rows to print it, mail it or freeze it."
+msgstr "Een raster is opgemaakt voor schermen van de staf en wordt niet afgedrukt. Bouw het rapport in rijen om het af te drukken, te mailen of vast te leggen."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "A dashboard holds at most %d blocks."
+msgstr "Een dashboard bevat hooguit %d blokken."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Only a report laid out as a grid places its blocks in a grid."
+msgstr "Alleen een rapport dat als raster is opgemaakt, plaatst zijn blokken in een raster."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+msgid "Two blocks cannot share a place in the grid."
+msgstr "Twee blokken kunnen niet dezelfde plek in het raster hebben."
+
+#: src/Modules/ReportStudio/Domain/ReportDefinition.php
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "The grid has no room left for this block."
+msgstr "Het raster heeft geen plek meer voor dit blok."
+
+#: src/Modules/ReportStudio/Document/StudioGrid.php
+msgid "This dashboard has no blocks yet."
+msgstr "Dit dashboard heeft nog geen blokken."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A Studio dashboard can be the home of a staff role a report is published to. The player's and the parent's home stay on the dashboard editor."
+msgstr "Een Studio-dashboard kan de startpagina zijn van een stafrol waarvoor een rapport wordt gepubliceerd. De startpagina van de speler en de ouder blijft in de dashboard-editor."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "This dashboard does not exist, or it was removed."
+msgstr "Dit dashboard bestaat niet, of het is verwijderd."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Only a dashboard can be a home page, not a report."
+msgstr "Alleen een dashboard kan een startpagina zijn, geen rapport."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "A home page is chosen when opened or follows the viewer, so each reader sees their own subject."
+msgstr "Een startpagina wordt bij het openen gekozen of gaat mee met wie hem opent, zodat elke lezer het eigen onderwerp ziet."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Publish the dashboard before it becomes a home page."
+msgstr "Publiceer het dashboard voordat het een startpagina wordt."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "This dashboard is not published to that role."
+msgstr "Dit dashboard is niet voor die rol gepubliceerd."
+
+#: src/Modules/ReportStudio/Domain/StudioHome.php
+msgid "Choose a dashboard."
+msgstr "Kies een dashboard."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Home page"
+msgstr "Startpagina"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Everyone in a role you tick sees this dashboard first after logging in, with their own figures. Untick a role to give it back its own dashboard."
+msgstr "Iedereen in een rol die je aanvinkt, ziet dit dashboard als eerste na het inloggen, met de eigen cijfers. Vink een rol uit om die het eigen dashboard terug te geven."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Home page for"
+msgstr "Startpagina voor"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Move left"
+msgstr "Naar links"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Move right"
+msgstr "Naar rechts"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make narrower"
+msgstr "Smaller maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make wider"
+msgstr "Breder maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make shorter"
+msgstr "Lager maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Make taller"
+msgstr "Hoger maken"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s at column %2$s, row %3$s, %4$s columns wide and %5$s rows tall."
+msgstr "%1$s op kolom %2$s, rij %3$s, %4$s kolommen breed en %5$s rijen hoog."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "There is no room there: blocks cannot overlap or leave the grid."
+msgstr "Daar is geen plek: blokken kunnen niet overlappen of buiten het raster vallen."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "%1$s, column %2$s, row %3$s. Arrow keys move it, Shift and an arrow key resize it."
+msgstr "%1$s, kolom %2$s, rij %3$s. De pijltoetsen verplaatsen het, Shift met een pijltoets verandert de grootte."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "Publish the dashboard to a role first; it can be the home page of the roles it is published to."
+msgstr "Publiceer het dashboard eerst voor een rol; het kan de startpagina zijn van de rollen waarvoor het is gepubliceerd."
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+#, php-format
+msgid "Now: %s"
+msgstr "Nu: %s"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgid "The home pages are saved."
+msgstr "De startpagina's zijn opgeslagen."

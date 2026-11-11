@@ -1844,7 +1844,7 @@ ruled out, moved to the first option still allowed, with the reason.
 ### `PATCH /reports/{id}`
 
 Writes the **caller's** draft, never another builder's: `definition` (`{
-"blocks": [ { "id", "key", "options", "width" } ] }`, at most 40 registered
+"blocks": [ { "id", "key", "options", "width", "grid" } ] }`, at most 40 registered
 blocks and 65536 bytes; `width` is `full`, the default, or `half`) and
 `name`. **An omitted field keeps its value; a field sent empty clears it.** A
 body with neither is `400 no_writable_field`. The draft row is made on first
@@ -1852,7 +1852,20 @@ use from the published version, or the owner's draft, with that version's or
 draft's name. A block that names an analytics field its fact no longer has is
 refused, `400 unknown_dimension` with `details.field = "definition"` and
 `details.block` (its position); a field named by an alias is stored by its
-new name.
+new name. A dashboard holds at most 12 blocks (#4962).
+
+**A report laid out as a grid (#4962)** gives each block its place,
+`"grid": { "x": 0, "y": 0, "w": 6, "h": 2 }`: `x` and `w` on 12 columns
+(`x` 0–11, `x + w` at most 12), `y` from 0 and `h` 1–4 rows (`y + h` at most
+48), whole numbers only. The server checks them on every save, not only the
+canvas: a place outside the grid, a fraction, an unknown key in `grid`, or two
+blocks that share a cell is **`400 invalid_field`** with
+`details.field = "definition"` and `details.block` (the position of the block
+that breaks the rule); nothing is saved. Blocks that only touch at an edge do
+not overlap. A block sent without `grid` is put in the first free place, 6
+columns by 2 rows, top left first. A report in **rows** refuses a `grid` key
+with the same `400 invalid_field`. `GET /reports/{id}` returns each block with
+its `grid`, and `/data` returns `layout` and each block's `grid`.
 
 **A rename waits for publish.** `name` is written to the caller's draft, like
 `definition`, and readers keep the published name until the next publish
@@ -2010,6 +2023,13 @@ stack-table primitive. A block that is a monthly section prints with the
 monthly report's own section renderer. `/data` stays the contract for a front
 end that draws the blocks itself.
 
+The answer also carries `layout`. **A report laid out as a grid (#4962)** is
+a screen, not paper: `html` is the grid (`StudioGrid`), every block in reading
+order (top row first, left to right) with its place as CSS custom properties,
+`page_fit` is `null` and `context.can_snapshot` is `false`. A grid is never
+printed: the PDF export refuses it (`bad_filters`), and so does
+`POST /reports/{id}/snapshots` (`400 invalid_field` on `layout`).
+
 ### Snapshots (#5021)
 
 A snapshot is the published version, read for one player or one team over one
@@ -2087,6 +2107,49 @@ report takes its drafts, versions and publications. Purging a team removes
 its reports, and erasing a player removes the reports about them, with
 everything that hangs off them. A player's subject-access export carries the
 reports about them and every draft of them (`studio_reports.json`).
+
+## Report Studio homes (#4962, epic #4564)
+
+A published Studio dashboard as a persona's home: the first screen everyone
+holding that persona sees after logging in, hosted by the persona landing in
+place of the persona template's grid. Every route needs
+`tt_edit_persona_templates` (matrix `persona_templates : change`, the persona
+dashboard editor's capability: the academy admin) with the `report_studio`
+feature switched on (`403` otherwise) and the `report_studio` plan feature
+(`402 license_required`). The persona dashboard editor's own routes
+(`/personas/{slug}/template*`) are unchanged.
+
+| Route | What |
+| --- | --- |
+| `GET /studio-homes` | Every persona that can have a Studio home, with its dashboard: `{ homes: [ { persona, label, report_id, report_name } ] }`, `report_id` `null` where the persona's template shows. |
+| `PUT /studio-homes/{persona}` | Body `report_id`. Make that dashboard the persona's home; it replaces the one before. `200` with the row. |
+| `DELETE /studio-homes/{persona}` | Back to the persona's template. `200` with the row. |
+
+**Which personas.** Only `ReportAccess::PUBLISHABLE_PERSONAS`
+(`head_of_development`, `academy_admin`, `head_coach`, `assistant_coach`,
+`team_manager`). Any other, a player's or a parent's included, is `400
+invalid_field` with `details.field = "persona"`: a family never reads a live
+report. **Which dashboards** (`StudioHome::refusal()`, `400 invalid_field` on
+`report_id` unless said otherwise): a `kind: dashboard`, not archived (`404
+not_found` otherwise), published, published to that persona, and with a
+subject each reader resolves: `binding` `on_open` or `viewer`, or the academy
+scope, the rule a report published for a role already follows. A missing
+`report_id` is `400 missing_fields`; a dashboard the caller cannot open is
+`403 forbidden`.
+
+**Storage.** One `tt_config` row per club, key
+`persona_dashboard.<persona>.studio_report`, holding the report id, next to
+the persona dashboard's own `persona_dashboard.<persona>.*` keys; never
+`wp_options`. It is checked again on every landing: a dashboard that was
+archived, unpublished or taken off the persona stops being the home and the
+template shows.
+
+**The landing reads it in one request.** The landing resolves the reader's
+subjects on the server and asks `GET /reports/{id}/document` once, which reads
+every block for that reader (`ReportData::compose()`), never one request per
+block. Each reader sees only their own subject: a dashboard that follows the
+viewer reads a head coach's own team. A reader who is not a recipient of the
+dashboard gets the persona's template.
 
 ## A player's evaluations, player-facing (#3478)
 

@@ -11,6 +11,7 @@ use TT\Modules\Export\ExportGate;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\License\UpgradePanel;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportGrid;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportSnapshots;
 use TT\Modules\ReportStudio\Repositories\ReportsRepository;
@@ -92,11 +93,13 @@ final class FrontendReportView extends FrontendViewBase {
         echo '<div class="tt-field" data-tt-rv-subject hidden></div>';
         echo '<fieldset class="tt-rs-radios" data-tt-rv-periods hidden><legend>' . esc_html__( 'Period', 'talenttrack' ) . '</legend></fieldset>';
         echo '</div>';
+        // #4962 — a grid is for the screen: no PDF and no frozen copy.
+        $printable = ReportGrid::printable( $report['layout'] );
         echo '<div class="tt-rv-actions">';
-        if ( ExportGate::mayExport( $user_id ) ) {
+        if ( $printable && ExportGate::mayExport( $user_id ) ) {
             echo '<a class="tt-btn tt-btn-secondary" data-tt-rv-pdf href="#" hidden>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
         }
-        if ( in_array( $report['scope'], ReportSnapshots::SCOPES, true ) ) {
+        if ( $printable && in_array( $report['scope'], ReportSnapshots::SCOPES, true ) ) {
             // Shown by the script when the document route says this reader
             // may freeze the report for the subject on screen.
             echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rv-open-snapshot hidden>' . esc_html__( 'Take snapshot', 'talenttrack' ) . '</button>';
@@ -105,8 +108,10 @@ final class FrontendReportView extends FrontendViewBase {
         echo '<p class="tt-rs-notice" data-tt-rv-notice role="status" hidden></p>';
         // #5021 — the document the PDF prints, drawn on the server.
         echo '<div class="tt-rv-document" data-tt-rv-document aria-live="polite"></div>';
-        self::renderSnapshotList( $report, $user_id );
-        self::renderSnapshotDialog( $report['audience'] === PlayerReportAudience::FAMILY );
+        if ( $printable ) {
+            self::renderSnapshotList( $report, $user_id );
+            self::renderSnapshotDialog( $report['audience'] === PlayerReportAudience::FAMILY );
+        }
         echo '</div>';
     }
 

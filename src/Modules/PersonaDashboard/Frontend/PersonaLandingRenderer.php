@@ -7,6 +7,7 @@ use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\PersonaDashboard\Domain\PersonaTemplate;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Registry\PersonaTemplateRegistry;
+use TT\Modules\ReportStudio\Frontend\StudioHomeView;
 use TT\Shared\Frontend\FrontendTileGrid;
 
 /**
@@ -81,22 +82,29 @@ final class PersonaLandingRenderer {
 
         $template = PersonaTemplateRegistry::resolve( $persona, $club_id );
         $ctx      = new RenderContext( $user_id, $club_id, $persona, $base_url );
+        // #4962 — a Report Studio dashboard the academy chose as this
+        // persona's home takes the template's grid's place.
+        $studio   = StudioHomeView::resolve( $user_id, $persona );
 
         echo '<div class="tt-pd-landing" data-tt-pd-persona="' . esc_attr( $persona ) . '">';
         self::renderPageHeader( $user_id, $persona, $template );
         self::renderRoleSwitcher( $user_id, $persona );
-        if ( in_array( $persona, [ 'head_coach', 'assistant_coach' ], true ) ) {
+        if ( $studio === null && in_array( $persona, [ 'head_coach', 'assistant_coach' ], true ) ) {
             self::renderTeamTabs( $user_id );
         }
         self::renderSystemNotices( $persona );
         self::renderUnassignedStaffNotice( $user_id, $persona );
-        GridRenderer::render( $template, $ctx );
+        if ( $studio !== null ) {
+            StudioHomeView::render( $studio, $user_id );
+        } else {
+            GridRenderer::render( $template, $ctx );
+        }
         self::renderAboutFooter( $base_url );
         echo '</div>';
 
         // If the template's grid was empty (and we have no hero/task either),
         // fall back to the legacy tile grid so admins always see something.
-        if ( $template->hero === null && $template->task === null && $template->grid->isEmpty() ) {
+        if ( $studio === null && $template->hero === null && $template->task === null && $template->grid->isEmpty() ) {
             FrontendTileGrid::render();
         }
     }

@@ -10,7 +10,9 @@ use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Authorization\PersonaLabels;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\ReportStudio\Document\StudioDocument;
+use TT\Modules\ReportStudio\Document\StudioGrid;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
+use TT\Modules\ReportStudio\Domain\ReportGrid;
 use TT\Modules\ReportStudio\Domain\ReportSnapshots;
 use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReach;
@@ -256,7 +258,7 @@ final class ReportsRestController extends BaseController {
     private static function patchArgs(): array {
         return [
             'name'       => [ 'type' => 'string', 'description' => 'The report name. Omitted keeps it; empty clears it.' ],
-            'definition' => [ 'description' => 'My draft: { blocks: [ { id, key, options } ] }. Omitted keeps it; empty clears it.' ],
+            'definition' => [ 'description' => 'My draft: { blocks: [ { id, key, options, width, grid } ] }. grid is { x, y, w, h } on 12 columns, for a report laid out as a grid only. Omitted keeps it; empty clears it.' ],
             'revision'   => [ 'type' => 'integer', 'description' => 'The draft revision this edit was made on. A stale one is refused with 409.' ],
         ];
     }
@@ -431,7 +433,7 @@ final class ReportsRestController extends BaseController {
 
         $definition = null;
         if ( array_key_exists( 'definition', $body ) ) {
-            $definition = ReportDefinition::normalise( $body['definition'], $report['layout'], $report['scope'], $report['audience'] );
+            $definition = ReportDefinition::normalise( $body['definition'], $report['layout'], $report['scope'], $report['audience'], $report['kind'] );
             if ( $definition instanceof StudioError ) return self::refuse( $definition );
         }
 
@@ -618,13 +620,16 @@ final class ReportsRestController extends BaseController {
         foreach ( is_array( $data['context'] ?? null ) ? $data['context'] : [] as $k => $v ) $context[ (string) $k ] = $v;
         $context['can_snapshot'] = ReportSnapshots::canTake( $report, $context, $reader->userId );
 
+        // #4962 — a grid is laid out for a screen, never as pages.
+        $grid = ! ReportGrid::printable( $report['layout'] );
         return RestResponse::success( [
             'report_id'  => $data['report_id'],
             'source'     => $data['source'],
             'version_no' => $data['version_no'],
+            'layout'     => $report['layout'],
             'context'    => $context,
-            'page_fit'   => $data['page_fit'],
-            'html'       => StudioDocument::body( $data, $reader->userId ),
+            'page_fit'   => $grid ? null : $data['page_fit'],
+            'html'       => $grid ? StudioGrid::body( $data, $reader->userId ) : StudioDocument::body( $data, $reader->userId ),
         ] );
     }
 

@@ -149,6 +149,12 @@ first in tab order and Save on the right where the thumb finds it.
   conversation is worse than a lost one. Taking the snapshot itself is its own
   control with its own confirm, because a family report's snapshot reaches the
   family.
+- **Home page** on a Studio dashboard, which makes it the
+  [first screen of a role](reports.md#report-studio--a-dashboard-as-a-roles-home-page).
+  One set of ticks changes what everyone in those roles sees after logging
+  in, so it commits once, on Save, and Cancel leaves every role's home as it
+  was. It sits beside the autosaving canvas as its own dialog, never as a
+  field on it.
 
 **Why the cycle calendar.** Changing one week shifts every week after it for
 the rest of the season. Saving each toggle as it was tapped would apply a run

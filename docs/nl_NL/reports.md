@@ -752,7 +752,7 @@ De tegel **Report Studio** onder Rapporten toont de rapporten die jij gemaakt he
 - **Instellingen**: de keuzes van het blok in gewone woorden, of een gezin het mag zien, en waar de cijfers vandaan komen.
 - **Een blok dat verwijst naar een veld dat niet meer bestaat** meldt dat met de naam van het veld, in de bouwer en voor elke lezer, in plaats van een getal te tonen; de rest van het rapport leest gewoon. Een rapport met zo'n blok kun je pas opslaan als je het blok aanpast of weghaalt. Een veld dat een andere naam kreeg, blijft werken.
 
-Een rapport bevat hooguit 40 blokken.
+Een rapport bevat hooguit 40 blokken; een dashboard hooguit 12, omdat het het eerste scherm van een rol kan zijn.
 
 **Opslaan.** Het canvas slaat zichzelf op terwijl je werkt; er is geen Opslaan-knop. **Ongedaan maken** gaat stap voor stap terug, tot 50 stappen in deze sessie, en **Wijzigingen terugdraaien** zet het rapport terug zoals het was toen je het opende. Heb je hetzelfde rapport in een tweede tabblad open, dan laadt het tabblad met de oudere kopie de nieuwste in plaats van eroverheen te schrijven. Zie [Hoe opslaan werkt](save-model.md).
 
@@ -816,7 +816,7 @@ Een rapport dat iemand voor jouw rol heeft gepubliceerd, staat in het rapporteno
 - **Over wie het gaat** hangt af van hoe het is gemaakt. Een rapport over een vast team of een vaste speler toont dat team of die speler. Een rapport dat bij het openen wordt gekozen, laat je een van je eigen teams of spelers kiezen. Een rapport dat volgt wie het opent, toont je eigen team.
 - **De periode** is die waarvoor het rapport is gemaakt. Wordt hij bij het openen gekozen, kies dan een van de periodes: vorige week, vorige maand, deze maand of dit seizoen.
 - **Een blok dat je niet mag zien** meldt "Niet beschikbaar voor jou." en toont geen cijfers. Contactgegevens van een gezin waar je niet mee werkt, worden nooit getoond.
-- **Wat je leest, wordt afgedrukt.** Het rapport op het scherm is hetzelfde document als de PDF, pagina voor pagina. **PDF downloaden** drukt het af voor het onderwerp en de periode die je koos. Vanaf een tablet staat het er als A4-pagina's; op een telefoon staan de blokken onder elkaar en leest een tabel als regels met een label.
+- **Wat je leest, wordt afgedrukt.** Het rapport op het scherm is hetzelfde document als de PDF, pagina voor pagina. **PDF downloaden** drukt het af voor het onderwerp en de periode die je koos. Vanaf een tablet staat het er als A4-pagina's; op een telefoon staan de blokken onder elkaar en leest een tabel als regels met een label. Een rapport als raster is de uitzondering: het is voor het scherm, dus het heeft geen PDF en geen momentopnames.
 - Een briefhoofd, een kop en een tekst staan er zonder bloknaam erboven, en een pagina-einde begint een nieuwe pagina.
 
 Een rapport dat niet meer voor jouw rol is gepubliceerd, of over een team waar je niet meer mee werkt, verdwijnt uit de lijst en is niet meer te openen.
@@ -831,3 +831,27 @@ Een momentopname bewaart een rapport zoals het vandaag leest, zodat het bij een 
 - **Er een openen.** De momentopnames van het rapport staan onder **Momentopnames** op het rapport. Elke opent voor staf die zijn speler of zijn team mag zien, volgens dezelfde regels als de momentopnames van het spelersrapport en het maandrapport, ook nadat het rapport zelf is gewijzigd. Hij wordt getoond met jouw eigen rechten, niet met die van wie hem maakte: een blok dat je in het live rapport niet zou zien, valt weg, en ook een regel over een speler die je niet mag zien. Momentopnames uit de Studio volgen de toegangsregel van de Studio zelf, dus ze zijn gesloten voor de alleen-lezen waarnemer, net als de Studio. **PDF downloaden** drukt hem af.
 - **Voor het gezin.** Een momentopname van een rapport voor het gezin wordt gedeeld met de speler en de ouders: hij staat in het dossier van de speler onder **Rapporten**, naast de spelersrapporten die met hen zijn gedeeld. Ieder van hen ziet de blokken die de eigen toegang tot het dossier toelaat, zoals bij een gedeeld spelersrapport: de gemiddelden van evaluaties volgen de evaluaties, speeltijd de minuten, aanwezigheid de aanwezigheid, doelen de doelen. Het briefhoofd, de koppen en de tekst staan er altijd in. Een blok dat het gezin in het dossier niet zou zien, valt weg.
 - **Notities.** Bij een momentopname voor staf schrijft wie de momentopnames van die speler of dat team mag maken onder elk blok een notitie, opgeslagen bij de notities van de momentopname, nooit in het rapport zelf. Een momentopname die met het gezin is gedeeld, krijgt geen notities: niets wat erop geschreven wordt, bereikt de mensen voor wie hij bedoeld is.
+
+Een rapport als raster heeft geen momentopnames: een momentopname wordt afgedrukt, een raster niet.
+
+## Report Studio — het raster
+
+Een rapport of dashboard als **raster** zet de blokken naast elkaar op een scherm, op de grootte die je ze geeft, in plaats van onder elkaar. Het raster kies je als je het rapport begint, en het blijft: een rapport in rijen wordt later geen raster, en andersom ook niet.
+
+- **Voor staf, op een scherm.** Een raster is voor een staf-publiek. Het wordt nooit afgedrukt, gemaild of met een gezin gedeeld: een rapport voor het gezin of een scout, een geplande mail en een rapport dat met het gezin wordt gedeeld zijn in rijen opgemaakt, en de wizard zet het raster voor hen uit, met de reden. Een raster heeft geen **A4**-weergave, geen **PDF maken** en geen momentopnames.
+- **Een blok plaatsen.** Het raster heeft 12 kolommen. Een nieuw blok krijgt de eerste vrije plek, 6 kolommen breed en 2 rijen hoog. Met de knoppen van een blok zet je het één vak naar links, rechts, boven of onder, en maak je het smaller, breder, lager of hoger. Met het toetsenbord ga je met Tab naar een blok; de pijltoetsen verplaatsen het en Shift met een pijltoets verandert de grootte. Op een desktop sleep je een blok ook aan zijn handgreep naar een ander vak. Een blok is één tot vier rijen hoog.
+- **Geen overlap.** Twee blokken staan nooit in hetzelfde vak, en een blok valt nooit buiten het raster. Een verplaatsing of grootte die dat zou doen, gebeurt niet, en de knop ervoor staat uit. De server controleert dezelfde regels bij elke keer opslaan, dus een rapport dat op een andere manier wordt opgeslagen, houdt zich er ook aan.
+- **Ongedaan maken en opslaan.** Elke verplaatsing en elke andere grootte is één stap van **Ongedaan maken**, en wordt opgeslagen zoals elke andere wijziging.
+- **Op een telefoon** zet het raster de blokken in één kolom, in leesvolgorde: eerst de bovenste rij, binnen een rij van links naar rechts. De weergave **Telefoon** op het canvas toont die volgorde. Niets schuift opzij.
+
+## Report Studio — een dashboard als startpagina van een rol
+
+De academy-beheerder kan een gepubliceerd Studio-dashboard de startpagina van een rol maken: iedereen met die rol ziet het als eerste na het inloggen, in plaats van het eigen dashboard van de rol.
+
+- **Welke rollen.** Alleen de rollen waarvoor een rapport wordt gepubliceerd: het hoofd opleiding, de academy-beheerder, de hoofdtrainer, de assistent-trainer en de teammanager. Een speler en een ouder houden hun eigen dashboard, omdat een gezin nooit een live rapport leest; het leest alleen wat met het gezin wordt gedeeld.
+- **Welke dashboards.** Een dashboard, gepubliceerd voor die rol, waarvan het onderwerp bij het openen wordt gekozen of meegaat met wie het opent, zodat elke lezer het eigen team of de eigen speler ziet. Een dashboard over één vast team kan geen startpagina zijn. Een dashboard over de hele academie wel.
+- **Kiezen.** Kies op het dashboard in de Report Studio **Startpagina**, vink de rollen aan waarvan het de startpagina moet zijn, en kies **Opslaan**. **Annuleren** verandert niets. Vink een rol uit om die het eigen dashboard terug te geven. Een rol heeft één startpagina; vink je een rol aan waarvan een ander dashboard de startpagina is, dan vervangt dit dat dashboard, en het venster noemt het.
+- **Wat elke lezer ziet.** Het dashboard met de eigen cijfers: een hoofdtrainer ziet het eigen team, een andere hoofdtrainer het zijne. Een blok dat iemand niet mag zien, zegt dat, zoals op elk gedeeld rapport.
+- **Wanneer het stopt.** Wordt het dashboard gearchiveerd, niet meer gepubliceerd of niet meer voor de rol gepubliceerd, dan komt het eigen dashboard van de rol vanzelf terug.
+
+De keuze wordt per academie bewaard, en vraagt het recht om de dashboards van de rollen te bewerken, hetzelfde recht dat de dashboard-editor vraagt. De dashboards van de rollen zelf blijven ongewijzigd en worden nog steeds in de dashboard-editor bewerkt.

@@ -1,0 +1,61 @@
+/*
+ * frontend-report-grid.css — a Report Studio report laid out as a grid
+ * (#4962): the reader's view and a persona's home (`StudioGrid::body()`).
+ *
+ * Mobile-first (CLAUDE.md §2). Below the desktop the blocks stack in one
+ * column, in the markup's order, which is reading order: top row first, left
+ * to right. From 1024px each block sits at its stored place on 12 columns,
+ * read from the custom properties on its cell. A grid is a screen, not
+ * paper, so it takes the document's sheet edge back off and keeps the card
+ * look at every width. Colours come from tokens.css.
+ */
+
+.tt-dashboard .tt-sg-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-sg-cell {
+    min-width: 0;
+}
+
+.tt-dashboard .tt-sg .tt-sd-block {
+    height: 100%;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sd.tt-sg {
+        max-inline-size: none;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        font-size: var(--tt-fs-body, 1rem);
+    }
+
+    .tt-dashboard .tt-sg .tt-sd-block {
+        padding: var(--tt-sp-3, 12px);
+        background: var(--tt-paper);
+        border: 1px solid var(--tt-line-soft, var(--tt-line));
+        border-radius: var(--tt-r-md, 8px);
+    }
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-sg-grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-auto-rows: minmax(6rem, auto);
+    }
+
+    .tt-dashboard .tt-sg-cell {
+        grid-column: var(--tt-sg-x, 1) / span var(--tt-sg-w, 12);
+        grid-row: var(--tt-sg-y, 1) / span var(--tt-sg-h, 1);
+    }
+
+    /* A wide table in a narrow cell scrolls inside the cell, never the page. */
+    .tt-dashboard .tt-sg-cell .tt-sd-block {
+        overflow-x: auto;
+    }
+}

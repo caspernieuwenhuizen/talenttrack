@@ -9,6 +9,7 @@ use TT\Modules\License\LicenseGate;
 use TT\Modules\License\UpgradePanel;
 use TT\Modules\ReportStudio\Domain\ReportAccess;
 use TT\Modules\ReportStudio\Domain\ReportDefinition;
+use TT\Modules\ReportStudio\Domain\ReportGrid;
 use TT\Modules\ReportStudio\Domain\ReportNaming;
 use TT\Modules\ReportStudio\Domain\ReportReader;
 use TT\Modules\ReportStudio\Domain\ReportStartRules;
@@ -80,8 +81,18 @@ final class FrontendReportStudioView extends FrontendViewBase {
         $draft_name = $draft !== null ? $draft['name'] : $report['name'];
         $name       = $draft_name !== '' ? $draft_name : __( 'Untitled report', 'talenttrack' );
         FrontendBreadcrumbs::fromDashboard( $name, [ self::reportsCrumb(), self::studioCrumb() ] );
-        self::enqueue( $id, $report['scope'] );
-        self::renderCanvas( $draft_name, ReportNaming::changed( $report, $draft_name ) );
+        self::enqueue( $id, $report );
+        self::renderCanvas( $draft_name, ReportNaming::changed( $report, $draft_name ), $report );
+    }
+
+    /**
+     * #4962 — may this builder choose this dashboard as a persona's home: the
+     * persona dashboard editor's capability, on a dashboard.
+     *
+     * @param array{kind:string} $report
+     */
+    private static function setsHome( array $report ): bool {
+        return $report['kind'] === ReportStartRules::KIND_DASHBOARD && current_user_can( 'tt_edit_persona_templates' );
     }
 
     /** The builder's own reports, and the way to start one. */
@@ -151,7 +162,12 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '</ul></div>';
     }
 
-    private static function renderCanvas( string $name, bool $name_changed ): void {
+    /**
+     * @param array{kind:string, layout:string} $report
+     */
+    private static function renderCanvas( string $name, bool $name_changed, array $report ): void {
+        // #4962 — a grid is for the screen: it has no A4 view and no PDF.
+        $printable = ReportGrid::printable( $report['layout'] );
         echo '<div class="tt-rs" data-tt-rs>';
 
         echo '<div class="tt-rs-top">';
@@ -166,8 +182,11 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<button type="button" class="tt-btn tt-btn-secondary" disabled aria-describedby="tt-rs-later">' . esc_html__( 'Share and schedule', 'talenttrack' ) . '</button>';
         // #5021 — the draft on paper, for the subject, period and audience
         // the canvas reads; the script keeps the link on them.
-        if ( ExportGate::mayExport( get_current_user_id() ) ) {
+        if ( $printable && ExportGate::mayExport( get_current_user_id() ) ) {
             echo '<a class="tt-btn tt-btn-secondary" data-tt-rs-pdf href="#">' . esc_html__( 'Make PDF', 'talenttrack' ) . '</a>';
+        }
+        if ( self::setsHome( $report ) ) {
+            echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-rs-open-home>' . esc_html__( 'Home page', 'talenttrack' ) . '</button>';
         }
         echo '<button type="button" class="tt-btn tt-btn-primary" data-tt-rs-open-publish>' . esc_html__( 'Publish', 'talenttrack' ) . '</button>';
         echo '</div>';
@@ -182,7 +201,9 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '<input type="date" id="tt-rs-to" class="tt-input" data-tt-rs-to /></div>';
         echo '<fieldset class="tt-rs-radios" data-tt-rs-audience></fieldset>';
         echo '<fieldset class="tt-rs-radios" data-tt-rs-view><legend>' . esc_html( _x( 'View', 'report studio view switch', 'talenttrack' ) ) . '</legend>';
-        foreach ( [ 'screen' => __( 'Screen', 'talenttrack' ), 'a4' => __( 'A4', 'talenttrack' ), 'phone' => __( 'Phone', 'talenttrack' ) ] as $value => $label ) {
+        $views = [ 'screen' => __( 'Screen', 'talenttrack' ), 'a4' => __( 'A4', 'talenttrack' ), 'phone' => __( 'Phone', 'talenttrack' ) ];
+        if ( ! $printable ) unset( $views['a4'] );
+        foreach ( $views as $value => $label ) {
             echo '<label class="tt-rs-radio"><input type="radio" name="tt-rs-view" value="' . esc_attr( $value ) . '"' . checked( $value, 'screen', false ) . ' /><span>' . esc_html( $label ) . '</span></label>';
         }
         echo '</fieldset>';
@@ -222,7 +243,28 @@ final class FrontendReportStudioView extends FrontendViewBase {
         echo '</dialog>';
 
         self::renderPublishDialog();
+        if ( self::setsHome( $report ) ) self::renderHomeDialog();
         echo '</div>';
+    }
+
+    /**
+     * #4962 — choosing this dashboard as the home of the roles it is
+     * published to. It changes the first screen of everyone holding them, so
+     * it is its own control with Save and a real Cancel (CLAUDE.md §6, model B).
+     */
+    private static function renderHomeDialog(): void {
+        echo '<dialog class="tt-rs-dialog" data-tt-rs-home aria-labelledby="tt-rs-home-title">';
+        echo '<form method="dialog" class="tt-rs-publish-form">';
+        echo '<h2 id="tt-rs-home-title">' . esc_html__( 'Home page', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-rs-hint">' . esc_html__( 'Everyone in a role you tick sees this dashboard first after logging in, with their own figures. Untick a role to give it back its own dashboard.', 'talenttrack' ) . '</p>';
+        echo '<fieldset class="tt-rs-radios" data-tt-rs-home-roles><legend>' . esc_html__( 'Home page for', 'talenttrack' ) . '</legend></fieldset>';
+        echo '<p class="tt-rs-error" data-tt-rs-home-error role="alert"></p>';
+        echo '<div class="tt-form-actions">';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary" value="cancel" formnovalidate>' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary" value="confirm">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</dialog>';
     }
 
     private static function renderPublishDialog(): void {
@@ -251,8 +293,13 @@ final class FrontendReportStudioView extends FrontendViewBase {
         wp_enqueue_style( 'tt-report-studio', TT_PLUGIN_URL . 'assets/css/frontend-report-studio.css', [], TT_VERSION );
     }
 
-    /** The canvas script, on this view only, with the words it shows. */
-    private static function enqueue( int $id, string $scope ): void {
+    /**
+     * The canvas script, on this view only, with the words it shows.
+     *
+     * @param array{scope:string, kind:string, layout:string} $report
+     */
+    private static function enqueue( int $id, array $report ): void {
+        $scope = $report['scope'];
         self::enqueueStyle();
         SaveState::enqueue();
         StudioDocumentView::enqueue();
@@ -265,10 +312,22 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'pdf'        => ExportGate::mayExport( get_current_user_id() )
                 ? esc_url_raw( add_query_arg( [ 'format' => 'pdf', 'report_id' => $id, '_wpnonce' => wp_create_nonce( 'wp_rest' ) ], rest_url( 'talenttrack/v1/exports/report_studio_pdf' ) ) )
                 : '',
-            'maxBlocks'  => ReportDefinition::MAX_BLOCKS,
+            'maxBlocks'  => $report['kind'] === ReportStartRules::KIND_DASHBOARD ? ReportDefinition::MAX_DASHBOARD_BLOCKS : ReportDefinition::MAX_BLOCKS,
+            // #4962 — the grid's size; the server checks every place again.
+            'grid'       => [
+                'columns'   => ReportGrid::COLUMNS,
+                'rows'      => ReportGrid::ROWS,
+                'maxHeight' => ReportGrid::MAX_HEIGHT,
+                'width'     => ReportGrid::DEFAULT_WIDTH,
+                'height'    => ReportGrid::DEFAULT_HEIGHT,
+            ],
+            'setsHome'   => self::setsHome( $report ),
             'scopeLabel' => ReportStartRules::label( 'scope', $scope ),
             'columns'    => self::columns(),
-            'i18n'       => self::words(),
+            'i18n'       => $report['kind'] === ReportStartRules::KIND_DASHBOARD
+                /* translators: %d: maximum number of blocks */
+                ? [ 'tooMany' => __( 'A dashboard holds at most %d blocks.', 'talenttrack' ) ] + self::words()
+                : self::words(),
         ] );
     }
 
@@ -425,6 +484,23 @@ final class FrontendReportStudioView extends FrontendViewBase {
             'noteNeeded'  => __( 'Say what changed in this version.', 'talenttrack' ),
             /* translators: %s: version number */
             'published'   => __( 'Version %s is published.', 'talenttrack' ),
+            // #4962 — the grid.
+            'left'        => __( 'Move left', 'talenttrack' ),
+            'right'       => __( 'Move right', 'talenttrack' ),
+            'narrower'    => __( 'Make narrower', 'talenttrack' ),
+            'wider'       => __( 'Make wider', 'talenttrack' ),
+            'shorter'     => __( 'Make shorter', 'talenttrack' ),
+            'taller'      => __( 'Make taller', 'talenttrack' ),
+            /* translators: 1: block name, 2: column, 3: row, 4: width in columns, 5: height in rows */
+            'placed'      => __( '%1$s at column %2$s, row %3$s, %4$s columns wide and %5$s rows tall.', 'talenttrack' ),
+            'noRoom'      => __( 'There is no room there: blocks cannot overlap or leave the grid.', 'talenttrack' ),
+            'gridFull'    => __( 'The grid has no room left for this block.', 'talenttrack' ),
+            /* translators: 1: block name, 2: column, 3: row */
+            'gridBlockAt' => __( '%1$s, column %2$s, row %3$s. Arrow keys move it, Shift and an arrow key resize it.', 'talenttrack' ),
+            'homeNeedsRole' => __( 'Publish the dashboard to a role first; it can be the home page of the roles it is published to.', 'talenttrack' ),
+            /* translators: %s: name of the dashboard that is the role's home page now */
+            'homeNow'     => __( 'Now: %s', 'talenttrack' ),
+            'homeSaved'   => __( 'The home pages are saved.', 'talenttrack' ),
         ];
     }
 

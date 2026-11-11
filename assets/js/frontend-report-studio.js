@@ -15,6 +15,14 @@
  * surface only, see docs/save-model.md): a history of the draft in this
  * sitting, at most 50 steps; every undo is saved through the same saver.
  * Revert is `TT.Autosave`'s, back to the draft as the page found it.
+ *
+ * A report laid out as a grid (#4962) places each block at `grid: {x, y, w,
+ * h}` on 12 columns. Arrow keys move the focused block and Shift with an arrow
+ * resizes it; the card's buttons do the same, and on a desktop its grip drags
+ * it to a cell. A place that would leave the grid or cover another block is
+ * not made, and the server refuses it too. Every move and resize is one undo
+ * step and is saved like any other edit. Below the desktop the grid stacks in
+ * reading order, top row first, as the reader's view does.
  */
 (function () {
 	'use strict';
@@ -69,6 +77,84 @@
 	}
 	function copy(v) { return JSON.parse(JSON.stringify(v)); }
 
+	// ---- the grid (#4962) ---------------------------------------------------
+
+	var G = cfg.grid || { columns: 12, rows: 48, maxHeight: 4, width: 6, height: 2 };
+
+	function isGrid() { return !!(state.report && state.report.layout === 'grid'); }
+
+	function overlaps(a, b) {
+		return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+	}
+
+	function inside(p) {
+		return p.x >= 0 && p.w >= 1 && p.x + p.w <= G.columns && p.h >= 1 && p.h <= G.maxHeight && p.y >= 0 && p.y + p.h <= G.rows;
+	}
+
+	/** Would this place be free for block `id`: inside the grid, on no other block. */
+	function fits(p, id) {
+		if (!inside(p)) return false;
+		for (var i = 0; i < state.blocks.length; i++) {
+			var o = state.blocks[i];
+			if (o.id !== id && o.grid && overlaps(o.grid, p)) return false;
+		}
+		return true;
+	}
+
+	/** The first free place of this size, top left first, as the server finds it. */
+	function freePlace(w, h) {
+		w = Math.max(1, Math.min(G.columns, w || G.width));
+		h = Math.max(1, Math.min(G.maxHeight, h || G.height));
+		for (var y = 0; y + h <= G.rows; y++) {
+			for (var x = 0; x + w <= G.columns; x++) {
+				var p = { x: x, y: y, w: w, h: h };
+				if (fits(p, '')) return p;
+			}
+		}
+		return null;
+	}
+
+	/** A block saved without a place (or with one already taken) gets the first free one. */
+	function placeAll() {
+		if (!isGrid()) return;
+		var placed = state.blocks;
+		state.blocks = [];
+		placed.forEach(function (b) {
+			var g = b.grid;
+			var ok = g && [g.x, g.y, g.w, g.h].every(function (n) { return n === Math.floor(n); }) && fits(g, b.id);
+			if (!ok) b.grid = freePlace(G.width, G.height);
+			if (b.grid) state.blocks.push(b);
+		});
+	}
+
+	/** The blocks top row first, left to right: how a phone and the Tab key meet them. */
+	function readingOrder() {
+		if (!isGrid()) return state.blocks.slice();
+		return state.blocks.map(function (b, i) { return { b: b, i: i }; }).sort(function (a, c) {
+			return (a.b.grid.y - c.b.grid.y) || (a.b.grid.x - c.b.grid.x) || (a.i - c.i);
+		}).map(function (e) { return e.b; });
+	}
+
+	function placedText(b) {
+		var g = b.grid;
+		return fmt(t.placed, label(b.key), g.x + 1, g.y + 1, g.w, g.h);
+	}
+
+	/** Move or resize a block by whole cells, when the new place is free. */
+	function shiftGrid(id, dx, dy, dw, dh) {
+		var b = findBlock(id);
+		if (!b || !b.grid) return;
+		var p = { x: b.grid.x + dx, y: b.grid.y + dy, w: b.grid.w + dw, h: b.grid.h + dh };
+		placeGrid(id, p);
+	}
+
+	function placeGrid(id, p) {
+		if (!fits(p, id)) { announce(t.noRoom); return; }
+		commit(function () { findBlock(id).grid = p; });
+		focusBlock(id);
+		announce(placedText(findBlock(id)));
+	}
+
 	// ---- REST ---------------------------------------------------------------
 
 	function api(method, path, body, query) {
@@ -111,6 +197,7 @@
 		if (!b) return;
 		state.name = typeof b.name === 'string' ? b.name : state.name;
 		state.blocks = b.definition && Array.isArray(b.definition.blocks) ? copy(b.definition.blocks) : [];
+		placeAll();
 		renderAll();
 		previewMissing();
 	}
@@ -156,6 +243,7 @@
 			state.blocks = draft.definition && Array.isArray(draft.definition.blocks) ? copy(draft.definition.blocks) : [];
 			state.revision = draft.revision || 0;
 			state.audience = report.audience;
+			placeAll();
 			startSaver();
 			return Promise.all([
 				api('GET', 'report-blocks', null, { scope: report.scope, audience: report.audience, layout: report.layout }),
@@ -353,11 +441,17 @@
 		return 'b' + n;
 	}
 
-	function addBlock(key, at) {
+	function addBlock(key, at, cell) {
 		if (state.blocks.length >= cfg.maxBlocks) { notice(fmt(t.tooMany, cfg.maxBlocks), true); return; }
+		var place = null;
+		if (isGrid()) {
+			place = cell && fits(cell, '') ? cell : freePlace(G.width, G.height);
+			if (!place) { notice(t.gridFull, true); return; }
+		}
 		var id = newId();
 		commit(function () {
 			var block = { id: id, key: key, options: {}, width: 'full' };
+			if (place) block.grid = place;
 			if (typeof at === 'number' && at >= 0 && at <= state.blocks.length) state.blocks.splice(at, 0, block);
 			else state.blocks.push(block);
 		});
@@ -393,6 +487,10 @@
 		if (state.blocks.length >= cfg.maxBlocks) { notice(fmt(t.tooMany, cfg.maxBlocks), true); return; }
 		var twin = copy(state.blocks[at]);
 		twin.id = newId();
+		if (isGrid()) {
+			twin.grid = freePlace(twin.grid ? twin.grid.w : G.width, twin.grid ? twin.grid.h : G.height);
+			if (!twin.grid) { notice(t.gridFull, true); return; }
+		}
 		commit(function () { state.blocks.splice(at + 1, 0, twin); });
 		state.data[twin.id] = state.data[id] ? Object.assign({}, state.data[id], { id: twin.id }) : undefined;
 		if (!state.data[twin.id]) previewBlock(twin.id);
@@ -488,13 +586,14 @@
 		canvas.hidden = paper;
 		if (box) box.hidden = !paper;
 		canvas.dataset.view = state.view;
+		canvas.classList.toggle('tt-rs-canvas--grid', isGrid());
 		canvas.textContent = '';
 		if (!state.blocks.length) {
 			canvas.appendChild(el('li', 'tt-rs-empty', t.emptyCanvas));
 		}
 		var breaks = state.view === 'a4' && state.pageFit ? state.pageFit.breaks || [] : [];
 		var page = 1;
-		state.blocks.forEach(function (b, i) {
+		readingOrder().forEach(function (b, i) {
 			if (breaks.indexOf(b.id) !== -1) {
 				page++;
 				var br = el('li', 'tt-rs-page-break', fmt(t.page, page));
@@ -507,11 +606,21 @@
 	}
 
 	function renderBlock(b, i) {
-		var li = el('li', 'tt-rs-block tt-rs-block--' + (b.width === 'half' ? 'half' : 'full'));
+		var grid = isGrid() && b.grid;
+		var li = el('li', 'tt-rs-block tt-rs-block--' + (grid ? 'grid' : (b.width === 'half' ? 'half' : 'full')));
 		var art = el('article', 'tt-rs-card');
 		art.tabIndex = 0;
 		art.dataset.ttRsBlock = b.id;
-		art.setAttribute('aria-label', fmt(t.blockAt, label(b.key), i + 1, state.blocks.length));
+		if (grid) {
+			// The place is a custom property the canvas's grid reads.
+			li.style.setProperty('--tt-sg-x', String(b.grid.x + 1));
+			li.style.setProperty('--tt-sg-y', String(b.grid.y + 1));
+			li.style.setProperty('--tt-sg-w', String(b.grid.w));
+			li.style.setProperty('--tt-sg-h', String(b.grid.h));
+			art.setAttribute('aria-label', fmt(t.gridBlockAt, label(b.key), b.grid.x + 1, b.grid.y + 1));
+		} else {
+			art.setAttribute('aria-label', fmt(t.blockAt, label(b.key), i + 1, state.blocks.length));
+		}
 		if (state.selected === b.id) art.classList.add('is-selected');
 
 		var head = el('header', 'tt-rs-card-head');
@@ -525,9 +634,25 @@
 		var bar = el('div', 'tt-rs-toolbar');
 		bar.setAttribute('role', 'toolbar');
 		bar.setAttribute('aria-label', fmt(t.toolbar, label(b.key)));
-		bar.appendChild(tool('↑', t.up, i === 0, function () { moveBlock(b.id, i - 1); }));
-		bar.appendChild(tool('↓', t.down, i === state.blocks.length - 1, function () { moveBlock(b.id, i + 1); }));
-		bar.appendChild(tool(b.width === 'half' ? '▭' : '◫', b.width === 'half' ? t.makeFull : t.makeHalf, false, function () { toggleWidth(b.id); }));
+		if (grid) {
+			var g = b.grid;
+			var step = function (glyph, name, dx, dy, dw, dh) {
+				var p = { x: g.x + dx, y: g.y + dy, w: g.w + dw, h: g.h + dh };
+				bar.appendChild(tool(glyph, name, !fits(p, b.id), function () { shiftGrid(b.id, dx, dy, dw, dh); }));
+			};
+			step('←', t.left, -1, 0, 0, 0);
+			step('→', t.right, 1, 0, 0, 0);
+			step('↑', t.up, 0, -1, 0, 0);
+			step('↓', t.down, 0, 1, 0, 0);
+			step('⇤', t.narrower, 0, 0, -1, 0);
+			step('⇥', t.wider, 0, 0, 1, 0);
+			step('⤒', t.shorter, 0, 0, 0, -1);
+			step('⤓', t.taller, 0, 0, 0, 1);
+		} else {
+			bar.appendChild(tool('↑', t.up, i === 0, function () { moveBlock(b.id, i - 1); }));
+			bar.appendChild(tool('↓', t.down, i === state.blocks.length - 1, function () { moveBlock(b.id, i + 1); }));
+			bar.appendChild(tool(b.width === 'half' ? '▭' : '◫', b.width === 'half' ? t.makeFull : t.makeHalf, false, function () { toggleWidth(b.id); }));
+		}
 		bar.appendChild(tool('⧉', t.duplicate, false, function () { duplicateBlock(b.id); }));
 		bar.appendChild(tool('⚙', t.settings, false, function () { select(b.id); }));
 		bar.appendChild(tool('✕', t.remove, false, function () { removeBlock(b.id); }));
@@ -539,6 +664,14 @@
 			if (e.target !== art) return;
 			if (e.key === 'Enter') { e.preventDefault(); select(b.id); }
 			if (e.key === 'Delete') { e.preventDefault(); removeBlock(b.id); }
+			// Arrow keys move a grid block, Shift with an arrow resizes it.
+			var arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+			if (grid && arrows[e.key] && !e.altKey && !e.ctrlKey && !e.metaKey) {
+				e.preventDefault();
+				var d = arrows[e.key];
+				if (e.shiftKey) shiftGrid(b.id, 0, 0, d[0], d[1]);
+				else shiftGrid(b.id, d[0], d[1], 0, 0);
+			}
 		});
 		li.appendChild(art);
 		return li;
@@ -869,6 +1002,66 @@
 		};
 	}
 
+	// ---- a persona's home page (#4962) --------------------------------------------
+
+	/**
+	 * The roles this dashboard is published to, each ticked when it is that
+	 * role's home. Save sends what changed; Cancel sends nothing.
+	 */
+	function openHome() {
+		var dialog = $('[data-tt-rs-home]');
+		if (!dialog || !cfg.setsHome) return;
+		var roles = $('[data-tt-rs-home-roles]', dialog);
+		var error = $('[data-tt-rs-home-error]', dialog);
+		var report = state.report;
+		var published = (report && report.published_version_id && report.persona_keys) || [];
+		error.textContent = '';
+		roles.querySelectorAll('label, p').forEach(function (n) { n.remove(); });
+		var homes = {};
+		dialog.returnValue = '';
+		dialog.showModal();
+
+		var form = $('form', dialog);
+		form.onsubmit = function (e) {
+			if (e.submitter && e.submitter.value === 'cancel') return;
+			e.preventDefault();
+			var steps = [];
+			roles.querySelectorAll('input').forEach(function (input) {
+				var mine = homes[input.value] === cfg.id;
+				if (input.checked && !mine) steps.push(['PUT', input.value, { report_id: cfg.id }]);
+				if (!input.checked && mine) steps.push(['DELETE', input.value, null]);
+			});
+			steps.reduce(function (p, s) {
+				return p.then(function () { return api(s[0], 'studio-homes/' + s[1], s[2]); });
+			}, Promise.resolve()).then(function () {
+				dialog.close();
+				notice(t.homeSaved, false);
+			})['catch'](function (err) { error.textContent = err.message; });
+		};
+
+		if (!published.length) {
+			roles.appendChild(el('p', 'tt-rs-hint', t.homeNeedsRole));
+			return;
+		}
+		roles.appendChild(el('p', 'tt-rs-hint', t.loading));
+		api('GET', 'studio-homes').then(function (r) {
+			roles.querySelectorAll('p').forEach(function (n) { n.remove(); });
+			(r.homes || []).forEach(function (h) {
+				if (published.indexOf(h.persona) === -1) return;
+				homes[h.persona] = h.report_id;
+				var lab = el('label', 'tt-rs-radio');
+				var input = el('input');
+				input.type = 'checkbox';
+				input.value = h.persona;
+				input.checked = h.report_id === cfg.id;
+				lab.appendChild(input);
+				lab.appendChild(el('span', null, h.label));
+				if (h.report_id && h.report_id !== cfg.id) lab.appendChild(el('span', 'tt-rs-reason', fmt(t.homeNow, h.report_name || t.block)));
+				roles.appendChild(lab);
+			});
+		})['catch'](function (err) { error.textContent = err.message; });
+	}
+
 	// ---- drag and drop (pointer events, no library) ----------------------------
 
 	function dropIndex(y) {
@@ -898,6 +1091,25 @@
 		canvas.classList.toggle('is-drop-target', over);
 		drag.over = over;
 		drag.at = dropIndex(e.clientY);
+		drag.lastX = e.clientX;
+		drag.lastY = e.clientY;
+	}
+
+	/**
+	 * The grid cell under the pointer, when the canvas is laid out as the
+	 * grid (a desktop's screen view); null where it stacks.
+	 */
+	function gridCell(x, y) {
+		var canvas = $('[data-tt-rs-canvas]');
+		if (!canvas || !wide.matches || state.view === 'phone') return null;
+		var r = canvas.getBoundingClientRect();
+		var css = window.getComputedStyle(canvas);
+		var gap = parseFloat(css.rowGap || css.gap) || 0;
+		var row = parseFloat(String(css.gridAutoRows).replace(/^minmax\(/, '')) || 96;
+		var col = Math.floor((x - r.left) / (r.width / G.columns));
+		var line = Math.floor((y - r.top) / (row + gap));
+		if (col < 0 || line < 0) return null;
+		return { x: Math.min(col, G.columns - 1), y: Math.min(line, G.rows - 1) };
 	}
 
 	function onPointerUp() {
@@ -907,6 +1119,13 @@
 		var canvas = $('[data-tt-rs-canvas]');
 		if (canvas) canvas.classList.remove('is-drop-target');
 		if (!d.moved || !d.over) return;
+		if (isGrid()) {
+			var cell = gridCell(d.lastX, d.lastY);
+			if (d.key) { addBlock(d.key, undefined, cell ? { x: Math.min(cell.x, G.columns - G.width), y: cell.y, w: G.width, h: G.height } : null); return; }
+			var b = findBlock(d.id);
+			if (b && b.grid && cell) placeGrid(d.id, { x: Math.min(cell.x, G.columns - b.grid.w), y: cell.y, w: b.grid.w, h: b.grid.h });
+			return;
+		}
 		if (d.key) { addBlock(d.key, d.at); return; }
 		var from = indexOf(d.id);
 		var to = d.at > from ? d.at - 1 : d.at;
@@ -992,6 +1211,8 @@
 		if (versions) versions.addEventListener('click', openVersions);
 		var publish = $('[data-tt-rs-open-publish]');
 		if (publish) publish.addEventListener('click', openPublish);
+		var home = $('[data-tt-rs-open-home]');
+		if (home) home.addEventListener('click', openHome);
 
 		root.addEventListener('pointerdown', onPointerDown);
 		document.addEventListener('pointermove', onPointerMove, { passive: false });
