@@ -436,11 +436,14 @@ final class PotentialOverviewQuery {
         // directions for the band column — flipping the comparator would
         // float the players nobody has assessed to the top of a
         // "lowest band first" read, which is not what that question means.
+        // #4694 — split on the rank, not on `recorded`: a band hidden from
+        // this caller carries no rank and stays last with the unrecorded,
+        // rather than rising to the top of a reversed list.
         if ( $desc ) {
             if ( $sort === 'band' ) {
-                $recorded   = array_values( array_filter( $rows, static fn( array $r ): bool => $r['recorded'] ) );
-                $unrecorded = array_values( array_filter( $rows, static fn( array $r ): bool => ! $r['recorded'] ) );
-                $rows = array_merge( array_reverse( $recorded ), $unrecorded );
+                $ranked   = array_values( array_filter( $rows, static fn( array $r ): bool => $r['band_rank'] !== self::RANK_NONE ) );
+                $unranked = array_values( array_filter( $rows, static fn( array $r ): bool => $r['band_rank'] === self::RANK_NONE ) );
+                $rows = array_merge( array_reverse( $ranked ), $unranked );
             } else {
                 $rows = array_reverse( $rows );
             }

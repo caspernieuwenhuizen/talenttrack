@@ -185,6 +185,15 @@ final class ObserverReadsPotentialTest extends WP_UnitTestCase {
             'filtering on the true band gives nothing back'
         );
 
+        // A hidden band carries no rank, so a reversed band sort keeps it with
+        // the unrecorded instead of floating it to the top.
+        $unrecorded = $this->player( 'Aazon', $this->team );
+        $ids = static fn( array $list ): array => array_map( static fn( array $r ): int => (int) $r['player_id'], $list );
+        $asc  = $ids( $query->rows( $this->observer, PotentialOverviewQuery::SCOPE_TEAM, $this->team, '', [], 'band', 'asc' ) );
+        $desc = $ids( $query->rows( $this->observer, PotentialOverviewQuery::SCOPE_TEAM, $this->team, '', [], 'band', 'desc' ) );
+        $this->assertSame( [ $unrecorded, $this->player ], $asc, 'unranked rows by name' );
+        $this->assertSame( $asc, $desc, 'the direction gives no band back' );
+
         $api = RecordRedactor::redactRows( 'player_potential', [ $rows ], $this->observer, 'player_id' );
         $this->assertArrayNotHasKey( 'band', $api[0], 'the REST row leaves the band out' );
         $this->assertArrayNotHasKey( 'band_rank', $api[0] );
