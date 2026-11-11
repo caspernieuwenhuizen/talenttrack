@@ -1,0 +1,66 @@
+/*
+ * theme-oranje.css — the `oranje` theme (#5089): navy and Dutch orange,
+ * set in Archivo.
+ *
+ * Loaded ONLY when ThemePreference resolves to `oranje`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The font is bundled under `assets/fonts/archivo/` (OFL), so the face
+ * loads only while this theme is active and the page makes no request to
+ * a third-party font host.
+ */
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/archivo/archivo-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-oranje {
+    /* ---- Type ------------------------------------------------------ */
+    /* One family; the display voice comes from weight. */
+    --tt-font-display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-oranje .tt-spine__name,
+.tt-dashboard.tt-theme-oranje .tt-player-hero__name,
+.tt-dashboard.tt-theme-oranje .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

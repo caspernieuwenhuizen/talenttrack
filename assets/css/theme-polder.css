@@ -1,0 +1,57 @@
+/*
+ * theme-polder.css — the `polder` theme (#5089): deep teal and coral,
+ * set in DM Sans.
+ *
+ * Loaded ONLY when ThemePreference resolves to `polder`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The font is bundled under `assets/fonts/dm-sans/` (OFL), so the face
+ * loads only while this theme is active and the page makes no request to
+ * a third-party font host.
+ */
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/dm-sans/dm-sans-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-polder {
+    /* ---- Type ------------------------------------------------------ */
+    --tt-font-display: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-polder .tt-spine__name,
+.tt-dashboard.tt-theme-polder .tt-player-hero__name,
+.tt-dashboard.tt-theme-polder .tt-fview-title {
+    font-family: var(--tt-font-display);
+}

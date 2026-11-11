@@ -1,0 +1,50 @@
+/*
+ * theme-clubrood.css — the `clubrood` theme (#5089): heritage red, black
+ * and muted gold, with a Barlow Condensed display face.
+ *
+ * Loaded ONLY when ThemePreference resolves to `clubrood`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * The font is bundled under `assets/fonts/barlow-condensed/` (OFL), so
+ * the face loads only while this theme is active and the page makes no
+ * request to a third-party font host.
+ */
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Barlow Condensed";
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("../fonts/barlow-condensed/barlow-condensed-latin-800-normal.woff2") format("woff2");
+}
+
+.tt-dashboard.tt-theme-clubrood {
+    /* ---- Type ------------------------------------------------------ */
+    /* Condensed display against the system body face. */
+    --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ---- Display type -------------------------------------------------- */
+.tt-dashboard.tt-theme-clubrood .tt-spine__name,
+.tt-dashboard.tt-theme-clubrood .tt-player-hero__name,
+.tt-dashboard.tt-theme-clubrood .tt-fview-title {
+    font-family: var(--tt-font-display);
+    letter-spacing: 0.01em;
+}

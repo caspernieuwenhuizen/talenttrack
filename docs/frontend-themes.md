@@ -23,8 +23,28 @@ haze over it.
 the club's own crest. The crest's black banner becomes the header and the
 navigation rail; its diagonal cyan-to-navy stripe closes the header and the
 brand block. Buttons and links take the deep blue, cyan marks the section
-you are on, and the whole theme is set in Open Sans. Corners are the squarest
-of the three (3px).
+you are on, and the whole theme is set in Open Sans. Corners are nearly
+square (3px).
+
+**Clubrood** — heritage red, black and muted gold, with Barlow Condensed for
+the headings.
+
+**Oranje** — navy and Dutch orange, set in Archivo.
+
+**Tactiekbord** — slate and chalk mint, set in IBM Plex Sans.
+
+**Bordeaux** — wine and sand, with Source Serif 4 for the headings and Source
+Sans 3 for the rest.
+
+**Polder** — deep teal and coral, set in DM Sans.
+
+### Fonts come with the plugin
+
+The fonts these themes use are part of the plugin. A page never asks Google
+Fonts or any other font service for them, and a font is only downloaded while
+its theme is on. Until it arrives the text shows in a similar system font, so
+nothing waits for it. Leon Hutten is the one exception: it still loads Open
+Sans from Google Fonts.
 
 ## A theme replaces your colour settings
 
@@ -159,14 +179,36 @@ install never registers a handle it does not load.
 A theme that wants a webfont has to load it itself.
 `BrandStyles::enqueueFonts()` also returns early while a theme is active — the
 club's font picker does not apply, and skipping the request spares the page a
-third-party fetch whose result nothing would use. `leon-hutten` loads Open
-Sans with an `@import` at the top of its own sheet.
+third-party fetch whose result nothing would use.
 
-### Known gap
+### Bundled fonts
 
-Federation's intended letter is **Barlow Condensed** for display and **Barlow**
-for the rest. Neither ships with the plugin, so the theme falls back to the
-condensed faces already on the operating system (`Arial Narrow`, then
-`Segoe UI Condensed`) and finally to the body face. Bundling the webfonts is
-tracked separately — it carries a licensing and payload decision that the theme
-itself does not.
+Webfonts are bundled under `assets/fonts/<family>/`: SIL OFL families only,
+the Latin subset, only the weights a theme uses, each family's `OFL.txt` next
+to its files. `assets/fonts/README.md` lists the family, version, source,
+licence and payload. A theme declares its `@font-face` rules at the top of its
+own sheet with `font-display: swap`, pointing at `../fonts/…`, so the font
+loads only while that theme is active and the fallback stack holds the layout
+while it does.
+
+| Theme | Families |
+| --- | --- |
+| `federation` | Barlow Condensed (display) |
+| `clubrood` | Barlow Condensed (display) |
+| `oranje` | Archivo |
+| `tactiekbord` | IBM Plex Sans |
+| `bordeaux` | Source Serif 4 (display), Source Sans 3 (body) |
+| `polder` | DM Sans |
+
+`leon-hutten` still loads Open Sans with an `@import` from Google Fonts at the
+top of its own sheet; bundling it is a separate change.
+
+Federation's headings are set in the bundled Barlow Condensed. Its body text
+stays in the system face: Barlow regular is not bundled.
+
+`tests/php/ThemeContrastTest.php` checks every `theme-*.css` against the
+contrast floors (ink on paper and soft background 4.5:1, white on the primary
+4.5:1, the focus ring and the rail's active marker 3:1).
+`tests/php/ThemePreferenceTest.php` checks that every theme has its labels and
+sheet, that `default` loads no sheet and stamps no class, and that bundled
+fonts load from the plugin with `swap`.
