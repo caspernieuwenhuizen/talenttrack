@@ -228,6 +228,11 @@ class MigrationImporter {
                         $key      = self::keyOf( $row, $sk['columns'] );
                         $match_id = (int) ( $existing[ $key ] ?? 0 );
                         if ( $match_id > 0 && $strategy === 'update' ) {
+                            // The matched row keeps its own uuid when the
+                            // archived one belongs to another row here.
+                            if ( isset( $has_col['uuid'] ) && self::uuidTaken( $physical, (string) ( $data['uuid'] ?? '' ), $match_id ) ) {
+                                unset( $data['uuid'] );
+                            }
                             if ( ! $dry_run ) {
                                 $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
                                 if ( $ok === false ) { $failed = true; break 2; }
@@ -238,7 +243,18 @@ class MigrationImporter {
                         }
                     }
 
-                    // Insert as new.
+                    // Insert as new. #5041 — a new row cannot carry a uuid
+                    // another row here already holds: the unique index would
+                    // refuse it and roll the whole import back. A free uuid
+                    // is kept, so a record keeps its identity across installs.
+                    if ( isset( $has_col['uuid'] ) ) {
+                        $uuid = (string) ( $data['uuid'] ?? '' );
+                        if ( $uuid === '' ) {
+                            $data['uuid'] = null;
+                        } elseif ( self::uuidTaken( $physical, $uuid, 0 ) ) {
+                            $data['uuid'] = wp_generate_uuid4();
+                        }
+                    }
                     if ( $dry_run ) {
                         $new_id = --$synthetic;
                     } else {
@@ -354,6 +370,18 @@ class MigrationImporter {
      * @param string[] $key_cols
      * @return array<string,int>
      */
+    /**
+     * #5041 — does a row on this install other than `$except_id` hold this
+     * uuid? Every club's rows count: the index is unique across the table.
+     */
+    private static function uuidTaken( string $physical, string $uuid, int $except_id ): bool {
+        if ( $uuid === '' ) return false;
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from the dependency map.
+        $id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `{$physical}` WHERE uuid = %s AND id <> %d LIMIT 1", $uuid, $except_id ) );
+        return $id > 0;
+    }
+
     private static function indexExistingByKey( string $physical, array $key_cols, int $club ): array {
         global $wpdb;
         $safe = array_values( array_filter( array_map(
