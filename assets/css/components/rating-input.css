@@ -175,6 +175,20 @@
 .tt-rating-row--choices .tt-rating-row__val--unset {
     color: var(--tt-rating-soft);
 }
+/* #5081 — a clearable row: the choices on their own line, then the
+   readout with the Clear button beside it, which keeps the shared .tt-btn
+   tap floor. */
+.tt-rating-row--choices.tt-rating-row--clearable {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+}
+.tt-rating-row--clearable > .tt-rating-row__label,
+.tt-rating-row--clearable > .tt-rating-stars--choices {
+    grid-column: 1 / -1;
+}
+.tt-rating-row--clearable .tt-rating-clear[hidden] {
+    display: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
     .tt-rating-star { transition: none; }

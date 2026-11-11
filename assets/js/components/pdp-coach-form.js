@@ -94,8 +94,52 @@
 		});
 	}
 
+	/**
+	 * #5081 — the sections as folds: open all / close all, a section that
+	 * opens itself when it holds the focused field, and each count line
+	 * ("M of N scored") following the scores. Read-only forms get the folds
+	 * too, so this does not wait for a save state.
+	 */
+	function folds(form) {
+		var sections = form.querySelectorAll('[data-tt-pdp-section]');
+
+		Array.prototype.forEach.call(form.querySelectorAll('[data-tt-pdp-folds]'), function (button) {
+			button.addEventListener('click', function () {
+				var open = button.getAttribute('data-tt-pdp-folds') === 'open';
+				Array.prototype.forEach.call(sections, function (d) { d.open = open; });
+			});
+		});
+
+		form.addEventListener('focusin', function (e) {
+			var target = e.target;
+			if (!target || target.tagName === 'SUMMARY') return;
+			var d = target.closest ? target.closest('[data-tt-pdp-section]') : null;
+			if (d && !d.open) d.open = true;
+		});
+
+		function recount() {
+			Array.prototype.forEach.call(sections, function (d) {
+				var line = d.querySelector('[data-tt-pdp-scored]');
+				if (!line) return;
+				var scored = 0;
+				Array.prototype.forEach.call(d.querySelectorAll('[data-tt-rating-value]'), function (h) {
+					if (h.value !== '') scored++;
+				});
+				var total = line.getAttribute('data-total') || '0';
+				line.textContent = t('scored', '%1$d of %2$d scored')
+					.replace('%1$d', String(scored))
+					.replace('%2$d', total);
+			});
+		}
+		form.addEventListener('input', recount);
+		form.addEventListener('tt:form-remounted', recount);
+	}
+
 	function init() {
-		Array.prototype.forEach.call(document.querySelectorAll('[data-tt-pdp-coachform]'), wire);
+		Array.prototype.forEach.call(document.querySelectorAll('[data-tt-pdp-coachform]'), function (form) {
+			folds(form);
+			wire(form);
+		});
 	}
 
 	if (document.readyState === 'loading') {

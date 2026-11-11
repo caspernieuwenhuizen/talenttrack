@@ -19,6 +19,12 @@
  * Empty widgets carry `data-tt-rating-empty`; on form submit any still-
  * empty input drops its `name` so "not rated" posts as an absent field,
  * matching the server contract.
+ *
+ * #5081 — a clearable group (`data-clearable`, the numbered choices) can be
+ * emptied again: choosing the chosen value once more, Space on it, or the
+ * Clear button beside the row. The hidden input goes back to '' and fires
+ * `input`, so an autosaving form saves the clear, and its undo brings the
+ * value back.
  * --------------------------------------------------------------------------- */
 
 (function () {
@@ -59,6 +65,9 @@
         // Keep exactly one star tabbable when nothing is selected.
         if (idx === -1 && p.stars.length) p.stars[0].setAttribute('tabindex', '0');
 
+        var clear = clearButton(group);
+        if (clear) clear.hidden = empty;
+
         if (p.readout) {
             if (empty) {
                 p.readout.textContent = group.getAttribute('data-empty-text') || '—';
@@ -79,6 +88,38 @@
         syncDisplay(group);
         p.hidden.dispatchEvent(new Event('input',  { bubbles: true }));
         p.hidden.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function isClearable(group) {
+        return group.getAttribute('data-clearable') === '1';
+    }
+
+    function clearButton(group) {
+        var parent = group.parentElement;
+        return parent ? parent.querySelector('[data-tt-rating-clear]') : null;
+    }
+
+    function clearValue(group) {
+        var p = parts(group);
+        if (!p.hidden || p.hidden.disabled || p.hidden.value === '') return;
+        p.hidden.value = '';
+        p.hidden.setAttribute('data-tt-rating-empty', '1');
+        syncDisplay(group);
+        p.hidden.dispatchEvent(new Event('input',  { bubbles: true }));
+        p.hidden.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    /** Clear, keeping the keyboard on the choice that held the value. */
+    function clearFrom(group, star) {
+        clearValue(group);
+        if (!star) return;
+        group.querySelectorAll('.tt-rating-star').forEach(function (s) {
+            s.setAttribute('tabindex', s === star ? '0' : '-1');
+        });
+    }
+
+    function isChosen(star) {
+        return star.getAttribute('aria-checked') === 'true';
     }
 
     function hoverTo(group, idx) {
@@ -105,6 +146,7 @@
         stars.forEach(function (star, idx) {
             star.addEventListener('click', function () {
                 if (star.disabled) return;
+                if (isClearable(group) && isChosen(star)) { clearFrom(group, star); return; }
                 setValue(group, star.getAttribute('data-value'));
             });
             star.addEventListener('mouseenter', function () { hoverTo(group, idx); });
@@ -112,10 +154,22 @@
                 var k = e.key;
                 if (k === 'ArrowRight' || k === 'ArrowUp')   { e.preventDefault(); moveFocus(group, idx, 1); }
                 else if (k === 'ArrowLeft' || k === 'ArrowDown') { e.preventDefault(); moveFocus(group, idx, -1); }
+                else if (k === ' ' && isClearable(group) && isChosen(star)) { e.preventDefault(); clearFrom(group, star); }
                 else if (k === ' ' || k === 'Enter')         { e.preventDefault(); setValue(group, star.getAttribute('data-value')); }
             });
         });
         group.addEventListener('mouseleave', function () { clearHover(group); });
+
+        var clear = clearButton(group);
+        if (clear && isClearable(group)) {
+            clear.addEventListener('click', function () {
+                var chosen = group.querySelector('.tt-rating-star[aria-checked="true"]');
+                clearFrom(group, chosen);
+                // The button hides once the value is gone; keep the keyboard
+                // in the row rather than dropping it on the page.
+                if (chosen) chosen.focus();
+            });
+        }
 
         // Re-render the stars when the hidden value changes programmatically
         // (e.g. the recalc) — single source of truth for the display.

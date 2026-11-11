@@ -110,7 +110,10 @@ test( 'the trainer scores every item and writes the agreements', async ( { page 
 		const choice = rows.nth( i ).locator( 'button[data-value="3"]' );
 		const box    = await choice.boundingBox();
 		expect( box && box.height >= 48 && box.width >= 48, `choice ${ i } is at least 48px` ).toBe( true );
-		await choice.tap();
+		// #5081 — tapping the chosen score clears it, so only tap one that
+		// is not chosen yet (an earlier spec may have left a 3).
+		if ( ( await choice.getAttribute( 'aria-checked' ) ) !== 'true' ) await choice.tap();
+		await expect( choice ).toHaveAttribute( 'aria-checked', 'true' );
 	}
 
 	await form.locator( 'textarea[name="answers[strongest_quality]"]' ).fill( 'Afgesproken: de passing met links.' );

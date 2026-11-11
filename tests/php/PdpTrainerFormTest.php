@@ -197,6 +197,65 @@ final class PdpTrainerFormTest extends WP_UnitTestCase {
         $this->assertTrue( $this->send( 'GET', 'form', [] )[0]['data']['state']['coach_writable'], 'the first talk stays the current one' );
     }
 
+    /**
+     * #5081 — a cleared score saves as null, whether the browser sends null
+     * or the emptied input's '', and sign-off's "still needed" list names it
+     * again, as it does an item never scored.
+     */
+    public function test_a_cleared_score_saves_as_null_and_is_missing_again(): void {
+        global $wpdb;
+        wp_set_current_user( $this->trainer );
+        $this->fillTrainerPart();
+        $this->assertSame( [], $this->send( 'GET', 'form', [] )[0]['data']['state']['missing'], 'complete' );
+
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'aannames' => null ] ] )[1] );
+        $form = $this->send( 'GET', 'form', [] )[0]['data'];
+        $this->assertNull( $form['coach']['scores']['aannames'] ?? null, 'stored as null' );
+        $this->assertContains( 'scores.aannames', array_column( $form['state']['missing'], 'field' ), 'the cleared item is missing again' );
+        $this->assertStringContainsString( 'data-tt-coach-signoff disabled', $this->screen(), 'sign-off closes again' );
+
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'aannames' => 4 ] ] )[1], 'the undo puts it back' );
+        $this->assertSame( 4, $this->send( 'GET', 'form', [] )[0]['data']['coach']['scores']['aannames'] ?? null );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'aannames' => '' ] ] )[1], 'the emptied input' );
+        $this->assertNull( $this->send( 'GET', 'form', [] )[0]['data']['coach']['scores']['aannames'] ?? null, 'clears the same way' );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->p}tt_evaluations WHERE player_id = %d", $this->player ) ), 'nothing reaches the evaluations' );
+    }
+
+    public function test_the_trainers_choices_can_be_cleared_and_the_sections_read_as_folds(): void {
+        wp_set_current_user( $this->trainer );
+        $this->assertSame( 200, $this->send( 'PATCH', 'form/coach', [ 'scores' => [ 'aannames' => 3 ] ] )[1] );
+        $html = $this->screen();
+
+        $this->assertStringContainsString( 'tt-rating-row--clearable', $html );
+        $this->assertStringContainsString( 'data-clearable="1"', $html );
+        $this->assertStringContainsString( 'aria-label="Clear Trainer score for ', $html, 'the Clear button names what it clears' );
+        $this->assertSame( 1, preg_match_all( '/data-tt-rating-clear aria-label="[^"]*">/', $html ), 'only the scored item shows its Clear button' );
+
+        $this->assertStringContainsString( 'data-tt-pdp-folds="open"', $html );
+        $this->assertStringContainsString( 'data-tt-pdp-folds="close"', $html );
+        $this->assertStringContainsString( 'tt-pdp-coachform__chev', $html );
+        $this->assertMatchesRegularExpression( '/\d+ items? · <span data-tt-pdp-scored data-total="\d+">1 of \d+ scored<\/span>/', $html, 'the count line of the first section' );
+        $this->assertStringContainsString( 'tt-pdp-coachform__toggle-open">Expand</span>', $html );
+        $this->assertStringContainsString( 'tt-pdp-coachform__toggle-close">Collapse</span>', $html );
+    }
+
+    public function test_a_read_only_row_offers_no_clear(): void {
+        $off = \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+            'name' => 'scores[x]', 'value' => 3, 'label' => 'X', 'min' => 1, 'max' => 5, 'step' => 1,
+            'variant' => \TT\Shared\Frontend\Components\RatingInputComponent::VARIANT_CHOICES, 'disabled' => true,
+        ] );
+        $this->assertStringNotContainsString( 'data-tt-rating-clear', $off, 'a disabled row' );
+        $opted = \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+            'name' => 'scores[x]', 'value' => 3, 'label' => 'X', 'min' => 1, 'max' => 5, 'step' => 1,
+            'variant' => \TT\Shared\Frontend\Components\RatingInputComponent::VARIANT_CHOICES, 'clearable' => false,
+        ] );
+        $this->assertStringNotContainsString( 'data-clearable', $opted, 'a surface that opts out' );
+        $stars = \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+            'name' => 'r[1]', 'value' => 7, 'label' => 'Y', 'min' => 5, 'max' => 9, 'step' => 1,
+        ] );
+        $this->assertStringNotContainsString( 'data-tt-rating-clear', $stars, 'the star rows are not choices' );
+    }
+
     public function test_a_missing_field_without_a_label_never_reads_as_its_path(): void {
         $definition = [
             'sections' => [ [ 'key' => 'technical', 'title' => 'Techniek', 'items' => [ [ 'key' => 'aannames', 'label' => '' ] ] ] ],

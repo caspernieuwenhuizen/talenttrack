@@ -1350,17 +1350,44 @@
 }
 .tt-pdp-coachform__form { display: grid; gap: 0.75rem; min-width: 0; }
 .tt-pdp-coachform__section { border-top: 1px solid var(--tt-line, #e2e8f0); padding: 0.25rem 0 0.5rem; min-width: 0; }
+/* #5081 — a section's summary is a full-width row of at least 56px: a
+   chevron, the title with its count line, the "to discuss" badge, and the
+   word for what a tap does. */
 .tt-pdp-coachform__sum {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    min-height: var(--tt-tap-min, 48px);
+    gap: 0.5rem 0.75rem;
+    min-height: 3.5rem;
+    padding: 0.25rem 0;
     font-weight: 700;
     cursor: pointer;
+    list-style: none;
     touch-action: manipulation;
 }
+.tt-pdp-coachform__sum::-webkit-details-marker { display: none; }
+.tt-pdp-coachform__sum:active { background: var(--tt-bg-soft, #f4f6f3); }
 .tt-pdp-coachform__sum:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 2px; }
+.tt-pdp-coachform__chev {
+    flex: 0 0 auto;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-inline: 0.2rem 0.1rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+}
+.tt-pdp-coachform__section[open] > .tt-pdp-coachform__sum .tt-pdp-coachform__chev { transform: rotate(45deg); }
+.tt-pdp-coachform__sumtext { display: grid; gap: 0.1rem; flex: 1 1 auto; min-width: 0; }
+.tt-pdp-coachform__sumtitle { overflow-wrap: anywhere; }
+.tt-pdp-coachform__count { font-size: 0.8rem; font-weight: 400; color: var(--tt-muted, #5b6470); }
+.tt-pdp-coachform__toggle { flex: 0 0 auto; font-size: 0.8rem; font-weight: 600; color: var(--tt-primary, #0b3d2e); }
+.tt-pdp-coachform__section[open] > .tt-pdp-coachform__sum .tt-pdp-coachform__toggle-open,
+.tt-pdp-coachform__section:not([open]) > .tt-pdp-coachform__sum .tt-pdp-coachform__toggle-close { display: none; }
+.tt-pdp-coachform__folds { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+    .tt-pdp-coachform__chev { transition: none; }
+}
 .tt-pdp-coachform__item { display: grid; gap: 0.4rem; padding: 0.75rem 0; border-top: 1px solid var(--tt-line-soft, #eef1ef); }
 .tt-pdp-coachform__iname { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.5rem; margin: 0; font-weight: 700; }
 .tt-pdp-coachform__iname > span:first-child { flex: 1 1 auto; }

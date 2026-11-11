@@ -150,21 +150,25 @@ final class PdpFormConversationView {
         $prompts = [];
         foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = $prompt;
 
+        // #5081 — the sections read as folds: open all and close all, and
+        // each summary a full-width row with a chevron, a count line and the
+        // word for what a tap does.
+        echo '<div class="tt-pdp-coachform__folds">';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-pdp-folds="open">' . esc_html__( 'Expand all', 'talenttrack' ) . '</button>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-pdp-folds="close">' . esc_html__( 'Collapse all', 'talenttrack' ) . '</button>';
+        echo '</div>';
+
         $n = 0;
         foreach ( (array) $definition['sections'] as $section ) {
             $n++;
             $keys      = array_map( static fn( $item ): string => (string) $item['key'], (array) $section['items'] );
             $to_talk   = count( array_intersect( $keys, $diffs ) );
-            echo '<details class="tt-pdp-coachform__section"' . ( $n === 1 ? ' open' : '' ) . '>';
-            echo '<summary class="tt-pdp-coachform__sum"><span>' . esc_html( $n . ' · ' . (string) $section['title'] ) . '</span>';
-            if ( $to_talk > 0 ) {
-                echo '<span class="tt-pdp-coachform__flag">' . esc_html( sprintf(
-                    /* translators: %d: items in the section where the player's and the trainer's scores differ */
-                    _n( '%d to discuss', '%d to discuss', $to_talk, 'talenttrack' ),
-                    $to_talk
-                ) ) . '</span>';
+            $scored    = 0;
+            foreach ( $keys as $k ) {
+                if ( ( $coach['scores'][ $k ] ?? null ) !== null ) $scored++;
             }
-            echo '</summary>';
+            echo '<details class="tt-pdp-coachform__section" data-tt-pdp-section' . ( $n === 1 ? ' open' : '' ) . '>';
+            echo self::summary( $n . ' · ' . (string) $section['title'], [ count( $keys ), $scored ], $to_talk ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
 
             foreach ( (array) $section['items'] as $item ) {
                 $key   = (string) $item['key'];
@@ -227,8 +231,8 @@ final class PdpFormConversationView {
         foreach ( PdpFormRegistry::sharedFields( $definition ) as $field ) {
             $prompt = $prompts[ $field ] ?? [ 'label' => $field, 'question' => '' ];
             $id     = 'tt-pdp-coachform-' . sanitize_html_class( $field );
-            echo '<details class="tt-pdp-coachform__section" open>';
-            echo '<summary class="tt-pdp-coachform__sum"><span>' . esc_html( (string) $prompt['label'] ) . '</span></summary>';
+            echo '<details class="tt-pdp-coachform__section" data-tt-pdp-section open>';
+            echo self::summary( (string) $prompt['label'], null, 0 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             if ( (string) ( $prompt['question'] ?? '' ) !== '' ) {
                 echo '<p class="tt-help-text">' . esc_html( (string) $prompt['question'] ) . '</p>';
             }
@@ -248,8 +252,8 @@ final class PdpFormConversationView {
 
         // The SMART points: each becomes a goal at sign-off.
         $items = PdpFormRegistry::items( $definition );
-        echo '<details class="tt-pdp-coachform__section" open>';
-        echo '<summary class="tt-pdp-coachform__sum"><span>' . esc_html__( 'Development points (SMART)', 'talenttrack' ) . '</span></summary>';
+        echo '<details class="tt-pdp-coachform__section" data-tt-pdp-section open>';
+        echo self::summary( __( 'Development points (SMART)', 'talenttrack' ), null, 0 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
         echo '<p class="tt-help-text">' . esc_html__( 'Each development point becomes one of the player\'s goals when you sign off, so its progress can be followed.', 'talenttrack' ) . '</p>';
         foreach ( (array) $form['goals'] as $goal ) {
             $slot   = (int) $goal['slot'];
@@ -303,6 +307,49 @@ final class PdpFormConversationView {
     }
 
     /**
+     * #5081 — a section's summary as a full-width row: a chevron that turns
+     * when the section is open, the title with "N items · M of N scored"
+     * under it for a section of scored items, the "N to discuss" badge, and
+     * the word for what a tap does. The word is hidden from assistive tech,
+     * which announces the open state of a `<details>` itself.
+     *
+     * @param array{0:int,1:int}|null $count items in the section, and how many the trainer scored
+     */
+    private static function summary( string $title, ?array $count, int $to_talk ): string {
+        $out  = '<summary class="tt-pdp-coachform__sum">';
+        $out .= '<span class="tt-pdp-coachform__chev" aria-hidden="true"></span>';
+        $out .= '<span class="tt-pdp-coachform__sumtext"><span class="tt-pdp-coachform__sumtitle">' . esc_html( $title ) . '</span>';
+        if ( $count !== null ) {
+            [ $items, $scored ] = $count;
+            $out .= '<span class="tt-pdp-coachform__count">'
+                . esc_html( sprintf(
+                    /* translators: %d: items in the section */
+                    _nx( '%d item', '%d items', $items, 'PDP form section: the items it holds', 'talenttrack' ),
+                    $items
+                ) )
+                . ' · <span data-tt-pdp-scored data-total="' . (int) $items . '">' . esc_html( sprintf(
+                    /* translators: 1: items the trainer scored, 2: items in the section */
+                    __( '%1$d of %2$d scored', 'talenttrack' ),
+                    $scored,
+                    $items
+                ) ) . '</span></span>';
+        }
+        $out .= '</span>';
+        if ( $to_talk > 0 ) {
+            $out .= '<span class="tt-pdp-coachform__flag">' . esc_html( sprintf(
+                /* translators: %d: items in the section where the player's and the trainer's scores differ */
+                _n( '%d to discuss', '%d to discuss', $to_talk, 'talenttrack' ),
+                $to_talk
+            ) ) . '</span>';
+        }
+        $out .= '<span class="tt-pdp-coachform__toggle" aria-hidden="true">'
+            . '<span class="tt-pdp-coachform__toggle-open">' . esc_html_x( 'Expand', 'PDP form section: what tapping a closed section does', 'talenttrack' ) . '</span>'
+            . '<span class="tt-pdp-coachform__toggle-close">' . esc_html_x( 'Collapse', 'PDP form section: what tapping an open section does', 'talenttrack' ) . '</span>'
+            . '</span>';
+        return $out . '</summary>';
+    }
+
+    /**
      * #5080 — the "Finish" heading over the irreversible steps of a talk:
      * sign-off, marking it not held, recording acknowledgements. Shared with
      * `FrontendPdpManageView`, which draws it for a talk without a form.
@@ -349,6 +396,8 @@ final class PdpFormConversationView {
                 'closed'   => __( 'The form can no longer be saved. Reload the page to see why.', 'talenttrack' ),
                 'failed'   => __( 'The conversation could not be signed off. Try again.', 'talenttrack' ),
                 'signing'  => __( 'Signing off…', 'talenttrack' ),
+                /* translators: 1: items the trainer scored, 2: items in the section */
+                'scored'   => __( '%1$d of %2$d scored', 'talenttrack' ),
             ],
         ] );
     }
