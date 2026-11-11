@@ -667,8 +667,10 @@ nooit geschat), dus een wedstrijd zonder geregistreerde minuten telt 0.
 aansluit op het cijfer: de tegel *Spelers* van Team · Minutenverdeling opent de
 teamselectie en de tegel *Wedstrijden* de activiteitenlijst gefilterd op de
 wedstrijden van dat team; de tegels *Actieve spelers / Actieve teams /
-Wedstrijden* van het Seizoensoverzicht openen hun lijsten, de tegel *Wedstrijden*
-over het venster van het rapport; de tegel *Prospects
+Gespeelde wedstrijden* van het Seizoensoverzicht openen hun lijsten, de tegel
+*Gespeelde wedstrijden* over het venster van het rapport: de losse wedstrijden
+die erin gespeeld zijn, volgens dezelfde regel als elke andere telling van
+gespeelde wedstrijden, en de lijst die hij opent toont precies die; de tegel *Prospects
 vastgelegd* van de Trial-trechter opent de prospectslijst. Elke drill draagt een
 **← Terug naar …**-hint en is verborgen wanneer de gebruiker de capability van
 de bestemming mist (§7 verbergen-niet-plagen).

@@ -1621,7 +1621,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // now bounded by the selected window. #4185 — counts the same rows
         // its drill lists: the canonical `game` key plus the legacy `match`.
         // It read `('match','tournament')`, which left out every `game` row.
-        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN (%s,%s) AND {$date_col} BETWEEN %s AND %s", $club_id, ActivityTypeKey::GAME, ActivityTypeKey::LEGACY_GAME, $from, $to ) );
+        // #4957 — the played fixtures, by the one rule (`PlayedMatch`): live
+        // (not trashed, not cancelled), dated today or earlier, and played.
+        // The drill below lists the same rows (`played=1`).
+        $played_fixtures = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::FIXTURES, 'a' );
+        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities a WHERE a.{$date_col} BETWEEN %s AND %s AND {$played_fixtures}", $from, $to ) );
         $evals_win     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date BETWEEN %s AND %s", $club_id, $from, $to ) );
         $prospects_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
         $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decision_made_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
@@ -1646,14 +1650,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // lists; the windowed activity/eval counts open their lists.
         $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $from, 'date_to' => $to ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $from, 'date_to' => $to, 'played' => 1 ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         self::renderKpiStrip( [
             // #4039 — `slug`, not `cap`: the gate has to be the one the
             // dispatcher applies on arrival, and for `teams` that is not the
             // capability.
             [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'slug' => 'players' ],
             [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'slug' => 'teams' ],
-            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
+            [ 'num' => (string) $matches_win,   'label' => __( 'Matches played', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
             [ 'num' => (string) $evals_win,     'label' => __( 'Evaluations', 'talenttrack' ) ],
             [ 'num' => (string) $prospects_win, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],

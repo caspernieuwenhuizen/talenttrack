@@ -624,8 +624,10 @@ Minutes still come only from persisted `record_type='actual'` attendance rows
 Standard-report **KPIs are now drill-downs** where a filtered list reconciles to
 the count: the Team · Minutes distribution *Players* tile opens the team roster
 and its *Matches* tile opens the activities list filtered to that team's matches;
-the Season summary *Active players / Active teams / Matches* tiles open their
-lists, the *Matches* tile over the report's window; the Trial funnel *Prospects logged* tile opens the prospects list. Every
+the Season summary *Active players / Active teams / Matches played* tiles open
+their lists, the *Matches played* tile over the report's window: the single
+matches played in it, by the same rule as every other played count, and the
+list it opens shows exactly those; the Trial funnel *Prospects logged* tile opens the prospects list. Every
 drill carries a **← Back to …** hint and is hidden when the viewer lacks the
 destination's capability (§7 hide-don't-tease).
 

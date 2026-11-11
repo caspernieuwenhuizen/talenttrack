@@ -513,7 +513,8 @@
         line-height: 1.25;
         color: var(--tt-ink);
     }
-    .tt-mr-doc .tt-mr-sh__meta { grid-column: 2; font-size: var(--tt-fs-sm); }
+    /* The meta line wraps, as it does on paper, rather than being cut. */
+    .tt-mr-doc .tt-mr-sh__meta { grid-column: 2; font-size: var(--tt-fs-sm); white-space: normal; }
 
     .tt-mr-doc .tt-mr-doc__source { margin: calc(-1 * var(--tt-sp-2)) 0 var(--tt-sp-3); font-size: var(--tt-fs-sm); }
 

@@ -64,6 +64,34 @@ final class TeamMonthlyReportSectionHeaderTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '4 played · 2 W 1 D 1 L', $pack );
     }
 
+    /**
+     * #4957 — the meta line wraps on paper rather than being cut: the Dutch
+     * minutes line ("Minuten vastgelegd voor 4 van de 6 gespeelde
+     * wedstrijden. Norm 50%.") is 68 characters, and was printed cut at 64.
+     */
+    public function test_a_long_meta_line_prints_whole_and_wraps(): void {
+        $report = [
+            'from' => '2026-08-01', 'to' => '2026-08-31', 'blocks' => [ 'letterhead', 'minutes' ],
+            'data' => [
+                'letterhead' => [ 'head_coach' => '', 'squad_size' => 20, 'activity_count' => 8 ],
+                'minutes'    => [ 'level' => 'details', 'matches_recorded' => 123456, 'matches_played' => 654321, 'target_pct' => 100, 'rows' => [] ],
+            ],
+        ];
+        $meta = TeamMonthlyReport::sectionMeta( 'minutes', $report['data']['minutes'] );
+        $this->assertSame( 'Minutes recorded for 123456 of 654321 matches played. Target 100%.', $meta );
+        $this->assertGreaterThan( 64, mb_strlen( $meta ), 'precondition: longer than the old cut' );
+
+        $seen = 0;
+        foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+            $html = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Header U13' )['html'];
+            if ( ! str_contains( $html, '<h2>Minutes share</h2>' ) ) continue;
+            $seen++;
+            $this->assertStringContainsString( '<td class="tt-mr-sh__meta">' . $meta . '</td>', $html, "{$layout}: the whole line" );
+            $this->assertStringContainsString( 'tt-mr-sh__meta{text-align:right;font-size:7.5pt;color:#3d4a43;white-space:normal', $html, "{$layout}: and it wraps" );
+        }
+        $this->assertGreaterThan( 0, $seen, 'precondition: a layout prints the minutes section' );
+    }
+
     public function test_a_pale_club_colour_gets_ink_numbers(): void {
         $this->assertTrue( ReportBrandColour::readableOnTint( '#0b3d2e' ), 'the shipped green reads on its tint' );
         $this->assertTrue( ReportBrandColour::readableOnTint( '#0262a1' ), 'the Leon Hutten blue reads on its tint' );
