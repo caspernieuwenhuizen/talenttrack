@@ -190,12 +190,14 @@ class FrontendEvaluationsView extends FrontendViewBase {
             'columns'   => [
                 // `mobile` — phone row roles (docs/mobile-patterns.md): the
                 // player is the title, date and team the subtitle, the
-                // average a badge. Notes stay a desk column.
-                'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html', 'mobile' => 'secondary' ],
+                // average a badge. Notes stay a desk column. #5042 — the
+                // date and the average are text on a phone, like team and
+                // coach: the row opens the evaluation.
+                'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html', 'mobile' => 'secondary', 'mobile_plain' => true ],
                 'player_name'=> [ 'label' => __( 'Player',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'primary' ],
                 'team_name'  => [ 'label' => __( 'Team',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary', 'mobile_plain' => true ],
                 'coach_name' => [ 'label' => __( 'Coach',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'coach_link_html', 'mobile' => 'detail', 'mobile_plain' => true ],
-                'avg_rating' => [ 'label' => __( 'Average', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html', 'mobile' => 'badge' ],
+                'avg_rating' => [ 'label' => __( 'Average', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html', 'mobile' => 'badge', 'mobile_plain' => true ],
                 'notes'      => [ 'label' => __( 'Notes',   'talenttrack' ),                       'render' => 'text', 'value_key' => 'notes_excerpt', 'mobile' => 'hide' ],
             ],
             'filters' => array_merge( [
