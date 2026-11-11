@@ -416,7 +416,13 @@ final class ReportStartRules {
         if ( $teams === [] ) return self::invalid( 'cohort', __( 'Choose at least one team for the group.', 'talenttrack' ) );
 
         $age      = is_string( $raw['age_group'] ?? null ) ? sanitize_text_field( (string) $raw['age_group'] ) : '';
-        $position = is_string( $raw['position'] ?? null ) ? strtoupper( sanitize_key( (string) $raw['position'] ) ) : '';
+        // #4964 — one of the academy's position codes, matched against a
+        // player's primary position. A code the academy doesn't have is
+        // refused rather than giving an empty group.
+        $position = is_string( $raw['position'] ?? null ) ? strtoupper( trim( sanitize_text_field( (string) $raw['position'] ) ) ) : '';
+        if ( $position !== '' && ! isset( ReportSubjectOptions::positions()[ $position ] ) ) {
+            return self::invalid( 'cohort', __( 'Choose one of the academy\'s positions for the group.', 'talenttrack' ) );
+        }
 
         return [ 'team_ids' => array_values( $teams ), 'age_group' => $age, 'position' => $position ];
     }

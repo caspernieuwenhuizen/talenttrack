@@ -4,6 +4,7 @@ namespace TT\Modules\ReportStudio\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\Transaction;
+use TT\Infrastructure\Players\PlayerPosition;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -495,28 +496,33 @@ final class ReportsRepository {
 
     /**
      * The players of a group's cohort rule: live players on those teams,
-     * narrowed to the age group (the team's) and the position when given.
+     * narrowed to the age group (the team's) and, when given, to the players
+     * whose primary position is that code (#4964). The primary position
+     * comes from `PlayerPosition`, compared as a whole code, so each player
+     * is in one position group and the groups add up to the team.
      *
      * @param Cohort $cohort
      * @return list<int>
      */
     public function cohortPlayers( array $cohort ): array {
-        $ids = [];
+        global $wpdb;
+        $position = strtoupper( trim( (string) $cohort['position'] ) );
+        $ids      = [];
         foreach ( $cohort['team_ids'] as $team_id ) {
-            global $wpdb;
-            $rows = $wpdb->get_col( $wpdb->prepare(
-                "SELECT pl.id FROM {$wpdb->prefix}tt_players pl
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT pl.id, pl.preferred_positions FROM {$wpdb->prefix}tt_players pl
                    JOIN {$wpdb->prefix}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
                   WHERE pl.team_id = %d AND pl.club_id = %d
                     AND pl.status = 'active' AND pl.archived_at IS NULL AND pl.trashed_at IS NULL
                     AND ( %s = '' OR t.age_group = %s )
-                    AND ( %s = '' OR UPPER( pl.preferred_positions ) LIKE %s )
                   ORDER BY pl.id ASC",
                 $team_id, CurrentClub::id(),
-                $cohort['age_group'], $cohort['age_group'],
-                $cohort['position'], '%' . $wpdb->esc_like( $cohort['position'] ) . '%'
+                $cohort['age_group'], $cohort['age_group']
             ) );
-            foreach ( is_array( $rows ) ? $rows : [] as $id ) $ids[ (int) $id ] = (int) $id;
+            foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+                if ( $position !== '' && strtoupper( PlayerPosition::primaryCodeOf( $row ) ) !== $position ) continue;
+                $ids[ (int) $row->id ] = (int) $row->id;
+            }
         }
         return array_values( $ids );
     }
