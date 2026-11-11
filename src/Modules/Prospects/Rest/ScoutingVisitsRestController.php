@@ -274,6 +274,9 @@ class ScoutingVisitsRestController {
             $out[] = self::serialize( $row, (int) ( $counts[ $id ] ?? 0 ) );
         }
 
+        // #5085 — the scout's notes follow `config/sensitive_fields.php`.
+        $out = \TT\Infrastructure\Security\RecordRedactor::redactRows( 'scouting_visits', $out, get_current_user_id() );
+
         return RestResponse::success( [ 'rows' => $out, 'total' => count( $out ) ] );
     }
 
@@ -295,6 +298,8 @@ class ScoutingVisitsRestController {
 
         $visit = self::serialize( $row, $repo->prospectCount( $id ) );
         $visit['prospects'] = self::serialiseProspects( $repo->prospectsForVisit( $id ) );
+        // #5085 — the scout's notes follow `config/sensitive_fields.php`.
+        $visit = \TT\Infrastructure\Security\RecordRedactor::redact( 'scouting_visits', $visit, get_current_user_id(), $id );
 
         return RestResponse::success( [ 'visit' => $visit ] );
     }
@@ -601,6 +606,8 @@ class ScoutingVisitsRestController {
     private static function serialiseObservations( array $rows, int $visit_id ): array {
         $prospects = self::serialiseProspects( $rows );
         $out       = [];
+        // #5085 — the observation notes follow the visit's notes rule.
+        $masked    = \TT\Infrastructure\Security\RecordRedactor::isMasked( 'scouting_visits', 'notes', get_current_user_id(), $visit_id );
 
         foreach ( array_values( $rows ) as $i => $row ) {
             $row   = (array) $row;
@@ -615,6 +622,11 @@ class ScoutingVisitsRestController {
                 // without ordering every sighting again.
                 'is_discovery'   => (int) ( $row['scouting_visit_id'] ?? 0 ) === $visit_id,
             ];
+            if ( $masked ) unset( $out[ count( $out ) - 1 ]['notes'] );
+            // #5085 — which visit found the child is the prospect's fact.
+            if ( \TT\Infrastructure\Security\RecordRedactor::isMasked( 'prospects', 'is_discovery', get_current_user_id(), (int) ( $row['id'] ?? 0 ) ) ) {
+                unset( $out[ count( $out ) - 1 ]['is_discovery'] );
+            }
         }
         return $out;
     }
@@ -666,10 +678,10 @@ class ScoutingVisitsRestController {
     }
 
     private static function canEditRow( object $row ): bool {
-        // Reading and editing a visit are the same question — it is the
-        // scout's own planning record — so both go through the one rule in
-        // ScoutingVisitsAccess (#3604) rather than a copy per route.
-        return ScoutingVisitsAccess::canReadVisit( get_current_user_id(), $row, self::isScopeAdmin() );
+        // The scout's own planning record: editing asks the one rule in
+        // ScoutingVisitsAccess (#3604). Reading is that rule plus reading
+        // every visit (#5085), which never writes.
+        return ScoutingVisitsAccess::canEditVisit( get_current_user_id(), $row, self::isScopeAdmin() );
     }
 
     private static function normaliseTime( $raw ): ?string {

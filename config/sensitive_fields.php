@@ -124,6 +124,9 @@ return [
         'routes' => [
             '/talenttrack/v1/prospects'             => [ 'rows' => 'data.rows.*' ],
             '/talenttrack/v1/prospects/(?P<id>\d+)' => [ 'rows' => 'data.prospect' ],
+            // #5085 — which visit a child was found at is the discovery fact.
+            '/talenttrack/v1/prospects/(?P<id>\d+)/visits'                  => [ 'rows' => 'data.visits.*', 'id_key' => 'prospect_id' ],
+            '/talenttrack/v1/scouting-visits/(?P<id>\d+)/observations'      => [ 'rows' => 'data.observations.*' ],
         ],
         'id_key' => 'id',
         'fields' => [
@@ -134,6 +137,7 @@ return [
             'date_of_birth'         => 'prospect_staff',
             'discovered_by_user_id' => 'prospect_staff',
             'discovered_by'         => 'prospect_staff',
+            'is_discovery'          => 'prospect_staff',
         ],
     ],
 
@@ -146,6 +150,30 @@ return [
         'fields' => [
             'asked_of' => 'prospect_staff',
             'notes'    => 'prospect_staff',
+        ],
+    ],
+
+    // #5085 — the scout's notes on a visit and the observations at it stay
+    // with whoever may change the visit. The id is the visit's.
+    'scouting_visits' => [
+        'routes' => [
+            '/talenttrack/v1/scouting-visits'             => [ 'rows' => 'data.rows.*' ],
+            '/talenttrack/v1/scouting-visits/(?P<id>\d+)' => [ 'rows' => 'data.visit' ],
+        ],
+        'id_key' => 'id',
+        'fields' => [
+            'notes' => 'scouting_visit_staff',
+        ],
+    ],
+
+    // #5085 — the same notes, on the visits a prospect's page lists.
+    'prospect_visits' => [
+        'routes' => [
+            '/talenttrack/v1/prospects/(?P<id>\d+)/visits' => [ 'rows' => 'data.visits.*' ],
+        ],
+        'id_key' => 'visit_id',
+        'fields' => [
+            'notes' => 'scouting_visit_staff',
         ],
     ],
 

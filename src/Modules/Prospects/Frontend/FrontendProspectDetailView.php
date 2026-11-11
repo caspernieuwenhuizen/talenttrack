@@ -181,11 +181,15 @@ class FrontendProspectDetailView extends FrontendViewBase {
             } else {
                 echo '<span class="tt-prospect-record-link">' . esc_html( $label ) . '</span>';
             }
-            if ( $visit['is_discovery'] ) {
+            // #5085 — the discovery fact follows the prospect rule.
+            if ( $visit['is_discovery'] && ! RecordRedactor::isMasked( 'prospects', 'is_discovery', $user_id, $id ) ) {
                 echo '<span class="tt-chip">' . esc_html( _x( 'Found here', 'the scouting visit a prospect was discovered at', 'talenttrack' ) ) . '</span>';
             }
             if ( $visit['notes'] !== '' ) {
-                echo '<span class="tt-prospect-record-note">' . esc_html( $visit['notes'] ) . '</span>';
+                // #5085 — the scout's notes follow the visit's notes rule.
+                echo '<span class="tt-prospect-record-note">'
+                    . ( RecordRedactor::isMasked( 'scouting_visits', 'notes', $user_id, (int) $visit_id ) ? MaskedValue::html() : esc_html( $visit['notes'] ) )
+                    . '</span>';
             }
             echo '</li>';
         }

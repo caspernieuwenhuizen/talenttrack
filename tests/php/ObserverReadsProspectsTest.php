@@ -109,12 +109,13 @@ final class ObserverReadsProspectsTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    public function test_the_seed_grants_prospects_and_test_trainings_and_not_the_visits(): void {
+    public function test_the_seed_grants_prospects_and_test_trainings_and_no_scout_entity(): void {
         $this->assertTrue( MatrixGate::can( $this->observer, 'prospects', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) );
         // Recorded for the owner's decision; no route asks `test_trainings`
         // read yet, so this opens nothing today.
         $this->assertTrue( MatrixGate::can( $this->observer, 'test_trainings', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) );
-        foreach ( [ 'scouting_visits_panel', 'scout_history', 'scout_access', 'scout_my_players' ] as $entity ) {
+        // The visits follow in #5085 (`ObserverReadsScoutingVisitsTest`).
+        foreach ( [ 'scout_history', 'scout_access', 'scout_my_players' ] as $entity ) {
             $this->assertFalse( MatrixGate::canAnyScope( $this->observer, $entity, 'read' ), "{$entity} stays closed" );
         }
     }
@@ -220,13 +221,12 @@ final class ObserverReadsProspectsTest extends WP_UnitTestCase {
         $this->assertFalse( RecordRedactor::isMasked( 'prospects', 'scouting_notes', $this->scout, $this->prospect ) );
     }
 
-    public function test_the_observer_changes_nothing_and_opens_no_visit(): void {
+    public function test_the_observer_changes_nothing(): void {
         wp_set_current_user( $this->observer );
         $this->assertSame( 403, $this->dispatch( 'PATCH', '/talenttrack/v1/prospects/' . $this->prospect, [ 'scouting_notes' => 'x' ] )->get_status() );
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/prospects', [ 'first_name' => 'A', 'last_name' => 'B' ] )->get_status() );
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/prospects/' . $this->prospect . '/consent-requests', [ 'asked_at' => current_time( 'Y-m-d' ), 'asked_of' => 'x' ] )->get_status() );
         $this->assertSame( 403, $this->dispatch( 'POST', '/talenttrack/v1/prospects/' . $this->prospect . '/test-training-proposal' )->get_status() );
-        $this->assertSame( 403, $this->dispatch( 'GET', '/talenttrack/v1/scouting-visits' )->get_status() );
         $this->assertFalse( AuthorizationService::userCanOrMatrix( $this->observer, 'tt_edit_prospects' ) );
         $this->assertFalse( AuthorizationService::userCanOrMatrix( $this->observer, 'tt_manage_prospects' ) );
 
@@ -234,12 +234,10 @@ final class ObserverReadsProspectsTest extends WP_UnitTestCase {
         TileRegistry::clear();
         \TT\Shared\CoreSurfaceRegistration::register();
         $pipeline = TileRegistry::canAccessViewSlug( 'onboarding-pipeline', $this->observer );
-        $visits   = TileRegistry::canAccessViewSlug( 'scouting-visits', $this->observer );
         TileRegistry::clear();
         foreach ( $tiles_were as $tile ) TileRegistry::register( $tile );
 
         $this->assertTrue( $pipeline, 'the onboarding board opens' );
-        $this->assertFalse( $visits, 'the scouting visits tile does not' );
     }
 
     public function test_the_migration_adds_the_rows_once(): void {

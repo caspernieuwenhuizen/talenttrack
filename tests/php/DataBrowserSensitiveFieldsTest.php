@@ -52,6 +52,14 @@ final class DataBrowserSensitiveFieldsTest extends WP_UnitTestCase {
             'discovered_by_user_id' => 'tt_prospects',
             // The scout's name, resolved from the row's discovered_by_user_id.
             'discovered_by'  => 'tt_prospects',
+            // Which visit found the child: `tt_prospects.scouting_visit_id`.
+            'is_discovery'   => 'tt_prospects',
+        ],
+        'scouting_visits' => [
+            'notes' => 'tt_scouting_plan_visits',
+        ],
+        'prospect_visits' => [
+            'notes' => 'tt_scouting_plan_visits',
         ],
         'prospect_consent_requests' => [
             'asked_of' => 'tt_prospect_consent_requests',

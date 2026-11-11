@@ -290,7 +290,12 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                     <?php if ( $notes !== '' ) : ?>
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                            <td><?php echo wp_kses_post( wpautop( $notes ) ); ?></td>
+                            <td><?php
+                                // #5085 — the scout's notes follow the visit's notes rule.
+                                echo \TT\Infrastructure\Security\RecordRedactor::isMasked( 'scouting_visits', 'notes', get_current_user_id(), (int) $visit->id )
+                                    ? \TT\Shared\Frontend\Components\MaskedValue::html()
+                                    : wp_kses_post( wpautop( $notes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — both branches are escaped.
+                            ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -380,7 +385,8 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             ?>
                             <td<?php echo StackTable::attrs( 'cell', $c_seen ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> data-sort="<?php echo esc_attr( $seen_at ); ?>"><span class="<?php echo esc_attr( StackTable::VALUE ); ?>">
                                 <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $seen_at ) ); ?>
-                                <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === $visit_id ) : ?>
+                                <?php // #5085 — the discovery fact follows the prospect rule. ?>
+                                <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === $visit_id && ! \TT\Infrastructure\Security\RecordRedactor::isMasked( 'prospects', 'is_discovery', get_current_user_id(), (int) ( $p->id ?? 0 ) ) ) : ?>
                                     <span class="tt-observation-badge"><?php echo esc_html_x( 'Discovered here', 'scouting visit', 'talenttrack' ); ?></span>
                                 <?php endif; ?>
                             </span></td>
