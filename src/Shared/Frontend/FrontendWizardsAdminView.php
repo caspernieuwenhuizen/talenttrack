@@ -162,8 +162,9 @@ class FrontendWizardsAdminView extends FrontendViewBase {
 
         echo '<section class="tt-wzadmin-section"><h2>' . esc_html__( 'Completion analytics', 'talenttrack' ) . '</h2>';
         echo '<div class="tt-wzadmin-table-wrap">';
-        // #4910 — on the stack-table primitive: a table from 480px, one card
-        // per wizard below it.
+        // #4910 — on the stack-table primitive: a table from 768px, one card
+        // per wizard below it. Its five columns scroll inside the wrap up to
+        // about 640px, so it is cards there.
         $cols = [
             __( 'Wizard', 'talenttrack' ),
             __( 'Started', 'talenttrack' ),
@@ -171,7 +172,7 @@ class FrontendWizardsAdminView extends FrontendViewBase {
             __( 'Completion rate', 'talenttrack' ),
             __( 'Most-skipped step', 'talenttrack' ),
         ];
-        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
         foreach ( $cols as $col ) {
             echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $col ) . '</th>';
         }

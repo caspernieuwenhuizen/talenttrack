@@ -96,8 +96,9 @@ final class IdentityStep implements WizardStepInterface {
             </summary>
             <div class="tt-table-wrap" style="padding:0 12px 12px;">
                 <?php
-                // #4910 — on the stack-table primitive: a table from 480px,
-                // one card per prospect below it.
+                // #4910 — on the stack-table primitive: a table from 768px,
+                // one card per prospect below it. Inside the padded fold the
+                // four columns scroll from 480px, so it is cards there.
                 $cols = [
                     'first'  => __( 'First name', 'talenttrack' ),
                     'last'   => __( 'Last name', 'talenttrack' ),
@@ -106,7 +107,7 @@ final class IdentityStep implements WizardStepInterface {
                 ];
                 // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- StackTable escapes its attributes
                 ?>
-                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); ?>>
+                <table class="tt-table <?php echo esc_attr( StackTable::classes( StackTable::TO_768, true ) ); ?>"<?php echo StackTable::attrs( 'table' ); ?>>
                     <thead<?php echo StackTable::attrs( 'rowgroup' ); ?>>
                         <tr<?php echo StackTable::attrs( 'row' ); ?>>
                             <?php foreach ( $cols as $col ) : ?>
