@@ -204,7 +204,7 @@ class FrontendProspectDetailView extends FrontendViewBase {
                 'tt-archive-confirm-title' => __( 'Delete prospect', 'talenttrack' ),
                 'tt-archive-confirm'       => __( 'Delete this prospect? They go to the recycle bin with their visit notes and consent requests, and can be restored from there.', 'talenttrack' ),
                 'tt-archive-confirm-label' => __( 'Delete', 'talenttrack' ),
-                'tt-archive-redirect'      => add_query_arg( [ 'tt_view' => 'prospects-overview' ], RecordLink::dashboardUrl() ),
+                'tt-archive-redirect'      => add_query_arg( [ 'tt_view' => 'prospects-overview' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — where the page goes after the delete, not a link; the list reads on the prospects right the deleter holds */
             ],
         ] ];
     }
