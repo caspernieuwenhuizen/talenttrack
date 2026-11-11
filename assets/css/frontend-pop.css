@@ -932,21 +932,41 @@
 
 /*
  * #4978 — which conversation form the talk uses, and the trainer's switch.
- * Mobile-first: the line and the button stack; the button keeps the shared
- * .tt-btn tap floor.
+ * #5079 — it sits in the spine's aside, on the right of the tab row; on a
+ * phone the row wraps under the tabs. The button keeps the shared .tt-btn
+ * tap floor.
  */
 .tt-pdp-form-switch {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    min-width: 0;
 }
-.tt-pdp-form-switch__current { margin: 0; }
+.tt-pdp-form-switch__current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-pdp-form-switch__current .tt-icon { flex: 0 0 auto; color: var(--tt-ink-soft, #6a6d66); }
+/* Unframed in the tab row: `.tt-ajax-form` draws a card by default. */
+.tt-dashboard .tt-pdp-form-switch__form.tt-ajax-form {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    max-width: none;
+}
 .tt-pdp-form-switch__form {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
-    justify-items: start;
+    min-width: 0;
 }
-.tt-pdp-form-switch__form .tt-help-text { margin: 0; }
+.tt-pdp-form-switch__form .tt-form-msg:empty { display: none; }
 
 /*
  * #2042 — proxy-acknowledgement block on the coach conversation form.

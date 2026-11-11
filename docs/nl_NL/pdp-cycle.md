@@ -62,11 +62,13 @@ Voor elk gesprek wordt automatisch een native agenda-item bijgehouden.
 
 ### 2. Voer de gesprekken
 
-Een gesprek opent op drie tabbladen — **Voorbereiding**, **Gesprek**, **Bewijs** — en start op het tabblad dat je nodig hebt: Voorbereiding zolang het gesprek nog voor je ligt, Gesprek zodra het gevoerd is.
+Een gesprek opent op drie tabbladen — **Voorbereiding**, **Gesprek**, **Achtergrond** — en start op het tabblad dat je nodig hebt: Voorbereiding zolang het gesprek nog voor je ligt, Gesprek zodra het gevoerd is.
+
+De pagina opent op de speler: foto of initialen, naam, team, rugnummer en positie, en één regel voor het gesprek, zoals *Mid-seizoen · gesprek 2 van 3 · gepland 12 nov, 18:00*, of *gehouden* met de datum zodra het gevoerd is. Met de app-indeling blijft een smalle strook met dezelfde naam bovenaan staan terwijl je scrolt. Het kruimelpad eindigt bij de naam van de speler en dan het gesprek. Bij een gesprek met een gespreksformulier staat het formulier dat in gebruik is (**Formulier: Veldspeler** of **Formulier: Keeper**) rechts in de rij tabbladen, met de wisselknop zolang wisselen nog kan. Op een telefoon staat het onder de tabbladen.
 
 - **Voorbereiding** — de eigen antwoorden van de trainer op de vragenset van dit gesprek. Alleen voor de trainer en het hoofd opleiding.
 - **Gesprek** — de zelfreflectie van de speler, en daarna de notities, afgesproken acties en ondertekening uit het gesprek zelf.
-- **Bewijs** — wat de academie al weet, alleen-lezen.
+- **Achtergrond** — wat er dit seizoen over de speler is vastgelegd, alleen-lezen.
 
 #### Voorbereiding
 
@@ -78,9 +80,9 @@ Het formulier slaat zichzelf op, net als het gespreksformulier ernaast. Ondertek
 
 > **Overstappen van het agendaveld.** Het losse vrije-tekstveld *Agenda (voor het gesprek)* vervalt. Wat erin stond is verplaatst naar de vraag *“Nog iets anders voor te bereiden?”* bij hetzelfde gesprek, dus er gaat niets verloren. Eén gevolg is het benoemen waard: de agenda was zichtbaar voor de speler op zijn eigen POP-scherm, en de voorbereiding is dat niet. Tekst die is verplaatst werd dus minder zichtbaar, nooit meer.
 
-#### Bewijs
+#### Achtergrond
 
-Het tabblad **Bewijs** verzamelt wat de academie al weet over de speler sinds het vorige gesprek — alleen-lezen, zodat de trainer het gesprek opent op basis van het dossier en niet op basis van zijn geheugen: evaluaties met beoordeling, beoordelaar en notities; aanwezigheid met de verdeling aanwezig / afwezig / afgemeld, gespeelde wedstrijden en speelminuten, met de opbouw per wedstrijd; doelen, en of ze bewogen zijn; de zelfreflectie van de speler; notities van de staf, blessures en gebeurtenissen op de tijdlijn; en de potentieel- en gedragsbeoordelingen uit die periode.
+Het tabblad **Achtergrond** verzamelt wat de academie al weet over de speler sinds het vorige gesprek — alleen-lezen, zodat de trainer het gesprek opent op basis van het dossier en niet op basis van zijn geheugen: evaluaties met beoordeling, beoordelaar en notities; aanwezigheid met de verdeling aanwezig / afwezig / afgemeld, gespeelde wedstrijden en speelminuten, met de opbouw per wedstrijd; doelen, en of ze bewogen zijn; de zelfreflectie van de speler; notities van de staf, blessures en gebeurtenissen op de tijdlijn; en de potentieel- en gedragsbeoordelingen uit die periode.
 
 Een onderdeel zonder inhoud zegt dat ook, in plaats van te verdwijnen — “Geen evaluaties in deze periode” is zelf iets om te weten voor een gesprek.
 
@@ -136,7 +138,7 @@ Ouders zien dezelfde tijdlijn voor hun kind, alleen-lezen en bezittelijk ("ontwi
 
 Wanneer het laatste gesprek van de cyclus is ondertekend, legt het hoofd academie (of de hoofdcoach in sommige configuraties) een eindoordeel vast: **doorstromen**, **behouden**, **uitsluiten**, of **transfer**. Het eindoordeel is een aparte rij, los ondertekend van de gesprekken.
 
-Boven de beslissing staat **Bewijs van dit seizoen** — ingeklapt, één tik weg — met het hele seizoen in hetzelfde paneel dat de trainer bij een gesprek leest. De cijfers komen uit één verzameling, dus waar het hoofd opleiding het eindoordeel op baseert, is zichtbaar hetzelfde als wat de trainer zag.
+Boven de beslissing staat **Achtergrond van dit seizoen** — ingeklapt, één tik weg — met het hele seizoen in hetzelfde paneel dat de trainer bij een gesprek leest. De cijfers komen uit één verzameling, dus waar het hoofd opleiding het eindoordeel op baseert, is zichtbaar hetzelfde als wat de trainer zag.
 
 De knop *Eindoordeel vastleggen* staat bij de gesprekkenlijst, onder de cyclus. De knop blijft **uitgeschakeld totdat elk gesprek in de cyclus is afgetekend of als niet doorgegaan is gemarkeerd**, met de voortgang op de knop zelf — bijv. *Eindoordeel vastleggen (3/5 gesprekken afgerond)* — zodat duidelijk is waarom hij nog niet beschikbaar is in plaats van dat hij ontbreekt.
 
@@ -163,7 +165,7 @@ Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksf
 
 ## Printen
 
-De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekening­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met hetzelfde bewijs dat de trainer op het tabblad Bewijs leest en het hoofd opleiding op het eindoordeelscherm — één verzameling, dus de cijfers op papier en op het scherm kunnen niet uit elkaar lopen. De bewijspagina is alleen voor de staf: een speler of ouder die het eigen dossier print, krijgt de enkele A4, en de schakelaar wordt hun niet aangeboden.
+De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekening­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met hetzelfde bewijs dat de trainer op het tabblad Achtergrond leest en het hoofd opleiding op het eindoordeelscherm — één verzameling, dus de cijfers op papier en op het scherm kunnen niet uit elkaar lopen. De bewijspagina is alleen voor de staf: een speler of ouder die het eigen dossier print, krijgt de enkele A4, en de schakelaar wordt hun niet aangeboden.
 
 ### Een ondertekend gespreksformulier printen
 
@@ -216,8 +218,8 @@ De speler en de trainer vullen elk hun eigen deel in, en elk deel slaat zichzelf
 
 - **De scores van de speler zijn van de speler.** Niemand anders kan ze wijzigen, en niemand anders ziet ze voordat de speler de voorbereiding klaar meldt, ook het hoofd ontwikkeling en de academiebeheerder niet. Een ouder ziet niets van het formulier tot het is ondertekend.
 - **Het deel van de speler sluit als het gesprek begint**, op de geplande tijd, of bij het ondertekenen als dat eerder is. Tot dan kan de speler "klaar" ook terugdraaien.
-- **Het formulier volgt de positie van de speler.** Een speler wiens eerste voorkeurspositie keeper is, krijgt het keepersformulier; elke andere speler, ook een speler zonder positie, krijgt het formulier voor veldspelers. Op het gespreksscherm staat welk formulier het gesprek gebruikt.
-- **Het formulier ligt vast zodra de speler is begonnen.** Daarvoor kan de trainer met de wisselknop op het gespreksscherm naar het andere formulier wisselen; wat de trainer zelf invult, legt het formulier niet vast. Zodra de speler iets heeft opgeslagen, is de wisselknop weg. Het formulier en de versie ervan blijven vanaf de eerste opslag bij het gesprek, zodat een latere versie van het formulier een begonnen gesprek nooit verandert.
+- **Het formulier volgt de positie van de speler.** Een speler wiens eerste voorkeurspositie keeper is, krijgt het keepersformulier; elke andere speler, ook een speler zonder positie, krijgt het formulier voor veldspelers. Op het gespreksscherm staat rechts in de rij tabbladen welk formulier het gesprek gebruikt.
+- **Het formulier ligt vast zodra de speler is begonnen.** Daarvoor kan de trainer met de wisselknop ernaast (**Wissel naar keeper** of **Wissel naar veldspeler**) naar het andere formulier wisselen; wat de trainer zelf invult, legt het formulier niet vast. Zodra de speler iets heeft opgeslagen, is de wisselknop weg. Het formulier en de versie ervan blijven vanaf de eerste opslag bij het gesprek, zodat een latere versie van het formulier een begonnen gesprek nooit verandert.
 - **Ondertekenen slaat alles in één keer op.** De scores van de trainer worden een evaluatie, gekoppeld aan het gesprek en zichtbaar in het radardiagram en de geschiedenis zoals elke andere. De twee ontwikkelpunten worden doelen, gekoppeld aan het gesprek naast de doelen die besproken zijn. Lukt een deel daarvan niet, dan wordt niets opgeslagen. Ondertekenen vraagt om een score van de trainer op elk onderdeel, de afgesproken grootste kwaliteit, en beide ontwikkelpunten met een actie, de hulp van de trainer en een deadline. Het wacht niet op de speler: een speler die de voorbereiding nooit klaar meldde, houdt een lege kolom.
 - **De scores van de speler worden nooit een evaluatie**, zodat een zelfbeoordeling zich in rapporten nooit mengt met de beoordelingen van de trainer.
 - De evaluatie die een ondertekend formulier opsloeg, kan niet los worden gewijzigd of verwijderd; het ondertekende formulier is het verslag.

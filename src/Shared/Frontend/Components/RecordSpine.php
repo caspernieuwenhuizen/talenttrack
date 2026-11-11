@@ -97,6 +97,21 @@ use TT\Shared\Frontend\ShellPreference;
  * tabs are the only route between the sections), and takes navigating tabs
  * only: an in-page entry is ignored. `label` names the strip for assistive
  * tech. The caller lays out the column and the section beside it.
+ *
+ * ## Detail line and aside
+ *
+ * `detail` is an optional second line under the name and meta: what the
+ * page is about within the record, such as which talk of a cycle is open.
+ *
+ * `aside` is optional HTML the caller has already escaped, rendered on the
+ * right of the tab row: a control that belongs to the open record rather
+ * than to one tab, such as the form a PDP talk uses and its switch. It
+ * renders wherever the tabs do, `classic` included, and wraps under the
+ * tabs on a phone. A strip without an `aside` renders exactly as before.
+ *
+ * The aside holds a control for the open record, and never navigation:
+ * no links to other modules (that is the shell's, CLAUDE.md §5b) and no
+ * second tab strip (tabs come from this component's `tabs`, §5c).
  */
 final class RecordSpine {
 
@@ -114,6 +129,8 @@ final class RecordSpine {
      *   initials?: string,
      *   status?: string,
      *   meta?: string,
+     *   detail?: string,
+     *   aside?: string,
      *   tabs_always?: bool,
      *   layout?: string,
      *   label?: string,
@@ -129,6 +146,7 @@ final class RecordSpine {
         }
 
         $in_page = self::isInPage( $tabs );
+        $aside   = trim( (string) ( $config['aside'] ?? '' ) );
         // #2822 — a navigating strip the caller has declared to be the only
         // route to its sections survives `classic` and an absent identity,
         // the same way an in-page strip always has.
@@ -140,7 +158,7 @@ final class RecordSpine {
         if ( ! ShellPreference::isApp() ) {
             if ( $survives ) {
                 echo '<div class="tt-spine tt-spine--tabs-only">';
-                self::renderTabs( $tabs, $in_page );
+                self::renderTabRow( $tabs, $in_page, $aside );
                 echo '</div>';
             }
             return;
@@ -153,7 +171,7 @@ final class RecordSpine {
             // identity-less config the same way they survive `classic`.
             if ( $survives ) {
                 echo '<div class="tt-spine tt-spine--tabs-only">';
-                self::renderTabs( $tabs, $in_page );
+                self::renderTabRow( $tabs, $in_page, $aside );
                 echo '</div>';
             }
             return;
@@ -163,6 +181,7 @@ final class RecordSpine {
         $initials = (string) ( $config['initials'] ?? self::initials( $name ) );
         $status   = (string) ( $config['status'] ?? '' );
         $meta     = (string) ( $config['meta'] ?? '' );
+        $detail   = trim( (string) ( $config['detail'] ?? '' ) );
 
         echo '<div class="tt-spine">';
 
@@ -170,7 +189,7 @@ final class RecordSpine {
         // own <h1> in the hero above. Repeating it here would announce the
         // record twice on one page; this copy orients the eye while
         // scrolled, nothing more.
-        echo '<div class="tt-spine__id" aria-hidden="true">';
+        echo '<div class="tt-spine__id' . ( $detail !== '' ? ' tt-spine__id--detail' : '' ) . '" aria-hidden="true">';
         echo '<span class="tt-spine__avatar"' . ( $status !== '' ? ' data-status="' . esc_attr( $status ) . '"' : '' ) . '>';
         if ( $photo !== '' ) {
             echo '<img class="tt-spine__photo" src="' . esc_url( $photo ) . '" alt="" />';
@@ -182,9 +201,12 @@ final class RecordSpine {
         if ( $meta !== '' ) {
             echo '<span class="tt-spine__meta">' . esc_html( $meta ) . '</span>';
         }
+        if ( $detail !== '' ) {
+            echo '<span class="tt-spine__detail">' . esc_html( $detail ) . '</span>';
+        }
         echo '</div>';
 
-        self::renderTabs( $tabs, $in_page );
+        self::renderTabRow( $tabs, $in_page, $aside );
 
         echo '</div>';
     }
@@ -204,6 +226,23 @@ final class RecordSpine {
             }
         }
         return false;
+    }
+
+    /**
+     * The tabs, with the caller's aside on the right when there is one.
+     * Without an aside this is the tab strip alone, unwrapped.
+     *
+     * @param list<array<string,mixed>> $tabs
+     */
+    private static function renderTabRow( array $tabs, bool $in_page, string $aside ): void {
+        if ( $aside === '' ) {
+            self::renderTabs( $tabs, $in_page );
+            return;
+        }
+        echo '<div class="tt-spine__row">';
+        self::renderTabs( $tabs, $in_page );
+        echo '<div class="tt-spine__aside">' . $aside . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the caller escapes the aside.
+        echo '</div>';
     }
 
     /**

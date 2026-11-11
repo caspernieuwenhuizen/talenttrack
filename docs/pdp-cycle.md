@@ -62,11 +62,13 @@ A native calendar entry is written for every conversation.
 
 ### 2. Run the conversations
 
-A conversation opens on three tabs — **Preparation**, **Conversation**, **Evidence** — and lands on the one you need: Preparation while the talk is still ahead, Conversation once it has been conducted.
+A conversation opens on three tabs — **Preparation**, **Conversation**, **Background** — and lands on the one you need: Preparation while the talk is still ahead, Conversation once it has been conducted.
+
+The page opens on the player: their photo or initials, name, team, shirt number and position, and one line for the talk, such as *Mid season · conversation 2 of 3 · planned 12 Nov, 18:00*, or *held* with the date once it has taken place. With the app layout, a slim strip with the same name stays at the top while you scroll. The breadcrumb ends in the player's name, then the talk. On a talk with a conversation form, the form in use (**Form: Outfield player** or **Form: Goalkeeper**) sits on the right of the tab row, with its switch while switching is still possible. On a phone it moves under the tabs.
 
 - **Preparation** — the coach's own answers to this conversation's question set. Coach and head of academy only.
 - **Conversation** — the player's self-reflection, then the notes, agreed actions and sign-off from the talk itself.
-- **Evidence** — what the academy already knows, read-only.
+- **Background** — what is on record about the player this season, read-only.
 
 #### Preparation
 
@@ -78,9 +80,9 @@ It saves as you write, like the conversation form beside it. Sign-off is unaffec
 
 > **Upgrading from the agenda box.** The single free-text *Agenda (pre-meeting)* field is retired. Whatever was written in it moved into the *"Anything else to prepare?"* question on the same conversation, so nothing is lost. One consequence worth knowing: the agenda used to be shown to the player on their own PDP view, and preparation is not. Text that moved became less visible, never more.
 
-#### Evidence
+#### Background
 
-The **Evidence** tab collects what the academy already knows about the player since the previous conversation, read-only, so the coach opens the talk on the record rather than on memory: evaluations with their rating, assessor and notes; attendance with the present / absent / excused split, matches played and minutes, with the per-match breakdown; goals, and whether each one has moved; the player's own self-reflection; staff notes, injuries and journey events; and the potential and behaviour ratings set in the window.
+The **Background** tab collects what the academy already knows about the player since the previous conversation, read-only, so the coach opens the talk on the record rather than on memory: evaluations with their rating, assessor and notes; attendance with the present / absent / excused split, matches played and minutes, with the per-match breakdown; goals, and whether each one has moved; the player's own self-reflection; staff notes, injuries and journey events; and the potential and behaviour ratings set in the window.
 
 A section with nothing in it says so rather than disappearing — "No evaluations in this window" is itself worth knowing before a conversation.
 
@@ -136,7 +138,7 @@ Parents see the same timeline for their child, read-only and possessive ("&lt;Ch
 
 When the cycle's last conversation is signed off, the head of academy (or head coach in some configurations) records a verdict: **promote**, **retain**, **release**, or **transfer**. The verdict is its own row, signed off independently from the conversation rows.
 
-The verdict screen carries **Evidence for this season** above the decision — collapsed, one tap away — showing the whole season through the same panel the coach reads on a conversation. The numbers on it come from one assembly, so what the head of academy defends a verdict with is visibly what the coach saw.
+The verdict screen carries **Background for this season** above the decision — collapsed, one tap away — showing the whole season through the same panel the coach reads on a conversation. The numbers on it come from one assembly, so what the head of academy defends a verdict with is visibly what the coach saw.
 
 The *Record verdict* button sits with the conversation list, below the cycle. It stays **disabled until every conversation in the cycle is signed off or marked as not held**, showing the progress on the button itself — e.g. *Record verdict (3/5 conversations closed)* — so it's clear why it isn't available yet rather than missing.
 
@@ -163,7 +165,7 @@ A goal can also link to a **development talk**. On the conversation form, the co
 
 ## Print
 
-The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 carrying the same evidence the coach reads on the Evidence tab and the head of academy reads on the verdict screen — one assembly, so the printed numbers and the on-screen ones cannot disagree. The evidence page is staff-only: a player or parent printing their own file gets the single A4, and the toggle is not offered to them.
+The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 carrying the same evidence the coach reads on the Background tab and the head of academy reads on the verdict screen — one assembly, so the printed numbers and the on-screen ones cannot disagree. The evidence page is staff-only: a player or parent printing their own file gets the single A4, and the toggle is not offered to them.
 
 ### Printing a signed conversation form
 
@@ -216,8 +218,8 @@ The player and the trainer each fill in their own part, and each part saves itse
 
 - **The player's scores are the player's own.** Nobody else can change them, and nobody else sees them before the player marks the preparation ready, the head of development and the academy admin included. A parent sees nothing of the form until it is signed off.
 - **The player's part closes when the talk starts**, at its planned time, or at sign-off if that comes first. Until then the player can also take "ready" back.
-- **The form follows the player's position.** A player whose first preferred position is goalkeeper gets the goalkeeper form; every other player, a player without a position included, gets the outfield form. The conversation screen says which form the talk uses.
-- **The form is fixed once the player has started.** Before that, the trainer can switch to the other form with the switch on the conversation screen; the trainer's own entries do not fix it. Once the player has saved anything, the switch is gone. The form and its version are kept with the conversation from the first save, so a later version of the form never changes a talk already started.
+- **The form follows the player's position.** A player whose first preferred position is goalkeeper gets the goalkeeper form; every other player, a player without a position included, gets the outfield form. The conversation screen shows which form the talk uses, on the right of the tab row.
+- **The form is fixed once the player has started.** Before that, the trainer can switch to the other form with the switch next to it (**Switch to goalkeeper** or **Switch to outfield player**); the trainer's own entries do not fix it. Once the player has saved anything, the switch is gone. The form and its version are kept with the conversation from the first save, so a later version of the form never changes a talk already started.
 - **Signing off saves it all at once.** The trainer's scores become an evaluation, linked to the conversation and shown in the radar and the history like any other. The two development points become goals, linked to the conversation next to the goals that were discussed. If any of it cannot be saved, nothing is. Sign-off asks for a trainer score on every item, the agreed strongest quality, and both development points with an action, the trainer's help and a deadline. It does not wait for the player: a player who never marked the preparation ready keeps an empty column.
 - **The player's scores are never an evaluation**, so a self-assessment never mixes into the coach ratings in reports.
 - The evaluation a signed form saved cannot be edited or removed on its own; the signed form is the record.

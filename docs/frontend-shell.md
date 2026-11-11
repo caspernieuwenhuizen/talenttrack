@@ -352,6 +352,22 @@ its panel is the one not carrying `hidden`. `record-spine-tabs.js` adds the
 switching and the arrow-key handling on top, so a page that fails to load it
 shows the default panel rather than nothing.
 
+**Detail line and aside.** Two optional keys, both empty unless the caller
+passes them; without them the strip renders exactly as before.
+
+| Key | What | Where |
+| --- | --- | --- |
+| `detail` | a second identity line under the name and meta: what the page is about within the record, such as which talk of a cycle is open | app shell only, like the rest of the identity |
+| `aside` | HTML the caller has already escaped, on the right of the tab row: a control that belongs to the record rather than to one tab, such as a PDP talk's form and its switch | wherever the tabs render, `classic` included; on a phone it wraps under the tabs, with no sideways scroll |
+
+The aside holds a control for the open record and never navigation: no links
+to other modules (navigation away from a view is the shell's), and no second
+tab strip (tabs come from `tabs`).
+
+Under the app shell the stuck spine sits below the shell's own sticky header,
+at `--tt-shell-top` plus `--tt-shell-header-h`, so the header never covers the
+record's name.
+
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four
