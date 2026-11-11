@@ -107,7 +107,9 @@ final class ReportStudioSectionBlocksTest extends WP_UnitTestCase {
         $monthly = array_diff( TeamMonthlyReportBlock::ALL, array_keys( self::FIRST_WAVE_MONTHLY ), [ TeamMonthlyReportBlock::NOTES ] );
         $this->assertEqualsCanonicalizing( array_values( $monthly ), array_keys( MonthlySectionBlock::KEYS ) );
 
-        $player = array_diff( PlayerReportBlock::ALL, array_keys( self::FIRST_WAVE_PLAYER ), [ PlayerReportBlock::NOTES, PlayerReportBlock::THREAD_NOTES ] );
+        // #5022 — every player report section but the letterhead is a section
+        // block, so the template prints each with the report's own renderer.
+        $player = array_diff( PlayerReportBlock::ALL, [ PlayerReportBlock::LETTERHEAD ] );
         $this->assertEqualsCanonicalizing( array_values( $player ), array_keys( PlayerSectionBlock::KEYS ) );
 
         foreach ( array_merge( self::FIRST_WAVE_MONTHLY, self::FIRST_WAVE_PLAYER, MonthlySectionBlock::KEYS, PlayerSectionBlock::KEYS ) as $key ) {
@@ -284,7 +286,8 @@ final class ReportStudioSectionBlocksTest extends WP_UnitTestCase {
             $family = in_array( $section, PlayerReportAudience::FAMILY_BLOCKS, true );
             $this->assertSame( $family, $block instanceof FamilySection, $key );
             if ( $block instanceof FamilySection ) $this->assertSame( $section, $block->familySection() );
-            $this->assertSame( $family || in_array( $section, PlayerReportAudience::SCOUT_BLOCKS, true ) ? [ 'items' ] : [], $block->externalKeys(), $key );
+            $external = $family || in_array( $section, PlayerReportAudience::SCOUT_BLOCKS, true );
+            $this->assertSame( $external, $block->externalKeys() !== [], $key );
         }
     }
 

@@ -40,6 +40,11 @@ final class SectionOptions {
                 case DescribesOptions::KIND_SWITCH:
                     $out[] = new BlockOption( $key, BlockOption::TYPE_BOOL, $label, [], false, (bool) $field['default'] );
                     break;
+                case DescribesOptions::KIND_ENUM:
+                    $choices = [];
+                    foreach ( $owner::fieldChoices( $key ) as $value => $name ) $choices[ (string) $value ] = $name;
+                    $out[] = new BlockOption( $key, BlockOption::TYPE_ENUM, $label, $choices, false, $field['default'] );
+                    break;
                 case DescribesOptions::KIND_IDS:
                     $choices = [];
                     foreach ( $owner::fieldChoices( $key ) as $id => $name ) $choices[ (string) $id ] = $name;

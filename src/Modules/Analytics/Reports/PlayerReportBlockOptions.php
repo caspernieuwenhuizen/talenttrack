@@ -31,6 +31,16 @@ final class PlayerReportBlockOptions {
     }
 
     /**
+     * #5022 — the class that owns a block's options, so the Report Studio
+     * offers the section's options from it; null for a block without any.
+     *
+     * @return class-string<BlockOptionsInterface>|null
+     */
+    public static function ownerOf( string $block ): ?string {
+        return self::map()[ $block ] ?? null;
+    }
+
+    /**
      * One block's options, normalised by whoever owns them. A block with no
      * options, or one given nothing usable, answers `[]`.
      *

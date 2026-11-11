@@ -30,6 +30,8 @@ use TT\Modules\ReportStudio\Blocks\TextBlock;
 use TT\Modules\ReportStudio\Domain\BlockRegistry;
 use TT\Modules\ReportStudio\Rest\ReportBlocksRestController;
 use TT\Modules\ReportStudio\Rest\ReportSnapshotsRestController;
+use TT\Modules\ReportStudio\Rest\ReportTemplatesRestController;
+use TT\Modules\ReportStudio\Templates\PlayerReportTemplate;
 use TT\Modules\ReportStudio\Rest\ReportsRestController;
 use TT\Modules\ReportStudio\Rest\StudioHomesRestController;
 use TT\Modules\ReportStudio\Wizard\NewReportWizard;
@@ -76,6 +78,9 @@ class ReportStudioModule implements ModuleInterface {
         ReportsRestController::init();
         ReportSnapshotsRestController::init();
         StudioHomesRestController::init();
+        // #5022 — the templates a report starts from: code, not rows.
+        PlayerReportTemplate::register();
+        ReportTemplatesRestController::init();
 
         // #4570 — the start wizard. Registered on `init` so the registry is
         // populated before a request resolves `?tt_view=wizard&slug=new-report`.

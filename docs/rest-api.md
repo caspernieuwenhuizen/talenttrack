@@ -1695,14 +1695,23 @@ The blocks:
     (`ids`) and `sub`. Both are generated from the section's option class
     (`TestsBlockOptions`, `EvaluationsBlockOptions`), which accepts no other
     key.
-  - `player_status`, `player_talking_points`, `player_pdp`,
-    `player_matches`, `player_tests`, `player_journey`, `player_injuries`,
-    `player_behaviour` and `player_potential` (player). The audiences are
-    `PlayerReportAudience`'s allowlists: `player_tests` reaches a scout and a
-    family (tests at the public level, as `{ items }`); every other one is
-    staff only, so a draft holding one on a scout or family report is
-    `400 invalid_field`. Injuries are in the payload only for a reader on the
-    medical rung, as on the report.
+  - `player_status`, `player_talking_points`, `player_ratings`,
+    `player_attendance`, `player_minutes`, `player_goals`, `player_pdp`,
+    `player_notes`, `player_matches`, `player_tests`, `player_journey`,
+    `player_injuries`, `player_behaviour`, `player_potential` and
+    `player_thread_notes` (player): every section of the player report but
+    the letterhead (#5022), composed through `PlayerReport::block()`. The
+    audiences are `PlayerReportAudience`'s allowlists: ratings, attendance,
+    playing time and tests reach a scout, and those plus goals reach a family,
+    cut as the report cuts them (no evaluation notes, no minutes comparison,
+    tests at the public level); every other one is staff only, so a draft
+    holding one on a scout or family report is `400 invalid_field`. Injuries
+    are in the payload only for a reader on the medical rung, as on the
+    report. `player_ratings` takes `detail` (`main` or `sub`), generated from
+    `RatingsBlockOptions`. `player_notes` is `{ lines }`, the report's ruled
+    area: what is said is a snapshot note on that block
+    (`PUT /report-snapshots/{uuid}/notes/{block}`), never part of the
+    definition.
 
   These blocks print with the report's own section renderer
   (`TeamMonthlyReportDocument::sectionHtml()`,
@@ -1740,6 +1749,38 @@ figures on a player report or a staff-only block on a family report. Before
 
 Shared reads are memoised per request by subject and period, so several
 blocks on one subject read it once.
+
+## Report Studio templates (#5022, epic #4564)
+
+### `GET /report-templates`
+
+The templates the caller may start a report from. Templates are code, not
+rows (`ReportTemplateRegistry`); a report started from one is an ordinary
+report owned by its builder. Needs `tt_build_reports` with the `report_studio`
+feature on (403 otherwise) and the `report_studio` plan feature (402). No
+parameters.
+
+A template is listed only when every starting choice it fixes is one
+`ReportStartRules` allows this builder, decided in the rules' order: the
+scout template, for example, is left out for a builder without
+`tt_publish_reports`.
+
+```json
+{ "templates": [
+    { "key": "player_report", "label": "Player report",
+      "description": "The player report for the conversation with the player: …",
+      "choices": { "kind": "report", "scope": "player", "audience": "internal", "layout": "rows" },
+      "definition": { "blocks": [
+        { "id": "b1", "key": "letterhead", "options": [], "width": "full" },
+        { "id": "b2", "key": "player_status", "options": [], "width": "full" } ] } } ] }
+```
+
+The player report templates are `player_report`, `player_report_scout` and
+`player_report_family`: each holds the sections the player report opens on
+for that audience (`PlayerReportAudience::blocksFor( audience, [] )`), in its
+order, with attendance and playing time side by side (`width: "half"`) when
+they follow each other. A family or a scout receives the report only as a
+snapshot.
 
 ## Report Studio reports (#4569, epic #4564)
 

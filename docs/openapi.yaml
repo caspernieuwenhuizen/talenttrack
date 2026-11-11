@@ -409,6 +409,16 @@ paths:
         '404': { description: not_found — no such block, or no data for this subject }
         '413': { description: body_too_large }
 
+  /report-templates:
+    get:
+      tags: [report-studio]
+      summary: The Report Studio templates the caller may start a report from
+      description: 'Cap required: `tt_build_reports`, the `report_studio` feature switched on, and the `report_studio` plan feature. A template is listed only when every starting choice it fixes is one `ReportStartRules` allows the caller. Each carries `key`, `label`, `description`, `choices` (the starting choices it fixes) and `definition` (its blocks).'
+      responses:
+        '200': { description: 'OK — templates' }
+        '402': { description: license_required — the install is not on the plan }
+        '403': { description: The caller lacks the capability, or the feature is off }
+
   /reports:
     get:
       tags: [report-studio]
