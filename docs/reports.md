@@ -150,17 +150,44 @@ simply reads that stored value; a match that was played but never finalised
 therefore shows nothing until its minutes are recorded, rather than being
 reconstructed from the planned line-up.
 
-**Only matches that have been played appear.** A match counts once any one of
-three things is true: its activity is marked **completed**, its **date has
-passed**, or it already carries **recorded minutes**. So a fixture kicking off
-this evening is absent from the per-match table and from every KPI beside it —
-it is not played until you complete it, record its minutes, or the day ends —
-while a match you played this morning and completed on the touchline counts
-straight away.
+**Only matches that have been played appear.** A match counts when it is
+dated **today or earlier** and any one of four things is true: its activity is
+marked **completed**, its **date has passed**, it already carries **recorded
+minutes**, or it has a **score**. So a fixture kicking off this evening is
+absent from the per-match table and from every KPI beside it — it is not
+played until you complete it, record its minutes or its score, or the day
+ends — while a match you played this morning and completed on the touchline
+counts straight away.
 
 The date on its own still counts because completing an activity is a separate,
 deliberate act: a match played last season says *planned* unless somebody
 pressed the button, and it was still played.
+
+**A match dated after today is never played**, whatever it carries. A match
+next week marked completed, or with minutes or a score on it, is a mistake in
+the data, and it is left out until its date comes. Fix the date or the status
+on the activity if the match was in fact played.
+
+**One rule on every surface.** The minutes reports, the Minutes share, the
+team monthly report, the team's Statistics tab and the Report Studio blocks
+all count played matches by this rule. Two kinds of count sit on it:
+
+- **The match record** (played, won, drawn, lost, goals, without a score)
+  counts single matches only. A tournament is a multi-game day, so one result
+  cannot describe it, and it is left out, with a line saying how many there
+  were.
+- **Every minutes figure** counts single matches **and tournament days**,
+  because a tournament day carries minutes like any match. Where both sit on
+  one page, the minutes line says how many tournament days it includes: the
+  minutes' played count is the record's played count plus those days.
+
+**What this changed.** Some figures moved when the rule became one. The
+Statistics tab's *Played* and *Without a score* can be lower by a match dated
+after today that was marked completed or scored. *Without a score* no longer
+counts a match today that has not been played yet. The team monthly report's
+minutes line now counts tournament days, as the minutes beside it always did,
+and says so. Minutes recorded on a match dated after today no longer count
+anywhere until that date.
 
 **Match types use your academy's names.** The type of each match (league,
 cup, friendly, or any type your academy added) is shown with the name it has
@@ -265,9 +292,10 @@ never contradict them. When the two differ the tile is flagged: *"9 recorded,
 3 without minutes"* tells you the gap is a recording gap, not an empty season.
 
 **A fixture kicking off tonight is not played yet.** It belongs to neither
-number until you complete it, record its minutes, or the day ends — otherwise
+number until you complete it, record its minutes or its score, or the day
+ends — otherwise
 the report warns you that tonight's match is missing its minutes. Any one of
-the three is enough, which is what lets a match played this morning count
+them is enough, which is what lets a match played this morning count
 before the day is out, and what keeps a season of matches nobody ever pressed
 *Complete* on in the denominator where they belong.
 
@@ -761,10 +789,10 @@ For a team, the averages follow the team monthly report: whoever may read the te
 For a player, the goals blocks need the right to read that player's goals, as their Goals tab does. For a team, open goals follow the team monthly report's squad list: whoever may read the team's reports sees them.
 **Matches**
 
-- **Results**: every match of the team in the period up to today with the date, home or away, the opponent and the score, as the team monthly report's match section lists them, with the record under it. Tournaments are left out, and the block says how many. A match without a score says so instead of showing 0–0. Staff only.
+- **Results**: every played match of the team in the period with the date, home or away, the opponent and the score, as the team monthly report's match section lists them, with the record under it. Tournaments are left out, and the block says how many. A match without a score says so instead of showing 0–0. Staff only.
 - **Team statistics**: the team's record over the period, as the team's Statistics tab shows it: played, won, drawn, lost, goals for and against, goal difference, clean sheets, and the played matches without a score. It needs the right to read the team, as the Statistics tab does. Staff only.
 
-**Played** is one figure everywhere: of the matches up to today, the ones that are completed, in the past, or have minutes recorded. The monthly report, the Statistics tab and both blocks read the same matches and count them the same way. A match still to come is in none of them, so it adds nothing to "without a score" either.
+**Played** is one figure everywhere: matches dated today or earlier that are completed, in the past, have minutes recorded or have a score. The monthly report, the Statistics tab and both blocks read the same matches and count them the same way. A match still to come is in none of them, so it adds nothing to "without a score" either.
 
 **Your own question**
 

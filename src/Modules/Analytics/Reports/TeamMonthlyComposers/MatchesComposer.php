@@ -3,7 +3,6 @@ namespace TT\Modules\Analytics\Reports\TeamMonthlyComposers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Analytics\Reports\GoalContributionQuery;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\MinutesQuery;
@@ -27,7 +26,10 @@ final class MatchesComposer {
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $options    = $ctx->optionsFor( TeamMonthlyReportBlock::MATCHES );
-        $activities = $ctx->fixtures();
+        // #4957 — the record counts over every fixture by the played rule;
+        // the section lists the played ones, so a fixture still to come is
+        // not printed as a match missing its result.
+        $activities = $ctx->playedFixtures();
 
         $out = [
             // Tournaments are multi-game days (#2686): one score line cannot
@@ -35,7 +37,7 @@ final class MatchesComposer {
             // count is carried so the section can *say* so — a record that
             // quietly disagrees with what the coach remembers is worse than
             // one that explains itself.
-            'tournaments_excluded' => ( new ActivitiesRepository() )->tournamentCountInWindow( $ctx->team_id, $ctx->from, $ctx->to ),
+            'tournaments_excluded' => $ctx->playedTournaments(),
             // #4133 — the Summary / Details choice; the parts below follow it.
             'level'                => MatchesBlockOptions::level( $options ),
             'shows'                => [
@@ -43,7 +45,7 @@ final class MatchesComposer {
                 'scorers' => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SCORERS ),
                 'squads'  => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SQUADS ),
             ],
-            'record'   => self::record( $activities ),
+            'record'   => self::record( $ctx->fixtures() ),
             'fixtures'      => [],
             'scorers'       => [],
             'scorer_totals' => null,
@@ -153,7 +155,7 @@ final class MatchesComposer {
      * which is worse than an obvious gap. It is counted separately so the
      * section can show the gap.
      *
-     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $activities
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played:bool}> $activities
      * @return array<string,int>
      */
     public static function record( array $activities ): array {

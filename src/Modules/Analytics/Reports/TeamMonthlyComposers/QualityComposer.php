@@ -13,7 +13,8 @@ final class QualityComposer {
     /** @return array<string,mixed> */
     public static function compose( TeamReportContext $ctx ): array {
         $coverage = CoverageComposer::compose( $ctx );
-        // #4998 — the minutes section's counts, over the same fixtures.
+        // #4998, #4957 — the minutes section's counts: played minutes-bearing
+        // matches, tournament days included.
         $counts   = $ctx->matchMinutesCounts();
         $cover    = ( new EvalCoverageService() )->coverageBetween( $ctx->team_id, $ctx->from, $ctx->to );
         $players  = $ctx->players();
@@ -40,7 +41,7 @@ final class QualityComposer {
         // whether the record is wrong or merely incomplete. Named by date
         // and title, because the title is where the opponent usually is.
         $without_opponent = [];
-        foreach ( $ctx->fixtures() as $match ) {
+        foreach ( $ctx->playedFixtures() as $match ) {
             if ( trim( (string) $match['opponent'] ) !== '' ) continue;
             $without_opponent[] = [
                 'activity_id' => (int) $match['activity_id'],

@@ -3,11 +3,9 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Archive\ArchiveRepository;
-use TT\Infrastructure\Query\ActivityLifecycle;
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 
 /**
  * TeamMatchStatsQuery (#3520, epic #3519) — "how is this team doing", as one
@@ -46,11 +44,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * ## A match with no score is not a nil-nil
  *
  * Common in practice: the match was played, nobody typed the result in. Those
- * fixtures land in `record.without_a_score` and are excluded from `played`,
- * W/D/L and the goal columns. Counting them as a scoreless draw would make the
- * record quietly wrong, which is worse than an obvious gap.
+ * fixtures land in `record.without_a_score` and in `played`, and are excluded
+ * from W/D/L and the goal columns. Counting them as a scoreless draw would
+ * make the record quietly wrong, which is worse than an obvious gap.
  *
- * Only fixtures whose date has passed are considered at all — next week's
+ * Only played fixtures are counted (`PlayedMatch`, #4957) — next week's
  * league game is not a match missing its result.
  *
  * ## What is not computed here
@@ -125,7 +123,7 @@ final class TeamMatchStatsQuery {
             'team_id'     => $team_id,
             'window'      => $window,
             'record'      => $record,
-            'form'        => $this->form( $fixtures, $limit ),
+            'form'        => $this->form( TeamMatchRecord::played( $fixtures ), $limit ),
             'scorers'     => $this->leaderboard( $contributions, 'goals', $names ),
             'assists'     => $this->leaderboard( $contributions, 'assists', $names ),
             'appearances' => $this->appearances( $minutes, $names ),
@@ -203,44 +201,28 @@ final class TeamMatchStatsQuery {
     // ──────────────────────────────────────────────────────────────
 
     /**
-     * The team's fixtures in the window: past, live, not called off, and
-     * carrying a single scoreline (so: no tournaments). The same read the
-     * monthly report's match section counts ({@see TeamMatchRecord}, #4590).
+     * The team's live fixtures in the window, not called off, and carrying a
+     * single scoreline (so: no tournaments), each with `played`. The same
+     * read the monthly report's match section counts ({@see TeamMatchRecord},
+     * #4590). The record and the form count the played ones (#4957).
      *
      * A match nobody marked completed is still read: it is exactly the match
      * nobody typed a result into, and those are the rows `without_a_score`
      * exists to surface.
      *
-     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}>
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
      */
     private function fixtures( int $team_id, string $from, string $to ): array {
-        return TeamMatchRecord::fixtures( $team_id, $from, $to, true );
+        return TeamMatchRecord::fixtures( $team_id, $from, $to );
     }
 
     /**
-     * How many tournament days fall in the same window. Not a result — a
-     * number the caller prints beside the record so it adds up to the season
-     * the coach remembers.
+     * How many tournament days were played in the same window. Not a result
+     * — a number the caller prints beside the record so it adds up to the
+     * season the coach remembers. The monthly report's read (#4957).
      */
     private function tournamentCount( int $team_id, string $from, string $to ): int {
-        global $wpdb;
-        $p     = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*)
-               FROM {$p}tt_activities a
-              WHERE a.team_id = %d
-                AND a.club_id = %d
-                AND LOWER(a.activity_type_key) = 'tournament'
-                AND a.session_date <= CURDATE()
-                AND a.session_date BETWEEN %s AND %s
-                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
-                {$scope}",
-            $team_id, CurrentClub::id(), $from, $to
-        ) );
+        return ( new ActivitiesRepository() )->tournamentCountInWindow( $team_id, $from, $to );
     }
 
     /**
@@ -248,7 +230,7 @@ final class TeamMatchStatsQuery {
      * (#4572), the figure the monthly report prints under the same label; a
      * played fixture with no score is also in `without_a_score`.
      *
-     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $fixtures
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played:bool}> $fixtures
      * @return array{played:int, won:int, drawn:int, lost:int, goals_for:int,
      *               goals_against:int, goal_difference:int, clean_sheets:int,
      *               without_a_score:int, tournaments_excluded:int}
@@ -280,7 +262,7 @@ final class TeamMatchStatsQuery {
      * `home_away` is only the label; the academy team is home unless the row
      * says `away`.
      *
-     * @param list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string}> $fixtures
+     * @param list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}> $fixtures
      * @return list<array{activity_id:int, session_date:string, opponent:string,
      *                    home_away:string, team_score:int, opp_score:int, outcome:string}>
      */

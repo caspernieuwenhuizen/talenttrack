@@ -35,9 +35,11 @@ that match's own length.
  player's share. This is the rule the minutes report and the team monthly
  report count by, so all three give the same share for the same squad.
 - **Played** means the same thing it means on the other minutes reports: the
- activity is completed, its date has passed, or it already carries recorded
- minutes. A fixture kicking off this evening is not in the denominator, so
- nobody's share drops on the morning of a match.
+ match is dated today or earlier, and it is completed, its date has passed, it
+ already carries recorded minutes, or it has a score. A fixture kicking off
+ this evening is not in the denominator, so nobody's share drops on the
+ morning of a match, and a match dated after today is never in it, whatever
+ it carries. Tournament days count, as they do for every minutes figure.
 - **Its own length** is worked out the same way on every minutes report — the
  minutes report, the minutes audit and this one — so they always agree
  about a match: the period length on the match prep times the periods the

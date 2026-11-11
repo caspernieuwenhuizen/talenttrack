@@ -36,9 +36,11 @@ minuten**, met de eigen duur van die wedstrijd.
  haalt. Dit is de regel waarmee het minutenrapport en het maandrapport van het
  team tellen, zodat alle drie voor dezelfde selectie hetzelfde aandeel geven.
 - **Gespeeld** betekent hier hetzelfde als in de andere minutenrapporten: de
- activiteit is voltooid, de datum is voorbij, of er zijn al minuten
- vastgelegd. Een wedstrijd die vanavond begint zit niet in de noemer, dus
- niemands aandeel zakt op de ochtend van een wedstrijd.
+ wedstrijd staat op vandaag of eerder, en is voltooid, de datum is voorbij,
+ er zijn al minuten vastgelegd of er staat een uitslag bij. Een wedstrijd die
+ vanavond begint zit niet in de noemer, dus niemands aandeel zakt op de
+ ochtend van een wedstrijd, en een wedstrijd na vandaag zit er nooit in, wat
+ er ook bij staat. Toernooidagen tellen mee, zoals bij elk minutencijfer.
 - **Eigen duur** wordt op elk minutenrapport op dezelfde manier bepaald — het
  minutenrapport, de minutencontrole en dit rapport — zodat ze het over een
  wedstrijd altijd eens zijn: de periodeduur op de wedstrijdvoorbereiding maal

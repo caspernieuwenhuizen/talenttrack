@@ -3,8 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
-use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchExecution\Domain\MatchStints;
@@ -76,19 +75,16 @@ final class MinutesQuery {
         //    'tournament' is a minutes-bearing type too (single-game
         //    tournaments via match execution, multi-game days via the
         //    manual per-player minutes entry, #2159), so it joins the set.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
+        //    #4957 — the played ones, by the one rule (`PlayedMatch`).
+        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, session_date, match_length_minutes, start_time, end_time
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id = %d
-                AND {$is_match_sql}
-                AND session_date BETWEEN %s AND %s
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
-              ORDER BY session_date ASC",
-            $club_id, $team_id, $from, $to
+            "SELECT a.id, a.game_subtype_key, a.session_date, a.match_length_minutes, a.start_time, a.end_time
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.session_date BETWEEN %s AND %s
+                AND {$played_sql}
+              ORDER BY a.session_date ASC",
+            $team_id, $from, $to
         ) );
         if ( empty( $activities ) ) return [];
 
@@ -576,63 +572,6 @@ final class MinutesQuery {
     }
 
     /**
-     * #2832 — the one definition of "this match has been played", as a SQL
-     * fragment every minutes surface shares.
-     *
-     * Before this there were two answers and a third by omission.
-     * `matchCountsForTeam()` used `session_date <= CURDATE()`, and the player
-     * report used nothing at all. Three ways in now, and a match needs only
-     * one of them:
-     *
-     *   1. **Its status says `completed`.** #2245 made that an explicit
-     *      transition, so it is the strongest evidence there is — and it lets
-     *      a match played this morning count before the day is out.
-     *   2. **Its date has passed.** Strictly: `<`, not `<=`. This is the
-     *      whole of #2833's bug — a fixture kicking off at 19:00 tonight was
-     *      "played" from midnight, so the team report claimed two played
-     *      matches where one had been played and warned that the other was
-     *      missing its minutes.
-     *   3. **It already carries recorded minutes.** #2407 keeps completion an
-     *      explicit act, so the minutes grid stores minutes without flipping
-     *      the status; minutes are evidence the match happened.
-     *
-     * Status is deliberately NOT the only gate, tempting as it reads.
-     * Migration 0040 declared the column `NOT NULL DEFAULT 'planned'`, so
-     * every activity says `planned` until somebody presses the button —
-     * including every match played before the status field existed. Gating on
-     * it alone would have emptied the minutes reports for any academy that
-     * records minutes without completing activities, which is most of them.
-     *
-     * `cancelled` never reaches here — callers already exclude it — but note
-     * that clause 2 would otherwise let a cancelled past fixture through, so
-     * do not drop the caller-side exclusion.
-     *
-     * @param string $alias table alias for `tt_activities`. Must be a real
-     *                      alias: the EXISTS clause below joins against it,
-     *                      and an unqualified `id` would bind to the
-     *                      attendance row inside the subquery instead.
-     */
-    public static function playedMatchSql( string $alias = 'a' ): string {
-        global $wpdb;
-
-        $q = ( $alias !== '' ? $alias : 'a' ) . '.';
-        // #0035 lint-safe: the legacy date column name is assembled, not typed.
-        $date_col = $q . 'sess' . 'ion_date';
-        $status   = $q . 'activity_status_key';
-
-        return "( {$status} = 'completed'"
-            . " OR {$date_col} < CURDATE()"
-            . " OR EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_attendance played_att"
-            . "              WHERE played_att.activity_id = {$q}id"
-            . "                AND played_att.record_type = 'actual'"
-            . "                AND played_att.is_guest = 0"
-            . "                AND COALESCE( played_att.minutes_override, played_att.minutes_played, 0 ) > 0"
-            // #4556 — on the row the minutes read picks, not any row: a
-            // duplicate corrected to 0 does not make the match played.
-            . "                " . PlayerMatchMinutes::newestRowClause( 'played_att' ) . " ) )";
-    }
-
-    /**
      * #4993 — "this match has recorded minutes", as a SQL condition on a
      * `tt_activities` alias: the question {@see minutesForActivities()}
      * answers per match (a figure above 0 for at least one register player),
@@ -657,7 +596,7 @@ final class MinutesQuery {
      * holds the two to the same answer on every one of these cases.
      *
      * @param string $alias table alias for `tt_activities`; must be a real alias,
-     *                      as in {@see playedMatchSql()}
+     *                      as in `PlayedMatch::playedSql()`
      */
     public static function recordedMinutesSql( string $alias = 'a' ): string {
         global $wpdb;
@@ -714,9 +653,9 @@ final class MinutesQuery {
      *  - `recorded`: distinct matches that contributed minutes. Shares its
      *    predicate with {@see forTeam()}, so a caller can never render a
      *    match count that contradicts the per-player rows beside it.
-     *  - `played`: matches on the calendar that should have been played —
-     *    past-dated, not archived, not trashed, not cancelled. The honest
-     *    denominator for "N of M recorded".
+     *  - `played`: the live minutes-bearing matches played in the window,
+     *    tournament days included, by the one rule (`PlayedMatch`). The
+     *    honest denominator for "N of M recorded".
      *
      * `plan_state = 'completed'` is deliberately NOT the gate for either.
      * A grid bulk-save writes minutes without flipping plan_state (#2407
@@ -727,51 +666,37 @@ final class MinutesQuery {
      */
     public function matchCountsForTeam( int $team_id, string $from, string $to ): array {
         global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+        $p = $wpdb->prefix;
 
         if ( $team_id <= 0 ) return [ 'recorded' => 0, 'played' => 0 ];
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
         $recorded = count( $this->recordedMatchIds( $team_id, $from, $to ) );
 
-        // #2833 — `session_date <= CURDATE()` counted a fixture kicking off at
-        // 19:00 tonight as played, which is where "1 van 2 gespeelde
-        // wedstrijden vastgelegd" came from beside a single played match, and
-        // with it an amber "1 played match has no minutes" warning about a
-        // match nobody had kicked off yet. The shared predicate reads status
-        // instead, and keeps the date only as the legacy fallback (#2832).
-        $played_sql = self::playedMatchSql( 'a' );
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
+        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $played = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_activities a
-              WHERE a.club_id = %d
-                AND a.team_id = %d
-                AND {$is_match_sql}
+              WHERE a.team_id = %d
                 AND a.{$date_col} BETWEEN %s AND %s
-                AND {$played_sql}
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
-            $club_id, $team_id, $from, $to
+                AND {$played_sql}",
+            $team_id, $from, $to
         ) );
 
         return [ 'recorded' => $recorded, 'played' => $played ];
     }
 
     /**
-     * The team's matches in the window that carry recorded minutes: the
-     * `recorded` of {@see matchCountsForTeam()}, as ids, so a caller with its
-     * own list of fixtures (#4998, the monthly report) counts the ones of
-     * those that have minutes by the same rule.
+     * The team's played matches in the window that carry recorded minutes:
+     * the `recorded` of {@see matchCountsForTeam()}, as ids, so a caller with
+     * its own list of matches counts the ones of those that have minutes by
+     * the same rule.
      *
      * @return list<int> activity ids
      */
     public function recordedMatchIds( int $team_id, string $from, string $to ): array {
         global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+        $p = $wpdb->prefix;
 
         if ( $team_id <= 0 ) return [];
 
@@ -795,22 +720,22 @@ final class MinutesQuery {
         // whether a match has minutes is `minutesForActivities()`' answer, so
         // an old tournament fixture recorded through its plan (#4053) counts
         // as recorded here, as its minutes do in the rows beneath.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
+        //
+        // #4957 — over the played matches only (`PlayedMatch`), so `recorded`
+        // can never exceed `played`: minutes on a match dated after today are
+        // a data error, not a match played.
+        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $pairs = $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT att.activity_id, att.player_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
-              WHERE a.club_id = %d
-                AND a.team_id = %d
-                AND {$is_match_sql}
+              WHERE a.team_id = %d
                 AND a.{$date_col} BETWEEN %s AND %s
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
+                AND {$played_sql}
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0",
-            $club_id, $team_id, $from, $to
+            $team_id, $from, $to
         ) );
         $pairs   = is_array( $pairs ) ? $pairs : [];
         $minutes = self::minutesForActivities( array_map( static fn( $r ): int => (int) ( $r->activity_id ?? 0 ), $pairs ) );
@@ -849,8 +774,7 @@ final class MinutesQuery {
      */
     public function seasonTotalsForPlayer( int $player_id, string $from, string $to ): array {
         global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+        $p = $wpdb->prefix;
 
         if ( $player_id <= 0 ) return [ 'apps' => 0, 'minutes' => 0 ];
 
@@ -860,22 +784,18 @@ final class MinutesQuery {
         // of; the minutes are `minutesForActivities()`' (the shared
         // newest-figure rule plus the #4053 plan fallback), so the intake
         // sheet reads an old tournament fixture the way the minutes report
-        // beside it does.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
+        // beside it does. #4957 — over the played matches (`PlayedMatch`).
+        $played_sql   = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $activity_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT att.activity_id
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE a.club_id = %d
-                AND att.player_id = %d
-                AND {$is_match_sql}
+              WHERE att.player_id = %d
                 AND a.{$date_col} BETWEEN %s AND %s
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
+                AND {$played_sql}
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0",
-            $club_id, $player_id, $from, $to
+            $player_id, $from, $to
         ) );
 
         $apps    = 0;
@@ -924,24 +844,20 @@ final class MinutesQuery {
     public function matchBreakdownForPlayer( int $team_id, int $player_id, string $from, string $to ): array {
         global $wpdb;
         $p = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
 
         if ( $team_id <= 0 || $player_id <= 0 ) return [];
 
-        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'activity_type_key' );
+        $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        // #4957 — the matches forTeam() counts: played, by `PlayedMatch`.
+        $played_sql = PlayedMatch::playedInSetSql( PlayedMatch::MINUTES_BEARING, 'a' );
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, {$date_col} AS session_date, title
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id = %d
-                AND {$is_match_sql}
-                AND {$date_col} BETWEEN %s AND %s
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
-              ORDER BY {$date_col} ASC",
-            $club_id, $team_id, $from, $to
+            "SELECT a.id, a.game_subtype_key, a.{$date_col} AS session_date, a.title
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND {$played_sql}
+              ORDER BY a.{$date_col} ASC",
+            $team_id, $from, $to
         ) );
         if ( empty( $activities ) ) return [];
 

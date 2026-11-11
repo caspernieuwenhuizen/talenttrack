@@ -548,6 +548,14 @@ report's "Matches played" tile shows. `share_pct` is `null` when no minutes
 are available: a share of no minutes is undefined, not zero. Rows come back
 lowest share first.
 
+**Played (#4957).** "Played" is `TT\Infrastructure\Query\PlayedMatch` over the
+minutes-bearing matches (fixtures and tournament days): dated today or earlier,
+and completed, past, carrying recorded minutes or scored. A value change, not a
+shape change, under the rule that a wrong answer is not a contract: before
+#4957 a match dated after today that was marked completed or carried minutes
+counted in `played_matches`, `matches` and `available_minutes`; now it counts
+in none of them until its date. A scored match today now counts as played.
+
 **The window.** `from` and `to` are declared query parameters, both
 `YYYY-MM-DD`. `to` defaults to today and `from` to twelve months before it, so
 the unfiltered answer is the rolling year the minutes reports show. A value
@@ -686,7 +694,7 @@ The response is the groups still locked. Unlocking a group that is not locked an
 
 ### Played matches: `GET /activities` with `filter[played]=1` (#4507)
 
-`filter[played]=1`, or the plain `played=1` the rendered list sends, narrows the list to the matches the minutes reports count as **played**: every match-like type (`game`, the legacy `match`, `tournament`), not cancelled, and completed, dated before today, or carrying recorded minutes (`MinutesQuery::playedMatchSql()`). With `filter[date_from]` / `filter[date_to]` it returns exactly the rows behind a minutes report's *Matches played* number. `0` or absent does not narrow; any other value is refused with `400 bad_filter` (`details.parameter = played`). The other filters, the coach scope and the player / parent force-scope apply as usual, so it can only narrow what a caller sees.
+`filter[played]=1`, or the plain `played=1` the rendered list sends, narrows the list to the matches the minutes reports count as **played**: every match-like type (`game`, the legacy `match`, `tournament`), not cancelled, dated today or earlier, and completed, dated before today, carrying recorded minutes or scored (`PlayedMatch`, #4957; before #4957 a match dated after today that was completed or carried minutes was listed too). With `filter[date_from]` / `filter[date_to]` it returns exactly the rows behind a minutes report's *Matches played* number. `0` or absent does not narrow; any other value is refused with `400 bad_filter` (`details.parameter = played`). The other filters, the coach scope and the player / parent force-scope apply as usual, so it can only narrow what a caller sees.
 
 ## Search + peek (#2458)
 
@@ -1061,15 +1069,22 @@ statistics tab and a non-WordPress front end cannot disagree about a record.
   tournaments**. A goal at a tournament is still that player's goal.
 
 **A match with no score recorded** lands in `record.without_a_score` and counts
-toward no W/D/L — a silent 0–0 would make the record wrong. Since #4572
-`played` is the reports' one played-match rule (`MinutesQuery::
-playedMatchSql()`: completed, in the past, or carrying recorded minutes), the
-figure the team monthly report prints under the same label, so a played match
-without a score counts toward `played` as well as `without_a_score`. Before
-#4572 `played` here counted scored matches only, and the monthly report every
-fixture in its window.
-Only fixtures whose date has passed are considered, so next week's league game
-is not a missing result.
+toward no W/D/L — a silent 0–0 would make the record wrong. `played` is the
+reports' one played-match rule (`TT\Infrastructure\Query\PlayedMatch`, #4957):
+dated today or earlier, and completed, in the past, carrying recorded minutes
+or scored. It is the figure the team monthly report prints under the same
+label, so a played match without a score counts toward `played` as well as
+`without_a_score`. Every figure in `record` counts the played fixtures only,
+so next week's league game is not a missing result.
+
+**A value change, not a shape change (#4957).** Under the rest-contract rule
+that a wrong answer is not a contract, `played` and `without_a_score` changed
+value in place. Before #4957 the route read every fixture dated today or
+earlier: a fixture today not yet kicked off counted in `without_a_score`, a
+fixture dated after today was never read, and `tournaments_excluded` counted
+every tournament dated today or earlier. Now `without_a_score` leaves out the
+fixture not yet played, and `tournaments_excluded` counts the played
+tournament days, the count the monthly report's minutes line includes.
 
 **Clean sheets** are finished fixtures with the opponent on zero. Team-level and
 unattributed: the plugin records no per-match goalkeeper, so crediting one would
@@ -1374,6 +1389,20 @@ whether or not they were asked for; everything else is unchanged. This is not
 a `400` or a `403`: the rest of the report is theirs. The removal is one
 function (`TeamMonthlyReport::withoutAttendance()`), which a snapshot's page
 and its PDF apply to the frozen payload for the reader too.
+
+**Played matches (#4957).** "Played" is `TT\Infrastructure\Query\PlayedMatch`
+everywhere in the report. `matches.record` counts the played fixtures
+(tournaments left out), and `matches.fixtures` lists the played fixtures only.
+`minutes.matches_played` and `minutes.matches_recorded` count the played
+fixtures **and tournament days**, as `GET /reports/minutes-share` and the
+minutes reports do, and the new `minutes.tournaments_played` says how many of
+them were tournament days, so `matches_played` is `record.played` plus
+`tournaments_played`. `quality.matches_without_minutes` is `matches_played`
+minus `matches_recorded`. Value changes, under the rule that a wrong answer is
+not a contract: before #4957 `minutes.matches_played` left tournament days out,
+`matches.record.without_score` and `matches.fixtures` held a fixture today not
+yet played, and `matches.tournaments_excluded` counted every tournament in the
+window, played or not.
 
 **Permission.** A `reports` read at global scope, or at team scope on this team
 — the gate the other team reports use. Checked in the permission callback, so a

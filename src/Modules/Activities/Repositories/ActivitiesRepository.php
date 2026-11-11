@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\PlayedMatch;
 use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -840,15 +841,13 @@ final class ActivitiesRepository {
 
     /**
      * #4507 — "a played match", in the words the minutes reports count it:
-     * a match-like type (match, game, tournament) that is completed, dated
-     * before today, or carries recorded minutes
-     * (`MinutesQuery::playedMatchSql()`). Callers add the cancelled and
-     * archived exclusions they already carry.
+     * a minutes-bearing match (match, game, tournament) played by the one
+     * rule (`PlayedMatch`). Callers add the cancelled and archived
+     * exclusions they already carry.
      */
     private static function playedMatchesClause( string $alias ): string {
         $alias = preg_replace( '/[^A-Za-z0-9_]/', '', $alias ) ?: 's';
-        return "LOWER({$alias}.activity_type_key) IN (" . ActivityTypeKey::MATCH_LIKE_SQL . ') AND '
-            . \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( $alias );
+        return PlayedMatch::setSql( PlayedMatch::MINUTES_BEARING, $alias ) . ' AND ' . PlayedMatch::playedSql( $alias );
     }
 
     /**
@@ -1876,6 +1875,8 @@ final class ActivitiesRepository {
         $p     = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         $match_like = ActivityTypeKey::MATCH_LIKE_SQL;
+        // A scored match is played once its date is today or earlier.
+        $played     = PlayedMatch::playedSql( 'a' );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -1885,7 +1886,7 @@ final class ActivitiesRepository {
                 AND a.club_id = %d
                 AND a.archived_at IS NULL
                 AND a.activity_type_key IN ({$match_like})
-                AND a.session_date <= CURDATE()
+                AND {$played}
                 AND a.home_score IS NOT NULL
                 AND a.away_score IS NOT NULL
                 {$scope}
@@ -1938,30 +1939,24 @@ final class ActivitiesRepository {
      * section names the fixture by it so a coach can recognise which match
      * is missing one.
      *
-     * #4590 — `$played_only` leaves out fixtures dated after today, for the
-     * team statistics tab: next week's league game is not a match missing its
-     * result. The monthly report reads its whole window.
-     *
-     * #4572 — `played` is the reports' one played-match rule
-     * (`MinutesQuery::playedMatchSql()`: completed, in the past, or carrying
-     * recorded minutes), so every "Played" figure counts the same fixtures.
+     * #4957 — every live fixture in the window, whatever its date, and
+     * `played` by the one rule (`PlayedMatch`): dated today or earlier, and
+     * completed, past, carrying minutes or scored. The record counts the
+     * played ones; a fixture still to come is listed and not counted.
      *
      * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string,
      *         team_score:int|null, opp_score:int|null, outcome:string, played:bool}>
      */
-    public function matchesInWindowForTeam( int $team_id, string $from, string $to, bool $played_only = false ): array {
+    public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
         if ( $team_id <= 0 ) return [];
 
         global $wpdb;
-        $p     = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $p = $wpdb->prefix;
 
-        // Deliberately NOT MATCH_LIKE_SQL: that includes tournaments.
-        $game       = ActivityTypeKey::GAME;
-        $legacy     = ActivityTypeKey::LEGACY_GAME;
-        $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
-        $played     = $played_only ? "AND a.{$date_col} <= CURDATE()" : '';
-        $is_played  = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
+        // The fixtures set, deliberately: a tournament has no single result.
+        $live      = PlayedMatch::liveInSetSql( PlayedMatch::FIXTURES, 'a' );
+        $is_played = PlayedMatch::playedSql( 'a' );
+        $date_col  = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -1969,17 +1964,10 @@ final class ActivitiesRepository {
                     a.home_score, a.away_score, ( {$is_played} ) AS is_played
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
-                AND a.club_id = %d
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
-                AND LOWER(a.activity_type_key) IN ( %s, %s )
+                AND {$live}
                 AND a.{$date_col} BETWEEN %s AND %s
-                {$played}
-                AND a.plan_state <> 'cancelled'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
-                {$scope}
            ORDER BY a.{$date_col} ASC, a.id ASC",
-            $team_id, CurrentClub::id(), $game, $legacy, $from, $to
+            $team_id, $from, $to
         ) );
         if ( ! is_array( $rows ) ) return [];
 
@@ -2008,15 +1996,20 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #3516 — how many tournaments fall in the window, so the match section can
-     * say they were left out. Zero means the section says nothing about them.
+     * #3516 — how many tournament days in the window were played, so the
+     * match section can say they were left out and the minutes section can
+     * say it includes them. Zero means neither says anything about them.
+     *
+     * #4957 — played by the one rule (`PlayedMatch`), the same days the
+     * minutes figures count: a tournament still to come is in neither.
      */
     public function tournamentCountInWindow( int $team_id, string $from, string $to ): int {
         if ( $team_id <= 0 ) return 0;
 
         global $wpdb;
         $p        = $wpdb->prefix;
-        $scope    = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $live     = PlayedMatch::liveSql( 'a' );
+        $played   = PlayedMatch::playedSql( 'a' );
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -2024,15 +2017,11 @@ final class ActivitiesRepository {
             "SELECT COUNT(*)
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
-                AND a.club_id = %d
-                AND a.archived_at IS NULL
-                AND a.trashed_at IS NULL
+                AND {$live}
                 AND LOWER(a.activity_type_key) = %s
                 AND a.{$date_col} BETWEEN %s AND %s
-                AND a.plan_state <> 'cancelled'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
-                {$scope}",
-            $team_id, CurrentClub::id(), ActivityTypeKey::TOURNAMENT, $from, $to
+                AND {$played}",
+            $team_id, ActivityTypeKey::TOURNAMENT, $from, $to
         ) );
     }
 

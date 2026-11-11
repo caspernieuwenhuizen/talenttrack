@@ -318,9 +318,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     /**
      * #4507 — the activities list of the matches a minutes report counts as
      * played: the report's team and exact window, every match type, played
-     * by `MinutesQuery::playedMatchSql()` (`played=1`), past expanded. No cap
-     * at today: the played rule already decides which dates count, and a
-     * cap would drop a match completed with a later date.
+     * by `PlayedMatch` (`played=1`), past expanded. No cap at today in the
+     * URL: the played rule already decides which dates count.
      */
     private static function playedMatchesUrl( int $team_id, string $from, string $to ): string {
         return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
@@ -717,25 +716,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // em-dash for minutes and counted toward "Matches in roster". The
         // predicate is MinutesQuery's, shared with the team report so the two
         // cannot disagree about what "played" means.
-        $played_sql = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
+        $played_sql = \TT\Infrastructure\Query\PlayedMatch::playedInSetSql( \TT\Infrastructure\Query\PlayedMatch::MINUTES_BEARING, 'a' );
         // #4526 — the query names the matches; the minutes on each are the
         // shared read's (newest recorded figure, `minutes_override` first),
         // not a SUM of `minutes_played` that doubled a duplicate row and
         // ignored a coach's override.
-        $is_match_sql = ActivityTypeKey::matchTypeClause( 'a.activity_type_key' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
-                    AND a.archived_at IS NULL
-                    AND a.trashed_at IS NULL
-                    AND a.plan_state <> 'cancelled'
-                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
                     AND {$played_sql}
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND {$is_match_sql}
                 AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC

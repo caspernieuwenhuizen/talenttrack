@@ -9,13 +9,12 @@ use TT\Modules\Analytics\Reports\TeamMonthlyComposers\QualityComposer;
 use TT\Modules\Analytics\Reports\TeamMonthlyComposers\TeamReportContext;
 
 /**
- * #4998 — the monthly report counts played matches by one rule.
+ * #4998, #4957 — the monthly report counts played matches by one rule.
  *
- * The match section counts the window's fixtures up to today
- * (`TeamMatchRecord::fixtures( …, true )`). The minutes section counted with
- * `MinutesQuery::matchCountsForTeam()`, which has no "up to today" gate, so a
- * completed fixture dated in the future read "minutes recorded for 2 of 2
- * played matches" beside a match section that had played one.
+ * A completed fixture dated in the future once read "minutes recorded for 2
+ * of 2 played matches" beside a match section that had played one. Both
+ * sections now read `PlayedMatch`: the match section over the fixtures, the
+ * minutes section over the fixtures and the tournament days.
  */
 final class MonthlyReportPlayedMatchesTest extends WP_UnitTestCase {
 
@@ -39,7 +38,10 @@ final class MonthlyReportPlayedMatchesTest extends WP_UnitTestCase {
         $past = $this->match( gmdate( 'Y-m-d', strtotime( '-7 days' ) ) );
         // Marked completed, with minutes, but dated three weeks from now.
         $future = $this->match( gmdate( 'Y-m-d', strtotime( '+21 days' ) ) );
-        foreach ( [ $past => 60, $future => 50 ] as $activity => $minutes ) {
+        // #4957 — a tournament day last week, minutes recorded: not in the
+        // record, in every minutes figure.
+        $tournament = $this->match( gmdate( 'Y-m-d', strtotime( '-5 days' ) ), 'tournament' );
+        foreach ( [ $past => 60, $future => 50, $tournament => 40 ] as $activity => $minutes ) {
             $wpdb->insert( "{$p}tt_attendance", [
                 'club_id' => $club, 'activity_id' => $activity, 'player_id' => $player, 'is_guest' => 0,
                 'record_type' => 'actual', 'status' => 'present', 'minutes_played' => $minutes,
@@ -53,8 +55,9 @@ final class MonthlyReportPlayedMatchesTest extends WP_UnitTestCase {
         $this->assertSame( 1, $played, 'precondition: the match section has played one match' );
 
         $minutes = MinutesComposer::compose( $this->context() );
-        $this->assertSame( $played, $minutes['matches_played'], 'the minutes section counts the same played matches' );
-        $this->assertSame( 1, $minutes['matches_recorded'], 'and the one it played carries minutes' );
+        $this->assertSame( 1, $minutes['tournaments_played'] );
+        $this->assertSame( $played + $minutes['tournaments_played'], $minutes['matches_played'], 'the minutes section counts the played fixtures and the tournament day' );
+        $this->assertSame( 2, $minutes['matches_recorded'], 'both carry minutes; the future fixture is not played' );
     }
 
     public function test_matches_without_minutes_counts_over_the_same_fixtures(): void {
@@ -69,11 +72,11 @@ final class MonthlyReportPlayedMatchesTest extends WP_UnitTestCase {
         );
     }
 
-    private function match( string $date ): int {
+    private function match( string $date, string $type = 'game' ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id' => (int) CurrentClub::id(), 'team_id' => $this->team, 'title' => 'Played ' . $date,
-            'session_date' => $date, 'activity_type_key' => 'game', 'game_subtype_key' => 'League',
+            'session_date' => $date, 'activity_type_key' => $type, 'game_subtype_key' => 'League',
             'activity_status_key' => 'completed', 'plan_state' => 'completed', 'opponent' => 'VVV',
         ] );
         return (int) $wpdb->insert_id;

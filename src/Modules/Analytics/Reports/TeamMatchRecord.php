@@ -14,12 +14,11 @@ use TT\Modules\Activities\Repositories\ActivitiesRepository;
  * out) and count them here. A fixture without a score is never a goalless
  * draw: it is counted in `without_score` and in nothing else.
  *
- * #4572 — "Played" has one meaning on every surface: the fixtures the
- * reports' played-match rule counts (`MinutesQuery::playedMatchSql()`), read
- * per fixture as `played`. The monthly report used to print every fixture in
- * its window under that label and the statistics tab only the scored ones, so
- * the same word showed two figures for the same team. A played match without
- * a score is still played, and is counted in `without_score` too.
+ * #4957 — "Played" is the one rule (`TT\Infrastructure\Query\PlayedMatch`),
+ * read per fixture as `played`. Everything the record counts — played, the
+ * results, the goals and `without_score` — is counted over the played
+ * fixtures only, so a fixture still to come is never a match missing its
+ * result. `fixtures` counts every live fixture in the window.
  *
  * @phpstan-type Fixture array{activity_id:int, date:string, title:string, opponent:string, home_away:string, team_score:int|null, opp_score:int|null, outcome:string, played:bool}
  * @phpstan-type Tally array{fixtures:int, played:int, scored:int, won:int, drawn:int, lost:int, goals_for:int, goals_against:int, goal_difference:int, clean_sheets:int, without_score:int}
@@ -27,13 +26,23 @@ use TT\Modules\Activities\Repositories\ActivitiesRepository;
 final class TeamMatchRecord {
 
     /**
-     * The team's fixtures in a window. `$played_only` leaves out the ones
-     * dated after today.
+     * Every live fixture of the team in a window, each with `played`.
      *
      * @return list<Fixture>
      */
-    public static function fixtures( int $team_id, string $from, string $to, bool $played_only = false ): array {
-        return ( new ActivitiesRepository() )->matchesInWindowForTeam( $team_id, $from, $to, $played_only );
+    public static function fixtures( int $team_id, string $from, string $to ): array {
+        return ( new ActivitiesRepository() )->matchesInWindowForTeam( $team_id, $from, $to );
+    }
+
+    /**
+     * The played fixtures of a list, in their order: the matches a section
+     * lists under its record.
+     *
+     * @param list<Fixture> $fixtures
+     * @return list<Fixture>
+     */
+    public static function played( array $fixtures ): array {
+        return array_values( array_filter( $fixtures, static fn( array $f ): bool => $f['played'] ) );
     }
 
     /**
@@ -56,20 +65,9 @@ final class TeamMatchRecord {
     }
 
     /**
-     * Was this fixture played? Played by the minutes reports' rule, or
-     * scored: a scored fixture was played whatever its date says. The one
-     * rule the record and the monthly report's minutes counts read (#4998).
-     *
-     * @param array{outcome:string, played?:bool} $fixture
-     */
-    public static function isPlayed( array $fixture ): bool {
-        return ! empty( $fixture['played'] ) || (string) $fixture['outcome'] !== '';
-    }
-
-    /**
      * The record over the fixtures given.
      *
-     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played?:bool}> $fixtures
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null, played:bool}> $fixtures
      * @return Tally
      */
     public static function tally( array $fixtures ): array {
@@ -89,7 +87,8 @@ final class TeamMatchRecord {
 
         foreach ( $fixtures as $f ) {
             $out['fixtures']++;
-            if ( self::isPlayed( $f ) ) $out['played']++;
+            if ( ! $f['played'] ) continue;
+            $out['played']++;
             if ( $f['outcome'] === '' ) {
                 $out['without_score']++;
                 continue;

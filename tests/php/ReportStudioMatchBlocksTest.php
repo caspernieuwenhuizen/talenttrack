@@ -78,8 +78,8 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
         foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
             $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
         }
-        // Both read the fixtures up to today, so the match still to come is in
-        // neither, and "without a score" agrees as well.
+        // Both count the played fixtures only (#4957), so the match still to
+        // come is in neither, and "without a score" agrees as well.
         $this->assertSame( $tab['without_a_score'], $monthly['without_score'] );
 
         // The hand count: four played (the one without a score included), the
@@ -91,10 +91,10 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
     }
 
     /**
-     * The boundary between the two reads: the tab reads fixtures up to and
-     * including today, the rule calls a match played when it is completed,
-     * before today, or has minutes. A match today, still planned, with no
-     * minutes, is therefore a fixture without a score and not played.
+     * The boundary of the rule (#4957): dated today or earlier, and
+     * completed, before today, with minutes or scored. A match today, still
+     * planned, with no minutes and no score, is not played, so it is not a
+     * fixture without a score either.
      */
     public function test_a_planned_match_today_without_minutes_is_not_played(): void {
         global $wpdb;
@@ -110,7 +110,9 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
 
         $this->assertSame( $tab_before['played'], $tab['played'], 'a planned match today without minutes is not played' );
         $this->assertSame( 4, $tab['played'] );
-        $this->assertSame( $tab_before['without_a_score'] + 1, $tab['without_a_score'], 'the tab lists it among the fixtures without a score' );
+        // #4957 — "without a score" counts over played fixtures only, so a
+        // match not yet kicked off is not one missing its result.
+        $this->assertSame( $tab_before['without_a_score'], $tab['without_a_score'], 'a match not yet played is not missing a score' );
         foreach ( [ 'played', 'won', 'drawn', 'lost', 'goals_for', 'goals_against', 'goal_difference' ] as $key ) {
             $this->assertSame( $monthly[ $key ], $tab[ $key ], $key );
         }
@@ -118,11 +120,9 @@ final class ReportStudioMatchBlocksTest extends WP_UnitTestCase {
     }
 
     /**
-     * Fenna's walk: a fixture dated after today but already marked completed
-     * is "played" by the played-match rule (`completed` counts whatever the
-     * date). Both records read fixtures up to today, so it is in neither and
-     * they agree. Whether such a row should exist at all is #4957's data
-     * question; this pins that the two surfaces cannot disagree about it.
+     * Fenna's walk: a fixture dated after today but already marked completed,
+     * and scored. The rule requires a date of today or earlier (#4957), so it
+     * is not played, is in neither record, and they agree.
      */
     public function test_a_completed_fixture_dated_after_today_counts_the_same_on_both_records(): void {
         $before = ( new TeamMatchStatsQuery() )->forTeam( $this->team_a, [ 'from' => $this->from, 'to' => $this->to ] )['record'];

@@ -206,7 +206,7 @@ Switching tabs reloads the page (`?tt_view=teams&id=N&tab=stats`), which is deli
 
 What the team did on the pitch, over a window that defaults to the current season and is named at the top so "12 played" is never ambiguous about *when*. Narrow it with the From / To dates.
 
-- **Record** — played, won, drawn, lost, goals for and against, goal difference, clean sheets. **Played** counts the matches TalentTrack counts as played everywhere: completed, in the past, or with minutes recorded. It is the same figure the team monthly report prints, and it includes a played match nobody typed a score into.
+- **Record** — played, won, drawn, lost, goals for and against, goal difference, clean sheets. **Played** counts the matches TalentTrack counts as played everywhere: dated today or earlier, and completed, in the past, with minutes recorded or with a score. A match dated after today is never played, even when it is marked completed. It is the same figure the team monthly report prints, and it includes a played match nobody typed a score into.
 - **Recent form** — the last results as W/D/L chips with their scorelines, the same line players see on their My team page.
 - **Top scorers** and **Top assists** — two ranked tables, side by side on a tablet and stacked on a phone. Each name opens that player's profile.
 - **Appearances and minutes** — the top of the squad by minutes, with a link to the full minutes report for the rest.
