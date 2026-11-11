@@ -7,13 +7,3 @@
 assets/js/frontend-attendance-report.js 1
 src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php 1
 src/Modules/Analytics/Frontend/TeamStatisticsTab.php 2
-src/Modules/Vct/Wizard/PreviewStep.php 1
-src/Modules/Vct/Wizard/ReviewStep.php 1
-src/Modules/Wizards/Activity/ReviewStep.php 2
-src/Modules/Wizards/Evaluation/AttendanceStep.php 1
-src/Modules/Wizards/Player/ReviewStep.php 1
-src/Modules/Wizards/Prospect/IdentityStep.php 1
-src/Modules/Wizards/Prospect/ReviewStep.php 1
-src/Modules/Wizards/Team/ReviewStep.php 1
-src/Modules/Wizards/TeamBlueprint/ReviewStep.php 1
-src/Shared/Frontend/FrontendWizardsAdminView.php 1

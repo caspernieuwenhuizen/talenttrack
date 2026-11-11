@@ -12,6 +12,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Activities\Services\ActivityCoachAssignment;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 4 — Review + create.
@@ -38,8 +39,8 @@ final class ReviewStep implements WizardStepInterface {
         // rendered as an indented bullet-style list. Pilot: "the final
         // step before saving does not show a nice table but a
         // bulleted list, that needs to change." Switched to the same
-        // `<table class="tt-table tt-wizard-review-table">` markup
-        // the Prospect wizard's ReviewStep already uses — keeps the
+        // review table (`tt-wizard-review-table`) the Prospect wizard's
+        // ReviewStep already uses — keeps the
         // visual language consistent across wizards.
         $team_name = '—';
         $tid = (int) ( $state['team_id'] ?? 0 );
@@ -129,12 +130,14 @@ final class ReviewStep implements WizardStepInterface {
             $rows[] = [ __( 'Roster', 'talenttrack' ), implode( ', ', $pieces ), false ];
         }
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
+        // #4910 — on the stack-table primitive: a table from 480px; below
+        // it each label heads its value.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as [ $label, $value, $multiline ] ) {
             if ( $value === '' ) continue;
-            echo '<tr>';
-            echo '<th scope="row" style="width:35%;">' . esc_html( $label ) . '</th>';
-            echo '<td>' . ( $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ) ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            echo '<th scope="row" class="tt-wizard-review-label"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $label ) . '</th>';
+            echo '<td' . StackTable::attrs( 'cell' ) . '>' . ( $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ) ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div>';

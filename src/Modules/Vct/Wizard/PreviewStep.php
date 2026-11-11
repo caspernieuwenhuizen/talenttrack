@@ -26,6 +26,7 @@ use TT\Modules\Vct\Repositories\VctSessionTemplatesRepository;
 use TT\Modules\Vct\Repositories\VctTeamSchedulesRepository;
 use TT\Modules\Vct\Repositories\VctWorkloadSnapshotsRepository;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 4 — Preview. Runs the engine + shows the composed blocks.
@@ -78,13 +79,21 @@ final class PreviewStep implements WizardStepInterface {
                 $ctx->age_group, $md_label, (int) ( $ctx->requested_duration_minutes ?? 0 ), $ctx->total_load
             ) ) . '</p>';
 
-        echo '<table class="tt-table tt-wizard-review-table"><thead><tr>'
-            . '<th>#</th>'
-            . '<th>' . esc_html__( 'Slot', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Exercise', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Band', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
+        // #4910 — on the stack-table primitive: a table from 480px, one card
+        // per block below it.
+        $c_seq      = '#';
+        $c_slot     = __( 'Slot', 'talenttrack' );
+        $c_exercise = __( 'Exercise', 'talenttrack' );
+        $c_min      = __( 'Min', 'talenttrack' );
+        $c_band     = __( 'Band', 'talenttrack' );
+        $th         = StackTable::attrs( 'columnheader' );
+        echo '<table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>'
+            . '<th' . $th . '>' . esc_html( $c_seq ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_slot ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_exercise ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_min ) . '</th>'
+            . '<th' . $th . '>' . esc_html( $c_band ) . '</th>'
+            . '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
 
         $repo = new VctExercisesRepository();
         foreach ( $ctx->blocks as $b ) {
@@ -95,12 +104,12 @@ final class PreviewStep implements WizardStepInterface {
             } elseif ( ! empty( $b['custom_label'] ) ) {
                 $name = (string) $b['custom_label'];
             }
-            echo '<tr>'
-                . '<td>' . esc_html( (string) $b['sequence'] ) . '</td>'
-                . '<td>' . esc_html( LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $b['slot_category'] ) ) . '</td>'
-                . '<td>' . esc_html( $name ) . '</td>'
-                . '<td>' . esc_html( (string) $b['duration_minutes'] ) . '</td>'
-                . '<td>' . esc_html( (string) $b['intensity_band'] ) . '</td>'
+            echo '<tr' . StackTable::attrs( 'row' ) . '>'
+                . '<td' . StackTable::attrs( 'cell', $c_seq ) . '>' . esc_html( (string) $b['sequence'] ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_slot ) . '>' . esc_html( LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $b['slot_category'] ) ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_exercise ) . '>' . esc_html( $name ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_min ) . '>' . esc_html( (string) $b['duration_minutes'] ) . '</td>'
+                . '<td' . StackTable::attrs( 'cell', $c_band ) . '>' . esc_html( (string) $b['intensity_band'] ) . '</td>'
                 . '</tr>';
         }
         echo '</tbody></table>';

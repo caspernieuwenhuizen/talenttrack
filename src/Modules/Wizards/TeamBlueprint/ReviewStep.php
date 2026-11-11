@@ -7,6 +7,7 @@ use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
 use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 2 — Review and create. The blueprint lands in `draft` status
@@ -31,9 +32,10 @@ final class ReviewStep implements WizardStepInterface {
             __( 'Name',      'talenttrack' ) => (string) ( $state['name'] ?? '' ),
         ];
         // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
+        // #4910 — on the stack-table primitive, a table from 480px.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $k => $v ) {
-            echo '<tr><th scope="row" style="width:35%;">' . esc_html( $k ) . '</th><td>' . esc_html( (string) $v ) . '</td></tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><th scope="row" class="tt-wizard-review-label"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $k ) . '</th><td' . StackTable::attrs( 'cell' ) . '>' . esc_html( (string) $v ) . '</td></tr>';
         }
         echo '</tbody></table></div>';
     }

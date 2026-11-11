@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 4 — confirm + create.
@@ -51,13 +52,14 @@ final class ReviewStep implements WizardStepInterface {
         ?>
         <p><?php esc_html_e( 'Confirm and create the prospect:', 'talenttrack' ); ?></p>
         <div class="tt-table-wrap">
-            <table class="tt-table tt-wizard-review-table">
-                <tbody>
+            <?php // #4910 — on the stack-table primitive, a table from 480px. ?>
+            <table class="tt-table tt-wizard-review-table <?php echo esc_attr( StackTable::classes( StackTable::TO_480 ) ); ?>"<?php echo StackTable::attrs( 'table' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by the helper ?>>
+                <tbody<?php echo StackTable::attrs( 'rowgroup' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php foreach ( $rows as [ $label, $value, $multiline ] ) :
                         if ( $value === '' ) continue; ?>
-                        <tr>
-                            <th scope="row" style="width:35%;"><?php echo esc_html( $label ); ?></th>
-                            <td><?php echo $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ); ?></td>
+                        <tr<?php echo StackTable::attrs( 'row' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                            <th scope="row" class="tt-wizard-review-label"<?php echo StackTable::attrs( 'rowheader' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_html( $label ); ?></th>
+                            <td<?php echo StackTable::attrs( 'cell' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 3 — Review and create.
@@ -45,9 +46,10 @@ final class ReviewStep implements WizardStepInterface {
             $rows[ __( 'Trial end', 'talenttrack' ) ]    = (string) ( $state['trial_end_date'] ?? '' );
         }
         // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
+        // #4910 — on the stack-table primitive, a table from 480px.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $rows as $k => $v ) {
-            echo '<tr><th scope="row" style="width:35%;">' . esc_html( $k ) . '</th><td>' . esc_html( (string) $v ) . '</td></tr>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '><th scope="row" class="tt-wizard-review-label"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $k ) . '</th><td' . StackTable::attrs( 'cell' ) . '>' . esc_html( (string) $v ) . '</td></tr>';
         }
         echo '</tbody></table></div>';
     }

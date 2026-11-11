@@ -49,6 +49,26 @@
     outline-offset: 1px;
 }
 
+/* #4910 — the review tables and the attendance grid are on the stack-table
+   primitive. These are the rules that were inline styles, from the width
+   where each is a table again: on a phone the label heads its value at
+   full width, and each status is a line of its own. */
+/* On a phone a review value sits under its label and reads from the left,
+   one line or several. The primitive ends an unlabelled value on the right,
+   which suits a list's card, not a label-over-value review. */
+.tt-dashboard .tt-wizard-review-table.tt-stack-table > tbody > tr > td[data-label=""] {
+    justify-content: flex-start;
+    text-align: left;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-wizard-review-table > tbody > tr > th.tt-wizard-review-label { width: 35%; }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-wizard-attendance { width: 100%; }
+    .tt-dashboard .tt-wizard-attendance.tt-stack-table > thead > tr > th.tt-wizard-attendance__status,
+    .tt-dashboard .tt-wizard-attendance.tt-stack-table > tbody > tr > td.tt-wizard-attendance__status { text-align: center; }
+}
+
 /* The actions bar keeps its own chrome (background, grid, borders) from
    the inline wizard styles — intentionally NOT restyled here per the
    conservative §3/§6 rule. The card padding above gives it breathing

@@ -27,6 +27,7 @@ use TT\Modules\Vct\Repositories\VctTeamSchedulesRepository;
 use TT\Modules\Vct\Repositories\VctWorkloadSnapshotsRepository;
 use TT\Modules\Vct\Services\VctTrainingComposer;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * Step 5 — Review + save.
@@ -47,18 +48,24 @@ final class ReviewStep implements WizardStepInterface {
         $theme = (string) ( $state['tactical_theme'] ?? '' );
 
         echo '<p>' . esc_html__( 'Save this VCT training as a draft. You can publish it from the detail page.', 'talenttrack' ) . '</p>';
-        echo '<table class="tt-table tt-wizard-review-table"><tbody>';
-        echo '<tr><th>' . esc_html__( 'Team',     'talenttrack' ) . '</th><td>' . esc_html( $this->teamName( (int) ( $state['team_id'] ?? 0 ) ) ) . '</td></tr>';
-        echo '<tr><th>' . esc_html__( 'Date',     'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['session_date'] ?? '' ) ) . '</td></tr>';
+        // #4910 — on the stack-table primitive, a table from 480px; below it
+        // each label heads its value.
+        $row = static function ( string $label, string $value ): void {
+            echo '<tr' . StackTable::attrs( 'row' ) . '><th scope="row"' . StackTable::attrs( 'rowheader' ) . '>' . esc_html( $label ) . '</th>'
+                . '<td' . StackTable::attrs( 'cell' ) . '>' . esc_html( $value ) . '</td></tr>';
+        };
+        echo '<table class="tt-table tt-wizard-review-table ' . esc_attr( StackTable::classes( StackTable::TO_480 ) ) . '"' . StackTable::attrs( 'table' ) . '><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
+        $row( __( 'Team', 'talenttrack' ), $this->teamName( (int) ( $state['team_id'] ?? 0 ) ) );
+        $row( __( 'Date', 'talenttrack' ), (string) ( $state['session_date'] ?? '' ) );
         // #1084 VCT-9 — surface start time on the review table when set.
         $start_time = (string) ( $state['start_time'] ?? '' );
         if ( $start_time !== '' ) {
-            echo '<tr><th>' . esc_html__( 'Start time', 'talenttrack' ) . '</th><td>' . esc_html( $start_time ) . '</td></tr>';
+            $row( __( 'Start time', 'talenttrack' ), $start_time );
         }
-        echo '<tr><th>' . esc_html__( 'Age',      'talenttrack' ) . '</th><td>' . esc_html( $age ) . '</td></tr>';
-        echo '<tr><th>' . esc_html__( 'MD',       'talenttrack' ) . '</th><td>' . esc_html( $md ) . '</td></tr>';
-        echo '<tr><th>' . esc_html__( 'Theme',    'talenttrack' ) . '</th><td>' . esc_html( $theme !== '' ? $theme : __( '— none —', 'talenttrack' ) ) . '</td></tr>';
-        echo '<tr><th>' . esc_html__( 'Duration', 'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['requested_duration_minutes'] ?? '' ) ) . ' ' . esc_html__( 'min', 'talenttrack' ) . '</td></tr>';
+        $row( __( 'Age', 'talenttrack' ), $age );
+        $row( __( 'MD', 'talenttrack' ), $md );
+        $row( __( 'Theme', 'talenttrack' ), $theme !== '' ? $theme : __( '— none —', 'talenttrack' ) );
+        $row( __( 'Duration', 'talenttrack' ), (string) ( $state['requested_duration_minutes'] ?? '' ) . ' ' . __( 'min', 'talenttrack' ) );
         echo '</tbody></table>';
     }
 

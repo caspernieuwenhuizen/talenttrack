@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardAnalytics;
 use TT\Shared\Wizards\WizardRegistry;
+use TT\Shared\Frontend\Components\StackTable;
 
 /**
  * FrontendWizardsAdminView (#0055 Phase 4) — admin page combining the
@@ -161,13 +162,21 @@ class FrontendWizardsAdminView extends FrontendViewBase {
 
         echo '<section class="tt-wzadmin-section"><h2>' . esc_html__( 'Completion analytics', 'talenttrack' ) . '</h2>';
         echo '<div class="tt-wzadmin-table-wrap">';
-        echo '<table class="tt-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Wizard', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Started', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Completed', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Completion rate', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Most-skipped step', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        // #4910 — on the stack-table primitive: a table from 768px, one card
+        // per wizard below it. Its five columns scroll inside the wrap up to
+        // about 640px, so it is cards there.
+        $cols = [
+            __( 'Wizard', 'talenttrack' ),
+            __( 'Started', 'talenttrack' ),
+            __( 'Completed', 'talenttrack' ),
+            __( 'Completion rate', 'talenttrack' ),
+            __( 'Most-skipped step', 'talenttrack' ),
+        ];
+        echo '<table class="tt-table ' . esc_attr( StackTable::classes( StackTable::TO_768, true ) ) . '"' . StackTable::attrs( 'table' ) . '><thead' . StackTable::attrs( 'rowgroup' ) . '><tr' . StackTable::attrs( 'row' ) . '>';
+        foreach ( $cols as $col ) {
+            echo '<th' . StackTable::attrs( 'columnheader' ) . '>' . esc_html( $col ) . '</th>';
+        }
+        echo '</tr></thead><tbody' . StackTable::attrs( 'rowgroup' ) . '>';
         foreach ( $registered as $slug => $w ) {
             $stats = WizardAnalytics::statsFor( $slug );
             $most_skipped = '—';
@@ -177,12 +186,14 @@ class FrontendWizardsAdminView extends FrontendViewBase {
                 $most_skipped = $top_step . ' (' . (int) $stats['skipped'][ $top_step ] . ')';
             }
             $rate = (int) round( $stats['completion_rate'] * 100 ) . '%';
-            echo '<tr>';
-            echo '<td>' . esc_html( $w->label() ) . ' <small class="tt-wzadmin-slug">(' . esc_html( $slug ) . ')</small></td>';
-            echo '<td>' . (int) $stats['started'] . '</td>';
-            echo '<td>' . (int) $stats['completed'] . '</td>';
-            echo '<td>' . esc_html( $rate ) . '</td>';
-            echo '<td>' . esc_html( $most_skipped ) . '</td>';
+            echo '<tr' . StackTable::attrs( 'row' ) . '>';
+            // The name and its slug are one value block, so they stack
+            // beside the label on a phone.
+            echo '<td' . StackTable::attrs( 'cell', $cols[0] ) . '><span class="' . esc_attr( StackTable::VALUE ) . '">' . esc_html( $w->label() ) . ' <small class="tt-wzadmin-slug">(' . esc_html( $slug ) . ')</small></span></td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols[1] ) . '>' . (int) $stats['started'] . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols[2] ) . '>' . (int) $stats['completed'] . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols[3] ) . '>' . esc_html( $rate ) . '</td>';
+            echo '<td' . StackTable::attrs( 'cell', $cols[4] ) . '>' . esc_html( $most_skipped ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></section>';
