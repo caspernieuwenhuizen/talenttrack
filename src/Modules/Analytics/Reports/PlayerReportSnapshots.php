@@ -206,10 +206,13 @@ final class PlayerReportSnapshots {
 
         $player_id = (int) ( $row->player_id ?? 0 );
         $audience  = PlayerReportSnapshotRepository::audienceOf( $row );
-        $report    = PlayerReportSnapshotRepository::reportOf( $row );
         $notes     = PlayerReportSnapshotRepository::notesOf( $row );
-        // #5021 — a Report Studio report's snapshot: its frozen document.
+        // #5021 — a Report Studio report's snapshot holds its frozen
+        // document, not player report sections.
         $document  = StudioSnapshot::is( $row ) ? StudioSnapshot::documentOf( $row ) : null;
+        $report    = $document === null
+            ? PlayerReportSnapshotRepository::reportOf( $row )
+            : [ 'player_id' => $player_id, 'from' => (string) ( $row->period_from ?? '' ), 'to' => (string) ( $row->period_to ?? '' ), 'blocks' => [], 'data' => [] ];
 
         if ( ! PlayerReportAccess::canRead( $user_id, $player_id ) ) {
             if ( $audience !== PlayerReportAudience::FAMILY || ! self::isFamilyReader( $user_id, $player_id ) ) return null;
@@ -325,7 +328,7 @@ final class PlayerReportSnapshots {
             if ( in_array( $key, self::STUDIO_LAYOUT, true ) ) { $keep[] = $block; continue; }
 
             $section = self::STUDIO_SECTIONS[ $key ] ?? null;
-            $rule    = $section !== null ? ( self::FAMILY_SECTIONS[ $section ] ?? null ) : null;
+            $rule    = $section !== null ? self::FAMILY_SECTIONS[ $section ] : null;
             if ( $rule === null ) continue;
             if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, $rule['entity'] ) ) continue;
             if ( $rule['section'] !== ''

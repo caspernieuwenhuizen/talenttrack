@@ -339,7 +339,11 @@ final class StudioDocument {
         return $out;
     }
 
-    /** The record under the results, and the tournaments left out. @param array<string,mixed> $data */
+    /**
+     * The record under the results, and the tournaments left out.
+     *
+     * @param array<string,mixed> $data
+     */
     private static function matchNotes( array $data ): string {
         $out    = '';
         $record = self::keyed( $data['record'] ?? null );

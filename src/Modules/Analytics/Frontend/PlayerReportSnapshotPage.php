@@ -201,7 +201,7 @@ final class PlayerReportSnapshotPage {
         );
     }
 
-    /** @param array{uuid:string, title:string, audience:string, created_by:int, created_at:string} $snapshot */
+    /** @param array{uuid:string, title:string, audience:string, created_by:int, created_at:string, document:array<string,mixed>|null} $snapshot */
     private static function renderHeader( array $snapshot ): void {
         $author = $snapshot['created_by'];
         $name   = $author > 0 ? (string) get_the_author_meta( 'display_name', $author ) : '';
