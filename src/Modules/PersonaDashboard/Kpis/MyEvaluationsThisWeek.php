@@ -8,6 +8,7 @@ use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
+use TT\Shared\Frontend\Components\BackLink;
 
 class MyEvaluationsThisWeek extends AbstractKpiDataSource {
     public function id(): string { return 'my_evaluations_this_week'; }
@@ -15,18 +16,20 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
     public function context(): string { return PersonaContext::COACH; }
 
     /**
-     * v4.20.27 (#1213) — Deep-link with `?days=7` so the destination
-     * `my-evaluations` view caps its window to the same 7-day cut
-     * compute() aggregates. Pre-fix the destination defaulted to 30d
-     * and the row count never matched the KPI's "3 this week" headline.
-     * The view now honours the `days` query param (clamped to [1, 90]).
-     * Lands live via v4.20.22's KpiCardWidget→linkUrl() routing fix
-     * (#1207).
+     * The evaluations list, filtered to the evaluations this coach wrote
+     * over the same 7 days compute() counts (#1213). #5048 — the card used
+     * to open `my-evaluations`, the player and parent view, which refuses a
+     * coach. The list accepts `filter[coach_id]` for the caller's own id.
      */
     public function linkUrl( RenderContext $ctx ): string {
         $view = $this->linkView();
         if ( $view === '' ) return '';
-        return add_query_arg( [ 'days' => 7 ], $ctx->viewUrl( $view ) );
+        return BackLink::appendTo( add_query_arg( [
+            'filter' => [
+                'coach_id'  => $ctx->user_id,
+                'date_from' => gmdate( 'Y-m-d', strtotime( '-7 days' ) ),
+            ],
+        ], $ctx->viewUrl( $view ) ) );
     }
 
     public function compute( int $user_id, int $club_id ): KpiValue {

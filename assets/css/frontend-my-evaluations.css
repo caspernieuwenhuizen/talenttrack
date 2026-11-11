@@ -13,21 +13,6 @@
  * (--tt-primary, --tt-secondary, --tt-ink, --tt-muted, --tt-shadow-md).
  */
 
-/* ---- Coach-branch intro lead -------------------------------------- */
-.tt-dashboard .tt-mye-lead {
-    margin: 0 0 var(--tt-sp-3);
-    color: var(--tt-muted);
-    font-size: 0.9375rem;
-}
-
-/* #5042 — on a phone the coach's evaluation card is the tap target (a row
-   link, tt-table-tools.js), so the player's name in it lets a tap fall
-   through to the row, as a row-link list's title link does (#4224). Tab
-   still reaches the link. The table from 480px restores it. */
-.tt-dashboard .tt-mye-authored tr.is-row-link a {
-    pointer-events: none;
-}
-
 /* ---- Summary KPI row ---------------------------------------------- */
 .tt-dashboard .tt-mye-summary {
     display: grid;
@@ -236,8 +221,5 @@
     }
     .tt-dashboard .tt-mye-detail-list {
         grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    }
-    .tt-dashboard .tt-mye-authored tr.is-row-link a {
-        pointer-events: auto;
     }
 }

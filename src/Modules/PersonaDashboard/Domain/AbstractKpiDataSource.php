@@ -78,13 +78,15 @@ abstract class AbstractKpiDataSource implements KpiDataSource {
         'cohort_distribution'         => 'players',
         'recent_academy_events'       => 'audit-log',
         'goals_by_principle_pct'      => 'goals',
-        // Coach-context
-        'my_evaluations_this_week'    => 'my-evaluations',
-        'my_team_attendance_pct'      => 'my-activities',
+        // Coach-context. #5048 — staff views only: `my-evaluations`,
+        // `my-activities` and `my-team` are the player and parent views
+        // and refuse a coach (CoachKpiLinksReachableTest guards this).
+        'my_evaluations_this_week'    => 'evaluations',
+        'my_team_attendance_pct'      => 'attendance-report-team',
         'pdp_planned_vs_conducted_block' => 'pdp',
         'my_open_workflow_tasks'      => 'my-tasks',
-        'my_players_evaluated_season' => 'my-evaluations',
-        'my_team_avg_rating'          => 'my-team',
+        'my_players_evaluated_season' => 'evaluations',
+        'my_team_avg_rating'          => 'evaluations',
         // Player / parent
         'my_rating_trend'             => 'my-evaluations',
         'my_team_podium_position'     => 'my-team',

@@ -102,6 +102,10 @@ Players (and their parents) only ever see the scores, the category notes and the
 
 Click any row in the evaluations list to see the full breakdown — a radar chart of your ratings, the notes you wrote, and the date.
 
+## Your own evaluations
+
+The **Coach** filter on the evaluations list narrows it to the evaluations one coach wrote. As a coach you can pick yourself there; the cards on your dashboard that count your evaluations this week or this season open the list filtered that way. Filtering on another coach is for the head of development and others who read the evaluation coverage report.
+
 ## Removing or hiding old evaluations
 
 You can **archive** an evaluation to hide it from lists while keeping it in the player's history, or **delete** it if it was a mistake. Archived evaluations don't count toward player rate cards. The list opens on active evaluations; the **⋯** button at the end of the filter row switches to Archived, and a chip beside it says so while you are there.

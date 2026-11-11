@@ -165,22 +165,30 @@ class FrontendEvaluationsView extends FrontendViewBase {
         // #1380 — coach (evaluator) filter, available to academy-wide
         // viewers (the evaluation-coverage report links here per-coach).
         // Coaches with team-only scope don't see other coaches' lens, so
-        // the filter only renders for `tt_view_analytics` holders.
-        $coach_filter = [];
+        // the full filter only renders for `tt_view_analytics` holders.
+        // #5048 — anyone else may filter to their own evaluations (the
+        // coach dashboard's KPIs open the list that way), on the rule
+        // `GET /evaluations` applies.
+        $coach_filter  = [];
+        $coach_options = [];
         if ( current_user_can( 'tt_view_analytics' ) ) {
-            $coach_options = [];
             foreach ( ( new \TT\Modules\Analytics\EvalCoverageService() )->evaluators() as $ev ) {
                 if ( $ev['coach_id'] > 0 && $ev['coach_name'] !== '' ) {
                     $coach_options[ $ev['coach_id'] ] = $ev['coach_name'];
                 }
             }
-            if ( $coach_options !== [] ) {
-                $coach_filter['coach_id'] = [
-                    'type'    => 'select',
-                    'label'   => __( 'Coach', 'talenttrack' ),
-                    'options' => $coach_options,
-                ];
+        } elseif ( $user_id > 0 ) {
+            $me = get_userdata( $user_id );
+            if ( $me && (string) $me->display_name !== '' ) {
+                $coach_options[ $user_id ] = (string) $me->display_name;
             }
+        }
+        if ( $coach_options !== [] ) {
+            $coach_filter['coach_id'] = [
+                'type'    => 'select',
+                'label'   => __( 'Coach', 'talenttrack' ),
+                'options' => $coach_options,
+            ];
         }
 
         echo FrontendListTable::render( [
