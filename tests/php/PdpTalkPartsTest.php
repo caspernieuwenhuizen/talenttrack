@@ -122,6 +122,28 @@ final class PdpTalkPartsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Extra training links 5080.', $html );
     }
 
+    public function test_earlier_text_is_shown_as_text_not_markup(): void {
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_pdp_conversations", [ 'notes' => '<b onclick="x()">Vet 5080</b>' ], [ 'id' => $this->conv ] );
+        $html = $this->part( $this->page(), 'tt-pdp-part tt-pdp-part--details' );
+
+        $this->assertStringContainsString( '&lt;b onclick=&quot;x()&quot;&gt;Vet 5080&lt;/b&gt;', $html, 'escaped as text' );
+        $this->assertStringNotContainsString( '<b onclick', $html );
+    }
+
+    public function test_a_not_held_form_talk_numbers_no_part_and_draws_no_form(): void {
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_pdp_conversations", [ 'not_held_at' => gmdate( 'Y-m-d H:i:s' ), 'not_held_reason' => 'Ziek' ], [ 'id' => $this->conv ] );
+        $html = $this->page();
+
+        $this->assertStringNotContainsString( 'tt-pdp-part__num', $html, 'one part, so no "1" without a "2"' );
+        $this->assertStringNotContainsString( 'tt-pdp-coachform', $html, 'and no form' );
+        $this->assertStringNotContainsString( 'name="notes"', $html, 'it is still a form talk: no notes field' );
+        $prepared = \TT\Modules\Pdp\Frontend\PdpFormConversationView::prepare( $this->conv, $this->trainer );
+        $this->assertTrue( $prepared['form_talk'] );
+        $this->assertFalse( $prepared['draws'] );
+    }
+
     public function test_a_talk_without_a_form_keeps_both_fields_in_one_part(): void {
         QueryHelpers::set_config( PdpFormRegistry::CONFIG_KEY, '' );
         PdpFormRegistry::reset();

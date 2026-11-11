@@ -79,9 +79,35 @@
         });
     }
 
+    /*
+     * #5080 — the stuck spine's height, published as `--tt-spine-h` on the
+     * dashboard root, the way app-shell.js publishes the header's. A sticky
+     * header further down the page (a PDP talk's form part) sits at the
+     * spine's bottom edge instead of on top of it. Only a spine that
+     * actually sticks counts: the side layout and a spine a surface sets
+     * static (live match) publish nothing.
+     */
+    function measureSpine() {
+        var root  = document.querySelector('.tt-dashboard');
+        var spine = document.querySelector('.tt-spine:not(.tt-spine--side)');
+        if (!root || !spine || window.getComputedStyle(spine).position !== 'sticky') return;
+
+        var sync = function () {
+            var h = Math.round(spine.getBoundingClientRect().height);
+            if (h > 0) root.style.setProperty('--tt-spine-h', h + 'px');
+        };
+        sync();
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(sync).observe(spine);
+        } else {
+            window.addEventListener('resize', sync);
+        }
+    }
+
     function init() {
         var strips = document.querySelectorAll('[data-tt-spine-tabs]');
         Array.prototype.forEach.call(strips, wire);
+        measureSpine();
     }
 
     if (document.readyState === 'loading') {

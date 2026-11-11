@@ -1488,7 +1488,8 @@ class FrontendPdpManageView extends FrontendViewBase {
         // shown read-only, so nothing written is hidden. The autosave never
         // sends either field then, and the endpoint leaves an omitted field
         // alone.
-        $uses_form      = \TT\Modules\Pdp\Forms\PdpFormChoice::formFor( $conv, (int) ( ( (array) $file )['player_id'] ?? 0 ) ) !== null;
+        $form_part      = PdpFormConversationView::prepare( $conv_id, $user_id );
+        $uses_form      = $form_part['form_talk'];
         $earlier_notes  = $uses_form ? trim( (string) ( $conv_row['notes'] ?? '' ) ) : '';
         $earlier_agreed = $uses_form ? trim( (string) ( $conv_row['agreed_actions'] ?? '' ) ) : '';
         ?>
@@ -1509,7 +1510,7 @@ class FrontendPdpManageView extends FrontendViewBase {
               } ?>>
             <div class="tt-pdp-part__head">
                 <h2 class="tt-pdp-part__title" id="tt-pdp-part-details-h">
-                    <?php if ( $uses_form ) : ?><span class="tt-pdp-part__num" aria-hidden="true">1</span><?php endif; ?>
+                    <?php if ( $form_part['draws'] ) : ?><span class="tt-pdp-part__num" aria-hidden="true">1</span><?php endif; ?>
                     <span><?php esc_html_e( 'Conversation details', 'talenttrack' ); ?></span>
                 </h2>
                 <?php if ( $autosaves ) : ?>
@@ -1586,11 +1587,11 @@ class FrontendPdpManageView extends FrontendViewBase {
                     <p class="tt-help-text"><?php esc_html_e( 'Written before this talk used the conversation form. Read only.', 'talenttrack' ); ?></p>
                     <?php if ( $earlier_notes !== '' ) : ?>
                         <h3 class="tt-pdp-part__earlier-h"><?php esc_html_e( 'Notes (post-meeting)', 'talenttrack' ); ?></h3>
-                        <div class="tt-pdp-part__earlier-text"><?php echo wp_kses_post( wpautop( $earlier_notes ) ); ?></div>
+                        <div class="tt-pdp-part__earlier-text"><?php echo wpautop( esc_html( $earlier_notes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped as text, then paragraphs. ?></div>
                     <?php endif; ?>
                     <?php if ( $earlier_agreed !== '' ) : ?>
                         <h3 class="tt-pdp-part__earlier-h"><?php esc_html_e( 'Agreed actions', 'talenttrack' ); ?></h3>
-                        <div class="tt-pdp-part__earlier-text"><?php echo wp_kses_post( wpautop( $earlier_agreed ) ); ?></div>
+                        <div class="tt-pdp-part__earlier-text"><?php echo wpautop( esc_html( $earlier_agreed ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped as text, then paragraphs. ?></div>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -1607,7 +1608,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // player's preparation beside them, the SMART points and the form's
         // own sign-off. The legacy sign-off below is for talks without one;
         // `PATCH` refuses `coach_signoff_at` on a form talk anyway.
-        $form_talk = PdpFormConversationView::render( $conv_id, $user_id );
+        $form_talk = PdpFormConversationView::renderPrepared( $conv_id, $form_part );
 
         // #3008 — sign-off leaves the conversation form and becomes its own
         // confirmed action.

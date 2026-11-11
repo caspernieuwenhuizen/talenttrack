@@ -2,7 +2,8 @@
 /**
  * #5080 — a PDP talk is two parts, each with its own save state and undo in
  * its header. On a phone the save state wraps under the title, part 2's
- * header stays in view while the form scrolls, an undo in part 2 leaves
+ * header stays in view while the form scrolls, below the stuck spine and
+ * never under it or over it (under both shells), an undo in part 2 leaves
  * part 1's dates alone, and a form talk asks no notes or agreed actions.
  *
  * The talk is `Mila Trainer4980`'s, from `tests/e2e/setup/pdp-preparation.php`.
@@ -10,6 +11,7 @@
  * which that spec sets on every item anyway.
  */
 const { test, expect } = require( '@playwright/test' );
+const { openTalk: open, underAppShell, onTop } = require( './helpers/pdp-talk' );
 
 test.use( {
 	storageState: 'tests/e2e/.auth/admin.json',
@@ -18,50 +20,58 @@ test.use( {
 	isMobile: true,
 } );
 
-/**
- * A REST GET with the dashboard's nonce.
- *
- * @param {import('@playwright/test').Page} page
- * @param {string} path
- */
-function get( page, path ) {
-	return page.evaluate( async ( p ) => {
-		const res = await fetch( window.TT.rest_url + p, {
-			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': window.TT.rest_nonce },
-		} );
-		let json = null;
-		try { json = await res.json(); } catch ( _e ) { json = null; }
-		return { status: res.status, json };
-	}, path );
-}
-
-/** The rows of a list answer, whichever envelope it uses. */
-function rowsOf( json ) {
-	const data = json && json.data !== undefined ? json.data : json;
-	if ( Array.isArray( data ) ) return data;
-	if ( data && Array.isArray( data.rows ) ) return data.rows;
-	if ( data && Array.isArray( data.items ) ) return data.items;
-	return [];
-}
+test.describe.configure( { mode: 'serial' } );
 
 /** @param {import('@playwright/test').Page} page */
 async function openTalk( page ) {
-	await page.goto( '/?tt_view=pdp' );
-	await page.waitForLoadState( 'load', { timeout: 30000 } );
-	const files = await get( page, 'pdp-files?search=Trainer4980' );
-	const file  = rowsOf( files.json ).find( ( r ) => r && r.id );
-	expect( file, 'the fixture file: run tests/e2e/setup/pdp-preparation.php first. ' + JSON.stringify( files.json ) ).toBeTruthy();
-	const detail = await get( page, 'pdp-files/' + file.id );
-	const convs  = ( detail.json && detail.json.data && detail.json.data.conversations ) || [];
-	const conv   = convs.find( ( c ) => Number( c.sequence ) === 1 ) || convs[ 0 ];
-	expect( conv && conv.id, 'the first talk' ).toBeTruthy();
-	await page.goto( `/?tt_view=pdp&id=${ file.id }&conv=${ conv.id }` );
-	await page.waitForLoadState( 'load', { timeout: 30000 } );
+	await open( page );
 	await page.getByRole( 'tab', { name: 'Conversation' } ).click();
 }
 
+/**
+ * Scroll to the end of the form and check what is stuck: part 2's header
+ * shows its own save state on top, the spine above it is not covered, and
+ * the row just under the header is the form, not a piece of the spine
+ * poking out. Returns the stuck heights for the PR.
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function checkStuckStack( page ) {
+	const form = page.locator( '.tt-pdp-part.tt-pdp-coachform' );
+	// Well into the form, with plenty of it still below: the header is stuck.
+	await form.evaluate( ( el ) => {
+		window.scrollTo( 0, el.getBoundingClientRect().top + window.scrollY + 400 );
+	} );
+	await page.waitForTimeout( 300 );
+	const formBox = await form.boundingBox();
+	expect( formBox && formBox.y < 0, 'the form\'s top has scrolled past' ).toBe( true );
+
+	const head = form.locator( '.tt-pdp-part__head' );
+	expect( await onTop( head.locator( '[data-tt-save-state]' ), '.tt-pdp-part__head' ), 'part 2\'s save state is on top' ).toBe( true );
+	expect( await onTop( page.locator( '.tt-spine__tabs' ).first(), '.tt-spine' ), 'the spine\'s tabs are not covered' ).toBe( true );
+
+	const below = await head.evaluate( ( el ) => {
+		const r   = el.getBoundingClientRect();
+		const hit = document.elementFromPoint( r.left + r.width / 2, r.bottom + 12 );
+		return { inSpine: !! ( hit && hit.closest( '.tt-spine' ) ), inForm: !! ( hit && hit.closest( '.tt-pdp-coachform' ) ) };
+	} );
+	expect( below.inSpine, 'no piece of the spine pokes out under part 2\'s header' ).toBe( false );
+	expect( below.inForm, 'under the header is the form' ).toBe( true );
+
+	return page.evaluate( () => {
+		const h = ( sel ) => {
+			const el = document.querySelector( sel );
+			return el ? Math.round( el.getBoundingClientRect().height ) : 0;
+		};
+		const shell = document.querySelector( '.tt-dashboard.tt-shell-app .tt-dash-header' ) ? h( '.tt-dash-header' ) : 0;
+		const spine = h( '.tt-spine' );
+		const part2 = h( '.tt-pdp-coachform .tt-pdp-part__head' );
+		return { shell, spine, part2, total: shell + spine + part2, viewport: window.innerHeight };
+	} );
+}
+
 test( 'two parts, each with its own save state, and part 2\'s header stays in view', async ( { page } ) => {
+	await page.setViewportSize( { width: 360, height: 640 } );
 	await openTalk( page );
 
 	const details = page.locator( '.tt-pdp-part--details' );
@@ -78,13 +88,23 @@ test( 'two parts, each with its own save state, and part 2\'s header stays in vi
 	const state = await form.locator( '.tt-pdp-part__state' ).boundingBox();
 	expect( title && state && state.y >= title.y + title.height - 1, 'the save state sits under the title on a phone' ).toBe( true );
 
-	// Scroll to the end of the form: part 2's header is still on screen.
-	await form.locator( '.tt-pdp-coachform__section' ).last().scrollIntoViewIfNeeded();
-	const head = await form.locator( '.tt-pdp-part__head' ).boundingBox();
-	expect( head && head.y >= 0 && head.y + head.height <= 800, 'part 2\'s header stays in view: ' + JSON.stringify( head ) ).toBe( true );
+	const sizes = await checkStuckStack( page );
+	console.log( 'classic stuck chrome at 360x640: ' + JSON.stringify( sizes ) );
+	test.info().annotations.push( { type: 'stuck-chrome-classic-360x640', description: JSON.stringify( sizes ) } );
 
 	const overflow = await page.evaluate( () => document.scrollingElement.scrollWidth - document.scrollingElement.clientWidth );
 	expect( overflow, 'no sideways scroll at 360' ).toBeLessThanOrEqual( 0 );
+} );
+
+test( 'under the app shell, part 2\'s header sits below the stuck spine', async ( { page } ) => {
+	await page.setViewportSize( { width: 360, height: 640 } );
+	await underAppShell( page, async () => {
+		await openTalk( page );
+		const sizes = await checkStuckStack( page );
+		console.log( 'app-shell stuck chrome at 360x640: ' + JSON.stringify( sizes ) );
+		test.info().annotations.push( { type: 'stuck-chrome-app-360x640', description: JSON.stringify( sizes ) } );
+		expect( await onTop( page.locator( '.tt-spine__name' ).first(), '.tt-spine' ), 'the spine\'s name is not under the shell header' ).toBe( true );
+	} );
 } );
 
 test( 'an undo in part 2 takes back a score and leaves part 1 alone', async ( { page } ) => {

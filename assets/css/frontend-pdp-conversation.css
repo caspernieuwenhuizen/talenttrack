@@ -140,15 +140,14 @@
     border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
 }
 
+/* At the stuck spine's bottom edge: `--tt-spine-h` is measured by the
+   spine's own script, and the shell's header offsets are 0 under `classic`.
+   Below the spine (10) in the stacking order, so the spine wins while its
+   height is being re-measured. */
 .tt-pdp-part__head--sticky {
     position: sticky;
-    top: 0;
-    /* Above the record spine (10) when both are stuck. */
-    z-index: 11;
-}
-
-.tt-shell-app .tt-pdp-part__head--sticky {
-    top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px));
+    top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px) + var(--tt-spine-h, 0px));
+    z-index: 9;
 }
 
 .tt-pdp-part__title {

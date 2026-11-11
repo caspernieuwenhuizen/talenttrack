@@ -387,6 +387,15 @@ Onder de app-shell staat de vastgezette strook onder de eigen vaste kop van de
 shell, op `--tt-shell-top` plus `--tt-shell-header-h`, zodat de kop de naam van
 het record nooit bedekt.
 
+**`--tt-spine-h`.** Het script van de strook meet een vastgezette strook en zet
+de hoogte als `--tt-spine-h` op de root van het dashboard, zoals de shell
+`--tt-shell-header-h` zet, en houdt die bij als de strook doorloopt. Een vast
+element verderop op een recordpagina staat op
+`calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px) + var(--tt-spine-h, 0px))`,
+en dat klopt onder beide shells (de shell-offsets zijn 0 onder `classic`). Een
+strook met `position: static`, en de zij-indeling, zetten niets. Onder 480px
+laat de strook de `detail`-regel weg, omdat de hero van de pagina die al toont.
+
 ### De slots van de onderbalk
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier

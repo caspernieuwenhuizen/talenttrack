@@ -26,7 +26,49 @@ use TT\Shared\Frontend\Components\SaveState;
  * the items the player changed after "klaar" ("aangepast"), and what
  * sign-off still needs. Sections are folds, not a tab strip (§5c).
  */
+/**
+ * @phpstan-type TalkForm array{
+ *   conversation_id:int,
+ *   form:array{key:string,version:int,definition:array<string,mixed>}|null,
+ *   state:array<string,mixed>,
+ *   player:array{scores:array<string,int|null>,answers:array<string,string>}|null,
+ *   coach:array{scores:array<string,int|null>,answers:array<string,string>}|null,
+ *   goals:list<array<string,mixed>>|null,
+ *   differences:list<string>|null
+ * }
+ * @phpstan-type Prepared array{form_talk:bool, draws:bool, access:?PdpFormAccess, conv:?object, form:TalkForm|null}
+ */
 final class PdpFormConversationView {
+
+    /**
+     * #5080 — what this talk's page draws, decided once for both parts.
+     *
+     * `form_talk`: the talk uses a conversation form (`PdpFormChoice::formFor()`),
+     * so part 1 drops its notes and agreed actions and the legacy sign-off
+     * does not apply. `draws`: part 2 is drawn, which also needs a reader of
+     * the trainer's part and a talk that was not marked not held. The caller
+     * numbers the parts from `draws` and hands the same answer to
+     * `renderPrepared()`, so the two can never disagree.
+     *
+     * @return Prepared
+     */
+    public static function prepare( int $conv_id, int $user_id ): array {
+        $out    = [ 'form_talk' => false, 'draws' => false, 'access' => null, 'conv' => null, 'form' => null ];
+        $access = PdpFormAccess::forConversation( $user_id, $conv_id );
+        if ( $access === null ) return $out;
+        $conv              = $access->conversation();
+        $out['access']     = $access;
+        $out['conv']       = $conv;
+        $out['form_talk']  = \TT\Modules\Pdp\Forms\PdpFormChoice::formFor( $conv, $access->playerId() ) !== null;
+        if ( ! $out['form_talk'] || ! $access->canRead() || PdpCycleState::isNotHeld( $conv ) || ! $access->readsCoachPart() ) {
+            return $out;
+        }
+        $form = ( new PdpFormReader() )->read( $access, $conv );
+        if ( $form['form'] === null ) return $out;
+        $out['form']  = $form;
+        $out['draws'] = true;
+        return $out;
+    }
 
     /**
      * Draw the trainer's form when the talk uses one. False when it does not,
@@ -34,12 +76,19 @@ final class PdpFormConversationView {
      * nothing here: its not-held line says what there is to say.
      */
     public static function render( int $conv_id, int $user_id ): bool {
-        $access = PdpFormAccess::forConversation( $user_id, $conv_id );
-        if ( $access === null || ! $access->canRead() ) return false;
-        $conv = $access->conversation();
-        $form = ( new PdpFormReader() )->read( $access, $conv );
-        if ( $form['form'] === null ) return false;
-        if ( PdpCycleState::isNotHeld( $conv ) || ! $access->readsCoachPart() ) return true;
+        return self::renderPrepared( $conv_id, self::prepare( $conv_id, $user_id ) );
+    }
+
+    /**
+     * `render()` for a caller that already holds `prepare()`'s answer.
+     *
+     * @param Prepared $prepared
+     */
+    public static function renderPrepared( int $conv_id, array $prepared ): bool {
+        if ( ! $prepared['form_talk'] ) return false;
+        if ( ! $prepared['draws'] || $prepared['form'] === null ) return true;
+        $form = $prepared['form'];
+        if ( $form['form'] === null ) return true;
 
         $definition = (array) $form['form']['definition'];
         $state      = (array) $form['state'];

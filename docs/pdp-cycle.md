@@ -67,7 +67,7 @@ A conversation opens on three tabs — **Preparation**, **Conversation**, **Back
 The page opens on the player: their photo or initials, name, team, shirt number and position, and one line for the talk, such as *Mid season · conversation 2 of 3 · planned 12 Nov, 18:00*, or *held* with the date once it has taken place. With the app layout, a slim strip with the same name stays at the top while you scroll. The breadcrumb ends in the player's name, then the talk. On a talk with a conversation form, the form in use (**Form: Outfield player** or **Form: Goalkeeper**) sits on the right of the tab row, with its switch while switching is still possible. On a phone it moves under the tabs.
 
 - **Preparation** — the coach's own answers to this conversation's question set. Coach and head of academy only.
-- **Conversation** — the player's self-reflection, then the notes, agreed actions and sign-off from the talk itself.
+- **Conversation** — on a talk without a form, the player's self-reflection, then the notes, agreed actions and sign-off from the talk itself. On a talk with a conversation form, two parts (the conversation details, then the form) and the sign-off under **Finish**; see *The trainer fills in the form*.
 - **Background** — what is on record about the player this season, read-only.
 
 #### Preparation

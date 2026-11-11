@@ -105,6 +105,17 @@
     row-gap: 2px;
 }
 
+/* Below 480px the detail line is the first thing the stuck chrome drops:
+   the page's hero already carries it, and on a phone every stuck row is
+   form the coach can no longer see (#5080 height budget). */
+.tt-shell-app .tt-spine__detail {
+    display: none;
+}
+
+@media (min-width: 480px) {
+    .tt-shell-app .tt-spine__detail { display: block; }
+}
+
 .tt-shell-app .tt-spine__detail {
     flex: 1 0 100%;
     padding-inline-start: 34px;

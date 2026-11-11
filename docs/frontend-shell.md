@@ -368,6 +368,15 @@ Under the app shell the stuck spine sits below the shell's own sticky header,
 at `--tt-shell-top` plus `--tt-shell-header-h`, so the header never covers the
 record's name.
 
+**`--tt-spine-h`.** The spine's script measures a stuck spine and publishes its
+height as `--tt-spine-h` on the dashboard root, the way the shell publishes
+`--tt-shell-header-h`, and keeps it current as the strip wraps. A sticky
+element further down a record page sits at
+`calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px) + var(--tt-spine-h, 0px))`,
+which holds under both shells (the shell offsets are 0 under `classic`). A
+spine set to `position: static`, and the side layout, publish nothing. Below
+480px the spine leaves out its `detail` line, since the page's hero carries it.
+
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four
