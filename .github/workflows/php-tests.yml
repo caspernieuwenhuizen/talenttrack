@@ -29,6 +29,7 @@ on:
     paths:
       - 'src/**'
       - 'tests/php/**'
+      - 'assets/css/**'
       - 'phpunit.xml.dist'
       - 'composer.json'
       - 'composer.lock'
@@ -40,6 +41,7 @@ on:
     paths:
       - 'src/**'
       - 'tests/php/**'
+      - 'assets/css/**'
       - 'phpunit.xml.dist'
       - 'composer.json'
       - 'composer.lock'
