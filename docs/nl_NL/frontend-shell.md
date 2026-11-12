@@ -478,3 +478,24 @@ Elementen met `position: fixed` — modals, bottom sheets, sleeplagen — zijn n
 geraakt: die resolven tegen de viewport en horen die te blijven vullen, ook over
 de zijbalk heen. `position: sticky` binnen de contentkolom werkt eveneens als
 voorheen, omdat die kolom een gewoon blok in de scroll-context van de pagina is.
+
+Inhoud die aan de pagina blijft plakken, hoort **onder** de vaste kop van de
+shell vast te staan, niet eronder te verdwijnen. De shell publiceert waar dat
+is als één token, `--tt-shell-sticky-top`: de ruimte voor de beheerbalk
+(`--tt-shell-top`, 32px voor ingelogde stafleden op een breed scherm, anders 0)
+plus de gemeten hoogte van de kop (`--tt-shell-header-h`) waar de kop
+vaststaat. Vanaf 1024px scrolt de kop met de pagina mee (de zijbalk draagt
+dan de navigatie), dus daar is het token alleen de ruimte voor de beheerbalk.
+Gebruik het met
+`0px` als terugval, zodat dezelfde regel onder `classic`, waar het token niet
+bestaat, `top: 0` oplevert:
+
+```css
+.tt-shell-app .tt-my-strip {
+    position: sticky;
+    top: var(--tt-shell-sticky-top, 0px);
+}
+```
+
+Tel de twee delen niet zelf op in een content-stylesheet. Krijgt de shell er
+een balk bij, dan verandert alleen het token.

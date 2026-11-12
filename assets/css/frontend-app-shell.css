@@ -47,6 +47,18 @@
      * it, so a longer academy name or a zoomed browser stays correct.
      */
     --tt-shell-header-h: 56px;
+    /*
+     * Where content that sticks to the page pins under the shell: below the
+     * admin bar and the sticky header. Declared on this element because
+     * app-shell.js writes the header height here and the admin-bar rule
+     * below overrides --tt-shell-top here, so the sum resolves with both
+     * final values. Content sheets read this token rather than adding the
+     * two up themselves; under `classic` it is unset and their 0px fallback
+     * applies. The header height counts only where the header sticks: from
+     * 1024px it scrolls away (the sidebar carries the navigation), and the
+     * rule after this block takes it out.
+     */
+    --tt-shell-sticky-top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px));
 
     /*
      * #2504 — the app shell owns the page frame.
@@ -65,6 +77,15 @@
     max-width: none;
     margin: 0;
     padding: 0;
+}
+
+/* From 1024px the header is in normal flow (see "1024px+: persistent
+   sidebar"), so content pins below the admin bar alone. Keep this
+   breakpoint equal to the one that drops the header's stickiness. */
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-shell-app {
+        --tt-shell-sticky-top: var(--tt-shell-top, 0px);
+    }
 }
 
 /* WP admin bar offset — only where WP actually pins the bar. */

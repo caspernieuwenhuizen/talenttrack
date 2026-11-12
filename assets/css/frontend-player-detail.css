@@ -560,7 +560,8 @@
  */
 .tt-shell-app .tt-player-sticky {
     position: sticky;
-    top: 0;
+    /* Below the shell header, which is sticky at the same scroll. */
+    top: var(--tt-shell-sticky-top, 0px);
     z-index: 10;
     background: var(--tt-paper);
     border-radius: var(--tt-radius);

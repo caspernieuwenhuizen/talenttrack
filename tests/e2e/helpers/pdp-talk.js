@@ -2,7 +2,7 @@
 /**
  * Helpers for the PDP talk specs (#5079, #5080, #5081): open the fixture
  * talk of `Mila Trainer4980` (`tests/e2e/setup/pdp-preparation.php`), and run
- * a block under the app shell, putting the club's shell back afterwards.
+ * a block under the app shell through the shared `helpers/shell.js`.
  */
 
 const { expect } = require( '@playwright/test' );
@@ -64,26 +64,8 @@ async function openTalk( page ) {
 	return { fileId: Number( file.id ), convId: Number( conv.id ) };
 }
 
-/**
- * Run `fn` with the club's shell set to `app`, then put the earlier value
- * back, also when `fn` fails, so later specs see the shell they expect.
- *
- * @param {import('@playwright/test').Page} page
- * @param {() => Promise<void>} fn
- */
-async function underAppShell( page, fn ) {
-	await page.goto( '/?tt_view=pdp' );
-	const before = await get( page, 'config' );
-	const was    = ( before.json && before.json.data && before.json.data.tt_frontend_shell ) || 'classic';
-	const set    = await rest( page, 'config', 'POST', { config: { tt_frontend_shell: 'app' } } );
-	expect( set.status, 'the shell switch: ' + JSON.stringify( set.json ) ).toBe( 200 );
-	try {
-		await fn();
-	} finally {
-		await page.goto( '/?tt_view=pdp' );
-		await rest( page, 'config', 'POST', { config: { tt_frontend_shell: was } } );
-	}
-}
+// The suite's one shell switch, which puts the setting back whatever happens.
+const { underAppShell } = require( './shell' );
 
 /**
  * True when the topmost element at the centre of `locator` is inside
