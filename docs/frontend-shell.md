@@ -372,8 +372,8 @@ record's name.
 height as `--tt-spine-h` on the dashboard root, the way the shell publishes
 `--tt-shell-header-h`, and keeps it current as the strip wraps. A sticky
 element further down a record page sits at
-`calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px) + var(--tt-spine-h, 0px))`,
-which holds under both shells (the shell offsets are 0 under `classic`). A
+`calc(var(--tt-shell-sticky-top, 0px) + var(--tt-spine-h, 0px))`,
+which holds under both shells (the shell's sticky top is 0 under `classic`). A
 spine set to `position: static`, and the side layout, publish nothing. Below
 480px the spine leaves out its `detail` line, since the page's hero carries it.
 

@@ -391,8 +391,8 @@ het record nooit bedekt.
 de hoogte als `--tt-spine-h` op de root van het dashboard, zoals de shell
 `--tt-shell-header-h` zet, en houdt die bij als de strook doorloopt. Een vast
 element verderop op een recordpagina staat op
-`calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 0px) + var(--tt-spine-h, 0px))`,
-en dat klopt onder beide shells (de shell-offsets zijn 0 onder `classic`). Een
+`calc(var(--tt-shell-sticky-top, 0px) + var(--tt-spine-h, 0px))`,
+en dat klopt onder beide shells (de vaste bovenkant van de shell is 0 onder `classic`). Een
 strook met `position: static`, en de zij-indeling, zetten niets. Onder 480px
 laat de strook de `detail`-regel weg, omdat de hero van de pagina die al toont.
 
