@@ -322,6 +322,14 @@ worden op
 de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
 declareert, declareert ten minste `--tt-secondary-text` zelf.
 
+Het omgekeerde paar, tekst op een vlak in de secundaire kleur, leest
+`--tt-color-on-secondary`, naast `--tt-color-on-primary`. Het merkteken en de
+avatar in de kopbalk van de app gebruiken het. In het standaardontwerp is het
+de primaire kleur, en een thema waarvan de primaire kleur op de eigen
+secundaire kleur geen 4,5:1 haalt, zet het op zijn diepe kleur
+(`var(--tt-primary-deep)`). `ThemeContrastTest` controleert het paar in elk
+palet.
+
 ### Statuskleuren als tekst
 
 De vier statuskleuren (`--tt-success`, `--tt-warning`, `--tt-danger`,

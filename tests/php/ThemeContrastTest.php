@@ -366,6 +366,29 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         return $value;
     }
 
+    /**
+     * #5148 — the app header's brand mark and avatar print their initials
+     * on the secondary fill. Both read `--tt-color-on-secondary`, which
+     * clears 4.5:1 on the secondary in every palette; on the default design
+     * it is the primary, as before.
+     */
+    public function test_text_on_the_secondary_fill_reads(): void {
+        $sheet = $this->css( 'frontend-app-chrome.css' );
+        foreach ( [ '.tt-appchrome-mark', '.tt-appchrome-av' ] as $selector ) {
+            $this->assertSame( 1, preg_match( '/(?:^|\})\s*' . preg_quote( $selector, '/' ) . '\s*\{([^}]*)\}/', $sheet, $rule ), $selector );
+            $this->assertMatchesRegularExpression( '/(?:^|[;\s])background:\s*var\(--tt-secondary\)/', $rule[1], "$selector fill" );
+            $this->assertMatchesRegularExpression( '/(?:^|[;\s])color:\s*var\(--tt-color-on-secondary\b/', $rule[1], "$selector reads --tt-color-on-secondary" );
+        }
+
+        $tokens = $this->declarations( $this->css( 'tokens.css' ) );
+        $this->assertSame( 'var(--tt-primary)', $tokens['--tt-color-on-secondary'] ?? null, 'the default design keeps the primary' );
+
+        foreach ( $this->palettes() as $name => $p ) {
+            $d = $p['decls'];
+            $this->assertRatio( 4.5, $this->token( '--tt-color-on-secondary', $d ), $this->token( '--tt-secondary', $d ), "$name text on the secondary fill" );
+        }
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {

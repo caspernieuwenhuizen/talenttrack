@@ -307,6 +307,13 @@ derived by `BrandStyles::accentTextColor()`: the colour itself when it reads at
 theme's secondary. A theme that declares a secondary declares at least
 `--tt-secondary-text` itself.
 
+The reverse pair, text printed on a secondary fill, reads
+`--tt-color-on-secondary`, next to `--tt-color-on-primary`. The app header's
+brand mark and avatar use it. It is the primary on the default design, and a
+theme whose primary misses 4.5:1 on its own secondary sets it to its deep
+colour (`var(--tt-primary-deep)`). `ThemeContrastTest` checks the pair in
+every palette.
+
 ### Status colours as text
 
 The four status colours (`--tt-success`, `--tt-warning`, `--tt-danger`,

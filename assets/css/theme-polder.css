@@ -104,6 +104,7 @@
     --tt-secondary-text:       #8f5f4c;
     --tt-secondary-on-primary: #ffb9a3;
     --tt-secondary-on-chrome:  #ff8a65;
+    --tt-color-on-secondary:   var(--tt-primary-deep);
 
     /* ---- Chrome (read by theme-shared.css) ------------------------- */
     --tt-theme-chrome:          #062a2e;
