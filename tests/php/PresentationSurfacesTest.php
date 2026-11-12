@@ -427,6 +427,12 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'tt-dashboard--presentation', $html );
         $this->assertSame( 1, substr_count( $html, 'tt-dash-demo-pill' ), 'one marker, and no header carrying a second' );
+        $this->assertMatchesRegularExpression( '/<span class="tt-dash-demo-pill"[^>]*>/', $html, 'a label' );
+        preg_match( '/<span class="tt-dash-demo-pill"[^>]*>/', $html, $tag );
+        $this->assertStringNotContainsString( 'tabindex', $tag[0] ?? '', 'not a tab stop: Close is the first' );
+        $this->assertStringNotContainsString( 'href', $tag[0] ?? '' );
+        $this->assertStringNotContainsString( '<a class="tt-dash-demo-pill', $html, 'not a link' );
+        $this->assertStringContainsString( 'aria-label="', $tag[0] ?? '', 'the same explanation' );
         $this->assertStringNotContainsString( 'tt-dash-header', $html );
         $this->assertFalse(
             has_action( 'tt_dashboard_safety_banners', [ DashboardShortcode::class, 'renderDemoPill' ] ),

@@ -623,8 +623,9 @@ class DashboardShortcode {
             echo '<div class="' . esc_attr( $root_classes ) . '">';
             do_action( 'tt_dashboard_safety_banners' );
             // #5082 — the demo marker stays on a room display: it says the
-            // records on the screen are not real.
-            self::renderDemoPill();
+            // records on the screen are not real. A label here, not a tab
+            // stop: Close stays the first focus stop.
+            self::renderDemoPill( false );
             echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by the view.
             echo '</div>';
         } else {
@@ -2594,11 +2595,20 @@ class DashboardShortcode {
      * a TV showing demo records with nothing to say so would mislead the
      * room. It marks the install's data, so it is not a safety banner.
      */
-    private static function renderDemoPill(): void {
+    private static function renderDemoPill( bool $focusable = true ): void {
         if ( ! class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) || ! \TT\Modules\DemoData\DemoMode::isOn() ) {
             return;
         }
         $demo_tip = __( 'TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off.', 'talenttrack' );
+        if ( ! $focusable ) {
+            // A room display: a label, not a tab stop, so the one close
+            // control is the first thing focus reaches. `role="note"` lets
+            // the explanation be read without making the span interactive.
+            echo '<span class="tt-dash-demo-pill" role="note" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
+                . esc_html__( 'DEMO', 'talenttrack' )
+                . '</span>';
+            return;
+        }
         echo '<span class="tt-dash-demo-pill" tabindex="0" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
             . esc_html__( 'DEMO', 'talenttrack' )
             . '</span>';
