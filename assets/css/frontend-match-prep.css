@@ -727,8 +727,8 @@
     color: var(--tt-mp-line);
 }
 .tt-mp-dps tbody td.tt-mp-col-spec:hover,
-.tt-mp-dps tbody td.tt-mp-col-spec:focus-visible { color: var(--tt-mp-warn); }
-.tt-mp-dps tbody td.tt-mp-col-spec.tt-mp-on { color: var(--tt-mp-warn); }
+.tt-mp-dps tbody td.tt-mp-col-spec:focus-visible { color: var(--tt-warning-text, var(--tt-mp-warn)); }
+.tt-mp-dps tbody td.tt-mp-col-spec.tt-mp-on { color: var(--tt-warning-text, var(--tt-mp-warn)); }
 
 .tt-mp-dps tbody td.tt-mp-col-cam {
     color: var(--tt-mp-line);

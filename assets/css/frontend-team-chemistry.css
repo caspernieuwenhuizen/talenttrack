@@ -14,7 +14,15 @@
  * those JS surfaces are still hit by tt-team-chemistry.js.
  */
 
-.tt-root {
+/*
+ * Declared on `.tt-dashboard` as well as `.tt-root`: a custom property
+ * resolves its var() where it is declared, and a theme sets its tokens on
+ * `.tt-dashboard`. On `.tt-root` alone every alias below kept the default
+ * design's value under every theme (#5130), as tokens.css notes for
+ * --tt-focus.
+ */
+.tt-root,
+.tt-dashboard {
     /* Neutral aliases converge onto the canonical green/gold tokens
        (tokens.css). Component-specific teal tier accents stay local. */
     --tt-tc-bg:        var(--tt-bg-soft, #f4f6f3);
