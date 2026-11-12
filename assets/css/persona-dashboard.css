@@ -60,17 +60,17 @@
  * every other token.
  */
 .tt-dashboard.tt-themed {
-    --tt-pd-surface:        var(--tt-paper, #ffffff);
-    --tt-pd-surface-subtle: var(--tt-bg-soft, #f4f6f3);
-    --tt-pd-surface-hover:  var(--tt-line-soft, #eef0ec);
-    --tt-pd-text-primary:   var(--tt-ink, #0e1a14);
-    --tt-pd-text-muted:     var(--tt-muted, #6a6d66);
-    --tt-pd-accent:         var(--tt-primary, #0b3d2e);
-    --tt-pd-success:        var(--tt-success, #2f9e5e);
-    --tt-pd-warning:        var(--tt-warning, #e8902b);
-    --tt-pd-danger:         var(--tt-danger, #d8453b);
-    --tt-pd-hero-start:     var(--tt-primary, #0b3d2e);
-    --tt-pd-hero-cta:       var(--tt-secondary, #e8b624);
+    --tt-pd-surface:        var(--tt-paper);
+    --tt-pd-surface-subtle: var(--tt-bg-soft);
+    --tt-pd-surface-hover:  var(--tt-line-soft);
+    --tt-pd-text-primary:   var(--tt-ink);
+    --tt-pd-text-muted:     var(--tt-muted);
+    --tt-pd-accent:         var(--tt-primary);
+    --tt-pd-success:        var(--tt-success);
+    --tt-pd-warning:        var(--tt-warning);
+    --tt-pd-danger:         var(--tt-danger);
+    --tt-pd-hero-start:     var(--tt-primary);
+    --tt-pd-hero-cta:       var(--tt-secondary);
 
     /* The four the `.tt-root` block fixes in the default design's green:
        under a theme they follow it too, so the hero gradient ends in the
