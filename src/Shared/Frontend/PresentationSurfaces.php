@@ -42,6 +42,15 @@ use TT\Shared\Frontend\Components\RecordLink;
  */
 final class PresentationSurfaces {
 
+    /**
+     * Query keys a close URL may carry beside `id`, each the address of a
+     * child record whose page has no URL of its own (a talk inside a PDP
+     * file). Real sub-record addresses only, never view state: tabs,
+     * filters, modes and `action` stay out. Adding a key changes the
+     * presentation contract and needs an architect's review.
+     */
+    private const SUB_RECORD_KEYS = [ 'conv' ];
+
     /** @var array<string, string>|null resolved once per request */
     private static ?array $map = null;
 
@@ -125,9 +134,12 @@ final class PresentationSurfaces {
 
     /**
      * A same-site record page: the dashboard's own address carrying exactly
-     * `tt_view=<slug>` and `id=<n>`, where `n` is a positive integer and the
-     * slug is a sanitised key that is not itself a presentation surface. A
-     * fragment is allowed; any other query argument is not.
+     * one `tt_view=<slug>` and one `id=<n>`, plus at most one key from
+     * `SUB_RECORD_KEYS` where the record is a child with no page of its own.
+     * Each number is a positive integer without a leading zero, and the slug
+     * is a sanitised key that is not itself a presentation surface. A
+     * fragment is allowed; any other query argument, or an array value, is
+     * not.
      *
      * The close URL is written by the view, never taken from the request, so
      * this shape is the boundary. That the slug is routable is a property of
@@ -147,16 +159,32 @@ final class PresentationSurfaces {
         if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) return false;
         if ( untrailingslashit( (string) ( $parts['path'] ?? '' ) ) !== untrailingslashit( (string) ( $home['path'] ?? '' ) ) ) return false;
 
-        parse_str( (string) ( $parts['query'] ?? '' ), $args );
-        if ( count( $args ) !== 2 || ! isset( $args['tt_view'], $args['id'] ) ) return false;
+        $query = (string) ( $parts['query'] ?? '' );
+        parse_str( $query, $args );
+        if ( ! isset( $args['tt_view'], $args['id'] ) ) return false;
 
-        $id = $args['id'];
-        if ( ! is_string( $id ) || ! ctype_digit( $id ) || (int) $id <= 0 || $id[0] === '0' ) return false;
+        // Each key once: `parse_str()` keeps the last of a repeated key,
+        // which would let a second `id` through unseen.
+        $raw_keys = array_map( static fn( string $pair ): string => rawurldecode( (string) strtok( $pair, '=' ) ), array_filter( explode( '&', $query ), 'strlen' ) );
+        if ( count( $raw_keys ) !== count( array_unique( $raw_keys ) ) || count( $raw_keys ) !== count( $args ) ) return false;
+
+        $extra = array_diff( array_keys( $args ), [ 'tt_view', 'id' ] );
+        if ( count( $extra ) > 1 ) return false;
+        foreach ( $extra as $key ) {
+            if ( ! in_array( $key, self::SUB_RECORD_KEYS, true ) || ! self::isPositiveId( $args[ $key ] ) ) return false;
+        }
+
+        if ( ! self::isPositiveId( $args['id'] ) ) return false;
 
         $slug = $args['tt_view'];
         if ( ! is_string( $slug ) || $slug === '' || sanitize_key( $slug ) !== $slug ) return false;
 
         return ! self::claims( $slug );
+    }
+
+    /** @param mixed $value a positive integer as a string, without a leading zero */
+    private static function isPositiveId( $value ): bool {
+        return is_string( $value ) && ctype_digit( $value ) && $value[0] !== '0';
     }
 
     /** Test seam: drops the resolved map and the request state. */

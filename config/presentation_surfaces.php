@@ -31,4 +31,6 @@
 
 if ( ! defined( 'ABSPATH' ) && PHP_SAPI !== 'cli' ) exit;
 
-return [];
+return [
+    'pdp-conversation-mode' => 'A PDP talk on the screen in the room, for the player, a parent and the trainer together. One talk; one close back to its page, on the conversation tab; the normal screen with breadcrumbs for anyone the view refuses.',
+];

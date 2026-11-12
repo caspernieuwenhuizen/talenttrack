@@ -382,6 +382,9 @@ final class CoreSurfaceRegistration {
         // rendering.
         TileRegistry::registerSlugOwnership( 'scout-player-card',  self::M_PLAYERS );
         TileRegistry::registerSlugOwnership( 'teammate',           self::M_TEAMS );
+        // #5082 — the PDP talk's room display, reached from the talk's page.
+        // Switch PDP off and it goes with it.
+        TileRegistry::registerSlugOwnership( 'pdp-conversation-mode', self::M_PDP );
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'eval-category-weights', self::M_EVALUATIONS );

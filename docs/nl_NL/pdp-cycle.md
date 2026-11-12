@@ -3,7 +3,7 @@ title: Persoonlijk Ontwikkelingsplan (POP)
 group: performance
 summary: Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel.
 audience: [user]
-views: [pdp, my-pdp]
+views: [pdp, my-pdp, pdp-conversation-mode]
 module: TT\Modules\Pdp\PdpModule
 capability: tt_view_pdp
 order: 60
@@ -253,6 +253,18 @@ Op een telefoon staat de opslagstatus onder de titel van het deel, en blijft de 
 - **Alles slaat zichzelf op**, met de gewone opslagstatus, ongedaan maken en terugdraaien.
 - **Gesprek afronden en ondertekenen** is een eigen knop, met een bevestiging. Die blijft dicht tot het formulier compleet is, en de lijst erboven noemt wat nog ontbreekt: een cijfer op elk item, de afgesproken grootste kwaliteit, en van elk ontwikkelpunt de actie, de hulp en de deadline. De voorbereiding van de speler is niet nodig. Ondertekenen zet de cijfers vast en bewaart ze als evaluatie, die het radardiagram en de evaluatiegeschiedenis dan tonen; het maakt de twee doelen aan, gekoppeld aan het gesprek naast de doelen die je als besproken markeerde; en het vraagt de speler en de ouder om te bevestigen. Voor die tijd komt er niets in de evaluaties of de doelen.
 - Na het ondertekenen is het formulier alleen-lezen, en kun je de bevestiging van de speler en de ouder vastleggen zoals voorheen.
+
+#### Gespreksmodus: het gesprek op het scherm in de ruimte
+
+**Gespreksmodus** staat naast de naam van de speler bovenaan de pagina van het gesprek. Het toont het gesprek op een tv of een groot scherm, zodat de speler, de ouder en de trainer er samen naar kunnen kijken. Het opent in hetzelfde tabblad, nadat je laatste wijziging is opgeslagen. Spiegel of cast je eigen scherm; op de tv hoeft niemand in te loggen.
+
+- **Een rustig scherm:** het logo en de naam van de club, de naam, foto, het team, rugnummer en de positie van de speler, en het gesprek. Er is geen zoeken, help, menu of gebruikersnaam. De opslagstatus en **Sluiten** staan rechtsboven.
+- **Eén stap tegelijk,** met de stappen als knoppen bovenaan en **Vorige** en **Volgende** onderaan. **Overzicht** toont per onderdeel het gemiddelde van de speler en van de trainer, en hoeveel items er te bespreken zijn. Elk onderdeel toont de items met beide cijfers naast elkaar, en **Bespreken** waar ze verschillen. De laatste stap toont de grootste kwaliteit (wat de speler schreef en wat is afgesproken) en de twee ontwikkelpunten. Een stap die niet past, scrolt zelf; de knoppen onderaan bedekken hem nooit.
+- **Je kunt nog steeds scoren.** Een cijfer dat je hier geeft of wist, wordt in hetzelfde gesprek opgeslagen en staat daarna ook op de pagina van het gesprek, en **Ongedaan maken** neemt je laatste wijziging terug. **Wijzigingen terugdraaien** op de pagina van het gesprek gaat nog steeds terug naar hoe het gesprek was voordat je de gespreksmodus opende.
+- **Niet op het scherm:** je toelichting per onderdeel (**Toelichting**), het tabblad **Achtergrond**, het ondertekenen, en alles wat de speler alleen voor zichzelf schreef. Het ondertekenen blijft op de pagina van het gesprek.
+- **Sluiten** of **Escape** brengt je terug naar de pagina van het gesprek, op het tabblad **Gesprek**.
+- **Wie het kan openen:** staf die het dossier van de speler ziet. Een speler of een ouder pas als het gesprek is ondertekend, als ze het hele gesprek toch al lezen. De voorbereiding van een speler staat er pas op als die klaar is gemeld, net als op de pagina van het gesprek.
+- **Een ouder in de ruimte** ziet de voorbereide cijfers van de speler. Dat kiest de trainer, in een gesprek waar de ouder bij is: voor het ondertekenen leest een ouder met een eigen account niets van het formulier, en de gespreksmodus verandert dat niet.
 
 #### Het ondertekende formulier lezen en bevestigen
 

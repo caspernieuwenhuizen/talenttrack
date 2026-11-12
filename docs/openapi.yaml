@@ -750,6 +750,9 @@ paths:
     get: { tags: [pdp], summary: 'The conversation form as the caller may read it; a hidden part is null (#4977)', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '403': { description: Forbidden }, '404': { description: Not found } } }
     patch: { tags: [pdp], summary: 'Switch the conversation form ({ form_key }) before the player starts; the form follows the position and is pinned at the first write; 409 form_fixed once the player has saved or marked ready', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Invalid field }, '409': { description: Conflict } } }
 
+  /pdp-conversations/{id}/form/display:
+    get: { tags: [pdp], summary: 'The talk as the room display shows it: an allowlist without the background, the trainer''s section notes, other text fields or what sign-off needs (#5082); readers of the trainer''s part only', parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '403': { description: Forbidden }, '404': { description: Not found } } }
+
   /pdp-conversations/{id}/form/player:
     patch: { tags: [pdp], summary: "The player's scores and answers, partial (autosave); the linked player only", parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: Unknown or invalid field }, '403': { description: Forbidden }, '409': { description: 'preparation_not_open (before 14 days ahead of the planned talk, or no planned date), form_locked, form_changed' } } }
 

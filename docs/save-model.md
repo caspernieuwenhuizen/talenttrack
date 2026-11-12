@@ -35,6 +35,7 @@ not. Beside it, **Undo** and **Revert changes**.
 | [PDP self-reflection](pdp-cycle.md) | While the reflection window is open |
 | [The player's preparation on a PDP conversation form](pdp-cycle.md) | From 14 days before the talk until it starts. **Ready** is its own button, not a field. |
 | [PDP conversation form](pdp-cycle.md#conversation-forms) | The player's scores and answers until the talk starts; the trainer's scores, answers and development points until sign-off |
+| [PDP conversation mode](pdp-cycle.md) | The trainer's scores, on the same talk and the same route as the conversation form. Undo only: it carries fewer fields than the form, so it has no sitting snapshot of its own (see below) |
 | [Report Studio](reports.md#report-studio--building-a-report) | The draft of a report; **Publish** makes a version |
 
 **Why these.** They are all places where you *compose* — you write sentences
@@ -268,6 +269,12 @@ Three rules that hold whichever model you pick:
   at once when nothing is pending, after a pending save has landed, and after a
   save has failed (with `failed` set, so the caller can say so). It never
   rejects. `commit()` flushes through it. Don't write a wait of your own.
+- **Two forms share a `storageKey` only if they carry the same fields.** The
+  sitting snapshot is the whole form as it was, and restoring it treats a
+  field it does not carry as empty. A form that carries fewer fields of the
+  same record (the PDP conversation mode carries only the trainer's scores)
+  attaches without a `storageKey`, offers undo only, and never reads, writes
+  or clears the full form's snapshot.
 - **Say which model the surface is using.** A screen that saves itself shows
   the status line; a screen that does not shows a Save button. Silence is the
   failure this rule exists to remove.

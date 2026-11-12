@@ -1301,7 +1301,17 @@ class FrontendPdpManageView extends FrontendViewBase {
         // the spine below carries the same identity as the strip that stays
         // in view while scrolling (its copy is aria-hidden for that reason).
         $identity = self::talkIdentity( $file, $conv, $convs_repo );
-        self::renderTalkHero( $identity );
+        // #5080 — what part 2 draws, decided once; also used below.
+        $form_part = PdpFormConversationView::prepare( $conv_id, $user_id );
+        // #5082 — "Conversation mode" for the screen in the room: on a form
+        // talk part 2 draws, for a reader of the trainer's part. Same tab.
+        $mode_link = '';
+        if ( $form_part['draws'] && $form_part['access'] !== null && $form_part['access']->readsRoomDisplay() ) {
+            $mode_link = '<a class="tt-btn tt-btn-secondary tt-pdp-talk-hero__mode" data-tt-pdp-mode-open href="'
+                . esc_url( FrontendPdpConversationModeView::urlFor( $conv_id ) ) . '">'
+                . esc_html__( 'Conversation mode', 'talenttrack' ) . '</a>';
+        }
+        self::renderTalkHero( $identity, $mode_link );
 
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
 
@@ -1488,7 +1498,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         // shown read-only, so nothing written is hidden. The autosave never
         // sends either field then, and the endpoint leaves an omitted field
         // alone.
-        $form_part      = PdpFormConversationView::prepare( $conv_id, $user_id );
         $uses_form      = $form_part['form_talk'];
         $earlier_notes  = $uses_form ? trim( (string) ( $conv_row['notes'] ?? '' ) ) : '';
         $earlier_agreed = $uses_form ? trim( (string) ( $conv_row['agreed_actions'] ?? '' ) ) : '';
@@ -2456,8 +2465,9 @@ class FrontendPdpManageView extends FrontendViewBase {
      * hero component (#5107) exists.
      *
      * @param array{name:string, photo_url:string, status:string, meta:string, talk:string} $identity
+     * @param string $action_html an escaped control for the hero's row (#5082), or ''
      */
-    private static function renderTalkHero( array $identity ): void {
+    private static function renderTalkHero( array $identity, string $action_html = '' ): void {
         wp_enqueue_style(
             'tt-frontend-player-detail',
             TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
@@ -2479,7 +2489,11 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<p class="tt-player-hero__sub">' . esc_html( $identity['meta'] ) . '</p>';
         }
         echo '<p class="tt-player-hero__sub"><strong>' . esc_html( $identity['talk'] ) . '</strong></p>';
-        echo '</div></div></header>';
+        echo '</div>';
+        if ( $action_html !== '' ) {
+            echo '<div class="tt-pdp-talk-hero__actions">' . $action_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built from escaped parts by the caller.
+        }
+        echo '</div></header>';
     }
 
     private static function decisionLabel( string $decision ): string {

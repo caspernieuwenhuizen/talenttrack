@@ -152,6 +152,166 @@ final class PdpFormReader {
     }
 
     /**
+     * #5082 — the talk as the room display shows it: an allowlist, built
+     * here so the view, the REST route and any other room screen show the
+     * same thing. Everything not named below is left out of the answer, not
+     * hidden later. Who may ask is the caller's rule
+     * (`canRead() && readsCoachPart()`); this method projects what that
+     * reader reads.
+     *
+     * In: the player (name, photo, team, shirt number, position), the talk,
+     * the club's name and logo, the form's sections and items, per section
+     * both authors' averages and the number to discuss, per item both scores
+     * and "Bespreken", the shared fields (both texts) and the development
+     * points.
+     *
+     * Never in: the background (`EvidencePacket`), the trainer's section
+     * notes ("Toelichting", owner decision on #5082), any other text field
+     * of either author, what sign-off still needs, and sign-off itself.
+     *
+     * @return array<string,mixed>
+     */
+    public function forDisplay( PdpFormAccess $access, object $conversation, ?int $now_ts = null ): array {
+        $form       = $this->read( $access, $conversation, $now_ts );
+        $row        = (array) $conversation;
+        $definition = $form['form'] !== null ? (array) $form['form']['definition'] : null;
+        $player     = is_array( $form['player'] ) ? $form['player'] : null;
+        $coach      = is_array( $form['coach'] ) ? $form['coach'] : null;
+        $diffs      = is_array( $form['differences'] ) ? $form['differences'] : [];
+
+        $sections = [];
+        $scores   = [];
+        $shared   = [];
+        $goals    = [];
+        $scale    = [];
+        if ( $definition !== null ) {
+            for ( $i = 1; $i <= 5; $i++ ) {
+                $scale[] = [ 'value' => $i, 'label' => (string) ( $definition['scale'][ $i ]['label'] ?? (string) $i ) ];
+            }
+
+            $player_summary = $player !== null ? PdpFormSummary::of( $definition, $player['scores'], [], PdpFormAuthor::PLAYER ) : null;
+            $coach_summary  = $coach !== null ? PdpFormSummary::of( $definition, $coach['scores'], [], PdpFormAuthor::COACH ) : null;
+            foreach ( array_values( (array) $definition['sections'] ) as $n => $section ) {
+                $items = [];
+                $keys  = [];
+                foreach ( (array) $section['items'] as $item ) {
+                    $key    = (string) $item['key'];
+                    $keys[] = $key;
+                    $items[] = [ 'key' => $key, 'label' => (string) $item['label'], 'definition' => (string) $item['definition'] ];
+                    $scores[ $key ] = [
+                        'player'  => $player !== null ? ( $player['scores'][ $key ] ?? null ) : null,
+                        'coach'   => $coach !== null ? ( $coach['scores'][ $key ] ?? null ) : null,
+                        'discuss' => in_array( $key, $diffs, true ),
+                    ];
+                }
+                $sections[] = [
+                    'key'            => (string) $section['key'],
+                    'title'          => (string) $section['title'],
+                    'items'          => $items,
+                    'to_discuss'     => count( array_intersect( $keys, $diffs ) ),
+                    'player_average' => $player_summary !== null ? $player_summary['sections'][ $n ]['average'] : null,
+                    'coach_average'  => $coach_summary !== null ? $coach_summary['sections'][ $n ]['average'] : null,
+                ];
+            }
+
+            $prompts = [];
+            foreach ( (array) $definition['prompts'] as $prompt ) $prompts[ (string) $prompt['key'] ] = $prompt;
+            foreach ( PdpFormRegistry::sharedFields( $definition ) as $field ) {
+                $shared[] = [
+                    'key'    => $field,
+                    'label'  => (string) ( $prompts[ $field ]['label'] ?? $field ),
+                    'player' => $player !== null ? (string) ( $player['answers'][ $field ] ?? '' ) : null,
+                    'agreed' => $coach !== null ? (string) ( $coach['answers'][ $field ] ?? '' ) : null,
+                ];
+            }
+
+            $labels = [];
+            foreach ( PdpFormRegistry::items( $definition ) as $item ) $labels[ $item['key'] ] = $item['label'];
+            foreach ( (array) ( $form['goals'] ?? [] ) as $goal ) {
+                $goals[] = [
+                    'slot'       => (int) $goal['slot'],
+                    'label'      => (string) ( $prompts[ (string) $goal['prompt_key'] ]['label'] ?? $goal['prompt_key'] ),
+                    'action'     => (string) $goal['action'],
+                    'support'    => (string) $goal['support'],
+                    'due_date'   => $goal['due_date'],
+                    'item_label' => $goal['item_key'] !== null ? (string) ( $labels[ (string) $goal['item_key'] ] ?? '' ) : null,
+                ];
+            }
+        }
+
+        return [
+            'conversation_id' => $form['conversation_id'],
+            'file_id'         => (int) ( $row['pdp_file_id'] ?? 0 ),
+            'club'            => [
+                'name'     => (string) \TT\Infrastructure\Query\QueryHelpers::get_config( 'academy_name', 'TalentTrack' ),
+                'logo_url' => \TT\Infrastructure\Query\QueryHelpers::get_config( 'show_logo', '0' ) === '1'
+                    ? (string) \TT\Infrastructure\Query\QueryHelpers::get_config( 'logo_url', '' )
+                    : '',
+            ],
+            'player'          => self::displayPlayer( $access->playerId() ),
+            'talk'            => [
+                'sequence'     => (int) ( $row['sequence'] ?? 0 ),
+                'template'     => \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) ( $row['template_key'] ?? '' ) ),
+                'scheduled_at' => self::nullable( $row['scheduled_at'] ?? null ),
+                'conducted_at' => self::nullable( $row['conducted_at'] ?? null ),
+            ],
+            'form'            => $definition !== null ? [
+                'key'            => (string) $definition['form_key'],
+                'version'        => (int) $definition['version'],
+                'position_group' => (string) $definition['position_group'],
+                'scale'          => $scale,
+                'score_columns'  => [
+                    'player' => (string) ( $definition['score_columns']['player'] ?? '' ),
+                    'coach'  => (string) ( $definition['score_columns']['coach'] ?? '' ),
+                ],
+            ] : null,
+            'player_ready'    => $player !== null,
+            'sections'        => $sections,
+            'scores'          => $scores,
+            'shared'          => $shared,
+            'goals'           => $goals,
+            'state'           => [
+                'coach_writable'   => ( $form['state']['coach_writable'] ?? false ) === true,
+                'coach_signoff_at' => $form['state']['coach_signoff_at'] ?? null,
+            ],
+        ];
+    }
+
+    /**
+     * The player as the room display names them.
+     *
+     * @return array{id:int, name:string, photo_url:string, team:string, shirt_number:?int, position:string}
+     */
+    private static function displayPlayer( int $player_id ): array {
+        $player = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
+        if ( ! $player ) {
+            return [ 'id' => $player_id, 'name' => '', 'photo_url' => '', 'team' => '', 'shirt_number' => null, 'position' => '' ];
+        }
+        $p    = (array) $player;
+        $team = ! empty( $p['team_id'] ) ? \TT\Infrastructure\Query\QueryHelpers::get_team( (int) $p['team_id'] ) : null;
+
+        $position  = '';
+        $positions = json_decode( (string) ( $p['preferred_positions'] ?? '' ), true );
+        if ( is_array( $positions ) ) {
+            foreach ( $positions as $code ) {
+                $code = trim( (string) $code );
+                if ( $code === '' ) continue;
+                $position = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
+                break;
+            }
+        }
+
+        return [
+            'id'           => $player_id,
+            'name'         => \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player ),
+            'photo_url'    => \TT\Modules\Players\Services\PlayerPhoto::url( $player ),
+            'team'         => $team ? (string) ( ( (array) $team )['name'] ?? '' ) : '',
+            'shirt_number' => ! empty( $p['jersey_number'] ) ? (int) $p['jersey_number'] : null,
+            'position'     => $position,
+        ];
+    }
+
+    /**
      * The items where both scores are set and differ (owner decision 7:
      * "Bespreken" at any difference).
      *

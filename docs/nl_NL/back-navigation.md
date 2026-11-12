@@ -107,7 +107,10 @@ gewone view als de slug niet op de lijst staat, als hij al eerder is
 aangeroepen, als er al een keten is getekend, of als de sluit-URL geen
 recordpagina op dezelfde site is (`?tt_view=<slug>&id=<n>` en verder
 geen queryparameter, waarbij de slug zelf geen presentatieoppervlak is;
-dat hij routeerbaar is, controleert een test). Roep hem pas aan als
+dat hij routeerbaar is, controleert een test). Een recordpagina is
+`tt_view` plus `id`, plus hoogstens één benoemde sleutel voor een
+onderliggend record dat zelf geen pagina heeft: een POP-gesprek is
+`?tt_view=pdp&id=<dossier>&conv=<gesprek>`. Roep hem pas aan als
 alle toegangs- en recordcontroles geslaagd zijn: daarna blijft de keten
 de rest van het verzoek stil. Geeft hij `true`, dan laat de shell de kop, de
 shell-navigatie en de balk onderaan, de flashmeldingen, de overige
@@ -191,6 +194,11 @@ oppervlak waarvan de secties onder `classic` onbereikbaar zijn is
 kapot, niet uitgekleed. De vlag laat een oppervlak zonder
 recordidentiteit de strip ook gebruiken zonder een naam te verzinnen
 om langs de identiteitscontrole te komen.
+
+**Een recordpagina kan op een benoemd tabblad openen** met
+`#<panel-id>` in de URL, bij een strip in de pagina waarvan een tab dat
+paneel noemt. Het fragment wordt één keer gelezen, bij het laden, en
+nooit geschreven; al het andere laat de tabkeuze van de server staan.
 
 ### Een modusschakelaar is geen record-tabstrip
 

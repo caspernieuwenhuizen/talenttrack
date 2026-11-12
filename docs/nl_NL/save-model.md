@@ -36,6 +36,7 @@ maken** en **Wijzigingen terugdraaien**.
 | [POP-zelfreflectie](pdp-cycle.md) | Zolang het reflectievenster open staat |
 | [De voorbereiding van de speler op een POP-gespreksformulier](pdp-cycle.md) | Vanaf 14 dagen voor het gesprek tot het begint. **Klaar** is een eigen knop, geen veld. |
 | [POP-gespreksformulier](pdp-cycle.md#gespreksformulieren) | De scores en antwoorden van de speler tot het gesprek begint; de scores, antwoorden en ontwikkelpunten van de trainer tot het ondertekenen |
+| [POP-gespreksmodus](pdp-cycle.md) | De scores van de trainer, in hetzelfde gesprek en via dezelfde route als het gespreksformulier. Alleen ongedaan maken: hij heeft minder velden dan het formulier, dus geen eigen momentopname van de sessie (zie hieronder) |
 | [Report Studio](reports.md#report-studio--een-rapport-bouwen) | Het concept van een rapport; **Publiceren** maakt er een versie van |
 
 **Waarom juist deze.** Het zijn allemaal plekken waar je *schrijft* — zinnen
@@ -294,6 +295,13 @@ Drie regels die gelden welk model je ook kiest:
   openstaande opslag is aangekomen, en nadat een opslag is mislukt (dan staat
   `failed`, zodat de aanroeper dat kan melden). Hij wordt nooit afgewezen.
   `commit()` slaat via `flush()` op. Schrijf geen eigen wachtlus.
+- **Twee formulieren delen alleen een `storageKey` als ze dezelfde velden
+  hebben.** De momentopname van de sessie is het hele formulier zoals het was,
+  en bij het terugzetten geldt een veld dat er niet in zit als leeg. Een
+  formulier met minder velden van hetzelfde record (de POP-gespreksmodus heeft
+  alleen de scores van de trainer) koppelt zonder `storageKey`, biedt alleen
+  ongedaan maken, en leest, schrijft of wist de momentopname van het volledige
+  formulier nooit.
 - **Zeg welk model het scherm gebruikt.** Een scherm dat zichzelf opslaat toont
   de statusregel; een scherm dat dat niet doet toont een opslaanknop. Zwijgen is
   precies de fout die deze regel wegneemt.

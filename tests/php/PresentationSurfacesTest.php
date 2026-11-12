@@ -98,9 +98,9 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
     // The resolver fails closed
     // ---------------------------------------------------------------
 
-    public function test_the_shipped_config_claims_nothing_yet(): void {
+    public function test_the_shipped_config_claims_only_the_pdp_conversation_mode(): void {
         PresentationSurfaces::useFile( null );
-        $this->assertSame( [], PresentationSurfaces::map() );
+        $this->assertSame( [ 'pdp-conversation-mode' ], array_keys( PresentationSurfaces::map() ) );
         $this->assertFalse( PresentationSurfaces::claims( 'players' ) );
         $this->assertFalse( PresentationSurfaces::claims( 'pdp' ) );
     }
@@ -237,6 +237,42 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
         $this->assertFalse( PresentationSurfaces::isPresenting() );
         $this->assertTrue( PresentationSurfaces::isRecordUrl( $this->recordUrl() ) );
         $this->assertTrue( PresentationSurfaces::isRecordUrl( $this->recordUrl() . '#tt-form' ), 'a fragment is not a query argument' );
+    }
+
+    public function test_a_sub_record_key_is_accepted_once_beside_id_and_nothing_else(): void {
+        $home = RecordLink::dashboardUrl();
+        $url  = static fn( string $query ): string => $home . ( strpos( $home, '?' ) === false ? '?' : '&' ) . $query;
+
+        $this->assertTrue( PresentationSurfaces::isRecordUrl( $url( 'tt_view=pdp&id=4&conv=12' ) ), 'a talk inside a PDP file' );
+        $this->assertTrue( PresentationSurfaces::isRecordUrl( $url( 'tt_view=pdp&id=4&conv=12' ) . '#tt-pdp-pane-conversation' ), 'with the tab to open on' );
+
+        $refused = [
+            'a padded sub-record'       => 'tt_view=pdp&id=4&conv=012',
+            'a zero sub-record'         => 'tt_view=pdp&id=4&conv=0',
+            'a negative sub-record'     => 'tt_view=pdp&id=4&conv=-2',
+            'a sub-record array'        => 'tt_view=pdp&id=4&conv[]=12',
+            'a non-numeric sub-record'  => 'tt_view=pdp&id=4&conv=abc',
+            'the key twice'             => 'tt_view=pdp&id=4&conv=12&conv=13',
+            'two ids'                   => 'tt_view=pdp&id=4&id=5&conv=12',
+            'a sub-record without id'   => 'tt_view=pdp&conv=12',
+            'an unknown key beside it'  => 'tt_view=pdp&id=4&conv=12&tab=form',
+            'view state as a key'       => 'tt_view=pdp&id=4&action=edit',
+            'an encoded ampersand'      => 'tt_view=pdp&id=4&amp;conv=12',
+        ];
+        foreach ( $refused as $why => $query ) {
+            $this->assertFalse( PresentationSurfaces::isRecordUrl( $url( $query ) ), 'accepted ' . $why );
+        }
+    }
+
+    public function test_the_conversation_modes_close_target_is_a_route(): void {
+        // #5124's runtime check no longer asks; this does.
+        $close = \TT\Modules\Pdp\Frontend\FrontendPdpConversationModeView::closeUrl( 4, 12 );
+        parse_str( (string) wp_parse_url( $close, PHP_URL_QUERY ), $args );
+
+        $this->assertTrue( PresentationSurfaces::isRecordUrl( $close ) );
+        $this->assertSame( 'pdp', $args['tt_view'] );
+        $this->assertSame( 'tt-pdp-pane-conversation', (string) wp_parse_url( $close, PHP_URL_FRAGMENT ) );
+        $this->assertContains( 'pdp', \TT\Shared\Cli\AdminRoutesCommand::routableSlugs() );
     }
 
     public function test_every_shipped_presentation_surface_is_routable(): void {
@@ -376,6 +412,55 @@ class PresentationSurfacesTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'tt-support-grant', $html );
         $this->assertStringContainsString( 'Checking the room display', $html );
+    }
+
+    public function test_a_room_display_on_a_demo_install_shows_the_demo_marker(): void {
+        // #5082 — a TV showing demo records must say so. Not a safety
+        // banner: the wrapper draws it right after them.
+        $before = (string) get_option( 'tt_demo_mode', 'off' );
+        \TT\Modules\DemoData\DemoMode::set( \TT\Modules\DemoData\DemoMode::ON );
+        try {
+            $html = $this->renderPresenting();
+        } finally {
+            update_option( 'tt_demo_mode', $before );
+        }
+
+        $this->assertStringContainsString( 'tt-dashboard--presentation', $html );
+        $this->assertSame( 1, substr_count( $html, 'tt-dash-demo-pill' ), 'one marker, and no header carrying a second' );
+        $this->assertStringNotContainsString( 'tt-dash-header', $html );
+        $this->assertFalse(
+            has_action( 'tt_dashboard_safety_banners', [ DashboardShortcode::class, 'renderDemoPill' ] ),
+            'the marker is not on the safety hook'
+        );
+    }
+
+    public function test_a_room_display_on_a_real_install_shows_no_demo_marker(): void {
+        $before = (string) get_option( 'tt_demo_mode', 'off' );
+        update_option( 'tt_demo_mode', 'off' );
+        try {
+            $html = $this->renderPresenting();
+        } finally {
+            update_option( 'tt_demo_mode', $before );
+        }
+
+        $this->assertStringContainsString( 'tt-dashboard--presentation', $html );
+        $this->assertStringNotContainsString( 'tt-dash-demo-pill', $html );
+    }
+
+    public function test_the_header_keeps_the_demo_marker_on_a_demo_install(): void {
+        $before = (string) get_option( 'tt_demo_mode', 'off' );
+        \TT\Modules\DemoData\DemoMode::set( \TT\Modules\DemoData\DemoMode::ON );
+        try {
+            $_GET = [ 'tt_view' => 'no-such-view-5082' ];
+            $html = DashboardShortcode::render();
+        } finally {
+            update_option( 'tt_demo_mode', $before );
+        }
+
+        $this->assertSame( 1, substr_count( $html, 'tt-dash-demo-pill' ) );
+        $pill = (int) strpos( $html, 'tt-dash-demo-pill' );
+        $this->assertGreaterThan( (int) strpos( $html, 'tt-dash-actions' ), $pill, 'in the header\'s actions row, where it was' );
+        $this->assertLessThan( (int) strpos( $html, 'tt-docs-drawer' ), $pill );
     }
 
     public function test_the_impersonation_banner_is_drawn_outside_the_shortcode(): void {

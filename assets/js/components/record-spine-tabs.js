@@ -22,7 +22,7 @@
         return id ? document.getElementById(id) : null;
     }
 
-    function select(strip, tab, moveFocus) {
+    function select(strip, tab, moveFocus, quiet) {
         var tabs = strip.querySelectorAll('[role="tab"]');
         Array.prototype.forEach.call(tabs, function (t) {
             var on = t === tab;
@@ -37,8 +37,10 @@
         if (moveFocus) tab.focus();
 
         // A tab reached by keyboard can be outside the strip's scroll
-        // window; the focus ring alone would then be invisible.
-        if (typeof tab.scrollIntoView === 'function') {
+        // window; the focus ring alone would then be invisible. Not for the
+        // selection a page load makes from the URL: nothing has focus then,
+        // and the page must not jump.
+        if (!quiet && typeof tab.scrollIntoView === 'function') {
             tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         }
 
@@ -141,9 +143,31 @@
         else if (typeof wide.addListener === 'function') wide.addListener(apply);
     }
 
+    /*
+     * #5082 — a record page can open on a named tab: `#<panel-id>` selects
+     * that panel when it is one of this strip's own. Read once, on load, and
+     * never written, so tab use adds nothing to the browser history. The
+     * fragment is input: it is only compared, as a string, with the tabs'
+     * `aria-controls`, never handed to a selector. Anything else (an unknown
+     * id, another strip's panel, an ordinary anchor) leaves the server's
+     * choice standing.
+     */
+    function openFromFragment(strip) {
+        var hash = window.location.hash ? window.location.hash.slice(1) : '';
+        if (hash === '') return;
+        var tabs = strip.querySelectorAll('[role="tab"]');
+        for (var i = 0; i < tabs.length; i++) {
+            if (tabs[i].getAttribute('aria-controls') === hash) {
+                select(strip, tabs[i], false, true);
+                return;
+            }
+        }
+    }
+
     function init() {
         var strips = document.querySelectorAll('[data-tt-spine-tabs]');
         Array.prototype.forEach.call(strips, wire);
+        Array.prototype.forEach.call(strips, openFromFragment);
         placeAside();
         measureSpine();
     }

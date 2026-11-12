@@ -222,6 +222,14 @@
 .tt-pdp-part__earlier-text { overflow-wrap: anywhere; }
 .tt-pdp-part__earlier-text p { margin: 0 0 var(--tt-sp-2, 8px); }
 
+/* #5082 — "Conversation mode" in the talk's hero, on its own row. */
+.tt-pdp-talk-hero__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
 /* The irreversible steps, outside both parts. */
 .tt-pdp-finish-h {
     margin: var(--tt-sp-5, 24px) 0 var(--tt-sp-3, 12px);

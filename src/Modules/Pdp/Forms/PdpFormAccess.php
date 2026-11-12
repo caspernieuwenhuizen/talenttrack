@@ -97,6 +97,17 @@ final class PdpFormAccess {
         return $this->isPlayer() || $this->parentReads();
     }
 
+    /**
+     * #5082 — may the user open the talk on the room display? A reader of
+     * the trainer's part, so a player before sign-off never shows half a
+     * talk. Today: staff who see the file, and the player and a parent after
+     * sign-off. The route, the view and the conversation page's button ask
+     * this, and nothing else.
+     */
+    public function readsRoomDisplay(): bool {
+        return $this->canRead() && $this->readsCoachPart();
+    }
+
     /** Is the user the player the form is about? */
     public function isPlayer(): bool {
         if ( $this->is_player === null ) {

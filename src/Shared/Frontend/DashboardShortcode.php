@@ -622,6 +622,9 @@ class DashboardShortcode {
             $root_classes = trim( 'tt-dashboard tt-dashboard--presentation ' . ShellPreference::rootClass() . ' ' . ThemePreference::rootClass() );
             echo '<div class="' . esc_attr( $root_classes ) . '">';
             do_action( 'tt_dashboard_safety_banners' );
+            // #5082 — the demo marker stays on a room display: it says the
+            // records on the screen are not real.
+            self::renderDemoPill();
             echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered by the view.
             echo '</div>';
         } else {
@@ -1636,6 +1639,11 @@ class DashboardShortcode {
             case 'pdp-planning':
                 \TT\Modules\Pdp\Frontend\FrontendPdpPlanningView::render( $user_id, $is_admin );
                 return true;
+            // #5082 — a PDP talk on the screen in the room, a presentation
+            // surface. The view checks the conversation itself.
+            case 'pdp-conversation-mode':
+                \TT\Modules\Pdp\Frontend\FrontendPdpConversationModeView::render( $user_id );
+                return true;
             case 'player-status-methodology':
                 \TT\Modules\Players\Frontend\FrontendPlayerStatusMethodologyView::render( $user_id, $is_admin );
                 return true;
@@ -2577,6 +2585,25 @@ class DashboardShortcode {
         echo '</form>';
     }
 
+    /**
+     * DEMO indicator. Info-only span (not a link) — hover or focus for the
+     * explanation. The wp-admin Tools page is reachable from the user
+     * dropdown if an admin actually wants to manage demo data.
+     *
+     * #5082 — the header draws it, and so does a presenting room display:
+     * a TV showing demo records with nothing to say so would mislead the
+     * room. It marks the install's data, so it is not a safety banner.
+     */
+    private static function renderDemoPill(): void {
+        if ( ! class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) || ! \TT\Modules\DemoData\DemoMode::isOn() ) {
+            return;
+        }
+        $demo_tip = __( 'TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off.', 'talenttrack' );
+        echo '<span class="tt-dash-demo-pill" tabindex="0" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
+            . esc_html__( 'DEMO', 'talenttrack' )
+            . '</span>';
+    }
+
     private static function renderHeader(): void {
         $logo      = QueryHelpers::get_config( 'logo_url', '' );
         $show_logo = QueryHelpers::get_config( 'show_logo', '0' ) === '1';
@@ -2594,8 +2621,6 @@ class DashboardShortcode {
         $is_wp_admin = current_user_can( 'administrator' );
         $base_url    = self::shortcodeBaseUrl();
         $help_url    = $base_url ? add_query_arg( 'tt_view', 'docs', $base_url ) : admin_url( 'admin.php?page=tt-docs' );
-        $demo_on     = class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) && \TT\Modules\DemoData\DemoMode::isOn();
-        $demo_tip    = __( 'TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off.', 'talenttrack' );
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
@@ -2643,15 +2668,7 @@ class DashboardShortcode {
             echo $extras; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — hook contract: pre-escaped HTML.
         }
 
-        // DEMO indicator. Info-only span (not a link) — hover or focus
-        // for the explanation. The wp-admin Tools page is reachable from
-        // the user dropdown if an admin actually wants to manage demo
-        // data.
-        if ( $demo_on ) {
-            echo '<span class="tt-dash-demo-pill" tabindex="0" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
-                . esc_html__( 'DEMO', 'talenttrack' )
-                . '</span>';
-        }
+        self::renderDemoPill();
 
         // #1452 — running version, operator-only, sits in the actions row
         // beside the help button so operators can confirm what's deployed
