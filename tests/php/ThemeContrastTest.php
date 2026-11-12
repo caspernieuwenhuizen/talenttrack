@@ -300,6 +300,42 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         $this->assertSame( [], array_values( array_diff( self::ROOT_ONLY_ALIASES, array_keys( $offenders ) ) ), 'fixed: delete it from ROOT_ONLY_ALIASES' );
     }
 
+    /**
+     * #5136 — team chemistry's sandbox banner hint reads at 4.5:1 on the
+     * banner's tint, laid over paper and over the soft background, in every
+     * palette. Both colours resolve through the sheet's own aliases.
+     */
+    public function test_the_chemistry_sandbox_hint_reads(): void {
+        $sheet = $this->css( 'frontend-team-chemistry.css' );
+        $local = $this->declarations( $sheet );
+        $this->assertSame( 1, preg_match( '/\.tt-tc-override-hint\s*\{[^}]*?(?:^|[;\s{])color:\s*([^;]+);/', $sheet, $fg ), 'hint colour' );
+        $this->assertSame( 1, preg_match( '/\.tt-tc-override-banner\s*\{[^}]*background:\s*([^;]+);/', $sheet, $bg ), 'banner fill' );
+
+        foreach ( $this->palettes() as $name => $p ) {
+            $d    = array_merge( $local, $p['decls'] );
+            $text = $this->resolve( trim( $fg[1] ), $d );
+            $this->assertNotNull( $text, "$name hint colour does not resolve" );
+            $fill = $this->rawValue( trim( $bg[1] ), $d );
+            foreach ( [ '--tt-paper', '--tt-bg-soft' ] as $under ) {
+                $this->assertRatio( 4.5, (string) $text, $this->fill( $fill, $this->token( $under, $d ), $d ), "$name chemistry sandbox hint over $under" );
+            }
+        }
+    }
+
+    /**
+     * Follow a `var()` chain through the declarations to the first value
+     * that is not itself a `var()` of a declared property.
+     *
+     * @param array<string, string> $d
+     */
+    private function rawValue( string $value, array $d ): string {
+        for ( $i = 0; $i < 10; $i++ ) {
+            if ( ! preg_match( '/^var\(\s*(--[a-z0-9-]+)\s*(?:,.*)?\)$/s', $value, $m ) || ! isset( $d[ $m[1] ] ) ) break;
+            $value = trim( $d[ $m[1] ] );
+        }
+        return $value;
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {
