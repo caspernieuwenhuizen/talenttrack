@@ -44,6 +44,25 @@
 		}
 		var n = Number( data.receivers || 0 );
 		box.appendChild( el( 'p', 'tt-rsch-receivers', String( n === 1 ? words.receiversOne : words.receiversMany ).replace( '%d', String( n ) ) ) );
+		// #5135 — who does not receive it, and why: the run's own skip list.
+		( data.left_out_people || [] ).forEach( function ( group ) {
+			var wrap = el( 'div', 'tt-rsch-skipped' );
+			wrap.setAttribute( 'data-reason', group.reason );
+			wrap.appendChild( el( 'p', 'tt-rsch-skipped-why', group.message ) );
+			var names = group.names || [];
+			if ( names.length && names.length <= Number( words.inline || 5 ) ) {
+				var text = names.length === 1 ? names[ 0 ] : names.slice( 0, -1 ).join( words.comma ) + words.and + names[ names.length - 1 ];
+				wrap.appendChild( el( 'p', 'tt-rsch-skipped-names', text ) );
+			} else if ( names.length ) {
+				var details = el( 'details', 'tt-rsch-skipped-list' );
+				details.appendChild( el( 'summary', '', String( words.showNames ).replace( '%d', String( names.length ) ) ) );
+				var list = el( 'ul' );
+				names.forEach( function ( name ) { list.appendChild( el( 'li', '', name ) ); } );
+				details.appendChild( list );
+				wrap.appendChild( details );
+			}
+			box.appendChild( wrap );
+		} );
 		if ( ! data.blocks || ! data.blocks.length ) {
 			box.appendChild( el( 'p', 'tt-notice', words.none ) );
 		} else {

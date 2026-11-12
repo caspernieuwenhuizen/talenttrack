@@ -41,6 +41,9 @@ final class ReportScheduleScreen {
 
     public const ACTION = 'tt_report_schedule_save';
 
+    /** #5135 — up to this many names are listed inline; more open in a list. */
+    public const INLINE_NAMES = 5;
+
     public static function init(): void {
         add_action( 'admin_post_' . self::ACTION, [ self::class, 'handleSave' ] );
     }
@@ -243,12 +246,39 @@ final class ReportScheduleScreen {
                 /* translators: %d: number of accounts that receive the PDF */
                 'receiversMany' => _n( 'Sent to %d account.', 'Sent to %d accounts.', 2, 'talenttrack' ),
                 'failed'    => __( 'What they get could not be worked out. Save, and the schedule list shows it.', 'talenttrack' ),
+                /* translators: %d: number of names */
+                'showNames' => __( 'Show the %d names', 'talenttrack' ),
+                'inline'    => self::INLINE_NAMES,
+                // #5135 — the list separators the screen joins names with.
+                'and'       => _x( ' and ', 'between the last two names of a list', 'talenttrack' ),
+                'comma'     => _x( ', ', 'between names of a list', 'talenttrack' ),
             ],
         ] );
     }
 
     /**
-     * @param array{blocks: list<array{id:string, label:string}>, left_out: list<array{id:string, label:string, reason:string}>, receivers: int, left_out_recipients: int, message: string} $preview
+     * The names of the people left out for one reason: inline up to five,
+     * otherwise in a list that opens.
+     *
+     * @param list<string> $names
+     */
+    private static function renderNames( array $names ): void {
+        if ( $names === [] ) return;
+        if ( count( $names ) <= self::INLINE_NAMES ) {
+            echo '<p class="tt-rsch-skipped-names">' . esc_html( wp_sprintf( '%l', $names ) ) . '</p>';
+            return;
+        }
+        echo '<details class="tt-rsch-skipped-list"><summary>' . esc_html( sprintf(
+            /* translators: %d: number of names */
+            __( 'Show the %d names', 'talenttrack' ),
+            count( $names )
+        ) ) . '</summary><ul>';
+        foreach ( $names as $name ) echo '<li>' . esc_html( $name ) . '</li>';
+        echo '</ul></details>';
+    }
+
+    /**
+     * @param array{blocks: list<array{id:string, label:string}>, left_out: list<array{id:string, label:string, reason:string}>, receivers: int, left_out_recipients: int, left_out_people: list<array{reason:string, count:int, message:string, names:list<string>}>, message: string} $preview
      */
     private static function renderPreview( array $preview ): void {
         echo '<h2 class="tt-rsch-preview-title">' . esc_html__( 'What they get', 'talenttrack' ) . '</h2>';
@@ -258,6 +288,13 @@ final class ReportScheduleScreen {
         }
         /* translators: %d: number of accounts that receive the PDF */
         echo '<p class="tt-rsch-receivers">' . esc_html( sprintf( _n( 'Sent to %d account.', 'Sent to %d accounts.', $preview['receivers'], 'talenttrack' ), $preview['receivers'] ) ) . '</p>';
+        // #5135 — who does not receive it, and why: the run's own skip list.
+        foreach ( $preview['left_out_people'] as $group ) {
+            echo '<div class="tt-rsch-skipped" data-reason="' . esc_attr( $group['reason'] ) . '">';
+            echo '<p class="tt-rsch-skipped-why">' . esc_html( $group['message'] ) . '</p>';
+            self::renderNames( $group['names'] );
+            echo '</div>';
+        }
         if ( $preview['blocks'] === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'Nothing: no block is one every recipient may read.', 'talenttrack' ) . '</p>';
         } else {

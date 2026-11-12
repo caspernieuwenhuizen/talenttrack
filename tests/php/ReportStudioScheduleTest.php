@@ -588,6 +588,81 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertLessThanOrEqual( 6, $per_reader, sprintf( 'each extra reader costs a bounded number of statements (%.1f), not one per block', $per_reader ) );
     }
 
+    // ---- #5135: who is left out ---------------------------------------------------
+
+    public function test_the_preview_names_who_is_left_out_and_why(): void {
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'tt_coach' ] ] );
+        $report   = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+
+        $preview = ReportSchedules::preview( $report, [ 'tt_coach' ], $this->hod, [ 'report_id' => $id, 'period' => '' ] );
+        $this->assertSame( 1, $preview['receivers'], 'the coach of the team' );
+        $this->assertSame( 1, $preview['left_out_recipients'] );
+        $this->assertCount( 1, $preview['left_out_people'] );
+        $group = $preview['left_out_people'][0];
+        $this->assertSame( 'no_read_access', $group['reason'] );
+        $this->assertSame( 1, $group['count'] );
+        $this->assertStringContainsString( 'may not read this report', $group['message'] );
+        $this->assertSame( [ "Sched Persona{$this->coach_b}" ], $group['names'], 'the coach of another team, by the name on their person record' );
+        $this->assertNotContains( (string) get_userdata( $this->coach_b )->display_name, $group['names'], 'never by the account display name' );
+
+        $html = $this->renderScreen( $this->hod, $report, (string) $schedule );
+        $this->assertStringContainsString( 'tt-rsch-skipped', $html, 'shown under the recipient count' );
+        $this->assertStringContainsString( esc_html( $group['message'] ), $html );
+        $this->assertStringContainsString( "Sched Persona{$this->coach_b}", $html, 'one name is listed inline' );
+    }
+
+    public function test_with_nobody_left_out_nothing_extra_shows(): void {
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'user:' . $this->hod, 'user:' . $this->coach_a ] ] );
+        $report   = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+
+        $preview = ReportSchedules::preview( $report, [ 'user:' . $this->hod, 'user:' . $this->coach_a ], $this->hod, [ 'report_id' => $id, 'period' => '' ] );
+        $this->assertSame( [], $preview['left_out_people'] );
+        $this->assertStringNotContainsString( 'tt-rsch-skipped', $this->renderScreen( $this->hod, $report, (string) $schedule ) );
+    }
+
+    public function test_more_than_five_names_open_in_a_list(): void {
+        for ( $i = 0; $i < 6; $i++ ) $this->persona( 'tt_coach', 'head_coach', $this->team_b, "other{$i}-5135@example.test" );
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $schedule = $this->schedule( $id, [ 'recipients' => [ 'tt_coach' ] ] );
+        $html     = $this->renderScreen( $this->hod, (array) ( new ReportsRepository() )->find( $id ), (string) $schedule );
+        $this->assertMatchesRegularExpression( '/<details class="tt-rsch-skipped-list"><summary>Show the 7 names<\/summary>/', $html, 'seven coaches of another team, in a list that opens' );
+    }
+
+    public function test_the_preview_and_the_run_leave_out_the_same_people(): void {
+        $this->needsPdf();
+        global $wpdb;
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $entries  = [ 'tt_coach', 'user:' . $this->hod ];
+        $schedule = $this->schedule( $id, [ 'recipients' => $entries ] );
+        $report   = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+
+        $resolved = ScheduledReportsRunner::resolveRecipients( $entries );
+        $preview  = ReportSchedules::resolve( $resolved, $this->hod, $report )['skipped'];
+        $this->runOnce( $schedule );
+
+        $payload = json_decode( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log WHERE action = 'scheduled_report.run' AND entity_id = %d ORDER BY id DESC LIMIT 1",
+            $schedule
+        ) ), true );
+        $this->assertIsArray( $payload, 'the run was logged' );
+        $key = static fn( array $s ): string => $s['reason'] . '|' . (int) $s['user_id'];
+        $ran = array_map( $key, (array) $payload['skipped'] );
+        $saw = array_map( $key, $preview );
+        sort( $ran );
+        sort( $saw );
+        $this->assertNotSame( [], $saw, 'Precondition: someone is left out.' );
+        $this->assertContains( 'no_read_access|' . $this->coach_b, $saw );
+        $this->assertTrue( (bool) ( $payload['ok'] ?? false ), 'Precondition: the run sent.' );
+        sort( $this->sent );
+        $this->assertSame( [ 'coach-a-4963@example.test', 'hod-4963@example.test' ], $this->sent, 'and to exactly the people the preview counts' );
+        $this->assertSame( $saw, $ran, 'the preview shows exactly who the run leaves out' );
+    }
+
     // ---- helpers ------------------------------------------------------------------
 
     /** @return list<array<string,mixed>> */

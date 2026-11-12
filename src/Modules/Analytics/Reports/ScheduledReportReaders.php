@@ -45,15 +45,51 @@ final class ScheduledReportReaders {
      * @return list<int>
      */
     public static function receivers( array $resolved, callable $receives ): array {
+        return self::receiverIds( self::sort( $resolved, $receives )['allowed'] );
+    }
+
+    /**
+     * The accounts among the recipients `sort()` allowed, once each.
+     *
+     * @param list<\TT\Modules\Comms\Domain\Recipient> $allowed
+     * @return list<int>
+     */
+    public static function receiverIds( array $allowed ): array {
         $out = [];
-        foreach ( $resolved['recipients'] as $recipient ) {
+        foreach ( $allowed as $recipient ) {
             $user_id = (int) $recipient->userId;
-            if ( $user_id <= 0 || in_array( $user_id, $out, true ) ) continue;
-            if ( ! ExportGate::mayExport( $user_id ) ) continue;
-            if ( ! $receives( $user_id ) ) continue;
-            $out[] = $user_id;
+            if ( $user_id > 0 && ! in_array( $user_id, $out, true ) ) $out[] = $user_id;
         }
         return $out;
+    }
+
+    /**
+     * #5135 — who of the resolved recipients receives the PDF, and who is
+     * left out and why: the one decision a run sends by and a schedule's
+     * preview shows. A file is a right of its own, asked first
+     * (`no_file_access`, #4718); then the report's own read rule
+     * (`no_read_access`). The entries `resolveRecipients()` already left out
+     * come first in `skipped`, as they are.
+     *
+     * @param Resolved            $resolved
+     * @param callable(int): bool $receives the report's own read rule
+     * @return array{allowed: list<\TT\Modules\Comms\Domain\Recipient>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>}
+     */
+    public static function sort( array $resolved, callable $receives ): array {
+        $allowed = [];
+        $skipped = $resolved['skipped'];
+        foreach ( $resolved['recipients'] as $recipient ) {
+            $user_id = (int) $recipient->userId;
+            $via     = $resolved['via'][ $user_id ] ?? '';
+            if ( ! ExportGate::mayExport( $user_id ) ) {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_file_access', 'via' => $via ];
+            } elseif ( $receives( $user_id ) ) {
+                $allowed[] = $recipient;
+            } else {
+                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $user_id, 'reason' => 'no_read_access', 'via' => $via ];
+            }
+        }
+        return [ 'allowed' => $allowed, 'skipped' => $skipped ];
     }
 
     /**
@@ -65,8 +101,19 @@ final class ScheduledReportReaders {
      * @return list<int>
      */
     public static function readers( array $resolved, int $owner_id, callable $receives ): array {
-        $readers   = [ $owner_id ];
-        $receivers = self::receivers( $resolved, $receives );
+        return self::readersOf( $resolved, $owner_id, self::receivers( $resolved, $receives ) );
+    }
+
+    /**
+     * The readers, the owner first, from receivers already decided.
+     *
+     * @param Resolved  $resolved
+     * @param int       $owner_id  the schedule's `created_by`
+     * @param list<int> $receivers
+     * @return list<int>
+     */
+    public static function readersOf( array $resolved, int $owner_id, array $receivers ): array {
+        $readers = [ $owner_id ];
         foreach ( $receivers as $user_id ) {
             if ( ! in_array( $user_id, $readers, true ) ) $readers[] = $user_id;
         }
