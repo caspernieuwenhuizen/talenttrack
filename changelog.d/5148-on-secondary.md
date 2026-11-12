@@ -9,5 +9,7 @@ printed blue on a slightly lighter blue. Where a theme's colours are too close
 together, that text now uses the theme's deepest colour, which reads at 4.5:1
 or better. This changes Middernacht, Oranje, Polder, Stadionlicht,
 Wapenschild and Wedstrijddag; the default theme and the other themes look the
-same. Kristalblauw is not changed yet: its header mark keeps its current
-colours until that is decided.
+same. One exception on the default theme: while you press the goal button in
+a live match, it now turns a lighter gold instead of a darker one, and it
+follows the theme's colour on every theme. Kristalblauw is not changed yet:
+its header mark keeps its current colours until that is decided.

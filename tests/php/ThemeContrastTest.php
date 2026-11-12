@@ -353,6 +353,15 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         }
     }
 
+    /** `color-mix(in srgb, $hex $share, white)`, as the browser mixes it. */
+    private function mixWithWhite( string $hex, float $share ): string {
+        $out = [];
+        foreach ( [ 1, 3, 5 ] as $i ) {
+            $out[] = (int) round( hexdec( substr( $hex, $i, 2 ) ) * $share + 255 * ( 1 - $share ) );
+        }
+        return sprintf( '#%02x%02x%02x', $out[0], $out[1], $out[2] );
+    }
+
     /**
      * Follow a `var()` chain through the declarations to the first value
      * that is not itself a `var()` of a declared property.
@@ -376,13 +385,22 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         $tokens = $this->declarations( $this->css( 'tokens.css' ) );
         $this->assertSame( 'var(--tt-primary)', $tokens['--tt-color-on-secondary'] ?? null, 'the default design keeps the primary' );
 
+        $this->assertSame(
+            1,
+            preg_match( '/\.tt-mexec \.tt-mexec-score-btn--goal:active\s*\{\s*background:\s*color-mix\(in srgb, var\(--tt-mx-gold\) (\d+)%, white\);\s*\}/', $this->css( 'frontend-match-execution.css' ), $pressed ),
+            'the pressed goal button lightens the gold toward white'
+        );
+
         foreach ( $this->palettes() as $name => $p ) {
             $d = $p['decls'];
             // The ink is the other text the guard below accepts on a
             // secondary fill (the landing dashboard's call to action).
             $this->assertRatio( 4.5, $this->token( '--tt-ink', $d ), $this->token( '--tt-secondary', $d ), "$name ink on the secondary fill" );
             if ( $this->excused( $name, 'on-secondary' ) ) continue;
-            $this->assertRatio( 4.5, $this->token( '--tt-color-on-secondary', $d ), $this->token( '--tt-secondary', $d ), "$name text on the secondary fill" );
+            $on = $this->token( '--tt-color-on-secondary', $d );
+            $this->assertRatio( 4.5, $on, $this->token( '--tt-secondary', $d ), "$name text on the secondary fill" );
+            // The goal button while pressed: the secondary lightened toward white.
+            $this->assertRatio( 4.5, $on, $this->mixWithWhite( $this->token( '--tt-secondary', $d ), (float) $pressed[1] / 100 ), "$name text on the pressed goal button" );
         }
     }
 

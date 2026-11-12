@@ -1072,7 +1072,7 @@
     border-color: var(--tt-mx-gold);
     color: var(--tt-color-on-secondary, var(--tt-mx-primary));
 }
-.tt-mexec .tt-mexec-score-btn--goal:active { background: #d8a91d; }
+.tt-mexec .tt-mexec-score-btn--goal:active { background: color-mix(in srgb, var(--tt-mx-gold) 88%, white); }
 .tt-mexec .tt-mexec-score-num { border: none; }
 
 /* ---- Timer — clock chip + live dot -------------------------------- */
