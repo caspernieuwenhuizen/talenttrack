@@ -173,7 +173,8 @@ final class ScheduledReportsRunner {
      * Who receives a KPI schedule, with which scope, and who is left out.
      *
      * A role key expands to its users in this club, and a member of the role
-     * from outside it is left out (`not_in_club`); a plain address that
+     * from outside it is left out (`not_in_club`), and so is a member in it
+     * with no email address (`no_email`, #5150); a plain address that
      * belongs to an account in this club is that account, any other address
      * has no account here. An account receives the CSV built with its
      * own scope, when `FactQuery::canRead()` lets it read the fact; accounts
@@ -195,7 +196,7 @@ final class ScheduledReportsRunner {
         $via       = [];
         $addresses = [];
         $skipped   = [];
-        $foreign   = [];
+        $handled   = [];
         foreach ( $entries as $entry ) {
             $entry = trim( (string) $entry );
             if ( $entry === '' ) continue;
@@ -222,18 +223,24 @@ final class ScheduledReportsRunner {
             foreach ( $role_users as $u ) {
                 $user_id = (int) ( $u->ID ?? 0 );
                 if ( $user_id <= 0 || isset( $users[ $user_id ] ) ) continue;
-                if ( isset( $foreign[ $user_id ] ) ) continue;
+                if ( isset( $handled[ $user_id ] ) ) continue;
                 if ( ! self::inClub( $user_id ) ) {
-                    $foreign[ $user_id ] = true;
+                    $handled[ $user_id ] = true;
                     $skipped[]           = self::notInClub( $entry );
                     continue;
                 }
                 $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
-                if ( $email === '' || ! is_email( $email ) ) continue;
+                if ( $email === '' || ! is_email( $email ) ) {
+                    // #5150 — in the club, so recorded, as a PDF schedule does.
+                    $handled[ $user_id ] = true;
+                    $skipped[]           = [ 'email' => '', 'user_id' => $user_id, 'reason' => self::NO_EMAIL, 'via' => $entry ];
+                    continue;
+                }
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
                 $via[ $user_id ]   = $entry;
             }
         }
+        $skipped = self::withoutMailed( $skipped, $users );
 
         $fact          = FactRegistry::find( $fact_key );
         $entity        = $fact !== null ? $fact->readEntity : '';
@@ -311,6 +318,19 @@ final class ScheduledReportsRunner {
     /** Does this account have a person record in the current club? */
     private static function inClub( int $user_id ): bool {
         return QueryHelpers::person_id_for_user( $user_id ) > 0;
+    }
+
+    /**
+     * #5150 — an account that is mailed is never also left out, whichever
+     * entry reached it first: a role can skip a member as `no_email` that an
+     * address typed later turns out to belong to.
+     *
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
+     * @param array<int, Recipient>                                                 $users
+     * @return list<array{email: string, user_id: int, reason: string, via: string}>
+     */
+    private static function withoutMailed( array $skipped, array $users ): array {
+        return array_values( array_filter( $skipped, static fn( array $s ): bool => $s['user_id'] <= 0 || ! isset( $users[ $s['user_id'] ] ) ) );
     }
 
     /**
@@ -813,7 +833,7 @@ final class ScheduledReportsRunner {
             }
             if ( ! $matched ) $unresolved[] = $entry;
         }
-        return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => $skipped, 'unresolved' => $unresolved ];
+        return [ 'recipients' => array_values( $users ), 'via' => $via, 'skipped' => self::withoutMailed( $skipped, $users ), 'unresolved' => $unresolved ];
     }
 
     /** #4963 — the prefix of a recipient entry that names an account by its id. */

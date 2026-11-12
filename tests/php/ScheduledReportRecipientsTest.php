@@ -229,6 +229,87 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         $this->assertSame( '', $vias['outside-4619@example.test'] ?? null );
     }
 
+    public function test_a_role_member_with_no_email_address_is_recorded_and_the_others_still_receive(): void {
+        global $wpdb;
+        $manager_email = (string) get_userdata( $this->manager )->user_email;
+        $no_email      = $this->makePersona( 'tt_team_manager', 'team_manager', $this->team_a );
+        $wpdb->update( $wpdb->users, [ 'user_email' => '' ], [ 'ID' => $no_email ] );
+        clean_user_cache( $no_email );
+        $this->flush();
+
+        $plan  = ScheduledReportsRunner::planKpiDelivery( [ 'tt_team_manager' ], 'attendance', $this->hod );
+        $skips = array_values( array_filter( $plan['skipped'], static fn( array $s ): bool => $s['reason'] === ScheduledReportsRunner::NO_EMAIL ) );
+        $this->assertSame( [ [ 'email' => '', 'user_id' => $no_email, 'reason' => 'no_email', 'via' => 'tt_team_manager' ] ], $skips, 'one skip, with the account and the role' );
+
+        $id = $this->runSchedule( self::PLAYER_KPI, [ 'tt_team_manager' ], $this->hod );
+        $this->assertArrayHasKey( strtolower( $manager_email ), $this->sent, 'the other member still receives' );
+        $this->assertStringContainsString( 'tt_team_manager (1 member)', (string) $this->lastError( $id ) );
+
+        $payload = json_decode( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log WHERE action = 'scheduled_report.run' AND entity_id = %d ORDER BY id DESC LIMIT 1",
+            $id
+        ) ), true );
+        $this->assertIsArray( $payload, 'the run was logged' );
+        $this->assertContains( 'no_email|' . $no_email, array_map( static fn( array $s ): string => $s['reason'] . '|' . (int) $s['user_id'], (array) $payload['skipped'] ) );
+    }
+
+    /**
+     * The resolver finds no address for the member while the typed address
+     * still maps to the account: mailed, and never also left out, in
+     * either order.
+     */
+    public function test_an_account_that_is_mailed_is_never_also_skipped_whichever_entry_comes_first(): void {
+        $member = $this->makePersona( 'tt_team_manager', 'team_manager', $this->team_a );
+        $typed  = (string) get_userdata( $member )->user_email;
+        $hide   = static fn( $email ) => strtolower( (string) $email ) === strtolower( $typed ) ? '' : $email;
+        add_filter( 'sanitize_email', $hide );
+        try {
+            $this->flush();
+            $alone = ScheduledReportsRunner::planKpiDelivery( [ 'tt_team_manager' ], 'attendance', $this->hod );
+            $this->assertContains( 'no_email|' . $member, $this->skipKeys( $alone['skipped'] ), 'Precondition: the role alone leaves them out as no_email.' );
+
+            foreach ( [ [ 'tt_team_manager', $typed ], [ $typed, 'tt_team_manager' ] ] as $entries ) {
+                $plan   = ScheduledReportsRunner::planKpiDelivery( $entries, 'attendance', $this->hod );
+                $mailed = [];
+                foreach ( $plan['deliveries'] as $delivery ) {
+                    foreach ( $delivery['recipients'] as $recipient ) $mailed[] = (int) $recipient->userId;
+                }
+                $order = implode( ', ', $entries );
+                $this->assertContains( $member, $mailed, "mailed through the typed address ({$order})" );
+                $this->assertNotContains( $member, array_column( $plan['skipped'], 'user_id' ), "and not also left out ({$order})" );
+
+                $resolved = ScheduledReportsRunner::resolveRecipients( $entries );
+                $this->assertContains( $member, array_map( static fn( $r ): int => (int) $r->userId, $resolved['recipients'] ), "a PDF schedule mails them too ({$order})" );
+                $this->assertNotContains( $member, array_column( $resolved['skipped'], 'user_id' ), "and does not leave them out ({$order})" );
+            }
+        } finally {
+            remove_filter( 'sanitize_email', $hide );
+        }
+    }
+
+    public function test_a_member_reached_by_two_roles_is_recorded_once(): void {
+        global $wpdb;
+        $member = $this->makePersona( 'tt_team_manager', 'team_manager', $this->team_a );
+        ( new \WP_User( $member ) )->add_role( 'tt_head_dev' );
+        $wpdb->update( $wpdb->users, [ 'user_email' => '' ], [ 'ID' => $member ] );
+        clean_user_cache( $member );
+        $this->flush();
+
+        $plan = ScheduledReportsRunner::planKpiDelivery( [ 'tt_team_manager', 'tt_head_dev' ], 'attendance', $this->hod );
+        $this->assertSame( [ 'no_email|' . $member ], array_values( array_filter( $this->skipKeys( $plan['skipped'] ), static fn( string $k ): bool => str_ends_with( $k, '|' . $member ) ) ), 'one skip, under the first role that reached them' );
+
+        $resolved = ScheduledReportsRunner::resolveRecipients( [ 'tt_team_manager', 'tt_head_dev' ] );
+        $this->assertCount( 1, array_filter( $resolved['skipped'], static fn( array $s ): bool => $s['user_id'] === $member ), 'and once on a PDF schedule' );
+    }
+
+    /**
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
+     * @return list<string>
+     */
+    private function skipKeys( array $skipped ): array {
+        return array_map( static fn( array $s ): string => $s['reason'] . '|' . (int) $s['user_id'], $skipped );
+    }
+
     // ===== helpers =====
 
     /**
