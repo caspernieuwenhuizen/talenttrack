@@ -56,7 +56,8 @@
  * painted in the matched level's colour. Every chip's text clears 4.5:1 on
  * its fill in every palette (ThemeContrastTest, #5136): the white-text
  * status levels paint with the status `-text` shade, which is dark enough
- * for white on any theme; amber and orange are light, so they take ink.
+ * for white on any theme; amber keeps its own hue and takes the near-black
+ * --tt-mlvl-amber-ink, and orange takes the ink.
  */
 .tt-meas-value--status {
     color: #fff;
@@ -65,7 +66,7 @@
 .tt-meas-value--status.tt-mlvl-swatch--green  { background: var(--tt-success-text, var(--tt-mlvl-green)); }
 .tt-meas-value--status.tt-mlvl-swatch--lime   { background: var(--tt-mlvl-lime); color: #163a00; }
 .tt-meas-value--status.tt-mlvl-swatch--yellow { background: var(--tt-mlvl-yellow); color: #3a2c00; }
-.tt-meas-value--status.tt-mlvl-swatch--amber  { background: var(--tt-warning-text, var(--tt-mlvl-amber)); }
+.tt-meas-value--status.tt-mlvl-swatch--amber  { background: var(--tt-mlvl-amber); color: var(--tt-mlvl-amber-ink); }
 .tt-meas-value--status.tt-mlvl-swatch--orange { background: var(--tt-mlvl-orange); color: var(--tt-ink); }
 .tt-meas-value--status.tt-mlvl-swatch--red    { background: var(--tt-danger-text, var(--tt-mlvl-red)); }
 .tt-meas-value--status.tt-mlvl-swatch--cyan   { background: var(--tt-mlvl-cyan); color: #00283a; }

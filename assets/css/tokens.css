@@ -72,6 +72,10 @@
     --tt-warning-ink:    #8a5300;
     --tt-danger-ink:     #a32b22;
     --tt-info-ink:       #1c5aa0;
+    /* Text on the amber measurement chip, which keeps the warning hue as its
+     * fill (#5136). Every theme's amber is a mid tone, so neither white nor
+     * a theme's ink reaches 4.5:1 on all of them; this near-black does. */
+    --tt-mlvl-amber-ink: #1a1000;
 
     /* Record links (#3308).
      *
@@ -173,7 +177,9 @@
      * which clears 4.5:1 on paper and on the status's own `-subtle` fill.
      * On the default design that is the status INK above. A theme that sets
      * a status colour sets its `-text` too; Branding feeds the `-text-color`
-     * input with the same hue darkened (BrandStyles::statusTextColor()). */
+     * input with the same hue darkened (BrandStyles::statusTextColor()).
+     * Because each clears 4.5:1 against white, it also serves as the fill
+     * of a chip that prints white text (the measurement status chips). */
     --tt-success-text: var(--tt-success-text-color, var(--tt-success-ink));
     --tt-warning-text: var(--tt-warning-text-color, var(--tt-warning-ink));
     --tt-danger-text:  var(--tt-danger-text-color, var(--tt-danger-ink));
