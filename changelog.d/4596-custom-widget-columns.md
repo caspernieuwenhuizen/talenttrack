@@ -1,3 +1,0 @@
-# Custom widgets: the evaluations and goals sources read the right columns (#4596)
-
-The Recent evaluations source now shows the coach who wrote each evaluation and its overall rating, worked out as on the player's profile, and its team filter narrows the rows to that team's players. The Open goals source listed nothing, because it read a column the goals table doesn't have and filtered on a status no goal carries. It now lists the open goals by due date with their statuses in your language. Open means pending, waiting for approval, in progress, on hold or approved, whichever way the status was stored. The status filter offers the academy's own goal statuses.

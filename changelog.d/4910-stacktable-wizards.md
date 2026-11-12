@@ -1,3 +1,0 @@
-# Wizard review steps on a phone (#4910)
-
-The tables in the wizards' review steps (new activity, player, prospect, team, blueprint and VCT training) now stack the same way as every other table on a phone. Each label sits above its value and reads from the left. The VCT preview, the list of existing prospects, the attendance step and the wizard completion analytics become one card per row, each value with its label beside it. On a computer they look as they did. On a small tablet the attendance step, the prospect list and the analytics are cards, where they used to scroll sideways inside their box.

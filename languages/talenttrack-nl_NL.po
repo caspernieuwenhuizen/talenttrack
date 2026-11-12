@@ -72950,6 +72950,986 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php
+#. translators: %s: the red threshold, e.g. 40
+#, php-format
+msgid "Composite below the red threshold (%s)."
+msgstr "Samengestelde score onder de rode drempel (%s)."
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php
+#. translators: %s: the amber threshold, e.g. 60
+#, php-format
+msgid "Composite below the amber threshold (%s)."
+msgstr "Samengestelde score onder de oranje drempel (%s)."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Delete prospect"
+msgstr "Prospect verwijderen"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Delete this prospect? They go to the recycle bin with their visit notes and consent requests, and can be restored from there."
+msgstr "Deze prospect verwijderen? De prospect gaat met de bezoeknotities en toestemmingsverzoeken naar de prullenbak en kan daar worden hersteld."
+
+#: src/Modules/Prospects/Domain/ProspectDeletion.php
+msgid "This prospect is already a player; delete them through the player."
+msgstr "Deze prospect is al speler; verwijder via de speler."
+
+#: src/Shared/Frontend/FrontendSearchView.php
+msgctxt "search group"
+msgid "Library"
+msgstr "Bibliotheek"
+
+#: src/Infrastructure/Search/Providers/ExerciseSearchProvider.php
+msgctxt "search result kind"
+msgid "Exercise"
+msgstr "Oefening"
+
+#: src/Infrastructure/Search/Providers/TrainingPlanSearchProvider.php
+msgctxt "search result kind"
+msgid "Training plan"
+msgstr "Trainingsplan"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "search result kind"
+msgid "Methodology"
+msgstr "Methodiek"
+
+#: src/Infrastructure/Search/Providers/CourseSearchProvider.php
+msgctxt "search result kind"
+msgid "Course"
+msgstr "Cursus"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Principle"
+msgstr "Spelprincipe"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Sub-principle"
+msgstr "Sub-principe"
+
+#: src/Infrastructure/Search/Providers/MethodologySearchProvider.php
+msgctxt "methodology search result"
+msgid "Learning goal"
+msgstr "Leerdoel"
+
+#: src/Shared/Frontend/FrontendSearchView.php
+#: src/Shared/Frontend/DashboardShortcode.php
+msgctxt "search result of a locked course"
+msgid "Locked"
+msgstr "Vergrendeld"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:773
+#, php-format
+msgid "Including %d tournament day."
+msgid_plural "Including %d tournament days."
+msgstr[0] "Inclusief %d toernooidag."
+msgstr[1] "Inclusief %d toernooidagen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Report Studio · %s"
+msgstr "Report Studio · %s"
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Scheduled reports are not part of your plan."
+msgstr "Ingeplande rapporten horen niet bij je abonnement."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "This report is kept for its owner alone, so only they can receive it on a schedule."
+msgstr "Dit rapport is alleen voor de eigenaar bewaard, dus alleen de eigenaar kan het volgens schema ontvangen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Stopped: the person who set up this schedule may no longer send reports to others."
+msgstr "Gestopt: wie dit schema instelde, mag geen rapporten meer naar anderen sturen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Not sent: no block of this report is one every recipient may read."
+msgstr "Niet verstuurd: geen blok van dit rapport is er een dat elke ontvanger mag lezen."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "The name is too long."
+msgstr "De naam is te lang."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "This report cannot be sent on a schedule."
+msgstr "Dit rapport kan niet volgens schema worden verstuurd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Tells the person who set up a scheduled Report Studio report that it was paused instead of sent, says why, and links to the schedule."
+msgstr "Laat wie een Report Studio-rapport inplande weten dat het gepauzeerd is in plaats van verstuurd, zegt waarom en linkt naar het schema."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The first time a run finds the report archived or unpublished, its subject gone, or its owner no longer allowed to change it. It is sent again only if the schedule breaks again after it has been resumed."
+msgstr "De eerste keer dat een verzending het rapport gearchiveerd of niet meer gepubliceerd vindt, het onderwerp verdwenen, of de eigenaar die het niet meer mag wijzigen. Het wordt alleen opnieuw verstuurd als het schema na hervatten weer vastloopt."
+
+#: src/Modules/Comms/Templates/ScheduledReportPausedTemplate.php
+msgid "Scheduled report paused"
+msgstr "Ingepland rapport gepauzeerd"
+
+#: src/Modules/Comms/Templates/ScheduledReportPausedTemplate.php
+msgid "Your scheduled report is paused"
+msgstr "Je ingeplande rapport is gepauzeerd"
+
+#: src/Modules/Comms/Templates/ScheduledReportPausedTemplate.php
+msgid ""
+"Your scheduled report \"{schedule_name}\" was not sent and is paused: {reason} Nothing is sent until someone who may change the report resumes it.\n"
+"\n"
+"Open the schedule: {schedule_url}"
+msgstr ""
+"Je ingeplande rapport \"{schedule_name}\" is niet verstuurd en gepauzeerd: {reason} Er wordt niets verstuurd tot iemand die het rapport mag wijzigen het hervat.\n"
+"\n"
+"Open het schema: {schedule_url}"
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "Not every recipient may read this block."
+msgstr "Niet elke ontvanger mag dit blok lezen."
+
+#: src/Modules/ReportStudio/Domain/BlockEngine.php
+msgid "Its figures differ between recipients, so it is left out."
+msgstr "De cijfers verschillen per ontvanger, dus het blok valt weg."
+
+#: src/Modules/ReportStudio/Domain/ReportData.php
+msgid "No player in this group is one every recipient may see."
+msgstr "Geen speler in deze groep is er een die elke ontvanger mag zien."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "A scheduled mail is for staff. A report for a family or a scout is shared through a snapshot."
+msgstr "Een ingeplande mail is voor staf. Een rapport voor een gezin of een scout wordt gedeeld via een momentopname."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "A scheduled mail is one copy for everyone, so it cannot follow whoever opens it."
+msgstr "Een ingeplande mail is één exemplaar voor iedereen, dus die kan niet meegaan met wie hem opent."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "A scheduled mail needs a report that always shows the same player or team."
+msgstr "Een ingeplande mail vraagt een rapport dat altijd dezelfde speler of hetzelfde team toont."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "This report is archived."
+msgstr "Dit rapport is gearchiveerd."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "Publish the report before you schedule it: a schedule sends the published version."
+msgstr "Publiceer het rapport voordat je het inplant: een schema verstuurt de gepubliceerde versie."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "A name is at most %d characters."
+msgstr "Een naam is hooguit %d tekens."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "Choose weekly, monthly or at the end of the season."
+msgstr "Kies wekelijks, maandelijks of aan het eind van het seizoen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "A schedule is active or paused."
+msgstr "Een schema is actief of gepauzeerd."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "Choose who receives the report."
+msgstr "Kies wie het rapport ontvangt."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "A recipient is an account in this club or a staff role."
+msgstr "Een ontvanger is een account in deze club of een stafrol."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "Recipients are accounts and staff roles only. Someone without an account needs one first."
+msgstr "Ontvangers zijn alleen accounts en stafrollen. Wie geen account heeft, krijgt er eerst een."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "A schedule goes to at most %d recipients. Choose a role instead of many people."
+msgstr "Een schema gaat naar hooguit %d ontvangers. Kies een rol in plaats van veel mensen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "You may schedule this report for yourself. Sending it to others needs the right to publish reports."
+msgstr "Je mag dit rapport voor jezelf inplannen. Het naar anderen sturen vraagt het recht om rapporten te publiceren."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "Choose last week, last month, this month or this season."
+msgstr "Kies vorige week, vorige maand, deze maand of dit seizoen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "This schedule reaches more than %d people. Choose fewer recipients, or a smaller role."
+msgstr "Dit schema bereikt meer dan %d mensen. Kies minder ontvangers, of een kleinere rol."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "There is no such schedule."
+msgstr "Dat schema bestaat niet."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "You may not change this schedule."
+msgstr "Je mag dit schema niet wijzigen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Stopped: the report in this schedule no longer exists."
+msgstr "Gestopt: het rapport in dit schema bestaat niet meer."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+#, php-format
+msgid "Stopped: %s"
+msgstr "Gestopt: %s"
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Stopped: the player or team this report is about no longer exists."
+msgstr "Gestopt: de speler of het team waar dit rapport over gaat, bestaat niet meer."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "Stopped: the person who set up this schedule may no longer change this report."
+msgstr "Gestopt: wie dit schema instelde, mag dit rapport niet meer wijzigen."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+#, php-format
+msgid "Not sent: %s"
+msgstr "Niet verstuurd: %s"
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+#, php-format
+msgid "%1$s, %2$s to %3$s"
+msgstr "%1$s, %2$s tot en met %3$s"
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+msgid "The PDF could not be created this time. The schedule will try again on its next run."
+msgstr "De pdf kon deze keer niet worden gemaakt. Het schema probeert het bij de volgende verzending opnieuw."
+
+#: src/Modules/ReportStudio/Domain/StudioScheduleDelivery.php
+#, php-format
+msgid "Left out so every recipient may read the PDF: %s."
+msgstr "Weggelaten zodat elke ontvanger de pdf mag lezen: %s."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Schedules"
+msgstr "Schema's"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Schedule not found"
+msgstr "Schema niet gevonden"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "This report is not sent on a schedule yet."
+msgstr "Dit rapport wordt nog niet volgens schema verstuurd."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Change the schedule"
+msgstr "Het schema wijzigen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Schedule this report"
+msgstr "Dit rapport inplannen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "The schedule sends the report's published version as a PDF, laid out in rows. One copy goes to everyone, so it holds only what every recipient may read. Each recipient is checked again on every run."
+msgstr "Het schema verstuurt de gepubliceerde versie van het rapport als pdf, in rijen. Iedereen krijgt hetzelfde exemplaar, dus het bevat alleen wat elke ontvanger mag lezen. Elke ontvanger wordt bij elke verzending opnieuw gecontroleerd."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Who receives it"
+msgstr "Wie het ontvangt"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgctxt "schedule recipient: the person scheduling"
+msgid "Me"
+msgstr "Ikzelf"
+
+#: src/Modules/ReportStudio/Frontend/FrontendReportStudioView.php
+msgctxt "report studio: send this report on a schedule"
+msgid "Schedule"
+msgstr "Inplannen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Roles"
+msgstr "Rollen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Only people who may read this report are listed. Someone without an account needs one first."
+msgstr "Alleen mensen die dit rapport mogen lezen, staan in de lijst. Wie geen account heeft, krijgt er eerst een."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "How often"
+msgstr "Hoe vaak"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Period it covers"
+msgstr "Periode"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "The report's own period."
+msgstr "De eigen periode van het rapport."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "PDF, laid out in rows."
+msgstr "Pdf, in rijen."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "What they get"
+msgstr "Wat ze krijgen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Left out, so everyone may read the PDF"
+msgstr "Weggelaten, zodat iedereen de pdf mag lezen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "Nothing: no block is one every recipient may read."
+msgstr "Niets: geen blok is er een dat elke ontvanger mag lezen."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+#, php-format
+msgid "Sent to %d account."
+msgid_plural "Sent to %d accounts."
+msgstr[0] "Verstuurd naar %d account."
+msgstr[1] "Verstuurd naar %d accounts."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "What they get could not be worked out. Save, and the schedule list shows it."
+msgstr "Wat ze krijgen kon niet worden bepaald. Sla op, dan toont de lijst met schema's het."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+#: src/Modules/ReportStudio/Rest/ReportSchedulesRestController.php
+msgid "There is no such report."
+msgstr "Dat rapport bestaat niet."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgid "The schedule is saved. It sends from its next run."
+msgstr "Het schema is opgeslagen. Het verstuurt vanaf de volgende verzending."
+
+#: src/Modules/ReportStudio/Domain/ReportStartRules.php
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Choose one of the academy's positions for the group."
+msgstr "Kies een van de posities van de academie voor de groep."
+
+#: src/Modules/ReportStudio/Domain/BlockRegistry.php
+msgid "This block does not work for a group of players."
+msgstr "Dit blok werkt niet voor een groep spelers."
+
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+#, php-format
+msgctxt "report group by position"
+msgid "%1$s in %2$s"
+msgstr "%1$s in %2$s"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "All my teams"
+msgstr "Al mijn teams"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Every team you build reports for. The teams ticked below are then not needed."
+msgstr "Elk team waarvoor je rapporten bouwt. De teams hieronder hoef je dan niet aan te vinken."
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Only one position (optional)"
+msgstr "Alleen één positie (optioneel)"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "Every position"
+msgstr "Alle posities"
+
+#: src/Modules/ReportStudio/Wizard/SubjectStep.php
+msgid "A player counts by their first position, so each player is in one position group."
+msgstr "Een speler telt mee met de eerste positie, dus elke speler zit in één positiegroep."
+
+#. translators: %s: the player's name
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "Development talk — %s"
+msgstr "Ontwikkelgesprek — %s"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "This conversation has not been signed off yet. Its form prints once the trainer has signed it off."
+msgstr "Dit gesprek is nog niet ondertekend. Het formulier print zodra de trainer het heeft ondertekend."
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "S = the player's own score, T = the trainer's score."
+msgstr "S = het eigen cijfer van de speler, T = het cijfer van de trainer."
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: the player column"
+msgid "S"
+msgstr "S"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: the trainer column"
+msgid "T"
+msgstr "T"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "The player wrote"
+msgstr "De speler schreef"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: what the trainer and player agreed"
+msgid "Agreed"
+msgstr "Afgesproken"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgid "not yet confirmed"
+msgstr "nog niet bevestigd"
+
+#: src/Modules/Pdp/Print/PdpFormPrintableRenderer.php
+msgctxt "PDP form print: heading over who confirmed the talk when"
+msgid "Confirmed"
+msgstr "Bevestigd"
+
+#: src/Infrastructure/REST/TeamsRestController.php:521
+msgid "That player is not in this team's squad for this window."
+msgstr "Die speler zit in deze periode niet in de selectie van dit team."
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "Player report for the family"
+msgstr "Spelersrapport voor het gezin"
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report as a scout receives it: evaluation scores without the coach's notes, attendance, playing time and tests at the public level."
+msgstr "Het spelersrapport zoals een scout het ontvangt: evaluatiescores zonder de notities van de trainer, aanwezigheid, speeltijd en testen op het openbare niveau."
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report as the player and their parents receive it, through a snapshot you share: evaluation scores without the coach's notes, attendance, playing time, goals and tests."
+msgstr "Het spelersrapport zoals de speler en de ouders het ontvangen, via een momentopname die je deelt: evaluatiescores zonder de notities van de trainer, aanwezigheid, speeltijd, doelen en testen."
+
+#: src/Modules/ReportStudio/Templates/PlayerReportTemplate.php
+msgid "The player report for the conversation with the player: status, talking points, evaluations, attendance, playing time, goals, the development plan and space for notes."
+msgstr "Het spelersrapport voor het gesprek met de speler: status, gespreksonderwerpen, evaluaties, aanwezigheid, speeltijd, doelen, het ontwikkelplan en ruimte voor notities."
+
+#: src/Modules/ReportStudio/Templates/TeamMonthlyReportTemplate.php
+msgid "Team monthly report"
+msgstr "Maandrapport team"
+
+#: src/Modules/ReportStudio/Templates/TeamMonthlyReportTemplate.php
+msgid "The monthly report of one team, the same on screen and on paper: the headline numbers, squad status, evaluations, attendance, minutes, matches, who needs a conversation, what changed, tests, player by player, decisions and actions, and data quality."
+msgstr "Het maandrapport van één team, op het scherm en op papier hetzelfde: de kerncijfers, de status van de selectie, evaluaties, aanwezigheid, minuten, wedstrijden, wie een gesprek nodig heeft, wat veranderde, testen, per speler, besluiten en acties, en datakwaliteit."
+
+#: src/Modules/ReportStudio/Domain/ReportCreation.php
+msgid "There is no template with that key."
+msgstr "Er is geen sjabloon met die sleutel."
+
+#: src/Modules/ReportStudio/Domain/ReportCreation.php
+msgid "The template sets this choice."
+msgstr "De sjabloon legt deze keuze vast."
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+msgid "The template you started from sets this."
+msgstr "De sjabloon waarmee je begon, legt dit vast."
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "An empty report"
+msgstr "Een leeg rapport"
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+msgid "Choose every block yourself."
+msgstr "Kies elk blok zelf."
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+#: src/Modules/ReportStudio/Wizard/ReviewStep.php
+msgid "Start from"
+msgstr "Beginnen met"
+
+#: src/Modules/ReportStudio/Wizard/StartChoices.php
+msgid "A template sets what the report is, who it is about and who it is written for, and starts it with its blocks. You can change the blocks afterwards."
+msgstr "Een sjabloon legt vast wat het rapport is, over wie het gaat en voor wie het geschreven is, en begint het met zijn blokken. Je kunt de blokken daarna wijzigen."
+
+#: src/Modules/Backup/MigrationImporter.php
+#, php-format
+msgid "%1$d link to an account in %2$s was left empty: the account was not found on this install."
+msgid_plural "%1$d links to accounts in %2$s were left empty: the accounts were not found on this install."
+msgstr[0] "%1$d koppeling met een account in %2$s is leeg gelaten: het account is op deze installatie niet gevonden."
+msgstr[1] "%1$d koppelingen met accounts in %2$s zijn leeg gelaten: de accounts zijn op deze installatie niet gevonden."
+
+#: src/Modules/Backup/MigrationImporter.php
+#, php-format
+msgid "%1$d link in %2$s was left empty: the record it points at is not part of this import."
+msgid_plural "%1$d links in %2$s were left empty: the records they point at are not part of this import."
+msgstr[0] "%1$d koppeling in %2$s is leeg gelaten: het record waarnaar die verwijst, zit niet in deze import."
+msgstr[1] "%1$d koppelingen in %2$s zijn leeg gelaten: de records waarnaar die verwijzen, zitten niet in deze import."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d player photo was not imported: a migration archive does not carry files."
+msgid_plural "%d player photos were not imported: a migration archive does not carry files."
+msgstr[0] "%d spelersfoto is niet geïmporteerd: een migratiearchief bevat geen bestanden."
+msgstr[1] "%d spelersfoto's zijn niet geïmporteerd: een migratiearchief bevat geen bestanden."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d team was imported without its Spond connection. Set it up again on this install."
+msgid_plural "%d teams were imported without their Spond connection. Set them up again on this install."
+msgstr[0] "%d team is geïmporteerd zonder Spond-koppeling. Stel die op deze installatie opnieuw in."
+msgstr[1] "%d teams zijn geïmporteerd zonder Spond-koppeling. Stel die op deze installatie opnieuw in."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d evaluation from a PDP conversation was imported without its link to the conversation."
+msgid_plural "%d evaluations from PDP conversations were imported without their link to the conversation."
+msgstr[0] "%d evaluatie uit een POP-gesprek is geïmporteerd zonder de koppeling met het gesprek."
+msgstr[1] "%d evaluaties uit POP-gesprekken zijn geïmporteerd zonder de koppeling met het gesprek."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d activity was imported without its tournament."
+msgid_plural "%d activities were imported without their tournament."
+msgstr[0] "%d activiteit is geïmporteerd zonder toernooi."
+msgstr[1] "%d activiteiten zijn geïmporteerd zonder toernooi."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d activity was imported without its training cycle."
+msgid_plural "%d activities were imported without their training cycle."
+msgstr[0] "%d activiteit is geïmporteerd zonder trainingscyclus."
+msgstr[1] "%d activiteiten zijn geïmporteerd zonder trainingscyclus."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d goal was imported without its linked principle."
+msgid_plural "%d goals were imported without their linked principle."
+msgstr[0] "%d doel is geïmporteerd zonder gekoppeld principe."
+msgstr[1] "%d doelen zijn geïmporteerd zonder gekoppeld principe."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d goal was imported without its linked football action."
+msgid_plural "%d goals were imported without their linked football action."
+msgstr[0] "%d doel is geïmporteerd zonder gekoppelde voetbalhandeling."
+msgstr[1] "%d doelen zijn geïmporteerd zonder gekoppelde voetbalhandeling."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d team was imported without its methodology."
+msgid_plural "%d teams were imported without their methodology."
+msgstr[0] "%d team is geïmporteerd zonder methodologie."
+msgstr[1] "%d teams zijn geïmporteerd zonder methodologie."
+
+#: src/Modules/Backup/MigrationLinkMap.php
+#, php-format
+msgid "%d staff assignment was imported without its functional role."
+msgid_plural "%d staff assignments were imported without their functional role."
+msgstr[0] "%d staftoewijzing is geïmporteerd zonder functionele rol."
+msgstr[1] "%d staftoewijzingen zijn geïmporteerd zonder functionele rol."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Form: Goalkeeper"
+msgstr "Formulier: Keeper"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Form: Outfield player"
+msgstr "Formulier: Veldspeler"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Switch to outfield player"
+msgstr "Wissel naar veldspeler"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Switch to goalkeeper"
+msgstr "Wissel naar keeper"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgctxt "PDP conversation tab: what is on record about the player this season"
+msgid "Background"
+msgstr "Achtergrond"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "What is on record about the player this season, to support the talk."
+msgstr "Wat er dit seizoen over de speler is vastgelegd, als steun voor het gesprek."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Background for this season"
+msgstr "Achtergrond van dit seizoen"
+
+#. translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$s · conversation %2$d of %3$d · held %4$s"
+msgstr "%1$s · gesprek %2$d van %3$d · gehouden %4$s"
+
+#. translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$s · conversation %2$d of %3$d · planned %4$s"
+msgstr "%1$s · gesprek %2$d van %3$d · gepland %4$s"
+
+#. translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$s · conversation %2$d of %3$d"
+msgstr "%1$s · gesprek %2$d van %3$d"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Conversation details"
+msgstr "Gespreksgegevens"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Written before this talk used the conversation form. Read only."
+msgstr "Geschreven voordat dit gesprek het gespreksformulier gebruikte. Alleen-lezen."
+
+#. translators: %s: the form in use, "Outfield player" or "Goalkeeper"
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "Conversation form · %s"
+msgstr "Gespreksformulier · %s"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP talk heading over sign-off and the other irreversible steps"
+msgid "Finish"
+msgstr "Afronden"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Outfield player"
+msgstr "Veldspeler"
+
+#. translators: %s: what the score is for, such as "Trainer score for Passing"
+#: src/Shared/Frontend/Components/RatingInputComponent.php
+#, php-format
+msgid "Clear %s"
+msgstr "%s wissen"
+
+#: src/Shared/Frontend/Components/RatingInputComponent.php
+msgctxt "rating input: empty the chosen score"
+msgid "Clear"
+msgstr "Wissen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Expand all"
+msgstr "Alles openklappen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgid "Collapse all"
+msgstr "Alles inklappen"
+
+#. translators: %d: items in the section
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgctxt "PDP form section: the items it holds"
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d onderdeel"
+msgstr[1] "%d onderdelen"
+
+#. translators: 1: items the trainer scored, 2: items in the section
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "%1$d of %2$d scored"
+msgstr "%1$d van %2$d gescoord"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: its text is written"
+msgid "Filled in"
+msgstr "Ingevuld"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: its text is still empty"
+msgid "Not filled in yet"
+msgstr "Nog niet ingevuld"
+
+#. translators: %d: development points on the form
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "%d development point"
+msgid_plural "%d development points"
+msgstr[0] "%d SMART-punt"
+msgstr[1] "%d SMART-punten"
+
+#. translators: %d: development points still missing a field
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#, php-format
+msgid "%d still empty"
+msgstr "%d nog leeg"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form: every development point is complete"
+msgid "all filled in"
+msgstr "alles ingevuld"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+#: src/Modules/Pdp/Frontend/PdpPreparationView.php
+msgid "Tap your score again, or choose Clear, to empty it."
+msgstr "Tik je cijfer nog eens, of kies Wissen, om het leeg te maken."
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: what tapping a closed section does"
+msgid "Expand"
+msgstr "Openklappen"
+
+#: src/Modules/Pdp/Frontend/PdpFormConversationView.php
+msgctxt "PDP form section: what tapping an open section does"
+msgid "Collapse"
+msgstr "Inklappen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "You do not have access to this conversation mode."
+msgstr "Je hebt geen toegang tot deze gespreksmodus."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Conversation mode"
+msgstr "Gespreksmodus"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "This talk has no conversation form to show."
+msgstr "Dit gesprek heeft geen gespreksformulier om te tonen."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "Strongest quality and development points"
+msgstr "Grootste kwaliteit en ontwikkelpunten"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "The player has not marked the preparation ready yet, so only the trainer's scores show."
+msgstr "De speler heeft de voorbereiding nog niet klaar gemeld, dus alleen de cijfers van de trainer staan erop."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgctxt "PDP conversation mode: the step before"
+msgid "Previous"
+msgstr "Vorige"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "Averages per section"
+msgstr "Gemiddelden per onderdeel"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "What was agreed"
+msgstr "Wat is afgesproken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgid "Item it develops"
+msgstr "Item dat het ontwikkelt"
+
+#. translators: %s: the name of the next step
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgctxt "PDP conversation mode: the step after"
+msgid "Next: %s"
+msgstr "Volgende: %s"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
+msgctxt "PDP conversation mode: no step after this one"
+msgid "Last step"
+msgstr "Laatste stap"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Scouting visits: read every visit"
+msgstr "Scoutingbezoeken: elk bezoek lezen"
+
+#: src/Shared/Frontend/PresentationSurfaces.php
+msgctxt "presentation surface: leave the room display"
+msgid "Close"
+msgstr "Sluiten"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Clubrood — red, black and gold"
+msgstr "Clubrood — rood, zwart en goud"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Oranje — navy and orange"
+msgstr "Oranje — marineblauw en oranje"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Tactiekbord — slate and mint"
+msgstr "Tactiekbord — leisteen en mint"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Bordeaux — wine and sand"
+msgstr "Bordeaux — wijnrood en zand"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Polder — teal and coral"
+msgstr "Polder — petrol en koraal"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Clubrood"
+msgstr "Clubrood"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Oranje"
+msgstr "Oranje"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Tactiekbord"
+msgstr "Tactiekbord"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Bordeaux"
+msgstr "Bordeaux"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Polder"
+msgstr "Polder"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Kristalblauw — deep blues and cyan, Open Sans"
+msgstr "Kristalblauw — diepe blauwtinten en cyaan, Open Sans"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Geel-Zwart — black and signal yellow"
+msgstr "Geel-Zwart — zwart en signaalgeel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Groen-Wit — green and mint white"
+msgstr "Groen-Wit — groen en mintwit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Paars-Wit — violet and lilac"
+msgstr "Paars-Wit — violet en lila"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Wapenschild — black, green and yellow"
+msgstr "Wapenschild — zwart, groen en geel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Streepshirt — black and bright green"
+msgstr "Streepshirt — zwart en felgroen"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Wedstrijddag — deep green and yellow"
+msgstr "Wedstrijddag — diepgroen en geel"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Middernacht — midnight navy and electric blue"
+msgstr "Middernacht — middernachtblauw en elektrisch blauw"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Neon — midnight navy and neon lime"
+msgstr "Neon — middernachtblauw en neonlimoen"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Stadionlicht — electric blue and cyan"
+msgstr "Stadionlicht — elektrisch blauw en cyaan"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Kristalblauw"
+msgstr "Kristalblauw"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Geel-Zwart"
+msgstr "Geel-Zwart"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Groen-Wit"
+msgstr "Groen-Wit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Paars-Wit"
+msgstr "Paars-Wit"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Wapenschild"
+msgstr "Wapenschild"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Streepshirt"
+msgstr "Streepshirt"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Wedstrijddag"
+msgstr "Wedstrijddag"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Middernacht"
+msgstr "Middernacht"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Neon"
+msgstr "Neon"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgctxt "visual theme"
+msgid "Stadionlicht"
+msgstr "Stadionlicht"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Changes colours, corners and heading type only — never what anyone can see "
+"or do. A theme supplies the whole colour scheme, so the Colours settings do "
+"not apply while one is active; your logo and academy name still do. Everyone "
+"can pick their own theme in My settings; this is what they get until they do."
+msgstr ""
+"Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of "
+"doen. Een thema levert het complete kleurenschema, dus de instellingen onder "
+"Kleuren gelden niet zolang er een thema actief is; je logo en academienaam "
+"wel. Iedereen kan onder Mijn instellingen een eigen thema kiezen; dit is wat "
+"ze krijgen zolang ze dat niet doen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: they may not read this report or what it is about."
+msgid_plural "%d people do not receive it: they may not read this report or what it is about."
+msgstr[0] "%d persoon krijgt het niet: die mag dit rapport of waar het over gaat niet lezen."
+msgstr[1] "%d mensen krijgen het niet: zij mogen dit rapport of waar het over gaat niet lezen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: they may not receive files."
+msgid_plural "%d people do not receive it: they may not receive files."
+msgstr[0] "%d persoon krijgt het niet: die mag geen bestanden ontvangen."
+msgstr[1] "%d mensen krijgen het niet: zij mogen geen bestanden ontvangen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: their account has left the academy or has no email address."
+msgid_plural "%d people do not receive it: their accounts have left the academy or have no email address."
+msgstr[0] "%d persoon krijgt het niet: het account hoort niet meer bij de academie of heeft geen e-mailadres."
+msgstr[1] "%d mensen krijgen het niet: hun accounts horen niet meer bij de academie of hebben geen e-mailadres."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it."
+msgid_plural "%d people do not receive it."
+msgstr[0] "%d persoon krijgt het niet."
+msgstr[1] "%d mensen krijgen het niet."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+#, php-format
+msgid "Show the %d names"
+msgstr "Toon de %d namen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgctxt "between the last two names of a list"
+msgid " and "
+msgstr " en "
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgctxt "between names of a list"
+msgid ", "
+msgstr ", "
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person in the role does not receive it: they have no person record in this academy."
+msgid_plural "%d people in the role do not receive it: they have no person record in this academy."
+msgstr[0] "%d persoon met de rol krijgt het niet: die heeft geen persoonsrecord in deze academie."
+msgstr[1] "%d mensen met de rol krijgen het niet: zij hebben geen persoonsrecord in deze academie."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: they have no email address."
+msgid_plural "%d people do not receive it: they have no email address."
+msgstr[0] "%d persoon krijgt het niet: die heeft geen e-mailadres."
+msgstr[1] "%d mensen krijgen het niet: zij hebben geen e-mailadres."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "No one holds this role:"
+msgstr "Niemand heeft deze rol:"
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "No one holds these roles:"
+msgstr "Niemand heeft deze rollen:"
+
 #~ msgid ""
 #~ "The referee/opposition team sheet (Starting XI, Bench, Squad + signature "
 #~ "lines). Switch off if match forms are filed digitally. The coach's own "
