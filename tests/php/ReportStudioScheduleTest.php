@@ -640,6 +640,12 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         // both receive nothing, and neither empties the PDF for the others.
         add_role( 'tt_empty_5145', 'Empty 5145', [ 'tt_view_reports' => true ] );
         $no_record = (int) self::factory()->user->create( [ 'role' => 'tt_coach', 'user_email' => 'no-record-5145@example.test' ] );
+        // A coach of the team with a person record and no address anywhere.
+        $no_email = $this->persona( 'tt_coach', 'assistant_coach', $this->team_a, 'no-email-5145@example.test' );
+        $wpdb->update( $wpdb->users, [ 'user_email' => '' ], [ 'ID' => $no_email ] );
+        $wpdb->update( "{$wpdb->prefix}tt_people", [ 'email' => '' ], [ 'wp_user_id' => $no_email ] );
+        clean_user_cache( $no_email );
+        $this->flush();
         $entries   = [ 'tt_coach', 'user:' . $this->hod, 'tt_empty_5145' ];
         $schedule = $this->schedule( $id, [ 'recipients' => $entries ] );
         $report   = ( new ReportsRepository() )->find( $id );
@@ -662,6 +668,10 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertNotSame( [], $saw, 'Precondition: someone is left out.' );
         $this->assertContains( 'no_read_access|' . $this->coach_b, $saw );
         $this->assertContains( 'not_in_club|0', $saw, 'the coach with no person record, counted' );
+        $this->assertContains( 'no_email|' . $no_email, $saw, 'the coach with no address, recorded rather than dropped' );
+        $groups = array_column( ReportSchedules::leftOutGroups( $preview ), null, 'reason' );
+        $this->assertSame( [ "Sched Persona{$no_email}" ], $groups['no_email']['names'] ?? null, 'and named: they have a record here' );
+        $this->assertStringContainsString( 'no email address', $groups['no_email']['message'] );
         $this->assertNotContains( $no_record, ReportSchedules::resolve( $resolved, $this->hod, $report )['readers'] );
         remove_role( 'tt_empty_5145' );
         $this->assertTrue( (bool) ( $payload['ok'] ?? false ), 'the run sent: an empty role and an account that gets nothing narrow nothing' );

@@ -367,6 +367,9 @@ final class ReportSchedules {
                 // an account of the academy can lack one, so say that.
                 /* translators: %d: number of people */
                 return sprintf( _n( '%d person in the role does not receive it: they have no person record in this academy.', '%d people in the role do not receive it: they have no person record in this academy.', $n, 'talenttrack' ), $n );
+            case ScheduledReportsRunner::NO_EMAIL:
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person does not receive it: they have no email address.', '%d people do not receive it: they have no email address.', $n, 'talenttrack' ), $n );
             case self::NO_MEMBERS:
                 return $n === 1 ? __( 'No one holds this role:', 'talenttrack' ) : __( 'No one holds these roles:', 'talenttrack' );
             case ScheduledReportsRunner::ACCOUNT_UNREACHABLE:
