@@ -308,11 +308,14 @@ theme's secondary. A theme that declares a secondary declares at least
 `--tt-secondary-text` itself.
 
 The reverse pair, text printed on a secondary fill, reads
-`--tt-color-on-secondary`, next to `--tt-color-on-primary`. The app header's
-brand mark and avatar use it. It is the primary on the default design, and a
-theme whose primary misses 4.5:1 on its own secondary sets it to its deep
-colour (`var(--tt-primary-deep)`). `ThemeContrastTest` checks the pair in
-every palette.
+`--tt-color-on-secondary`, next to `--tt-color-on-primary`. Every rule that
+paints the secondary as its fill and prints text on it uses it: the app
+header's brand mark and avatar, the filter bar's active states, and the
+pills, chips and badges in the secondary colour. It is the primary on the
+default design, and a theme whose primary misses 4.5:1 on its own secondary
+sets it to its deep colour (`var(--tt-primary-deep)`). `ThemeContrastTest`
+checks the pair in every palette and fails a secondary-fill rule that prints
+any other text colour. Kristalblauw is held as it is, pending a decision.
 
 ### Status colours as text
 

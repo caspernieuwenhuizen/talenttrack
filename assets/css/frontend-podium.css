@@ -98,7 +98,7 @@
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
     background: var(--tt-secondary);
-    color: var(--tt-primary);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
     font-size: 0.68rem;
     font-weight: 800;
     text-transform: uppercase;

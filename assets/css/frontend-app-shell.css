@@ -264,7 +264,7 @@ html.tt-search-sheet-open .tt-dashboard.tt-shell-app .tt-dash-header {
     place-items: center;
     border-radius: var(--tt-radius, 8px);
     background: var(--tt-secondary, #e8b624);
-    color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
     font-weight: 800;
     font-size: 0.8rem;
     letter-spacing: 0.02em;

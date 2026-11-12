@@ -46,7 +46,7 @@
     gap: 0.3rem;
     font-weight: 800;
     font-size: 0.9rem;
-    color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
     background: var(--tt-secondary, #e8b624);
     border-radius: 7px;
     padding: 0.2rem 0.55rem;
@@ -100,7 +100,7 @@
     border: 1px solid #e3e6e1;
 }
 .tt-dashboard .tt-pop-goal--done   .tt-pop-goal__num { background: #2f9e5e; color: #fff; border-color: #2f9e5e; }
-.tt-dashboard .tt-pop-goal--doing  .tt-pop-goal__num { background: var(--tt-secondary, #e8b624); color: var(--tt-primary, #0b3d2e); border-color: var(--tt-secondary, #e8b624); }
+.tt-dashboard .tt-pop-goal--doing  .tt-pop-goal__num { background: var(--tt-secondary, #e8b624); color: var(--tt-color-on-secondary, var(--tt-primary)); border-color: var(--tt-secondary, #e8b624); }
 .tt-dashboard .tt-pop-goal__title {
     font-weight: 700;
     font-size: 0.98rem;

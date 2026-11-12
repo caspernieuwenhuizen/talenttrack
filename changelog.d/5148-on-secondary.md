@@ -1,9 +1,12 @@
-# The app header's brand mark and avatar are readable on every theme (#5148)
+# Text on the secondary colour is readable on every theme (#5148)
 
-On some themes the initials on the app header's brand mark and on the avatar
-were barely visible: on Middernacht they printed blue on a slightly lighter
-blue. Where a theme's colours are too close together, the initials now use
-the theme's deepest colour, which reads at 4.5:1 or better on every theme.
-This changes Middernacht, Kristalblauw, Oranje, Polder, Stadionlicht,
+On some themes, text printed on the secondary colour was barely visible: the
+app header's brand mark and avatar, the filter bar's active pills and badge,
+the podium's lead pill, a goal owner's avatar, the methodology chips, the
+milestone tag on the journey and the popularity rating. On Middernacht it
+printed blue on a slightly lighter blue. Where a theme's colours are too close
+together, that text now uses the theme's deepest colour, which reads at 4.5:1
+or better. This changes Middernacht, Oranje, Polder, Stadionlicht,
 Wapenschild and Wedstrijddag; the default theme and the other themes look the
-same.
+same. Kristalblauw is not changed yet: its header mark keeps its current
+colours until that is decided.

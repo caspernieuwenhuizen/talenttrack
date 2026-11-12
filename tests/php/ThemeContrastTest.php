@@ -17,14 +17,15 @@ use WP_UnitTestCase;
  *
  * The named exception is an owner decision rather than an oversight:
  * `theme-leon-hutten` (Kristalblauw) keeps its look on live installs, so
- * its cyan as text and on the primary band are held as they are. Its
- * marker on the active row is measured like every other theme's.
+ * its cyan as text and on the primary band, and its blue primary on its
+ * cyan fill (2.20:1, held for the owner's call, #5148), stay as they are.
+ * Its marker on the active row is measured like every other theme's.
  */
 final class ThemeContrastTest extends WP_UnitTestCase {
 
     /** @var array<string, list<string>> palette => roles it is excused from */
     private const EXCEPTIONS = [
-        'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary' ],
+        'theme-leon-hutten' => [ 'secondary-text', 'secondary-on-primary', 'on-secondary' ],
     ];
 
     private function root(): string {
@@ -367,26 +368,48 @@ final class ThemeContrastTest extends WP_UnitTestCase {
     }
 
     /**
-     * #5148 — the app header's brand mark and avatar print their initials
-     * on the secondary fill. Both read `--tt-color-on-secondary`, which
-     * clears 4.5:1 on the secondary in every palette; on the default design
-     * it is the primary, as before.
+     * #5148 — text printed on a secondary fill reads
+     * `--tt-color-on-secondary`, which clears 4.5:1 on the secondary in
+     * every palette; on the default design it is the primary, as before.
      */
     public function test_text_on_the_secondary_fill_reads(): void {
-        $sheet = $this->css( 'frontend-app-chrome.css' );
-        foreach ( [ '.tt-appchrome-mark', '.tt-appchrome-av' ] as $selector ) {
-            $this->assertSame( 1, preg_match( '/(?:^|\})\s*' . preg_quote( $selector, '/' ) . '\s*\{([^}]*)\}/', $sheet, $rule ), $selector );
-            $this->assertMatchesRegularExpression( '/(?:^|[;\s])background:\s*var\(--tt-secondary\)/', $rule[1], "$selector fill" );
-            $this->assertMatchesRegularExpression( '/(?:^|[;\s])color:\s*var\(--tt-color-on-secondary\b/', $rule[1], "$selector reads --tt-color-on-secondary" );
-        }
-
         $tokens = $this->declarations( $this->css( 'tokens.css' ) );
         $this->assertSame( 'var(--tt-primary)', $tokens['--tt-color-on-secondary'] ?? null, 'the default design keeps the primary' );
 
         foreach ( $this->palettes() as $name => $p ) {
+            if ( $this->excused( $name, 'on-secondary' ) ) continue;
             $d = $p['decls'];
             $this->assertRatio( 4.5, $this->token( '--tt-color-on-secondary', $d ), $this->token( '--tt-secondary', $d ), "$name text on the secondary fill" );
         }
+    }
+
+    /**
+     * #5148 — every component rule that paints the secondary as its fill and
+     * sets a text colour reads `--tt-color-on-secondary` for it, so the pair
+     * the test above measures is the pair every such rule prints.
+     */
+    public function test_every_secondary_fill_prints_the_on_secondary_token(): void {
+        $offenders = [];
+        $checked   = 0;
+        $files     = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/assets/css' ) );
+        foreach ( $files as $file ) {
+            $path = str_replace( '\\', '/', (string) $file );
+            if ( substr( $path, -4 ) !== '.css' ) continue;
+            $name = basename( $path );
+            if ( $name === 'tokens.css' || strpos( $name, 'theme-' ) === 0 ) continue;
+            $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
+            if ( ! preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) continue;
+            foreach ( $rules as $rule ) {
+                if ( ! preg_match( '/(?:^|[;\s])background(?:-color)?:\s*var\(\s*--tt-secondary\s*[,)]/', $rule[2] ) ) continue;
+                if ( ! preg_match( '/(?:^|[;\s])color:\s*([^;]+);/', $rule[2], $c ) ) continue;
+                $checked++;
+                if ( ! preg_match( '/^var\(\s*--tt-color-on-secondary\b/', trim( $c[1] ) ) ) {
+                    $offenders[] = $name . ' ' . trim( preg_replace( '/\s+/', ' ', $rule[1] ) ) . ' (color: ' . trim( $c[1] ) . ')';
+                }
+            }
+        }
+        $this->assertGreaterThan( 0, $checked, 'no secondary-fill rule found' );
+        $this->assertSame( [], $offenders, 'read var(--tt-color-on-secondary, var(--tt-primary)) for text on a secondary fill' );
     }
 
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */

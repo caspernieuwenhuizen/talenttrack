@@ -100,10 +100,6 @@
        theme's look does not move when tokens.css changes its own value.
        2.92:1 on white: held as it is, so this theme keeps its look. */
     --tt-secondary-text: #02a2da;
-    /* Text on the cyan fill (the app header's brand mark and avatar): the
-       blue primary measured 2.20:1 there; the crest black clears 6.46:1,
-       as the rail's own mark already prints it (#5148). */
-    --tt-color-on-secondary: var(--tt-primary-deep);
     --tt-accent:        #0262a1;
 
     /*

@@ -257,7 +257,7 @@
 }
 .tt-dashboard .tt-journey-tag-milestone {
     background: var(--tt-secondary, #e8b624);
-    color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
 }
 .tt-dashboard .tt-journey-tag-warning {
     background: #fde2e2;
