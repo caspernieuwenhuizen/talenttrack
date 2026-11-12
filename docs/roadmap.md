@@ -52,6 +52,7 @@ lanes run in parallel, each capped and file-disjoint; four run now.
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
+| Search, the remaining record types ([#4668](https://github.com/caspernieuwenhuizen/talenttrack/issues/4668)) | Goals, PDP, match analysis, reports, media, prospects and messages become findable for the people who may read them | Evaluations, notes, staff and the library (exercises, training plans, methodology, courses) are searchable since v4.150.0. The remaining types are filed one group at a time, each with its own read check |
 | Player report round three | A coach brings one document to a talk that covers the whole player | Awaiting pilot feedback |
 
 ## Decided this cycle
