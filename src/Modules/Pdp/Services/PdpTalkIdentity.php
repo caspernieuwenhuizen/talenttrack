@@ -20,14 +20,6 @@ use TT\Modules\Players\Services\PlayerPhoto;
 final class PdpTalkIdentity {
 
     /**
-     * @return array{
-     *   player_id:int, name:string, photo_url:string, status:string,
-     *   team:string, shirt_number:?int, position:string,
-     *   sequence:int, total:int, template:string,
-     *   scheduled_at:?string, conducted_at:?string
-     * }
-     */
-    /**
      * The talk in one line, as every screen that names it writes it:
      * "Mid season · conversation 2 of 3 · planned …", or "held …" once
      * conducted. Takes `of()`'s answer, or the `talk` part of the room
@@ -57,6 +49,14 @@ final class PdpTalkIdentity {
         );
     }
 
+    /**
+     * @return array{
+     *   player_id:int, name:string, photo_url:string, status:string,
+     *   team:string, shirt_number:?int, position:string,
+     *   sequence:int, total:int, template:string,
+     *   scheduled_at:?string, conducted_at:?string
+     * }
+     */
     public static function of( object $file, object $conv ): array {
         $f         = (array) $file;
         $c         = (array) $conv;
