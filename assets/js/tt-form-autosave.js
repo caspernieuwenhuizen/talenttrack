@@ -130,6 +130,12 @@
 	 * when the runtime cannot support autosave — in which case the caller's
 	 * form is left exactly as the server rendered it.
 	 *
+	 * `storageKey` (or `data-autosave-key`) names the sitting snapshot. Two
+	 * forms share a `storageKey` only if they carry the same fields: a form
+	 * with fewer fields would store a snapshot `mount()` reads as "the rest
+	 * was empty", and a revert would wipe them. A form with fewer fields
+	 * attaches without one (#5082).
+	 *
 	 * @param {HTMLFormElement} form
 	 * @param {Object} opts  endpoint(): string — overrides the data-attribute
 	 *                       path; onSaved, onError, delay, storageKey.

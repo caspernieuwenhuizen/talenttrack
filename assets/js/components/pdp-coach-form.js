@@ -26,6 +26,33 @@
 		return (window.TT && TT.rest_url) ? TT.rest_url : '/wp-json/talenttrack/v1/';
 	}
 
+	/**
+	 * An autosave the server refuses for good (signed off meanwhile, a later
+	 * talk, the form switched): say its reason and stop writing. Shared with
+	 * the conversation mode (#5082), which writes the same route.
+	 */
+	function haltOnRefusal(saver, err, fallback) {
+		if (saver && err && err.status === 409) {
+			saver.halt(err.reason || fallback || t('closed', 'The form can no longer be saved. Reload the page to see why.'));
+		}
+	}
+
+	/**
+	 * #5082 — "Conversation mode" on the talk's page: store a pending edit
+	 * first, then open the mode in the same tab. A link, so it works
+	 * without this script too.
+	 */
+	function openModeAfterFlush(saver) {
+		Array.prototype.forEach.call(document.querySelectorAll('[data-tt-pdp-mode-open]'), function (link) {
+			link.addEventListener('click', function (e) {
+				if (!saver || typeof saver.flush !== 'function') return;
+				e.preventDefault();
+				var href = link.getAttribute('href');
+				saver.flush().then(function () { window.location.href = href; });
+			});
+		});
+	}
+
 	function wire(form) {
 		// A read-only form (signed off, or a later talk) has no save state.
 		if (!form.querySelector('[data-tt-save-state]') || !window.TT || !TT.FormAutosave) return;
@@ -59,13 +86,9 @@
 				var state = resp && resp.data && resp.data.state;
 				if (state) showMissing(state.missing);
 			},
-			onError: function (err) {
-				// An autosave the server refuses for good (signed off
-				// meanwhile, a later talk, the form switched): say its reason
-				// and stop writing.
-				if (err && err.status === 409) saver.halt(err.reason || t('closed', 'The form can no longer be saved. Reload the page to see why.'));
-			}
+			onError: function (err) { haltOnRefusal(saver, err); }
 		});
+		openModeAfterFlush(saver);
 		if (!saver || !button) return;
 
 		button.addEventListener('click', function () {
@@ -156,6 +179,9 @@
 		form.addEventListener('input', recount);
 		form.addEventListener('tt:form-remounted', recount);
 	}
+
+	window.TT = window.TT || {};
+	window.TT.PdpCoachForm = { haltOnRefusal: haltOnRefusal };
 
 	function init() {
 		Array.prototype.forEach.call(document.querySelectorAll('[data-tt-pdp-coachform]'), function (form) {

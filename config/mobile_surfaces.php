@@ -125,6 +125,7 @@ return [
     'my-staff-pdp'                  => [ 'viewable', 'A coach’s own development plan — a few times a season.' ],
     'onboarding-pipeline'           => [ 'viewable', 'Scouts hit this 5-15 times a week from the pitch, which is why it is not gated (#918).' ],
     'pdp'                           => [ 'viewable', 'Development plans, read more often than edited.' ],
+    'pdp-conversation-mode'         => [ 'viewable', 'A room display, shown from a laptop or tablet.' ],
     'people'                        => [ 'viewable', 'Staff and contacts. Lower frequency than players and teams; the responsive CSS is honest enough.' ],
     'player-attributes'             => [ 'viewable', 'One player’s chemistry attributes. Bulk entry argues for a desk, but gating it means the attributes never get filled and the engine computes on nulls.' ],
     'prospect-edit'                 => [ 'viewable', 'Correcting a parent’s contact details or the consent date on one prospect (#2838). Four fields on one record, so none of the first three questions fires — but it is a correction made at a desk after the fact, not capture at the moment of seeing a player, which is what keeps it out of native.' ],

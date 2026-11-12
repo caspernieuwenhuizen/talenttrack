@@ -23,6 +23,7 @@ use WP_REST_Response;
  * conversation form of one conversation.
  *
  *   GET    /pdp-conversations/{id}/form                     the form as the caller may read it
+ *   GET    /pdp-conversations/{id}/form/display             the talk as the room display shows it
  *   PATCH  /pdp-conversations/{id}/form                     `{ form_key }`: which form (staff)
  *   PATCH  /pdp-conversations/{id}/form/player              the player's scores and answers
  *   PUT    /pdp-conversations/{id}/form/player/preparation  the player marks the preparation finished
@@ -61,6 +62,14 @@ final class PdpConversationFormRestController extends BaseController {
                 'callback'            => [ __CLASS__, 'chooseForm' ],
                 'permission_callback' => [ __CLASS__, 'can_use' ],
                 'args'                => $id_arg + self::chooseArgs(),
+            ],
+        ] );
+        register_rest_route( self::NS, self::BASE . '/form/display', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'display' ],
+                'permission_callback' => [ __CLASS__, 'can_use' ],
+                'args'                => $id_arg,
             ],
         ] );
         register_rest_route( self::NS, self::BASE . '/form/player', [
@@ -140,6 +149,18 @@ final class PdpConversationFormRestController extends BaseController {
         if ( $access === null ) return self::notFound();
         if ( ! $access->canRead() ) return self::forbidden();
         return RestResponse::success( ( new PdpFormReader() )->read( $access, $access->conversation() ) );
+    }
+
+    /**
+     * #5082 — the talk as the room display shows it. Only a reader of the
+     * trainer's part, so a player before sign-off never gets half a talk;
+     * the projection is `PdpFormReader::forDisplay()`.
+     */
+    public static function display( WP_REST_Request $r ): WP_REST_Response {
+        $access = PdpFormAccess::forConversation( get_current_user_id(), absint( $r['id'] ) );
+        if ( $access === null ) return self::notFound();
+        if ( ! $access->readsRoomDisplay() ) return self::forbidden();
+        return RestResponse::success( ( new PdpFormReader() )->forDisplay( $access, $access->conversation() ) );
     }
 
     public static function chooseForm( WP_REST_Request $r ): WP_REST_Response {

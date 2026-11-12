@@ -306,6 +306,13 @@ final class CoreSurfaceRegistration {
             );
         } );
 
+        // #5082 — a PDP talk's conversation mode. Its guard is the view's:
+        // a reader of the trainer's part on that talk.
+        $reg::register( 'pdp-conversation-mode', static function ( int $uid, array $ctx ): bool {
+            $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $uid, (int) ( $ctx['conversation_id'] ?? 0 ) );
+            return $access !== null && $access->readsRoomDisplay();
+        } );
+
         // #4257 — a prospect's record page. Its guard is the record's own:
         // the prospects read and the viewer's prospect scope, so a scout's
         // visit page shows a prospect outside that scope as a name only.
@@ -382,6 +389,9 @@ final class CoreSurfaceRegistration {
         // rendering.
         TileRegistry::registerSlugOwnership( 'scout-player-card',  self::M_PLAYERS );
         TileRegistry::registerSlugOwnership( 'teammate',           self::M_TEAMS );
+        // #5082 — the PDP talk's room display, reached from the talk's page.
+        // Switch PDP off and it goes with it.
+        TileRegistry::registerSlugOwnership( 'pdp-conversation-mode', self::M_PDP );
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'eval-category-weights', self::M_EVALUATIONS );

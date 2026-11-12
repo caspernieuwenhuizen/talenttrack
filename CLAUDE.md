@@ -364,7 +364,9 @@ record check has passed, with
 which draws that close control and refuses (renders nothing, leaves the
 request a normal view) on an unlisted slug, a second call, a chain
 already drawn, or a close URL that is not a record page. Being on the
-list alone changes nothing.
+list alone changes nothing. A record page is `tt_view` plus `id`, plus
+at most one named sub-record key where the record is a child that has
+no page of its own.
 
 **Routability decides, not file naming.** If a class is reachable by
 its own `?tt_view=` slug it is a view, whatever it is composed into

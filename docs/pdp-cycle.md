@@ -3,7 +3,7 @@ title: Player Development Plan (PDP)
 group: performance
 summary: Per-season development files, conversation cadence, end-of-season verdict.
 audience: [user]
-views: [pdp, my-pdp]
+views: [pdp, my-pdp, pdp-conversation-mode]
 module: TT\Modules\Pdp\PdpModule
 capability: tt_view_pdp
 order: 60
@@ -253,6 +253,18 @@ On a phone the save state sits under the part's title, and the form's title keep
 - **Everything saves itself**, with the usual save state, undo and revert.
 - **Finish and sign the conversation** is its own button, with a confirm. It stays closed until the form is complete, and the list above it names what is still missing: a score on every item, the agreed strongest quality, and each development point's action, help and deadline. The player's preparation is not required. Signing off fixes the scores and saves them as an evaluation, which the radar and the evaluation history then show; it creates the two goals, linked to the conversation next to the goals you marked as discussed; and it asks the player and the parent to confirm. Nothing reaches the evaluations or the goals before that.
 - After sign-off the form is read-only, and you can record the player's and the parent's acknowledgement as before.
+
+#### Conversation mode: the talk on the screen in the room
+
+**Conversation mode** sits next to the player's name at the top of the talk's page. It shows the talk on a TV or a large screen, so the player, the parent and the trainer can look at it together. It opens in the same tab, after your last change is saved. Mirror or cast your own screen; there is nothing to sign in to on the TV.
+
+- **A clean screen:** the club's logo and name, the player's name, photo, team, shirt number and position, and the talk. There is no search, help, menu or user name. The save state and **Close** sit at the top right.
+- **One step at a time,** with the steps as pills at the top and **Previous** and **Next** at the bottom. **Overview** has each section's average for the player and the trainer, and how many items to discuss. Each section has its items with both scores side by side, and **Discuss** where they differ. The last step has the strongest quality (what the player wrote and what was agreed) and the two development points. A step that does not fit scrolls on its own; the buttons at the bottom never cover it.
+- **You can still score.** A score set or cleared here saves to the same talk and shows on the talk's page afterwards, and **Undo** takes back your last change. **Revert changes** on the talk's page still goes back to how the talk was before you opened conversation mode.
+- **Not on the screen:** your notes per section (**Toelichting**), the **Background** tab, sign-off, and anything the player wrote for themselves. Sign-off stays on the talk's page.
+- **Close** or **Escape** brings you back to the talk's page, on the **Conversation** tab.
+- **Who can open it:** staff who see the player's file. A player or a parent can only once the talk is signed off, when they read the whole talk anyway. A player's preparation shows only once they have marked it ready, as on the talk's page.
+- **A parent in the room** sees the player's prepared scores. That is the trainer's choice in a talk the parent attends: before sign-off a parent reads nothing of the form on their own account, and conversation mode does not change that.
 
 #### Reading and confirming the signed form
 

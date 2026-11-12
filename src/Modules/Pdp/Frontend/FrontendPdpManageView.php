@@ -1168,7 +1168,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             // (#1792).
             echo '<td' . StackTable::attrs( 'cell', _x( 'Template', 'PDP conversation template', 'talenttrack' ) ) . '>'
                 . '<a class="tt-record-link" href="' . esc_url( $url ) . '">'
-                . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
+                . esc_html( \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) $c->template_key ) ) . '</a></td>';
             echo '<td' . StackTable::attrs( 'cell', __( 'Scheduled', 'talenttrack' ) ) . '>'
                 . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td' . StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ) . '>'
@@ -1300,8 +1300,22 @@ class FrontendPdpManageView extends FrontendViewBase {
         // in both shells, whose name is the page's h1. Under the app shell
         // the spine below carries the same identity as the strip that stays
         // in view while scrolling (its copy is aria-hidden for that reason).
-        $identity = self::talkIdentity( $file, $conv, $convs_repo );
-        self::renderTalkHero( $identity );
+        $identity = self::talkIdentity( $file, $conv );
+        // #5080 — what part 2 draws, decided once; also used below.
+        $form_part = PdpFormConversationView::prepare( $conv_id, $user_id );
+        // #5082 — "Conversation mode" for the screen in the room: on a form
+        // talk part 2 draws, for a reader of the trainer's part. Same tab.
+        $mode_link = '';
+        if ( $form_part['draws'] ) {
+            ob_start();
+            \TT\Shared\Frontend\Components\CrossViewLink::render( FrontendPdpConversationModeView::SLUG, static function () use ( $conv_id ): void {
+                echo '<a class="tt-btn tt-btn-secondary tt-pdp-talk-hero__mode" data-tt-pdp-mode-open href="'
+                    . esc_url( FrontendPdpConversationModeView::urlFor( $conv_id ) ) . '">'
+                    . esc_html__( 'Conversation mode', 'talenttrack' ) . '</a>';
+            }, [ 'ctx' => [ 'conversation_id' => $conv_id ] ] );
+            $mode_link = (string) ob_get_clean();
+        }
+        self::renderTalkHero( $identity, $mode_link );
 
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
 
@@ -1488,7 +1502,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         // shown read-only, so nothing written is hidden. The autosave never
         // sends either field then, and the endpoint leaves an omitted field
         // alone.
-        $form_part      = PdpFormConversationView::prepare( $conv_id, $user_id );
         $uses_form      = $form_part['form_talk'];
         $earlier_notes  = $uses_form ? trim( (string) ( $conv_row['notes'] ?? '' ) ) : '';
         $earlier_agreed = $uses_form ? trim( (string) ( $conv_row['agreed_actions'] ?? '' ) ) : '';
@@ -2335,17 +2348,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         return $status;
     }
 
-    private static function templateLabel( string $key ): string {
-        switch ( $key ) {
-            case 'start': return __( 'Start of season', 'talenttrack' );
-            case 'mid':   return __( 'Mid season', 'talenttrack' );
-            case 'mid_a': return __( 'Mid-season A', 'talenttrack' );
-            case 'mid_b': return __( 'Mid-season B', 'talenttrack' );
-            case 'end':   return __( 'End of season', 'talenttrack' );
-        }
-        return $key;
-    }
-
     /**
      * The file and talk crumbs of a conversation page: the player's name and
      * the talk's title for a reader who may see the file, the generic
@@ -2374,7 +2376,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             /* translators: %1$d sequence, %2$s template */
             __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
             (int) ( $c['sequence'] ?? 0 ),
-            self::templateLabel( (string) ( $c['template_key'] ?? '' ) )
+            \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) ( $c['template_key'] ?? '' ) )
         );
     }
 
@@ -2384,63 +2386,25 @@ class FrontendPdpManageView extends FrontendViewBase {
      * and one line for the talk ("Mid season · conversation 2 of 3 ·
      * planned …", or "held …" once conducted).
      *
+     * #5082 — the identity itself is `PdpTalkIdentity::of()`, which the room
+     * display reads too; this only formats it for the page.
+     *
      * @return array{name:string, photo_url:string, status:string, meta:string, talk:string}
      */
-    private static function talkIdentity( object $file, object $conv, PdpConversationsRepository $convs_repo ): array {
-        $f      = (array) $file;
-        $c      = (array) $conv;
-        $player = QueryHelpers::get_player( (int) ( $f['player_id'] ?? 0 ) );
-        $name   = $player ? QueryHelpers::player_display_name( $player ) : __( 'Player', 'talenttrack' );
+    private static function talkIdentity( object $file, object $conv ): array {
+        $id = \TT\Modules\Pdp\Services\PdpTalkIdentity::of( $file, $conv );
 
         $meta = [];
-        if ( $player ) {
-            $p    = (array) $player;
-            $team = ! empty( $p['team_id'] ) ? QueryHelpers::get_team( (int) $p['team_id'] ) : null;
-            if ( $team ) $meta[] = (string) ( ( (array) $team )['name'] ?? '' );
-            if ( ! empty( $p['jersey_number'] ) ) $meta[] = '#' . (int) $p['jersey_number'];
-            $positions = json_decode( (string) ( $p['preferred_positions'] ?? '' ), true );
-            if ( is_array( $positions ) ) {
-                foreach ( $positions as $code ) {
-                    $code = trim( (string) $code );
-                    if ( $code === '' ) continue;
-                    $meta[] = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
-                    break;
-                }
-            }
-        }
+        if ( $id['team'] !== '' ) $meta[] = $id['team'];
+        if ( $id['shirt_number'] !== null ) $meta[] = '#' . $id['shirt_number'];
+        if ( $id['position'] !== '' ) $meta[] = $id['position'];
 
-        $total = (int) ( $f['cycle_size'] ?? 0 );
-        if ( $total <= 0 ) {
-            $total = count( $convs_repo->listForFile( (int) ( $f['id'] ?? 0 ) ) );
-        }
-        $sequence = (int) ( $c['sequence'] ?? 0 );
-        $total    = max( $total, $sequence );
-        $template = self::templateLabel( (string) ( $c['template_key'] ?? '' ) );
-
-        if ( ! empty( $c['conducted_at'] ) ) {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
-                __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::date( (string) $c['conducted_at'] )
-            );
-        } elseif ( ! empty( $c['scheduled_at'] ) ) {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
-                __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::dateTime( (string) $c['scheduled_at'] )
-            );
-        } else {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle */
-                __( '%1$s · conversation %2$d of %3$d', 'talenttrack' ),
-                $template, $sequence, $total
-            );
-        }
+        $talk = \TT\Modules\Pdp\Services\PdpTalkIdentity::line( $id );
 
         return [
-            'name'      => $name,
-            'photo_url' => $player ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '',
-            'status'    => $player ? (string) ( ( (array) $player )['status'] ?? '' ) : '',
+            'name'      => $id['name'],
+            'photo_url' => $id['photo_url'],
+            'status'    => $id['status'],
             'meta'      => implode( ' · ', $meta ),
             'talk'      => $talk,
         ];
@@ -2456,8 +2420,9 @@ class FrontendPdpManageView extends FrontendViewBase {
      * hero component (#5107) exists.
      *
      * @param array{name:string, photo_url:string, status:string, meta:string, talk:string} $identity
+     * @param string $action_html an escaped control for the hero's row (#5082), or ''
      */
-    private static function renderTalkHero( array $identity ): void {
+    private static function renderTalkHero( array $identity, string $action_html = '' ): void {
         wp_enqueue_style(
             'tt-frontend-player-detail',
             TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
@@ -2479,7 +2444,11 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<p class="tt-player-hero__sub">' . esc_html( $identity['meta'] ) . '</p>';
         }
         echo '<p class="tt-player-hero__sub"><strong>' . esc_html( $identity['talk'] ) . '</strong></p>';
-        echo '</div></div></header>';
+        echo '</div>';
+        if ( $action_html !== '' ) {
+            echo '<div class="tt-pdp-talk-hero__actions">' . $action_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built from escaped parts by the caller.
+        }
+        echo '</div></header>';
     }
 
     private static function decisionLabel( string $decision ): string {
