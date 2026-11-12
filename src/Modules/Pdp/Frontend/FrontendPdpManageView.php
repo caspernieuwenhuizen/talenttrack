@@ -2399,25 +2399,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( $id['shirt_number'] !== null ) $meta[] = '#' . $id['shirt_number'];
         if ( $id['position'] !== '' ) $meta[] = $id['position'];
 
-        if ( $id['conducted_at'] !== null ) {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
-                __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
-                $id['template'], $id['sequence'], $id['total'], \TT\Shared\Dates\TTDate::date( $id['conducted_at'] )
-            );
-        } elseif ( $id['scheduled_at'] !== null ) {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
-                __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
-                $id['template'], $id['sequence'], $id['total'], \TT\Shared\Dates\TTDate::dateTime( $id['scheduled_at'] )
-            );
-        } else {
-            $talk = sprintf(
-                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle */
-                __( '%1$s · conversation %2$d of %3$d', 'talenttrack' ),
-                $id['template'], $id['sequence'], $id['total']
-            );
-        }
+        $talk = \TT\Modules\Pdp\Services\PdpTalkIdentity::line( $id );
 
         return [
             'name'      => $id['name'],

@@ -7,6 +7,7 @@ use TT\Modules\Pdp\Forms\PdpFormAccess;
 use TT\Modules\Pdp\Forms\PdpFormChoice;
 use TT\Modules\Pdp\Forms\PdpFormReader;
 use TT\Modules\Pdp\Services\PdpCycleState;
+use TT\Modules\Pdp\Services\PdpTalkIdentity;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\FormAutosave;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -164,10 +165,6 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
         if ( $player['shirt_number'] !== null ) $meta[] = '#' . (int) $player['shirt_number'];
         if ( (string) $player['position'] !== '' ) $meta[] = (string) $player['position'];
 
-        $when = $talk['conducted_at'] !== null
-            ? TTDate::date( (string) $talk['conducted_at'] )
-            : ( $talk['scheduled_at'] !== null ? TTDate::dateTime( (string) $talk['scheduled_at'] ) : '' );
-
         echo '<header class="tt-pdp-mode__head">';
         echo '<div class="tt-pdp-mode__club">';
         if ( (string) $club['logo_url'] !== '' ) {
@@ -187,12 +184,14 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
         echo '<div class="tt-pdp-mode__whotext">';
         echo '<h1 class="tt-pdp-mode__name" id="tt-pdp-mode-name">' . esc_html( (string) $player['name'] ) . '</h1>';
         if ( $meta !== [] ) echo '<p class="tt-pdp-mode__meta">' . esc_html( implode( ' · ', $meta ) ) . '</p>';
-        echo '<p class="tt-pdp-mode__talk">' . esc_html( sprintf(
-            /* translators: 1: talk template, e.g. "Mid season", 2: its number in the cycle */
-            __( '%1$s · conversation %2$d', 'talenttrack' ),
-            (string) $talk['template'],
-            (int) $talk['sequence']
-        ) . ( $when !== '' ? ' · ' . $when : '' ) ) . '</p>';
+        // The same line the talk's page shows, from the same formatter.
+        echo '<p class="tt-pdp-mode__talk">' . esc_html( PdpTalkIdentity::line( [
+            'sequence'     => (int) $talk['sequence'],
+            'total'        => (int) $talk['total'],
+            'template'     => (string) $talk['template'],
+            'scheduled_at' => $talk['scheduled_at'] !== null ? (string) $talk['scheduled_at'] : null,
+            'conducted_at' => $talk['conducted_at'] !== null ? (string) $talk['conducted_at'] : null,
+        ] ) ) . '</p>';
         echo '</div></div>';
 
         echo '<div class="tt-pdp-mode__tools">';

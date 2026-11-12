@@ -27,6 +27,36 @@ final class PdpTalkIdentity {
      *   scheduled_at:?string, conducted_at:?string
      * }
      */
+    /**
+     * The talk in one line, as every screen that names it writes it:
+     * "Mid season · conversation 2 of 3 · planned …", or "held …" once
+     * conducted. Takes `of()`'s answer, or the `talk` part of the room
+     * display, which carries the same keys.
+     *
+     * @param array{sequence:int, total:int, template:string, scheduled_at:?string, conducted_at:?string} $talk
+     */
+    public static function line( array $talk ): string {
+        if ( $talk['conducted_at'] !== null ) {
+            return sprintf(
+                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
+                __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
+                $talk['template'], $talk['sequence'], $talk['total'], \TT\Shared\Dates\TTDate::date( $talk['conducted_at'] )
+            );
+        }
+        if ( $talk['scheduled_at'] !== null ) {
+            return sprintf(
+                /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
+                __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
+                $talk['template'], $talk['sequence'], $talk['total'], \TT\Shared\Dates\TTDate::dateTime( $talk['scheduled_at'] )
+            );
+        }
+        return sprintf(
+            /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle */
+            __( '%1$s · conversation %2$d of %3$d', 'talenttrack' ),
+            $talk['template'], $talk['sequence'], $talk['total']
+        );
+    }
+
     public static function of( object $file, object $conv ): array {
         $f         = (array) $file;
         $c         = (array) $conv;

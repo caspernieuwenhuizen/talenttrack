@@ -317,6 +317,14 @@ final class PdpConversationModeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '<h1 class="tt-player-hero__name">' . esc_html( $identity['name'] ) . '</h1>', $page );
         $this->assertStringContainsString( esc_html( $identity['team'] ), $page );
         $this->assertStringContainsString( esc_html( $identity['template'] ), $page );
+
+        // The rendered line itself, word for word, on both screens.
+        $line = \TT\Modules\Pdp\Services\PdpTalkIdentity::line( $identity );
+        $this->assertStringContainsString( 'of ' . $identity['total'], $line, 'the line carries the cycle size' );
+        $this->assertStringContainsString( 'planned', $line, 'and the talk\'s state' );
+        $this->assertStringContainsString( '<strong>' . esc_html( $line ) . '</strong>', $page, 'the talk\'s page' );
+        $tv = $this->renderMode( $this->trainer );
+        $this->assertStringContainsString( '<p class="tt-pdp-mode__talk">' . esc_html( $line ) . '</p>', $tv, 'the room display, the same string' );
     }
 
     // ---- the entry point ------------------------------------------------

@@ -24,11 +24,6 @@ msgctxt "PDP conversation mode: the step before"
 msgid "Previous"
 msgstr "Vorige"
 
-#. translators: 1: talk template, e.g. "Mid season", 2: its number in the cycle
-#: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
-msgid "%1$s · conversation %2$d"
-msgstr "%1$s · gesprek %2$d"
-
 #: src/Modules/Pdp/Frontend/FrontendPdpConversationModeView.php
 msgid "Averages per section"
 msgstr "Gemiddelden per onderdeel"
