@@ -287,6 +287,31 @@ The manual flow below still works (the auto-release job no-ops when the
 release already exists) and remains useful for cutting a release with a
 curated CHANGES.md section.
 
+### The board: Merged → Released
+
+`.github/workflows/mark-released.yml` moves every issue a release closes
+from **Merged** to **Released** on the pilot issues board. It reads the
+commits since the previous tag. For each squash-merged PR (the `(#N)` at
+the end of the subject), it asks GitHub which issues that PR closed,
+because a squash commit keeps the PR's title, not the `Closes #N` in its
+body. It also picks up any `Closes #N` typed in a commit. It runs three
+ways:
+
+- **As the last job of `auto-release.yml`** (#5153), with the tag it just
+  published. This is the normal path. A tag the release API creates with
+  `GITHUB_TOKEN` starts no other workflow, so the tag-push trigger never
+  fires for an auto-release. That's why the board stopped moving after
+  June 2026.
+- **On a tag push** — a release tagged by hand (the manual flow below).
+- **By hand, for a missed release** — Actions → *Mark board items as
+  Released* → *Run workflow*, with `tag`. `from_tag` widens the range to
+  every commit after that tag, so one run covers several releases. The
+  catch-up for the releases the board missed is one run with `tag`
+  `v4.150.0` and `from_tag` `v4.145.0` (v4.146.0 to v4.150.0).
+
+It needs the `PROJECT_BOARD_TOKEN` secret (a fine-grained PAT with
+projects read+write); `GITHUB_TOKEN` cannot write to a user project.
+
 ### Manual flow — tag a version, automation takes over
 
 After merging, in Claude Code:
