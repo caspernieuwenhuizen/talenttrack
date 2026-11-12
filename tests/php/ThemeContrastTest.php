@@ -491,6 +491,36 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         $this->assertSame( [], $offenders, 'read var(--tt-color-on-secondary, …) for text on a secondary fill' );
     }
 
+    /**
+     * #5136 — under a theme the landing dashboard's fixed colours follow the
+     * theme too: the hero gradient ends in the theme's deep colour, the
+     * secondary text is the theme's soft ink, and the soft accent and the
+     * dividers are tints of the theme's primary. The `.tt-root` block keeps
+     * the default design's values, which the visual editor writes over.
+     */
+    public function test_the_themed_dashboard_block_follows_the_theme(): void {
+        $css = $this->css( 'persona-dashboard.css' );
+        $this->assertSame( 1, preg_match( '/(?:^|\})\s*\.tt-dashboard\.tt-themed\s*\{([^}]*)\}/', $css, $themed ), 'themed block' );
+        $this->assertSame( 1, preg_match( '/(?:^|\})\s*\.tt-root\s*\{([^}]*)\}/', $css, $root ), 'root block' );
+
+        $expected = [
+            '--tt-pd-hero-end'       => '/^var\(--tt-primary-deep\b/',
+            '--tt-pd-text-secondary' => '/^var\(--tt-ink-soft\b/',
+            '--tt-pd-accent-soft'    => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+            '--tt-pd-divider'        => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+            '--tt-pd-divider-strong' => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+        ];
+        $themed_decls = $this->declarations( $themed[1] );
+        foreach ( $expected as $name => $pattern ) {
+            $this->assertArrayHasKey( $name, $themed_decls, "$name is not re-declared under a theme" );
+            $this->assertMatchesRegularExpression( $pattern, $themed_decls[ $name ], $name );
+        }
+
+        $root_decls = $this->declarations( $root[1] );
+        $this->assertSame( '#07261c', $root_decls['--tt-pd-hero-end'] ?? null, 'the default hero end is unchanged' );
+        $this->assertSame( '#46544c', $root_decls['--tt-pd-text-secondary'] ?? null, 'the default secondary text is unchanged' );
+    }
+
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
     public function test_the_header_reads(): void {
         foreach ( $this->palettes() as $name => $p ) {

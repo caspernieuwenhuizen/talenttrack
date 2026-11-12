@@ -71,6 +71,15 @@
     --tt-pd-danger:         var(--tt-danger, #d8453b);
     --tt-pd-hero-start:     var(--tt-primary, #0b3d2e);
     --tt-pd-hero-cta:       var(--tt-secondary, #e8b624);
+
+    /* The four the `.tt-root` block fixes in the default design's green:
+       under a theme they follow it too, so the hero gradient ends in the
+       theme's deep colour rather than the default dark green. */
+    --tt-pd-text-secondary: var(--tt-ink-soft, #46544c);
+    --tt-pd-accent-soft:    rgba(var(--tt-primary-rgb), 0.08);
+    --tt-pd-divider:        rgba(var(--tt-primary-rgb), 0.08);
+    --tt-pd-divider-strong: rgba(var(--tt-primary-rgb), 0.14);
+    --tt-pd-hero-end:       var(--tt-primary-deep, #07261c);
 }
 
 .tt-pd-landing {
