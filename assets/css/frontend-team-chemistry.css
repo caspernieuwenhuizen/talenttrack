@@ -174,7 +174,9 @@
     flex-wrap: wrap;
 }
 .tt-tc-override-banner strong { color: var(--tt-tc-link); }
-.tt-tc-override-hint { color: var(--tt-tc-muted); }
+/* The hint sits on the banner's teal tint, where muted text measured 4.07
+   to 4.29:1 on every palette; the ink clears 12:1 (#5136). */
+.tt-tc-override-hint { color: var(--tt-tc-ink); }
 
 /* #1325 — loaded-blueprint banner */
 .tt-tc-loaded-banner {

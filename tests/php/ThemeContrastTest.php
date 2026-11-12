@@ -58,6 +58,9 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         $value = trim( $value );
         if ( $depth > 10 ) return null;
         if ( preg_match( '/^#[0-9a-fA-F]{6}$/', $value ) ) return strtolower( $value );
+        if ( preg_match( '/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/', $value, $short ) ) {
+            return strtolower( '#' . $short[1] . $short[1] . $short[2] . $short[2] . $short[3] . $short[3] );
+        }
         if ( ! preg_match( '/^var\(\s*(--tt-[a-z0-9-]+)\s*(?:,(.*))?\)$/s', $value, $m ) ) return null;
         if ( isset( $d[ $m[1] ] ) ) {
             return $this->resolve( $d[ $m[1] ], $d, $depth + 1 );
@@ -256,7 +259,7 @@ final class ThemeContrastTest extends WP_UnitTestCase {
      * known gap, not a decision: fixing one is moving its selector to
      * `.tt-root, .tt-dashboard` and deleting it from this list.
      */
-    private const ROOT_ONLY_ALIASES = [ 'frontend-measurement-levels.css', 'persona-dashboard.css' ];
+    private const ROOT_ONLY_ALIASES = [ 'persona-dashboard.css' ];
 
     /**
      * #5130 — a custom property resolves its `var()` where it is declared,
@@ -298,6 +301,69 @@ final class ThemeContrastTest extends WP_UnitTestCase {
 
         $this->assertSame( [], array_values( array_diff( array_keys( $offenders ), self::ROOT_ONLY_ALIASES ) ), 'declare these aliases on `.tt-root, .tt-dashboard`' );
         $this->assertSame( [], array_values( array_diff( self::ROOT_ONLY_ALIASES, array_keys( $offenders ) ) ), 'fixed: delete it from ROOT_ONLY_ALIASES' );
+    }
+
+    /**
+     * #5136 — team chemistry's sandbox banner hint reads at 4.5:1 on the
+     * banner's tint, laid over paper and over the soft background, in every
+     * palette. Both colours resolve through the sheet's own aliases.
+     */
+    public function test_the_chemistry_sandbox_hint_reads(): void {
+        $sheet = $this->css( 'frontend-team-chemistry.css' );
+        $local = $this->declarations( $sheet );
+        $this->assertSame( 1, preg_match( '/\.tt-tc-override-hint\s*\{[^}]*?(?:^|[;\s{])color:\s*([^;]+);/', $sheet, $fg ), 'hint colour' );
+        $this->assertSame( 1, preg_match( '/\.tt-tc-override-banner\s*\{[^}]*background:\s*([^;]+);/', $sheet, $bg ), 'banner fill' );
+
+        foreach ( $this->palettes() as $name => $p ) {
+            $d    = array_merge( $local, $p['decls'] );
+            $text = $this->resolve( trim( $fg[1] ), $d );
+            $this->assertNotNull( $text, "$name hint colour does not resolve" );
+            $fill = $this->rawValue( trim( $bg[1] ), $d );
+            foreach ( [ '--tt-paper', '--tt-bg-soft' ] as $under ) {
+                $this->assertRatio( 4.5, (string) $text, $this->fill( $fill, $this->token( $under, $d ), $d ), "$name chemistry sandbox hint over $under" );
+            }
+        }
+    }
+
+    /**
+     * #5136 — every measurement-level status chip on the Measurements tab
+     * prints its text at 4.5:1 or better on its own fill, in every palette.
+     * The fill and text resolve through the sheet's level aliases; a chip
+     * that sets no colour takes the chip's base text colour.
+     */
+    public function test_measurement_status_chips_read(): void {
+        $sheet = $this->css( 'frontend-measurement-levels.css' );
+        $local = $this->declarations( $sheet );
+        $this->assertSame( 1, preg_match( '/(?:^|\})\s*\.tt-meas-value--status\s*\{[^}]*?(?:^|[;\s{])color:\s*([^;]+);/', $sheet, $base ), 'chip base colour' );
+        $this->assertGreaterThan( 0, preg_match_all( '/\.tt-meas-value--status\.tt-mlvl-swatch--([a-z]+)\s*\{([^}]*)\}/', $sheet, $chips, PREG_SET_ORDER ), 'chips' );
+        $this->assertSame( 9, count( $chips ), 'the nine curated levels' );
+
+        foreach ( $this->palettes() as $name => $p ) {
+            $d = array_merge( $local, $p['decls'] );
+            foreach ( $chips as [ , $level, $body ] ) {
+                $this->assertSame( 1, preg_match( '/background:\s*([^;]+);/', $body, $bg ), "$level fill" );
+                $text = preg_match( '/(?:^|[;\s])color:\s*([^;]+);/', $body, $c ) ? trim( $c[1] ) : trim( $base[1] );
+                $fg   = $this->resolve( $text, $d );
+                $fill = $this->resolve( trim( $bg[1] ), $d );
+                $this->assertNotNull( $fg, "$name $level text does not resolve" );
+                $this->assertNotNull( $fill, "$name $level fill does not resolve" );
+                $this->assertRatio( 4.5, (string) $fg, (string) $fill, "$name measurement chip $level" );
+            }
+        }
+    }
+
+    /**
+     * Follow a `var()` chain through the declarations to the first value
+     * that is not itself a `var()` of a declared property.
+     *
+     * @param array<string, string> $d
+     */
+    private function rawValue( string $value, array $d ): string {
+        for ( $i = 0; $i < 10; $i++ ) {
+            if ( ! preg_match( '/^var\(\s*(--[a-z0-9-]+)\s*(?:,.*)?\)$/s', $value, $m ) || ! isset( $d[ $m[1] ] ) ) break;
+            $value = trim( $d[ $m[1] ] );
+        }
+        return $value;
     }
 
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
