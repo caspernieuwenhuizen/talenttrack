@@ -377,10 +377,73 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         $this->assertSame( 'var(--tt-primary)', $tokens['--tt-color-on-secondary'] ?? null, 'the default design keeps the primary' );
 
         foreach ( $this->palettes() as $name => $p ) {
-            if ( $this->excused( $name, 'on-secondary' ) ) continue;
             $d = $p['decls'];
+            // The ink is the other text the guard below accepts on a
+            // secondary fill (the landing dashboard's call to action).
+            $this->assertRatio( 4.5, $this->token( '--tt-ink', $d ), $this->token( '--tt-secondary', $d ), "$name ink on the secondary fill" );
+            if ( $this->excused( $name, 'on-secondary' ) ) continue;
             $this->assertRatio( 4.5, $this->token( '--tt-color-on-secondary', $d ), $this->token( '--tt-secondary', $d ), "$name text on the secondary fill" );
         }
+    }
+
+    /**
+     * The custom properties a sheet defines as `$root`, directly or as an
+     * alias of an alias, `$root` included.
+     *
+     * @return list<string>
+     */
+    private function aliasesOf( string $css, string $root ): array {
+        $aliases = [ $root ];
+        do {
+            $count = count( $aliases );
+            $alt   = implode( '|', array_map( static fn( string $n ): string => preg_quote( $n, '/' ), $aliases ) );
+            if ( preg_match_all( '/(--[a-z0-9-]+)\s*:\s*var\(\s*(?:' . $alt . ')\s*[,)]/', $css, $m ) ) {
+                $aliases = array_values( array_unique( array_merge( $aliases, $m[1] ) ) );
+            }
+        } while ( count( $aliases ) !== $count );
+        return $aliases;
+    }
+
+    /**
+     * Rules in a sheet that paint the secondary as their fill, directly or
+     * through a custom property the sheet defines as one, and set a text
+     * colour that is neither `--tt-color-on-secondary` nor the ink (or an
+     * alias of the ink): the two pairs the contrast test measures.
+     *
+     * @return array{checked: int, offenders: list<string>}
+     */
+    private function secondaryFillOffenders( string $css ): array {
+        $css   = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+        $quote = static fn( array $names ): string => implode( '|', array_map( static fn( string $n ): string => preg_quote( $n, '/' ), $names ) );
+        $fills = $quote( $this->aliasesOf( $css, '--tt-secondary' ) );
+        $texts = $quote( array_merge( [ '--tt-color-on-secondary' ], $this->aliasesOf( $css, '--tt-ink' ) ) );
+
+        $checked   = 0;
+        $offenders = [];
+        if ( preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) {
+            foreach ( $rules as $rule ) {
+                if ( ! preg_match( '/(?:^|[;\s])background(?:-color)?:\s*var\(\s*(?:' . $fills . ')\s*[,)]/', $rule[2] ) ) continue;
+                if ( ! preg_match( '/(?:^|[;\s])color:\s*([^;]+);/', $rule[2], $c ) ) continue;
+                $checked++;
+                if ( ! preg_match( '/^var\(\s*(?:' . $texts . ')\s*[,)]/', trim( $c[1] ) ) ) {
+                    $offenders[] = trim( (string) preg_replace( '/\s+/', ' ', $rule[1] ) ) . ' (color: ' . trim( $c[1] ) . ')';
+                }
+            }
+        }
+        return [ 'checked' => $checked, 'offenders' => $offenders ];
+    }
+
+    public function test_the_secondary_fill_guard_follows_local_aliases(): void {
+        $planted = '.tt-x { --tt-gold: var(--tt-secondary, #e8b624); --tt-gold-2: var(--tt-gold); --tt-pri: var(--tt-primary); --tt-txt: var(--tt-ink); }'
+            . ' .tt-a { background: var(--tt-gold); color: var(--tt-pri); }'
+            . ' .tt-b { background: var(--tt-gold-2); color: var(--tt-primary); }'
+            . ' .tt-c { background: var(--tt-gold); color: var(--tt-color-on-secondary, var(--tt-pri)); }'
+            . ' .tt-d { background: var(--tt-pri); color: var(--tt-gold); }'
+            . ' .tt-e { background: var(--tt-gold-2); color: var(--tt-txt); }';
+
+        $found = $this->secondaryFillOffenders( $planted );
+        $this->assertSame( 4, $found['checked'] );
+        $this->assertSame( [ '.tt-a (color: var(--tt-pri))', '.tt-b (color: var(--tt-primary))' ], $found['offenders'] );
     }
 
     /**
@@ -397,19 +460,14 @@ final class ThemeContrastTest extends WP_UnitTestCase {
             if ( substr( $path, -4 ) !== '.css' ) continue;
             $name = basename( $path );
             if ( $name === 'tokens.css' || strpos( $name, 'theme-' ) === 0 ) continue;
-            $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
-            if ( ! preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) continue;
-            foreach ( $rules as $rule ) {
-                if ( ! preg_match( '/(?:^|[;\s])background(?:-color)?:\s*var\(\s*--tt-secondary\s*[,)]/', $rule[2] ) ) continue;
-                if ( ! preg_match( '/(?:^|[;\s])color:\s*([^;]+);/', $rule[2], $c ) ) continue;
-                $checked++;
-                if ( ! preg_match( '/^var\(\s*--tt-color-on-secondary\b/', trim( $c[1] ) ) ) {
-                    $offenders[] = $name . ' ' . trim( preg_replace( '/\s+/', ' ', $rule[1] ) ) . ' (color: ' . trim( $c[1] ) . ')';
-                }
+            $found    = $this->secondaryFillOffenders( (string) file_get_contents( $path ) );
+            $checked += $found['checked'];
+            foreach ( $found['offenders'] as $offender ) {
+                $offenders[] = $name . ' ' . $offender;
             }
         }
         $this->assertGreaterThan( 0, $checked, 'no secondary-fill rule found' );
-        $this->assertSame( [], $offenders, 'read var(--tt-color-on-secondary, var(--tt-primary)) for text on a secondary fill' );
+        $this->assertSame( [], $offenders, 'read var(--tt-color-on-secondary, …) for text on a secondary fill' );
     }
 
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */
