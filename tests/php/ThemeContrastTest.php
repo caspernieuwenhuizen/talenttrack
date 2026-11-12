@@ -514,6 +514,7 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         foreach ( $expected as $name => $pattern ) {
             $this->assertArrayHasKey( $name, $themed_decls, "$name is not re-declared under a theme" );
             $this->assertMatchesRegularExpression( $pattern, $themed_decls[ $name ], $name );
+            $this->assertStringNotContainsString( '#', $themed_decls[ $name ], "$name under a theme carries no raw hex" );
         }
 
         $root_decls = $this->declarations( $root[1] );
