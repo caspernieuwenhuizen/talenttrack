@@ -321,13 +321,6 @@ final class ScheduledReportsRunner {
     }
 
     /**
-     * A member of a role who is not in this club, counted under the role and
-     * never named: neither their address nor their account is this club's
-     * to record.
-     *
-     * @return array{email: string, user_id: int, reason: string, via: string}
-     */
-    /**
      * #5150 — an account that is mailed is never also left out, whichever
      * entry reached it first: a role can skip a member as `no_email` that an
      * address typed later turns out to belong to.
@@ -340,6 +333,13 @@ final class ScheduledReportsRunner {
         return array_values( array_filter( $skipped, static fn( array $s ): bool => $s['user_id'] <= 0 || ! isset( $users[ $s['user_id'] ] ) ) );
     }
 
+    /**
+     * A member of a role who is not in this club, counted under the role and
+     * never named: neither their address nor their account is this club's
+     * to record.
+     *
+     * @return array{email: string, user_id: int, reason: string, via: string}
+     */
     private static function notInClub( string $role ): array {
         return [ 'email' => '', 'user_id' => 0, 'reason' => 'not_in_club', 'via' => $role ];
     }
