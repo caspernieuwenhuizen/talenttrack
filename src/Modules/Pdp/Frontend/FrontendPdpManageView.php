@@ -1168,7 +1168,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             // (#1792).
             echo '<td' . StackTable::attrs( 'cell', _x( 'Template', 'PDP conversation template', 'talenttrack' ) ) . '>'
                 . '<a class="tt-record-link" href="' . esc_url( $url ) . '">'
-                . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
+                . esc_html( \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) $c->template_key ) ) . '</a></td>';
             echo '<td' . StackTable::attrs( 'cell', __( 'Scheduled', 'talenttrack' ) ) . '>'
                 . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td' . StackTable::attrs( 'cell', __( 'Status', 'talenttrack' ) ) . '>'
@@ -1300,7 +1300,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // in both shells, whose name is the page's h1. Under the app shell
         // the spine below carries the same identity as the strip that stays
         // in view while scrolling (its copy is aria-hidden for that reason).
-        $identity = self::talkIdentity( $file, $conv, $convs_repo );
+        $identity = self::talkIdentity( $file, $conv );
         // #5080 — what part 2 draws, decided once; also used below.
         $form_part = PdpFormConversationView::prepare( $conv_id, $user_id );
         // #5082 — "Conversation mode" for the screen in the room: on a form
@@ -2348,17 +2348,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         return $status;
     }
 
-    private static function templateLabel( string $key ): string {
-        switch ( $key ) {
-            case 'start': return __( 'Start of season', 'talenttrack' );
-            case 'mid':   return __( 'Mid season', 'talenttrack' );
-            case 'mid_a': return __( 'Mid-season A', 'talenttrack' );
-            case 'mid_b': return __( 'Mid-season B', 'talenttrack' );
-            case 'end':   return __( 'End of season', 'talenttrack' );
-        }
-        return $key;
-    }
-
     /**
      * The file and talk crumbs of a conversation page: the player's name and
      * the talk's title for a reader who may see the file, the generic
@@ -2387,7 +2376,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             /* translators: %1$d sequence, %2$s template */
             __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
             (int) ( $c['sequence'] ?? 0 ),
-            self::templateLabel( (string) ( $c['template_key'] ?? '' ) )
+            \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) ( $c['template_key'] ?? '' ) )
         );
     }
 
@@ -2397,63 +2386,43 @@ class FrontendPdpManageView extends FrontendViewBase {
      * and one line for the talk ("Mid season · conversation 2 of 3 ·
      * planned …", or "held …" once conducted).
      *
+     * #5082 — the identity itself is `PdpTalkIdentity::of()`, which the room
+     * display reads too; this only formats it for the page.
+     *
      * @return array{name:string, photo_url:string, status:string, meta:string, talk:string}
      */
-    private static function talkIdentity( object $file, object $conv, PdpConversationsRepository $convs_repo ): array {
-        $f      = (array) $file;
-        $c      = (array) $conv;
-        $player = QueryHelpers::get_player( (int) ( $f['player_id'] ?? 0 ) );
-        $name   = $player ? QueryHelpers::player_display_name( $player ) : __( 'Player', 'talenttrack' );
+    private static function talkIdentity( object $file, object $conv ): array {
+        $id = \TT\Modules\Pdp\Services\PdpTalkIdentity::of( $file, $conv );
 
         $meta = [];
-        if ( $player ) {
-            $p    = (array) $player;
-            $team = ! empty( $p['team_id'] ) ? QueryHelpers::get_team( (int) $p['team_id'] ) : null;
-            if ( $team ) $meta[] = (string) ( ( (array) $team )['name'] ?? '' );
-            if ( ! empty( $p['jersey_number'] ) ) $meta[] = '#' . (int) $p['jersey_number'];
-            $positions = json_decode( (string) ( $p['preferred_positions'] ?? '' ), true );
-            if ( is_array( $positions ) ) {
-                foreach ( $positions as $code ) {
-                    $code = trim( (string) $code );
-                    if ( $code === '' ) continue;
-                    $meta[] = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
-                    break;
-                }
-            }
-        }
+        if ( $id['team'] !== '' ) $meta[] = $id['team'];
+        if ( $id['shirt_number'] !== null ) $meta[] = '#' . $id['shirt_number'];
+        if ( $id['position'] !== '' ) $meta[] = $id['position'];
 
-        $total = (int) ( $f['cycle_size'] ?? 0 );
-        if ( $total <= 0 ) {
-            $total = count( $convs_repo->listForFile( (int) ( $f['id'] ?? 0 ) ) );
-        }
-        $sequence = (int) ( $c['sequence'] ?? 0 );
-        $total    = max( $total, $sequence );
-        $template = self::templateLabel( (string) ( $c['template_key'] ?? '' ) );
-
-        if ( ! empty( $c['conducted_at'] ) ) {
+        if ( $id['conducted_at'] !== null ) {
             $talk = sprintf(
                 /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: date it was held */
                 __( '%1$s · conversation %2$d of %3$d · held %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::date( (string) $c['conducted_at'] )
+                $id['template'], $id['sequence'], $id['total'], \TT\Shared\Dates\TTDate::date( $id['conducted_at'] )
             );
-        } elseif ( ! empty( $c['scheduled_at'] ) ) {
+        } elseif ( $id['scheduled_at'] !== null ) {
             $talk = sprintf(
                 /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle, %4$s: planned date and time */
                 __( '%1$s · conversation %2$d of %3$d · planned %4$s', 'talenttrack' ),
-                $template, $sequence, $total, \TT\Shared\Dates\TTDate::dateTime( (string) $c['scheduled_at'] )
+                $id['template'], $id['sequence'], $id['total'], \TT\Shared\Dates\TTDate::dateTime( $id['scheduled_at'] )
             );
         } else {
             $talk = sprintf(
                 /* translators: %1$s: talk template, %2$d: its number in the cycle, %3$d: talks in the cycle */
                 __( '%1$s · conversation %2$d of %3$d', 'talenttrack' ),
-                $template, $sequence, $total
+                $id['template'], $id['sequence'], $id['total']
             );
         }
 
         return [
-            'name'      => $name,
-            'photo_url' => $player ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '',
-            'status'    => $player ? (string) ( ( (array) $player )['status'] ?? '' ) : '',
+            'name'      => $id['name'],
+            'photo_url' => $id['photo_url'],
+            'status'    => $id['status'],
             'meta'      => implode( ' · ', $meta ),
             'talk'      => $talk,
         ];

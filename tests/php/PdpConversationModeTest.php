@@ -115,7 +115,7 @@ final class PdpConversationModeTest extends WP_UnitTestCase {
             array_keys( $data ),
             'exactly the allowlist, in that shape'
         );
-        $this->assertSame( [ 'coach_writable', 'coach_signoff_at' ], array_keys( $data['state'] ), 'no sign-off list, no sign-off right' );
+        $this->assertSame( [ 'coach_writable' ], array_keys( $data['state'] ), 'no sign-off list, no sign-off right, no sign-off time' );
 
         foreach ( [ 'status', 'behaviour', 'potential', 'evaluations', 'attendance', 'minutes', 'injuries', 'notes', 'self_reflection', 'recent_journey', 'season', 'window', 'tests', 'missing', 'answers', 'coach', 'differences', 'signs_off' ] as $key ) {
             $this->assertArrayNotHasKey( $key, $data, "no '{$key}' on the room screen" );
@@ -249,6 +249,76 @@ final class PdpConversationModeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'That conversation no longer exists.', $html );
     }
 
+    public function test_a_coach_of_another_team_is_refused_on_rest_and_in_the_view(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_teams", [ 'club_id' => $this->club, 'name' => 'O17-2' ] );
+        $coach = $this->makeHeadCoach( (int) $wpdb->insert_id );
+
+        wp_set_current_user( $coach );
+        $this->assertSame( 403, $this->send( 'GET', 'form/display', [] )[1], 'another team\'s coach reads nothing of this talk' );
+
+        $html = $this->renderMode( $coach );
+        $this->assertFalse( PresentationSurfaces::isPresenting() );
+        $this->assertStringContainsString( 'tt-breadcrumbs', $html );
+        $this->assertStringNotContainsString( 'data-tt-pdp-mode', $html );
+        $this->assertStringNotContainsString( 'tt-dashboard--presentation', $html );
+    }
+
+    public function test_the_view_refuses_a_parent_before_sign_off_and_the_observer(): void {
+        $observer = (int) self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
+        foreach ( [ 'a parent before sign-off' => $this->parent, 'the read-only observer' => $observer ] as $who => $uid ) {
+            $html = $this->renderMode( $uid );
+            $this->assertFalse( PresentationSurfaces::isPresenting(), $who );
+            $this->assertStringContainsString( 'tt-breadcrumbs', $html, $who . ' gets the normal screen with its chain' );
+            $this->assertStringNotContainsString( 'data-tt-pdp-mode', $html, $who );
+            $this->assertStringNotContainsString( 'tt-dashboard--presentation', $html, $who );
+        }
+    }
+
+    public function test_after_sign_off_the_player_and_a_parent_open_the_room_display(): void {
+        $this->prepareAndFill();
+        $this->completeTrainerPart();
+        wp_set_current_user( $this->trainer );
+        [ $signed, $status ] = $this->send( 'POST', 'signoff', [] );
+        $this->assertSame( 201, $status, (string) wp_json_encode( $signed ) );
+
+        foreach ( [ 'the player' => $this->account, 'a parent' => $this->parent ] as $who => $uid ) {
+            wp_set_current_user( $uid );
+            [ $body, $code ] = $this->send( 'GET', 'form/display', [] );
+            $this->assertSame( 200, $code, $who );
+            $this->assertFalse( $body['data']['state']['coach_writable'], "{$who} cannot score" );
+            $this->assertStringNotContainsString( self::NOTE, (string) wp_json_encode( $body['data'] ), "{$who}: still no notes" );
+
+            $html = $this->renderMode( $uid );
+            $this->assertTrue( PresentationSurfaces::isPresenting(), "{$who}: the view presents" );
+            $this->assertStringContainsString( 'tt-dashboard--presentation', $html, $who );
+            $this->assertStringNotContainsString( 'data-tt-save-state', $html, "{$who}: a read-only room display has no save state" );
+            $this->assertStringNotContainsString( self::NOTE, $html, $who );
+        }
+    }
+
+    public function test_the_talks_page_and_the_room_display_name_the_talk_the_same_way(): void {
+        $file = ( new \TT\Modules\Pdp\Repositories\PdpFilesRepository() )->find( $this->file );
+        $conv = ( new \TT\Modules\Pdp\Repositories\PdpConversationsRepository() )->find( $this->conv );
+        $this->assertNotNull( $file );
+        $this->assertNotNull( $conv );
+        $identity = \TT\Modules\Pdp\Services\PdpTalkIdentity::of( $file, $conv );
+
+        wp_set_current_user( $this->trainer );
+        $data = $this->send( 'GET', 'form/display', [] )[0]['data'];
+        $this->assertSame( $identity['name'], $data['player']['name'] );
+        $this->assertSame( $identity['team'], $data['player']['team'] );
+        $this->assertSame( $identity['position'], $data['player']['position'] );
+        $this->assertSame( $identity['template'], $data['talk']['template'] );
+        $this->assertSame( $identity['sequence'], $data['talk']['sequence'] );
+        $this->assertSame( $identity['total'], $data['talk']['total'] );
+
+        $page = $this->between( $this->renderTalkPage( $this->trainer ), 'tt-pdp-talk-hero', '</header>' );
+        $this->assertStringContainsString( '<h1 class="tt-player-hero__name">' . esc_html( $identity['name'] ) . '</h1>', $page );
+        $this->assertStringContainsString( esc_html( $identity['team'] ), $page );
+        $this->assertStringContainsString( esc_html( $identity['template'] ), $page );
+    }
+
     // ---- the entry point ------------------------------------------------
 
     public function test_the_talks_page_offers_conversation_mode_to_the_trainer(): void {
@@ -284,6 +354,35 @@ final class PdpConversationModeTest extends WP_UnitTestCase {
             ],
         ] );
         $this->assertSame( 200, $status, (string) wp_json_encode( $data ) );
+    }
+
+    /** Every item scored, so the form can be signed off. */
+    private function completeTrainerPart(): void {
+        $scores = [];
+        foreach ( PdpFormRegistry::items( (array) PdpFormRegistry::definition( self::FORM ) ) as $item ) $scores[ $item['key'] ] = 3;
+        wp_set_current_user( $this->trainer );
+        [ $data, $status ] = $this->send( 'PATCH', 'form/coach', [ 'scores' => $scores ] );
+        $this->assertSame( 200, $status, (string) wp_json_encode( $data ) );
+        $this->assertSame( [], $data['data']['state']['missing'], 'complete for sign-off' );
+    }
+
+    /** A head coach of `$team_id`, through the same scope rows the auth layer reads. */
+    private function makeHeadCoach( int $team_id ): int {
+        global $wpdb;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$this->p}tt_people", [
+            'club_id' => $this->club, 'first_name' => 'Andere', 'last_name' => 'Trainer',
+            'role_type' => 'head_coach', 'wp_user_id' => $uid, 'status' => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$this->p}tt_team_people", [
+            'team_id' => $team_id, 'person_id' => $person_id, 'role_in_team' => 'head_coach', 'is_head_coach' => 1,
+        ] );
+        $wpdb->insert( "{$this->p}tt_user_role_scopes", [
+            'person_id' => $person_id, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $team_id,
+        ] );
+        AuthorizationService::flushCache();
+        return $uid;
     }
 
     /** The mode as the dashboard renders it for one user. */

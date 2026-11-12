@@ -239,21 +239,37 @@ final class PdpFormReader {
             }
         }
 
+        // Who and which talk: the same identity the talk's page shows.
+        $file_id  = (int) ( $row['pdp_file_id'] ?? 0 );
+        $file     = ( new \TT\Modules\Pdp\Repositories\PdpFilesRepository() )->find( $file_id );
+        $identity = \TT\Modules\Pdp\Services\PdpTalkIdentity::of(
+            $file ?? (object) [ 'id' => $file_id, 'player_id' => $access->playerId() ],
+            $conversation
+        );
+
         return [
             'conversation_id' => $form['conversation_id'],
-            'file_id'         => (int) ( $row['pdp_file_id'] ?? 0 ),
+            'file_id'         => $file_id,
             'club'            => [
                 'name'     => (string) \TT\Infrastructure\Query\QueryHelpers::get_config( 'academy_name', 'TalentTrack' ),
                 'logo_url' => \TT\Infrastructure\Query\QueryHelpers::get_config( 'show_logo', '0' ) === '1'
                     ? (string) \TT\Infrastructure\Query\QueryHelpers::get_config( 'logo_url', '' )
                     : '',
             ],
-            'player'          => self::displayPlayer( $access->playerId() ),
+            'player'          => [
+                'id'           => $identity['player_id'],
+                'name'         => $identity['name'],
+                'photo_url'    => $identity['photo_url'],
+                'team'         => $identity['team'],
+                'shirt_number' => $identity['shirt_number'],
+                'position'     => $identity['position'],
+            ],
             'talk'            => [
-                'sequence'     => (int) ( $row['sequence'] ?? 0 ),
-                'template'     => \TT\Domain\Vocabularies\Enums\PdpConversationTemplate::label( (string) ( $row['template_key'] ?? '' ) ),
-                'scheduled_at' => self::nullable( $row['scheduled_at'] ?? null ),
-                'conducted_at' => self::nullable( $row['conducted_at'] ?? null ),
+                'sequence'     => $identity['sequence'],
+                'total'        => $identity['total'],
+                'template'     => $identity['template'],
+                'scheduled_at' => $identity['scheduled_at'],
+                'conducted_at' => $identity['conducted_at'],
             ],
             'form'            => $definition !== null ? [
                 'key'            => (string) $definition['form_key'],
@@ -271,43 +287,8 @@ final class PdpFormReader {
             'shared'          => $shared,
             'goals'           => $goals,
             'state'           => [
-                'coach_writable'   => ( $form['state']['coach_writable'] ?? false ) === true,
-                'coach_signoff_at' => $form['state']['coach_signoff_at'] ?? null,
+                'coach_writable' => ( $form['state']['coach_writable'] ?? false ) === true,
             ],
-        ];
-    }
-
-    /**
-     * The player as the room display names them.
-     *
-     * @return array{id:int, name:string, photo_url:string, team:string, shirt_number:?int, position:string}
-     */
-    private static function displayPlayer( int $player_id ): array {
-        $player = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
-        if ( ! $player ) {
-            return [ 'id' => $player_id, 'name' => '', 'photo_url' => '', 'team' => '', 'shirt_number' => null, 'position' => '' ];
-        }
-        $p    = (array) $player;
-        $team = ! empty( $p['team_id'] ) ? \TT\Infrastructure\Query\QueryHelpers::get_team( (int) $p['team_id'] ) : null;
-
-        $position  = '';
-        $positions = json_decode( (string) ( $p['preferred_positions'] ?? '' ), true );
-        if ( is_array( $positions ) ) {
-            foreach ( $positions as $code ) {
-                $code = trim( (string) $code );
-                if ( $code === '' ) continue;
-                $position = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
-                break;
-            }
-        }
-
-        return [
-            'id'           => $player_id,
-            'name'         => \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player ),
-            'photo_url'    => \TT\Modules\Players\Services\PlayerPhoto::url( $player ),
-            'team'         => $team ? (string) ( ( (array) $team )['name'] ?? '' ) : '',
-            'shirt_number' => ! empty( $p['jersey_number'] ) ? (int) $p['jersey_number'] : null,
-            'position'     => $position,
         ];
     }
 
