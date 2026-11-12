@@ -709,6 +709,14 @@ Een verzending legt per ontvanger één keer vast dat die de blessures of
 gevoelige gebeurtenissen van een speler heeft gezien, zoals het openen van het
 spelersdossier dat doet. Bekijken wat de ontvangers krijgen, legt niets vast.
 
+**Elke ingeplande verzending legt vast wie blessuregegevens kreeg.** Dat geldt
+ook voor het ingeplande maandrapport van een team en het ingeplande
+spelersrapport: een verzending met blessure-gebeurtenissen, of medische en
+safeguarding-gebeurtenissen, legt per ontvanger en per speler één keer vast
+dat die ze heeft gezien, op naam van die ontvanger en met het schema waar ze
+vandaan kwam. Een verzending zonder zulke gegevens legt niets vast. De rapporten
+op het scherm leggen vast wat de persoon die ze bekijkt ziet, zoals altijd.
+
 ## Strava-koppeling — spelers koppelen hun eigen
 
 Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen

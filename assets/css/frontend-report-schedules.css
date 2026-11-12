@@ -165,5 +165,5 @@
 }
 
 .tt-dashboard .tt-rsch-error {
-    color: var(--tt-danger, #b42318);
+    color: var(--tt-danger-text);
 }

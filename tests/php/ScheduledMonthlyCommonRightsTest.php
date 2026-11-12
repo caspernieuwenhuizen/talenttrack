@@ -389,6 +389,95 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
         $this->assertContains( self::TEST_NAME, $names( $screen ), 'the report on screen stays as it is' );
     }
 
+    /**
+     * #5126 — a scheduled send runs with nobody signed in, so the report's own
+     * read records write nothing. The send records them: one read per
+     * recipient and player, as that recipient.
+     */
+    public function test_a_send_with_injury_entries_records_one_read_per_recipient(): void {
+        $this->needsPdf();
+        global $wpdb;
+        \TT\Core\FeatureRegistry::setEnabled( 'journey_medical_visibility', true );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_events", [
+            'club_id' => CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'player_id' => $this->player, 'event_type' => 'injury_started',
+            'event_date' => gmdate( 'Y-m-12 09:00:00', strtotime( 'first day of last month' ) ), 'summary' => 'Injured: hamstring 5126.',
+            'visibility' => 'medical', 'source_module' => 'tests', 'source_entity_type' => 'test_event', 'source_entity_id' => 5126,
+        ] );
+        $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'hod-4991@example.test' ] );
+        $this->person( $hod, 'head_of_development' );
+        $this->flush();
+        $any_before = [ $this->readRows( 'player.injuries_viewed', '' ), $this->readRows( 'player.sensitive_timeline_viewed', '' ) ];
+
+        wp_set_current_user( 0 );
+        $this->runMonthly( [ 'owner-4991@example.test', 'hod-4991@example.test' ] );
+        sort( $this->sent );
+        $this->assertSame( [ 'hod-4991@example.test', 'owner-4991@example.test' ], $this->sent, 'Precondition: both receive it.' );
+        $this->assertStringContainsString( 'hamstring 5126', $this->pdf_html[0] ?? '', 'Precondition: the PDF shows the injury entry.' );
+
+        foreach ( [ 'player.injuries_viewed', 'player.sensitive_timeline_viewed' ] as $action ) {
+            $this->assertSame( 2, $this->readRows( $action, 'scheduled_report' ), "{$action}: one per recipient" );
+            $this->assertEqualsCanonicalizing( [ $this->owner, $hod ], $this->readers( $action ), "{$action}: each as its recipient" );
+        }
+        $this->assertSame(
+            [ $any_before[0] + 2, $any_before[1] + 2 ],
+            [ $this->readRows( 'player.injuries_viewed', '' ), $this->readRows( 'player.sensitive_timeline_viewed', '' ) ],
+            'and nothing else: the composition itself records nothing'
+        );
+    }
+
+    /** #5134 — the scheduled player report records its reads per recipient too. */
+    public function test_a_player_report_send_records_one_read_per_recipient(): void {
+        $this->needsPdf();
+        global $wpdb;
+        \TT\Core\FeatureRegistry::setEnabled( 'journey_medical_visibility', true );
+        $day = gmdate( 'Y-m-12', strtotime( 'first day of last month' ) );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
+            'club_id' => CurrentClub::id(), 'player_id' => $this->player, 'started_on' => $day, 'actual_return' => $day, 'notes' => 'Hamstring strain 5134.',
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_events", [
+            'club_id' => CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'player_id' => $this->player, 'event_type' => 'injury_started',
+            'event_date' => $day . ' 09:00:00', 'summary' => 'Injured: hamstring 5134.', 'visibility' => 'medical',
+            'source_module' => 'tests', 'source_entity_type' => 'test_event', 'source_entity_id' => 5134,
+        ] );
+        $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'hod-4991@example.test' ] );
+        $this->person( $hod, 'head_of_development' );
+        $this->flush();
+        $this->assertTrue( \TT\Infrastructure\Visibility\ReaderSet::of( [ $this->owner, $hod ] )->seesMedical(), 'Precondition: both read medical entries.' );
+        $any_before = [ $this->readRows( 'player.injuries_viewed', '' ), $this->readRows( 'player.sensitive_timeline_viewed', '' ) ];
+
+        $id = $this->repo->create( [
+            'name'        => 'Player report 5134',
+            'report_key'  => ScheduledReportsRepository::REPORT_PLAYER,
+            'composition' => \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [ 'player_id' => $this->player, 'period' => 'last_month', 'blocks' => [ 'letterhead', 'injuries', 'journey' ] ] ),
+            'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
+            'recipients'  => [ 'owner-4991@example.test', 'hod-4991@example.test' ],
+            'format'      => 'pdf',
+        ], $this->owner );
+        wp_set_current_user( 0 );
+        $this->flush();
+        ScheduledReportsRunner::runPlayerReport( $this->repo, (array) $this->repo->findById( $id ), gmdate( 'Y-m-01' ) . ' 06:00:00' );
+
+        sort( $this->sent );
+        $this->assertSame( [ 'hod-4991@example.test', 'owner-4991@example.test' ], $this->sent, 'Precondition: both receive it.' );
+        $this->assertStringContainsString( '5134', $this->pdf_html[0] ?? '', 'Precondition: the PDF shows the injury details.' );
+        foreach ( [ 'player.injuries_viewed', 'player.sensitive_timeline_viewed' ] as $action ) {
+            $this->assertSame( 2, $this->readRows( $action, 'scheduled_report' ), "{$action}: one per recipient" );
+            $this->assertEqualsCanonicalizing( [ $this->owner, $hod ], $this->readers( $action ), "{$action}: each as its recipient" );
+        }
+        $this->assertSame(
+            [ $any_before[0] + 2, $any_before[1] + 2 ],
+            [ $this->readRows( 'player.injuries_viewed', '' ), $this->readRows( 'player.sensitive_timeline_viewed', '' ) ],
+            'and nothing else: the composition itself records nothing'
+        );
+    }
+
+    public function test_a_send_without_injury_content_records_no_read(): void {
+        $this->needsPdf();
+        $this->runMonthly( [ 'owner-4991@example.test' ] );
+        $this->assertSame( 0, $this->readRows( 'player.injuries_viewed', 'scheduled_report' ) );
+        $this->assertSame( 0, $this->readRows( 'player.sensitive_timeline_viewed', 'scheduled_report' ) );
+    }
+
     public function test_recipients_all_holding_full_rights_get_the_full_team_report(): void {
         $this->seedJourney();
         $hod = (int) self::factory()->user->create( [ 'role' => 'tt_head_dev', 'user_email' => 'hod-4991@example.test' ] );
@@ -546,6 +635,29 @@ final class ScheduledMonthlyCommonRightsTest extends WP_UnitTestCase {
      * in last month. The medical level is switched on, so it is a level a
      * reader can hold.
      */
+    /** The player's read rows for an action, on one surface or (`''`) any. */
+    private function readRows( string $action, string $surface ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $action,
+            $this->player,
+            $surface === '' ? '%' : '%"surface":"' . $wpdb->esc_like( $surface ) . '"%'
+        ) );
+    }
+
+    /** @return list<int> who the player's scheduled-send read rows are for */
+    private function readers( string $action ): array {
+        global $wpdb;
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT user_id FROM {$wpdb->prefix}tt_audit_log WHERE action = %s AND entity_type = 'player' AND entity_id = %d AND payload LIKE %s",
+            $action,
+            $this->player,
+            '%"surface":"scheduled_report"%'
+        ) );
+        return array_values( array_map( 'intval', (array) $ids ) );
+    }
+
     private function seedJourney(): void {
         global $wpdb;
         \TT\Core\FeatureRegistry::setEnabled( 'journey_medical_visibility', true );

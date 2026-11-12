@@ -186,7 +186,7 @@ final class PlayerReportDelivery {
      * @param array<string,mixed> $schedule
      * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $recipients
      *        `ScheduledReportsRunner::resolveRecipients()` for this run
-     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string, players:list<int>}
+     * @return array{ok:bool, stop:bool, error:string, note:string, bytes:string, filename:string, label:string, players:list<int>, reads?:array<string, array<int,int>>}
      */
     public static function render( array $schedule, string $today, array $recipients ): array {
         $plan = self::plan( $schedule, $today );
@@ -202,12 +202,19 @@ final class PlayerReportDelivery {
 
         try {
             $reports = [];
+            $reads   = [];
             foreach ( $plan['players'] as $player_id ) {
-                $report = ( new PlayerReport() )->forReaders( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] );
+                // #5134 — composed quietly: the send records its reads, one
+                // per recipient, once it has gone (`ScheduledReportsRunner::runPdf()`).
+                $report = \TT\Infrastructure\Journey\InjuryReads::quietly( static fn() => ( new PlayerReport() )->forReaders( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] ) );
                 if ( $report === null ) continue;
                 $fit             = PlayerReportLayout::fit( $report, $c['layout'] );
                 $report['data']  = PlayerReportLayout::degrade( $report, $fit['degraded'] )['data'];
                 $reports[]       = $report;
+                // What the page prints, after the layout's fallbacks.
+                foreach ( PlayerReport::sensitiveReadsOf( $player_id, $report['data'] ) as $action => $counts ) {
+                    foreach ( $counts as $pid => $n ) $reads[ $action ][ $pid ] = ( $reads[ $action ][ $pid ] ?? 0 ) + $n;
+                }
             }
 
             $request = new ExportRequest( 'player_report_pdf', 'pdf', CurrentClub::id(), $plan['owner'], null, [
@@ -238,6 +245,7 @@ final class PlayerReportDelivery {
 
         $out['ok']    = true;
         $out['bytes'] = $bytes;
+        $out['reads'] = $reads;
         return $out;
     }
 

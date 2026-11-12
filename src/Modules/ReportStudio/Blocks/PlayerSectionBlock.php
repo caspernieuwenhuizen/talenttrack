@@ -178,21 +178,10 @@ class PlayerSectionBlock implements ReportBlock, RendersDocument, CutsForReader,
      * medical and safeguarding ones, for the document's player.
      */
     public function sensitiveReads( array $data, array $context, int $reader ): array {
+        if ( ! in_array( $this->section, [ PlayerReportBlock::INJURIES, PlayerReportBlock::JOURNEY ], true ) ) return [];
         $player = is_numeric( $context['player_id'] ?? null ) ? (int) $context['player_id'] : 0;
-        $items  = is_array( $data['items'] ?? null ) ? $data['items'] : [];
-        if ( $player <= 0 || $items === [] ) return [];
-        if ( $this->section === PlayerReportBlock::INJURIES ) {
-            return [ \TT\Infrastructure\Journey\InjuryReads::INJURIES => [ $player => count( $items ) ] ];
-        }
-        if ( $this->section === PlayerReportBlock::JOURNEY ) {
-            $ids = [];
-            foreach ( $items as $item ) {
-                if ( is_array( $item ) ) $ids[] = (int) ( $item['id'] ?? 0 );
-            }
-            $n = \TT\Infrastructure\Journey\InjuryReads::sensitiveCount( $player, $ids );
-            return $n > 0 ? [ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE => [ $player => $n ] ] : [];
-        }
-        return [];
+        // The player report's own rule, for this one section.
+        return PlayerReport::sensitiveReadsOf( $player, [ $this->section => $data ] );
     }
 
     /** The frozen section as this reader may read it now (`PlayerSectionRights::cut()`). */

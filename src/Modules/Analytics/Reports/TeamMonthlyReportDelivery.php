@@ -104,7 +104,7 @@ final class TeamMonthlyReportDelivery {
      * @param array<string,mixed> $schedule
      * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $recipients
      *        `ScheduledReportsRunner::resolveRecipients()` for this run
-     * @return array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string}
+     * @return array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, reads?:array<string, array<int,int>>}
      */
     public static function render( array $schedule, string $today, array $recipients ): array {
         $plan = self::plan( $schedule, $today );
@@ -114,7 +114,11 @@ final class TeamMonthlyReportDelivery {
         $c = $plan['composition'];
         try {
             $readers = TeamMonthlyReportRecipients::readers( $c['team_id'], $recipients, $plan['owner'] );
-            $report  = ( new TeamMonthlyReport() )->forReaders( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] );
+            // #5126 — composed quietly: the send records its reads, one per
+            // recipient, once it has gone (`ScheduledReportsRunner::runPdf()`).
+            $report  = \TT\Infrastructure\Journey\InjuryReads::quietly( static fn(): array => ( new TeamMonthlyReport() )->forReaders( $c['team_id'], $plan['window']['from'], $plan['window']['to'], $c['blocks'], $readers, $c['options'] ) );
+            $changes = is_array( $report['data'][ TeamMonthlyReportBlock::CHANGES ] ?? null ) ? $report['data'][ TeamMonthlyReportBlock::CHANGES ] : [];
+            $reads   = TeamMonthlyReport::sensitiveReadsOf( $changes, $plan['owner'], $c['team_id'], $plan['window']['from'], $plan['window']['to'] );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $c['layout'], $plan['team_name'] );
 
             $request = new ExportRequest( 'team_monthly_report_pdf', 'pdf', CurrentClub::id(), $plan['owner'], null, [
@@ -144,6 +148,7 @@ final class TeamMonthlyReportDelivery {
 
         $out['ok']    = true;
         $out['bytes'] = $bytes;
+        $out['reads'] = $reads;
         return $out;
     }
 

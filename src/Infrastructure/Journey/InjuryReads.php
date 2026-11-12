@@ -132,6 +132,16 @@ final class InjuryReads {
     }
 
     /**
+     * Would `record()` write anything for these readers now? Lets a caller
+     * skip working out counts nobody will be recorded for.
+     *
+     * @param list<int> $readers
+     */
+    public static function recordsFor( array $readers ): bool {
+        return self::viewer( $readers ) !== 0;
+    }
+
+    /**
      * The signed-in reader a composition for these readers is shown to, or 0:
      * quiet, nobody signed in, or composed for anyone else or for several.
      *

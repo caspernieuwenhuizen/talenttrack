@@ -579,36 +579,66 @@ final class TeamMonthlyReport {
      * @param array{data: array<string, array<string, mixed>>, from?: string, to?: string, team_id?: int} $report the frozen report after `forReader()`
      */
     public static function recordSnapshotInjuryReads( array $report, string $uuid, int $viewer_user_id ): void {
-        $events = $report['data'][ TeamMonthlyReportBlock::CHANGES ]['events'] ?? [];
-        if ( ! is_array( $events ) ) return;
-
-        $counts = [];
-        foreach ( $events as $e ) {
-            if ( ! is_array( $e ) || ! in_array( (string) ( $e['event_type'] ?? '' ), [ 'injury_started', 'injury_ended' ], true ) ) continue;
-            $pid = (int) ( $e['player_id'] ?? 0 );
-            if ( $pid > 0 ) $counts[ $pid ] = ( $counts[ $pid ] ?? 0 ) + 1;
+        $changes = is_array( $report['data'][ TeamMonthlyReportBlock::CHANGES ] ?? null ) ? $report['data'][ TeamMonthlyReportBlock::CHANGES ] : [];
+        $reads   = self::sensitiveReadsOf( $changes, $viewer_user_id, (int) ( $report['team_id'] ?? 0 ), (string) ( $report['from'] ?? '' ), (string) ( $report['to'] ?? '' ) );
+        foreach ( $reads as $action => $counts ) {
+            \TT\Infrastructure\Journey\InjuryReads::record( $action, 'team_monthly_snapshot', $counts, [ $viewer_user_id ], [ 'snapshot' => $uuid ] );
         }
+    }
 
-        \TT\Infrastructure\Journey\InjuryReads::record(
-            \TT\Infrastructure\Journey\InjuryReads::INJURIES,
-            'team_monthly_snapshot',
-            $counts,
-            [ $viewer_user_id ],
-            [ 'snapshot' => $uuid ]
-        );
+    /**
+     * #5126 — the reads a "what changed" section shown or sent is of, per
+     * player: its injury entries as `player.injuries_viewed`, and its medical
+     * and safeguarding entries as `player.sensitive_timeline_viewed`, by the
+     * visibility the reader's own read of them says
+     * (`TeamSectionRights::sensitiveChanges()`). The one classification a
+     * snapshot opened, a Studio block sent and a scheduled monthly report sent
+     * all record by, through `InjuryReads`.
+     *
+     * @param array<string,mixed> $changes the section's payload as shown or sent
+     * @param int                 $reader  a reader it was composed for
+     * @return array<string, array<int,int>> action => player id => entries
+     */
+    public static function sensitiveReadsOf( array $changes, int $reader, int $team_id, string $from, string $to ): array {
+        $events = is_array( $changes['events'] ?? null ) ? $changes['events'] : [];
+        if ( $events === [] ) return [];
 
-        // The medical and safeguarding entries among them, by the visibility
-        // the reader's cut read back.
-        $from    = (string) ( $report['from'] ?? '' );
-        $to      = (string) ( $report['to'] ?? '' );
-        $team_id = (int) ( $report['team_id'] ?? 0 );
-        if ( $events === [] || $team_id <= 0 || ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return;
-        \TT\Infrastructure\Journey\InjuryReads::record(
-            \TT\Infrastructure\Journey\InjuryReads::SENSITIVE,
-            'team_monthly_snapshot',
-            TeamSectionRights::sensitiveChanges( $report['data'][ TeamMonthlyReportBlock::CHANGES ], $viewer_user_id, $team_id, $from, $to ),
-            [ $viewer_user_id ],
-            [ 'snapshot' => $uuid ]
-        );
+        // The payload carries no visibility: the injury entries are read from
+        // it, the sensitive ones from the reader's own read of the entries.
+        $entries = [];
+        foreach ( $events as $e ) {
+            if ( is_array( $e ) ) $entries[] = [ 'player_id' => (int) ( $e['player_id'] ?? 0 ), 'event_type' => (string) ( $e['event_type'] ?? '' ), 'visibility' => '' ];
+        }
+        $out = self::readsFromEntries( $entries );
+
+        if ( $team_id <= 0 || ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return $out;
+        $sensitive = TeamSectionRights::sensitiveChanges( $changes, $reader, $team_id, $from, $to );
+        if ( $sensitive !== [] ) $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ] = $sensitive;
+        return $out;
+    }
+
+    /**
+     * #5126 — the "what changed" read rule itself, over entries whose type
+     * and visibility are known: an injury entry is a `player.injuries_viewed`
+     * read, a medical or safeguarding entry a
+     * `player.sensitive_timeline_viewed` read, per player. The on-screen
+     * section (`ChangesComposer`) and `sensitiveReadsOf()` both count by it.
+     *
+     * @param list<array{player_id:int, event_type:string, visibility:string}> $entries
+     * @return array<string, array<int,int>> action => player id => entries
+     */
+    public static function readsFromEntries( array $entries ): array {
+        $out = [];
+        foreach ( $entries as $e ) {
+            $pid = $e['player_id'];
+            if ( $pid <= 0 ) continue;
+            if ( in_array( $e['event_type'], [ 'injury_started', 'injury_ended' ], true ) ) {
+                $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $pid ] = ( $out[ \TT\Infrastructure\Journey\InjuryReads::INJURIES ][ $pid ] ?? 0 ) + 1;
+            }
+            if ( in_array( $e['visibility'], [ 'medical', 'safeguarding' ], true ) ) {
+                $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $pid ] = ( $out[ \TT\Infrastructure\Journey\InjuryReads::SENSITIVE ][ $pid ] ?? 0 ) + 1;
+            }
+        }
+        return $out;
     }
 }
