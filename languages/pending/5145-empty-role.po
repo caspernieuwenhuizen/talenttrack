@@ -1,0 +1,14 @@
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person in the role does not receive it: they have no person record in this academy."
+msgid_plural "%d people in the role do not receive it: they have no person record in this academy."
+msgstr[0] "%d persoon met de rol krijgt het niet: die heeft geen persoonsrecord in deze academie."
+msgstr[1] "%d mensen met de rol krijgen het niet: zij hebben geen persoonsrecord in deze academie."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "No one holds this role:"
+msgstr "Niemand heeft deze rol:"
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+msgid "No one holds these roles:"
+msgstr "Niemand heeft deze rollen:"
