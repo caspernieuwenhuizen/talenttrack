@@ -46,6 +46,12 @@ final class ReportSchedules {
     /** The most recipient entries one schedule holds. */
     public const MAX_RECIPIENTS = 25;
 
+    /**
+     * #5145 — the `left_out_people` group of the chosen roles nobody holds:
+     * its `count` is roles, its `names` are the roles' names.
+     */
+    public const NO_MEMBERS = 'no_members';
+
     /** The most readers a run composes one PDF for, the owner included. */
     public const MAX_READERS = 40;
 
@@ -252,9 +258,8 @@ final class ReportSchedules {
     }
 
     /**
-     * Everyone the PDF is composed for, the owner first: the accounts that
-     * receive it and may read the report, and a reader without rights for a
-     * recipient whose rights cannot be checked (`ScheduledReportReaders`).
+     * Everyone the PDF is composed for, the owner first: the owner and the
+     * accounts that receive it. See `resolve()`.
      *
      * @param list<string> $entries
      * @param Report       $report
@@ -269,6 +274,15 @@ final class ReportSchedules {
      * receive rule asked once per account, every source it rests on read
      * once for the set (`ReportAccess::receiversAmong()`). Call it inside a
      * `ScopeMemo` window to keep those reads for the composition that follows.
+     *
+     * #5145 — the readers are the owner and the receivers, nobody else. A
+     * Studio PDF goes only to an account `ReportAccess::canReceive()`
+     * allows, and each of those is a reader, so the cut covers everyone it
+     * reaches. A recipient that receives nothing — a role nobody holds, a
+     * role member with no person record here, an address with no account —
+     * reads nothing, so it does not narrow the PDF for the others. (The
+     * monthly and player reports keep `ScheduledReportReaders::readers()`,
+     * which counts such a recipient as a reader without rights.)
      *
      * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $resolved
      * @param Report $report
@@ -286,7 +300,7 @@ final class ReportSchedules {
         $receivers = ScheduledReportReaders::receiverIds( $sorted['allowed'] );
         return [
             'receivers' => $receivers,
-            'readers'   => ScheduledReportReaders::readersOf( $resolved, $owner, $receivers ),
+            'readers'   => array_values( array_unique( array_merge( [ $owner ], $receivers ) ) ),
             'skipped'   => $sorted['skipped'],
         ];
     }
@@ -320,6 +334,26 @@ final class ReportSchedules {
         return array_values( $groups );
     }
 
+    /**
+     * #5145 — the names of the chosen roles no account holds at all. A role
+     * whose members are all left out for a reason of their own is not one:
+     * those members are counted under that reason.
+     *
+     * @param list<string> $unresolved role keys that reached no account
+     * @return list<string>
+     */
+    private static function emptyRoles( array $unresolved ): array {
+        if ( $unresolved === [] ) return [];
+        $labels = self::roleOptions();
+        $out    = [];
+        foreach ( $unresolved as $role ) {
+            if ( get_users( [ 'role' => $role, 'fields' => 'ID', 'number' => 1 ] ) !== [] ) continue;
+            $out[] = $labels[ $role ] ?? $role;
+        }
+        sort( $out );
+        return $out;
+    }
+
     private static function leftOutMessage( string $reason, int $n ): string {
         switch ( $reason ) {
             case 'no_read_access':
@@ -329,8 +363,15 @@ final class ReportSchedules {
                 /* translators: %d: number of people */
                 return sprintf( _n( '%d person does not receive it: they may not receive files.', '%d people do not receive it: they may not receive files.', $n, 'talenttrack' ), $n );
             case 'not_in_club':
+                // #5145 — what is checked is a person record in this academy;
+                // an account of the academy can lack one, so say that.
                 /* translators: %d: number of people */
-                return sprintf( _n( '%d person in the role does not receive it: they are not in this academy.', '%d people in the role do not receive it: they are not in this academy.', $n, 'talenttrack' ), $n );
+                return sprintf( _n( '%d person in the role does not receive it: they have no person record in this academy.', '%d people in the role do not receive it: they have no person record in this academy.', $n, 'talenttrack' ), $n );
+            case ScheduledReportsRunner::NO_EMAIL:
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person does not receive it: they have no email address.', '%d people do not receive it: they have no email address.', $n, 'talenttrack' ), $n );
+            case self::NO_MEMBERS:
+                return $n === 1 ? __( 'No one holds this role:', 'talenttrack' ) : __( 'No one holds these roles:', 'talenttrack' );
             case ScheduledReportsRunner::ACCOUNT_UNREACHABLE:
                 /* translators: %d: number of people */
                 return sprintf( _n( '%d person does not receive it: their account has left the academy or has no email address.', '%d people do not receive it: their accounts have left the academy or have no email address.', $n, 'talenttrack' ), $n );
@@ -376,6 +417,10 @@ final class ReportSchedules {
         $out['receivers']           = count( $receivers );
         $out['left_out_recipients'] = count( $set['skipped'] );
         $out['left_out_people']     = self::leftOutGroups( $set['skipped'] );
+        $empty                      = self::emptyRoles( $resolved['unresolved'] );
+        if ( $empty !== [] ) {
+            $out['left_out_people'][] = [ 'reason' => self::NO_MEMBERS, 'count' => count( $empty ), 'message' => self::leftOutMessage( self::NO_MEMBERS, count( $empty ) ), 'names' => $empty ];
+        }
 
         $readers = $set['readers'];
         if ( count( $readers ) > self::MAX_READERS ) {

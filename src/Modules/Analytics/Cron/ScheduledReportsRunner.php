@@ -722,7 +722,8 @@ final class ScheduledReportsRunner {
      * record in this club; a plain address is the club account it belongs
      * to. The PDF names minors, so an address with no account here is left
      * out (`no_account`), and so is a member of the role from outside the
-     * club (`not_in_club`). Empty and invalid entries are dropped; each
+     * club (`not_in_club`), and a member in the club with no email address
+     * (`no_email`, #5145). Empty and invalid entries are dropped; each
      * account is listed once.
      *
      * #4991 — public, and resolved again wherever it is asked (each run, each
@@ -800,7 +801,12 @@ final class ScheduledReportsRunner {
                     continue;
                 }
                 $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
-                if ( $email === '' || ! is_email( $email ) ) continue;
+                if ( $email === '' || ! is_email( $email ) ) {
+                    // #5145 — in the club, so recorded and named, not dropped.
+                    $seen[ $user_id ] = true;
+                    $skipped[]        = [ 'email' => '', 'user_id' => $user_id, 'reason' => self::NO_EMAIL, 'via' => $entry ];
+                    continue;
+                }
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
                 $via[ $user_id ]   = $entry;
                 $matched           = true;
@@ -818,6 +824,12 @@ final class ScheduledReportsRunner {
      * club or has no address: it receives nothing and narrows nothing.
      */
     public const ACCOUNT_UNREACHABLE = 'account_unreachable';
+
+    /**
+     * #5145 — the skip reason for a role member with a person record here
+     * and no email address: it receives nothing and narrows nothing.
+     */
+    public const NO_EMAIL = 'no_email';
 
     /** The account id an entry such as `user:12` names; null for any other entry. */
     public static function accountIdOf( string $entry ): ?int {

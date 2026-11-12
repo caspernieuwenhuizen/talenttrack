@@ -636,7 +636,17 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->needsPdf();
         global $wpdb;
         $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
-        $entries  = [ 'tt_coach', 'user:' . $this->hod ];
+        // #5145 — a role nobody holds, and a coach with no person record:
+        // both receive nothing, and neither empties the PDF for the others.
+        add_role( 'tt_empty_5145', 'Empty 5145', [ 'tt_view_reports' => true ] );
+        $no_record = (int) self::factory()->user->create( [ 'role' => 'tt_coach', 'user_email' => 'no-record-5145@example.test' ] );
+        // A coach of the team with a person record and no address anywhere.
+        $no_email = $this->persona( 'tt_coach', 'assistant_coach', $this->team_a, 'no-email-5145@example.test' );
+        $wpdb->update( $wpdb->users, [ 'user_email' => '' ], [ 'ID' => $no_email ] );
+        $wpdb->update( "{$wpdb->prefix}tt_people", [ 'email' => '' ], [ 'wp_user_id' => $no_email ] );
+        clean_user_cache( $no_email );
+        $this->flush();
+        $entries   = [ 'tt_coach', 'user:' . $this->hod, 'tt_empty_5145' ];
         $schedule = $this->schedule( $id, [ 'recipients' => $entries ] );
         $report   = ( new ReportsRepository() )->find( $id );
         $this->assertNotNull( $report );
@@ -657,10 +667,56 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         sort( $saw );
         $this->assertNotSame( [], $saw, 'Precondition: someone is left out.' );
         $this->assertContains( 'no_read_access|' . $this->coach_b, $saw );
-        $this->assertTrue( (bool) ( $payload['ok'] ?? false ), 'Precondition: the run sent.' );
+        $this->assertContains( 'not_in_club|0', $saw, 'the coach with no person record, counted' );
+        $this->assertContains( 'no_email|' . $no_email, $saw, 'the coach with no address, recorded rather than dropped' );
+        $groups = array_column( ReportSchedules::leftOutGroups( $preview ), null, 'reason' );
+        $this->assertSame( [ "Sched Persona{$no_email}" ], $groups['no_email']['names'] ?? null, 'and named: they have a record here' );
+        $this->assertStringContainsString( 'no email address', $groups['no_email']['message'] );
+        $this->assertNotContains( $no_record, ReportSchedules::resolve( $resolved, $this->hod, $report )['readers'] );
+        remove_role( 'tt_empty_5145' );
+        $this->assertTrue( (bool) ( $payload['ok'] ?? false ), 'the run sent: an empty role and an account that gets nothing narrow nothing' );
         sort( $this->sent );
         $this->assertSame( [ 'coach-a-4963@example.test', 'hod-4963@example.test' ], $this->sent, 'and to exactly the people the preview counts' );
         $this->assertSame( $saw, $ran, 'the preview shows exactly who the run leaves out' );
+    }
+
+    public function test_a_role_nobody_holds_leaves_the_pdf_as_it_is(): void {
+        add_role( 'tt_empty_5145', 'Empty 5145', [ 'tt_view_reports' => true ] );
+        try {
+            $id     = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+            $report = ( new ReportsRepository() )->find( $id );
+            $this->assertNotNull( $report );
+            $alone = ReportSchedules::preview( $report, [ 'user:' . $this->hod ], $this->hod, [ 'report_id' => $id, 'period' => '' ] );
+            $with  = ReportSchedules::preview( $report, [ 'user:' . $this->hod, 'tt_empty_5145' ], $this->hod, [ 'report_id' => $id, 'period' => '' ] );
+
+            $this->assertNotSame( [], $alone['blocks'], 'Precondition: the owner alone gets a block.' );
+            $this->assertSame( $alone['blocks'], $with['blocks'], 'the same blocks as the owner alone' );
+            $this->assertSame( 1, $with['receivers'] );
+            $this->assertSame( 0, $with['left_out_recipients'], 'a role is not a person left out' );
+            $groups = array_column( $with['left_out_people'], null, 'reason' );
+            $this->assertArrayHasKey( ReportSchedules::NO_MEMBERS, $groups, 'the preview says the role has no members' );
+            $this->assertSame( [ 'Empty 5145' ], $groups[ ReportSchedules::NO_MEMBERS ]['names'] );
+            $this->assertSame( 'No one holds this role:', $groups[ ReportSchedules::NO_MEMBERS ]['message'] );
+            $this->assertSame( [ $this->hod ], ReportSchedules::readers( [ 'user:' . $this->hod, 'tt_empty_5145' ], $this->hod, $report ), 'readers are the resolved accounts only' );
+        } finally {
+            remove_role( 'tt_empty_5145' );
+        }
+    }
+
+    public function test_an_account_without_a_person_record_is_not_called_outside_the_academy(): void {
+        self::factory()->user->create( [ 'role' => 'tt_coach', 'user_email' => 'no-record-5145@example.test' ] );
+        $id     = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $report = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        $preview = ReportSchedules::preview( $report, [ 'tt_coach' ], $this->hod, [ 'report_id' => $id, 'period' => '' ] );
+        $groups  = array_column( $preview['left_out_people'], null, 'reason' );
+        $this->assertArrayHasKey( 'not_in_club', $groups, 'Precondition: the coach with no person record is left out.' );
+        $this->assertSame( [], $groups['not_in_club']['names'], 'counted, never named' );
+        $this->assertStringContainsString( 'no person record in this academy', $groups['not_in_club']['message'] );
+        foreach ( $preview['left_out_people'] as $group ) {
+            $this->assertStringNotContainsString( 'not in this academy', $group['message'] );
+        }
+        $this->assertNotSame( [], $preview['blocks'], 'and it does not empty the PDF' );
     }
 
     // ---- helpers ------------------------------------------------------------------
