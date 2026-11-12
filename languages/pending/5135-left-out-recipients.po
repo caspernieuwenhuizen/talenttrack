@@ -1,0 +1,49 @@
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: they may not read this report or what it is about."
+msgid_plural "%d people do not receive it: they may not read this report or what it is about."
+msgstr[0] "%d persoon krijgt het niet: die mag dit rapport of waar het over gaat niet lezen."
+msgstr[1] "%d mensen krijgen het niet: zij mogen dit rapport of waar het over gaat niet lezen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: they may not receive files."
+msgid_plural "%d people do not receive it: they may not receive files."
+msgstr[0] "%d persoon krijgt het niet: die mag geen bestanden ontvangen."
+msgstr[1] "%d mensen krijgen het niet: zij mogen geen bestanden ontvangen."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person in the role does not receive it: they are not in this academy."
+msgid_plural "%d people in the role do not receive it: they are not in this academy."
+msgstr[0] "%d persoon met de rol krijgt het niet: die hoort niet bij deze academie."
+msgstr[1] "%d mensen met de rol krijgen het niet: zij horen niet bij deze academie."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it: their account has left the academy or has no email address."
+msgid_plural "%d people do not receive it: their accounts have left the academy or have no email address."
+msgstr[0] "%d persoon krijgt het niet: het account hoort niet meer bij de academie of heeft geen e-mailadres."
+msgstr[1] "%d mensen krijgen het niet: hun accounts horen niet meer bij de academie of hebben geen e-mailadres."
+
+#: src/Modules/ReportStudio/Domain/ReportSchedules.php
+#, php-format
+msgid "%d person does not receive it."
+msgid_plural "%d people do not receive it."
+msgstr[0] "%d persoon krijgt het niet."
+msgstr[1] "%d mensen krijgen het niet."
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+#, php-format
+msgid "Show the %d names"
+msgstr "Toon de %d namen"
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgctxt "between the last two names of a list"
+msgid " and "
+msgstr " en "
+
+#: src/Modules/ReportStudio/Frontend/ReportScheduleScreen.php
+msgctxt "between names of a list"
+msgid ", "
+msgstr ", "
