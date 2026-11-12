@@ -96,7 +96,8 @@ class RatingInputComponent {
      *   max?:float, step?:float, disabled?:bool, input_class?:string,
      *   data_attrs?:array<string,string|int>, after_html?:string,
      *   variant?:string, labels?:list<string>, empty_text?:string,
-     *   readout_format?:string, marked?:int|string|null, marked_note?:string
+     *   readout_format?:string, marked?:int|string|null, marked_note?:string,
+     *   clearable?:bool
      * } $args
      *        #4980 `marked`: a second, read-only value shown on its choice
      *        (the player's score beside the trainer's), with `marked_note`
@@ -105,6 +106,10 @@ class RatingInputComponent {
      *        qualitative words. `empty_text`: the readout before a choice.
      *        `readout_format`: a sprintf pattern for the readout, given the
      *        number and the label (`%1$s`, `%2$s`).
+     *        #5081 `clearable` (choices only, default true): the chosen value
+     *        can be emptied again, by choosing it once more, by Space on it,
+     *        or with the Clear button beside the row. The emptied input saves
+     *        as an empty value, which the form routes store as null.
      */
     public static function renderListRow( array $args ): string {
         $name         = (string) $args['name'];
@@ -122,11 +127,13 @@ class RatingInputComponent {
         $format       = (string) ( $args['readout_format'] ?? '' );
         $marked       = isset( $args['marked'] ) ? (string) $args['marked'] : '';
         $marked_note  = (string) ( $args['marked_note'] ?? '' );
+        $clearable    = $choices && ! $disabled && ( $args['clearable'] ?? true ) !== false;
 
         [ $min, $max, $step ] = self::scale( $args );
 
         $classes = 'tt-rating-row tt-rating-row--stars';
         if ( $choices )      $classes .= ' tt-rating-row--choices';
+        if ( $clearable )    $classes .= ' tt-rating-row--clearable';
         if ( $is_sub )       $classes .= ' tt-rating-row--sub';
         if ( $label_hidden ) $classes .= ' tt-rating-row--nolabel';
 
@@ -141,7 +148,7 @@ class RatingInputComponent {
             }
             $out .= '</label>';
         }
-        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false, $labels, $empty_text, $format, $choices, $marked, $marked_note );
+        $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false, $labels, $empty_text, $format, $choices, $marked, $marked_note, $clearable );
         // #3949 — trusted, already-escaped markup a caller hangs on the row,
         // such as the category-note toggle and its panel.
         $out .= (string) ( $args['after_html'] ?? '' );
@@ -160,7 +167,7 @@ class RatingInputComponent {
         float $min, float $max, float $step,
         bool $disabled, string $input_class, array $data_attrs, bool $required,
         array $custom_labels = [], string $empty_text = '', string $format = '', bool $choices = false,
-        string $marked = '', string $marked_note = ''
+        string $marked = '', string $marked_note = '', bool $clearable = false
     ): string {
         $values     = self::stepSeries( $min, $max, $step );
         $labels     = $custom_labels !== [] ? $custom_labels : self::qualitativeLabels();
@@ -210,6 +217,9 @@ class RatingInputComponent {
         if ( $empty_text !== '' ) {
             $out .= ' data-empty-text="' . esc_attr( $empty_text ) . '"';
         }
+        if ( $clearable ) {
+            $out .= ' data-clearable="1"';
+        }
         $out .= '>';
         foreach ( $values as $i => $v ) {
             $on  = ( ! $is_empty && (float) $cur >= $v - 0.001 );
@@ -231,6 +241,20 @@ class RatingInputComponent {
 
         $out .= '<output class="tt-rating-row__val' . ( $is_empty ? ' tt-rating-row__val--unset' : '' ) . '"';
         $out .= ' data-tt-rating-readout>' . esc_html( $readout ) . '</output>';
+
+        // #5081 — the non-gesture way to empty a choice. Shown while a value
+        // is set; the script keeps it in step.
+        if ( $clearable ) {
+            $out .= '<button type="button" class="tt-btn tt-btn-secondary tt-rating-clear" data-tt-rating-clear'
+                . ' aria-label="' . esc_attr( sprintf(
+                    /* translators: %s: what the score is for, such as "Trainer score for Passing" */
+                    __( 'Clear %s', 'talenttrack' ),
+                    $aria_label
+                ) ) . '"'
+                . ( $is_empty ? ' hidden' : '' ) . '>'
+                . esc_html_x( 'Clear', 'rating input: empty the chosen score', 'talenttrack' )
+                . '</button>';
+        }
         return $out;
     }
 
