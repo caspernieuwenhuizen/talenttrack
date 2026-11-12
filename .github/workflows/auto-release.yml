@@ -205,6 +205,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      issues: read
     with:
       tag: ${{ needs.auto-release.outputs.tag }}
     secrets:

@@ -51,6 +51,8 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  # closingIssuesReferences answers its nodes only with a read of issues.
+  issues: read
 
 jobs:
   flip-status:
@@ -125,31 +127,42 @@ jobs:
         run: |
           set -e
           FOUND="$ISSUES"
+          FROM_PRS=""
           # 50 PRs per query, one alias each. issueOrPullRequest, so a
           # "(#N)" that names an issue rather than a PR answers null for
-          # that alias instead of failing the whole query.
+          # that alias instead of failing the whole query. Only issues of
+          # this repository count: a PR may close one elsewhere.
           # shellcheck disable=SC2086
           set -- $PRS
           while [ "$#" -gt 0 ]; do
             FIELDS=""
             i=0
             while [ "$#" -gt 0 ] && [ "$i" -lt 50 ]; do
-              FIELDS="${FIELDS} p$1: issueOrPullRequest(number: $1) { ... on PullRequest { closingIssuesReferences(first: 20) { nodes { number } } } }"
+              FIELDS="${FIELDS} p$1: issueOrPullRequest(number: $1) { ... on PullRequest { closingIssuesReferences(first: 20) { nodes { number repository { nameWithOwner } } } } }"
               shift
               i=$((i + 1))
             done
-            NUMBERS=$(gh api graphql \
+            if ! NUMBERS=$(gh api graphql \
               -f query="query { repository(owner: \"${GITHUB_REPOSITORY_OWNER}\", name: \"talenttrack\") { ${FIELDS} } }" \
-              --jq '.data.repository[]? | .closingIssuesReferences?.nodes[]?.number' \
-              || true)
-            FOUND="${FOUND} ${NUMBERS}"
+              --jq ".data.repository[]? | .closingIssuesReferences?.nodes[]? | select(.repository.nameWithOwner == \"${GITHUB_REPOSITORY}\") | .number"); then
+              echo "::warning::A closing-issues query failed; the issues of its PRs are not marked."
+              NUMBERS=""
+            fi
+            FROM_PRS="${FROM_PRS} $(echo "$NUMBERS" | grep -E '^[0-9]+$' | tr '\n' ' ' || true)"
           done
+          if [ -n "$PRS" ] && [ -z "$(echo "$FROM_PRS" | tr -d ' ')" ]; then
+            echo "::warning::Merged PRs were found, but GitHub returned no issue they closed. Check the token's issues and pull-requests read."
+          fi
+          FOUND="${FOUND} ${FROM_PRS}"
           ALL=$(echo "$FOUND" | tr ' ' '\n' | grep -E '^[0-9]+$' | sort -un | tr '\n' ' ' | sed 's/ *$//' || true)
           echo "Issues to mark Released: ${ALL:-<none>}"
           echo "issues=${ALL}" >> "$GITHUB_OUTPUT"
 
       - name: Flip Status to Released
         if: steps.closing.outputs.issues != ''
+        # The board is bookkeeping: a missing or expired board token, or any
+        # write that fails, warns and never turns the release red.
+        continue-on-error: true
         env:
           # Project-V2 writes need a PAT with `project` scope; the default
           # GITHUB_TOKEN does not have it. Repo secret `PROJECT_BOARD_TOKEN`
@@ -168,26 +181,37 @@ jobs:
           for n in $ISSUES; do
             echo "── #${n}"
 
-            # Locate the project item id for this issue. If the issue isn't on
-            # the board (rule was applied retroactively or someone filed it
-            # outside the workflow), skip silently — don't break the release.
-            ITEM_ID=$(gh api graphql \
-              -f query='query($owner:String!,$num:Int!){repository(owner:$owner,name:"talenttrack"){issue(number:$num){projectItems(first:5){nodes{id project{number}}}}}}' \
+            # Locate the project item and its Status for this issue. If the
+            # issue isn't on the board (rule was applied retroactively or
+            # someone filed it outside the workflow), skip silently — don't
+            # break the release.
+            ITEM=$(gh api graphql \
+              -f query='query($owner:String!,$num:Int!){repository(owner:$owner,name:"talenttrack"){issue(number:$num){projectItems(first:5){nodes{id project{number} fieldValueByName(name:"Status"){... on ProjectV2ItemFieldSingleSelectValue{name}}}}}}}' \
               -f owner="$OWNER" -F num="$n" \
-              --jq ".data.repository.issue.projectItems.nodes[] | select(.project.number == ${PROJECT_NUMBER}) | .id" \
+              --jq ".data.repository.issue.projectItems.nodes[] | select(.project.number == ${PROJECT_NUMBER}) | \"\(.id) \(.fieldValueByName.name // \"\")\"" \
               || true)
+            ITEM_ID="${ITEM%% *}"
+            STATUS="${ITEM#* }"
 
             if [ -z "$ITEM_ID" ]; then
               echo "   not on board; skipping"
               continue
             fi
+            # #5153 — only Merged moves on: a card someone moved since (an
+            # issue reopened, a card set back by hand) is left where it is.
+            if [ "$STATUS" != "Merged" ]; then
+              echo "   Status is '${STATUS}', not Merged; skipping"
+              continue
+            fi
 
-            gh project item-edit \
+            if gh project item-edit \
               --id "$ITEM_ID" \
               --project-id "$PROJECT_ID" \
               --field-id "$FIELD_ID" \
               --single-select-option-id "$RELEASED_ID" \
-              > /dev/null
-
-            echo "   flipped to Released"
+              > /dev/null; then
+              echo "   flipped to Released"
+            else
+              echo "::warning::Could not mark #${n} Released on the board."
+            fi
           done

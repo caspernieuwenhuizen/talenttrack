@@ -309,8 +309,14 @@ ways:
   catch-up for the releases the board missed is one run with `tag`
   `v4.150.0` and `from_tag` `v4.145.0` (v4.146.0 to v4.150.0).
 
+Only a card whose Status is **Merged** moves. A card someone has moved
+since, for example on an issue that was reopened, stays where it is. Only
+issues of this repository count.
+
 It needs the `PROJECT_BOARD_TOKEN` secret (a fine-grained PAT with
-projects read+write); `GITHUB_TOKEN` cannot write to a user project.
+projects read+write); `GITHUB_TOKEN` cannot write to a user project. The
+board is bookkeeping. A missing or expired token, or a write that fails,
+leaves a warning in the run and never fails the release.
 
 ### Manual flow — tag a version, automation takes over
 
