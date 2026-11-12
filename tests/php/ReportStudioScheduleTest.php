@@ -604,12 +604,13 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertSame( 'no_read_access', $group['reason'] );
         $this->assertSame( 1, $group['count'] );
         $this->assertStringContainsString( 'may not read this report', $group['message'] );
-        $this->assertSame( [ (string) get_userdata( $this->coach_b )->display_name ], $group['names'], 'the coach of another team, by name' );
+        $this->assertSame( [ "Sched Persona{$this->coach_b}" ], $group['names'], 'the coach of another team, by the name on their person record' );
+        $this->assertNotContains( (string) get_userdata( $this->coach_b )->display_name, $group['names'], 'never by the account display name' );
 
         $html = $this->renderScreen( $this->hod, $report, (string) $schedule );
         $this->assertStringContainsString( 'tt-rsch-skipped', $html, 'shown under the recipient count' );
         $this->assertStringContainsString( esc_html( $group['message'] ), $html );
-        $this->assertStringContainsString( esc_html( (string) get_userdata( $this->coach_b )->display_name ), $html, 'one name is listed inline' );
+        $this->assertStringContainsString( "Sched Persona{$this->coach_b}", $html, 'one name is listed inline' );
     }
 
     public function test_with_nobody_left_out_nothing_extra_shows(): void {

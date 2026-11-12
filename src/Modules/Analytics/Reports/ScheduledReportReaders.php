@@ -45,8 +45,18 @@ final class ScheduledReportReaders {
      * @return list<int>
      */
     public static function receivers( array $resolved, callable $receives ): array {
+        return self::receiverIds( self::sort( $resolved, $receives )['allowed'] );
+    }
+
+    /**
+     * The accounts among the recipients `sort()` allowed, once each.
+     *
+     * @param list<\TT\Modules\Comms\Domain\Recipient> $allowed
+     * @return list<int>
+     */
+    public static function receiverIds( array $allowed ): array {
         $out = [];
-        foreach ( self::sort( $resolved, $receives )['allowed'] as $recipient ) {
+        foreach ( $allowed as $recipient ) {
             $user_id = (int) $recipient->userId;
             if ( $user_id > 0 && ! in_array( $user_id, $out, true ) ) $out[] = $user_id;
         }
@@ -91,8 +101,19 @@ final class ScheduledReportReaders {
      * @return list<int>
      */
     public static function readers( array $resolved, int $owner_id, callable $receives ): array {
-        $readers   = [ $owner_id ];
-        $receivers = self::receivers( $resolved, $receives );
+        return self::readersOf( $resolved, $owner_id, self::receivers( $resolved, $receives ) );
+    }
+
+    /**
+     * The readers, the owner first, from receivers already decided.
+     *
+     * @param Resolved  $resolved
+     * @param int       $owner_id  the schedule's `created_by`
+     * @param list<int> $receivers
+     * @return list<int>
+     */
+    public static function readersOf( array $resolved, int $owner_id, array $receivers ): array {
+        $readers = [ $owner_id ];
         foreach ( $receivers as $user_id ) {
             if ( ! in_array( $user_id, $readers, true ) ) $readers[] = $user_id;
         }
