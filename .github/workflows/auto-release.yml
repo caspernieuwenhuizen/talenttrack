@@ -26,6 +26,9 @@ name: Auto-release on version bump
 #      the tag in the same call, no separate `git push --tags`
 #      needed. Tags created by GITHUB_TOKEN don't re-trigger
 #      release.yml's tag-push job, so nothing double-publishes.
+#   6. Call mark-released.yml (#5153) with the new tag, so the board
+#      moves the release's issues from Merged to Released. Its own
+#      tag-push trigger doesn't fire for a GITHUB_TOKEN tag either.
 #
 # The tag-push path in release.yml and the manual escape hatch in
 # release-tag.yml both stay — the release-exists check here prevents
@@ -46,6 +49,9 @@ jobs:
     name: Publish release for the version on main
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      published: ${{ steps.exists.outputs.exists == 'false' }}
     steps:
       - uses: actions/checkout@v5
 
@@ -186,3 +192,21 @@ jobs:
           target_commitish: ${{ steps.i18n.outputs.sha != '' && steps.i18n.outputs.sha || github.sha }}
           files: /tmp/build/talenttrack.zip
           generate_release_notes: true
+
+  # #5153 — the tag above is created with GITHUB_TOKEN, which starts no other
+  # workflow, so mark-released.yml's tag-push trigger never fires for it. The
+  # board update is called here instead, only when this run published.
+  mark-released:
+    name: Mark the release's issues as Released on the board
+    needs: auto-release
+    if: needs.auto-release.outputs.published == 'true'
+    uses: ./.github/workflows/mark-released.yml
+    # A called workflow's token gets no more than this job grants it.
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    with:
+      tag: ${{ needs.auto-release.outputs.tag }}
+    secrets:
+      PROJECT_BOARD_TOKEN: ${{ secrets.PROJECT_BOARD_TOKEN }}
