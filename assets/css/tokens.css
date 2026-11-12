@@ -172,6 +172,14 @@
     --tt-secondary-on-primary: var(--tt-secondary);
     --tt-secondary-on-chrome:  var(--tt-secondary);
 
+    /* Text on a secondary fill (#5148): every rule that paints the secondary
+     * as its fill and prints text on it reads this (the app header's brand
+     * mark and avatar, the filter bar's active states, pills, chips and
+     * badges). The primary on the default design; a
+     * theme whose primary misses 4.5:1 on its own secondary sets a darker
+     * value. Declared here on `.tt-dashboard` too, so it follows a theme. */
+    --tt-color-on-secondary:   var(--tt-primary);
+
     /* A status colour printed as text (#5108). The four status hues are
      * fills; every `color:` rule that prints one reads its `-text` variant,
      * which clears 4.5:1 on paper and on the status's own `-subtle` fill.

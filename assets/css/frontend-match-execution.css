@@ -1070,9 +1070,9 @@
 .tt-mexec .tt-mexec-score-btn--goal {
     background: var(--tt-mx-gold);
     border-color: var(--tt-mx-gold);
-    color: var(--tt-mx-primary);
+    color: var(--tt-color-on-secondary, var(--tt-mx-primary));
 }
-.tt-mexec .tt-mexec-score-btn--goal:active { background: #d8a91d; }
+.tt-mexec .tt-mexec-score-btn--goal:active { background: color-mix(in srgb, var(--tt-mx-gold) 88%, white); }
 .tt-mexec .tt-mexec-score-num { border: none; }
 
 /* ---- Timer — clock chip + live dot -------------------------------- */
@@ -1140,7 +1140,7 @@
 }
 .tt-mexec .tt-mexec-player[data-flagged="true"] .tt-mexec-player-number {
     background: var(--tt-mx-gold);
-    color: var(--tt-mx-primary);
+    color: var(--tt-color-on-secondary, var(--tt-mx-primary));
 }
 .tt-mexec .tt-mexec-player-name { color: var(--tt-mx-ink); }
 .tt-mexec .tt-mexec-player-name small { color: var(--tt-mx-muted); }

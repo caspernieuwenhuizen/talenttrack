@@ -83,7 +83,7 @@
     height: 34px;
     border-radius: 8px;
     background: var(--tt-secondary);
-    color: var(--tt-primary);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
     display: grid;
     place-items: center;
     font-weight: 800;
@@ -212,7 +212,7 @@
     height: 36px;
     border-radius: 50%;
     background: var(--tt-secondary);
-    color: var(--tt-primary);
+    color: var(--tt-color-on-secondary, var(--tt-primary));
     display: flex;
     align-items: center;
     justify-content: center;

@@ -322,6 +322,17 @@ worden op
 de secundaire kleur van een thema volgen. Een thema dat een secundaire kleur
 declareert, declareert ten minste `--tt-secondary-text` zelf.
 
+Het omgekeerde paar, tekst op een vlak in de secundaire kleur, leest
+`--tt-color-on-secondary`, naast `--tt-color-on-primary`. Elke regel die de
+secundaire kleur als vlak gebruikt en er tekst op zet, gebruikt het: het
+merkteken en de avatar in de kopbalk van de app, de actieve staten in de
+filterbalk, en de labels, chips en badges in de secundaire kleur. In het
+standaardontwerp is het de primaire kleur, en een thema waarvan de primaire
+kleur op de eigen secundaire kleur geen 4,5:1 haalt, zet het op zijn diepe
+kleur (`var(--tt-primary-deep)`). `ThemeContrastTest` controleert het paar in
+elk palet en laat een regel met een secundair vlak en een andere tekstkleur
+falen. Kristalblauw blijft zoals het is, in afwachting van een besluit.
+
 ### Statuskleuren als tekst
 
 De vier statuskleuren (`--tt-success`, `--tt-warning`, `--tt-danger`,

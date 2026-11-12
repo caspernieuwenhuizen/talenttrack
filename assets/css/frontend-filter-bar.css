@@ -458,7 +458,7 @@
 /* Off-default: the trigger carries the accent so the state is visible
    without opening the menu. */
 .tt-dashboard .tt-ovmenu__btn--on {
-	color: var(--tt-primary, #0b3d2e);
+	color: var(--tt-color-on-secondary, var(--tt-primary));
 	background: var(--tt-secondary, #e8b624);
 	border-color: var(--tt-secondary, #e8b624);
 }
@@ -586,7 +586,7 @@
 .tt-dashboard .tt-statpill--on {
 	background: var(--tt-secondary, #e8b624);
 	border-color: var(--tt-secondary, #e8b624);
-	color: var(--tt-primary, #0b3d2e);
+	color: var(--tt-color-on-secondary, var(--tt-primary));
 }
 .tt-dashboard .tt-statpill:focus-visible {
 	outline: 2px solid var(--tt-primary, #0b3d2e);
@@ -797,7 +797,7 @@
 }
 .tt-dashboard .tt-filterbtn__badge {
 	background: var(--tt-secondary, #e8b624);
-	color: var(--tt-primary, #0b3d2e);
+	color: var(--tt-color-on-secondary, var(--tt-primary));
 	font-size: 0.6875rem;
 	font-weight: 800;
 	border-radius: 999px;
