@@ -54,15 +54,15 @@ test( 'the talk names the player, reads Background, and keeps the form in the ta
 	await expect( background ).toBeVisible();
 	await expect( page.getByRole( 'tab', { name: 'Evidence' } ) ).toHaveCount( 0 );
 
-	// The form in use sits in the tab row, after the tabs, and at 360px it
-	// wraps under them.
-	const row     = page.locator( '.tt-spine__row' );
-	const tablist = row.locator( '[role="tablist"]' );
-	const aside   = row.locator( '.tt-spine__aside' );
+	// The form in use: at 360px (#5080) it sits in the page flow just under
+	// the spine rather than in the stuck strip, once.
+	await expect( page.locator( '.tt-spine__aside' ), 'the control exists once' ).toHaveCount( 1 );
+	const aside = page.locator( '.tt-spine-aside-slot > .tt-spine__aside' );
 	await expect( aside.locator( '.tt-pdp-form-switch__current' ) ).toContainText( 'Form:' );
-	const tabsBox  = await tablist.boundingBox();
+	await expect( page.locator( '.tt-spine .tt-spine__aside' ), 'not inside the stuck spine on a phone' ).toHaveCount( 0 );
+	const spineBox = await page.locator( '.tt-spine' ).first().boundingBox();
 	const asideBox = await aside.boundingBox();
-	expect( tabsBox && asideBox && asideBox.y >= tabsBox.y + tabsBox.height - 1, 'the form wraps under the tabs on a phone' ).toBe( true );
+	expect( spineBox && asideBox && asideBox.y >= spineBox.y + spineBox.height - 1, 'just under the spine' ).toBe( true );
 
 	const switchButton = aside.locator( 'button[type="submit"]' );
 	if ( await switchButton.count() ) {

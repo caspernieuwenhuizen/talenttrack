@@ -67,7 +67,7 @@ A conversation opens on three tabs — **Preparation**, **Conversation**, **Back
 The page opens on the player: their photo or initials, name, team, shirt number and position, and one line for the talk, such as *Mid season · conversation 2 of 3 · planned 12 Nov, 18:00*, or *held* with the date once it has taken place. With the app layout, a slim strip with the same name stays at the top while you scroll. The breadcrumb ends in the player's name, then the talk. On a talk with a conversation form, the form in use (**Form: Outfield player** or **Form: Goalkeeper**) sits on the right of the tab row, with its switch while switching is still possible. On a phone it moves under the tabs.
 
 - **Preparation** — the coach's own answers to this conversation's question set. Coach and head of academy only.
-- **Conversation** — the player's self-reflection, then the notes, agreed actions and sign-off from the talk itself.
+- **Conversation** — on a talk without a form, the player's self-reflection, then the notes, agreed actions and sign-off from the talk itself. On a talk with a conversation form, two parts (the conversation details, then the form) and the sign-off under **Finish**; see *The trainer fills in the form*.
 - **Background** — what is on record about the player this season, read-only.
 
 #### Preparation
@@ -109,11 +109,11 @@ The player can fill in their self-reflection any time before the coach signs off
 
 ### The conversation form saves itself
 
-There is no **Save conversation** button. The form saves as you write, and a status line where the button used to be says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full in [how saving works](save-model.md).
+There is no **Save conversation** button. The form saves as you write, and a status line in the header of each part says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full in [how saving works](save-model.md).
 
 The player's **self-reflection** works the same way, while its window is open. Outside the window the field is disabled, as before, and nothing saves.
 
-**Sign-off is now its own button, not a checkbox on the form.** It used to be a tick you saved along with everything else. On a form that saves itself that would be one accidental tap away from locking the conversation for everyone, permanently — so it is a separate **Sign off** button below the form, behind a confirm. Everything above it is already saved by the time you press it; signing off is what closes the conversation for editing.
+**Sign-off is now its own button, not a checkbox on the form.** It used to be a tick you saved along with everything else. On a form that saves itself that would be one accidental tap away from locking the conversation for everyone, permanently — so it is a separate **Sign off** button below the form, under the **Finish** heading, behind a confirm. Everything above it is already saved by the time you press it; signing off is what closes the conversation for editing.
 
 A **content-locked** conversation — a later talk in the cycle — still autosaves its planned date, which is the only field it lets you change. A **signed-off** conversation autosaves nothing, because there is nothing left to write.
 
@@ -237,7 +237,12 @@ At an academy with conversation forms, the player prepares the next talk on the 
 
 #### The trainer fills in the form
 
-On the conversation screen, a talk that uses a conversation form shows the form on the **Conversation** tab, under the planned date and the notes.
+On the conversation screen, a talk that uses a conversation form shows two parts on the **Conversation** tab, each a card with its own save state and undo in its header:
+
+- **1 Conversation details:** the planned and the conducted date, and the goals discussed. There are no *Notes (post-meeting)* or *Agreed actions* fields here, because the form asks for a note per section and the development points. On an older talk that already has text in them, it shows read only under the details, so nothing written is hidden.
+- **2 Conversation form · Outfield player** (or **Goalkeeper**): the form itself. Its header, with the save state, stays in view while you scroll through the sections.
+
+On a phone the save state sits under the part's title, and the form's title keeps to one line, cut short with an ellipsis when it is long. The sign-off sits under its own heading, **Finish**, below both parts.
 
 - **The player's preparation is beside your scores.** Before the player marks it ready, every item says *Player: not ready yet* and none of their answers shows. From "ready" on, each item shows the player's score, in light blue on its choice, and their strongest quality shows above yours.
 - **One row per item.** You score it with the five numbered choices; the player's score is marked on the same row. **Discuss** marks every item where the two scores differ, by any amount, and a section's heading counts them. **Changed** marks an item the player changed after marking the preparation ready.

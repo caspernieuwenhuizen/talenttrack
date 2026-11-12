@@ -86,6 +86,18 @@ andere wijziging, en de historie eindigt met de sessie, net als Terugdraaien.
 De gepubliceerde versies staan op de server: met **Versies** zet je een eerdere
 terug in je concept. Elk ander scherm dat zichzelf opslaat houdt één stap.
 
+### Twee delen op één scherm, elk met een eigen opslagstatus
+
+Een POP-gesprek op een gespreksformulier slaat op in twee delen: **1
+Gespreksgegevens** (de datums en de besproken doelen) en **2
+Gespreksformulier** (de scores, notities en ontwikkelpunten). Elk deel heeft
+een eigen statusregel, **Ongedaan maken** en **Wijzigingen terugdraaien**, in
+de eigen kop. Ze reiken alleen tot hun eigen deel: ongedaan maken in het
+formulier verschuift nooit een datum, en ongedaan maken in de gegevens
+verandert nooit een score. De kop van het formulier blijft in beeld terwijl je
+door de secties scrolt, zodat de statusregel nooit ver weg is van waar je
+scoort.
+
 ### Publiceren is geen opslaan
 
 Deze schermen houden bewuste knoppen over, en geen ervan is een Opslaan:

@@ -79,9 +79,73 @@
         });
     }
 
+    /*
+     * #5080 — the stuck spine's height, published as `--tt-spine-h` on the
+     * dashboard root, the way app-shell.js publishes the header's. A sticky
+     * header further down the page (a PDP talk's form part) sits at the
+     * spine's bottom edge instead of on top of it. Only a spine that
+     * actually sticks counts: the side layout and a spine a surface sets
+     * static (live match) publish nothing.
+     */
+    function measureSpine() {
+        var root  = document.querySelector('.tt-dashboard');
+        var spine = document.querySelector('.tt-spine:not(.tt-spine--side)');
+        if (!root || !spine || window.getComputedStyle(spine).position !== 'sticky') return;
+
+        var sync = function () {
+            var h = Math.round(spine.getBoundingClientRect().height);
+            if (h > 0) root.style.setProperty('--tt-spine-h', h + 'px');
+        };
+        sync();
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(sync).observe(spine);
+        } else {
+            window.addEventListener('resize', sync);
+        }
+    }
+
+    /*
+     * #5080 — below 480px the spine's aside leaves the stuck strip and sits
+     * in the page flow just under the spine, so it scrolls away with the
+     * hero: the stuck chrome on a record page stays within 45% of a 360x640
+     * viewport. The node itself moves, so the control exists once at every
+     * width (no twin, no second form or nonce), focus inside it is kept,
+     * and from 480px up it is back on the right of the tab row. Without
+     * this script the aside simply stays in the strip.
+     */
+    function placeAside() {
+        var spine = document.querySelector('.tt-spine:not(.tt-spine--side)');
+        var aside = spine ? spine.querySelector('.tt-spine__aside') : null;
+        var row   = aside ? aside.parentElement : null;
+        if (!spine || !aside || !row || !window.matchMedia) return;
+
+        var slot = document.createElement('div');
+        slot.className = 'tt-spine-aside-slot';
+        // Hidden until the aside moves in, so a load at 480px or wider never
+        // leaves an empty slot showing.
+        slot.hidden = true;
+        spine.parentNode.insertBefore(slot, spine.nextSibling);
+
+        var wide = window.matchMedia('(min-width: 480px)');
+        var apply = function () {
+            var target = wide.matches ? row : slot;
+            if (aside.parentElement === target) return;
+            var active = document.activeElement;
+            var hadFocus = active && aside.contains(active);
+            target.appendChild(aside);
+            slot.hidden = wide.matches;
+            if (hadFocus && typeof active.focus === 'function') active.focus();
+        };
+        apply();
+        if (typeof wide.addEventListener === 'function') wide.addEventListener('change', apply);
+        else if (typeof wide.addListener === 'function') wide.addListener(apply);
+    }
+
     function init() {
         var strips = document.querySelectorAll('[data-tt-spine-tabs]');
         Array.prototype.forEach.call(strips, wire);
+        placeAside();
+        measureSpine();
     }
 
     if (document.readyState === 'loading') {

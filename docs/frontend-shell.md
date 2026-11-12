@@ -368,6 +368,25 @@ Under the app shell the stuck spine sits below the shell's own sticky header,
 at `--tt-shell-top` plus `--tt-shell-header-h`, so the header never covers the
 record's name.
 
+**`--tt-spine-h`.** The spine's script measures a stuck spine and publishes its
+height as `--tt-spine-h` on the dashboard root, the way the shell publishes
+`--tt-shell-header-h`, and keeps it current as the strip wraps. A sticky
+element further down a record page sits at
+`calc(var(--tt-shell-sticky-top, 0px) + var(--tt-spine-h, 0px))`,
+which holds under both shells (the shell's sticky top is 0 under `classic`). A
+spine set to `position: static`, and the side layout, publish nothing. Below
+480px the spine leaves out its `detail` line, since the page's hero carries it.
+
+**The aside below 480px.** On a phone the spine's script moves the aside out of
+the stuck strip into the page flow just under the spine, so it scrolls away
+with the hero instead of adding a row to the stuck chrome. The node itself
+moves, so the control exists once at every width, and focus inside it is kept.
+From 480px up nothing changes: the aside stays on the right of the tab row.
+
+**The budget.** The stuck chrome on a record page (the shell header, the spine
+and any sticky header under it) stays within 45% of a 360x640 viewport, 288px.
+A new sticky element is held to the same line.
+
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four

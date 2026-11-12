@@ -270,6 +270,27 @@ final class AutosaveWriteContractTest extends WP_UnitTestCase {
     }
 
     /**
+     * #5080 — on a form talk, part 1 sends the dates and the goals
+     * discussed, never the notes or the agreed actions. What an older talk
+     * holds in them stays.
+     */
+    public function test_a_dates_only_conversation_write_leaves_the_notes_and_agreed_actions_alone(): void {
+        [ , $conv_id ] = $this->makeConversation();
+
+        [ , $status ] = $this->send( 'PATCH', 'pdp-conversations/' . $conv_id, [
+            'scheduled_at' => '2026-09-08 10:00:00',
+            'conducted_at' => '2026-09-08 11:00:00',
+        ] );
+        $this->assertSame( 200, $status );
+
+        $row = $this->row( 'tt_pdp_conversations', $conv_id );
+        $this->assertNotNull( $row );
+        $this->assertSame( 'What was said.', $row['notes'] );
+        $this->assertSame( 'What happens next.', $row['agreed_actions'] );
+        $this->assertSame( '2026-09-08 11:00:00', (string) $row['conducted_at'] );
+    }
+
+    /**
      * #4298 — a content write never touches the not-held mark. It has its
      * own control and its own request; a debounced save of the planned date
      * must leave the date and reason it carries alone.

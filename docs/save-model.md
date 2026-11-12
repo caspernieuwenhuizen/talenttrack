@@ -83,6 +83,16 @@ with the sitting, like Revert. Its published versions are kept on the server:
 **Versions** puts an earlier one back in your draft. Every other screen that
 saves itself keeps one step.
 
+### Two parts on one screen, each with its own save state
+
+A PDP talk on a conversation form saves in two parts: **1 Conversation
+details** (the dates and the goals discussed) and **2 Conversation form** (the
+scores, notes and development points). Each part has its own status line,
+**Undo** and **Revert changes**, in its own header. They reach only their own
+part: an undo in the form never moves a date, and an undo in the details never
+changes a score. The form's header stays in view while you scroll through the
+sections, so its status line is never far from where you are scoring.
+
 ### Publishing is not saving
 
 These screens keep deliberate buttons, and none of them is a Save:

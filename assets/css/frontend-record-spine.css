@@ -105,6 +105,17 @@
     row-gap: 2px;
 }
 
+/* Below 480px the detail line is the first thing the stuck chrome drops:
+   the page's hero already carries it, and on a phone every stuck row is
+   form the coach can no longer see (#5080 height budget). */
+.tt-shell-app .tt-spine__detail {
+    display: none;
+}
+
+@media (min-width: 480px) {
+    .tt-shell-app .tt-spine__detail { display: block; }
+}
+
 .tt-shell-app .tt-spine__detail {
     flex: 1 0 100%;
     padding-inline-start: 34px;
@@ -227,6 +238,18 @@
 
 .tt-spine--tabs-only .tt-spine__aside {
     padding-block-start: 10px;
+}
+
+/* Below 480px the spine's script moves the aside here, into the page flow
+   just under the stuck spine, so it scrolls away instead of adding a row to
+   the stuck chrome (#5080). From 480px up it stays in the tab row. */
+.tt-spine-aside-slot[hidden] {
+    display: none;
+}
+
+.tt-spine-aside-slot > .tt-spine__aside {
+    margin-inline-start: 0;
+    padding: var(--tt-sp-2, 8px) 0;
 }
 
 /* Focus rings must not be clipped by the strip's horizontal overflow, and

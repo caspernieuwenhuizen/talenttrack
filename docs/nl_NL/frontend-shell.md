@@ -387,6 +387,27 @@ Onder de app-shell staat de vastgezette strook onder de eigen vaste kop van de
 shell, op `--tt-shell-top` plus `--tt-shell-header-h`, zodat de kop de naam van
 het record nooit bedekt.
 
+**`--tt-spine-h`.** Het script van de strook meet een vastgezette strook en zet
+de hoogte als `--tt-spine-h` op de root van het dashboard, zoals de shell
+`--tt-shell-header-h` zet, en houdt die bij als de strook doorloopt. Een vast
+element verderop op een recordpagina staat op
+`calc(var(--tt-shell-sticky-top, 0px) + var(--tt-spine-h, 0px))`,
+en dat klopt onder beide shells (de vaste bovenkant van de shell is 0 onder `classic`). Een
+strook met `position: static`, en de zij-indeling, zetten niets. Onder 480px
+laat de strook de `detail`-regel weg, omdat de hero van de pagina die al toont.
+
+**De aside onder 480px.** Op een telefoon verplaatst het script van de strook de
+aside uit de vastgezette strook naar de pagina, direct onder de strook, zodat
+hij met de hero wegscrolt in plaats van een rij aan de vaste bovenkant toe te
+voegen. Het element zelf verhuist, dus de bediening staat op elke breedte één
+keer op de pagina, en de focus blijft erin staan. Vanaf 480px verandert er
+niets: de aside blijft rechts in de rij tabbladen.
+
+**Het budget.** De vastgezette bovenkant van een recordpagina (de kop van de
+shell, de strook en elke vaste kop daaronder) blijft binnen 45% van een
+viewport van 360x640, 288px. Een nieuw vast element houdt zich aan dezelfde
+grens.
+
 ### De slots van de onderbalk
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier

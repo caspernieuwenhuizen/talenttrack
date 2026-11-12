@@ -1477,7 +1477,23 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( $autosaves ) {
             \TT\Shared\Frontend\Components\FormAutosave::enqueue();
         }
+        // #5080 — the page is two parts, each a card with its own save state
+        // and undo in its header: 1 the talk's details, 2 the form. The save
+        // state sits inside each part's own form, so `FormAutosave` scopes
+        // its undo to that form's fields and nothing else.
+        //
+        // On a form talk the form already asks for a note per section and
+        // the SMART points, so part 1 drops "Notes (post-meeting)" and
+        // "Agreed actions". What an older form talk already holds in them is
+        // shown read-only, so nothing written is hidden. The autosave never
+        // sends either field then, and the endpoint leaves an omitted field
+        // alone.
+        $form_part      = PdpFormConversationView::prepare( $conv_id, $user_id );
+        $uses_form      = $form_part['form_talk'];
+        $earlier_notes  = $uses_form ? trim( (string) ( $conv_row['notes'] ?? '' ) ) : '';
+        $earlier_agreed = $uses_form ? trim( (string) ( $conv_row['agreed_actions'] ?? '' ) ) : '';
         ?>
+        <section class="tt-pdp-part tt-pdp-part--details" aria-labelledby="tt-pdp-part-details-h">
         <form class="<?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
               <?php if ( $autosaves ) {
                   echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
@@ -1492,6 +1508,16 @@ class FrontendPdpManageView extends FrontendViewBase {
                       esc_attr( $back_to_file_url )
                   );
               } ?>>
+            <div class="tt-pdp-part__head">
+                <h2 class="tt-pdp-part__title" id="tt-pdp-part-details-h">
+                    <?php if ( $form_part['draws'] ) : ?><span class="tt-pdp-part__num" aria-hidden="true">1</span><?php endif; ?>
+                    <span><?php esc_html_e( 'Conversation details', 'talenttrack' ); ?></span>
+                </h2>
+                <?php if ( $autosaves ) : ?>
+                    <div class="tt-pdp-part__state"><?php \TT\Shared\Frontend\Components\SaveState::render(); ?></div>
+                <?php endif; ?>
+            </div>
+            <div class="tt-pdp-part__body">
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
@@ -1510,6 +1536,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             // academy. Migration 0257 moved whatever coaches had written
             // into the free-text catch-all question.
             ?>
+            <?php if ( ! $uses_form ) : ?>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-notes"><?php esc_html_e( 'Notes (post-meeting)', 'talenttrack' ); ?></label>
                 <textarea id="tt-conv-notes" name="notes" class="tt-input" rows="5"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->notes ?? '' ) ); ?></textarea>
@@ -1518,6 +1545,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 <label class="tt-field-label" for="tt-conv-actions"><?php esc_html_e( 'Agreed actions', 'talenttrack' ); ?></label>
                 <textarea id="tt-conv-actions" name="agreed_actions" class="tt-input" rows="3"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->agreed_actions ?? '' ) ); ?></textarea>
             </div>
+            <?php endif; ?>
 
             <?php
             // #1853 — link the goals discussed in this talk (the "combine").
@@ -1554,23 +1582,33 @@ class FrontendPdpManageView extends FrontendViewBase {
                 </div>
             <?php endif; ?>
 
+            <?php if ( $earlier_notes !== '' || $earlier_agreed !== '' ) : ?>
+                <div class="tt-pdp-part__earlier">
+                    <p class="tt-help-text"><?php esc_html_e( 'Written before this talk used the conversation form. Read only.', 'talenttrack' ); ?></p>
+                    <?php if ( $earlier_notes !== '' ) : ?>
+                        <h3 class="tt-pdp-part__earlier-h"><?php esc_html_e( 'Notes (post-meeting)', 'talenttrack' ); ?></h3>
+                        <div class="tt-pdp-part__earlier-text"><?php echo wpautop( esc_html( $earlier_notes ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped as text, then paragraphs. ?></div>
+                    <?php endif; ?>
+                    <?php if ( $earlier_agreed !== '' ) : ?>
+                        <h3 class="tt-pdp-part__earlier-h"><?php esc_html_e( 'Agreed actions', 'talenttrack' ); ?></h3>
+                        <div class="tt-pdp-part__earlier-text"><?php echo wpautop( esc_html( $earlier_agreed ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped as text, then paragraphs. ?></div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <?php if ( $is_signed ) : ?>
                 <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) ( $conv->coach_signoff_at ?? '' ) ) ); ?></p>
             <?php endif; ?>
-
-            <?php if ( $autosaves ) : ?>
-                <div class="tt-form-actions">
-                    <?php \TT\Shared\Frontend\Components\SaveState::render(); ?>
-                </div>
-            <?php endif; ?>
             <div class="tt-form-msg"></div>
+            </div>
         </form>
+        </section>
         <?php
         // #4980 — a talk on a conversation form: the trainer's scores, the
         // player's preparation beside them, the SMART points and the form's
         // own sign-off. The legacy sign-off below is for talks without one;
         // `PATCH` refuses `coach_signoff_at` on a form talk anyway.
-        $form_talk = PdpFormConversationView::render( $conv_id, $user_id );
+        $form_talk = PdpFormConversationView::renderPrepared( $conv_id, $form_part );
 
         // #3008 — sign-off leaves the conversation form and becomes its own
         // confirmed action.
@@ -1586,7 +1624,17 @@ class FrontendPdpManageView extends FrontendViewBase {
         // So it is a button, outside the autosaving form, behind the
         // confirm `public.js` already honours, landing back on the PDP file
         // the way Save used to.
-        if ( ! $form_talk && ! $is_signed && ! $is_locked && ! $content_locked ) :
+        //
+        // #5080 — the irreversible steps sit under their own "Finish"
+        // heading, outside both parts. A form talk's view draws that heading
+        // above its own sign-off; a talk without a form gets it here.
+        $can_proxy_ack  = $is_admin || current_user_can( 'tt_edit_pdp' );
+        $offers_signoff = ! $form_talk && ! $is_signed && ! $is_locked && ! $content_locked;
+        $offers_not_held = $can_edit && ! $is_signed && ! $is_locked && ! $content_locked && empty( $conv_row['conducted_at'] );
+        if ( ! $form_talk && ( $offers_signoff || $offers_not_held || ( $is_signed && $can_proxy_ack ) ) ) {
+            echo PdpFormConversationView::finishHeading(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+        }
+        if ( $offers_signoff ) :
             ?>
             <form class="tt-ajax-form tt-pdp-signoff"
                   data-rest-path="<?php echo esc_attr( $rest_path ); ?>"
@@ -1603,7 +1651,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // #4298 — the way out when this talk will never take place. Its own
         // form and its own confirm, outside the autosaving conversation form
         // (CLAUDE.md §6): marking a talk not held moves the cycle on.
-        if ( $can_edit && ! $is_signed && ! $is_locked && ! $content_locked && empty( $conv_row['conducted_at'] ) ) {
+        if ( $offers_not_held ) {
             self::renderNotHeldForm( $rest_path, $back_to_file_url );
         }
         // #2042 — proxy acknowledgement. A coach who ran the talk in person
@@ -1613,7 +1661,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         // design). Offered once the coach has signed off — the same point at
         // which the player / parent would normally get their own Acknowledge
         // button — and only for a coach who can edit the file.
-        $can_proxy_ack = $is_admin || current_user_can( 'tt_edit_pdp' );
         if ( $is_signed && $can_proxy_ack ) {
             $now_utc = current_time( 'mysql', true );
             echo '<div class="tt-pdp-proxy-ack">';
