@@ -1306,10 +1306,14 @@ class FrontendPdpManageView extends FrontendViewBase {
         // #5082 — "Conversation mode" for the screen in the room: on a form
         // talk part 2 draws, for a reader of the trainer's part. Same tab.
         $mode_link = '';
-        if ( $form_part['draws'] && $form_part['access'] !== null && $form_part['access']->readsRoomDisplay() ) {
-            $mode_link = '<a class="tt-btn tt-btn-secondary tt-pdp-talk-hero__mode" data-tt-pdp-mode-open href="'
-                . esc_url( FrontendPdpConversationModeView::urlFor( $conv_id ) ) . '">'
-                . esc_html__( 'Conversation mode', 'talenttrack' ) . '</a>';
+        if ( $form_part['draws'] ) {
+            ob_start();
+            \TT\Shared\Frontend\Components\CrossViewLink::render( FrontendPdpConversationModeView::SLUG, static function () use ( $conv_id ): void {
+                echo '<a class="tt-btn tt-btn-secondary tt-pdp-talk-hero__mode" data-tt-pdp-mode-open href="'
+                    . esc_url( FrontendPdpConversationModeView::urlFor( $conv_id ) ) . '">'
+                    . esc_html__( 'Conversation mode', 'talenttrack' ) . '</a>';
+            }, [ 'ctx' => [ 'conversation_id' => $conv_id ] ] );
+            $mode_link = (string) ob_get_clean();
         }
         self::renderTalkHero( $identity, $mode_link );
 

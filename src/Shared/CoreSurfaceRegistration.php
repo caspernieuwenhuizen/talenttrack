@@ -306,6 +306,13 @@ final class CoreSurfaceRegistration {
             );
         } );
 
+        // #5082 — a PDP talk's conversation mode. Its guard is the view's:
+        // a reader of the trainer's part on that talk.
+        $reg::register( 'pdp-conversation-mode', static function ( int $uid, array $ctx ): bool {
+            $access = \TT\Modules\Pdp\Forms\PdpFormAccess::forConversation( $uid, (int) ( $ctx['conversation_id'] ?? 0 ) );
+            return $access !== null && $access->readsRoomDisplay();
+        } );
+
         // #4257 — a prospect's record page. Its guard is the record's own:
         // the prospects read and the viewer's prospect scope, so a scout's
         // visit page shows a prospect outside that scope as a name only.

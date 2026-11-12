@@ -84,9 +84,13 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
         ) . '#tt-pdp-pane-conversation';
     }
 
-    /** The mode's own address, for the conversation page's button. */
+    /**
+     * The mode's own address. A builder, not an affordance: the button on
+     * the talk's page renders it through `CrossViewLink`, gated on the
+     * `pdp-conversation-mode` entry in `CoreSurfaceRegistration`.
+     */
     public static function urlFor( int $conv_id ): string {
-        return add_query_arg( [ 'tt_view' => self::SLUG, 'id' => $conv_id ], RecordLink::dashboardUrl() );
+        return add_query_arg( [ 'tt_view' => self::SLUG, 'id' => $conv_id ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
     }
 
     /** A refusal is a normal view, in the shell, with its chain. */

@@ -9,7 +9,11 @@
  * 1920x1080 need no step of their own. Colours are the theme's tokens.
  */
 
-.tt-dashboard--presentation {
+/* The room display uses the whole screen: no dashboard column width, no
+   page margins. */
+.tt-dashboard.tt-dashboard--presentation {
+    max-width: none;
+    margin: 0;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
@@ -284,6 +288,16 @@
     .tt-pdp-mode__logo { width: clamp(2.5rem, 3vw, 4rem); height: clamp(2.5rem, 3vw, 4rem); }
     .tt-pdp-mode__items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .tt-pdp-mode__orow { font-size: 1.1em; }
+    /* The shared controls keep their own small sizes elsewhere; in the room
+       they read from across the table, so they follow the room type. */
+    .tt-dashboard--presentation .tt-pdp-mode .tt-spine__tab,
+    .tt-dashboard--presentation .tt-pdp-mode .tt-btn,
+    .tt-dashboard--presentation .tt-pdp-mode .tt-save-state {
+        font-size: 0.85em;
+    }
+    .tt-dashboard--presentation .tt-pdp-mode .tt-pdp-coachform__flag {
+        font-size: 0.7em;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
