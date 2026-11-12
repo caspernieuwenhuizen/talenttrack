@@ -105,10 +105,15 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
     private static function renderMode( int $conv_id, array $display ): void {
         $writable = ( $display['state']['coach_writable'] ?? false ) === true;
         $ready    = $display['player_ready'] === true;
-        $sections = (array) $display['sections'];
+        /** @var list<array<string,mixed>> $sections */
+        $sections = array_values( array_map( static fn( $s ): array => (array) $s, (array) $display['sections'] ) );
         $scores   = (array) $display['scores'];
-        $scale    = (array) $display['form']['scale'];
-        $labels   = array_map( static fn( $s ): string => (string) $s['label'], $scale );
+        $labels   = [];
+        foreach ( (array) $display['form']['scale'] as $step ) $labels[] = (string) ( (array) $step )['label'];
+        /** @var list<array<string,mixed>> $shared */
+        $shared = array_values( array_map( static fn( $s ): array => (array) $s, (array) $display['shared'] ) );
+        /** @var list<array<string,mixed>> $goals */
+        $goals  = array_values( array_map( static fn( $g ): array => (array) $g, (array) $display['goals'] ) );
 
         echo '<form class="tt-pdp-mode" data-tt-pdp-mode'
             . ' data-rest-path="' . esc_attr( 'pdp-conversations/' . $conv_id . '/form/coach' ) . '" data-rest-method="PATCH"'
@@ -137,7 +142,7 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
         foreach ( $sections as $section ) {
             self::renderSection( $section, $scores, $labels, $writable, $ready );
         }
-        self::renderAgreed( (array) $display['shared'], (array) $display['goals'], $ready );
+        self::renderAgreed( $shared, $goals, $ready );
         echo '</div>';
 
         echo '<div class="tt-pdp-mode__foot">';
@@ -326,7 +331,11 @@ final class FrontendPdpConversationModeView extends FrontendViewBase {
         echo '</section>';
     }
 
-    /** Escaped text with its line breaks, or a dash for nothing yet. @param mixed $value */
+    /**
+     * Escaped text with its line breaks, or a dash for nothing yet.
+     *
+     * @param mixed $value
+     */
     private static function text( $value, bool $ready ): string {
         if ( ! $ready ) return esc_html__( 'not ready yet', 'talenttrack' );
         $value = trim( (string) ( $value ?? '' ) );

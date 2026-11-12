@@ -165,7 +165,7 @@ final class PresentationSurfaces {
 
         // Each key once: `parse_str()` keeps the last of a repeated key,
         // which would let a second `id` through unseen.
-        $raw_keys = array_map( static fn( string $pair ): string => rawurldecode( (string) strtok( $pair, '=' ) ), array_filter( explode( '&', $query ), 'strlen' ) );
+        $raw_keys = array_map( static fn( string $pair ): string => rawurldecode( (string) strtok( $pair, '=' ) ), array_filter( explode( '&', $query ), static fn( string $pair ): bool => $pair !== '' ) );
         if ( count( $raw_keys ) !== count( array_unique( $raw_keys ) ) || count( $raw_keys ) !== count( $args ) ) return false;
 
         $extra = array_diff( array_keys( $args ), [ 'tt_view', 'id' ] );
