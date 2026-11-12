@@ -39,7 +39,7 @@ use TT\Modules\ReportStudio\Repositories\ReportsRepository;
  *
  * @phpstan-import-type Report from ReportsRepository
  * @phpstan-type Found array{schedule: array<string,mixed>, report: Report}
- * @phpstan-type Preview array{blocks: list<array{id:string, label:string}>, left_out: list<array{id:string, label:string, reason:string}>, receivers: int, left_out_recipients: int, message: string}
+ * @phpstan-type Preview array{blocks: list<array{id:string, label:string}>, left_out: list<array{id:string, label:string, reason:string}>, receivers: int, left_out_recipients: int, left_out_people: list<array{reason:string, count:int, message:string, names:list<string>}>, message: string}
  */
 final class ReportSchedules {
 
@@ -272,7 +272,7 @@ final class ReportSchedules {
      *
      * @param array{recipients: list<\TT\Modules\Comms\Domain\Recipient>, via: array<int, string>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>, unresolved: list<string>} $resolved
      * @param Report $report
-     * @return array{receivers: list<int>, readers: list<int>}
+     * @return array{receivers: list<int>, readers: list<int>, skipped: list<array{email: string, user_id: int, reason: string, via: string}>}
      */
     public static function resolve( array $resolved, int $owner, array $report ): array {
         $ids = [];
@@ -282,7 +282,56 @@ final class ReportSchedules {
         return [
             'receivers' => ScheduledReportReaders::receivers( $resolved, $receives ),
             'readers'   => ScheduledReportReaders::readers( $resolved, $owner, $receives ),
+            // #5135 — who is left out, by the decision a run sends by.
+            'skipped'   => ScheduledReportReaders::sort( $resolved, $receives )['skipped'],
         ];
+    }
+
+    /**
+     * #5135 — who of the recipients does not receive the PDF, grouped by why:
+     * the run's own skip list (`ScheduledReportReaders::sort()`), so the
+     * preview shows exactly who the run will leave out. A named account is
+     * listed by name; a role member from outside the academy is counted,
+     * never named, as on the schedules list.
+     *
+     * @param list<array{email: string, user_id: int, reason: string, via: string}> $skipped
+     * @return list<array{reason:string, count:int, message:string, names:list<string>}>
+     */
+    public static function leftOutGroups( array $skipped ): array {
+        $groups = [];
+        foreach ( $skipped as $skip ) {
+            $reason = $skip['reason'];
+            if ( ! isset( $groups[ $reason ] ) ) $groups[ $reason ] = [ 'reason' => $reason, 'count' => 0, 'message' => '', 'names' => [] ];
+            $groups[ $reason ]['count']++;
+            if ( $skip['user_id'] > 0 ) {
+                $user = get_userdata( $skip['user_id'] );
+                if ( $user instanceof \WP_User && $user->display_name !== '' ) $groups[ $reason ]['names'][] = (string) $user->display_name;
+            }
+        }
+        foreach ( $groups as $reason => $group ) {
+            $groups[ $reason ]['message'] = self::leftOutMessage( $reason, $group['count'] );
+            sort( $groups[ $reason ]['names'] );
+        }
+        return array_values( $groups );
+    }
+
+    private static function leftOutMessage( string $reason, int $n ): string {
+        switch ( $reason ) {
+            case 'no_read_access':
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person does not receive it: they may not read this report or what it is about.', '%d people do not receive it: they may not read this report or what it is about.', $n, 'talenttrack' ), $n );
+            case 'no_file_access':
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person does not receive it: they may not receive files.', '%d people do not receive it: they may not receive files.', $n, 'talenttrack' ), $n );
+            case 'not_in_club':
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person in the role does not receive it: they are not in this academy.', '%d people in the role do not receive it: they are not in this academy.', $n, 'talenttrack' ), $n );
+            case ScheduledReportsRunner::ACCOUNT_UNREACHABLE:
+                /* translators: %d: number of people */
+                return sprintf( _n( '%d person does not receive it: their account has left the academy or has no email address.', '%d people do not receive it: their accounts have left the academy or have no email address.', $n, 'talenttrack' ), $n );
+        }
+        /* translators: %d: number of people */
+        return sprintf( _n( '%d person does not receive it.', '%d people do not receive it.', $n, 'talenttrack' ), $n );
     }
 
     /**
@@ -314,13 +363,14 @@ final class ReportSchedules {
      * @return Preview
      */
     public static function preview( array $report, array $entries, int $owner, array $composition ): array {
-        $out = [ 'blocks' => [], 'left_out' => [], 'receivers' => 0, 'left_out_recipients' => 0, 'message' => '' ];
+        $out = [ 'blocks' => [], 'left_out' => [], 'receivers' => 0, 'left_out_recipients' => 0, 'left_out_people' => [], 'message' => '' ];
 
         $resolved = ScheduledReportsRunner::resolveRecipients( $entries );
         $set      = self::resolve( $resolved, $owner, $report );
         $receivers = $set['receivers'];
         $out['receivers']           = count( $receivers );
-        $out['left_out_recipients'] = max( 0, count( $resolved['recipients'] ) - count( $receivers ) ) + count( $resolved['skipped'] );
+        $out['left_out_recipients'] = count( $set['skipped'] );
+        $out['left_out_people']     = self::leftOutGroups( $set['skipped'] );
 
         $readers = $set['readers'];
         if ( count( $readers ) > self::MAX_READERS ) {

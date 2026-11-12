@@ -167,3 +167,39 @@
 .tt-dashboard .tt-rsch-error {
     color: var(--tt-danger-text);
 }
+
+/* #5135 — who does not receive it, and why, under the recipient count. */
+.tt-dashboard .tt-rsch-skipped {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    padding-left: var(--tt-sp-3, 12px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-dashboard .tt-rsch-skipped-why,
+.tt-dashboard .tt-rsch-skipped-names {
+    margin: 0;
+}
+
+.tt-dashboard .tt-rsch-skipped-names {
+    color: var(--tt-muted, #5b6660);
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-rsch-skipped-list summary {
+    display: flex;
+    align-items: center;
+    min-height: var(--tt-tap-min, 48px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-rsch-skipped-list summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-rsch-skipped-list ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}

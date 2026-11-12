@@ -576,19 +576,12 @@ final class ScheduledReportsRunner {
             return;
         }
 
-        $allowed = [];
-        foreach ( $recipients as $recipient ) {
-            // #4718 — the PDF is a file: receiving one is a right of its own,
-            // asked before the report's read rule.
-            if ( ! ExportGate::mayExport( (int) $recipient->userId ) ) {
-                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_file_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];
-            } elseif ( $may_receive( $recipient->userId, $result ) ) {
-                $allowed[] = $recipient;
-            } else {
-                $skipped[] = [ 'email' => $recipient->emailAddress, 'user_id' => $recipient->userId, 'reason' => 'no_read_access', 'via' => $resolved['via'][ $recipient->userId ] ?? '' ];
-            }
-        }
-        $recipients   = $allowed;
+        // #4718 — the PDF is a file: receiving one is a right of its own,
+        // asked before the report's read rule. #5135 — one decision, the one
+        // a Studio schedule's preview shows (`ScheduledReportReaders::sort()`).
+        $sorted       = \TT\Modules\Analytics\Reports\ScheduledReportReaders::sort( $resolved, static fn( int $user_id ): bool => $may_receive( $user_id, $result ) );
+        $skipped      = $sorted['skipped'];
+        $recipients   = $sorted['allowed'];
         $skipped_note = $skipped !== [] ? self::skippedNote( $skipped ) : '';
         if ( $recipients === [] ) {
             $repo->recordError( $id, $skipped_note );
