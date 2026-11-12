@@ -164,14 +164,19 @@
     overflow-wrap: anywhere;
 }
 
-/* Below 480px part 2's title stays on one line, ending in an ellipsis: a
+/* Part 2's title stays on one line on a phone, ending in an ellipsis: a
    second line would take the stuck chrome past 45% of 360x640 (#5080). */
-@media (max-width: 479.98px) {
+.tt-pdp-part__head--sticky .tt-pdp-part__title > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 480px) {
     .tt-pdp-part__head--sticky .tt-pdp-part__title > span:last-child {
-        min-width: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        overflow: visible;
+        white-space: normal;
     }
 }
 
