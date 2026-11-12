@@ -229,6 +229,30 @@ final class ScheduledReportRecipientsTest extends WP_UnitTestCase {
         $this->assertSame( '', $vias['outside-4619@example.test'] ?? null );
     }
 
+    public function test_a_role_member_with_no_email_address_is_recorded_and_the_others_still_receive(): void {
+        global $wpdb;
+        $manager_email = (string) get_userdata( $this->manager )->user_email;
+        $no_email      = $this->makePersona( 'tt_team_manager', 'team_manager', $this->team_a );
+        $wpdb->update( $wpdb->users, [ 'user_email' => '' ], [ 'ID' => $no_email ] );
+        clean_user_cache( $no_email );
+        $this->flush();
+
+        $plan  = ScheduledReportsRunner::planKpiDelivery( [ 'tt_team_manager' ], 'attendance', $this->hod );
+        $skips = array_values( array_filter( $plan['skipped'], static fn( array $s ): bool => $s['reason'] === ScheduledReportsRunner::NO_EMAIL ) );
+        $this->assertSame( [ [ 'email' => '', 'user_id' => $no_email, 'reason' => 'no_email', 'via' => 'tt_team_manager' ] ], $skips, 'one skip, with the account and the role' );
+
+        $id = $this->runSchedule( self::PLAYER_KPI, [ 'tt_team_manager' ], $this->hod );
+        $this->assertArrayHasKey( strtolower( $manager_email ), $this->sent, 'the other member still receives' );
+        $this->assertStringContainsString( 'tt_team_manager (1 member)', (string) $this->lastError( $id ) );
+
+        $payload = json_decode( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log WHERE action = 'scheduled_report.run' AND entity_id = %d ORDER BY id DESC LIMIT 1",
+            $id
+        ) ), true );
+        $this->assertIsArray( $payload, 'the run was logged' );
+        $this->assertContains( 'no_email|' . $no_email, array_map( static fn( array $s ): string => $s['reason'] . '|' . (int) $s['user_id'], (array) $payload['skipped'] ) );
+    }
+
     // ===== helpers =====
 
     /**

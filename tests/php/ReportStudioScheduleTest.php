@@ -680,6 +680,28 @@ final class ReportStudioScheduleTest extends WP_UnitTestCase {
         $this->assertSame( $saw, $ran, 'the preview shows exactly who the run leaves out' );
     }
 
+    /**
+     * #5150 — the PDF's sections are cut for its readers, so a send to any
+     * account outside them would carry what that account may not read.
+     */
+    public function test_every_account_a_studio_schedule_mails_is_one_of_its_readers(): void {
+        $this->needsPdf();
+        $id       = $this->published( $this->teamChoices(), [ [ 'id' => 'b1', 'key' => 'heading', 'options' => [ 'heading' => 'Team' ] ] ] );
+        $entries  = [ 'tt_coach', 'user:' . $this->hod ];
+        $schedule = $this->schedule( $id, [ 'recipients' => $entries ] );
+        $report   = ( new ReportsRepository() )->find( $id );
+        $this->assertNotNull( $report );
+        $readers = ReportSchedules::readers( $entries, $this->hod, $report );
+
+        $this->runOnce( $schedule );
+        $this->assertNotSame( [], $this->sent, 'Precondition: the run mailed someone.' );
+        foreach ( $this->sent as $address ) {
+            $account = get_user_by( 'email', $address );
+            $this->assertInstanceOf( \WP_User::class, $account, $address );
+            $this->assertContains( (int) $account->ID, $readers, "{$address} was mailed a PDF cut for other readers" );
+        }
+    }
+
     public function test_a_role_nobody_holds_leaves_the_pdf_as_it_is(): void {
         add_role( 'tt_empty_5145', 'Empty 5145', [ 'tt_view_reports' => true ] );
         try {

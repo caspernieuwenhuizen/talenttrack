@@ -173,7 +173,8 @@ final class ScheduledReportsRunner {
      * Who receives a KPI schedule, with which scope, and who is left out.
      *
      * A role key expands to its users in this club, and a member of the role
-     * from outside it is left out (`not_in_club`); a plain address that
+     * from outside it is left out (`not_in_club`), and so is a member in it
+     * with no email address (`no_email`, #5150); a plain address that
      * belongs to an account in this club is that account, any other address
      * has no account here. An account receives the CSV built with its
      * own scope, when `FactQuery::canRead()` lets it read the fact; accounts
@@ -229,7 +230,12 @@ final class ScheduledReportsRunner {
                     continue;
                 }
                 $email = (string) ( ContactResolver::emailForUser( $user_id ) ?? '' );
-                if ( $email === '' || ! is_email( $email ) ) continue;
+                if ( $email === '' || ! is_email( $email ) ) {
+                    // #5150 — in the club, so recorded, as a PDF schedule does.
+                    $foreign[ $user_id ] = true;
+                    $skipped[]           = [ 'email' => '', 'user_id' => $user_id, 'reason' => self::NO_EMAIL, 'via' => $entry ];
+                    continue;
+                }
                 $users[ $user_id ] = self::userRecipient( $user_id, $email );
                 $via[ $user_id ]   = $entry;
             }
