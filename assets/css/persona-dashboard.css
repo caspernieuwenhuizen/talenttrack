@@ -47,6 +47,41 @@
     --tt-pd-hero-cta:       var(--tt-secondary, #e8b624);
 }
 
+/*
+ * Under a visual theme (#5136). A custom property resolves its var() where
+ * it is declared, and a theme sets its tokens on `.tt-dashboard`, so the
+ * aliases above kept the default design's colours under every theme. Each
+ * alias of a token a theme sets is re-declared here, by name, only while a
+ * theme is on (`tt-themed`, from ThemePreference::rootClass()).
+ *
+ * Not on `.tt-dashboard` unconditionally: the visual editor writes its
+ * `--tt-pd-*` values on `.tt-root`, and on the default design they have to
+ * keep winning. Under a theme, the theme owns the design, as it does for
+ * every other token.
+ */
+.tt-dashboard.tt-themed {
+    --tt-pd-surface:        var(--tt-paper);
+    --tt-pd-surface-subtle: var(--tt-bg-soft);
+    --tt-pd-surface-hover:  var(--tt-line-soft);
+    --tt-pd-text-primary:   var(--tt-ink);
+    --tt-pd-text-muted:     var(--tt-muted);
+    --tt-pd-accent:         var(--tt-primary);
+    --tt-pd-success:        var(--tt-success);
+    --tt-pd-warning:        var(--tt-warning);
+    --tt-pd-danger:         var(--tt-danger);
+    --tt-pd-hero-start:     var(--tt-primary);
+    --tt-pd-hero-cta:       var(--tt-secondary);
+
+    /* The four the `.tt-root` block fixes in the default design's green:
+       under a theme they follow it too, so the hero gradient ends in the
+       theme's deep colour rather than the default dark green. */
+    --tt-pd-text-secondary: var(--tt-ink-soft);
+    --tt-pd-accent-soft:    rgba(var(--tt-primary-rgb), 0.08);
+    --tt-pd-divider:        rgba(var(--tt-primary-rgb), 0.08);
+    --tt-pd-divider-strong: rgba(var(--tt-primary-rgb), 0.14);
+    --tt-pd-hero-end:       var(--tt-primary-deep);
+}
+
 .tt-pd-landing {
     display: flex;
     flex-direction: column;

@@ -255,18 +255,13 @@ final class ThemeContrastTest extends WP_UnitTestCase {
     }
 
     /**
-     * Component sheets that alias a theme token on `.tt-root` only, so the
-     * alias keeps the default design's value under every theme. Each is a
-     * known gap, not a decision: fixing one is moving its selector to
-     * `.tt-root, .tt-dashboard` and deleting it from this list.
-     */
-    private const ROOT_ONLY_ALIASES = [ 'persona-dashboard.css' ];
-
-    /**
-     * #5130 — a custom property resolves its `var()` where it is declared,
-     * and a theme sets its tokens on `.tt-dashboard`. A component sheet that
-     * defines an alias of a token any theme sets declares it on
-     * `.tt-dashboard` too, or the alias ignores the theme.
+     * #5130, #5136 — a custom property resolves its `var()` where it is
+     * declared, and a theme sets its tokens on `.tt-dashboard`. Every alias
+     * of a token any theme sets that a component sheet declares on
+     * `.tt-root` is re-declared, by name, in a rule of the same sheet whose
+     * selector starts with `.tt-dashboard` (`.tt-dashboard` itself, or
+     * `.tt-dashboard.tt-themed` where the default design must keep the
+     * `.tt-root` value), or the alias ignores the theme.
      */
     public function test_component_aliases_of_theme_tokens_follow_the_theme(): void {
         $themed = [];
@@ -287,21 +282,29 @@ final class ThemeContrastTest extends WP_UnitTestCase {
             if ( $name === 'tokens.css' || strpos( $name, 'theme-' ) === 0 ) continue;
             $css = (string) preg_replace( '#/\*.*?\*/#s', '', (string) file_get_contents( $path ) );
             if ( ! preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER ) ) continue;
+
+            $rooted    = [];
+            $dashboard = [];
             foreach ( $rules as $rule ) {
                 $selectors = array_map( 'trim', explode( ',', $rule[1] ) );
-                if ( ! in_array( '.tt-root', $selectors, true ) || in_array( '.tt-dashboard', $selectors, true ) ) continue;
-                if ( ! preg_match_all( '/--[a-z0-9-]+\s*:\s*var\(\s*(--tt-[a-z0-9-]+)/', $rule[2], $reads ) ) continue;
-                foreach ( $reads[1] as $token ) {
-                    if ( isset( $themed[ $token ] ) ) {
-                        $offenders[ $name ] = true;
-                        break;
-                    }
+                $on_root   = in_array( '.tt-root', $selectors, true );
+                $on_dash   = false;
+                foreach ( $selectors as $selector ) {
+                    if ( preg_match( '/^\.tt-dashboard(?![a-z0-9_-])/', $selector ) ) $on_dash = true;
                 }
+                if ( ! preg_match_all( '/(--[a-z0-9-]+)\s*:\s*var\(\s*(--tt-[a-z0-9-]+)/', $rule[2], $decls, PREG_SET_ORDER ) ) continue;
+                foreach ( $decls as $decl ) {
+                    if ( $on_dash ) $dashboard[ $decl[1] ] = true;
+                    if ( $on_root && ! $on_dash && isset( $themed[ $decl[2] ] ) ) $rooted[ $decl[1] ] = true;
+                }
+            }
+            $missing = array_keys( array_diff_key( $rooted, $dashboard ) );
+            if ( $missing ) {
+                $offenders[] = $name . ': ' . implode( ', ', $missing );
             }
         }
 
-        $this->assertSame( [], array_values( array_diff( array_keys( $offenders ), self::ROOT_ONLY_ALIASES ) ), 'declare these aliases on `.tt-root, .tt-dashboard`' );
-        $this->assertSame( [], array_values( array_diff( self::ROOT_ONLY_ALIASES, array_keys( $offenders ) ) ), 'fixed: delete it from ROOT_ONLY_ALIASES' );
+        $this->assertSame( [], $offenders, 're-declare these aliases in a .tt-dashboard rule' );
     }
 
     /**
@@ -486,6 +489,43 @@ final class ThemeContrastTest extends WP_UnitTestCase {
         }
         $this->assertGreaterThan( 0, $checked, 'no secondary-fill rule found' );
         $this->assertSame( [], $offenders, 'read var(--tt-color-on-secondary, …) for text on a secondary fill' );
+    }
+
+    /**
+     * #5136 — under a theme the landing dashboard's fixed colours follow the
+     * theme too: the hero gradient ends in the theme's deep colour, the
+     * secondary text is the theme's soft ink, and the soft accent and the
+     * dividers are tints of the theme's primary. The `.tt-root` block keeps
+     * the default design's values, which the visual editor writes over.
+     */
+    public function test_the_themed_dashboard_block_follows_the_theme(): void {
+        $css = $this->css( 'persona-dashboard.css' );
+        $this->assertSame( 1, preg_match( '/(?:^|\})\s*\.tt-dashboard\.tt-themed\s*\{([^}]*)\}/', $css, $themed ), 'themed block' );
+        $this->assertSame( 1, preg_match( '/(?:^|\})\s*\.tt-root\s*\{([^}]*)\}/', $css, $root ), 'root block' );
+
+        $expected = [
+            '--tt-pd-hero-end'       => '/^var\(--tt-primary-deep\b/',
+            '--tt-pd-text-secondary' => '/^var\(--tt-ink-soft\b/',
+            '--tt-pd-accent-soft'    => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+            '--tt-pd-divider'        => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+            '--tt-pd-divider-strong' => '/^rgba\(var\(--tt-primary-rgb\),\s*[0-9.]+\)$/',
+        ];
+        $themed_decls = $this->declarations( $themed[1] );
+        foreach ( $expected as $name => $pattern ) {
+            $this->assertArrayHasKey( $name, $themed_decls, "$name is not re-declared under a theme" );
+            $this->assertMatchesRegularExpression( $pattern, $themed_decls[ $name ], $name );
+        }
+
+        // Under a theme every value comes from the theme: no declaration in
+        // the block carries a raw hex, not even as a var() fallback.
+        $this->assertGreaterThanOrEqual( 16, count( $themed_decls ), 'the themed block' );
+        foreach ( $themed_decls as $name => $value ) {
+            $this->assertStringNotContainsString( '#', $value, "$name under a theme carries no raw hex" );
+        }
+
+        $root_decls = $this->declarations( $root[1] );
+        $this->assertSame( '#07261c', $root_decls['--tt-pd-hero-end'] ?? null, 'the default hero end is unchanged' );
+        $this->assertSame( '#46544c', $root_decls['--tt-pd-text-secondary'] ?? null, 'the default secondary text is unchanged' );
     }
 
     /** The header: its text at 4.5:1 and the accent icon at 3:1. */

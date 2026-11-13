@@ -139,7 +139,7 @@ theme, mirroring `ShellPreference`:
 | Academy default | `tt_config` key `tt_frontend_theme` (club-scoped) |
 | Personal override | user meta `tt_frontend_theme`; `inherit` follows the club |
 | Resolution | override → club default → `default` |
-| Root class | `ThemePreference::rootClass()`, `''` for the default theme |
+| Root class | `ThemePreference::rootClass()`: `tt-theme-<value>` and `tt-themed` for every theme, plus `tt-theme-shared` for a token-only theme; `''` for the default theme |
 | Stylesheet | `ThemePreference::styleFile()`, `''` for the default theme |
 
 Read through the resolver, never the config key directly — that one chokepoint
@@ -284,6 +284,23 @@ toward the theme's deep colour (on light surfaces) or toward white (on dark
 ones) until it clears. The focus ring follows `--tt-primary`; a theme does not
 set `--tt-focus-ring`. `ReportBrandColour::THEME_PRIMARY` carries each theme's
 primary, so reports follow the theme too.
+
+### Component aliases follow the theme
+
+A component sheet that defines its own alias of a token, such as
+`--tt-tc-bg: var(--tt-bg-soft)`, has to declare it on `.tt-dashboard` as well
+as `.tt-root`. A custom property resolves its `var()` where it is declared,
+and a theme sets its tokens on `.tt-dashboard`, so an alias on `.tt-root`
+alone keeps the default design's value under every theme.
+
+Where the default design has to keep a `.tt-root` value, the alias is
+re-declared under `.tt-dashboard.tt-themed` instead, which only applies while
+a theme is on. The landing dashboard does this: the visual editor writes its
+`--tt-pd-*` values on `.tt-root`, so they keep applying on the default
+design, and under a theme the theme supplies them, as for every other token.
+`ThemeContrastTest` checks it by name: every alias of a token a theme sets
+that a sheet declares on `.tt-root` is re-declared in a `.tt-dashboard` rule
+of the same sheet.
 
 ### The secondary as text
 

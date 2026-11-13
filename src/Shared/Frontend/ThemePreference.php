@@ -217,8 +217,15 @@ final class ThemePreference {
         if ( $theme === self::DEFAULT_THEME ) {
             return '';
         }
-        return 'tt-theme-' . $theme . ( self::usesSharedSheet( $theme ) ? ' ' . self::SHARED_CLASS : '' );
+        return 'tt-theme-' . $theme . ' ' . self::THEMED_CLASS . ( self::usesSharedSheet( $theme ) ? ' ' . self::SHARED_CLASS : '' );
     }
+
+    /**
+     * Root class every theme other than `default` carries (#5136), so a
+     * component sheet can re-declare what a theme replaces without matching
+     * on class names. `default` stamps none.
+     */
+    public const THEMED_CLASS = 'tt-themed';
 
     /**
      * The stylesheet filename for the resolved theme, relative to

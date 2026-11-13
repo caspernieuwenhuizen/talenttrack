@@ -77,6 +77,22 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         $this->assertSame( '', ThemePreference::rootClass( $user ) );
     }
 
+    /** #5136 — every theme but `default` stamps the one `tt-themed` class. */
+    public function test_every_theme_but_default_stamps_the_themed_class(): void {
+        $user = self::factory()->user->create();
+        foreach ( ThemePreference::themes() as $theme ) {
+            ThemePreference::setUserOverride( $user, $theme );
+            $classes = preg_split( '/\s+/', ThemePreference::rootClass( $user ), -1, PREG_SPLIT_NO_EMPTY ) ?: [];
+            if ( $theme === ThemePreference::DEFAULT_THEME ) {
+                $this->assertNotContains( ThemePreference::THEMED_CLASS, $classes, $theme );
+                $this->assertSame( [], $classes, 'default stamps no class' );
+                continue;
+            }
+            $this->assertSame( 1, count( array_keys( $classes, ThemePreference::THEMED_CLASS, true ) ), $theme );
+            $this->assertContains( 'tt-theme-' . $theme, $classes, $theme );
+        }
+    }
+
     public function test_a_new_theme_resolves_to_its_sheet_and_class(): void {
         $user = self::factory()->user->create();
         ThemePreference::setClubDefault( ThemePreference::DEFAULT_THEME );
@@ -84,7 +100,7 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         foreach ( self::NEW_THEMES as $theme ) {
             ThemePreference::setUserOverride( $user, $theme );
             $this->assertSame( 'theme-' . $theme . '.css', ThemePreference::styleFile( $user ) );
-            $this->assertSame( 'tt-theme-' . $theme . ' ' . ThemePreference::SHARED_CLASS, ThemePreference::rootClass( $user ) );
+            $this->assertSame( 'tt-theme-' . $theme . ' ' . ThemePreference::THEMED_CLASS . ' ' . ThemePreference::SHARED_CLASS, ThemePreference::rootClass( $user ) );
             $this->assertSame( ThemePreference::SHARED_SHEET, ThemePreference::sharedStyleFile( $user ) );
         }
 
@@ -93,13 +109,13 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         $this->assertSame( 'theme-polder.css', ThemePreference::styleFile( $user ) );
     }
 
-    /** Federation and Kristalblauw keep their own rules: no shared sheet, one class. */
+    /** Federation and Kristalblauw keep their own rules: no shared sheet, no shared class. */
     public function test_the_two_older_themes_do_not_load_the_shared_sheet(): void {
         $user = self::factory()->user->create();
         foreach ( [ ThemePreference::FEDERATION, ThemePreference::LEON_HUTTEN ] as $theme ) {
             ThemePreference::setUserOverride( $user, $theme );
             $this->assertSame( '', ThemePreference::sharedStyleFile( $user ), $theme );
-            $this->assertSame( 'tt-theme-' . $theme, ThemePreference::rootClass( $user ), $theme );
+            $this->assertSame( 'tt-theme-' . $theme . ' ' . ThemePreference::THEMED_CLASS, ThemePreference::rootClass( $user ), $theme );
         }
         ThemePreference::setUserOverride( $user, ThemePreference::DEFAULT_THEME );
         $this->assertSame( '', ThemePreference::sharedStyleFile( $user ) );
@@ -151,7 +167,7 @@ final class ThemePreferenceTest extends WP_UnitTestCase {
         $this->assertSame( 'leon-hutten', ThemePreference::clubDefault() );
         $this->assertSame( 'leon-hutten', ThemePreference::userOverride( $user ) );
         $this->assertSame( 'theme-leon-hutten.css', ThemePreference::styleFile( $user ) );
-        $this->assertSame( 'tt-theme-leon-hutten', ThemePreference::rootClass( $user ) );
+        $this->assertSame( 'tt-theme-leon-hutten ' . ThemePreference::THEMED_CLASS, ThemePreference::rootClass( $user ) );
         $this->assertStringStartsWith( 'Kristalblauw', ThemePreference::labels()['leon-hutten'] );
         $this->assertSame( 'Kristalblauw', ThemePreference::shortLabels()['leon-hutten'] );
     }
